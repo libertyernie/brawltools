@@ -36,6 +36,18 @@ namespace BrawlLib.Properties
             }
         }
 
+		[global::System.Configuration.UserScopedSettingAttribute()]
+		[global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+		[global::System.Configuration.DefaultSettingValueAttribute("false")]
+		public bool HideMDL0Errors {
+			get {
+				return ((bool)(this["HideMDL0Errors"]));
+			}
+			set {
+				this["HideMDL0Errors"] = value;
+			}
+		}
+
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]

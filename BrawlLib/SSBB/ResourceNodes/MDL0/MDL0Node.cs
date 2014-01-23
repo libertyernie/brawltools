@@ -757,7 +757,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
                     foreach (string s in _errors)
                         message += "\n - " + s;
-                    MessageBox.Show(message);
+					if (!Properties.Settings.Default.HideMDL0Errors) MessageBox.Show(message);
                 }
             }
         }
