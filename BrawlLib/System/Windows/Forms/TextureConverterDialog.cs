@@ -27,6 +27,9 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string ImageSource { get { return _imageSource; } set { _imageSource = value; } }
 
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public Drawing.Size? InitialSize;
+
         private BRESNode _bresParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BRESNode BRESParentNode { get { return _bresParent; } }
@@ -261,6 +264,13 @@ namespace System.Windows.Forms
             }
             else
                 Recommend();
+
+			if (InitialSize != null) {
+				chkConstrainProps.Checked = false;
+				numW.Value = InitialSize.Value.Width;
+				numH.Value = InitialSize.Value.Height;
+				btnApplyDims.PerformClick();
+			}
         }
 
         public bool LoadImages(string path)
