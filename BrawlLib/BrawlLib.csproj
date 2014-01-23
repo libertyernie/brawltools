@@ -1,0 +1,989 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.30729</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{462D0BBF-CE82-405B-8848-2F91E9E14C55}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>BrawlLib</RootNamespace>
+    <AssemblyName>BrawlLib</AssemblyName>
+    <FileAlignment>512</FileAlignment>
+    <PlatformTarget>x86</PlatformTarget>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>true</UseVSHostingProcess>
+    <RegisterForComInterop>false</RegisterForComInterop>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>none</DebugType>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|Itanium'">
+    <OutputPath>bin\Itanium\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>Itanium</PlatformTarget>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|Itanium'">
+    <OutputPath>bin\Itanium\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>Itanium</PlatformTarget>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\_DEBUG\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|AnyCPU'">
+    <OutputPath>bin\_DEBUG\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\_DEBUG\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|Itanium'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Itanium\_DEBUG\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>Itanium</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="OpenTK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\BrawlBox\bin\Debug\OpenTK.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.Linq" />
+    <Reference Include="System.DirectoryServices" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Messaging" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
+    <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
+    <Compile Include="Imaging\GIF\AnimatedGifEncoder.cs" />
+    <Compile Include="Imaging\GIF\GifDecoder.cs" />
+    <Compile Include="Imaging\GIF\LZWEncoder.cs" />
+    <Compile Include="Imaging\GIF\NeuQuant.cs" />
+    <Compile Include="Modeling\PMDModel.cs" />
+    <Compile Include="Modeling\SaveState.cs" />
+    <Compile Include="Modeling\Collada\Collada.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Imaging\CIE.cs" />
+    <Compile Include="Imaging\DIB.cs" />
+    <Compile Include="Imaging\IColorSource.cs" />
+    <Compile Include="Imaging\IImageSource.cs" />
+    <Compile Include="Imaging\MedianCut.cs" />
+    <Compile Include="Imaging\NVDXT.cs" />
+    <Compile Include="Imaging\PixelTypes.cs" />
+    <Compile Include="Imaging\TGAImage.cs" />
+    <Compile Include="Maths.cs" />
+    <Compile Include="Modeling\Collada\ColladaAssetDecoder.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modeling\Collada\ColladaImporter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modeling\Face.cs" />
+    <Compile Include="Modeling\FrameState.cs" />
+    <Compile Include="Modeling\IMatrixNode.cs" />
+    <Compile Include="Modeling\PrimitiveManager.cs" />
+    <None Include="Modeling\TextureManager.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\Deque.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.Enumerator.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.Node.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.Synchronized.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\GenericTester.cs" />
+    <Compile Include="Modeling\Triangle Converter\Deque\Tester.cs" />
+    <Compile Include="Modeling\Triangle Converter\GraphArray.cs" />
+    <Compile Include="Modeling\Triangle Converter\HeapArray.cs" />
+    <Compile Include="Modeling\Triangle Converter\TriStripper.cs" />
+    <Compile Include="Modeling\Triangle Converter\Policy.cs" />
+    <Compile Include="Modeling\Triangle Converter\Types.cs" />
+    <Compile Include="Modeling\Triangle Converter\CacheSimulator.cs" />
+    <Compile Include="Modeling\Triangle Converter\TriangleConverter.cs" />
+    <Compile Include="Modeling\Vertex.cs" />
+    <Compile Include="Modeling\Wavefront.cs" />
+    <Compile Include="OpenGL\TKContext.cs" />
+    <Compile Include="OpenGL\GLCamera.cs" />
+    <Compile Include="OpenGL\GLDisplayList.cs" />
+    <Compile Include="OpenGL\GLPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="OpenGL\GLTexture.cs" />
+    <Compile Include="OpenGL\IRenderedObject.cs" />
+    <Compile Include="Platform\Win32.DirectSound.cs" />
+    <Compile Include="Platform\Win32.DirectSoundBuffer.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Properties\Settings.Designer.cs" />
+    <Compile Include="Settings.cs" />
+    <Compile Include="SSBB\BinaryStringTable.cs" />
+    <Compile Include="SSBB\CompactStringTable.cs" />
+    <Compile Include="SSBB\FileFilters.cs" />
+    <Compile Include="SSBB\LabelBuilder.cs" />
+    <Compile Include="SSBB\NodeComparer.cs" />
+    <Compile Include="SSBB\ResourceNodes\AI\AIPDNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\AI\CENode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\FileScanNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
+    <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
+    <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
+    <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
+    <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurPosNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\NW4RNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\TPLNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFFTEVStage.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELMethodNode.cs" />
+    <None Include="SSBB\ResourceNodes\Modules\RELObjectParser.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\ModuleDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELDeConStructorNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELCommand.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELObjectNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELSectionNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELMiscNodes.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELType.cs" />
+    <None Include="SSBB\Types\RLYT.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWAR\RWARNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWAR\RWAVNode.cs" />
+    <Compile Include="SSBB\Types\Audio\RWAR.cs" />
+    <Compile Include="SSBB\Types\Audio\RWAV.cs" />
+    <Compile Include="SSBB\Types\Audio\RBNK.cs" />
+    <Compile Include="SSBB\Types\Audio\RSAR.cs" />
+    <Compile Include="SSBB\Types\Audio\RSEQ.cs" />
+    <Compile Include="SSBB\Types\Audio\RSTM.cs" />
+    <Compile Include="SSBB\Types\Audio\RWSD.cs" />
+    <Compile Include="SSBB\Types\TPL.cs" />
+    <Compile Include="SSBB\UserData.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\DOLNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\U8Node.cs" />
+    <Compile Include="System\ArrayExtension.cs" />
+    <Compile Include="System\CoolTimer.cs" />
+    <Compile Include="System\Helpers.cs" />
+    <Compile Include="System\ListExtension.cs" />
+    <Compile Include="System\PowerPCAssembly\PPCInfo.cs" />
+    <Compile Include="System\PowerPCAssembly\OperandType.cs" />
+    <Compile Include="System\PowerPCAssembly\PowerPC.cs" />
+    <None Include="System\PowerPCAssembly\PPCData.cs" />
+    <Compile Include="System\PowerPCAssembly\PPCOpcode.cs" />
+    <Compile Include="System\PowerPCAssembly\PPCOperand.cs" />
+    <Compile Include="System\TypeConverters.cs" />
+    <Compile Include="SSBB\ResourceNodes\RASDNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0TEVStage.cs" />
+    <Compile Include="SSBB\ResourceNodes\PhysicsNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKGroupNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSEQ\RSEQLabelNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0CameraNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0FogNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0LightNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0AmbientLightNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0LightSetNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0GroupNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\STPMNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFTNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\MRGNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RawDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFFNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\EFLSNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0BoneNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0ColorNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0DefNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0GroupNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0ShaderNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0MaterialNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0MaterialRefNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0NormalNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0ObjectNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0TextureNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0UVNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MDL0\MDL0VertexNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\MSBinNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\ResourceType.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File References\RSARBankNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\RSAREntryNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\RSARExtFileNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\RSARFolderNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File References\RSARGroupNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\RSARNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\RSARFileNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File References\RSARSoundNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File References\RSARPlayerInfoNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSEQ\RSEQNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDGroupNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSTMNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\WAVESoundNode.cs" />
+    <Compile Include="SSBB\StringTable.cs" />
+    <Compile Include="SSBB\Types\AI.cs" />
+    <Compile Include="SSBB\Types\RFNT.cs" />
+    <Compile Include="SSBB\Types\DOL.cs" />
+    <Compile Include="SSBB\Types\U8.cs" />
+    <Compile Include="SSBB\Types\RASD.cs" />
+    <Compile Include="SSBB\Types\Physics.cs" />
+    <Compile Include="SSBB\Types\STPM.cs" />
+    <Compile Include="SSBB\Types\REFT.cs" />
+    <Compile Include="SSBB\Types\MRG.cs" />
+    <Compile Include="SSBB\Types\THP.cs" />
+    <Compile Include="SSBB\Types\CollisionDef.cs" />
+    <Compile Include="SSBB\Types\EFLS.cs" />
+    <Compile Include="SSBB\Types\REFF.cs" />
+    <Compile Include="SSBB\Types\REL.cs" />
+    <Compile Include="System\Audio\AudioDevice.cs" />
+    <Compile Include="System\Audio\AudioProvider.cs" />
+    <Compile Include="System\Audio\AudioBuffer.cs" />
+    <Compile Include="System\Audio\BufferData.cs" />
+    <Compile Include="System\Audio\IAudioSource.cs" />
+    <Compile Include="System\Audio\IAudioStream.cs" />
+    <Compile Include="System\Audio\PCMStream.cs" />
+    <Compile Include="System\Audio\wAudioBuffer.cs" />
+    <Compile Include="System\Audio\wAudioDevice.cs" />
+    <Compile Include="System\Audio\wAudioProvider.cs" />
+    <Compile Include="System\Audio\WAV.cs" />
+    <Compile Include="System\BinaryHandlers.cs" />
+    <Compile Include="System\Int24.cs" />
+    <Compile Include="System\UInt24.cs" />
+    <Compile Include="System\IO\GeckoStream.cs" />
+    <None Include="System\PowerPCAssembly\Assembly.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\BuiltInContextMenu.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\Hex Editor\ByteCharConverters.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\ByteCollection.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\BytePositionInfo.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\DataBlock.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\DataMap.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\DynamicByteProvider.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\DynamicFileByteProvider.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\FileByteProvider.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\FileDataBlock.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\FindOptions.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\HexBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\Hex Editor\HexCasing.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\IByteProvider.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\MemoryDataBlock.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\NativeMethods.cs" />
+    <Compile Include="System\Windows\Controls\Hex Editor\Util.cs" />
+    <Compile Include="System\Windows\Controls\ModelViewer\IMainWindow.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\EditAllDialog\SRT0.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\CHR0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\CLR0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\PAT0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\SCN0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\SHP0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\SRT0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\VertexEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\VIS0Editor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\KeyframePanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\KeyframePanel.Designer.cs">
+      <DependentUpon>KeyframePanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\PlaybackPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.Designer.cs">
+      <DependentUpon>RightPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PreviewPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PreviewPanel.designer.cs">
+      <DependentUpon>PreviewPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\InterpolationViewer.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\InterpolationViewer.Designer.cs">
+      <DependentUpon>InterpolationViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RichTextBoxBordered.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RichTextBoxBordered.Designer.cs">
+      <DependentUpon>RichTextBoxBordered.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\InterpolationEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
+      <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ObjectOptimizerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ObjectOptimizerForm.Designer.cs">
+      <DependentUpon>ObjectOptimizerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ModelViewerForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ModelViewerForm.Designer.cs">
+      <DependentUpon>ModelViewerForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.Designer.cs">
+      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PowerPcDisassembler.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PowerPcDisassembler.Designer.cs">
+      <DependentUpon>PowerPcDisassembler.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\PowerPCAssembly\PPCFormat.cs" />
+    <Compile Include="System\RoundingExtensions.cs" />
+    <Compile Include="System\ViewerSettingsFile.cs" />
+    <Compile Include="System\DropDownLists.cs" />
+    <Compile Include="System\DoubleExtension.cs" />
+    <Compile Include="System\DVector3.cs" />
+    <Compile Include="System\IO\FileAssociation.cs" />
+    <Compile Include="System\IO\XmlReader.cs" />
+    <Compile Include="System\Matrix.cs" />
+    <Compile Include="System\Matrix43.cs" />
+    <Compile Include="System\Matrix4d.cs" />
+    <Compile Include="System\MemoryList.cs" />
+    <Compile Include="System\Remapper.cs" />
+    <Compile Include="System\StringExtension.cs" />
+    <Compile Include="System\UnsafeBuffer.cs" />
+    <Compile Include="System\Vector2.cs" />
+    <Compile Include="System\Vector3.cs" />
+    <Compile Include="Platform\Linux.cs" />
+    <Compile Include="Platform\Win32.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\BRESNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\CHR0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\CLR0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\PAT0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\PLT0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCN0\SCN0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\SRT0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\TEX0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\VIS0Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\SHP0Node.cs" />
+    <Compile Include="System\Drawing\BitmapExtention.cs" />
+    <Compile Include="System\Drawing\Imaging\ColorPaletteExtension.cs" />
+    <Compile Include="System\Reflection\MemberInfoExtension.cs" />
+    <Compile Include="System\Reflection\MethodInfoExtension.cs" />
+    <Compile Include="System\ByteExtension.cs" />
+    <Compile Include="System\Vector4.cs" />
+    <Compile Include="System\VQuant.cs" />
+    <None Include="System\Windows\Controls\Hex Editor\HexBox.snk" />
+    <None Include="System\Windows\Forms\GradientDialog2.cs">
+      <SubType>Form</SubType>
+    </None>
+    <Compile Include="System\Windows\Controls\EditAllDialog\CHR0.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\VisEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\EditRSARFileDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\SCN0FogEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\SCN0CameraEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\SCN0LightEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\FrameCountChanger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\FrameCountChanger.Designer.cs">
+      <DependentUpon>FrameCountChanger.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Section Editor\FormFind.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Section Editor\FormGoTo.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Section Editor\SectionEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\Section Editor\SectionEditor.Designer.cs">
+      <DependentUpon>SectionEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\GCTEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\GCTEditor.Designer.cs">
+      <DependentUpon>GCTEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\InterpolationForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\InterpolationForm.Designer.cs">
+      <DependentUpon>InterpolationForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ExportAllAskFormat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ExportAllAskFormat.designer.cs">
+      <DependentUpon>ExportAllAskFormat.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\AnimEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\AudioPlaybackPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\BrstmConverterDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\BufferedPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\CLRControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\EditAllDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ShpAnimEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\StageModuleConverter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\StringInputComboBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\TexAnimEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ObjectImporter.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\EditAllKeyframesDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\CustomTrackBar.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\GLTexturePanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\GLTextureWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\GoodColorControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\GoodColorDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\GoodPictureBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\GradientDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\MSBinEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\MSBinTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\NumericInputBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ProxySplitter.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\RenameDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\SoundPackControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\SoundPathChanger.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TextureConverterDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\StringConverters.cs" />
+    <Compile Include="System\PString.cs" />
+    <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
+    <Compile Include="Wii\Animations\AnimFormat.cs" />
+    <Compile Include="Wii\Audio\RWAVConverter.cs" />
+    <Compile Include="Wii\Audio\RSARSoundConverter.cs" />
+    <Compile Include="Wii\Compression\Huffman.cs" />
+    <Compile Include="Wii\Compression\Differential.cs" />
+    <Compile Include="Wii\Compression\RunLength.cs" />
+    <Compile Include="Wii\Graphics\ShaderGenerator.cs" />
+    <Compile Include="Wii\Models\AnimationCode.cs" />
+    <Compile Include="Wii\Animations\AnimationConverter.cs" />
+    <Compile Include="Wii\Animations\AnimationFrame.cs" />
+    <Compile Include="Wii\Animations\EncodingTypes.cs" />
+    <Compile Include="Wii\Animations\KeyframeCollection.cs" />
+    <Compile Include="Wii\Audio\ADPCMState.cs" />
+    <Compile Include="Wii\Audio\ADPCMStream.cs" />
+    <Compile Include="Wii\Audio\AudioConverter.cs" />
+    <Compile Include="Wii\Audio\RSARConverter.cs" />
+    <Compile Include="Wii\Audio\RSTMConverter.cs" />
+    <Compile Include="Wii\Compression\CompressionHeader.cs" />
+    <Compile Include="Wii\Compression\LZ77.cs" />
+    <Compile Include="System\IO\FileMap.cs" />
+    <Compile Include="System\IO\StreamExtension.cs" />
+    <Compile Include="System\IO\UnsafeStream.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\ARCNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\NodeFactory.cs" />
+    <Compile Include="SSBB\ResourceNodes\ResourceNode.cs" />
+    <Compile Include="SSBB\Types\ARC.cs" />
+    <Compile Include="SSBB\Types\BRES.cs" />
+    <Compile Include="SSBB\Types\Animations\CHR0.cs" />
+    <Compile Include="SSBB\Types\Animations\CLR0.cs" />
+    <Compile Include="SSBB\Types\Common.cs" />
+    <Compile Include="SSBB\Types\MDL0.cs" />
+    <Compile Include="SSBB\Types\Animations\PAT0.cs" />
+    <Compile Include="SSBB\Types\PLT0.cs" />
+    <Compile Include="SSBB\Types\SCN0.cs" />
+    <Compile Include="SSBB\Types\Animations\SHP0.cs" />
+    <Compile Include="SSBB\Types\Animations\SRT0.cs" />
+    <Compile Include="SSBB\Types\TEX0.cs" />
+    <Compile Include="SSBB\Types\Animations\VIS0.cs" />
+    <Compile Include="System\BigEndianTypes.cs" />
+    <Compile Include="System\Int16Extension.cs" />
+    <Compile Include="System\Int32Extension.cs" />
+    <Compile Include="System\Int64Extension.cs" />
+    <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
+    <Compile Include="System\Memory.cs" />
+    <Compile Include="System\SingleExtension.cs" />
+    <Compile Include="System\UInt16Extension.cs" />
+    <Compile Include="System\UInt32Extension.cs" />
+    <Compile Include="System\VoidPtr.cs" />
+    <Compile Include="System\Windows\Controls\GoodProgressBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ProgressWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ProgressWindow.designer.cs">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Wii\Compressor.cs" />
+    <Compile Include="Wii\Graphics\BP.cs" />
+    <Compile Include="Wii\Graphics\CP.cs" />
+    <Compile Include="Wii\Graphics\Enum.cs" />
+    <Compile Include="Wii\Graphics\XF.cs" />
+    <Compile Include="Wii\Models\AssetStorage.cs" />
+    <Compile Include="Wii\Models\ColorCodec.cs" />
+    <Compile Include="Wii\Models\ElementCodec.cs" />
+    <Compile Include="Wii\Models\Enum.cs" />
+    <Compile Include="Wii\Models\bMatrix43.cs" />
+    <Compile Include="Wii\Models\InfluenceManager.cs" />
+    <Compile Include="Wii\Models\ModelEncoder.cs" />
+    <Compile Include="Wii\Models\ModelLinker.cs" />
+    <Compile Include="Wii\Models\NormalCodec.cs" />
+    <Compile Include="Wii\Models\VertexCodec.cs" />
+    <Compile Include="Wii\MSBinDecoder.cs" />
+    <Compile Include="Wii\Textures\CI4.cs" />
+    <Compile Include="Wii\Textures\CI8.cs" />
+    <Compile Include="Wii\Textures\CMPR.cs" />
+    <Compile Include="Wii\Textures\Enum.cs" />
+    <Compile Include="Wii\Textures\I4.cs" />
+    <Compile Include="Wii\Textures\I8.cs" />
+    <Compile Include="Wii\Textures\IA4.cs" />
+    <Compile Include="Wii\Textures\IA8.cs" />
+    <Compile Include="Wii\Textures\PixelTypes.cs" />
+    <Compile Include="Wii\Textures\RGB565.cs" />
+    <Compile Include="Wii\Textures\RGB5A3.cs" />
+    <Compile Include="Wii\Textures\RGBA8.cs" />
+    <Compile Include="Wii\Textures\TextureConverter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Modeling\Collada\ColladaImporter.resx">
+      <DependentUpon>ColladaImporter.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OpenGL\GLPanel.resx">
+      <DependentUpon>GLPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\Hex Editor\HexBox.resx">
+      <DependentUpon>HexBox.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\EditAllDialog\SRT0.resx">
+      <DependentUpon>SRT0.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\CHR0Editor.resx">
+      <DependentUpon>CHR0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\CLR0Editor.resx">
+      <DependentUpon>CLR0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\PAT0Editor.resx">
+      <DependentUpon>PAT0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\SCN0Editor.resx">
+      <DependentUpon>SCN0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\SHP0Editor.resx">
+      <DependentUpon>SHP0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\SRT0Editor.resx">
+      <DependentUpon>SRT0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\VertexEditor.resx">
+      <DependentUpon>VertexEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\VIS0Editor.resx">
+      <DependentUpon>VIS0Editor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.resx">
+      <DependentUpon>WeightEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.resx">
+      <DependentUpon>ModelViewerSettings.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.resx">
+      <DependentUpon>BonesPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\KeyframePanel.resx">
+      <DependentUpon>KeyframePanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\PlaybackPanel.resx">
+      <DependentUpon>PlaybackPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.resx">
+      <DependentUpon>RightPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\PreviewPanel.resx">
+      <DependentUpon>PreviewPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\RichTextBoxBordered.resx">
+      <DependentUpon>RichTextBoxBordered.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
+      <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
+      <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\ObjectOptimizerForm.resx">
+      <DependentUpon>ObjectOptimizerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\ModelViewerForm.resx">
+      <DependentUpon>ModelViewerForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\PPCOpCodeEditor.resx">
+      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\PowerPcDisassembler.resx">
+      <DependentUpon>PowerPcDisassembler.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\EditAllDialog\CHR0.resx">
+      <DependentUpon>CHR0.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\VisEditor.resx">
+      <DependentUpon>VisEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\EditRSARFileDialog.resx">
+      <DependentUpon>EditRSARFileDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\SCN0FogEditControl.resx">
+      <DependentUpon>SCN0FogEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\SCN0CameraEditControl.resx">
+      <DependentUpon>SCN0CameraEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\SCN0LightEditControl.resx">
+      <DependentUpon>SCN0LightEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\FrameCountChanger.resx">
+      <DependentUpon>FrameCountChanger.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\Section Editor\FormFind.resx">
+      <DependentUpon>FormFind.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\Section Editor\FormGoTo.resx">
+      <DependentUpon>FormGoTo.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\Section Editor\SectionEditor.resx">
+      <DependentUpon>SectionEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\GCTEditor.resx">
+      <DependentUpon>GCTEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\InterpolationForm.resx">
+      <DependentUpon>InterpolationForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\GradientDialog2.resx">
+      <DependentUpon>GradientDialog2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\ExportAllAskFormat.resx">
+      <DependentUpon>ExportAllAskFormat.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\AnimEditControl.resx">
+      <DependentUpon>AnimEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\AudioPlaybackPanel.resx">
+      <DependentUpon>AudioPlaybackPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\BrstmConverterDialog.resx">
+      <DependentUpon>BrstmConverterDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\CLRControl.resx">
+      <DependentUpon>CLRControl.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\EditAllDialog.resx">
+      <DependentUpon>EditAllDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ShpAnimEditControl.resx">
+      <DependentUpon>ShpAnimEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\TexAnimEditControl.resx">
+      <DependentUpon>TexAnimEditControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\EditAllKeyframesDialog.resx">
+      <DependentUpon>EditAllKeyframesDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\GoodColorControl.resx">
+      <DependentUpon>GoodColorControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\GoodColorDialog.resx">
+      <DependentUpon>GoodColorDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\GradientDialog.resx">
+      <DependentUpon>GradientDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\MSBinEditor.resx">
+      <DependentUpon>MSBinEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\ProgressWindow.resx">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\RenameDialog.resx">
+      <DependentUpon>RenameDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\SoundPackControl.resx">
+      <DependentUpon>SoundPackControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\SoundPathChanger.resx">
+      <DependentUpon>SoundPathChanger.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\TextureConverterDialog.resx">
+      <DependentUpon>TextureConverterDialog.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <Content Include="OpenTK.dll" />
+    <Content Include="System\Windows\Controls\Hex Editor\HexBox.bmp" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
