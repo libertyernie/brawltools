@@ -293,7 +293,7 @@ namespace BrawlLib.Wii.Models
                             if (Collada._importOptions._useOneNode)
                             {
                                 HashSet<RGBAPixel> pixels = new HashSet<RGBAPixel>();
-                                foreach (MDL0ObjectNode obj in model._objList)
+                                if (model._objList != null) foreach (MDL0ObjectNode obj in model._objList)
                                 {
                                     for (int i = 0; i < 2; i++)
                                     {
