@@ -186,6 +186,34 @@ namespace System.Windows.Forms
             set { TargetChanged(value); }
         }
 
+		private int? _volume;
+		/// <summary>
+		/// How much quieter to make the audio output, in hundredths of a decibel.
+		/// Custom Song Volume code's difference between 7F (max) and 3F seems to be 1/4 volume - about -6dB. In other words, both the maximum and minimum amplitudes are halved.
+		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb280955%28v=vs.85%29.aspx
+		/// </summary>
+		public int? Volume {
+			get {
+				return _volume;
+			}
+			set {
+				_volume = value;
+				if (_buffers != null && _buffer != null && _volume != null) {
+					_buffer.Volume = _volume.Value;
+				}
+			}
+		}
+
+		/// <summary>
+		/// Sets Volume appropriately.
+		/// Range: .00001 < x <= 1. Anything 0 or lower will set Volume to -10000.
+		/// </summary>
+		public double VolumePercent {
+			set {
+				Volume = Math.Max(-10000, (int)(Math.Log10(value) * 2000));
+			}
+		}
+
         private AudioProvider _provider;
 
         private AudioBuffer[] _buffers;
@@ -326,6 +354,8 @@ namespace System.Windows.Forms
             //Start timer
             tmrUpdate.Start();
 
+			//Change volume
+			if (Volume != null) _buffer.Volume = Volume.Value;
             //Begin playback
             _buffer.Play();
 
