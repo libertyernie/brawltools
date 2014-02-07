@@ -973,6 +973,9 @@
   <ItemGroup>
     <Content Include="OpenTK.dll" />
     <Content Include="System\Windows\Controls\Hex Editor\HexBox.bmp" />
+    <Content Include="BrawlLib.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
