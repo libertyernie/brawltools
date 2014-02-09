@@ -208,9 +208,13 @@ namespace System.Windows.Forms
 		/// Sets Volume appropriately.
 		/// Range: above .00001, below or at 1. Anything lower than .00001 will set Volume to -10000.
 		/// </summary>
-		public double VolumePercent {
+		public double? VolumePercent {
 			set {
-				Volume = Math.Max(-10000, (int)(Math.Log10(value) * 2000));
+				if (value == null) {
+					Volume = null;
+				} else {
+					Volume = Math.Max(-10000, (int)(Math.Log10(value.Value) * 2000));
+				}
 			}
 		}
 
