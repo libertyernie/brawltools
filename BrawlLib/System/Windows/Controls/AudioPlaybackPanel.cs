@@ -206,7 +206,7 @@ namespace System.Windows.Forms
 
 		/// <summary>
 		/// Sets Volume appropriately.
-		/// Range: .00001 < x <= 1. Anything 0 or lower will set Volume to -10000.
+		/// Range: above .00001, below or at 1. Anything lower than .00001 will set Volume to -10000.
 		/// </summary>
 		public double VolumePercent {
 			set {
