@@ -26,9 +26,9 @@ The source is available at: https://github.com/libertyernie/brawltools
 |************ Change Log ************|
  ====================================
 
- - v0.71L- (--/--/----) - BrawlLib v0.18L (libertyernie)
+ - v0.71L- (2/13/2014) - BrawlLib v0.18L (libertyernie)
 	. Added the HideMDL0Errors assembly property, which will prevent dialog boxes from appearing when MDL0 errors are detected
-	. Added the InitialSize property to TextureConverterDialog
+	. Added the InitialSize and InitialFormat properties to TextureConverterDialog
 	. Added Volume and VolumePercent properties to AudioPlaybackPanel
 
  - v0.71- (12/25/2013) - BrawlLib v0.18

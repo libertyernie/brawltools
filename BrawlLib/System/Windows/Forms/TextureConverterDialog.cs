@@ -29,6 +29,8 @@ namespace System.Windows.Forms
 
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public Drawing.Size? InitialSize;
+		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+		public WiiPixelFormat? InitialFormat;
 
         private BRESNode _bresParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -270,6 +272,9 @@ namespace System.Windows.Forms
 				numW.Value = InitialSize.Value.Width;
 				numH.Value = InitialSize.Value.Height;
 				btnApplyDims.PerformClick();
+			}
+			if (InitialFormat != null) {
+				cboFormat.SelectedItem = InitialFormat;
 			}
         }
 
