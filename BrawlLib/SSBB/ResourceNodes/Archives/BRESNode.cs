@@ -549,8 +549,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             BRESCommonHeader* header = (BRESCommonHeader*)dataAddress;
 
-            if (bresAddress)
+            if (bresAddress) {
                 header->_bresOffset = (int)bresAddress - (int)header;
+            } else {
+                // AFAIK only the Export method calls this method with a bresAddress of null - it should be OK to put 0 in here
+                header->_bresOffset = 0;
+            }
 
             header->_size = dataLength;
         }
