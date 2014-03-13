@@ -26,7 +26,7 @@ The source is available at: https://github.com/libertyernie/brawltools
 |************ Change Log ************|
  ====================================
 
- (-/--/2014) - BrawlLib v0.18L2 (libertyernie)
+ (3/13/2014) - BrawlLib v0.18L2 (libertyernie)
 	. When exporting BRES entries (TEX0, MDL0, etc.), reset the BRES index offset (0x0c, 4 bytes) to 0 so that exported files with the same data will be identical
 	. Implement MD5() and MD5Str() functions to get checksums of resource node data
 	. Override MD5() for BRESEntryNode to simulate the export behavior, so checksums of identical nodes will match
