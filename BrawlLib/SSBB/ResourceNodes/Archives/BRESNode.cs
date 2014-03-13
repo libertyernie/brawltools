@@ -558,5 +558,29 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             header->_size = dataLength;
         }
+
+		public override unsafe byte[] MD5() {
+			if (WorkingUncompressed.Address == null || WorkingUncompressed.Length == 0) {
+				// skip bres fix
+				return base.MD5();
+			}
+
+			Rebuild();
+
+			StringTable table = new StringTable();
+			GetStrings(table);
+
+			int dataLen = WorkingUncompressed.Length.Align(4);
+			int size = dataLen + table.GetTotalSize();
+
+			byte[] datacopy = new byte[size];
+			fixed (byte* ptr = datacopy) {
+				System.Memory.Move(ptr, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
+				table.WriteTable(ptr + dataLen);
+				PostProcess(null, ptr, WorkingUncompressed.Length, table);
+			}
+
+			return ResourceNode.MD5Provider.ComputeHash(datacopy);
+		}
     }
 }
