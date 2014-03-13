@@ -6,6 +6,8 @@ using BrawlLib.Wii.Compression;
 using System.Reflection;
 using System.IO;
 using System.Windows.Forms;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -60,6 +62,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public abstract class ResourceNode : IDisposable
     {
+		private static MD5CryptoServiceProvider _md5provider;
+		protected static MD5CryptoServiceProvider MD5Provider {
+			get {
+				if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
+				return _md5provider;
+			}
+		}
+
         public Form _mainForm;
 
         //Need to modulate these sources, create a new class.
@@ -945,6 +955,24 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return null;
         }
+
+		public virtual unsafe byte[] MD5() {
+			DataSource data = this.OriginalSource;
+			if (data.Address == null || data.Length == 0) {
+				return new byte[0];
+			}
+			UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
+			return MD5Provider.ComputeHash(stream);
+		}
+
+		public unsafe string MD5Str() {
+			byte[] checksum = this.MD5();
+			StringBuilder sb = new StringBuilder(checksum.Length * 2);
+			for (int i = 0; i < checksum.Length; i++) {
+				sb.Append(checksum[i].ToString("X2"));
+			}
+			return sb.ToString();
+		}
 
         public override string ToString()
         {
