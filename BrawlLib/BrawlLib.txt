@@ -1,5 +1,5 @@
 ﻿
-BrawlLib Resource Library - Version 0.18L
+BrawlLib Resource Library - Version 0.18L2
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
 Copyright © 2013 - 2014 libertyernie
 
