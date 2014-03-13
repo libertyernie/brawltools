@@ -559,6 +559,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_size = dataLength;
         }
 
+		/// <summary>
+		/// Find the MD5 checksum of this node's data.
+		/// Before calculating the checksum, the data will be copied to a
+		/// temporary area in memory and PostProcess will be run just as in Export().
+		/// </summary>
 		public override unsafe byte[] MD5() {
 			if (WorkingUncompressed.Address == null || WorkingUncompressed.Length == 0) {
 				// skip bres fix

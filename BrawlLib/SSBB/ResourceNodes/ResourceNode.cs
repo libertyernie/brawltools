@@ -956,17 +956,41 @@ namespace BrawlLib.SSBB.ResourceNodes
             return null;
         }
 
+		/// <summary>
+		/// Find the MD5 checksum of this node's data.
+		/// If this node doesn't have any data (BRESGroupNode, for example),
+		/// the MD5 checksums for its childrens' data will be calculated and
+		/// combined with a bitwise XOR. If the node doesn't have children,
+		/// or none of the children have data either, this method will return
+		/// null.
+		/// </summary>
 		public virtual unsafe byte[] MD5() {
 			DataSource data = this.OriginalSource;
 			if (data.Address == null || data.Length == 0) {
-				return new byte[0];
+				// find md5sums of children, xor them together
+				bool childrenfound = false;
+				byte[] xorsum = new byte[16];
+				foreach (ResourceNode node in this.Children) {
+					byte[] md5 = node.MD5();
+					if (md5 != null) {
+						childrenfound = true;
+						for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
+					}
+				}
+				return childrenfound ? xorsum : null;
+			} else {
+				UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
+				return MD5Provider.ComputeHash(stream);
 			}
-			UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
-			return MD5Provider.ComputeHash(stream);
 		}
 
+		/// <summary>
+		/// Get the result of the MD5() function as a string of hexadecimal digits.
+		/// If MD5() returns null, this method will return an empty string.
+		/// </summary>
 		public unsafe string MD5Str() {
 			byte[] checksum = this.MD5();
+			if (checksum == null) return string.Empty;
 			StringBuilder sb = new StringBuilder(checksum.Length * 2);
 			for (int i = 0; i < checksum.Length; i++) {
 				sb.Append(checksum[i].ToString("X2"));
