@@ -627,6 +627,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             return list;
         }
 
+		public override unsafe byte[] MD5() {
+			byte[] self = base.MD5();
+			byte[] children = this.MD5ChildrenXor();
+			if (children != null) {
+				for (int i = 0; i < 16; i++) self[i] ^= children[i];
+			}
+			return self;
+		}
+
         #region Rendering
 
         public static Color DefaultBoneColor = Color.FromArgb(0, 0, 128);

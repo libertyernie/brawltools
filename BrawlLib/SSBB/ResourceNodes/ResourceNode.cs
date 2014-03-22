@@ -967,21 +967,25 @@ namespace BrawlLib.SSBB.ResourceNodes
 		public virtual unsafe byte[] MD5() {
 			DataSource data = this.OriginalSource;
 			if (data.Address == null || data.Length == 0) {
-				// find md5sums of children, xor them together
-				bool childrenfound = false;
-				byte[] xorsum = new byte[16];
-				foreach (ResourceNode node in this.Children) {
-					byte[] md5 = node.MD5();
-					if (md5 != null) {
-						childrenfound = true;
-						for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
-					}
-				}
-				return childrenfound ? xorsum : null;
+				return MD5ChildrenXor();
 			} else {
 				UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
 				return MD5Provider.ComputeHash(stream);
 			}
+		}
+
+		protected byte[] MD5ChildrenXor() {
+			// find md5sums of children, xor them together
+			bool childrenfound = false;
+			byte[] xorsum = new byte[16];
+			foreach (ResourceNode node in this.Children) {
+				byte[] md5 = node.MD5();
+				if (md5 != null) {
+					childrenfound = true;
+					for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
+				}
+			}
+			return childrenfound ? xorsum : null;
 		}
 
 		/// <summary>
