@@ -992,14 +992,19 @@ namespace BrawlLib.SSBB.ResourceNodes
 		/// Get the result of the MD5() function as a string of hexadecimal digits.
 		/// If MD5() returns null, this method will return an empty string.
 		/// </summary>
+		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
 		public unsafe string MD5Str() {
-			byte[] checksum = this.MD5();
-			if (checksum == null) return string.Empty;
-			StringBuilder sb = new StringBuilder(checksum.Length * 2);
-			for (int i = 0; i < checksum.Length; i++) {
-				sb.Append(checksum[i].ToString("X2"));
+			try {
+				byte[] checksum = this.MD5();
+				if (checksum == null) return string.Empty;
+				StringBuilder sb = new StringBuilder(checksum.Length * 2);
+				for (int i = 0; i < checksum.Length; i++) {
+					sb.Append(checksum[i].ToString("X2"));
+				}
+				return sb.ToString();
+			} catch (AccessViolationException) {
+				return "----AccessViolationException----";
 			}
-			return sb.ToString();
 		}
 
         public override string ToString()
