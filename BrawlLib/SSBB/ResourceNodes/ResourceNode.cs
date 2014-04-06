@@ -957,6 +957,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
 		#region MD5
+		public enum MD5Type {
+			SELF,
+			CHILDREN_XOR,
+			SELF_AND_CHILDREN_XOR
+		};
+
 		/// <summary>
 		/// Find the MD5 checksum of this node's data.
 		/// If this node doesn't have any data (BRESGroupNode, for example),
@@ -976,37 +982,24 @@ namespace BrawlLib.SSBB.ResourceNodes
 		/// Find a checksum of this node's data, ensuring that changes in this
 		/// node's children are reflected.
 		/// </summary>
+		/// <returns>1. An array of 16 bytes
+		/// 2. The type of result - SELF, CHILDREN_XOR, or SELF_AND_CHILDREN_XOR</returns>
 		/// <remarks>Three cases are possible:
-		/// * This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
-		/// * All children are included within the data block pointed to by OriginalSource -> result is MD5()
-		/// * At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
-		public virtual unsafe byte[] MD5EnsureChildrenIncluded() {
-			string s;
-			return MD5EnsureChildrenIncluded(out s);
-		}
-
-		/// <summary>
-		/// Find a checksum of this node's data, ensuring that changes in this
-		/// node's children are reflected.
-		/// </summary>
-		/// <remarks>Three cases are possible:
-		/// * This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
-		/// * All children are included within the data block pointed to by OriginalSource -> result is MD5()
-		/// * At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
-		/// <param name="c">An output string, which will be "(c)" in the first case, empty in the second, and "(s+c)" in the third.</param>
-		public virtual unsafe byte[] MD5EnsureChildrenIncluded(out string s) {
+		/// * CHILDREN_XOR: This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
+		/// * SELF: All children are included within the data block pointed to by OriginalSource -> result is MD5()
+		/// * SELF_AND_CHILDREN_XOR: At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
+		public virtual unsafe Tuple<byte[], MD5Type> MD5EnsureChildrenIncluded() {
 			byte[] self = MD5();
-			s = "";
 			if (self == null) {
-				s = "(c)";
-				return MD5ChildrenXor();
+				return new Tuple<byte[],MD5Type>(MD5ChildrenXor(), MD5Type.CHILDREN_XOR);
 			}
 			if (!DataSourceContainsAllChildren()) {
-				s = "(s+c)";
 				byte[] children = MD5ChildrenXor();
 				for (int i = 0; i < 16; i++) self[i] ^= children[i];
+				return new Tuple<byte[], MD5Type>(self, MD5Type.SELF_AND_CHILDREN_XOR);
+			} else {
+				return new Tuple<byte[],MD5Type>(self, MD5Type.SELF);
 			}
-			return self;
 		}
 
 		/// <summary>
@@ -1014,11 +1007,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 		/// MD5EnsureChildrenIncluded on each child node.
 		/// </summary>
 		public byte[] MD5ChildrenXor() {
-			// find md5sums of children, xor them together
 			bool childrenfound = false;
 			byte[] xorsum = new byte[16];
 			foreach (ResourceNode node in this.Children) {
-				byte[] md5 = node.MD5EnsureChildrenIncluded();
+				byte[] md5 = node.MD5EnsureChildrenIncluded().Item1;
 				if (md5 != null) {
 					childrenfound = true;
 					for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
@@ -1031,20 +1023,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 			DataSource data = OriginalSource;
 			int paddr = (int)OriginalSource.Address.address;
 			int plen = OriginalSource.Length;
-			foreach (ResourceNode c in Children) {
-				if (c.OriginalSource.Address == null) {
+
+			// initialize queue
+			Queue<ResourceNode> queue = new Queue<ResourceNode>(this.Children);
+			while (queue.Count > 0) {
+				ResourceNode c = queue.Dequeue();
+				if (c.OriginalSource.Address == null || c.OriginalSource.Length == 0) {
 					foreach (ResourceNode c2 in c.Children) {
-						if (c2.OriginalSource.Address == null) {
-							// only going two levels deep for now
-						} else {
-							int addr = (int)c2.OriginalSource.Address.address;
-							int len = c2.OriginalSource.Length;
-							if (addr >= paddr && addr < paddr + plen) {
-								// nothing
-							} else {
-								return false;
-							}
-						}
+						queue.Enqueue(c2);
 					}
 				} else {
 					int addr = (int)c.OriginalSource.Address.address;
@@ -1085,14 +1071,18 @@ namespace BrawlLib.SSBB.ResourceNodes
 		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
 		public unsafe string MD5StrEnsureChildrenIncluded() {
 			try {
-				string s;
-				byte[] checksum = this.MD5EnsureChildrenIncluded(out s);
+				var r = this.MD5EnsureChildrenIncluded();
+				byte[] checksum = r.Item1;
 				if (checksum == null) return string.Empty;
-				StringBuilder sb = new StringBuilder(checksum.Length * 2 + 1);
+				StringBuilder sb = new StringBuilder(checksum.Length * 2 + 5);
 				for (int i = 0; i < checksum.Length; i++) {
 					sb.Append(checksum[i].ToString("X2"));
 				}
-				sb.Append(s);
+				if (r.Item2 == MD5Type.CHILDREN_XOR) {
+					sb.Append("(c)");
+				} else if (r.Item2 == MD5Type.SELF_AND_CHILDREN_XOR) {
+					sb.Append("(s+c)");
+				}
 				return sb.ToString();
 			} catch (AccessViolationException) {
 				return "----AccessViolationException----";
