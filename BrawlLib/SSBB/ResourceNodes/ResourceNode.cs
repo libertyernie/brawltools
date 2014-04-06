@@ -956,36 +956,107 @@ namespace BrawlLib.SSBB.ResourceNodes
             return null;
         }
 
+		#region MD5
 		/// <summary>
 		/// Find the MD5 checksum of this node's data.
 		/// If this node doesn't have any data (BRESGroupNode, for example),
-		/// the MD5 checksums for its childrens' data will be calculated and
-		/// combined with a bitwise XOR. If the node doesn't have children,
-		/// or none of the children have data either, this method will return
-		/// null.
+		/// this method will return null.
 		/// </summary>
 		public virtual unsafe byte[] MD5() {
 			DataSource data = this.OriginalSource;
 			if (data.Address == null || data.Length == 0) {
-				return MD5ChildrenXor();
+				return null;
 			} else {
 				UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
 				return MD5Provider.ComputeHash(stream);
 			}
 		}
 
-		protected byte[] MD5ChildrenXor() {
+		/// <summary>
+		/// Find a checksum of this node's data, ensuring that changes in this
+		/// node's children are reflected.
+		/// </summary>
+		/// <remarks>Three cases are possible:
+		/// * This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
+		/// * All children are included within the data block pointed to by OriginalSource -> result is MD5()
+		/// * At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
+		public virtual unsafe byte[] MD5EnsureChildrenIncluded() {
+			string s;
+			return MD5EnsureChildrenIncluded(out s);
+		}
+
+		/// <summary>
+		/// Find a checksum of this node's data, ensuring that changes in this
+		/// node's children are reflected.
+		/// </summary>
+		/// <remarks>Three cases are possible:
+		/// * This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
+		/// * All children are included within the data block pointed to by OriginalSource -> result is MD5()
+		/// * At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
+		/// <param name="c">An output string, which will be "(c)" in the first case, empty in the second, and "(s+c)" in the third.</param>
+		public virtual unsafe byte[] MD5EnsureChildrenIncluded(out string s) {
+			byte[] self = MD5();
+			s = "";
+			if (self == null) {
+				s = "(c)";
+				return MD5ChildrenXor();
+			}
+			if (!DataSourceContainsAllChildren()) {
+				s = "(s+c)";
+				byte[] children = MD5ChildrenXor();
+				for (int i = 0; i < 16; i++) self[i] ^= children[i];
+			}
+			return self;
+		}
+
+		/// <summary>
+		/// Use an XOR operation to combine the results of running
+		/// MD5EnsureChildrenIncluded on each child node.
+		/// </summary>
+		public byte[] MD5ChildrenXor() {
 			// find md5sums of children, xor them together
 			bool childrenfound = false;
 			byte[] xorsum = new byte[16];
 			foreach (ResourceNode node in this.Children) {
-				byte[] md5 = node.MD5();
+				byte[] md5 = node.MD5EnsureChildrenIncluded();
 				if (md5 != null) {
 					childrenfound = true;
 					for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
 				}
 			}
 			return childrenfound ? xorsum : null;
+		}
+
+		private unsafe bool DataSourceContainsAllChildren() {
+			DataSource data = OriginalSource;
+			int paddr = (int)OriginalSource.Address.address;
+			int plen = OriginalSource.Length;
+			foreach (ResourceNode c in Children) {
+				if (c.OriginalSource.Address == null) {
+					foreach (ResourceNode c2 in c.Children) {
+						if (c2.OriginalSource.Address == null) {
+							// only going two levels deep for now
+						} else {
+							int addr = (int)c2.OriginalSource.Address.address;
+							int len = c2.OriginalSource.Length;
+							if (addr >= paddr && addr < paddr + plen) {
+								// nothing
+							} else {
+								return false;
+							}
+						}
+					}
+				} else {
+					int addr = (int)c.OriginalSource.Address.address;
+					int len = c.OriginalSource.Length;
+					if (addr >= paddr && addr < paddr + plen) {
+						// nothing
+					} else {
+						return false;
+					}
+				}
+			}
+			return true;
 		}
 
 		/// <summary>
@@ -1007,7 +1078,29 @@ namespace BrawlLib.SSBB.ResourceNodes
 			}
 		}
 
-        public override string ToString()
+		/// <summary>
+		/// Get the result of the MD5StrEnsureChildrenIncluded() function as a string of hexadecimal digits, plus its additional output value.
+		/// If MD5StrEnsureChildrenIncluded() returns null, this method will return an empty string.
+		/// </summary>
+		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+		public unsafe string MD5StrEnsureChildrenIncluded() {
+			try {
+				string s;
+				byte[] checksum = this.MD5EnsureChildrenIncluded(out s);
+				if (checksum == null) return string.Empty;
+				StringBuilder sb = new StringBuilder(checksum.Length * 2 + 1);
+				for (int i = 0; i < checksum.Length; i++) {
+					sb.Append(checksum[i].ToString("X2"));
+				}
+				sb.Append(s);
+				return sb.ToString();
+			} catch (AccessViolationException) {
+				return "----AccessViolationException----";
+			}
+		}
+		#endregion
+
+		public override string ToString()
         {
             return Name;
         }
