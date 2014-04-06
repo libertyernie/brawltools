@@ -1,5 +1,5 @@
 ﻿
-BrawlLib Resource Library - Version 0.18L2
+BrawlLib Resource Library - Version 0.18L3
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
 Copyright © 2013 - 2014 libertyernie
 
@@ -25,6 +25,12 @@ The source is available at: https://github.com/libertyernie/brawltools
  ====================================
 |************ Change Log ************|
  ====================================
+
+ (4/6/2014) - BrawlLib v0.18L3 (libertyernie)
+    . Two versions of MD5 checksum now available in ResourceNode
+	  . MD5() or MD5Str(): gets the MD5 checksum of OriginalSource (or null if there is none)
+	  . MD5EnsureChildrenIncluded() or MD5StrEnsureChildrenIncluded(): will XOR own MD5 sum with those of children if children aren't already included in the node's own data
+    . Note: result of MD5() is NOT guaranteed to match the MD5 checksum of a node's data after being exported to a separate file
 
  (3/13/2014) - BrawlLib v0.18L2 (libertyernie)
 	. When exporting BRES entries (TEX0, MDL0, etc.), reset the BRES index offset (0x0c, 4 bytes) to 0 so that exported files with the same data will be identical

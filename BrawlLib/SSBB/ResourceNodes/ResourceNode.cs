@@ -1065,8 +1065,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 		}
 
 		/// <summary>
-		/// Get the result of the MD5StrEnsureChildrenIncluded() function as a string of hexadecimal digits, plus its additional output value.
-		/// If MD5StrEnsureChildrenIncluded() returns null, this method will return an empty string.
+		/// Get the result of the MD5StrEnsureChildrenIncluded() function as a
+		/// string of hexadecimal digits, plus an additional output value if
+		/// children's checksums were also used.
+		/// If MD5StrEnsureChildrenIncluded() returns null, this method will
+		/// return an empty string.
 		/// </summary>
 		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
 		public unsafe string MD5StrEnsureChildrenIncluded() {
