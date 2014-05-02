@@ -338,12 +338,6 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BrawlLib\BrawlLib.csproj">
-      <Project>{462D0BBF-CE82-405B-8848-2F91E9E14C55}</Project>
-      <Name>BrawlLib</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\ARC.png" />
   </ItemGroup>
   <ItemGroup>
@@ -466,6 +460,12 @@
     <None Include="Resources\U8.png" />
     <None Include="Resources\plt.png" />
     <None Include="Resources\TPL.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\BrawlLib\BrawlLib.csproj">
+      <Project>{462d0bbf-ce82-405b-8848-2f91e9e14c55}</Project>
+      <Name>BrawlLib</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
