@@ -248,6 +248,7 @@
     <Compile Include="SSBB\FileFilters.cs" />
     <Compile Include="SSBB\LabelBuilder.cs" />
     <Compile Include="SSBB\NodeComparer.cs" />
+    <Compile Include="SSBB\NodeDeepChecksum.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\AIPDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\CENode.cs" />

@@ -62,14 +62,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public abstract class ResourceNode : IDisposable
     {
-		private static MD5CryptoServiceProvider _md5provider;
-		protected static MD5CryptoServiceProvider MD5Provider {
-			get {
-				if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
-				return _md5provider;
-			}
-		}
-
         public Form _mainForm;
 
         //Need to modulate these sources, create a new class.
@@ -957,11 +949,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
 		#region MD5
-		public enum MD5Type {
-			SELF,
-			CHILDREN_XOR,
-			SELF_AND_CHILDREN_XOR
-		};
+		private static MD5CryptoServiceProvider _md5provider;
+		protected static MD5CryptoServiceProvider MD5Provider {
+			get {
+				if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
+				return _md5provider;
+			}
+		}
 
 		/// <summary>
 		/// Find the MD5 checksum of this node's data.
@@ -979,47 +973,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 		}
 
 		/// <summary>
-		/// Find a checksum of this node's data, ensuring that changes in this
-		/// node's children are reflected.
+		/// Determines whether all of this node's direct children are contained between the start and end of its own data.
+		/// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.
 		/// </summary>
-		/// <returns>1. An array of 16 bytes
-		/// 2. The type of result - SELF, CHILDREN_XOR, or SELF_AND_CHILDREN_XOR</returns>
-		/// <remarks>Three cases are possible:
-		/// * CHILDREN_XOR: This node does not have a data block, and MD5() returns null - result is MD5ChildrenXor()
-		/// * SELF: All children are included within the data block pointed to by OriginalSource -> result is MD5()
-		/// * SELF_AND_CHILDREN_XOR: At least one child is not included within the data block -> result is MD5() xor with MD5ChildrenXor()</remarks>
-		public virtual unsafe Tuple<byte[], MD5Type> MD5EnsureChildrenIncluded() {
-			byte[] self = MD5();
-			if (self == null) {
-				return new Tuple<byte[],MD5Type>(MD5ChildrenXor(), MD5Type.CHILDREN_XOR);
-			}
-			if (!DataSourceContainsAllChildren()) {
-				byte[] children = MD5ChildrenXor();
-				for (int i = 0; i < 16; i++) self[i] ^= children[i];
-				return new Tuple<byte[], MD5Type>(self, MD5Type.SELF_AND_CHILDREN_XOR);
-			} else {
-				return new Tuple<byte[],MD5Type>(self, MD5Type.SELF);
-			}
-		}
-
-		/// <summary>
-		/// Use an XOR operation to combine the results of running
-		/// MD5EnsureChildrenIncluded on each child node.
-		/// </summary>
-		public byte[] MD5ChildrenXor() {
-			bool childrenfound = false;
-			byte[] xorsum = new byte[16];
-			foreach (ResourceNode node in this.Children) {
-				byte[] md5 = node.MD5EnsureChildrenIncluded().Item1;
-				if (md5 != null) {
-					childrenfound = true;
-					for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
-				}
-			}
-			return childrenfound ? xorsum : null;
-		}
-
-		private unsafe bool DataSourceContainsAllChildren() {
+		public unsafe bool DataSourceContainsAllChildren() {
 			DataSource data = OriginalSource;
 			int paddr = (int)OriginalSource.Address.address;
 			int plen = OriginalSource.Length;
@@ -1057,34 +1014,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 				StringBuilder sb = new StringBuilder(checksum.Length * 2);
 				for (int i = 0; i < checksum.Length; i++) {
 					sb.Append(checksum[i].ToString("X2"));
-				}
-				return sb.ToString();
-			} catch (AccessViolationException) {
-				return "----AccessViolationException----";
-			}
-		}
-
-		/// <summary>
-		/// Get the result of the MD5StrEnsureChildrenIncluded() function as a
-		/// string of hexadecimal digits, plus an additional output value if
-		/// children's checksums were also used.
-		/// If MD5StrEnsureChildrenIncluded() returns null, this method will
-		/// return an empty string.
-		/// </summary>
-		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
-		public unsafe string MD5StrEnsureChildrenIncluded() {
-			try {
-				var r = this.MD5EnsureChildrenIncluded();
-				byte[] checksum = r.Item1;
-				if (checksum == null) return string.Empty;
-				StringBuilder sb = new StringBuilder(checksum.Length * 2 + 5);
-				for (int i = 0; i < checksum.Length; i++) {
-					sb.Append(checksum[i].ToString("X2"));
-				}
-				if (r.Item2 == MD5Type.CHILDREN_XOR) {
-					sb.Append("(c)");
-				} else if (r.Item2 == MD5Type.SELF_AND_CHILDREN_XOR) {
-					sb.Append("(s+c)");
 				}
 				return sb.ToString();
 			} catch (AccessViolationException) {
