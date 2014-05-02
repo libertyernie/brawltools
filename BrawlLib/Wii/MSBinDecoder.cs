@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace BrawlLib.Wii
 {
@@ -66,22 +67,35 @@ namespace BrawlLib.Wii
                 }
             }
 
-            return new string((sbyte*)buffer, 0, (int)dPtr - (int)buffer);
+			int input_count = (int)dPtr - (int)buffer;
+			int output_count = Encoding.UTF8.GetDecoder().GetCharCount(buffer, input_count, true);
+			char[] buffer2 = new char[output_count];
+			fixed (char* ptr = buffer2) {
+				Encoding.UTF8.GetDecoder().GetChars(buffer, input_count,
+					ptr, output_count, true);
+			}
+			return new string(buffer2);
         }
 
         public static int EncodeString(string s, byte* dPtr)
         {
             int bLen;
-            int strlen = s.Length;
             char c;
 
             int colorIndex, sizeIndex;
             byte* buffer = stackalloc byte[1024];
             byte* first = dPtr;
 
+            byte[] utf8;
             fixed (char* p = s)
             {
-                char* sPtr = p, ceil = sPtr + strlen;
+				utf8 = new byte[Encoding.UTF8.GetEncoder().GetByteCount(p, s.Length, true)];
+			}
+			// The loop below is ignorant of UTF8, but it looks for certain ASCII characters and writes each character as 1 byte, so hopefully this kludge will make it work
+			char[] utf8_to_char_array = new char[utf8.Length];
+			for (int i = 0; i < utf8.Length; i++) utf8_to_char_array[i] = (char)utf8[i];
+			fixed (char* p = utf8_to_char_array) {
+                char* sPtr = p, ceil = sPtr + utf8_to_char_array.Length;
 
                 while (sPtr < ceil)
                 {
