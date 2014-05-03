@@ -14,8 +14,8 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrawlBox")]
 [assembly: AssemblyCopyright(@"Copyright © 2009 - 2013 Bryan Moulton && BlackJax96 
-- Super Smash Bros. Brawl is copyrighted property - 
-© 2008 Nintendo and HAL Laboratory, Inc.")]
+Copyright © 2014 libertyernie
+Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 [assembly: AssemblyTrademark(@"Characters are copyrighted by the following:
 © Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA")]
 [assembly: AssemblyCulture("")]
