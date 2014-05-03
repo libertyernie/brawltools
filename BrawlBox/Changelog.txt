@@ -1,7 +1,7 @@
 
-BrawlBox Data Viewer - Version 0.71
-BrawlLib Resource Library - Version 0.18
+BrawlBox Data Viewer - Version 0.72
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
+Copyright © 2014 libertyernie
 
 This program is provided as-is without any warranty, implied or otherwise.
 By using this program, the end user agrees to take full responsibility
