@@ -13,6 +13,11 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
+ - v0.72- (5/3/2014) - BrawlLib v0.19L (libertyernie's fork)
+    . BrawlBox will display an error dialog if it tries to start without OpenTK.dll
+    . The BrawlBox "About" screen now shows what version of BrawlLib is being used
+    . See also the changelog of BrawlLib 0.19L
+
  - v0.71- (12/25/2013) - BrawlLib v0.18
 	. Added a tristripper and integrated it into Brawllib. This allows for mesh optimization for smaller filesize and less in-game lag.
 	. Added several new options to the model importer settings dialog, including tristripper algorithm options

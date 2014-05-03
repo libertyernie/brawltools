@@ -50,7 +50,8 @@ The source is available at: https://github.com/libertyernie/brawltools
 	. Added Volume and VolumePercent properties to AudioPlaybackPanel
 	* Don't crash when editing MDL0 models without any objects defined
 
- For changes prior to 2014, see: https://github.com/libertyernie/brawltools/blob/367f812284b03d0f6e201f6b3a840d9cbac4107f/BrawlLib/BrawlLib.txt
+ For changes prior to 2014, see the BrawlBox changelog, or:
+ https://github.com/libertyernie/brawltools/blob/367f812284b03d0f6e201f6b3a840d9cbac4107f/BrawlLib/BrawlLib.txt
 
  ====================================
 |*********** Requirements ***********|
