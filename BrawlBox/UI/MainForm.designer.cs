@@ -54,7 +54,6 @@ namespace BrawlBox
             this.gCTEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.donateToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
@@ -274,8 +273,7 @@ namespace BrawlBox
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem,
-            this.donateToolStripMenuItem});
+            this.aboutToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -286,13 +284,6 @@ namespace BrawlBox
             this.aboutToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
-            // 
-            // donateToolStripMenuItem
-            // 
-            this.donateToolStripMenuItem.Name = "donateToolStripMenuItem";
-            this.donateToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
-            this.donateToolStripMenuItem.Text = "Donate";
-            this.donateToolStripMenuItem.Click += new System.EventHandler(this.donateToolStripMenuItem_Click);
             // 
             // splitContainer2
             // 
@@ -531,7 +522,6 @@ namespace BrawlBox
         private ToolStripMenuItem u8FileArchiveToolStripMenuItem;
         public ModelPanel modelPanel1;
         private PreviewPanel previewPanel2;
-        private ToolStripMenuItem donateToolStripMenuItem;
         public ToolStripMenuItem editToolStripMenuItem;
         private VideoPlaybackPanel videoPlaybackPanel1;
         private ToolStripMenuItem gCTEditorToolStripMenuItem;
