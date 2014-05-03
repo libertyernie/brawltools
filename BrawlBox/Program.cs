@@ -17,6 +17,7 @@ namespace BrawlBox
         public static readonly string AssemblyDescription;
         public static readonly string AssemblyCopyright;
         public static readonly string FullPath;
+        public static readonly string BrawlLibTitle;
 
         private static OpenFileDialog _openDlg;
         private static SaveFileDialog _saveDlg;
@@ -35,6 +36,7 @@ namespace BrawlBox
             AssemblyDescription = ((AssemblyDescriptionAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyDescriptionAttribute), false)[0]).Description;
             AssemblyCopyright = ((AssemblyCopyrightAttribute)Assembly.GetExecutingAssembly().GetCustomAttributes(typeof(AssemblyCopyrightAttribute), false)[0]).Copyright;
             FullPath = Process.GetCurrentProcess().MainModule.FileName;
+            BrawlLibTitle = ((AssemblyTitleAttribute)Assembly.GetAssembly(typeof(ResourceNode)).GetCustomAttributes(typeof(AssemblyTitleAttribute), false)[0]).Title;
 
             _openDlg = new OpenFileDialog();
             _saveDlg = new SaveFileDialog();
@@ -59,8 +61,13 @@ namespace BrawlBox
                 }
                 
                 Application.Run(MainForm.Instance);
+            } catch (FileNotFoundException x) {
+                if (x.Message.Contains("Could not load file or assembly")) {
+                    MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                } else {
+                    throw x;
+                }
             }
-            //catch (Exception x) { Program.Say(x.ToString()); }
             finally { Close(true); }
         }
 
