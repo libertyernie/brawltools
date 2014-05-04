@@ -259,6 +259,7 @@
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
+    <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurPosNode.cs" />

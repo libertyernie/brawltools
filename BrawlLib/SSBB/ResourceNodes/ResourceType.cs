@@ -40,6 +40,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         CollisionDef = 0x1314,
         MSBin = 0x1404,
         STPM = 0x1520,
+		STDT = 0x5B00,
 
         //AI
         AI = 0x1616,
