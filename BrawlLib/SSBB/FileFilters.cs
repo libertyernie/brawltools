@@ -101,7 +101,7 @@ namespace BrawlLib
             "Raw Data File (*.*)|*.*";
 
         public static string Raw =
-            "Raw Data File (*.*)|*.*";
+            "Raw Data File (*.dat)|*.dat";
 
         public static string WAV =
             "Uncompressed PCM (*.wav)|*.wav";
