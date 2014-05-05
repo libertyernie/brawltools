@@ -9,6 +9,7 @@ using System.Drawing.Design;
 
 namespace BrawlLib.SSBB.ResourceNodes {
 	public unsafe class STDTNode : ARCEntryNode {
+        public override ResourceType ResourceType { get { return ResourceType.STDT; } }
 		internal STDT* Header { get { return (STDT*)WorkingUncompressed.Address; } }
 		internal int version, unk1, unk2;
 		internal List<float> entries = new List<float>();
