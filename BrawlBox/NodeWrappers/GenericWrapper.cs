@@ -107,7 +107,7 @@ namespace BrawlBox
             }
         }
 
-        public virtual string ExportFilter { get { return "Raw Data File (*.*)|*.*"; } }
+        public virtual string ExportFilter { get { return "Raw Data File (*.dat)|*.dat"; } }
         public virtual string ImportFilter { get { return ExportFilter; } }
         public virtual string ReplaceFilter { get { return ImportFilter; } }
 
