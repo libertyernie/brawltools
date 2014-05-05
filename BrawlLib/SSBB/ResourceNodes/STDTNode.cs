@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.IO;
 using BrawlLib.IO;
 using BrawlLib.SSBBTypes;
+using System.Drawing.Design;
 
 namespace BrawlLib.SSBB.ResourceNodes {
 	public unsafe class STDTNode : ARCEntryNode {
@@ -17,6 +18,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		[Category("Stage Trap Data Table")]
 		public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 		[Category("Stage Trap Data Table")]
+		[Editor(typeof(System.Windows.Forms.FourByteTypeEditor), typeof(UITypeEditor))]
 		public List<float> Entries { get { return entries; } set { entries = value; SignalPropertyChange(); } }
 
 		public override bool OnInitialize() {

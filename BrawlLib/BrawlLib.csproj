@@ -487,6 +487,12 @@
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="System\Windows\Forms\FourByteEditor.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\FourByteEditor.Designer.cs">
+      <DependentUpon>FourByteEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Forms\ObjectOptimizerForm.cs">
       <SubType>Form</SubType>
     </Compile>
