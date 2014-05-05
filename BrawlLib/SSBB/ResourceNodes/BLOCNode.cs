@@ -1,0 +1,72 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using BrawlLib.SSBBTypes;
+using System.ComponentModel;
+using System.Runtime.InteropServices;
+using BrawlLib.Imaging;
+using BrawlLib.Wii;
+using System.Windows.Forms;
+namespace BrawlLib.SSBB.ResourceNodes
+{
+    public unsafe class BLOCNode : ARCEntryNode
+    {
+        public override ResourceType ResourceType { get { return ResourceType.BLOC; } }
+        internal BLOC* Header { get { return (BLOC*)WorkingUncompressed.Address; } }
+        public int SubFiles { get; private set; }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+
+            if (_name == null)
+                _name = "BLOC";
+
+            byte* _NumFiles = (byte*)WorkingUncompressed.Address + 0x07;            
+            this.SubFiles = *(int*)_NumFiles;
+            return Header->_count > 0;
+        }
+
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            //TODO
+        }
+
+        public override void OnPopulate()
+        {
+            for (int i = 0; i < Header->_count; i++)
+                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], 260));
+        }
+
+
+        internal static ResourceNode TryParse(DataSource source) { return ((BLOC*)source.Address)->_tag == BLOC.Tag ? new BLOCNode() : null; }
+    }
+
+    public unsafe class BLOCEntryNode : ResourceNode
+    {
+        internal BLOCEntry* Header { get { return (BLOCEntry*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.BLOCEntry; } }
+        public int Entries { get; private set; }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+            byte* _NumFiles = (byte*)WorkingUncompressed.Address + 0x07;  
+            if (_name == null)
+                _name = new String((sbyte*)Header);
+            this.Entries = *(int*)_NumFiles;
+            return false;
+        }
+
+        //public override void OnRebuild(VoidPtr address, int length, bool force)
+        //{
+        //    BLOCEntry* header = (BLOCEntry*)address;
+        //    *header = new BLOCEntry(id, echo, id2);
+        //    byte* pOut = (byte*)header + 4;
+        //    byte* pIn = (byte*)_values._values.Address;
+        //    for (int i = 0; i < 64 * 4; i++)
+        //        *pOut++ = *pIn++;
+        //}
+    }
+}

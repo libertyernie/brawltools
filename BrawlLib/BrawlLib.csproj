@@ -253,6 +253,7 @@
     <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\CENode.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\FileScanNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\BLOCNode.cs" />
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
@@ -285,6 +286,7 @@
     <Compile Include="SSBB\Types\Audio\RSEQ.cs" />
     <Compile Include="SSBB\Types\Audio\RSTM.cs" />
     <Compile Include="SSBB\Types\Audio\RWSD.cs" />
+    <Compile Include="SSBB\Types\BLOC.cs" />
     <Compile Include="SSBB\Types\STDT.cs" />
     <Compile Include="SSBB\Types\TPL.cs" />
     <Compile Include="SSBB\UserData.cs" />

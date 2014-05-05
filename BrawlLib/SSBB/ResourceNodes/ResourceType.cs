@@ -21,6 +21,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         BRES = 0x0603,
         BRESEntry = 0x0700,
         MRG = 0x0801,
+        BLOC = 0x5C25,
 
         //Effects
         EFLS = 0x0913,
@@ -40,7 +41,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         CollisionDef = 0x1314,
         MSBin = 0x1404,
         STPM = 0x1520,
-		STDT = 0x5B00,
+		STDT = 0x5B26,
+        BLOCEntry = 0x5D27,
 
         //AI
         AI = 0x1616,
