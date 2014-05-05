@@ -51,23 +51,4 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		internal static ResourceNode TryParse(DataSource source) { return ((STDT*)source.Address)->_tag == STDT.Tag ? new STDTNode() : null; }
 
 	}
-	public class STDTData//external data
-	{
-		int address = 0;
-		string valueName = null;
-		string desctription = null;
-		string defaultValue = null;
-		NumberType type = NumberType.Float;
-
-		public int Address { get { return address; } set { address = value; } }
-		public string ValueName { get { return valueName; } set { valueName = value; } }
-		public string Description { get { return desctription; } set { desctription = value; } }
-		public string DefaultValue { get { return defaultValue; } set { defaultValue = value; } }
-		public NumberType Type { get { return type; } set { type = value; } }
-	}
-
-	public enum NumberType : int {
-		Float = 0,
-		Int = 1,
-	}
 }
