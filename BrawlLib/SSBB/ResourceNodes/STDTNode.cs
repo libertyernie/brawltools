@@ -18,7 +18,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		[Category("Stage Trap Data Table")]
 		public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 		[Category("Stage Trap Data Table")]
-		[Editor(typeof(System.Windows.Forms.FourByteTypeEditor), typeof(UITypeEditor))]
+		//[Editor(typeof(System.Windows.Forms.FourByteTypeEditor), typeof(UITypeEditor))]
 		public List<float> Entries { get { return entries; } set { entries = value; SignalPropertyChange(); } }
 
 		public override bool OnInitialize() {
