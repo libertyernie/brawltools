@@ -113,38 +113,4 @@ namespace BrawlLib.SSBB.ResourceNodes {
 			return arr;
 		}
 	}
-
-	public class BUnion4 {
-		public bfloat v;
-		private STDTNode parent;
-
-		public BUnion4(bfloat v, STDTNode parent) {
-			this.v = v;
-			this.parent = parent;
-		}
-
-		public string Float {
-			get {
-				return v.ToString();
-			}
-			set {
-				v = Single.Parse(value);
-				parent.SignalPropertyChange();
-			}
-		}
-		public unsafe string Int {
-			get {
-				fixed (bfloat* ptr = &v) return ((bint*)ptr)->ToString();
-			}
-			set {
-				fixed (bfloat* ptr = &v) *((bint*)ptr) = Int32.Parse(value);
-				parent.SignalPropertyChange();
-			}
-		}
-		public unsafe string Bytes {
-			get {
-				fixed (bfloat* ptr = &v) return ((buint*)ptr)->Value.ToString("X8");
-			}
-		}
-	}
 }
