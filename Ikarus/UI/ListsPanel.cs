@@ -579,6 +579,11 @@ namespace Ikarus.UI
             InitializeComponent();
             movesetEditor.SelectedIndex = 2;
             _animations = new SortedList<string, Dictionary<AnimType, AnimationNode>>();
+            foreach (var grid in new AttributeGrid[] { attributeGridSSE, attributeGridMain }) {
+                grid.AttributeArray = Manager.AttributeArray;
+                grid.CellEdited += (o, e) => MainForm.UpdateMDLPnl();
+                grid.DictionaryChanged += (o, e) => Manager._dictionaryChanged = true;
+            }
         }
 
         public SortedList<string, Dictionary<AnimType, AnimationNode>> _animations;

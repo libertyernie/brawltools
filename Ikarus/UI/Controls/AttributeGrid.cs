@@ -3,8 +3,6 @@ using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Data;
 using System.IO;
-using Ikarus;
-using Ikarus.UI;
 
 namespace System.Windows.Forms
 {
@@ -98,9 +96,7 @@ namespace System.Windows.Forms
 
         #endregion
 
-        public AttributeInfo[] AttributeArray { get { return Manager.AttributeArray; } }
-
-        ListsPanel _mainWindow;
+        public AttributeInfo[] AttributeArray { get; set; }
 
         public AttributeGrid()
         {
@@ -111,6 +107,9 @@ namespace System.Windows.Forms
         public RichTextBox description;
         private Splitter splitter1;
         public bool called = false;
+
+        public event EventHandler CellEdited;
+        public event EventHandler DictionaryChanged;
 
         private AttributeList _targetNode;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -174,7 +173,7 @@ namespace System.Windows.Forms
             if (AttributeArray[index]._name != name)
             {
                 AttributeArray[index]._name = name;
-                Manager._dictionaryChanged = true;
+                DictionaryChanged.Invoke(this, EventArgs.Empty);
                 return;
             }
 
@@ -224,7 +223,7 @@ namespace System.Windows.Forms
             }
 
             attributes.Rows[index][1] = value;
-            MainForm.UpdateMDLPnl();
+            CellEdited.Invoke(this, EventArgs.Empty);
         }
 
         private void dtgrdAttributes_CurrentCellChanged(object sender, EventArgs e)
@@ -247,8 +246,8 @@ namespace System.Windows.Forms
             int index = dtgrdAttributes.CurrentCell.RowIndex;
             if (index >= 0)
             {
-                AttributeArray[index]._description = Manager.AttributeArray[index]._description = description.Text;
-                Manager._dictionaryChanged = true;
+                AttributeArray[index]._description = description.Text;
+				DictionaryChanged.Invoke(this, EventArgs.Empty);
             }
         }
     }
