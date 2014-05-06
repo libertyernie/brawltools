@@ -377,6 +377,7 @@ namespace Ikarus.UI
             this.btnLoadChar.Name = "btnLoadChar";
             this.btnLoadChar.Size = new System.Drawing.Size(161, 22);
             this.btnLoadChar.Text = "Character Folder";
+            this.btnLoadChar.Click += new System.EventHandler(this.btnLoadChar_Click);
             // 
             // saveAllFilesToolStripMenuItem
             // 
@@ -1086,6 +1087,7 @@ namespace Ikarus.UI
             this.comboCharacters.Size = new System.Drawing.Size(120, 21);
             this.comboCharacters.TabIndex = 21;
             this.comboCharacters.SelectedIndexChanged += new System.EventHandler(this.comboCharacters_SelectedIndexChanged);
+            this.comboCharacters.Enabled = false;
             // 
             // controlPanel
             // 
@@ -1674,10 +1676,23 @@ namespace Ikarus.UI
 
         private void btnLoadRoot_Click(object sender, EventArgs e)
         {
+            RunTime._IsRoot = true;
             if (Program.OpenRoot(pathToolStripMenuItem.Text))
                 Ikarus.Properties.Settings.Default.RootPath =
                     pathToolStripMenuItem.Text =
                     String.IsNullOrEmpty(Program.RootPath) ? "<null>" : Program.RootPath;
+            this.comboCharacters.Enabled = true;
+        }
+        
+        private void btnLoadChar_Click(object sender, EventArgs e)
+        {
+            RunTime._IsRoot = false;
+            if (Program.OpenRoot(pathToolStripMenuItem.Text))
+                Ikarus.Properties.Settings.Default.RootPath =
+                    pathToolStripMenuItem.Text =
+                    String.IsNullOrEmpty(Program.RootPath) ? "<null>" : Program.RootPath;
+            this.comboCharacters.Enabled = true;
+            
         }
         public void Reset()
         {
