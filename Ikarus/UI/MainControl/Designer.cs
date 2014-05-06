@@ -1087,6 +1087,7 @@ namespace Ikarus.UI
             this.comboCharacters.Size = new System.Drawing.Size(120, 21);
             this.comboCharacters.TabIndex = 21;
             this.comboCharacters.SelectedIndexChanged += new System.EventHandler(this.comboCharacters_SelectedIndexChanged);
+            this.comboCharacters.Enabled = false;
             // 
             // controlPanel
             // 
@@ -1680,6 +1681,7 @@ namespace Ikarus.UI
                 Ikarus.Properties.Settings.Default.RootPath =
                     pathToolStripMenuItem.Text =
                     String.IsNullOrEmpty(Program.RootPath) ? "<null>" : Program.RootPath;
+            this.comboCharacters.Enabled = true;
         }
         
         private void btnLoadChar_Click(object sender, EventArgs e)
@@ -1689,6 +1691,7 @@ namespace Ikarus.UI
                 Ikarus.Properties.Settings.Default.RootPath =
                     pathToolStripMenuItem.Text =
                     String.IsNullOrEmpty(Program.RootPath) ? "<null>" : Program.RootPath;
+            this.comboCharacters.Enabled = true;
             
         }
         public void Reset()
