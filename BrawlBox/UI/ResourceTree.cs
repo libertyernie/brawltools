@@ -62,6 +62,9 @@ namespace BrawlBox
                         Resources.Palette,
                         Resources.U8, //35
                         Resources.REFFEntry,
+                        Resources.BLOC,
+                        Resources.STDT,
+                        Resources.BLOCEntry,
                     });
                 }
                 return _imgList;

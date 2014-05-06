@@ -163,6 +163,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeWrappers\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
     <Compile Include="NodeWrappers\STDTWrapper.cs" />
     <Compile Include="NodeWrappers\TPLWrapper.cs" />
@@ -456,6 +457,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Brawlbox.ico" />
+    <None Include="Resources\STDT.png" />
+    <None Include="Resources\BLOCEntry.png" />
+    <None Include="Resources\BLOC.png" />
     <None Include="Resources\REFFEntry.png" />
     <None Include="Changelog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
