@@ -14,7 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public UnsafeBuffer AttributeBuffer { get { if (_buffer != null) return _buffer; else return _buffer = new UnsafeBuffer(0x2E4); } }
         private UnsafeBuffer _buffer;
 
-        public VoidPtr Address {
+        public VoidPtr AttributeAddress {
             get {
                 return AttributeBuffer.Address;
             }

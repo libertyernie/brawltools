@@ -8,7 +8,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		/// <summary>
 		/// Address of the first entry.
 		/// </summary>
-		VoidPtr Address { get; }
+		VoidPtr AttributeAddress { get; }
 		/// <summary>
 		/// The number of (four-byte) entries - i.e. the length in bytes divided by four.
 		/// </summary>

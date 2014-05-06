@@ -146,7 +146,7 @@ namespace System.Windows.Forms
             if (TargetNode == null)
                 return;
 
-            byte* buffer = (byte*)TargetNode.Address;
+            byte* buffer = (byte*)TargetNode.AttributeAddress;
 
             //Add attributes to the attribute table.
             for (int i = 0; i < TargetNode.NumEntries; i++)
@@ -177,7 +177,7 @@ namespace System.Windows.Forms
                 return;
             }
 
-            byte* buffer = (byte*)TargetNode.Address;
+            byte* buffer = (byte*)TargetNode.AttributeAddress;
 
             if (AttributeArray[index]._type == 2) //degrees
             {
