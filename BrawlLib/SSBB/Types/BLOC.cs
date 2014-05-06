@@ -44,6 +44,6 @@ namespace BrawlLib.SSBBTypes
         //    _id2 = id2;
         //}
 
-        //private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
 }
