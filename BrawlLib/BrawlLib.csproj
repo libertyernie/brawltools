@@ -181,6 +181,12 @@
     <None Include="app.config" />
     <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
+    <Compile Include="System\Windows\Controls\DataEditor4B.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\DataEditor4B.Designer.cs">
+      <DependentUpon>DataEditor4B.cs</DependentUpon>
+    </Compile>
     <Compile Include="Imaging\GIF\AnimatedGifEncoder.cs" />
     <Compile Include="Imaging\GIF\GifDecoder.cs" />
     <Compile Include="Imaging\GIF\LZWEncoder.cs" />
@@ -487,12 +493,6 @@
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Forms\FourByteEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Forms\FourByteEditor.Designer.cs">
-      <DependentUpon>FourByteEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="System\Windows\Forms\ObjectOptimizerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -793,6 +793,9 @@
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\DataEditor4B.resx">
+      <DependentUpon>DataEditor4B.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\Hex Editor\HexBox.resx">
       <DependentUpon>HexBox.cs</DependentUpon>

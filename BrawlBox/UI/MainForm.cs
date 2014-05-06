@@ -77,6 +77,7 @@ namespace BrawlBox
             modelPanel1.Dock =
             previewPanel2.Dock =
             videoPlaybackPanel1.Dock =
+			dataEditor4B1.Dock =
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
@@ -231,7 +232,14 @@ namespace BrawlBox
                     newControl = previewPanel2;
                 }
                 else if (node is IRenderedObject)
+				{
                     newControl = modelPanel1;
+				}
+				else if (node is STDTNode)
+				{
+					dataEditor4B1.SetSource(node as STDTNode);
+					newControl = dataEditor4B1;
+				}
 
                 if (node is IColorSource && !disable2nd)
                 {
