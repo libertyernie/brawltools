@@ -77,7 +77,7 @@ namespace BrawlBox
             modelPanel1.Dock =
             previewPanel2.Dock =
             videoPlaybackPanel1.Dock =
-			dataEditor4B1.Dock =
+			attributeGrid1.Dock =
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
@@ -237,8 +237,19 @@ namespace BrawlBox
 				}
 				else if (node is STDTNode)
 				{
-					dataEditor4B1.SetSource(node as STDTNode);
-					newControl = dataEditor4B1;
+					STDTNode stdt = (STDTNode)node;
+
+					string loc = null;
+					foreach (ResourceNode n in RootNode.ResourceNode.Children) {
+						if (n.Name.StartsWith("ef")) {
+							loc = Application.StartupPath + "/STDT/" + n.Name + ".txt";
+							break;
+						}
+					}
+
+					attributeGrid1.AttributeArray = stdt.BuildAttributeArray(loc);
+					attributeGrid1.TargetNode = stdt;
+					newControl = attributeGrid1;
 				}
 
                 if (node is IColorSource && !disable2nd)

@@ -173,7 +173,7 @@ namespace System.Windows.Forms
             if (AttributeArray[index]._name != name)
             {
                 AttributeArray[index]._name = name;
-                DictionaryChanged.Invoke(this, EventArgs.Empty);
+                if (DictionaryChanged != null) DictionaryChanged.Invoke(this, EventArgs.Empty);
                 return;
             }
 
@@ -223,7 +223,7 @@ namespace System.Windows.Forms
             }
 
             attributes.Rows[index][1] = value;
-            CellEdited.Invoke(this, EventArgs.Empty);
+            if (CellEdited != null) CellEdited.Invoke(this, EventArgs.Empty);
         }
 
         private void dtgrdAttributes_CurrentCellChanged(object sender, EventArgs e)
@@ -247,7 +247,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 AttributeArray[index]._description = description.Text;
-                DictionaryChanged.Invoke(this, EventArgs.Empty);
+                if (DictionaryChanged != null) DictionaryChanged.Invoke(this, EventArgs.Empty);
             }
         }
     }

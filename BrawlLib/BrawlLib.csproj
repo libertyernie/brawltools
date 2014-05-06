@@ -185,12 +185,6 @@
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Controls\DataEditor4B.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Controls\DataEditor4B.Designer.cs">
-      <DependentUpon>DataEditor4B.cs</DependentUpon>
-    </Compile>
     <Compile Include="Imaging\GIF\AnimatedGifEncoder.cs" />
     <Compile Include="Imaging\GIF\GifDecoder.cs" />
     <Compile Include="Imaging\GIF\LZWEncoder.cs" />
@@ -802,9 +796,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\AttributeGrid.resx">
       <DependentUpon>AttributeGrid.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Controls\DataEditor4B.resx">
-      <DependentUpon>DataEditor4B.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\Hex Editor\HexBox.resx">
       <DependentUpon>HexBox.cs</DependentUpon>

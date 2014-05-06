@@ -56,7 +56,6 @@ namespace BrawlBox
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.dataEditor4B1 = new System.Windows.Forms.DataEditor4B();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
             this.modelPanel1 = new System.Windows.Forms.ModelPanel();
             this.previewPanel2 = new System.Windows.Forms.PreviewPanel();
@@ -71,6 +70,7 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
+            this.attributeGrid1 = new System.Windows.Forms.AttributeGrid();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -304,7 +304,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.dataEditor4B1);
+            this.splitContainer2.Panel2.Controls.Add(this.attributeGrid1);
             this.splitContainer2.Panel2.Controls.Add(this.videoPlaybackPanel1);
             this.splitContainer2.Panel2.Controls.Add(this.modelPanel1);
             this.splitContainer2.Panel2.Controls.Add(this.previewPanel2);
@@ -335,14 +335,6 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(533, 252);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
-            // 
-            // dataEditor4B1
-            // 
-            this.dataEditor4B1.Location = new System.Drawing.Point(43, -34);
-            this.dataEditor4B1.Name = "dataEditor4B1";
-            this.dataEditor4B1.Size = new System.Drawing.Size(300, 150);
-            this.dataEditor4B1.TabIndex = 18;
-            this.dataEditor4B1.Visible = false;
             // 
             // videoPlaybackPanel1
             // 
@@ -379,7 +371,7 @@ namespace BrawlBox
             this.previewPanel2.Margin = new System.Windows.Forms.Padding(4);
             this.previewPanel2.Name = "previewPanel2";
             this.previewPanel2.RenderingTarget = null;
-            this.previewPanel2.Size = new System.Drawing.Size(492, 164);
+            this.previewPanel2.Size = new System.Drawing.Size(492, 163);
             this.previewPanel2.TabIndex = 16;
             this.previewPanel2.Visible = false;
             // 
@@ -486,6 +478,15 @@ namespace BrawlBox
             this.msBinEditor1.TabIndex = 2;
             this.msBinEditor1.Visible = false;
             // 
+            // attributeGrid1
+            // 
+            this.attributeGrid1.AttributeArray = null;
+            this.attributeGrid1.Location = new System.Drawing.Point(46, 56);
+            this.attributeGrid1.Name = "attributeGrid1";
+            this.attributeGrid1.Size = new System.Drawing.Size(479, 305);
+            this.attributeGrid1.TabIndex = 18;
+            this.attributeGrid1.Visible = false;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -560,7 +561,7 @@ namespace BrawlBox
         private ToolStripMenuItem gCTEditorToolStripMenuItem;
         private ToolStripMenuItem recentFilesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
-        private DataEditor4B dataEditor4B1;
+        private AttributeGrid attributeGrid1;
     }
 }
 
