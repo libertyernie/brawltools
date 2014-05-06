@@ -15,7 +15,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.BLOC; } }
         internal BLOC* Header { get { return (BLOC*)WorkingUncompressed.Address; } }
         internal byte* RawHeader { get { return (byte*)WorkingUncompressed.Address; } }
-        public int SubFiles { get; private set; }
+        public int SubFiles { get { return Header->_count; } }
         internal byte[] data;
 
         public override bool OnInitialize()
@@ -25,8 +25,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_name == null)
                 _name = "BLOC";
 
-            byte* _NumFiles = (byte*)WorkingUncompressed.Address + 0x07;            
-            this.SubFiles = *(int*)_NumFiles;
+            //byte* _NumFiles = (byte*)WorkingUncompressed.Address + 0x07;            
+            //this.SubFiles = *(int*)_NumFiles;
             data = new byte[WorkingUncompressed.Length];
 
             for (int i = 0; i < data.Length; i++)
