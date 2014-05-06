@@ -22,8 +22,8 @@ namespace Ikarus
         private BRESNode _animations = null;
         private MovesetFile _moveset = null;
 
-        private string Loc(int i) { return String.Format(_locs[i], Folder); }
-        private static readonly string[] _locs = 
+        private string RLoc(int i) { return String.Format(_Rlocs[i], Folder); }
+        private static readonly string[] _Rlocs = 
         { 
             "/fighter/{0}/Fit{0}.pac",
             "/fighter/{0}/Fit{0}MotionEtc.pac",
@@ -34,38 +34,79 @@ namespace Ikarus
             "/fighter/{0}/Fit{0}Motion.pac",
         };
 
+        private string CLoc(int i) { return String.Format(_Clocs[i], Folder); }
+        private static readonly string[] _Clocs = 
+        { 
+            "/Fit{0}.pac",
+            "/Fit{0}MotionEtc.pac",
+            "/Fit{0}Entry.pac",
+            "/Fit{0}Final.pac",
+            "/Fit{0}{1}.pcs",
+            "/Fit{0}{1}.pac",
+            "/Fit{0}Motion.pac",
+        };
         ARCNode _movesetArc, _motionEtcArc, _entryArc, _finalArc;
         ARCNode[] _modelArcs = new ARCNode[12];
 
         public ARCNode MovesetArc
         {
-            get { return _movesetArc == null ? _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(Loc(0), Folder)) : _movesetArc; }
+            get 
+            {
+                if(RunTime._IsRoot)
+                return _movesetArc == null ? _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(0), Folder)) : _movesetArc; 
+                else
+                return _movesetArc == null ? _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(0), Folder)) : _movesetArc; 
+            }
         }
         public ARCNode MotionEtcArc
         {
-            get { return _motionEtcArc == null ? _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(Loc(1), Folder), String.Format(Loc(6), Folder)) : _motionEtcArc; } 
+            get 
+            {
+                if (RunTime._IsRoot)
+                return _motionEtcArc == null ? _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(1), Folder), String.Format(RLoc(6), Folder)) : _motionEtcArc; 
+                else
+                return _motionEtcArc == null ? _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(1), Folder), String.Format(CLoc(6), Folder)) : _motionEtcArc; 
+            } 
         }
         public ARCNode EntryArc
         {
-            get { return _entryArc == null ? _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(Loc(2), Folder)) : _entryArc; }
+            get 
+            {
+                if(RunTime._IsRoot)
+                return _entryArc == null ? _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(2), Folder)) : _entryArc; 
+                else
+                return _entryArc == null ? _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(2), Folder)) : _entryArc; 
+            }
         }
         public ARCNode FinalArc
         {
-            get { return _finalArc == null ? _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(Loc(3), Folder)) : _finalArc; }
+            get 
+            {
+                if(RunTime._IsRoot)
+                return _finalArc == null ? _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(3), Folder)) : _finalArc; 
+                else
+                return _finalArc == null ? _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(3), Folder)) : _finalArc; 
+            }
         }
         public ARCNode GetModelArc(int index)
         {
-            if (_modelArcs[index] != null)
+            if (_modelArcs[index] != null) 
                 return _modelArcs[index];
+            if(RunTime._IsRoot)
+            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(_Rlocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Rlocs[5], Folder, index.ToString().PadLeft(2, '0')));
+            else
+            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(_Clocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Clocs[5], Folder, index.ToString().PadLeft(2, '0')));
 
-            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(_locs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_locs[5], Folder, index.ToString().PadLeft(2, '0')));
         }
         public bool ModelArcExists(int index, bool searchDir, bool searchOpened)
         {
             if (_modelArcs[index] != null)
                 return true;
+            if(RunTime._IsRoot)
+            return Manager.FileExists(searchDir, searchOpened, String.Format(_Rlocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Rlocs[5], Folder, index.ToString().PadLeft(2, '0')));
+            else
+            return Manager.FileExists(searchDir, searchOpened, String.Format(_Clocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Clocs[5], Folder, index.ToString().PadLeft(2, '0')));
 
-            return Manager.FileExists(searchDir, searchOpened, String.Format(_locs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_locs[5], Folder, index.ToString().PadLeft(2, '0')));
         }
 
         internal BRESNode Animations 

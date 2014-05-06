@@ -17,6 +17,7 @@ namespace Ikarus
     /// </summary>
     public static class RunTime
     {
+        public static bool _IsRoot;
         static RunTime()
         {
             _timer.RenderFrame += RenderFrame;
