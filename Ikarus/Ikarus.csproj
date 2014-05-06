@@ -165,9 +165,6 @@
     <Compile Include="UI\Controls\ArticleAttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Controls\AttributeGrid.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Controls\EventDescription.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -269,9 +266,6 @@
     </Compile>
     <EmbeddedResource Include="UI\Controls\ArticleAttributeGrid.resx">
       <DependentUpon>ArticleAttributeGrid.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="UI\Controls\AttributeGrid.resx">
-      <DependentUpon>AttributeGrid.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Controls\EventDescription.resx">
       <DependentUpon>EventDescription.cs</DependentUpon>

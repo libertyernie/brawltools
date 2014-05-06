@@ -8,11 +8,22 @@ using Ikarus;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class AttributeList : MovesetEntry
+    public unsafe class AttributeList : MovesetEntry, IAttributeList
     {
         [Browsable(false)]
         public UnsafeBuffer AttributeBuffer { get { if (_buffer != null) return _buffer; else return _buffer = new UnsafeBuffer(0x2E4); } }
         private UnsafeBuffer _buffer;
+
+        public VoidPtr Address {
+            get {
+                return AttributeBuffer.Address;
+            }
+        }
+        public int NumEntries {
+            get {
+                return 0x2E4 / 4;
+            }
+        }
 
         public override void Parse(VoidPtr address)
         {

@@ -111,9 +111,9 @@ namespace System.Windows.Forms
         public event EventHandler CellEdited;
         public event EventHandler DictionaryChanged;
 
-        private AttributeList _targetNode;
+        private IAttributeList _targetNode;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public AttributeList TargetNode
+        public IAttributeList TargetNode
         {
             get { return _targetNode; }
             set { _targetNode = value; if (!called && value != null) { LoadData(); called = true; } TargetChanged(); }
@@ -130,7 +130,7 @@ namespace System.Windows.Forms
             //attributes.Columns[0].ReadOnly = true;
             dtgrdAttributes.DataSource = attributes;
 
-            for (int i = 0; i < 185; i++)
+            for (int i = 0; i < TargetNode.NumEntries; i++)
             {
                 if (i < AttributeArray.Length)
                     attributes.Rows.Add(AttributeArray[i]._name);
@@ -146,10 +146,10 @@ namespace System.Windows.Forms
             if (TargetNode == null)
                 return;
 
-            byte* buffer = (byte*)TargetNode.AttributeBuffer.Address;
+            byte* buffer = (byte*)TargetNode.Address;
 
             //Add attributes to the attribute table.
-            for (int i = 0; i < 185; i++)
+            for (int i = 0; i < TargetNode.NumEntries; i++)
                 if (AttributeArray[i]._type == 2)
                     attributes.Rows[i][1] = (float)((bfloat*)buffer)[i] * Maths._rad2degf;
                 else if (AttributeArray[i]._type == 1)
@@ -177,7 +177,7 @@ namespace System.Windows.Forms
                 return;
             }
 
-            byte* buffer = (byte*)TargetNode.AttributeBuffer.Address;
+            byte* buffer = (byte*)TargetNode.Address;
 
             if (AttributeArray[index]._type == 2) //degrees
             {
@@ -247,7 +247,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 AttributeArray[index]._description = description.Text;
-				DictionaryChanged.Invoke(this, EventArgs.Empty);
+                DictionaryChanged.Invoke(this, EventArgs.Empty);
             }
         }
     }
