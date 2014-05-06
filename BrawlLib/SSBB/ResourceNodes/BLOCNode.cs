@@ -14,7 +14,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         public override ResourceType ResourceType { get { return ResourceType.BLOC; } }
         internal BLOC* Header { get { return (BLOC*)WorkingUncompressed.Address; } }
+        internal byte* RawHeader { get { return (byte*)WorkingUncompressed.Address; } }
         public int SubFiles { get; private set; }
+        internal byte[] data;
 
         public override bool OnInitialize()
         {
@@ -25,18 +27,28 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             byte* _NumFiles = (byte*)WorkingUncompressed.Address + 0x07;            
             this.SubFiles = *(int*)_NumFiles;
+            data = new byte[WorkingUncompressed.Length];
+
+            for (int i = 0; i < data.Length; i++)
+                data[i] = RawHeader[i];
+
             return Header->_count > 0;
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            //TODO
+            byte* header = (byte*)address;
+            for (int i = 0; i < data.Length; i++)
+                header[i] = data[i];
         }
 
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)
-                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], 260));
+                if(i == Header->_count-1)
+                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], WorkingUncompressed.Address + data.Length - (*Header)[i]));
+                else
+                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]));
         }
 
 
