@@ -19,21 +19,24 @@ they be held accountable for the manner in which it is used.
  while changes beginning with a period (.) serve to add/modify
  features that BrawlBox doesn't use.
 
- (5/3/2014) - BrawlLib 0.19L (libertyernie)
+ (5/4/2014) - BrawlLib 0.19.1
+    * Fixed UTF-8 encoding (was corrupting files)
+
+ (5/3/2014) - BrawlLib 0.19L
     * MSBin strings are now properly encoded/decoded to/from UTF-8, instead of just ASCII
 	  * Fixes the appearance of strings like "Pokémon" and allows editing of non-Latin text
     . MD5EnsureChildrenIncluded and its friends moved to a new file called NodeDeepChecksum
 
- (4/6/2014) - BrawlLib v0.18L3 (libertyernie)
+ (4/6/2014) - BrawlLib v0.18L3
     . ResourceNode.MD5EnsureChildrenIncluded() or MD5StrEnsureChildrenIncluded(): will XOR own MD5 sum with those of children if children aren't already included in the node's own data
 
- (3/13/2014) - BrawlLib v0.18L2 (libertyernie)
+ (3/13/2014) - BrawlLib v0.18L2
 	* When exporting BRES entries (TEX0, MDL0, etc.), reset the BRES index offset (0x0c, 4 bytes) to 0 so that exported files with the same data will be identical
 	. Implement MD5() and MD5Str() functions to get checksums of resource node data
       . Note: result of MD5() is NOT guaranteed to match what the MD5 checksum of a node's data would be after being exported to a separate file
 	. Override MD5() for BRESEntryNode to simulate the export behavior, so checksums of identical nodes will match
 
- (2/13/2014) - BrawlLib v0.18L (libertyernie)
+ (2/13/2014) - BrawlLib v0.18L
 	. Added the HideMDL0Errors assembly property, which will prevent dialog boxes from appearing when MDL0 errors are detected
 	. Added the InitialSize and InitialFormat properties to TextureConverterDialog
 	. Added Volume and VolumePercent properties to AudioPlaybackPanel
