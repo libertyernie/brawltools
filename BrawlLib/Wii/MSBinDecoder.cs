@@ -67,14 +67,14 @@ namespace BrawlLib.Wii
                 }
             }
 
-			int input_count = (int)dPtr - (int)buffer;
-			int output_count = Encoding.UTF8.GetDecoder().GetCharCount(buffer, input_count, true);
-			char[] buffer2 = new char[output_count];
-			fixed (char* ptr = buffer2) {
-				Encoding.UTF8.GetDecoder().GetChars(buffer, input_count,
-					ptr, output_count, true);
-			}
-			return new string(buffer2);
+            int input_count = (int)dPtr - (int)buffer;
+            int output_count = Encoding.UTF8.GetDecoder().GetCharCount(buffer, input_count, true);
+            char[] buffer2 = new char[output_count];
+            fixed (char* ptr = buffer2) {
+                Encoding.UTF8.GetDecoder().GetChars(buffer, input_count,
+                    ptr, output_count, true);
+            }
+            return new string(buffer2);
         }
 
         public static int EncodeString(string s, byte* dPtr)
@@ -89,12 +89,19 @@ namespace BrawlLib.Wii
             byte[] utf8;
             fixed (char* p = s)
             {
-				utf8 = new byte[Encoding.UTF8.GetEncoder().GetByteCount(p, s.Length, true)];
-			}
-			// The loop below is ignorant of UTF8, but it looks for certain ASCII characters and writes each character as 1 byte, so hopefully this kludge will make it work
-			char[] utf8_to_char_array = new char[utf8.Length];
-			for (int i = 0; i < utf8.Length; i++) utf8_to_char_array[i] = (char)utf8[i];
-			fixed (char* p = utf8_to_char_array) {
+                utf8 = new byte[Encoding.UTF8.GetEncoder().GetByteCount(p, s.Length, true)];
+                int charsUsed, bytesUsed;
+                bool completed;
+                fixed (byte* b = utf8) {
+                    Encoding.UTF8.GetEncoder().Convert(p, s.Length, b, utf8.Length, true,
+                        out charsUsed, out bytesUsed, out completed);
+                }
+                if (!completed) throw new Exception("Could not encode the MSBin file.");
+            }
+            // The loop below is ignorant of UTF8, but it looks for certain ASCII characters and writes each character as 1 byte, so hopefully this kludge will make it work
+            char[] utf8_to_char_array = new char[utf8.Length];
+            for (int i = 0; i < utf8.Length; i++) utf8_to_char_array[i] = (char)utf8[i];
+            fixed (char* p = utf8_to_char_array) {
                 char* sPtr = p, ceil = sPtr + utf8_to_char_array.Length;
 
                 while (sPtr < ceil)
@@ -198,9 +205,22 @@ namespace BrawlLib.Wii
             bool hasColor, hasSize;
             byte* buffer = stackalloc byte[1024];
 
-            fixed (char* p = s)
-            {
-                char* sPtr = p, ceil = sPtr + strlen;
+            byte[] utf8;
+            fixed (char* p = s) {
+                utf8 = new byte[Encoding.UTF8.GetEncoder().GetByteCount(p, s.Length, true)];
+                int charsUsed, bytesUsed;
+                bool completed;
+                fixed (byte* b = utf8) {
+                    Encoding.UTF8.GetEncoder().Convert(p, s.Length, b, utf8.Length, true,
+                        out charsUsed, out bytesUsed, out completed);
+                }
+                if (!completed) throw new Exception("Could not encode the MSBin file.");
+            }
+            // The loop below is ignorant of UTF8, but it looks for certain ASCII characters and writes each character as 1 byte, so hopefully this kludge will make it work
+            char[] utf8_to_char_array = new char[utf8.Length];
+            for (int i = 0; i < utf8.Length; i++) utf8_to_char_array[i] = (char)utf8[i];
+            fixed (char* p = utf8_to_char_array) {
+                char* sPtr = p, ceil = sPtr + utf8_to_char_array.Length;
 
                 while (sPtr < ceil)
                 {
