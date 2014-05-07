@@ -16,12 +16,15 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		// Internal buffer for editing - changes written back to WorkingUncompressed on rebuild
 		internal UnsafeBuffer entries;
 
+        [Category("Stage Trap Data Table")]
+        public int NumEntries{get{return entries.Length / 4;}}
 		[Category("Stage Trap Data Table")]
 		public int Unk1 { get { return unk1; } set { unk1 = value; SignalPropertyChange(); } }
 		[Category("Stage Trap Data Table")]
 		public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
 		private AttributeInfo[] _attributeArray;
+        [Browsable(false)]
 		public AttributeInfo[] AttributeArray {
 			get {
 				if (_attributeArray == null) BuildAttributeArray(null);
@@ -55,18 +58,12 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		}
 
 		internal static ResourceNode TryParse(DataSource source) { return ((STDT*)source.Address)->_tag == STDT.Tag ? new STDTNode() : null; }
-
+        [Browsable(false)]
 		public VoidPtr AttributeAddress {
 			get {
 				return entries.Address;
 			}
 		}
-		public int NumEntries {
-			get {
-				return entries.Length / 4;
-			}
-		}
-
 		public void SetFloat(int index, float value) {
 			if (((bfloat*)AttributeAddress)[index] != value) {
 				((bfloat*)AttributeAddress)[index] = value;
@@ -85,7 +82,6 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		public int GetInt(int index) {
 			return ((bint*)AttributeAddress)[index];
 		}
-
 		/// <summary>
 		/// Creates an array of AttributeInfo objects to use with AttributeGrid,
 		/// reading from the given text file if it exists. If the file is null,
