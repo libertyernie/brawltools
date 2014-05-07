@@ -349,12 +349,16 @@ namespace System.Windows.Forms
 
         private void radioButtonsChanged(object sender, EventArgs e) {
             int index = dtgrdAttributes.CurrentCell.RowIndex;
-            AttributeArray[index]._type =
+            int ntype =
                 rdoFloat.Checked ? 0
                 : rdoInt.Checked ? 1
                 : rdoDegrees.Checked ? 2
                 : -1;
-            RefreshRow(index);
+			if (ntype != AttributeArray[index]._type) {
+				AttributeArray[index]._type = ntype;
+				if (DictionaryChanged != null) DictionaryChanged.Invoke(this, EventArgs.Empty);
+				RefreshRow(index);
+			}
         }
     }
 
