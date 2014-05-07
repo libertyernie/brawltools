@@ -164,6 +164,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NodeWrappers\BLOCWrapper.cs" />
+    <Compile Include="NodeWrappers\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
     <Compile Include="NodeWrappers\STDTWrapper.cs" />
     <Compile Include="NodeWrappers\TPLWrapper.cs" />
