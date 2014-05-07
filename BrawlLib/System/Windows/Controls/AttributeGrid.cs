@@ -129,29 +129,27 @@ namespace System.Windows.Forms
             attributes.Columns.Add("Value");
             //attributes.Columns[0].ReadOnly = true;
             dtgrdAttributes.DataSource = attributes;
-
-            for (int i = 0; i < TargetNode.NumEntries; i++)
-            {
-                if (i < AttributeArray.Length)
-                    attributes.Rows.Add(AttributeArray[i]._name);
-                else
-                    attributes.Rows.Add("0x" + (i * 4).ToString("X"));
-                //attributes.Rows.Add(i);
-            }
         }
 
         DataTable attributes = new DataTable();
         public unsafe void TargetChanged()
         {
             if (TargetNode == null)
-                return;
+				return;
 
-            byte* buffer = (byte*)TargetNode.AttributeAddress;
+			byte* buffer = (byte*)TargetNode.AttributeAddress;
+
+			attributes.Rows.Clear();
+			for (int i = 0; i < TargetNode.NumEntries; i++) {
+				if (i < AttributeArray.Length)
+					attributes.Rows.Add(AttributeArray[i]._name);
+				else
+					attributes.Rows.Add("0x" + (i * 4).ToString("X"));
+			}
 
             //Add attributes to the attribute table.
-			// TODO - Regenerate the rows here - number of rows might have changed!! (see STDT in different stages for example)
-            for (int i = 0; i < TargetNode.NumEntries; i++)
-                if (AttributeArray[i]._type == 2)
+			for (int i = 0; i < TargetNode.NumEntries; i++)
+                if (AttributeArray.Length <= i || AttributeArray[i]._type == 2)
                     attributes.Rows[i][1] = (float)((bfloat*)buffer)[i] * Maths._rad2degf;
                 else if (AttributeArray[i]._type == 1)
                     attributes.Rows[i][1] = (int)((bint*)buffer)[i];
