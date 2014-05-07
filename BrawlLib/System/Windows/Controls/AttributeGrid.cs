@@ -16,7 +16,14 @@ namespace System.Windows.Forms
             this.dtgrdAttributes = new System.Windows.Forms.DataGridView();
             this.description = new System.Windows.Forms.RichTextBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
+            this.rdoDegrees = new System.Windows.Forms.RadioButton();
+            this.rdoInt = new System.Windows.Forms.RadioButton();
+            this.rdoFloat = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.dtgrdAttributes)).BeginInit();
+            this.panel1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // dtgrdAttributes
@@ -62,10 +69,10 @@ namespace System.Windows.Forms
             this.description.BackColor = System.Drawing.SystemColors.Control;
             this.description.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.description.Cursor = System.Windows.Forms.Cursors.Default;
-            this.description.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.description.Dock = System.Windows.Forms.DockStyle.Fill;
             this.description.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.description.ForeColor = System.Drawing.Color.Black;
-            this.description.Location = new System.Drawing.Point(0, 242);
+            this.description.Location = new System.Drawing.Point(0, 0);
             this.description.Name = "description";
             this.description.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.Vertical;
             this.description.Size = new System.Drawing.Size(479, 63);
@@ -82,14 +89,93 @@ namespace System.Windows.Forms
             this.splitter1.TabIndex = 7;
             this.splitter1.TabStop = false;
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.tableLayoutPanel1);
+            this.panel1.Controls.Add(this.description);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel1.Location = new System.Drawing.Point(0, 242);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(479, 63);
+            this.panel1.TabIndex = 8;
+            // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.Controls.Add(this.rdoDegrees, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.rdoInt, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.rdoFloat, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(458, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 50F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(21, 63);
+            this.tableLayoutPanel1.TabIndex = 9;
+            // 
+            // rdoDegrees
+            // 
+            this.rdoDegrees.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rdoDegrees.AutoSize = true;
+            this.rdoDegrees.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rdoDegrees.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rdoDegrees.Location = new System.Drawing.Point(0, 42);
+            this.rdoDegrees.Margin = new System.Windows.Forms.Padding(0);
+            this.rdoDegrees.Name = "rdoDegrees";
+            this.rdoDegrees.Size = new System.Drawing.Size(21, 21);
+            this.rdoDegrees.TabIndex = 2;
+            this.rdoDegrees.TabStop = true;
+            this.rdoDegrees.Text = "D";
+            this.rdoDegrees.UseVisualStyleBackColor = true;
+            this.rdoDegrees.CheckedChanged += new System.EventHandler(this.radioButtonsChanged);
+            // 
+            // rdoInt
+            // 
+            this.rdoInt.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rdoInt.AutoSize = true;
+            this.rdoInt.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rdoInt.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rdoInt.Location = new System.Drawing.Point(0, 21);
+            this.rdoInt.Margin = new System.Windows.Forms.Padding(0);
+            this.rdoInt.Name = "rdoInt";
+            this.rdoInt.Size = new System.Drawing.Size(21, 21);
+            this.rdoInt.TabIndex = 1;
+            this.rdoInt.TabStop = true;
+            this.rdoInt.Text = "I";
+            this.rdoInt.UseVisualStyleBackColor = true;
+            this.rdoInt.CheckedChanged += new System.EventHandler(this.radioButtonsChanged);
+            // 
+            // rdoFloat
+            // 
+            this.rdoFloat.Appearance = System.Windows.Forms.Appearance.Button;
+            this.rdoFloat.AutoSize = true;
+            this.rdoFloat.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.rdoFloat.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rdoFloat.Location = new System.Drawing.Point(0, 0);
+            this.rdoFloat.Margin = new System.Windows.Forms.Padding(0);
+            this.rdoFloat.Name = "rdoFloat";
+            this.rdoFloat.Size = new System.Drawing.Size(21, 21);
+            this.rdoFloat.TabIndex = 0;
+            this.rdoFloat.TabStop = true;
+            this.rdoFloat.Text = "F";
+            this.rdoFloat.UseVisualStyleBackColor = true;
+            this.rdoFloat.CheckedChanged += new System.EventHandler(this.radioButtonsChanged);
+            // 
             // AttributeGrid
             // 
             this.Controls.Add(this.dtgrdAttributes);
             this.Controls.Add(this.splitter1);
-            this.Controls.Add(this.description);
+            this.Controls.Add(this.panel1);
             this.Name = "AttributeGrid";
             this.Size = new System.Drawing.Size(479, 305);
             ((System.ComponentModel.ISupportInitialize)(this.dtgrdAttributes)).EndInit();
+            this.panel1.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
+            this.tableLayoutPanel1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -107,6 +193,11 @@ namespace System.Windows.Forms
         public RichTextBox description;
         private Splitter splitter1;
         public bool called = false;
+        private Panel panel1;
+        private TableLayoutPanel tableLayoutPanel1;
+        private RadioButton rdoFloat;
+        private RadioButton rdoInt;
+        private RadioButton rdoDegrees;
 
         public event EventHandler CellEdited;
         public event EventHandler DictionaryChanged;
@@ -135,26 +226,28 @@ namespace System.Windows.Forms
         public unsafe void TargetChanged()
         {
             if (TargetNode == null)
-				return;
+                return;
 
-			byte* buffer = (byte*)TargetNode.AttributeAddress;
-
-			attributes.Rows.Clear();
-			for (int i = 0; i < TargetNode.NumEntries; i++) {
-				if (i < AttributeArray.Length)
-					attributes.Rows.Add(AttributeArray[i]._name);
-				else
-					attributes.Rows.Add("0x" + (i * 4).ToString("X"));
-			}
+            attributes.Rows.Clear();
+            for (int i = 0; i < TargetNode.NumEntries; i++) {
+                if (i < AttributeArray.Length)
+                    attributes.Rows.Add(AttributeArray[i]._name);
+                else
+                    attributes.Rows.Add("0x" + (i * 4).ToString("X"));
+            }
 
             //Add attributes to the attribute table.
-			for (int i = 0; i < TargetNode.NumEntries; i++)
-                if (AttributeArray.Length <= i || AttributeArray[i]._type == 2)
-                    attributes.Rows[i][1] = (float)((bfloat*)buffer)[i] * Maths._rad2degf;
-                else if (AttributeArray[i]._type == 1)
-                    attributes.Rows[i][1] = (int)((bint*)buffer)[i];
-                else
-                    attributes.Rows[i][1] = (float)((bfloat*)buffer)[i];
+            for (int i = 0; i < TargetNode.NumEntries; i++)
+                RefreshRow(i);
+        }
+
+        private void RefreshRow(int i) {
+            if (AttributeArray.Length <= i || AttributeArray[i]._type == 2)
+                attributes.Rows[i][1] = (float)((bfloat*)TargetNode.AttributeAddress)[i] * Maths._rad2degf;
+            else if (AttributeArray[i]._type == 1)
+                attributes.Rows[i][1] = (int)((bint*)TargetNode.AttributeAddress)[i];
+            else
+                attributes.Rows[i][1] = (float)((bfloat*)TargetNode.AttributeAddress)[i];
         }
 
         public void SetFloat(int index, float value) { TargetNode.SetFloat(index, value); }
@@ -234,6 +327,10 @@ namespace System.Windows.Forms
             _updating = true;
             description.Text = AttributeArray[index]._description;
             _updating = false;
+
+            (AttributeArray[index]._type == 1 ? rdoInt
+                : AttributeArray[index]._type == 2 ? rdoDegrees
+                : rdoFloat).Checked = true;
         }
 
         private bool _updating = false;
@@ -248,6 +345,16 @@ namespace System.Windows.Forms
                 AttributeArray[index]._description = description.Text;
                 if (DictionaryChanged != null) DictionaryChanged.Invoke(this, EventArgs.Empty);
             }
+        }
+
+        private void radioButtonsChanged(object sender, EventArgs e) {
+            int index = dtgrdAttributes.CurrentCell.RowIndex;
+            AttributeArray[index]._type =
+                rdoFloat.Checked ? 0
+                : rdoInt.Checked ? 1
+                : rdoDegrees.Checked ? 2
+                : -1;
+            RefreshRow(index);
         }
     }
 

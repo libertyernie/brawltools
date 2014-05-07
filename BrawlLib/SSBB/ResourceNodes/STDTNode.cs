@@ -23,6 +23,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		[Category("Stage Trap Data Table")]
 		public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
+		private string txtFileRead;
 		private AttributeInfo[] _attributeArray;
         [Browsable(false)]
 		public AttributeInfo[] AttributeArray {
@@ -89,6 +90,8 @@ namespace BrawlLib.SSBB.ResourceNodes {
 		/// ints or floats.
 		/// </summary>
 		public void BuildAttributeArray(string loc) {
+			if (txtFileRead == loc) return;
+			txtFileRead = loc;
 			AttributeInfo[] arr = new AttributeInfo[NumEntries];
 			buint* pIn = (buint*)AttributeAddress;
 			int index = 0x14;
@@ -101,14 +104,13 @@ namespace BrawlLib.SSBB.ResourceNodes {
 					arr[i]._type = 0;
 					arr[i]._description = "Unknown (value of 0 could be either - guessed float)";
 				} else if (((((uint)*((buint*)pIn)) >> 24) & 0xFF) != 0 && *((bint*)pIn) != -1 && !float.IsNaN(((float)*((bfloat*)pIn)))) {
-					float f = (float)*((bfloat*)pIn);
-					if (!f.ToString().Contains("E")) {
+					float abs = Math.Abs((float)*((bfloat*)pIn));
+					if (abs > 0.0000001 && abs < 10000000) {
 						arr[i]._type = 0;
 						arr[i]._description = "Unknown (probably float)";
 					} else {
 						arr[i]._type = 0;
 						arr[i]._description = "Unknown";
-						arr[i]._name = "? " + arr[i]._name;
 					}
 				} else {
 					arr[i]._type = 1;
