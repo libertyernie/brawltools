@@ -101,8 +101,15 @@ namespace BrawlLib.SSBB.ResourceNodes {
 					arr[i]._type = 0;
 					arr[i]._description = "Unknown (value of 0 could be either - guessed float)";
 				} else if (((((uint)*((buint*)pIn)) >> 24) & 0xFF) != 0 && *((bint*)pIn) != -1 && !float.IsNaN(((float)*((bfloat*)pIn)))) {
-					arr[i]._type = 0;
-					arr[i]._description = "Unknown (probably float)";
+					float f = (float)*((bfloat*)pIn);
+					if (!f.ToString().Contains("E")) {
+						arr[i]._type = 0;
+						arr[i]._description = "Unknown (probably float)";
+					} else {
+						arr[i]._type = 0;
+						arr[i]._description = "Unknown";
+						arr[i]._name = "? " + arr[i]._name;
+					}
 				} else {
 					arr[i]._type = 1;
 					arr[i]._description = "Unknown (probably int)";
