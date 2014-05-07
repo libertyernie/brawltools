@@ -110,6 +110,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
 				} else {
 					arr[i]._type = 1;
 					arr[i]._description = "Unknown (probably int)";
+					arr[i]._name = "*" + arr[i]._name;
 				}
 				index += 4;
 				pIn++;
