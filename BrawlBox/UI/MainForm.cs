@@ -247,7 +247,8 @@ namespace BrawlBox
 						}
 					}
 
-					attributeGrid1.AttributeArray = stdt.BuildAttributeArray(loc);
+					stdt.BuildAttributeArray(loc);
+					attributeGrid1.AttributeArray = stdt.AttributeArray;
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
 				}
