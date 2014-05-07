@@ -149,6 +149,7 @@ namespace System.Windows.Forms
             byte* buffer = (byte*)TargetNode.AttributeAddress;
 
             //Add attributes to the attribute table.
+			// TODO - Regenerate the rows here - number of rows might have changed!! (see STDT in different stages for example)
             for (int i = 0; i < TargetNode.NumEntries; i++)
                 if (AttributeArray[i]._type == 2)
                     attributes.Rows[i][1] = (float)((bfloat*)buffer)[i] * Maths._rad2degf;
