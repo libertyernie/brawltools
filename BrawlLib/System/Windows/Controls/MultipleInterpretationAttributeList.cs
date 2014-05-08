@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Windows.Forms;
 
-namespace BrawlLib.System.Windows.Controls {
+namespace System.Windows.Forms {
 	public class MultipleInterpretationAttributeGrid : AttributeGrid {
 		private ComboBox chooser;
 
