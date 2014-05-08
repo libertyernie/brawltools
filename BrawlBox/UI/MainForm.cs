@@ -239,15 +239,7 @@ namespace BrawlBox
 				{
 					STDTNode stdt = (STDTNode)node;
 
-					string loc = null;
-					foreach (ResourceNode n in RootNode.ResourceNode.Children) {
-						if (n.Name.StartsWith("ef")) {
-							loc = Application.StartupPath + "/STDT/" + n.Name + ".txt";
-							break;
-						}
-					}
-
-					stdt.BuildAttributeArray(loc);
+					stdt.BuildAttributeArray(RootNode.Name);
 					attributeGrid1.AttributeArray = stdt.AttributeArray;
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
