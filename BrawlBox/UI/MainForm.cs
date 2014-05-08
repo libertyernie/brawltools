@@ -239,8 +239,8 @@ namespace BrawlBox
 				{
 					STDTNode stdt = (STDTNode)node;
 
-					stdt.BuildAttributeArray(RootNode.Name);
-					attributeGrid1.AttributeArray = stdt.AttributeArray;
+					attributeGrid1.Clear();
+					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
 				}

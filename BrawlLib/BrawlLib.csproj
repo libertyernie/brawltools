@@ -258,7 +258,7 @@
     <Compile Include="SSBB\ResourceNodes\AI\CENode.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\FileScanNode.cs" />
     <Compile Include="SSBB\ResourceNodes\BLOCNode.cs" />
-	<Compile Include="SSBB\ResourceNodes\GDORNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\GDORNode.cs" />
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
@@ -292,7 +292,7 @@
     <Compile Include="SSBB\Types\Audio\RSTM.cs" />
     <Compile Include="SSBB\Types\Audio\RWSD.cs" />
     <Compile Include="SSBB\Types\BLOC.cs" />
-	<Compile Include="SSBB\Types\GDOR.cs" />
+    <Compile Include="SSBB\Types\GDOR.cs" />
     <Compile Include="SSBB\Types\STDT.cs" />
     <Compile Include="SSBB\Types\TPL.cs" />
     <Compile Include="SSBB\UserData.cs" />
@@ -467,6 +467,9 @@
     </Compile>
     <Compile Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.Designer.cs">
       <DependentUpon>RightPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\MultipleInterpretationAttributeList.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\PreviewPanel.cs">
       <SubType>UserControl</SubType>

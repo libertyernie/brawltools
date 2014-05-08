@@ -70,7 +70,7 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
-            this.attributeGrid1 = new System.Windows.Forms.AttributeGrid();
+			this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -561,7 +561,7 @@ namespace BrawlBox
         private ToolStripMenuItem gCTEditorToolStripMenuItem;
         private ToolStripMenuItem recentFilesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
-        private AttributeGrid attributeGrid1;
+		private MultipleInterpretationAttributeGrid attributeGrid1;
     }
 }
 

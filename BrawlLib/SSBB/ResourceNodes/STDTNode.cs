@@ -24,15 +24,6 @@ namespace BrawlLib.SSBB.ResourceNodes {
         [Category("Stage Trap Data Table")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
-        private AttributeInfo[] _attributeArray;
-        [Browsable(false)]
-        public AttributeInfo[] AttributeArray {
-            get {
-                if (_attributeArray == null) BuildAttributeArray(null);
-                return _attributeArray;
-            }
-        }
-
         public override bool OnInitialize() {
             _name = "STDT";
             version = Header->_version;
@@ -83,7 +74,16 @@ namespace BrawlLib.SSBB.ResourceNodes {
         public int GetInt(int index) {
             return ((bint*)AttributeAddress)[index];
         }
-        /// <summary>
+
+		public IEnumerable<AttributeInfo[]> GetPossibleInterpretations() {
+			var q= from f in STDTFormat.Formats
+				   where f.Size == WorkingUncompressed.Length
+				   select f.AttributeArray;
+			Console.WriteLine(q.Count());
+			return q;
+		}
+
+        /*/// <summary>
         /// Creates an array of AttributeInfo objects to use with AttributeGrid,
         /// reading from the given text file if it exists. If the file is null,
         /// default names will be used and the program will guess if values are
@@ -126,7 +126,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
                 }
                 _attributeArray = arr;
             }
-        }
+        }*/
     }
 
     public class STDTFormat {
@@ -153,9 +153,9 @@ namespace BrawlLib.SSBB.ResourceNodes {
         }
 
         private void BuildAttributeArray(string filename) {
-            List<AttributeInfo> list = new List<AttributeInfo>();
+			List<AttributeInfo> list = new List<AttributeInfo>();
+			int index = 0x14;
             if (filename != null && File.Exists(filename)) {
-                int index = 0x14;
                 using (var sr = new StreamReader(filename)) {
                     for (int i = 0; !sr.EndOfStream && i < NumEntries; i++) {
                         AttributeInfo attr = new AttributeInfo();
@@ -169,15 +169,15 @@ namespace BrawlLib.SSBB.ResourceNodes {
                         sr.ReadLine();
                         index++;
                     }
-                    while (list.Count < NumEntries) {
-                        list.Add(new AttributeInfo() {
-                            _name = "0x" + index.ToString("X3"),
-                            _description = "Unknown",
-                             _type = 0,
-                        });
-                    }
                 }
-            }
+			}
+			while (list.Count < NumEntries) {
+				list.Add(new AttributeInfo() {
+					_name = "0x" + index.ToString("X3"),
+					_description = "Unknown",
+					_type = 0,
+				});
+			}
             _attributeArray = list.ToArray();
         }
 
