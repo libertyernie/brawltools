@@ -1,12 +1,64 @@
-﻿using System;
+﻿using BrawlLib.SSBB.ResourceNodes;
+using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace System.Windows.Forms {
+	public class AttributeInterpretation {
+		public AttributeInfo[] Array { get; private set; }
+		public string Filename { get; private set; }
+		public int NumEntries {
+			get {
+				return Array.Length;
+			}
+		}
+
+		public AttributeInterpretation(string filename) {
+			this.Filename = filename;
+
+			List<AttributeInfo> list = new List<AttributeInfo>();
+			int index = 0x14;
+			if (filename != null && File.Exists(filename)) {
+				using (var sr = new StreamReader(filename)) {
+					for (int i = 0; !sr.EndOfStream /*&& i < NumEntries*/; i++) {
+						AttributeInfo attr = new AttributeInfo();
+						attr._name = sr.ReadLine();
+						attr._description = sr.ReadLine();
+						string num = sr.ReadLine();
+						try {
+							attr._type = int.Parse(num);
+						} catch (FormatException ex) {
+							throw new FormatException("Invalid type \"" + num + "\" in " + Path.GetFileName(filename) + ".", ex);
+						}
+
+						if (attr._description == "") attr._description = "No Description Available.";
+
+						list.Add(attr);
+						sr.ReadLine();
+						index++;
+					}
+				}
+			}
+			this.Array = list.ToArray();
+		}
+
+		public override string ToString() {
+			return Path.GetFileNameWithoutExtension(this.Filename);
+		}
+
+		public void Save() {
+			throw new NotImplementedException();
+		}
+	}
+
 	public class MultipleInterpretationAttributeGrid : AttributeGrid {
 		private ComboBox chooser;
 
 		public MultipleInterpretationAttributeGrid() : base() {
-			chooser = new ComboBox() { Dock = DockStyle.Fill };
+			chooser = new ComboBox() {
+				Dock = DockStyle.Fill,
+				DropDownStyle = ComboBoxStyle.DropDownList
+			};
 			chooser.SelectedIndexChanged += chooser_SelectedIndexChanged;
 
 			Button save = new Button() {
@@ -22,34 +74,38 @@ namespace System.Windows.Forms {
 			p.Controls.Add(chooser);
 			p.Controls.Add(save);
 			this.Controls.Add(p);
+
 			foreach (Control c in new Control[] { chooser, save, p }) {
 				c.Margin = new Padding(0);
 			}
 		}
 
 		void save_Click(object sender, EventArgs e) {
-			throw new NotImplementedException();
+			AttributeInterpretation item = (AttributeInterpretation)chooser.SelectedItem;
+			if (item != null) {
+				item.Save();
+			}
 		}
 
 		private void chooser_SelectedIndexChanged(object sender, EventArgs e) {
-			AttributeInfo[] item = (AttributeInfo[])chooser.SelectedItem;
+			AttributeInterpretation item = (AttributeInterpretation)chooser.SelectedItem;
 			if (item != null) {
-				base.AttributeArray = item;
+				base.AttributeArray = item.Array;
 				base.TargetChanged();
 			}
 		}
 
-		public int Add(AttributeInfo[] arr) {
+		public int Add(AttributeInterpretation arr) {
 			int i = chooser.Items.Add(arr);
 			if (base.AttributeArray == null) {
 				chooser.SelectedIndex = i;
 			}
 			return i;
 		}
-		public void AddRange(IEnumerable<AttributeInfo[]> arrs) {
+		public void AddRange(IEnumerable<AttributeInterpretation> arrs) {
 			foreach (var arr in arrs) Add(arr);
 		}
-		public void Remove(AttributeInfo[] arr) {
+		public void Remove(AttributeInterpretation arr) {
 			chooser.Items.Remove(arr);
 			if (base.AttributeArray == null) {
 				base.AttributeArray = null;
