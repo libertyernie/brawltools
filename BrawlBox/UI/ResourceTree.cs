@@ -64,7 +64,8 @@ namespace BrawlBox
                         Resources.REFFEntry,
                         Resources.BLOC,
                         Resources.STDT,
-                        Resources.BLOCEntry,
+                        Resources.GDOR,
+                        Resources.GEG1,//40
                     });
                 }
                 return _imgList;

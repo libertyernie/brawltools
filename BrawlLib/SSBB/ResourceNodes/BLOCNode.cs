@@ -25,11 +25,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             for (int i = 0; i < Header->_count; i++)
             {
-
+                //source decleration
                 DataSource source;
+
+                //Enumerate datasources for each child node
                 if (i == Header->_count - 1)
                 source = new DataSource((*Header)[i], WorkingUncompressed.Address+WorkingUncompressed.Length - (*Header)[i]);
-                else {source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]); }
+                else {source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]);}
+
+                //Call NodeFactory on datasource to initiate various files
                 if ((NodeFactory.FromSource(this, source) == null))
                 {
                     new BLOCEntryNode().Initialize(this, source);
@@ -43,7 +47,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class BLOCEntryNode : ResourceNode
     {
         internal BLOCEntry* Header { get { return (BLOCEntry*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.BLOCEntry; } }
+        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         public int Entries { get; private set; }
 
 

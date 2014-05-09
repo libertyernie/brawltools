@@ -42,7 +42,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         MSBin = 0x1404,
         STPM = 0x1520,
 		STDT = 0x5B26,
-        BLOCEntry = 0x5D27,
+        SHP0VertexSet = 0x5900,
+        DOL = 0x5A00,
 
         //AI
         AI = 0x1616,
@@ -111,6 +112,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         RSEQGroup = 0x4901,
         RBNKGroup = 0x4A01,
         
+        //Moveset
         MDef = 0x4B1A,
         NoEdit = 0x4C01,
         MDefActionGroup = 0x4D01,
@@ -126,7 +128,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         Event = 0x571B,
         Parameter = 0x5800,
         
-        SHP0VertexSet = 0x5900,
-        DOL = 0x5A00,
+        //Subspace Emmisary
+        GDOR = 0x5D27,
+        GEG1 = 0x5D28,
     }
 }
