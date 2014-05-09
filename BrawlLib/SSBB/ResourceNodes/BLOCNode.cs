@@ -25,11 +25,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             for (int i = 0; i < Header->_count; i++)
             {
+
                 DataSource source;
                 if (i == Header->_count - 1)
                 source = new DataSource((*Header)[i], WorkingUncompressed.Address+WorkingUncompressed.Length - (*Header)[i]);
                 else {source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]); }
-                new BLOCEntryNode().Initialize(this, source);
+                if ((NodeFactory.FromSource(this, source) == null))
+                {
+                    new BLOCEntryNode().Initialize(this, source);
+                }
             }  
     }
 
