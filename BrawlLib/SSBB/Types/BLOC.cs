@@ -16,13 +16,6 @@ namespace BrawlLib.SSBBTypes
         public int unk0;
         public int pad1;
 
-        public BLOC(int count)
-        {
-            _tag = Tag;
-            _count = count;
-            unk0 = 0x80;
-            pad1 = 0;                 
-        }
         public VoidPtr this[int index] { get { return (VoidPtr)((byte*)Address + Offsets(index)); } }
         public uint Offsets(int index) { return *(buint*)((byte*)Address + 0x10 + (index * 4)); }
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }

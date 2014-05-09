@@ -15,25 +15,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.BLOC; } }
         internal BLOC* Header { get { return (BLOC*)WorkingUncompressed.Address; } }
 
-        [Category("BLOC Archive")]
-        public int SubFiles { get { return Header->_count; } }
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
-            if (_name == null)
-                _name = "BLOC";
             return Header->_count > 0;
         }
 
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)
-                if(i == Header->_count-1)
-                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], Header + WorkingUncompressed.Length - (*Header)[i]));
-                else
-                new BLOCEntryNode().Initialize(this, new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]));
-        }
+            {
+                DataSource source;
+                if (i == Header->_count - 1)
+                source = new DataSource((*Header)[i], WorkingUncompressed.Address+WorkingUncompressed.Length - (*Header)[i]);
+                else {source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]); }
+                new BLOCEntryNode().Initialize(this, source);
+            }  
+    }
 
         internal static ResourceNode TryParse(DataSource source) { return ((BLOC*)source.Address)->_tag == BLOC.Tag ? new BLOCNode() : null; }
     }
@@ -43,6 +41,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal BLOCEntry* Header { get { return (BLOCEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.BLOCEntry; } }
         public int Entries { get; private set; }
+
+
 
         public override bool OnInitialize()
         {

@@ -12,12 +12,9 @@ namespace BrawlLib.SSBBTypes
         public const int Size = 12;
         public uint _tag;
         public bint _count;
+        public bint _DataOffset;
 
-        public GDOR(int count)
-        {
-            _tag = Tag;
-            _count = count;
-        }
         private GDOR* Address { get { fixed (GDOR* ptr = &this)return ptr; } }
+        public byte* Data { get { return (byte*)(Address + _DataOffset); } }
     }
 }
