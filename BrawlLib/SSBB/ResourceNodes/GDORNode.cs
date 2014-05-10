@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using BrawlLib.Imaging;
 using BrawlLib.Wii;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -14,7 +15,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOR* Header { get { return (GDOR*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.GDOR; } }
-        [Category("BLOC Archive")]
+        [Category("GDOR")]
         public int Doors { get { return Header->_count; } }
 
         public override void OnPopulate()
@@ -43,12 +44,33 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        
+        [Category("Door Info")]
+        [DisplayName("Stage ID (decimal)")]
+        public string FileID { get { return getStage(); } }
+
+        [Category("Door Info")]
+        [DisplayName("Door Index")]
+        public string DoorID { get { int i = *(byte*)(Header + 0x33); return i.ToString("x"); } }
+
+        public string getStage()
+        {
+            string s1="";
+            for (int i = 0; i < 3; i++)
+            {
+                int i1 = *(byte*)(Header + 0x30+i);
+                if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 = i1.ToString("x"); }
+            }
+            return s1;
+        }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
+            getStage();
             if (_name == null)
-                _name = "ENTRY["+Index+']';
+                _name = "Door["+Index+']';
+
             return false;
         }
     }

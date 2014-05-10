@@ -181,7 +181,9 @@
     <None Include="app.config" />
     <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
+    <Compile Include="SSBB\ResourceNodes\GEG1Node.cs" />
     <Compile Include="SSBB\ResourceNodes\IAttributeList.cs" />
+    <Compile Include="SSBB\Types\GEG1.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
