@@ -55,6 +55,7 @@ namespace System.Windows.Forms {
 			string dir = Path.GetDirectoryName(Filename);
 			if (!Directory.Exists(dir)) {
 				MessageBox.Show("The directory " + dir + " does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				return;
 			}
 			if (File.Exists(Filename)) {
 				if (DialogResult.Yes != MessageBox.Show("Overwrite " + Filename + "?", "Overwrite",
