@@ -92,7 +92,11 @@ namespace BrawlLib.SSBB.ResourceNodes {
 					try {
 						list.Add(new AttributeInterpretation(path));
 					} catch (FormatException ex) {
-						Console.Error.WriteLine(ex.Message);
+						if (Properties.Settings.Default.HideMDL0Errors) {
+							Console.Error.WriteLine(ex.Message);
+						} else {
+							MessageBox.Show(ex.Message);
+						}
 					}
 				}
 			}
