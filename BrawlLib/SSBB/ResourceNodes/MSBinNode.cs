@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using BrawlLib.Wii;
 using System.ComponentModel;
+using System.IO;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -72,5 +73,31 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return (offsets[0] == (index << 2)) ? new MSBinNode() : null;
         }
+
+		public override unsafe void Export(string outPath) {
+			if (outPath.EndsWith(".txt")) {
+				using (StreamWriter sw = new StreamWriter(outPath)) {
+					foreach (string s in this._strings) {
+						sw.WriteLine(s.Replace("\r\n", "<br/>"));
+					}
+				}
+			} else {
+				base.Export(outPath);
+			}
+		}
+
+		public override unsafe void Replace(string fileName) {
+			if (fileName.EndsWith(".txt")) {
+				List<string> list = new List<string>();
+				foreach (string s in File.ReadAllLines(fileName)) {
+					list.Add(s.Replace("<br/>", "\r\n"));
+				}
+				this._strings = list;
+				this.SignalPropertyChange();
+				ForceReplacedEvent();
+			} else {
+				base.Replace(fileName);
+			}
+		}
     }
 }

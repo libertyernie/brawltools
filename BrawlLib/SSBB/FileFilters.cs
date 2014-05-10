@@ -40,7 +40,8 @@ namespace BrawlLib
             "PAT0 Texture Pattern (*.pat0)|*.pat0";
 
         public static string MSBin =
-            "MSBin Message List (*.msbin)|*.msbin";
+            "MSBin Message List (*.msbin)|*.msbin|" +
+            "Plain text (*.txt)|*.txt";
 
         public static string BRES =
             "BRResource Pack (*.brres, *.brtex, *.brmdl, *.branm)|*.brres;*.brtex*.brmdl*.branm";

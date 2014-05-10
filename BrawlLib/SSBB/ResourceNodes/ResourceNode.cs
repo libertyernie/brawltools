@@ -557,6 +557,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Replaced(this);
         }
 
+		protected void ForceReplacedEvent() {
+			if (Replaced != null)
+				Replaced(this);
+		}
+
         public unsafe virtual void Export(string outPath)
         {
             Rebuild(); //Apply changes the user has made by rebuilding.
