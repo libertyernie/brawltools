@@ -44,9 +44,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-        
+
         [Category("Door Info")]
-        [DisplayName("Stage ID (decimal)")]
+        [DisplayName("Stage ID")]
         public string FileID { get { return getStage(); } }
 
         [Category("Door Info")]
@@ -67,10 +67,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-            getStage();
             if (_name == null)
-                _name = "Door["+Index+']';
-
+                _name = "Door["+(Index+1)+']';
             return false;
         }
     }

@@ -131,5 +131,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Subspace Emmisary
         GDOR = 0x5D27,
         GEG1 = 0x5D28,
+        ENEMY = 0x5d29,
     }
 }

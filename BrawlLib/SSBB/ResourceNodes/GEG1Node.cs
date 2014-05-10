@@ -23,7 +23,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 { source = new DataSource((*Header)[i], WorkingUncompressed.Address + WorkingUncompressed.Length - (*Header)[i]); }
                 else { source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]); }
                 new GEG1EntryNode().Initialize(this, source);
-
             }
         }
         public override bool OnInitialize()
@@ -39,7 +38,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class GEG1EntryNode : ResourceNode
     {
         internal GEG1Entry* Header { get { return (GEG1Entry*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.ENEMY; } }
 
         public override bool OnInitialize()
         {
