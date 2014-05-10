@@ -47,7 +47,18 @@ namespace System.Windows.Forms {
 		}
 
 		public void Save() {
-			throw new NotImplementedException();
+			if (File.Exists(Filename)) {
+				if (DialogResult.Yes != MessageBox.Show("Overwrite " + Filename + "?", "Overwrite",
+					MessageBoxButtons.YesNo)) return;
+			}
+			using (var sw = new StreamWriter(Filename)) {
+				foreach (AttributeInfo attr in Array) {
+					sw.WriteLine(attr._name);
+					sw.WriteLine(attr._description);
+					sw.WriteLine(attr._type);
+					sw.WriteLine();
+				}
+			}
 		}
 	}
 
