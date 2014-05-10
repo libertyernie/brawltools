@@ -1,9 +1,21 @@
-﻿using BrawlLib.SSBB.ResourceNodes;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
+using System.Windows.Forms;
 
-namespace System.Windows.Forms {
+namespace System {
+	public class AttributeInfo {
+		public string _name;
+		public string _description;
+		public int _type;
+
+		//0 == float/radians
+		//1 == int
+		//2 == float radians to degrees
+	}
+
 	public class AttributeInterpretation {
 		public AttributeInfo[] Array { get; private set; }
 		public string Filename { get; private set; }
@@ -69,72 +81,6 @@ namespace System.Windows.Forms {
 					sw.WriteLine();
 				}
 			}
-		}
-	}
-
-	public class MultipleInterpretationAttributeGrid : AttributeGrid {
-		private ComboBox chooser;
-
-		public MultipleInterpretationAttributeGrid() : base() {
-			chooser = new ComboBox() {
-				Dock = DockStyle.Fill,
-				DropDownStyle = ComboBoxStyle.DropDownList
-			};
-			chooser.SelectedIndexChanged += chooser_SelectedIndexChanged;
-
-			Button save = new Button() {
-				Dock = DockStyle.Right,
-				Text = "Save"
-			};
-			save.Click += save_Click;
-
-			Panel p = new Panel() {
-				Dock = DockStyle.Top,
-				Size = chooser.PreferredSize
-			};
-			p.Controls.Add(chooser);
-			p.Controls.Add(save);
-			this.Controls.Add(p);
-
-			foreach (Control c in new Control[] { chooser, save, p }) {
-				c.Margin = new Padding(0);
-			}
-		}
-
-		void save_Click(object sender, EventArgs e) {
-			AttributeInterpretation item = (AttributeInterpretation)chooser.SelectedItem;
-			if (item != null) {
-				item.Save();
-			}
-		}
-
-		private void chooser_SelectedIndexChanged(object sender, EventArgs e) {
-			AttributeInterpretation item = (AttributeInterpretation)chooser.SelectedItem;
-			if (item != null) {
-				base.AttributeArray = item.Array;
-				base.TargetChanged();
-			}
-		}
-
-		public int Add(AttributeInterpretation arr) {
-			int i = chooser.Items.Add(arr);
-			if (base.AttributeArray == null) {
-				chooser.SelectedIndex = i;
-			}
-			return i;
-		}
-		public void AddRange(IEnumerable<AttributeInterpretation> arrs) {
-			foreach (var arr in arrs) Add(arr);
-		}
-		public void Remove(AttributeInterpretation arr) {
-			chooser.Items.Remove(arr);
-			if (base.AttributeArray == null) {
-				base.AttributeArray = null;
-			}
-		}
-		public void Clear() {
-			chooser.Items.Clear();
-			base.AttributeArray = null;
 		}
 	}
 }

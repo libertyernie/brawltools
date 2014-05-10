@@ -236,15 +236,4 @@ namespace System
         public string _newName;
         public List<AttributeInfo> _attributes;
     }
-
-    public class AttributeInfo
-    {
-        public string _name;
-        public string _description;
-        public int _type;
-
-        //0 == float/radians
-        //1 == int
-        //2 == float radians to degrees
-    }
 }

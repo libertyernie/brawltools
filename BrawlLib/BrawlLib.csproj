@@ -184,6 +184,7 @@
     <Compile Include="SSBB\ResourceNodes\GEG1Node.cs" />
     <Compile Include="SSBB\ResourceNodes\IAttributeList.cs" />
     <Compile Include="SSBB\Types\GEG1.cs" />
+    <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -470,7 +471,7 @@
     <Compile Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.Designer.cs">
       <DependentUpon>RightPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\Windows\Controls\MultipleInterpretationAttributeList.cs">
+    <Compile Include="System\Windows\Controls\MultipleInterpretationAttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\PreviewPanel.cs">
