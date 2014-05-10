@@ -35,11 +35,30 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal static ResourceNode TryParse(DataSource source) { return ((GEG1*)source.Address)->_tag == GEG1.Tag ? new GEG1Node() : null; }
     }
+
     public unsafe class GEG1EntryNode : ResourceNode
     {
         internal GEG1Entry* Header { get { return (GEG1Entry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.ENEMY; } }
-
+        [Browsable(true), TypeConverter(typeof(DropDownListEnemies))]
+        [Category("Enemy Info")]
+        [DisplayName("Enemy Type")]
+        public string Enemy
+        {
+            get
+            {
+                int Enemy = *(byte*)(WorkingUncompressed.Address + 0x1D);
+                switch (Enemy)
+                {
+                    case 15: return "Spaak";
+                    case 23: return "Prim";
+                    case 20: return "BoxerPrim";
+                    case 32: return "BoomPrim";
+                    case 35: return "SwordPrim";
+                    default: return "Unknown";
+                }
+            }
+        }
         public override bool OnInitialize()
         {
             base.OnInitialize();
