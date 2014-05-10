@@ -8,6 +8,7 @@ using BrawlLib.SSBBTypes;
 using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
+using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes {
     public unsafe class STDTNode : ARCEntryNode, IAttributeList {
@@ -80,7 +81,47 @@ namespace BrawlLib.SSBB.ResourceNodes {
 			var q = from f in STPMFormats
 					where 0x14 + f.NumEntries * 4 == WorkingUncompressed.Length
 					select f;
+			q = q.DefaultIfEmpty(GenerateDefaultInterpretation());
 			return q;
+		}
+
+		private AttributeInterpretation GenerateDefaultInterpretation() {
+			AttributeInfo[] arr = new AttributeInfo[NumEntries];
+			buint* pIn = (buint*)AttributeAddress;
+			int index = 0x14;
+			for (int i = 0; i < arr.Length; i++) {
+				arr[i] = new AttributeInfo() {
+					_name = "0x" + index.ToString("X3")
+				};
+				//Guess if the value is a an integer or float
+				uint u = (uint)*((buint*)pIn);
+				float f = (float)*((bfloat*)pIn);
+				if (*pIn == 0) {
+					arr[i]._type = 0;
+					arr[i]._description = "Default: 0 (could be int or float - be careful)";
+				} else if (((u >> 24) & 0xFF) != 0 && *((bint*)pIn) != -1 && !float.IsNaN(f)) {
+					float abs = Math.Abs(f);
+					if (abs > 0.0000001 && abs < 10000000) {
+						arr[i]._type = 0;
+						arr[i]._description = "Default (float): " + f + " (" + u.ToString("X8") + ")";
+					} else {
+						arr[i]._type = 1;
+						arr[i]._description = "Default (unknown type): " + u + " (" + u.ToString("X8") + ")";
+						arr[i]._name = "~" + arr[i]._name;
+					}
+				} else {
+					arr[i]._type = 1;
+					arr[i]._description = "Default (int): " + u + " (" + u.ToString("X8") + ")";
+					arr[i]._name = "*" + arr[i]._name;
+				}
+				index += 4;
+				pIn++;
+			}
+
+			ResourceNode root = this;
+			while (root.Parent != null) root = root.Parent;
+			string filename = "STDT/" + root.Name.Replace("STG", "") + ".txt";
+			return new AttributeInterpretation(arr, filename);
 		}
 
 		public static AttributeInterpretation[] STPMFormats = ReadConfig();

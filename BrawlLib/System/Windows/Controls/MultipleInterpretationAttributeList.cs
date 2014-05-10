@@ -13,6 +13,11 @@ namespace System.Windows.Forms {
 			}
 		}
 
+		public AttributeInterpretation(AttributeInfo[] array, string saveToFile) {
+			this.Array = array;
+			this.Filename = saveToFile;
+		}
+
 		public AttributeInterpretation(string filename) {
 			this.Filename = filename;
 
@@ -47,6 +52,10 @@ namespace System.Windows.Forms {
 		}
 
 		public void Save() {
+			string dir = Path.GetDirectoryName(Filename);
+			if (!Directory.Exists(dir)) {
+				MessageBox.Show("The directory " + dir + " does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+			}
 			if (File.Exists(Filename)) {
 				if (DialogResult.Yes != MessageBox.Show("Overwrite " + Filename + "?", "Overwrite",
 					MessageBoxButtons.YesNo)) return;
