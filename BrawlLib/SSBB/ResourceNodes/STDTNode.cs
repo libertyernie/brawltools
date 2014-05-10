@@ -81,7 +81,14 @@ namespace BrawlLib.SSBB.ResourceNodes {
 			var q = from f in STPMFormats
 					where 0x14 + f.NumEntries * 4 == WorkingUncompressed.Length
 					select f;
-			q = q.DefaultIfEmpty(GenerateDefaultInterpretation());
+
+			ResourceNode root = this;
+			while (root.Parent != null) root = root.Parent;
+			bool any_match_name = q.Any(f => String.Equals(
+				Path.GetFileNameWithoutExtension(f.Filename),
+				root.Name.Replace("STG", ""),
+				StringComparison.InvariantCultureIgnoreCase));
+			if (!any_match_name) q = (new AttributeInterpretation[] { GenerateDefaultInterpretation() }).Concat(q);
 			return q;
 		}
 
