@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using BrawlLib.Imaging;
 using BrawlLib.Wii;
-using System.Windows.Forms;
+
 namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class GEG1Node : ResourceNode
