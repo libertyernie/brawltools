@@ -78,9 +78,10 @@ namespace BrawlLib.SSBB.ResourceNodes {
         }
 
 		public IEnumerable<AttributeInterpretation> GetPossibleInterpretations() {
+			ReadConfig();
 			ResourceNode root = this;
 			while (root.Parent != null) root = root.Parent;
-			var q = from f in STPMFormats
+			var q = from f in STDTFormats
 					where 0x14 + f.NumEntries * 4 == WorkingUncompressed.Length
 					select f;
 
@@ -137,14 +138,16 @@ namespace BrawlLib.SSBB.ResourceNodes {
 			return new AttributeInterpretation(arr, filename);
 		}
 
-		public static AttributeInterpretation[] STPMFormats = ReadConfig();
+		private static List<AttributeInterpretation> STDTFormats = new List<AttributeInterpretation>();
+		private static HashSet<string> configpaths_read = new HashSet<string>();
 
-		private static AttributeInterpretation[] ReadConfig() {
-			var list = new List<AttributeInterpretation>();
+		private static void ReadConfig() {
 			if (Directory.Exists("STDT")) {
 				foreach (string path in Directory.EnumerateFiles("STDT", "*.txt")) {
+					if (configpaths_read.Contains(path)) continue;
+					configpaths_read.Add(path);
 					try {
-						list.Add(new AttributeInterpretation(path));
+						STDTFormats.Add(new AttributeInterpretation(path));
 					} catch (FormatException ex) {
 						if (Properties.Settings.Default.HideMDL0Errors) {
 							Console.Error.WriteLine(ex.Message);
@@ -154,7 +157,6 @@ namespace BrawlLib.SSBB.ResourceNodes {
 					}
 				}
 			}
-			return list.ToArray();
 		}
     }
 }
