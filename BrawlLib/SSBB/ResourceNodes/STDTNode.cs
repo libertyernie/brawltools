@@ -44,7 +44,7 @@ namespace BrawlLib.SSBB.ResourceNodes {
             header->_unk2 = unk2;
             header->_version = version;
             header->_entryOffset = 0x14;
-            Memory.Move(Header->Entries, entries.Address, (uint)entries.Length);
+            Memory.Move(header->Entries, entries.Address, (uint)entries.Length);
         }
 
         public override int OnCalculateSize(bool force) {
