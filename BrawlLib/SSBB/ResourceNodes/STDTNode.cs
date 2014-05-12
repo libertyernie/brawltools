@@ -78,17 +78,23 @@ namespace BrawlLib.SSBB.ResourceNodes {
         }
 
 		public IEnumerable<AttributeInterpretation> GetPossibleInterpretations() {
+			ResourceNode root = this;
+			while (root.Parent != null) root = root.Parent;
 			var q = from f in STPMFormats
 					where 0x14 + f.NumEntries * 4 == WorkingUncompressed.Length
 					select f;
 
-			ResourceNode root = this;
-			while (root.Parent != null) root = root.Parent;
 			bool any_match_name = q.Any(f => String.Equals(
 				Path.GetFileNameWithoutExtension(f.Filename),
 				root.Name.Replace("STG", ""),
 				StringComparison.InvariantCultureIgnoreCase));
-			if (!any_match_name) q = (new AttributeInterpretation[] { GenerateDefaultInterpretation() }).Concat(q);
+			if (!any_match_name) q = q.Concat(new AttributeInterpretation[] { GenerateDefaultInterpretation() });
+
+			q = q.OrderBy(f => !String.Equals(
+				Path.GetFileNameWithoutExtension(f.Filename),
+				root.Name.Replace("STG", ""),
+				StringComparison.InvariantCultureIgnoreCase));
+
 			return q;
 		}
 
