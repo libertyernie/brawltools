@@ -44,31 +44,33 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-
+        internal UnsafeBuffer data;
         [Category("Door Info")]
         [DisplayName("Stage ID")]
-        public string FileID { get { return getStage(); } }
+        public string FileID
+        {
+            get
+            {
+                string s1 = "";
+                for (int i = 0; i < 3; i++)
+                {
+                    int i1 = *(byte*)(Header + 0x30 + i);
+                    if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 = i1.ToString("x"); }
+                }
+                return s1; ;
+            }
+        }
 
         [Category("Door Info")]
         [DisplayName("Door Index")]
         public string DoorID { get { int i = *(byte*)(Header + 0x33); return i.ToString("x"); } }
 
-        public string getStage()
-        {
-            string s1="";
-            for (int i = 0; i < 3; i++)
-            {
-                int i1 = *(byte*)(Header + 0x30+i);
-                if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 = i1.ToString("x"); }
-            }
-            return s1;
-        }
-
         public override bool OnInitialize()
         {
-            base.OnInitialize();
             if (_name == null)
                 _name = "Door["+(Index+1)+']';
+            data = new UnsafeBuffer(WorkingUncompressed.Length);
+            Memory.Move(data.Address, Header, (uint)data.Length);
             return false;
         }
     }

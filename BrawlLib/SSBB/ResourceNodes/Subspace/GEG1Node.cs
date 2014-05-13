@@ -5,8 +5,6 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
-using BrawlLib.Imaging;
-using BrawlLib.Wii;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -14,6 +12,10 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GEG1* Header { get { return (GEG1*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.GEG1; } }
+
+        [Category("GEG1")]
+        [DisplayName("Enemy Count")]
+        public int count { get { return Header->_count; } }
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)
@@ -40,6 +42,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GEG1Entry* Header { get { return (GEG1Entry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.ENEMY; } }
+
         [Browsable(true), TypeConverter(typeof(DropDownListEnemies))]
         [Category("Enemy Info")]
         [DisplayName("Enemy Type")]

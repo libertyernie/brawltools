@@ -7,7 +7,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using BrawlLib.Imaging;
 using BrawlLib.Wii;
-using System.Windows.Forms;
+
 namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class BLOCNode : ARCEntryNode
@@ -49,8 +49,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal BLOCEntry* Header { get { return (BLOCEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         public int Entries { get; private set; }
-
-
 
         public override bool OnInitialize()
         {
