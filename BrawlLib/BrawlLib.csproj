@@ -183,7 +183,9 @@
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GEG1Node.cs" />
     <Compile Include="SSBB\ResourceNodes\IAttributeList.cs" />
+    <Compile Include="SSBB\ResourceNodes\Subspace\GMOVNode.cs" />
     <Compile Include="SSBB\Types\Subspace\GEG1.cs" />
+    <Compile Include="SSBB\Types\Subspace\GMOV.cs" />
     <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>

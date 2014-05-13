@@ -132,5 +132,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         GDOR = 0x5D27,
         GEG1 = 0x5D28,
         ENEMY = 0x5d29,
+        GMOV = 0x5d2A,
     }
 }

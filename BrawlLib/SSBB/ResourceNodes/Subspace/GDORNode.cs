@@ -34,12 +34,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
             if (_name == null)
-                _name = "GDOR";
+                _name = "Adventure Doors";
             return Header->_count > 0;
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((GDOR*)source.Address)->_tag == GDOR.Tag ? new GDORNode() : null; }
     }
+
     public unsafe class GDOREntryNode : ResourceNode
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
@@ -69,8 +70,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (_name == null)
                 _name = "Door["+(Index+1)+']';
-            data = new UnsafeBuffer(WorkingUncompressed.Length);
-            Memory.Move(data.Address, Header, (uint)data.Length);
             return false;
         }
     }

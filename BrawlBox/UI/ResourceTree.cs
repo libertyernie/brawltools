@@ -67,6 +67,7 @@ namespace BrawlBox
                         Resources.GDOR,
                         Resources.GEG1,//40
                         Resources.ENEMY,
+                        Resources.GMOV,
                     });
                 }
                 return _imgList;
