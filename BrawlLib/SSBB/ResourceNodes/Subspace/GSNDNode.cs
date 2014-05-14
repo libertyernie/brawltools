@@ -8,12 +8,12 @@ using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class GMOVNode : ResourceNode
+    public unsafe class GSNDNode : ResourceNode
     {
-        internal GMOV* Header { get { return (GMOV*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.GMOV; } }
+        internal GSND* Header { get { return (GSND*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.GSND; } }
 
-        [Category("GMOV")]
+        [Category("GSND")]
         [DisplayName("Entries")]
         public int count { get { return Header->_count; } }
         public override void OnPopulate()
@@ -24,46 +24,37 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (i == Header->_count - 1)
                 { source = new DataSource((*Header)[i], WorkingUncompressed.Address + WorkingUncompressed.Length - (*Header)[i]); }
                 else { source = new DataSource((*Header)[i], (*Header)[i + 1] - (*Header)[i]); }
-                new GMOVEntryNode().Initialize(this, source);
+                new GSNDEntryNode().Initialize(this, source);
             }
         }
         public override bool OnInitialize()
         {
             base.OnInitialize();
             if (_name == null)
-                _name = "Movable Grounds";
+                _name = "Sound Effects";
             return Header->_count > 0;
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((GMOV*)source.Address)->_tag == GMOV.Tag ? new GMOVNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) { return ((GSND*)source.Address)->_tag == GSND.Tag ? new GSNDNode() : null; }
     }
 
-    public unsafe class GMOVEntryNode : ResourceNode
+    public unsafe class GSNDEntryNode : ResourceNode
     {
-        internal GMOVEntry* Header { get { return (GMOVEntry*)WorkingUncompressed.Address; } }
+        internal GSNDEntry* Header { get { return (GSNDEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-        [Category("Movable Ground")]
-        [DisplayName("Model Index")]
-        public int MID { get { return *(byte*)(WorkingUncompressed.Address + 0x44); } }
+        [Category("Sound")]
+        [DisplayName("Bone Name")]
+        public string BName { get { return new String((sbyte*)(Header + 0x1C)); ; } }
         
-        [Category("Movable Ground")]
-        [DisplayName("Collision Index")]
-        public int CID 
-        { 
-            get 
-            {
-            int CID = *(byte*)(WorkingUncompressed.Address + 0x45);
-            if (CID == 0xFF) 
-                return 00;
-            else
-                return CID;
-            } 
-        }
+        [Category("Sound")]
+        [DisplayName("Info Index")]
+        public bint InfoIndex { get { return *(bint*)(WorkingUncompressed.Address); } }
+
         public override bool OnInitialize()
         {
             base.OnInitialize();
             if (_name == null)
-                _name = "Object[" + Index + ']';
+                _name = "Sound[" + Index + ']';
             return false;
         }
     }
