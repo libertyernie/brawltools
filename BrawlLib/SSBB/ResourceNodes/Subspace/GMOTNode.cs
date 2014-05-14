@@ -54,7 +54,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 int CID = *(byte*)(WorkingUncompressed.Address + 0x3D);
                 if (CID == 0xFF)
-                    return 00;
+                    return -1;
                 else
                     return CID;
             }
