@@ -134,5 +134,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         ENEMY = 0x5d29,
         GMOV = 0x5d2A,
         GSND = 0x5D2B,
+        GMOT = 0x5D2C,
     }
 }

@@ -183,9 +183,11 @@
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GEG1Node.cs" />
     <Compile Include="SSBB\ResourceNodes\IAttributeList.cs" />
+    <Compile Include="SSBB\ResourceNodes\Subspace\GMOTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GMOVNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GSNDNode.cs" />
     <Compile Include="SSBB\Types\Subspace\GEG1.cs" />
+    <Compile Include="SSBB\Types\Subspace\GMOT.cs" />
     <Compile Include="SSBB\Types\Subspace\GMOV.cs" />
     <Compile Include="SSBB\Types\Subspace\GSND.cs" />
     <Compile Include="System\AttributeInfo.cs" />
