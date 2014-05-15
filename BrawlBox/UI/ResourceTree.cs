@@ -70,6 +70,7 @@ namespace BrawlBox
                         Resources.GMOV,
                         Resources.GSND,
                         Resources.GMOT,
+                        Resources.ADSJ,//45
                     });
                 }
                 return _imgList;

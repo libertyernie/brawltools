@@ -135,5 +135,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         GMOV = 0x5d2A,
         GSND = 0x5D2B,
         GMOT = 0x5D2C,
+        ADSJ = 0x5D2D,
     }
 }

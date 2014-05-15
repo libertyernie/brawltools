@@ -458,6 +458,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Brawlbox.ico" />
+    <None Include="Resources\ADSJ.png" />
     <None Include="Resources\GMOT.png" />
     <None Include="Resources\GSND.png" />
     <None Include="Resources\ENEMY.png" />

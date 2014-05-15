@@ -56,7 +56,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < 3; i++)
                 {
                     int i1 = *(byte*)(Header + 0x30 + i);
-                    if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 = i1.ToString("x"); }
+                    if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 += i1.ToString("x"); }
                 }
                 return s1; ;
             }
