@@ -47,7 +47,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 string s1 = "";
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     int i1 = *(byte*)(Header + 0x08 + i);
                     if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 += i1.ToString("x"); }
@@ -63,7 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 string s1 = "";
-                for (int i = 0; i < 3; i++)
+                for (int i = 0; i < 4; i++)
                 {
                     int i1 = *(byte*)(Header + i);
                     if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 += i1.ToString("x"); }
@@ -72,12 +72,45 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
         
+              
+        [Category("Jump Flags")]
+        public byte Flag1
+        {
+            get
+            {
+                return *(byte*)(Header+0x04);
+            }
+        }
+        [Category("Jump Flags")]
+        public byte Flag2
+        {
+            get
+            {
+                return *(byte*)(Header + 0x05);
+            }
+        }
+        [Category("Jump Flags")]
+        public byte Flag3
+        {
+            get
+            {
+                return *(byte*)(Header + 0x06);
+            }
+        }
+        [Category("Jump Flags")]
+        public byte Flag4
+        {
+            get
+            {
+                return *(byte*)(Header + 0x07);
+            }
+        }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
             if (_name == null)
-                _name = "jump[" + Index + ']';
+                _name = new String((sbyte*)(Header + 0x0C));
             return false;
         }
     }
