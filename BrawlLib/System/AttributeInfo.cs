@@ -66,8 +66,7 @@ namespace System {
 		public void Save() {
 			string dir = Path.GetDirectoryName(Filename);
 			if (!Directory.Exists(dir)) {
-				MessageBox.Show("The directory " + dir + " does not exist.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				return;
+                Directory.CreateDirectory(dir);
 			}
 			if (File.Exists(Filename)) {
 				if (DialogResult.Yes != MessageBox.Show("Overwrite " + Filename + "?", "Overwrite",
