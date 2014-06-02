@@ -1,7 +1,7 @@
 
-BrawlBox Data Viewer - Version 0.72
+BrawlBox Data Viewer - Version 0.73
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
-Copyright © 2014 libertyernie
+Copyright © 2014 libertyernie & Sammi Husky
 
 This program is provided as-is without any warranty, implied or otherwise.
 By using this program, the end user agrees to take full responsibility
@@ -12,6 +12,10 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.73- (6/2/2014) - BrawlLib v0.20
+    . More support for Subspace Emissary data formats
+	. The attribute grid from Ikarus can now be used to edit STDT data in stages
 
  - v0.72- (5/3/2014) - BrawlLib v0.19L (libertyernie's fork)
     . BrawlBox will display an error dialog if it tries to start without OpenTK.dll
