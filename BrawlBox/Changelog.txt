@@ -3,6 +3,8 @@ BrawlBox Data Viewer - Version 0.73
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
 Copyright © 2014 libertyernie & Sammi Husky
 
+https://github.com/libertyernie/brawltools
+
 This program is provided as-is without any warranty, implied or otherwise.
 By using this program, the end user agrees to take full responsibility
 regarding its proper and lawful use. The authors/hosts/distributors cannot be 
