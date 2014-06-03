@@ -1,7 +1,7 @@
 
 BrawlBox Data Viewer - Version 0.73
-Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
-Copyright © 2014 libertyernie & Sammi Husky
+Copyright ï¿½ 2009 - 2013 Bryan Moulton & BlackJax96
+Copyright ï¿½ 2014 libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -16,14 +16,25 @@ they be held accountable for the manner in which it is used.
  ====================================
 
  - v0.73- (6/2/2014) - BrawlLib v0.20
-    . More support for Subspace Emissary data formats
-	. The attribute grid from Ikarus can now be used to edit STDT data in stages
+    . The attribute grid from Ikarus is now used to edit STDT data in stages
+    . Added support for viewing and exporting Subspace Emissary data formats, rebuilding not implemented.
+    	.BLOC Archives
+    	.GDOR (doors)
+    	.GMOT (moving things with chr0 animations)
+    	.GMOV (Moving things w/o chr0 animations)
+    	.GEG1 (Enemy spawning)
+    	.GSND (Sound effects)
+    	.GBLK (Breakable Blocks)
+    	.GMPS (Punch Sliders)
+    	.ADSJ (Step jumps from one level to another)
 
  - v0.72- (5/3/2014) - BrawlLib v0.19L (libertyernie's fork)
     . BrawlBox will display an error dialog if it tries to start without OpenTK.dll
     . The BrawlBox "About" screen now shows what version of BrawlLib is being used
+    . Unknown nodes export as .dat files
     . See also the changelog of BrawlLib 0.19L
 
+    
  - v0.71- (12/25/2013) - BrawlLib v0.18
 	. Added a tristripper and integrated it into Brawllib. This allows for mesh optimization for smaller filesize and less in-game lag.
 	. Added several new options to the model importer settings dialog, including tristripper algorithm options
@@ -474,9 +485,9 @@ they be held accountable for the manner in which it is used.
 |********* Acknowledgements *********|
  ====================================
 
-Super Smash Brothers Brawl is copyrighted property - © 2008 Nintendo and HAL Laboratory, Inc.
+Super Smash Brothers Brawl is copyrighted property - ï¿½ 2008 Nintendo and HAL Laboratory, Inc.
 
 Characters are copyrighted by the following:
-© Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / 
+ï¿½ Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / 
 APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA
 
