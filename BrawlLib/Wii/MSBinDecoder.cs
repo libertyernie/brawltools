@@ -79,6 +79,7 @@ namespace BrawlLib.Wii
 
         public static int EncodeString(string s, byte* dPtr)
         {
+            if (s.Length == 0) return 0;
             int bLen;
             char c;
 
@@ -198,6 +199,7 @@ namespace BrawlLib.Wii
 
         public static int GetStringSize(string s)
         {
+            if (s.Length == 0) return 0;
             int len = 0, bLen;
             int strlen = s.Length;
             char c;

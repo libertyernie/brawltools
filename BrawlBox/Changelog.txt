@@ -1,7 +1,7 @@
 
 BrawlBox Data Viewer - Version 0.73
-Copyright � 2009 - 2013 Bryan Moulton & BlackJax96
-Copyright � 2014 libertyernie & Sammi Husky
+Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
+Copyright © 2014 libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -15,7 +15,7 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.73- (6/2/2014) - BrawlLib v0.20
+ - v0.73- (6/3/2014) - BrawlLib v0.20
     . The attribute grid from Ikarus is now used to edit STDT data in stages
     . Added support for viewing and exporting Subspace Emissary data formats, rebuilding not implemented.
     	.BLOC Archives
@@ -27,6 +27,7 @@ they be held accountable for the manner in which it is used.
     	.GBLK (Breakable Blocks)
     	.GMPS (Punch Sliders)
     	.ADSJ (Step jumps from one level to another)
+    . Fixed MSBin encoding for empty strings
 
  - v0.72- (5/3/2014) - BrawlLib v0.19L (libertyernie's fork)
     . BrawlBox will display an error dialog if it tries to start without OpenTK.dll
@@ -485,9 +486,9 @@ they be held accountable for the manner in which it is used.
 |********* Acknowledgements *********|
  ====================================
 
-Super Smash Brothers Brawl is copyrighted property - � 2008 Nintendo and HAL Laboratory, Inc.
+Super Smash Brothers Brawl is copyrighted property - © 2008 Nintendo and HAL Laboratory, Inc.
 
 Characters are copyrighted by the following:
-� Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / 
+© Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / 
 APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA
 

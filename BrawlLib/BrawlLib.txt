@@ -19,9 +19,10 @@ they be held accountable for the manner in which it is used.
  while changes beginning with a period (.) serve to add/modify
  features that BrawlBox doesn't use.
 
- (6/2/2014) - BrawlLib 0.20
+ (6/3/2014) - BrawlLib 0.20
     * More support for Subspace Emissary data formats
-	* Moved AttributeGrid to BrawlLib (from Ikarus)
+    * Moved AttributeGrid to BrawlLib (from Ikarus)
+    * Fixed MSBin encoding for empty strings
 
  (5/4/2014) - BrawlLib 0.19.1
     * Fixed UTF-8 encoding (was corrupting files)
