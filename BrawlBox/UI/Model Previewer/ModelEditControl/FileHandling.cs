@@ -208,6 +208,9 @@ namespace System.Windows.Forms
         public void AppendTarget(CollisionNode collision) {
             if (!_collisions.Contains(collision))
                 _collisions.Add(collision);
+            if (!models.Items.Contains(collision))
+                models.Items.Add(collision);
+            foreach (CollisionObject o in collision._objects) o._render = true;
         }
     }
 }

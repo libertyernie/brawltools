@@ -177,6 +177,8 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public CollisionNode TargetCollision; // Should be set only when a collision is chosen in the dropdown.
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CHR0Node SelectedCHR0
         { 
             get { return _chr0; } 
@@ -405,6 +407,8 @@ namespace System.Windows.Forms
                 if (_editingAll)
                     foreach (MDL0Node m in _targetModels)
                         m._renderBones = _renderBones;
+                else if (TargetCollision != null)
+                    foreach (var o in TargetCollision._objects) o._render = _renderBones;
                 else if (TargetModel != null)
                     TargetModel._renderBones = _renderBones;
 

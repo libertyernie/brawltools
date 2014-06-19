@@ -29,8 +29,11 @@ namespace System.Windows.Forms
 
             _resetCamera = false;
 
+            TargetCollision = null;
             if ((models.SelectedItem is MDL0Node) && models.SelectedItem.ToString() != "All")
                 TargetModel = (MDL0Node)models.SelectedItem;
+            else if (models.SelectedItem is CollisionNode)
+                TargetCollision = (CollisionNode)models.SelectedItem;
             else
                 TargetModel = _targetModels != null && _targetModels.Count > 0 ? _targetModels[0] : null;
 
@@ -169,7 +172,7 @@ namespace System.Windows.Forms
                 TargetModelChanged(this, null);
 
             _updating = true;
-            if (_targetModel != null && !_editingAll)
+            if (_targetModel != null && !_editingAll && TargetCollision == null)
                 models.SelectedItem = _targetModel;
             _updating = false;
 
