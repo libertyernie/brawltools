@@ -125,6 +125,11 @@ namespace BrawlBox
                         modelEditControl1.AppendTarget(_models[i]);
                 modelEditControl1.TargetModel = _models[0];
                 modelEditControl1.ResetBoneColors();
+
+                ResourceNode root = _models[0];
+                while (root.Parent != null) root = root.Parent;
+                CollisionNode first_coll = (CollisionNode)root.FindChildByType("MiscData[2]", true, ResourceType.CollisionDef);
+                modelEditControl1.AppendTarget(first_coll);
             }
             else
                 modelEditControl1.TargetModel = null;

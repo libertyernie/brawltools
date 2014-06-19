@@ -204,5 +204,10 @@ namespace System.Windows.Forms
             model.ApplySRT(null, 0);
             model._renderBones = true;
         }
+
+        public void AppendTarget(CollisionNode collision) {
+            if (!_collisions.Contains(collision))
+                _collisions.Add(collision);
+        }
     }
 }

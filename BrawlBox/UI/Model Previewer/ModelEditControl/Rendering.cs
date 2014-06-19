@@ -211,6 +211,8 @@ namespace System.Windows.Forms
 
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
+            foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
+
             RenderSCN0Controls(context);
             RenderTransformControl(context);
 

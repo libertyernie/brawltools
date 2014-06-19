@@ -56,12 +56,14 @@ namespace System.Windows.Forms
         public List<MDL0Node> _targetModels = new List<MDL0Node>();
         private MDL0Node _targetModel;
 
+        public List<CollisionNode> _collisions = new List<CollisionNode>();
+
         public Color _clearColor;
         public MDL0MaterialRefNode _targetTexRef = null;
         public VIS0EntryNode _targetVisEntry;
         public bool _enableTransform = true;
 
-        public bool _renderFloor, _renderBones = true, _renderBox, _dontRenderOffscreen = true, _renderVertices, _renderNormals, _renderPolygons = true, _renderWireframe;
+        public bool _renderFloor, _renderBones = true, _renderBox, _dontRenderOffscreen = true, _renderVertices, _renderNormals, _renderPolygons = true, _renderWireframe, _collMatch;
 
         public static BindingList<AnimType> _editableAnimTypes = new BindingList<AnimType>()
         {
