@@ -55,6 +55,7 @@ namespace System.Windows.Forms
 
         public List<MDL0Node> _targetModels = new List<MDL0Node>();
         private MDL0Node _targetModel;
+        private CollisionNode _targetCollision;
 
         public List<CollisionNode> _collisions = new List<CollisionNode>();
 
@@ -177,7 +178,15 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CollisionNode TargetCollision; // Should be set only when a collision is chosen in the dropdown.
+        public CollisionNode TargetCollision { // Should be set only when a collision is chosen in the dropdown.
+            get {
+                return _targetCollision;
+            }
+            set {
+                _targetCollision = value;
+                leftPanel.Reset();
+            }
+        }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CHR0Node SelectedCHR0
         { 
