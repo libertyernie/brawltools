@@ -145,7 +145,7 @@ namespace BrawlBox
             }
         }
 
-        private void LoadModels(ResourceNode node, List<MDL0Node> models)
+        private void LoadModels(ResourceNode node, List<MDL0Node> models, List<CollisionNode> collisions)
         {
             switch (node.ResourceType)
             {
@@ -154,10 +154,13 @@ namespace BrawlBox
                 case ResourceType.BRES:
                 case ResourceType.BRESGroup:
                     foreach (ResourceNode n in node.Children)
-                        LoadModels(n, models);
+                        LoadModels(n, models, collisions);
                     break;
                 case ResourceType.MDL0:
                     models.Add((MDL0Node)node);
+                    break;
+                case ResourceType.CollisionDef:
+                    collisions.Add((CollisionNode)node);
                     break;
             }
         }
@@ -165,10 +168,11 @@ namespace BrawlBox
         public void PreviewAll()
         {
             List<MDL0Node> models = new List<MDL0Node>();
-            LoadModels(_resource, models);
+            List<CollisionNode> collisions = new List<CollisionNode>();
+            LoadModels(_resource, models, collisions);
             using (ModelForm form = new ModelForm())
             {
-                form.ShowDialog(_owner, models);
+                form.ShowDialog(_owner, models, collisions);
             }
         }
 
