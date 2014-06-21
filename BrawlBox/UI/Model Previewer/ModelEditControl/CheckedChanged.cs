@@ -249,6 +249,7 @@ namespace System.Windows.Forms
 
         public void SelectedPolygonChanged(object sender, EventArgs e)
         {
+            if (leftPanel.SelectedPolygon == null) return;
             _targetModel._polyIndex = _targetModel._objList.IndexOf(leftPanel.SelectedPolygon);
 
             if (syncTexObjToolStripMenuItem.Checked)

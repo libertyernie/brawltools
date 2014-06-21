@@ -791,24 +791,23 @@ namespace System.Windows.Forms
             chkAllObj.CheckState = CheckState.Checked;
             chkAllTextures.CheckState = CheckState.Checked;
 
-            if (TargetModel != null)
-            {
+			pnlAnims.Enabled = pnlTextures.Enabled = chkSyncVis.Enabled = (TargetCollision == null);
+			if (TargetCollision != null) {
+				foreach (CollisionObject obj in TargetCollision._objects) {
+					lstObjects.Items.Add(obj, obj._render);
+				}
+			} else if (TargetModel != null) {
                 ResourceNode n;
 
                 UpdateAnimations(TargetAnimType);
 
-                if (TargetCollision == null && (n = TargetModel.FindChild("Objects", false)) != null)
+                if ((n = TargetModel.FindChild("Objects", false)) != null)
                     foreach (MDL0ObjectNode poly in n.Children)
                         lstObjects.Items.Add(poly, poly._render);
 
                 if ((n = TargetModel.FindChild("Textures", false)) != null)
                     foreach (MDL0TextureNode tref in n.Children)
                         lstTextures.Items.Add(tref, tref.Enabled);
-            }
-            if (TargetCollision != null)
-            {
-                foreach (CollisionObject obj in TargetCollision._objects)
-                    lstObjects.Items.Add(obj, obj._render);
             }
 
             lstTextures.EndUpdate();
