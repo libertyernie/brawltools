@@ -133,8 +133,21 @@ namespace BrawlBox
                 modelEditControl1.TargetModel = null;
 
             if (_collisions.Count != 0) {
-                foreach (CollisionNode node in _collisions)
+                foreach (CollisionNode node in _collisions) {
                     modelEditControl1.AppendTarget(node);
+
+                    // Link bones
+                    foreach (CollisionObject obj in node._objects) {
+                        if (obj._modelName == "" || obj._boneName == "") continue;
+                        MDL0Node model = _models.Where(m => m.Name == obj._modelName).FirstOrDefault();
+                        if (model != null) {
+                            MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
+                            if (bone != null) {
+                                obj.LinkedBone = bone;
+                            }
+                        }
+                    }
+                }
             }
 
             ReadSettings();
