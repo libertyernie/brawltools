@@ -481,7 +481,7 @@ namespace System.Windows.Forms
             get { return _renderCollisions; }
             set
             {
-                chkCollisions.Checked = /*toggleCollisions.Checked =*/ _renderCollisions = value;
+                chkCollisions.Checked = toggleCollisions.Checked = _renderCollisions = value;
 
                 if (_editingAll)
                     foreach (CollisionNode m in _collisions)

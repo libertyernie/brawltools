@@ -51,6 +51,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem toggleBones;
         private ToolStripMenuItem togglePolygons;
         private ToolStripMenuItem toggleVertices;
+        private ToolStripMenuItem toggleCollisions;
         private ToolStripMenuItem modifyLightingToolStripMenuItem;
         private ToolStripMenuItem toggleFloor;
         private ToolStripMenuItem resetCameraToolStripMenuItem;
@@ -277,6 +278,7 @@ namespace System.Windows.Forms
             this.wireframeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleVertices = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleNormals = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleCollisions = new System.Windows.Forms.ToolStripMenuItem();
             this.boundingBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1137,8 +1139,9 @@ namespace System.Windows.Forms
             this.modelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toggleBones,
             this.togglePolygons,
-            this.wireframeToolStripMenuItem,
             this.toggleVertices,
+            this.toggleCollisions,
+            this.wireframeToolStripMenuItem,
             this.toggleNormals,
             this.boundingBoxToolStripMenuItem});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
@@ -1175,11 +1178,20 @@ namespace System.Windows.Forms
             // 
             // toggleVertices
             // 
+            this.toggleVertices.Checked = true;
+            this.toggleVertices.CheckState = System.Windows.Forms.CheckState.Checked;
             this.toggleVertices.Name = "toggleVertices";
             this.toggleVertices.ShortcutKeyDisplayString = "V Key";
             this.toggleVertices.Size = new System.Drawing.Size(159, 22);
             this.toggleVertices.Text = "Vertices";
             this.toggleVertices.Click += new System.EventHandler(this.toggleVertices_Click);
+            // 
+            // toggleCollisions
+            // 
+            this.toggleCollisions.Name = "toggleCollisions";
+            this.toggleCollisions.Size = new System.Drawing.Size(159, 22);
+            this.toggleCollisions.Text = "Collisions";
+            this.toggleCollisions.Click += new System.EventHandler(this.toggleCollisions_Click);
             // 
             // toggleNormals
             // 
@@ -1611,8 +1623,8 @@ namespace System.Windows.Forms
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.chkBones,
             this.chkPolygons,
-            this.chkCollisions,
             this.chkVertices,
+            this.chkCollisions,
             this.toolStripSeparator1,
             this.chkFloor,
             this.button1,
