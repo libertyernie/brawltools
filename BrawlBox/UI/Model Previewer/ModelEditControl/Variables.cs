@@ -64,7 +64,7 @@ namespace System.Windows.Forms
         public VIS0EntryNode _targetVisEntry;
         public bool _enableTransform = true;
 
-        public bool _renderFloor, _renderBones = true, _renderBox, _dontRenderOffscreen = true, _renderVertices, _renderNormals, _renderPolygons = true, _renderWireframe, _collMatch;
+        public bool _renderFloor, _renderBones = true, _renderBox, _dontRenderOffscreen = true, _renderVertices, _renderNormals, _renderPolygons = true, _renderCollisions = true, _renderWireframe, _collMatch;
 
         public static BindingList<AnimType> _editableAnimTypes = new BindingList<AnimType>()
         {
@@ -416,8 +416,6 @@ namespace System.Windows.Forms
                 if (_editingAll)
                     foreach (MDL0Node m in _targetModels)
                         m._renderBones = _renderBones;
-                else if (TargetCollision != null)
-                    foreach (var o in TargetCollision._objects) o._render = _renderBones;
                 else if (TargetModel != null)
                     TargetModel._renderBones = _renderBones;
 
@@ -473,6 +471,29 @@ namespace System.Windows.Forms
                         m._renderPolygons = _renderPolygons;
                 else if (TargetModel != null)
                     TargetModel._renderPolygons = _renderPolygons;
+
+                ModelPanel.Invalidate();
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderCollisions
+        {
+            get { return _renderCollisions; }
+            set
+            {
+                chkCollisions.Checked = /*toggleCollisions.Checked =*/ _renderCollisions = value;
+
+                if (_editingAll)
+                    foreach (CollisionNode m in _collisions)
+                        foreach (CollisionObject o in m._objects)
+                            o._render = _renderCollisions;
+                else
+                    if (TargetCollision != null) {
+                        foreach (CollisionObject o in TargetCollision._objects)
+                            o._render = _renderCollisions;
+                        for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
+                            leftPanel.lstObjects.SetItemChecked(i, _renderCollisions);
+                    }
 
                 ModelPanel.Invalidate();
             }

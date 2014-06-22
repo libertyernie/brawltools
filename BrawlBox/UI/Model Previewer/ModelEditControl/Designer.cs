@@ -91,7 +91,7 @@ namespace System.Windows.Forms
         public ToolStripMenuItem chkExternalAnims;
         private Splitter splitter1;
         public Panel animCtrlPnl;
-        private ToolStripButton chkShaders;
+        private ToolStripButton chkCollisions;
         public ToolStripButton btnSaveCam;
         private SCN0Editor scn0Editor;
         private Splitter splitter2;
@@ -329,7 +329,7 @@ namespace System.Windows.Forms
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.chkBones = new System.Windows.Forms.ToolStripButton();
             this.chkPolygons = new System.Windows.Forms.ToolStripButton();
-            this.chkShaders = new System.Windows.Forms.ToolStripButton();
+            this.chkCollisions = new System.Windows.Forms.ToolStripButton();
             this.chkVertices = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
@@ -1611,7 +1611,7 @@ namespace System.Windows.Forms
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.chkBones,
             this.chkPolygons,
-            this.chkShaders,
+            this.chkCollisions,
             this.chkVertices,
             this.toolStripSeparator1,
             this.chkFloor,
@@ -1646,16 +1646,16 @@ namespace System.Windows.Forms
             this.chkPolygons.Text = "Polygons";
             this.chkPolygons.Click += new System.EventHandler(this.chkPolygons_Click);
             // 
-            // chkShaders
+            // chkCollisions
             // 
-            this.chkShaders.CheckOnClick = true;
-            this.chkShaders.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkShaders.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.chkShaders.Name = "chkShaders";
-            this.chkShaders.Size = new System.Drawing.Size(52, 21);
-            this.chkShaders.Text = "Shaders";
-            this.chkShaders.Visible = false;
-            this.chkShaders.CheckedChanged += new System.EventHandler(this.chkShaders_CheckedChanged);
+            this.chkCollisions.Checked = true;
+            this.chkCollisions.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkCollisions.Name = "chkCollisions";
+            this.chkCollisions.Size = new System.Drawing.Size(76, 21);
+            this.chkCollisions.Text = "Collisions";
+            this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
             // 
             // chkVertices
             // 

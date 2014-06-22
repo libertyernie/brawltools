@@ -30,6 +30,9 @@ namespace System.Windows.Forms
         private void chkVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
         private void toggleVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
 
+        private void chkCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
+        private void toggleCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
+
         private void chkFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
         private void toggleFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
 

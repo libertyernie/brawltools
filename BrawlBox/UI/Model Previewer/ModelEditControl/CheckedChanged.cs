@@ -274,7 +274,7 @@ namespace System.Windows.Forms
             ModelPanel.Invalidate();
         }
 
-        private void chkShaders_CheckedChanged(object sender, EventArgs e)
+        /*private void chkShaders_CheckedChanged(object sender, EventArgs e)
         {
             if (ModelPanel._ctx != null)
             {
@@ -293,7 +293,7 @@ namespace System.Windows.Forms
                 }
             }
             ModelPanel.Invalidate();
-        }
+        }*/
 
         #region Coordinates
 
