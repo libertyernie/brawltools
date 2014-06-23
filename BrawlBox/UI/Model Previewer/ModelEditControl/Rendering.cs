@@ -790,24 +790,25 @@ namespace System.Windows.Forms
 
             //Z
 
+            bool onCollisionPlane = PointCollides(BoneLoc);
             if ((_snapZ && _snapX) || (_hiZ && _hiX))
                 GL.Color4(Color.Yellow);
             else
-                GL.Color4(Color.Blue);
+                GL.Color4(onCollisionPlane ? Color.Cyan : Color.Blue);
             GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
             GL.Vertex3(_axisHalfLDist, 0.0f, _axisHalfLDist);
 
             if ((_snapZ && _snapY) || (_hiZ && _hiY))
                 GL.Color4(Color.Yellow);
             else
-                GL.Color4(Color.Blue);
+                GL.Color4(onCollisionPlane ? Color.Cyan : Color.Blue);
             GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
             GL.Vertex3(0.0f, _axisHalfLDist, _axisHalfLDist);
 
             if (_snapZ || _hiZ)
                 GL.Color4(Color.Yellow);
             else
-                GL.Color4(Color.Blue);
+                GL.Color4(onCollisionPlane ? Color.Cyan : Color.Blue);
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(0.0f, 0.0f, _dst);
 
@@ -935,10 +936,11 @@ namespace System.Windows.Forms
             GL.Begin(BeginMode.Lines);
 
             //Z
+            bool onCollisionPlane = PointCollides(BoneLoc);
             if ((_snapX && _snapY) || (_hiX && _hiY))
                 GL.Color4(Color.Yellow);
             else
-                GL.Color4(Color.Blue);
+                GL.Color4(onCollisionPlane ? Color.Cyan : Color.Blue);
             GL.Vertex3(0.0f, _scaleHalf1LDist, 0.0f);
             GL.Vertex3(_scaleHalf1LDist, 0.0f, 0.0f);
             GL.Vertex3(0.0f, _scaleHalf2LDist, 0.0f);
@@ -947,7 +949,7 @@ namespace System.Windows.Forms
             if (_snapZ || _hiZ)
                 GL.Color4(Color.Yellow);
             else
-                GL.Color4(Color.Blue);
+                GL.Color4(onCollisionPlane ? Color.Cyan : Color.Blue);
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(0.0f, 0.0f, _dst);
 
