@@ -646,6 +646,8 @@ namespace System.Windows.Forms
             //Z
             if (_snapZ || _hiZ)
                 GL.Color4(Color.Yellow);
+            else if (PointCollides(position))
+                GL.Color4(0.0f, 1.0f, 1.0f, 1.0f);
             else
                 GL.Color4(0.0f, 0.0f, 1.0f, 1.0f);
 
@@ -1048,6 +1050,23 @@ namespace System.Windows.Forms
             }
 
             return Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point);
+        }
+        private bool PointCollides(Vector3 point) {
+            Vector2 v2 = new Vector2(point._x, point._y);
+            foreach (CollisionNode coll in _collisions) {
+                foreach (CollisionObject obj in coll._objects) {
+                    if (obj._render) {
+                        foreach (CollisionPlane plane in obj._planes) {
+                            if (plane._type == CollisionPlaneType.Floor) {
+                                if (v2.Contained(plane.PointLeft, plane.PointRight, 5f)) {
+                                    return true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
         }
         private bool GetVertexOrbPoint(Vector2 mousePoint, Vector3 center, out Vector3 point)
         {
