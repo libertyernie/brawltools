@@ -7,7 +7,6 @@ using BrawlLib.Modeling;
 using System.Drawing;
 using BrawlLib.Wii.Animations;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
 using BrawlLib.IO;
 using BrawlLib;
 using System.Drawing.Imaging;
@@ -1053,23 +1052,7 @@ namespace System.Windows.Forms
 
             return Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point);
         }
-        private bool PointCollides(Vector3 point) {
-            Vector2 v2 = new Vector2(point._x, point._y);
-            foreach (CollisionNode coll in _collisions) {
-                foreach (CollisionObject obj in coll._objects) {
-                    if (obj._render) {
-                        foreach (CollisionPlane plane in obj._planes) {
-                            if (plane._type == CollisionPlaneType.Floor) {
-                                if (v2.Contained(plane.PointLeft, plane.PointRight, 5f)) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return false;
-        }
+
         private bool GetVertexOrbPoint(Vector2 mousePoint, Vector3 center, out Vector3 point)
         {
             Vector3 lineStart = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 0.0f);

@@ -180,6 +180,42 @@ namespace System.Windows.Forms
                 RenderBones = _targetModel._renderBones;
         }
 
+        private bool PointCollides(Vector3 point) {
+            float f;
+            return PointCollides(point, out f);
+        }
+        private bool PointCollides(Vector3 point, out float y_result) {
+            Vector2 v2 = new Vector2(point._x, point._y);
+            foreach (CollisionNode coll in _collisions) {
+                foreach (CollisionObject obj in coll._objects) {
+                    if (obj._render) {
+                        foreach (CollisionPlane plane in obj._planes) {
+                            if (plane._type == BrawlLib.SSBBTypes.CollisionPlaneType.Floor) {
+                                if (plane.PointLeft._x < v2._x && plane.PointRight._x > v2._x) {
+                                    float x = v2._x;
+                                    float m = (plane.PointLeft._y - plane.PointRight._y)
+                                        / (plane.PointLeft._x - plane.PointRight._x);
+                                    float b = plane.PointRight._y - m * plane.PointRight._x;
+                                    y_result = m * x + b;
+                                    if (Math.Abs(y_result - v2._y) <= 5) {
+                                        return true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            y_result = 0;
+            return false;
+        }
+        private void SnapYIfClose() {
+            float f;
+            if (PointCollides(new Vector3(chr0Editor._transBoxes[6].Value, chr0Editor._transBoxes[7].Value, chr0Editor._transBoxes[8].Value), out f)) {
+                ApplyTranslation(1, f - chr0Editor._transBoxes[7].Value);
+            }
+        }
+
         #region Settings
         public BrawlBoxViewerSettings CollectSettings()
         {
