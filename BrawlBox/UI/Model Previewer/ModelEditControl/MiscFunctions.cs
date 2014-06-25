@@ -185,6 +185,7 @@ namespace System.Windows.Forms
             return PointCollides(point, out f);
         }
         private bool PointCollides(Vector3 point, out float y_result) {
+            y_result = float.MaxValue;
             Vector2 v2 = new Vector2(point._x, point._y);
             foreach (CollisionNode coll in _collisions) {
                 foreach (CollisionObject obj in coll._objects) {
@@ -196,9 +197,10 @@ namespace System.Windows.Forms
                                     float m = (plane.PointLeft._y - plane.PointRight._y)
                                         / (plane.PointLeft._x - plane.PointRight._x);
                                     float b = plane.PointRight._y - m * plane.PointRight._x;
-                                    y_result = m * x + b;
-                                    if (Math.Abs(y_result - v2._y) <= 5) {
-                                        return true;
+                                    float y_target = m * x + b;
+                                    Console.WriteLine(y_target);
+                                    if (Math.Abs(y_target - v2._y) <= Math.Abs(y_result - v2._y)) {
+                                        y_result = y_target;
                                     }
                                 }
                             }
@@ -206,8 +208,7 @@ namespace System.Windows.Forms
                     }
                 }
             }
-            y_result = 0;
-            return false;
+            return (Math.Abs(y_result - v2._y) <= 5);
         }
         private void SnapYIfClose() {
             float f;
