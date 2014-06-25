@@ -586,6 +586,12 @@ namespace System.Windows.Forms
             set { _mainWindow.TargetModel = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public CollisionNode TargetCollision
+        {
+            get { return _mainWindow.TargetCollision; }
+            set { _mainWindow.TargetCollision = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CHR0Node SelectedCHR0
         {
             get { return _mainWindow.SelectedCHR0; }
@@ -785,8 +791,12 @@ namespace System.Windows.Forms
             chkAllObj.CheckState = CheckState.Checked;
             chkAllTextures.CheckState = CheckState.Checked;
 
-            if (TargetModel != null)
-            {
+			pnlAnims.Enabled = pnlTextures.Enabled = chkSyncVis.Enabled = (TargetCollision == null);
+			if (TargetCollision != null) {
+				foreach (CollisionObject obj in TargetCollision._objects) {
+					lstObjects.Items.Add(obj, obj._render);
+				}
+			} else if (TargetModel != null) {
                 ResourceNode n;
 
                 UpdateAnimations(TargetAnimType);
@@ -890,33 +900,42 @@ namespace System.Windows.Forms
         {
             MDL0ObjectNode poly = lstObjects.Items[e.Index] as MDL0ObjectNode;
 
-            poly._render = e.NewValue == CheckState.Checked;
-
-            if (_syncVis0 && poly._bone != null)
+            if (poly != null)
             {
-                bool temp = false;
-                if (!_vis0Updating)
-                {
-                    _vis0Updating = true;
-                    temp = true;
-                }
+                poly._render = e.NewValue == CheckState.Checked;
 
-                if (VIS0Indices.ContainsKey(poly._bone.Name))
-                    foreach (int i in VIS0Indices[poly._bone.Name])
-                        if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
-                            lstObjects.SetItemChecked(i, poly._render);
-
-                if (temp)
+                if (_syncVis0 && poly._bone != null)
                 {
-                    _vis0Updating = false;
-                    temp = false;
-                }
+                    bool temp = false;
+                    if (!_vis0Updating)
+                    {
+                        _vis0Updating = true;
+                        temp = true;
+                    }
 
-                if (!_vis0Updating)
-                {
-                    _polyIndex = e.Index;
-                    _mainWindow.UpdateVis0(this, null);
+                    if (VIS0Indices.ContainsKey(poly._bone.Name))
+                        foreach (int i in VIS0Indices[poly._bone.Name])
+                            if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
+                                lstObjects.SetItemChecked(i, poly._render);
+
+                    if (temp)
+                    {
+                        _vis0Updating = false;
+                        temp = false;
+                    }
+
+                    if (!_vis0Updating)
+                    {
+                        _polyIndex = e.Index;
+                        _mainWindow.UpdateVis0(this, null);
+                    }
                 }
+            }
+
+            CollisionObject obj = lstObjects.Items[e.Index] as CollisionObject;
+            if (obj != null)
+            {
+                obj._render = e.NewValue == CheckState.Checked;
             }
 
             if (!_updating) _mainWindow.ModelPanel.Invalidate();

@@ -56,11 +56,14 @@ namespace BrawlBox
         public ModelForm() { InitializeComponent(); }
 
         private List<MDL0Node> _models = new List<MDL0Node>();
+        private List<CollisionNode> _collisions = new List<CollisionNode>();
 
         public DialogResult ShowDialog(List<MDL0Node> models) { return ShowDialog(null, models); }
-        public DialogResult ShowDialog(IWin32Window owner, List<MDL0Node> models)
+        public DialogResult ShowDialog(IWin32Window owner, List<MDL0Node> models,
+            List<CollisionNode> collisions = null)
         {
             _models = models;
+            _collisions = collisions ?? _collisions;
             try { return base.ShowDialog(owner); }
             finally { _models = null; }
         }
@@ -128,6 +131,24 @@ namespace BrawlBox
             }
             else
                 modelEditControl1.TargetModel = null;
+
+            if (_collisions.Count != 0) {
+                foreach (CollisionNode node in _collisions) {
+                    modelEditControl1.AppendTarget(node);
+
+                    // Link bones
+                    foreach (CollisionObject obj in node._objects) {
+                        if (obj._modelName == "" || obj._boneName == "") continue;
+                        MDL0Node model = _models.Where(m => m.Name == obj._modelName).FirstOrDefault();
+                        if (model != null) {
+                            MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
+                            if (bone != null) {
+                                obj.LinkedBone = bone;
+                            }
+                        }
+                    }
+                }
+            }
 
             ReadSettings();
             modelEditControl1.ModelPanel.Capture();

@@ -29,8 +29,11 @@ namespace System.Windows.Forms
 
             _resetCamera = false;
 
+            TargetCollision = null;
             if ((models.SelectedItem is MDL0Node) && models.SelectedItem.ToString() != "All")
                 TargetModel = (MDL0Node)models.SelectedItem;
+            else if (models.SelectedItem is CollisionNode)
+                TargetCollision = (CollisionNode)models.SelectedItem;
             else
                 TargetModel = _targetModels != null && _targetModels.Count > 0 ? _targetModels[0] : null;
 
@@ -169,7 +172,7 @@ namespace System.Windows.Forms
                 TargetModelChanged(this, null);
 
             _updating = true;
-            if (_targetModel != null && !_editingAll)
+            if (_targetModel != null && !_editingAll && TargetCollision == null)
                 models.SelectedItem = _targetModel;
             _updating = false;
 
@@ -177,12 +180,49 @@ namespace System.Windows.Forms
                 RenderBones = _targetModel._renderBones;
         }
 
+        private bool PointCollides(Vector3 point) {
+            float f;
+            return PointCollides(point, out f);
+        }
+        private bool PointCollides(Vector3 point, out float y_result) {
+            y_result = float.MaxValue;
+            Vector2 v2 = new Vector2(point._x, point._y);
+            foreach (CollisionNode coll in _collisions) {
+                foreach (CollisionObject obj in coll._objects) {
+                    if (obj._render) {
+                        foreach (CollisionPlane plane in obj._planes) {
+                            if (plane._type == BrawlLib.SSBBTypes.CollisionPlaneType.Floor) {
+                                if (plane.PointLeft._x < v2._x && plane.PointRight._x > v2._x) {
+                                    float x = v2._x;
+                                    float m = (plane.PointLeft._y - plane.PointRight._y)
+                                        / (plane.PointLeft._x - plane.PointRight._x);
+                                    float b = plane.PointRight._y - m * plane.PointRight._x;
+                                    float y_target = m * x + b;
+                                    Console.WriteLine(y_target);
+                                    if (Math.Abs(y_target - v2._y) <= Math.Abs(y_result - v2._y)) {
+                                        y_result = y_target;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return (Math.Abs(y_result - v2._y) <= 5);
+        }
+        private void SnapYIfClose() {
+            float f;
+            if (PointCollides(new Vector3(chr0Editor._transBoxes[6].Value, chr0Editor._transBoxes[7].Value, chr0Editor._transBoxes[8].Value), out f)) {
+                ApplyTranslation(1, f - chr0Editor._transBoxes[7].Value);
+            }
+        }
+
         #region Settings
         public BrawlBoxViewerSettings CollectSettings()
         {
             BrawlBoxViewerSettings settings = new BrawlBoxViewerSettings();
             settings._tag = BrawlBoxViewerSettings.Tag;
-            settings._version = 4;
+            settings._version = 5;
 
             settings.RetrieveCorrAnims = syncAnimationsTogetherToolStripMenuItem.Checked;
             settings.DisplayExternalAnims = chkExternalAnims.Checked;
@@ -212,6 +252,7 @@ namespace System.Windows.Forms
             settings._matCount = 0;
             settings._emis = ModelPanel.Emission;
 
+            settings.SnapToColl = chkSnapToColl.Checked;
             settings.Maximize = chkMaximize.Checked;
             settings.CameraSet = btnSaveCam.Text == "Clear Camera";
             settings.ImageCapFmt = _imgExtIndex;
@@ -254,6 +295,7 @@ namespace System.Windows.Forms
             syncTexObjToolStripMenuItem.Checked = settings.SyncTexToObj;
             syncObjectsListToVIS0ToolStripMenuItem.Checked = settings.SyncObjToVIS0;
             disableBonesWhenPlayingToolStripMenuItem.Checked = settings.DisableBonesOnPlay;
+            chkSnapToColl.Checked = settings.SnapToColl;
             chkMaximize.Checked = settings.Maximize;
             chkExternalAnims.Checked = settings.DisplayExternalAnims;
             chkBRRESAnims.Checked = settings.DisplayBRRESAnims;

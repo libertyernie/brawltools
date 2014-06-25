@@ -51,6 +51,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem toggleBones;
         private ToolStripMenuItem togglePolygons;
         private ToolStripMenuItem toggleVertices;
+        private ToolStripMenuItem toggleCollisions;
         private ToolStripMenuItem modifyLightingToolStripMenuItem;
         private ToolStripMenuItem toggleFloor;
         private ToolStripMenuItem resetCameraToolStripMenuItem;
@@ -91,7 +92,7 @@ namespace System.Windows.Forms
         public ToolStripMenuItem chkExternalAnims;
         private Splitter splitter1;
         public Panel animCtrlPnl;
-        private ToolStripButton chkShaders;
+        private ToolStripButton chkCollisions;
         public ToolStripButton btnSaveCam;
         private SCN0Editor scn0Editor;
         private Splitter splitter2;
@@ -172,6 +173,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem resetToolStripMenuItem;
         private ToolStripMenuItem exportToolStripMenuItem;
         private ToolStripMenuItem importToolStripMenuItem;
+        private ToolStripMenuItem chkSnapToColl;
         private ToolStripMenuItem chkMaximize;
         private ToolStripMenuItem generateTangentsToolStripMenuItem;
         private ToolStripMenuItem chkGenTansCHR;
@@ -235,6 +237,7 @@ namespace System.Windows.Forms
             this.enablePointAndLineSmoothingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enableTextOverlaysToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.syncStartendTangentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkSnapToColl = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMaximize = new System.Windows.Forms.ToolStripMenuItem();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -277,6 +280,7 @@ namespace System.Windows.Forms
             this.wireframeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleVertices = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleNormals = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleCollisions = new System.Windows.Forms.ToolStripMenuItem();
             this.boundingBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -329,7 +333,7 @@ namespace System.Windows.Forms
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.chkBones = new System.Windows.Forms.ToolStripButton();
             this.chkPolygons = new System.Windows.Forms.ToolStripButton();
-            this.chkShaders = new System.Windows.Forms.ToolStripButton();
+            this.chkCollisions = new System.Windows.Forms.ToolStripButton();
             this.chkVertices = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
@@ -620,6 +624,7 @@ namespace System.Windows.Forms
             this.enablePointAndLineSmoothingToolStripMenuItem,
             this.enableTextOverlaysToolStripMenuItem,
             this.syncStartendTangentsToolStripMenuItem,
+            this.chkSnapToColl,
             this.chkMaximize});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
@@ -790,6 +795,13 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
             this.syncStartendTangentsToolStripMenuItem.Text = "Sync first && last frame tangents";
             this.syncStartendTangentsToolStripMenuItem.Visible = false;
+            // 
+            // chkSnapToColl
+            // 
+            this.chkSnapToColl.CheckOnClick = true;
+            this.chkSnapToColl.Name = "chkSnapToColl";
+            this.chkSnapToColl.Size = new System.Drawing.Size(258, 22);
+            this.chkSnapToColl.Text = "Snap dragged bones to floor collisions";
             // 
             // chkMaximize
             // 
@@ -1137,8 +1149,9 @@ namespace System.Windows.Forms
             this.modelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toggleBones,
             this.togglePolygons,
-            this.wireframeToolStripMenuItem,
             this.toggleVertices,
+            this.toggleCollisions,
+            this.wireframeToolStripMenuItem,
             this.toggleNormals,
             this.boundingBoxToolStripMenuItem});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
@@ -1175,11 +1188,20 @@ namespace System.Windows.Forms
             // 
             // toggleVertices
             // 
+            this.toggleVertices.Checked = true;
+            this.toggleVertices.CheckState = System.Windows.Forms.CheckState.Checked;
             this.toggleVertices.Name = "toggleVertices";
             this.toggleVertices.ShortcutKeyDisplayString = "V Key";
             this.toggleVertices.Size = new System.Drawing.Size(159, 22);
             this.toggleVertices.Text = "Vertices";
             this.toggleVertices.Click += new System.EventHandler(this.toggleVertices_Click);
+            // 
+            // toggleCollisions
+            // 
+            this.toggleCollisions.Name = "toggleCollisions";
+            this.toggleCollisions.Size = new System.Drawing.Size(159, 22);
+            this.toggleCollisions.Text = "Collisions";
+            this.toggleCollisions.Click += new System.EventHandler(this.toggleCollisions_Click);
             // 
             // toggleNormals
             // 
@@ -1611,8 +1633,8 @@ namespace System.Windows.Forms
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.chkBones,
             this.chkPolygons,
-            this.chkShaders,
             this.chkVertices,
+            this.chkCollisions,
             this.toolStripSeparator1,
             this.chkFloor,
             this.button1,
@@ -1646,16 +1668,16 @@ namespace System.Windows.Forms
             this.chkPolygons.Text = "Polygons";
             this.chkPolygons.Click += new System.EventHandler(this.chkPolygons_Click);
             // 
-            // chkShaders
+            // chkCollisions
             // 
-            this.chkShaders.CheckOnClick = true;
-            this.chkShaders.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkShaders.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.chkShaders.Name = "chkShaders";
-            this.chkShaders.Size = new System.Drawing.Size(52, 21);
-            this.chkShaders.Text = "Shaders";
-            this.chkShaders.Visible = false;
-            this.chkShaders.CheckedChanged += new System.EventHandler(this.chkShaders_CheckedChanged);
+            this.chkCollisions.Checked = true;
+            this.chkCollisions.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkCollisions.Name = "chkCollisions";
+            this.chkCollisions.Size = new System.Drawing.Size(76, 21);
+            this.chkCollisions.Text = "Collisions";
+            this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
             // 
             // chkVertices
             // 

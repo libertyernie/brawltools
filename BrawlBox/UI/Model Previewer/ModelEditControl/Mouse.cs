@@ -213,10 +213,12 @@ namespace System.Windows.Forms
                 //if (_rotating) btnUndo.Enabled = true;
 
                 if (_rotating || _translating || _scaling)
-                    if (VertexLoc == null)
+                    if (VertexLoc == null) {
                         BoneChange(SelectedBone);
-                    else
+                        if (chkSnapToColl.Checked) SnapYIfClose();
+                    } else {
                         VertexChange(_selectedVertices);
+                    }
 
                 _snapX = _snapY = _snapZ = _snapCirc = false;
                 _rotating = _translating = _scaling = false;
