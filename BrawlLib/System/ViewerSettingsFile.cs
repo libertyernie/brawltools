@@ -77,6 +77,7 @@ namespace System
         public bool LinearCam { get { return _flags3[13]; } set { _flags3[13] = value; } }
 
         public bool DisplayBRRESAnims { get { return _flags3[14]; } set { _flags3[14] = value; } }
+        public bool SnapToColl { get { return _flags3[15]; } set { _flags3[15] = value; } }
         
         private VoidPtr Address { get { fixed (void* p = &this)return p; } }
 
@@ -133,6 +134,7 @@ namespace System
             DisplayExternalAnims = true,
             DisplayBRRESAnims = true,
             CameraSet = false,
+            SnapToColl = false,
         };
     }
 }

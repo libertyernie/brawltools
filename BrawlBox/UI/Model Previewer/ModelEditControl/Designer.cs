@@ -173,6 +173,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem resetToolStripMenuItem;
         private ToolStripMenuItem exportToolStripMenuItem;
         private ToolStripMenuItem importToolStripMenuItem;
+        private ToolStripMenuItem chkSnapToColl;
         private ToolStripMenuItem chkMaximize;
         private ToolStripMenuItem generateTangentsToolStripMenuItem;
         private ToolStripMenuItem chkGenTansCHR;
@@ -236,6 +237,7 @@ namespace System.Windows.Forms
             this.enablePointAndLineSmoothingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.enableTextOverlaysToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.syncStartendTangentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkSnapToColl = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMaximize = new System.Windows.Forms.ToolStripMenuItem();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -622,6 +624,7 @@ namespace System.Windows.Forms
             this.enablePointAndLineSmoothingToolStripMenuItem,
             this.enableTextOverlaysToolStripMenuItem,
             this.syncStartendTangentsToolStripMenuItem,
+            this.chkSnapToColl,
             this.chkMaximize});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
@@ -792,6 +795,13 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
             this.syncStartendTangentsToolStripMenuItem.Text = "Sync first && last frame tangents";
             this.syncStartendTangentsToolStripMenuItem.Visible = false;
+            // 
+            // chkSnapToColl
+            // 
+            this.chkSnapToColl.CheckOnClick = true;
+            this.chkSnapToColl.Name = "chkSnapToColl";
+            this.chkSnapToColl.Size = new System.Drawing.Size(258, 22);
+            this.chkSnapToColl.Text = "Snap dragged bones to floor collisions";
             // 
             // chkMaximize
             // 

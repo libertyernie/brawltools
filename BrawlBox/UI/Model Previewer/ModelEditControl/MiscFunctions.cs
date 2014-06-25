@@ -221,7 +221,7 @@ namespace System.Windows.Forms
         {
             BrawlBoxViewerSettings settings = new BrawlBoxViewerSettings();
             settings._tag = BrawlBoxViewerSettings.Tag;
-            settings._version = 4;
+            settings._version = 5;
 
             settings.RetrieveCorrAnims = syncAnimationsTogetherToolStripMenuItem.Checked;
             settings.DisplayExternalAnims = chkExternalAnims.Checked;
@@ -251,6 +251,7 @@ namespace System.Windows.Forms
             settings._matCount = 0;
             settings._emis = ModelPanel.Emission;
 
+            settings.SnapToColl = chkSnapToColl.Checked;
             settings.Maximize = chkMaximize.Checked;
             settings.CameraSet = btnSaveCam.Text == "Clear Camera";
             settings.ImageCapFmt = _imgExtIndex;
@@ -293,6 +294,7 @@ namespace System.Windows.Forms
             syncTexObjToolStripMenuItem.Checked = settings.SyncTexToObj;
             syncObjectsListToVIS0ToolStripMenuItem.Checked = settings.SyncObjToVIS0;
             disableBonesWhenPlayingToolStripMenuItem.Checked = settings.DisableBonesOnPlay;
+            chkSnapToColl.Checked = settings.SnapToColl;
             chkMaximize.Checked = settings.Maximize;
             chkExternalAnims.Checked = settings.DisplayExternalAnims;
             chkBRRESAnims.Checked = settings.DisplayBRRESAnims;
