@@ -645,6 +645,7 @@ namespace System.Windows.Forms
             btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame != 0 && SelectedAnimation != null;
             grpTransform.Enabled = TargetBone != null;
 
+            //9 transforms xyz for scale/rot/trans
             for (int i = 0; i < 9; i++)
                 ResetBox(i);
 
@@ -681,7 +682,7 @@ namespace System.Windows.Forms
                     KeyframeEntry e = entry.Keyframes.GetKeyframe((KeyFrameMode)index + 0x10, CurrentFrame - 1);
                     if (e == null)
                     {
-                        box.Value = entry.Keyframes[KeyFrameMode.ScaleX + index, CurrentFrame - 1];
+                        box.Value = entry.Keyframes.GetFrameValue(KeyFrameMode.ScaleX + index, CurrentFrame - 1, CHR0EntryNode._linear && CHR0EntryNode._editValsAsLinear, SelectedAnimation.Loop);//TODO: entry.Keyframes[KeyFrameMode.ScaleX + index, CurrentFrame - 1];
                         box.BackColor = Color.White;
                     }
                     else
@@ -812,7 +813,7 @@ namespace System.Windows.Forms
             else
                 foreach (CHR0EntryNode entry in SelectedAnimation.Children)
                 {
-                    AnimationFrame frame = entry.GetAnimFrame(CurrentFrame - 1);
+                    AnimationFrame frame = entry.GetAnimFrame(CurrentFrame - 1,CHR0EntryNode._linear && CHR0EntryNode._editValsAsLinear);
                     if (!AllTrans.Checked)
                         frame.Translation = new Vector3();
                     if (!AllRot.Checked)
@@ -1103,7 +1104,7 @@ namespace System.Windows.Forms
         {
             AnimationFrame frame = new AnimationFrame();
             float* p = (float*)&frame;
-
+            //copy transform from boxes instead of the actual animation.
             BoxChangedCreateUndo(this, null);
 
             for (int i = 0; i < 9; i++)
@@ -1141,6 +1142,7 @@ namespace System.Windows.Forms
 
         private unsafe void btnCopy_Click(object sender, EventArgs e)
         {
+            //copy the transform from the number boxes
             AnimationFrame frame = new AnimationFrame();
             float* p = (float*)&frame;
 

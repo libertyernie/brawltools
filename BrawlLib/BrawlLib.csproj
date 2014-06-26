@@ -178,7 +178,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
     <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
     <Compile Include="Imaging\GIF\AnimatedGifEncoder.cs" />
@@ -479,6 +478,12 @@
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
+      <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ShyGuyEdits\InterpolationEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ShyGuyEdits\InterpolationEditor.Designer.cs">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
@@ -842,6 +847,9 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ShyGuyEdits\InterpolationEditor.resx">
+      <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -972,6 +980,7 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="OpenTK.dll" />
+    <Content Include="ShyGuyDocs.txt" />
     <Content Include="System\Windows\Controls\Hex Editor\HexBox.bmp" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
