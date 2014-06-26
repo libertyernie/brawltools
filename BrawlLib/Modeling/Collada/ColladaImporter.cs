@@ -133,7 +133,7 @@ namespace BrawlLib.Modeling
             public bool UseRegisterColor { get { return _useReg; } set { _useReg = value; } }
             [Category("Color Nodes"), TypeConverter(typeof(RGBAStringConverter)), Description("The default color to use for generated color arrays.")]
             public RGBAPixel DefaultColor { get { return _dfltClr; } set { _dfltClr = value; } }
-            [Category("Color Nodes"), TypeConverter(typeof(RGBAStringConverter)), Description("This will make all colors be written in one color node. This will save file space for models with lots of different colors.")]
+            [Category("Color Nodes"), Description("This will make all colors be written in one color node. This will save file space for models with lots of different colors.")]
             public bool UseOneNode { get { return _useOneNode; } set { _useOneNode = value; } }
 
             [Category("Tristripper"), Description("Determines whether the model will be optimized to use tristrips along with triangles or not. Tristrips can greatly reduce in-game lag, so it is highly recommended that you leave this as true.")]
