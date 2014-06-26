@@ -21,8 +21,8 @@ namespace System.Windows.Forms
             InitializeComponent();
             _mainWindow = mainWindow;
 
-            numericInputBox3._integral = true;
-            comboBox1.DataSource = _modes;
+            nibKeyFrame._integral = true;
+            cbTransform.DataSource = _modes;
             if (_mainWindow != null)
                 chkLinear.Checked = _mainWindow.LinearInterpolation;
 
@@ -30,7 +30,7 @@ namespace System.Windows.Forms
             interpolationViewer.FrameChanged += interpolationViewer1_FrameChanged;
             interpolationViewer.SignalChange += interpolationViewer_SignalChange;
 
-            numTanLen.Value = interpolationViewer.TangentLength;
+            nibTanLen.Value = interpolationViewer.TangentLength;
         }
 
         void interpolationViewer_SignalChange(object sender, EventArgs e)
@@ -63,7 +63,7 @@ namespace System.Windows.Forms
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int SelectedMode { get { if (comboBox1.SelectedIndex == -1 || _modes.Count == 0) return -1; return comboBox1.SelectedIndex; } set { comboBox1.SelectedIndex = value.Clamp(comboBox1.Items.Count == 0 ? -1 : 0, comboBox1.Items.Count - 1); } }
+        public int SelectedMode { get { if (cbTransform.SelectedIndex == -1 || _modes.Count == 0) return -1; return cbTransform.SelectedIndex; } set { cbTransform.SelectedIndex = value.Clamp(cbTransform.Items.Count == 0 ? -1 : 0, cbTransform.Items.Count - 1); } }
 
         public void KeyframeChanged()
         {
@@ -119,7 +119,7 @@ namespace System.Windows.Forms
             }
             else if (node is IKeyframeArrayHolder)
             {
-                comboBox1.Enabled = false;
+                cbTransform.Enabled = false;
 
                 if (node is SHP0VertexSetNode)
                 {
@@ -159,7 +159,7 @@ namespace System.Windows.Forms
                             _modes.Add("Reference Distance");
                             _modes.Add("Reference Brightness");
 
-                            comboBox1.SelectedIndex = 0;
+                            cbTransform.SelectedIndex = 0;
                             _updating = false;
                         }
                     }
@@ -175,7 +175,7 @@ namespace System.Windows.Forms
                             _modes.Add("Start Z");
                             _modes.Add("End Z");
 
-                            comboBox1.SelectedIndex = 0;
+                            cbTransform.SelectedIndex = 0;
                             _updating = false;
                         }
                     }
@@ -204,7 +204,7 @@ namespace System.Windows.Forms
                             _modes.Add("Vertical Field of View");
                             _modes.Add("Height");
 
-                            comboBox1.SelectedIndex = 0;
+                            cbTransform.SelectedIndex = 0;
                             _updating = false;
                         }
                     }
@@ -230,7 +230,7 @@ namespace System.Windows.Forms
                             _modes.Add("Translation Y");
                             _modes.Add("Translation Z");
 
-                            comboBox1.SelectedIndex = 0;
+                            cbTransform.SelectedIndex = 0;
                             _updating = false;
                         }
                     }
@@ -249,7 +249,7 @@ namespace System.Windows.Forms
                             _modes.Add("Translation X");
                             _modes.Add("Translation Y");
 
-                            comboBox1.SelectedIndex = 0;
+                            cbTransform.SelectedIndex = 0;
                             _updating = false;
                         }
                     }
@@ -259,7 +259,7 @@ namespace System.Windows.Forms
                     //chkGenTans.Checked = SHP0VertexSetNode._generateTangents;
                     chkLinear.Checked = SHP0VertexSetNode._linear;
 
-                    comboBox1.Enabled = false;
+                    cbTransform.Enabled = false;
                     if (_modes.Count != 1)
                     {
                         _updating = true;
@@ -267,7 +267,7 @@ namespace System.Windows.Forms
                         _modes.Clear();
                         _modes.Add("Percentage");
 
-                        comboBox1.SelectedIndex = 0;
+                        cbTransform.SelectedIndex = 0;
                         _updating = false;
                     }
                 }
@@ -300,12 +300,12 @@ namespace System.Windows.Forms
             _updating = true;
             if (interpolationViewer._selKey != null)
             {
-                bool indexChanged = numericInputBox3.Value != interpolationViewer._selKey._index + 1;
+                bool indexChanged = nibKeyFrame.Value != interpolationViewer._selKey._index + 1;
 
                 groupBox1.Enabled = true;
-                numericInputBox1.Value = interpolationViewer._selKey._tangent;
-                numericInputBox2.Value = interpolationViewer._selKey._value;
-                numericInputBox3.Value = interpolationViewer._selKey._index + 1;
+                nibTangent.Value = interpolationViewer._selKey._tangent;
+                nibKeyValue.Value = interpolationViewer._selKey._value;
+                nibKeyFrame.Value = interpolationViewer._selKey._index + 1;
 
                 if (chkSetFrame.Checked)
                     interpolationViewer1_FrameChanged(this, null);
@@ -322,9 +322,9 @@ namespace System.Windows.Forms
             else
             {
                 groupBox1.Enabled = false;
-                numericInputBox1.Value = 0;
-                numericInputBox2.Value = 0;
-                numericInputBox3.Value = 0;
+                nibTangent.Value = 0;
+                nibKeyValue.Value = 0;
+                nibKeyFrame.Value = 0;
             }
             _updating = false;
         }
@@ -334,7 +334,7 @@ namespace System.Windows.Forms
             if (_updating || interpolationViewer._selKey == null)
                 return;
 
-            interpolationViewer._selKey._tangent = numericInputBox1.Value;
+            interpolationViewer._selKey._tangent = nibTangent.Value;
             interpolationViewer.Invalidate();
             _targetNode.SignalPropertyChange();
 
@@ -366,7 +366,7 @@ namespace System.Windows.Forms
             if (_mainWindow != null)
                 if (next < 0) next = _mainWindow.MaxFrame - 1;
 
-            int index = ((int)numericInputBox3.Value - 1).Clamp(prev, next);
+            int index = ((int)nibKeyFrame.Value - 1).Clamp(prev, next);
 
             interpolationViewer._selKey._index = index;
             interpolationViewer.Invalidate();
@@ -378,8 +378,8 @@ namespace System.Windows.Forms
                 _mainWindow.UpdateModel();
             }
 
-            if (index != numericInputBox3.Value)
-                numericInputBox3.Value = index;
+            if (index != nibKeyFrame.Value)
+                nibKeyFrame.Value = index;
         }
 
         private void numericInputBox2_ValueChanged(object sender, EventArgs e)
@@ -387,7 +387,7 @@ namespace System.Windows.Forms
             if (_updating || interpolationViewer._selKey == null)
                 return;
 
-            interpolationViewer._selKey._value = numericInputBox2.Value;
+            interpolationViewer._selKey._value = nibKeyValue.Value;
             interpolationViewer.Invalidate();
             _targetNode.SignalPropertyChange();
             if (_mainWindow != null)
@@ -493,7 +493,42 @@ namespace System.Windows.Forms
         }
         private void numTanLen_ValueChanged(object sender, EventArgs e)
         {
-            interpolationViewer.TangentLength = numTanLen.Value;
+            interpolationViewer.TangentLength = nibTanLen.Value;
         }
+
+        private void mItem_display_showEditValsAsLinear_CheckedChanged(object sender, EventArgs e)
+        {
+            CHR0EntryNode._editValsAsLinear = mItem_display_showEditValsAsLinear.Checked;
+        }
+
+        private void mItem_genTan_alterSelTanOnDrag_CheckedChanged(object sender, EventArgs e)
+        {
+            interpolationViewer.AlterSelectedTangent_OnDrag = mItem_genTan_alterSelTanOnDrag.Checked  && CHR0EntryNode._generateTangents;
+        }
+
+        private void mItem_genTan_alterAdjTan_CheckedChanged(object sender, EventArgs e)
+        {
+            CHR0EntryNode._alterAdjTangents = mItem_genTan_alterAdjTan.Checked;
+
+            interpolationViewer.AlterAdjTangent_OnSelectedDrag = CHR0EntryNode._generateTangents && CHR0EntryNode._alterAdjTangents && mItem_genTan_alterAdjTan_OnDrag.Checked;
+        }
+
+        private void mItem_genTan_alterAdjTan_OnSet_CheckedChanged(object sender, EventArgs e)
+        {
+            CHR0EntryNode._alterAdjTangents_KeyFrame_Set = mItem_genTan_alterAdjTan_OnSet.Checked;
+        }
+
+        private void mItem_genTan_alterAdjTan_OnDel_CheckedChanged(object sender, EventArgs e)
+        {
+            CHR0EntryNode._alterAdjTangents_KeyFrame_Del = mItem_genTan_alterAdjTan_OnDel.Checked;
+        }
+
+        private void mItem_genTan_alterAdjTan_OnDrag_CheckedChanged(object sender, EventArgs e)
+        {
+            interpolationViewer.AlterAdjTangent_OnSelectedDrag = CHR0EntryNode._generateTangents && CHR0EntryNode._alterAdjTangents &&  mItem_genTan_alterAdjTan_OnDrag.Checked;
+        }
+
+
+
     }
 }

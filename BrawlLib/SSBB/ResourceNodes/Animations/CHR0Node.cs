@@ -765,6 +765,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public static bool _generateTangents = true;
         public static bool _linear = false;
+        /// <summary>
+        /// When _linear and this value is true, any copy or editted intermediate frame value start 
+        /// out from it's visual, linear value.
+        /// 
+        /// If false, the actual, real, bezier, value is copy or editted instead which 
+        /// may be different from what it appears when _linear is true.
+        /// </summary>
+        public static bool _editValsAsLinear = true;
+        public static bool _alterAdjTangents = true;
+        public static bool _alterAdjTangents_KeyFrame_Set = true;
+        public static bool _alterAdjTangents_KeyFrame_Del = true;
 
         public float GetFrameValue(KeyFrameMode mode, int index) { return Keyframes.GetFrameValue(mode, index); }
         public float GetFrameValue(KeyFrameMode mode, int index, bool linear, bool loop) { return Keyframes.GetFrameValue(mode, index, linear, loop); }
@@ -781,8 +792,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_generateTangents)
             {
                 k.GenerateTangent();
-                k._prev.GenerateTangent();
-                k._next.GenerateTangent();
+
+                if (_alterAdjTangents && _alterAdjTangents_KeyFrame_Set)
+                {
+                    k._prev.GenerateTangent();
+                    k._next.GenerateTangent();
+                }
             }
 
             SignalPropertyChange(); 
@@ -794,8 +809,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_generateTangents && !forceNoGenTans)
             {
                 k.GenerateTangent();
-                k._prev.GenerateTangent();
-                k._next.GenerateTangent();
+
+                if (_alterAdjTangents && _alterAdjTangents_KeyFrame_Set)
+                {
+                    k._prev.GenerateTangent();
+                    k._next.GenerateTangent();
+                }
             }
 
             SignalPropertyChange();
@@ -853,7 +872,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void RemoveKeyframe(KeyFrameMode mode, int index)
         {
             KeyframeEntry k = Keyframes.Remove(mode, index);
-            if (k != null && _generateTangents)
+            if (k != null && _generateTangents &&
+                _alterAdjTangents && _alterAdjTangents_KeyFrame_Del)
             {
                 k._prev.GenerateTangent();
                 k._next.GenerateTangent();

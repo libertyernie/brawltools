@@ -40,6 +40,10 @@ namespace System.Windows.Forms
         private float _precision = 4.0f;
         private bool _drawTans = true;
         private bool _linear = false;
+
+        private static bool _alterSelTangent_Drag = true;
+        private static bool _alterAdjTangents_KeyFrame_Drag = true;
+
         private float _minVal = float.MaxValue;
         private float _maxVal = float.MinValue;
         private bool _syncStartEnd;
@@ -109,6 +113,26 @@ namespace System.Windows.Forms
             set
             {
                 _linear = value;
+                if (!_updating)
+                    UpdateDisplay();
+            }
+        }
+        public bool AlterSelectedTangent_OnDrag
+        {
+            get { return _alterSelTangent_Drag; }
+            set
+            {
+                _alterSelTangent_Drag = value;
+                if (!_updating)
+                    UpdateDisplay();
+            }
+        }
+        public bool AlterAdjTangent_OnSelectedDrag
+        {
+            get { return _alterAdjTangents_KeyFrame_Drag; }
+            set
+            {
+                _alterAdjTangents_KeyFrame_Drag = value;
                 if (!_updating)
                     UpdateDisplay();
             }
@@ -385,9 +409,14 @@ namespace System.Windows.Forms
 
                     if (_genTans)
                     {
-                        _selKey.GenerateTangent();
-                        _selKey._prev.GenerateTangent();
-                        _selKey._next.GenerateTangent();
+                        if (_alterSelTangent_Drag)
+                            _selKey.GenerateTangent();
+
+                        if (_alterAdjTangents_KeyFrame_Drag)
+                        {
+                            _selKey._prev.GenerateTangent();
+                            _selKey._next.GenerateTangent();
+                        }
                     }
 
                     if (_syncStartEnd)
@@ -462,25 +491,40 @@ namespace System.Windows.Forms
             _slopePoint = null;
         }
 
-        public float GetFrameValue(float index)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="index">Float value of current frame. Not normalized [0,1]</param>
+        /// <returns></returns>
+        private float GetFrameValue(float index)
         {
             KeyframeEntry entry, root = _keyRoot;
 
             if (_keyRoot == null)
                 return 0;
 
-            if (index >= root._prev._index)
+            float prevIndex = root._prev._index;
+
+            //check if index past last frame
+            //clamp to last frame if index past last frame
+            if (index >= prevIndex)
                 return root._prev._value;
-            if (index <= root._next._index)
+
+            float nextIndex = root._next._index;
+
+            //clamp to first frame if index < 0 (root._next == first frame)
+            if (index <= nextIndex)
                 return root._next._value;
 
-            for (entry = root._next;
-                (entry != root) &&
-                (entry._index < index); 
-                entry = entry._next)
+            //get keyframe entry  before float index
+            //if the input key frame index exists as a keyframe entry,
+            //return it's value instead.
+            for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next)
                 if (entry._index == index)
                     return entry._value;
             
+
+            //otherwise, return the interpolated value of the entry prior to the input index.
             return entry._prev.Interpolate(index - (float)entry._prev._index, _linear);
         }
 

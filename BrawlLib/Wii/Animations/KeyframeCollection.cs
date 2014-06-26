@@ -177,6 +177,9 @@ namespace BrawlLib.Wii.Animations
         }
         public float GetFrameValue(KeyFrameMode mode, int index, bool linear, bool loop)
         {
+            if (linear || _linearRot)
+            {
+            }
             KeyframeEntry entry, root = _keyRoots[(int)mode & 0xF];
 
             if (index >= root._prev._index)
@@ -345,20 +348,47 @@ namespace BrawlLib.Wii.Animations
                 + ((time * time) * (3.0f - 2.0f * time) * diff);
         }
 
+        //Note: this func is used for visual animation ipo and ipo editor
         public float Interpolate(float offset, bool linear)
         {
+            //return current/next values if offset is 0,next (span)
             if (offset == 0) return _value;
             int span = _next._index - _index;
             if (offset == span) return _next._value;
 
             float diff = _next._value - _value;
-            
-            if (linear) return _value + (diff / span * offset);
 
-            float time = (float)offset / span;
+            float normalizedOffset = offset / span;
+
+            if (linear) return _value + diff * normalizedOffset;
+
+            //normalized
+            float time = normalizedOffset;
             float inv = time - 1.0f;
 
-            return _value 
+            return _value
+                + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
+                + ((time * time) * (3.0f - 2.0f * time) * diff);
+        }
+        //Note: this func is used for visual animation ipo and ipo editor
+        public float Interpolate(float offset, bool linear,KeyframeEntry _next)
+        {
+            //return current/next values if offset is 0,next (span)
+            if (offset == 0) return _value;
+            int span = _next._index - _index;
+            if (offset == span) return _next._value;
+
+            float diff = _next._value - _value;
+
+            float normalizedOffset = offset / span;
+
+            if (linear) return _value + diff * normalizedOffset;
+
+            //normalized
+            float time = normalizedOffset;
+            float inv = time - 1.0f;
+
+            return _value
                 + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
                 + ((time * time) * (3.0f - 2.0f * time) * diff);
         }
@@ -430,15 +460,34 @@ namespace BrawlLib.Wii.Animations
         public float GenerateTangent()
         {
             float tan = 0.0f;
+
+            float weightCount = 0;
+
+            //add the slope (dy/dx) tangent from the prev to current value to tan
             if (_prev._index != -1)
+            {
                 tan += (_value - _prev._value) / (_index - _prev._index);
+                weightCount++;
+            }
+
+            //add the slope tangent from the current to next value
             if (_next._index != -1)
             {
                 tan += (_next._value - _value) / (_next._index - _index);
-                if (_prev._index != -1)
-                    tan *= 0.5f;
+                weightCount++;
             }
 
+            //float deltaX = 2;
+            //float ipoVal = _prev.Interpolate(_index - _prev._index - (deltaX / 2f), false,_next);
+            //float ipoVal2 = _prev.Interpolate(_index - _prev._index + (deltaX / 2f), false, _next);
+            //float curveTan = (ipoVal2 - ipoVal) / deltaX;
+           //  tan += curveTan;
+           // weightCount++;
+
+            if (weightCount > 0)
+                tan /= weightCount;
+
+            tan = (float)Math.Round(tan, 5);
             return _tangent = tan;
         }
 
