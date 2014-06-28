@@ -71,7 +71,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _fixSize;
 
         public byte? _stageID; // null if it's not a stage .rel
-        public byte[] _itemIDs; // null if it's not an online training room .rel, or an array of length 4
+        public byte[] _itemIDs; // null if it's not an online training room .rel
 
         [Category("Relocatable Module")]
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
@@ -126,6 +126,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         //[Category("REL")]
         //public uint FixSize { get { return _fixSize; } }
 
+        #region Stage module conversion - designer properties
+        [Category("Relocatable Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
         public string StageID {
             get {
@@ -141,6 +143,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        [Category("Relocatable Module")]
         [TypeConverter(typeof(DropDownListItemIDs))]
         public string ItemID {
             get {
@@ -160,6 +163,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
+        #endregion
 
         public Relocation
             _prologReloc = null,
@@ -230,6 +234,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             ApplyRelocations();
 
+            // Stage module conversion
             byte* bptr = (byte*)WorkingUncompressed.Address;
             int offset = findStageIDOffset();
             _stageID = offset < 0 ? (byte?)null : bptr[offset];
@@ -544,6 +549,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 dataAddr = link;
             }
 
+            // Stage module conversion
             byte* bptr = (byte*)address;
             if (_stageID != null) bptr[findStageIDOffset()] = _stageID.Value;
 
