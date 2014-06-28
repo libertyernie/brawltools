@@ -70,7 +70,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _bssAlign = 8;
         public uint _fixSize;
 
-		public byte _stageID;
+		public byte? _stageID;
 
         [Category("Relocatable Module")]
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
@@ -128,11 +128,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 		[TypeConverter(typeof(DropDownListStageIDs))]
 		public string StageID {
 			get {
+				if (_stageID == null) return "Not found";
 				Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
-				return _stageID.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+				return _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
 			}
 			set {
-				_stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber); SignalPropertyChange();
+				// Don't try to set the stage ID if it's not a stage module
+				if (_stageID == null) return;
+				_stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+				SignalPropertyChange();
 			}
 		}
 
@@ -205,7 +209,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             ApplyRelocations();
 
-			_stageID = ((byte*)(WorkingUncompressed.Address))[findStageIDOffset()];
+			int offset = findStageIDOffset();
+			_stageID = offset < 0 ? (byte?)null : ((byte*)(WorkingUncompressed.Address))[offset];
         }
 
         public void ApplyRelocations()
@@ -509,7 +514,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 dataAddr = link;
             }
 
-			((byte*)(address))[findStageIDOffset()] = _stageID;
+			if (_stageID != null) ((byte*)(address))[findStageIDOffset()] = _stageID.Value;
         }
 
         public static List<RELNode> _files = new List<RELNode>();
