@@ -71,7 +71,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _fixSize;
 
         public byte? _stageID; // null if it's not a stage .rel
-        //public byte[] _itemIDs; // null if it's not an online training room .rel, or an array of length 4
+        public byte[] _itemIDs; // null if it's not an online training room .rel, or an array of length 4
 
         [Category("Relocatable Module")]
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
@@ -141,7 +141,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        /*[TypeConverter(typeof(DropDownListItemIDs))]
+        [TypeConverter(typeof(DropDownListItemIDs))]
         public string ItemID {
             get {
                 if (_itemIDs == null) return "N/A";
@@ -159,7 +159,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < 4; i++) _itemIDs[i] = b;
                 SignalPropertyChange();
             }
-        }*/
+        }
 
         public Relocation
             _prologReloc = null,
@@ -234,7 +234,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             int offset = findStageIDOffset();
             _stageID = offset < 0 ? (byte?)null : bptr[offset];
 
-            // TODO detect if it's an online training rel (by name?), read the four item ids if it is
+            if (nodeContainsString("stOnlineTrainning")) {
+                // File must be online training room .rel file
+                _itemIDs = new byte[OTrainItemOffsets.Length];
+                for (int i = 0; i < OTrainItemOffsets.Length; i++) {
+                    _itemIDs[i] = bptr[OTrainItemOffsets[i]];
+                }
+            }
         }
 
         public void ApplyRelocations()
@@ -538,12 +544,28 @@ namespace BrawlLib.SSBB.ResourceNodes
                 dataAddr = link;
             }
 
-            if (_stageID != null) ((byte*)(address))[findStageIDOffset()] = _stageID.Value;
+            byte* bptr = (byte*)address;
+            if (_stageID != null) bptr[findStageIDOffset()] = _stageID.Value;
+
+            if (_itemIDs != null) {
+                // File must be online training room .rel file
+                for (int i = 0; i < _itemIDs.Length; i++) {
+                    bptr[OTrainItemOffsets[i]] = _itemIDs[i];
+                }
+            }
         }
 
         public static List<RELNode> _files = new List<RELNode>();
 
         #region Stage module conversion
+        private unsafe static int arrayIndexOf(void* haystack, int length, byte[] needle) {
+            byte?[] b = new byte?[needle.Length];
+            for (int i = 0; i < b.Length; i++) {
+                b[i] = needle[i];
+            }
+            return arrayIndexOf(haystack, length, b);
+        }
+
         private unsafe static int arrayIndexOf(void* haystack, int length, byte?[] needle) {
             byte* ptr = (byte*)haystack;
             int indexToCheck = 0;
@@ -569,16 +591,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 : index + 11;
         }
 
+        private unsafe bool nodeContainsString(string s) {
+            return arrayIndexOf(WorkingUncompressed.Address,
+                WorkingUncompressed.Length,
+                Encoding.UTF8.GetBytes(s)) > 0;
+        }
+
         /* These are absolute offsets - land within section 1.
          * When BrawlBox rebuilds st_otrain.rel, it cuts out 16 bytes from 0xA50-0xA60,
-         * but those come after these, so we should be ok.
-         * private readonly static int[] OTrainItemOffsets = {
-                  // Best guesses (June 2014):
-            1223, // Spawn this item when stage loads
-            1347, // When this item is no longer on screen, spawn item at 1627
-            1371, // Unknown
-            1627, // Spawn this item when item defined at 1347 goes offscreen
-        };*/
+         * but those come after these, so we should be ok. */
+        private readonly static int[] OTrainItemOffsets = {
+            // Changing some values but not others has strange effects
+            1223,
+            1347, // this appears to be some sort of "if" condition
+            1371,
+            1627,
+        };
 
         public readonly static string[] Items = {
             "00 - Assist Trophy",
