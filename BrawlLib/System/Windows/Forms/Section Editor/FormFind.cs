@@ -284,6 +284,9 @@ namespace System.Windows.Forms
 			_findOptions.MatchCase = chkMatchCase.Checked;
 			_findOptions.IsValid = true;
 
+			bool empty = rbHex.Checked ? _findOptions.Hex.Length == 0 : _findOptions.Text.Length == 0;
+			if (empty) return;
+
             _mainWindow._findOptions = _findOptions;
             _mainWindow.Find(false);
             Close();
