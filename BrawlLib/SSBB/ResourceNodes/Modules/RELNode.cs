@@ -70,7 +70,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _bssAlign = 8;
         public uint _fixSize;
 
-        public byte? _stageID;
+        public byte? _stageID; // null if it's not a stage .rel
+        //public byte[] _itemIDs; // null if it's not an online training room .rel, or an array of length 4
 
         [Category("Relocatable Module")]
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
@@ -128,7 +129,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [TypeConverter(typeof(DropDownListStageIDs))]
         public string StageID {
             get {
-                if (_stageID == null) return "Not found";
+                if (_stageID == null) return "N/A";
                 Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
                 return _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
             }
@@ -139,6 +140,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
+
+        /*[TypeConverter(typeof(DropDownListItemIDs))]
+        public string ItemID {
+            get {
+                if (_itemIDs == null) return "N/A";
+                if (_itemIDs.Distinct().Count() > 1) {
+                    // If the four IDs are different (not sure why they would be)
+                    return "Mismatched (" + string.Join(",", _itemIDs.Select(b => b.ToString("X2"))) + ")";
+                }
+                string item = Items.Where(s => s.StartsWith(_itemIDs[0].ToString("X2"))).FirstOrDefault();
+                return item ?? _itemIDs[0].ToString("X2");
+            }
+            set {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null) return;
+                byte b = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+                for (int i = 0; i < 4; i++) _itemIDs[i] = b;
+                SignalPropertyChange();
+            }
+        }*/
 
         public Relocation
             _prologReloc = null,
@@ -209,8 +230,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             ApplyRelocations();
 
+            byte* bptr = (byte*)WorkingUncompressed.Address;
             int offset = findStageIDOffset();
-            _stageID = offset < 0 ? (byte?)null : ((byte*)(WorkingUncompressed.Address))[offset];
+            _stageID = offset < 0 ? (byte?)null : bptr[offset];
+
+            // TODO detect if it's an online training rel (by name?), read the four item ids if it is
         }
 
         public void ApplyRelocations()
@@ -544,6 +568,89 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ? -1
                 : index + 11;
         }
+
+        /* These are absolute offsets - land within section 1.
+         * When BrawlBox rebuilds st_otrain.rel, it cuts out 16 bytes from 0xA50-0xA60,
+         * but those come after these, so we should be ok.
+         * private readonly static int[] OTrainItemOffsets = {
+                  // Best guesses (June 2014):
+            1223, // Spawn this item when stage loads
+            1347, // When this item is no longer on screen, spawn item at 1627
+            1371, // Unknown
+            1627, // Spawn this item when item defined at 1347 goes offscreen
+        };*/
+
+        public readonly static string[] Items = {
+            "00 - Assist Trophy",
+            "01 - Franklin Badge",
+            "02 - Banana Peel",
+            "03 - Barrel",
+            "04 - Beam Sword",
+            "05 - Bill (coin mode)",
+            "06 - Bob-Omb",
+            "07 - Crate",
+            "08 - Bumper",
+            "09 - Capsule",
+            "0A - Rolling Crate",
+            "0B - CD",
+            "0C - Gooey Bomb",
+            "0D - Cracker Launcher",
+            "0E - Cracker Launcher Shot",
+            "0F - Coin",
+            "10 - Superspicy Curry",
+            "11 - Superspice Curry Shot",
+            "12 - Deku Nut",
+            "13 - Mr. Saturn",
+            "14 - Dragoon Part",
+            "15 - Dragoon Set",
+            "16 - Dragoon Sight",
+            "17 - Trophy",
+            "18 - Fire Flower",
+            "19 - Fire Flower Shot",
+            "1A - Freezie",
+            "1B - Golden Hammer",
+            "1C - Green Shell",
+            "1D - Hammer",
+            "1E - Hammer Head",
+            "1F - Fan",
+            "20 - Heart Container",
+            "21 - Homerun Bat",
+            "22 - Party Ball",
+            "23 - Manaphy Heart",
+            "24 - Maxim Tomato",
+            "25 - Poison Mushroom",
+            "26 - Super Mushroom",
+            "27 - Metal Box",
+            "28 - Hothead",
+            "29 - Pitfall",
+            "2A - Pokéball",
+            "2B - Blast Box",
+            "2C - Ray Gun",
+            "2D - Ray Gun Shot",
+            "2E - Lipstick",
+            "2F - Lipstick Flower",
+            "30 - Lipstick Shot",
+            "31 - Sandbag",
+            "32 - Screw Attack",
+            "33 - Sticker",
+            "34 - Motion-Sensor Bomb",
+            "35 - Timer",
+            "36 - Smart Bomb",
+            "37 - Smash Ball",
+            "38 - Smoke Screen",
+            "39 - Spring",
+            "3A - Star Rod",
+            "3B - Star Rod Shot",
+            "3C - Soccer Ball",
+            "3D - Super Scope",
+            "3E - Super Scope shot",
+            "3F - Star",
+            "40 - Food",
+            "41 - Team Healer",
+            "42 - Lightning",
+            "43 - Unira",
+            "44 - Bunny Hood",
+            "45 - Warpstar"};
         #endregion
     }
 }

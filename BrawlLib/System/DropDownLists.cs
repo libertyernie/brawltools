@@ -431,5 +431,13 @@ namespace System
             return base.CanConvertFrom(context, sourceType);
         }
     }
-
+    public class DropDownListItemIDs : StringConverter {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
+            return new StandardValuesCollection(RELNode.Items.ToList());
+        }
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+            return base.CanConvertFrom(context, sourceType);
+        }
+    }
 }
