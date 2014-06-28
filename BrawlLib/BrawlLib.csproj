@@ -188,6 +188,7 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\GMOVNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GMPSNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GSNDNode.cs" />
+    <Compile Include="SSBB\Stage.cs" />
     <Compile Include="SSBB\Types\Subspace\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\GBLK.cs" />
     <Compile Include="SSBB\Types\Subspace\GEG1.cs" />

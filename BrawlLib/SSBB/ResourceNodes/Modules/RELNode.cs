@@ -9,6 +9,7 @@ using System.Drawing;
 using BrawlLib.IO;
 using System.PowerPcAssembly;
 using System.Windows.Forms;
+using System.Globalization;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -69,6 +70,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _bssAlign = 8;
         public uint _fixSize;
 
+		public byte _stageID;
+
         [Category("Relocatable Module")]
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
         [Browsable(false)]
@@ -121,6 +124,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         //public uint BSSAlign { get { return _bssAlign; } }
         //[Category("REL")]
         //public uint FixSize { get { return _fixSize; } }
+
+		[TypeConverter(typeof(DropDownListStageIDs))]
+		public string StageID {
+			get {
+				Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
+				return _stageID.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+			}
+			set {
+				_stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber); SignalPropertyChange();
+			}
+		}
 
         public Relocation
             _prologReloc = null,
@@ -190,6 +204,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             ApplyRelocations();
+
+			_stageID = ((byte*)(WorkingUncompressed.Address))[findStageIDOffset()];
         }
 
         public void ApplyRelocations()
@@ -492,8 +508,37 @@ namespace BrawlLib.SSBB.ResourceNodes
                     *link++ = n;
                 dataAddr = link;
             }
+
+			((byte*)(address))[findStageIDOffset()] = _stageID;
         }
 
         public static List<RELNode> _files = new List<RELNode>();
+
+		#region Stage module conversion
+		private unsafe static int arrayIndexOf(void* haystack, int length, byte?[] needle) {
+			byte* ptr = (byte*)haystack;
+			int indexToCheck = 0;
+			for (int i = 0; i < length; i++) {
+				byte? b = needle[indexToCheck];
+				if ((b ?? ptr[i]) == ptr[i]) {
+					indexToCheck++;
+					if (indexToCheck == needle.Length) return i + 1 - needle.Length;
+				} else {
+					indexToCheck = 0;
+				}
+			}
+			return -1;
+		}
+
+		private unsafe int findStageIDOffset() {
+			byte?[] searchFor = { 0x38, null, 0x00, null,
+                                  0x38, 0xA5, 0x00, 0x00,
+                                  0x38, 0x80, 0x00 };
+			int index = arrayIndexOf(WorkingUncompressed.Address, WorkingUncompressed.Length, searchFor);
+			return index < 0
+				? -1
+				: index + 11;
+		}
+		#endregion
     }
 }

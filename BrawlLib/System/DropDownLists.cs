@@ -422,5 +422,14 @@ namespace System
             return new StandardValuesCollection(values);
         }
     }
+    public class DropDownListStageIDs : StringConverter {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
+            return new StandardValuesCollection(BrawlLib.SSBB.Stage.Stages.Select(s => s.ID.ToString("X2") + " - " + s.Name).ToList());
+        }
+		public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+			return base.CanConvertFrom(context, sourceType);
+		}
+    }
 
 }
