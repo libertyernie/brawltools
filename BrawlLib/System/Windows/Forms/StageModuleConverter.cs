@@ -34,66 +34,66 @@ namespace System.Windows.Forms
         }
         #endregion
 
-		private static Stage[] stageList = new Stage[] {
-			new Stage(0, "STGCUSTOM##.pac", "st_custom##.rel"),
-			new Stage(1, "Battlefield", "st_battle.rel"),
-			new Stage(2, "Final Destination", "st_final.rel"),
-			new Stage(3, "Delfino Plaza", "st_dolpic.rel"),
-			new Stage(4, "Luigi's Mansion", "st_mansion.rel"),
-			new Stage(5, "Mushroomy Kingdom", "st_mariopast.rel"),
-			new Stage(6, "Mario Circuit", "st_kart.rel"),
-			new Stage(7, "75 m", "st_donkey.rel"),
-			new Stage(8, "Rumble Falls", "st_jungle.rel"),
-			new Stage(9, "Pirate Ship", "st_pirates.rel"),
-			new Stage(11, "Norfair", "st_norfair.rel"),
-			new Stage(12, "Frigate Orpheon", "st_orpheon.rel"),
-			new Stage(13, "Yoshi's Island (Brawl)", "st_crayon.rel"),
-			new Stage(14, "Halberd", "st_halberd.rel"),
-			new Stage(19, "Lylat Cruise", "st_starfox.rel"),
-			new Stage(20, "Pokemon Stadium 2", "st_stadium.rel"),
-			new Stage(21, "Spear Pillar", "st_tengan.rel"),
-			new Stage(22, "Port Town Aero Dive", "st_fzero.rel"),
-			new Stage(23, "Summit", "st_ice.rel"),
-			new Stage(24, "Flat Zone 2", "st_gw.rel"),
-			new Stage(25, "Castle Siege", "st_emblem.rel"),
-			new Stage(28, "WarioWare Inc.", "st_madein.rel"),
-			new Stage(29, "Distant Planet", "st_earth.rel"),
-			new Stage(30, "Skyworld", "st_palutena.rel"),
-			new Stage(31, "Mario Bros.", "st_famicom.rel"),
-			new Stage(32, "New Pork City", "st_newpork.rel"),
-			new Stage(33, "Smashville", "st_village.rel"),
-			new Stage(34, "Shadow Moses Island", "st_metalgear.rel"),
-			new Stage(35, "Green Hill Zone", "st_greenhill.rel"),
-			new Stage(36, "PictoChat", "st_pictchat.rel"),
-			new Stage(37, "Hanenbow", "st_plankton.rel"),
-			new Stage(38, "ConfigTest", "st_config.rel"),
-			new Stage(41, "Temple", "st_dxshrine.rel"),
-			new Stage(42, "Yoshi's Island (Melee)", "st_dxyorster.rel"),
-			new Stage(43, "Jungle Japes", "st_dxgarden.rel"),
-			new Stage(44, "Onett", "st_dxonett.rel"),
-			new Stage(45, "Green Greens", "st_dxgreens.rel"),
-			new Stage(46, "Pokemon Stadium", "st_dxpstadium.rel"),
-			new Stage(47, "Rainbow Cruise", "st_dxrcruise.rel"),
-			new Stage(48, "Corneria", "st_dxcorneria.rel"),
-			new Stage(49, "Big Blue", "st_dxbigblue.rel"),
-			new Stage(50, "Brinstar", "st_dxzebes.rel"),
-			new Stage(51, "Bridge of Eldin", "st_oldin.rel"),
-			new Stage(52, "Homerun", "st_homerun.rel"),
-			new Stage(53, "Edit", "st_stageedit.rel"),
-			new Stage(54, "Heal", "st_heal.rel"),
-			new Stage(55, "Online Training", "st_otrain.rel"),
-			new Stage(56, "TargetBreak", "st_tbreak.rel"),
-		};
-		private static int[] indicesToIgnore = {
-			2959, // st_croll (PAL)
-			431, // st_onett, st_metalgear
-			387, // st_dxyorster
-			2519, // st_croll (NTSC)
-			419, // st_donkey
-			423, // st_halberd, st_jungle, st_mansion
-			};
-		public static ReadOnlyCollection<Stage> StageList { get { return Array.AsReadOnly(stageList); } }
-		public static ReadOnlyCollection<int> IndicesToIgnore { get { return Array.AsReadOnly(indicesToIgnore); } }
+        private static Stage[] stageList = new Stage[] {
+            new Stage(0, "STGCUSTOM##.pac", "st_custom##.rel"),
+            new Stage(1, "Battlefield", "st_battle.rel"),
+            new Stage(2, "Final Destination", "st_final.rel"),
+            new Stage(3, "Delfino Plaza", "st_dolpic.rel"),
+            new Stage(4, "Luigi's Mansion", "st_mansion.rel"),
+            new Stage(5, "Mushroomy Kingdom", "st_mariopast.rel"),
+            new Stage(6, "Mario Circuit", "st_kart.rel"),
+            new Stage(7, "75 m", "st_donkey.rel"),
+            new Stage(8, "Rumble Falls", "st_jungle.rel"),
+            new Stage(9, "Pirate Ship", "st_pirates.rel"),
+            new Stage(11, "Norfair", "st_norfair.rel"),
+            new Stage(12, "Frigate Orpheon", "st_orpheon.rel"),
+            new Stage(13, "Yoshi's Island (Brawl)", "st_crayon.rel"),
+            new Stage(14, "Halberd", "st_halberd.rel"),
+            new Stage(19, "Lylat Cruise", "st_starfox.rel"),
+            new Stage(20, "Pokemon Stadium 2", "st_stadium.rel"),
+            new Stage(21, "Spear Pillar", "st_tengan.rel"),
+            new Stage(22, "Port Town Aero Dive", "st_fzero.rel"),
+            new Stage(23, "Summit", "st_ice.rel"),
+            new Stage(24, "Flat Zone 2", "st_gw.rel"),
+            new Stage(25, "Castle Siege", "st_emblem.rel"),
+            new Stage(28, "WarioWare Inc.", "st_madein.rel"),
+            new Stage(29, "Distant Planet", "st_earth.rel"),
+            new Stage(30, "Skyworld", "st_palutena.rel"),
+            new Stage(31, "Mario Bros.", "st_famicom.rel"),
+            new Stage(32, "New Pork City", "st_newpork.rel"),
+            new Stage(33, "Smashville", "st_village.rel"),
+            new Stage(34, "Shadow Moses Island", "st_metalgear.rel"),
+            new Stage(35, "Green Hill Zone", "st_greenhill.rel"),
+            new Stage(36, "PictoChat", "st_pictchat.rel"),
+            new Stage(37, "Hanenbow", "st_plankton.rel"),
+            new Stage(38, "ConfigTest", "st_config.rel"),
+            new Stage(41, "Temple", "st_dxshrine.rel"),
+            new Stage(42, "Yoshi's Island (Melee)", "st_dxyorster.rel"),
+            new Stage(43, "Jungle Japes", "st_dxgarden.rel"),
+            new Stage(44, "Onett", "st_dxonett.rel"),
+            new Stage(45, "Green Greens", "st_dxgreens.rel"),
+            new Stage(46, "Pokemon Stadium", "st_dxpstadium.rel"),
+            new Stage(47, "Rainbow Cruise", "st_dxrcruise.rel"),
+            new Stage(48, "Corneria", "st_dxcorneria.rel"),
+            new Stage(49, "Big Blue", "st_dxbigblue.rel"),
+            new Stage(50, "Brinstar", "st_dxzebes.rel"),
+            new Stage(51, "Bridge of Eldin", "st_oldin.rel"),
+            new Stage(52, "Homerun", "st_homerun.rel"),
+            new Stage(53, "Edit", "st_stageedit.rel"),
+            new Stage(54, "Heal", "st_heal.rel"),
+            new Stage(55, "Online Training", "st_otrain.rel"),
+            new Stage(56, "TargetBreak", "st_tbreak.rel"),
+        };
+        private static int[] indicesToIgnore = {
+            2959, // st_croll (PAL)
+            431, // st_onett, st_metalgear
+            387, // st_dxyorster
+            2519, // st_croll (NTSC)
+            419, // st_donkey
+            423, // st_halberd, st_jungle, st_mansion
+            };
+        public static ReadOnlyCollection<Stage> StageList { get { return Array.AsReadOnly(stageList); } }
+        public static ReadOnlyCollection<int> IndicesToIgnore { get { return Array.AsReadOnly(indicesToIgnore); } }
 
         #region Designer
 
@@ -119,11 +119,11 @@ namespace System.Windows.Forms
         private Label lblSizeDesc;
         private Label lblNameValue;
         private Button btnBrowse;
-		private Label lblIDValue;
-		private Label lblIDDesc;
-		private Label label3;
-		private ComboBox itemSelection;
-		private Label lblItemDesc;
+        private Label lblIDValue;
+        private Label lblIDDesc;
+        private Label label3;
+        private ComboBox itemSelection;
+        private Label lblItemDesc;
 
         private void InitializeComponent()
         {
@@ -623,13 +623,13 @@ namespace System.Windows.Forms
             byte currentID = findCurrentID();
             lblIDValue.Text = "0x" + Convert.ToString(currentID, 16);
 
-			foreach (Stage s in stageList) {
-				if (s.ID == currentID) {
-					lblCurrentStage.Text = s.Name;
-					stageSelection.SelectedItem = s;
-					break;
-				}
-			}
+            foreach (Stage s in stageList) {
+                if (s.ID == currentID) {
+                    lblCurrentStage.Text = s.Name;
+                    stageSelection.SelectedItem = s;
+                    break;
+                }
+            }
 
             if (lblNameValue.Text.StartsWith("stOnline"))
             {
