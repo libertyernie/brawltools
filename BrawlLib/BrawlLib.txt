@@ -1,5 +1,5 @@
 ﻿
-BrawlLib Resource Library - Version 0.20
+BrawlLib Resource Library - Version 0.20a
 Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
 Copyright © 2014 libertyernie & Sammi Husky
 
@@ -18,6 +18,10 @@ they be held accountable for the manner in which it is used.
  Changes beginning with an asterisk (*) affect BrawlBox behavior,
  while changes beginning with a period (.) serve to add/modify
  features that BrawlBox doesn't use.
+
+ (6/28/2014) - BrawlLib 0.20a
+    * See BrawlBox 0.73a changelog (additions to interpolation editor, RELNode)
+	* BrawlLib.SSBB.Stage added - keeps a list of Brawl stages' names, filenames, and IDs
 
  (6/3/2014) - BrawlLib 0.20
     * More support for Subspace Emissary data formats

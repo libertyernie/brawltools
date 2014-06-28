@@ -15,7 +15,7 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.73a- (???) - BrawlLib v0.20a
+ - v0.73a- (6/28/2014) - BrawlLib v0.20a
 	. Interpolation Editor changes (TheShyGuy)
 		Display -> Linear -> Edit Values As Linear (toggle on/off)
 		  When editing values (e.g. with 3D rot/trans/scale controls), start from the linear value displayed, not the interpolated one
@@ -25,6 +25,7 @@ they be held accountable for the manner in which it is used.
 			Alter Ajdacent Tangent (on create, delete, and/or drag)
 	. Read-only support added for collision nodes in the model viewer (right-click the ARC node containing both models and collisions and click "Preview All")
 	. If a floor collision is visible in the model previewer, you can snap to it while dragging a bone with the translation tool (Options -> Settings -> Snap dragged bones to floor collisions)
+	. REL files: stage ID (where applicable) and item ID (Online Training Room only) can be edited in property grid, making the Stage Module Converter dialog unnecessary
 
  - v0.73- (6/3/2014) - BrawlLib v0.20
 	. The attribute grid from Ikarus is now used to edit STDT data in stages
