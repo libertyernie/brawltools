@@ -158,9 +158,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             set {
                 // Don't try to set the item ID if it's not an Online Training Room module
                 if (_itemIDs == null) return;
-                byte b = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
-                for (int i = 0; i < 4; i++) _itemIDs[i] = b;
-                SignalPropertyChange();
+				if (value.Contains("(")) value = value.Substring(value.IndexOf("(")+1);
+				if (value.Contains(")")) value = value.Substring(0, value.IndexOf(")"));
+				string[] split = value.Split(',');
+				if (split.Length == 4) {
+					for (int i = 0; i < 4; i++) _itemIDs[i] = byte.Parse(split[i], NumberStyles.HexNumber);
+					SignalPropertyChange();
+				} else {
+					byte b = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+					for (int i = 0; i < 4; i++) _itemIDs[i] = b;
+					SignalPropertyChange();
+				}
             }
         }
         #endregion
