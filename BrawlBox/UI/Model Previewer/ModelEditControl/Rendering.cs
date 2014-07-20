@@ -210,7 +210,9 @@ namespace System.Windows.Forms
 
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
+            if(chkCollisions.Checked)
             foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
+
             MDL0BoneNode CamBone0 = null;
             MDL0BoneNode CamBone1 = null;
             GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
