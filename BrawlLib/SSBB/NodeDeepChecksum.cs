@@ -44,7 +44,7 @@ namespace BrawlLib.SSBB {
 			bool childrenfound = false;
 			byte[] xorsum = new byte[16];
 			foreach (ResourceNode node in main.Children) {
-				byte[] md5 = MD5EnsureChildrenIncluded(main).Item1;
+				byte[] md5 = MD5EnsureChildrenIncluded(node).Item1;
 				if (md5 != null) {
 					childrenfound = true;
 					for (int i = 0; i < 16; i++) xorsum[i] ^= md5[i];
