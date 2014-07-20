@@ -215,6 +215,9 @@ namespace System.Windows.Forms
 
             MDL0BoneNode CamBone0 = null;
             MDL0BoneNode CamBone1 = null;
+            MDL0BoneNode DeathBone0 = null;
+            MDL0BoneNode DeathBone1 = null;
+
             GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
                     if (_editingAll)
                     {
@@ -225,6 +228,10 @@ namespace System.Windows.Forms
                                     CamBone0 = bone;
                                 else if (bone.Name == "CamLimit1N")
                                     CamBone1 = bone;
+                                else if (bone.Name == "Dead0N")
+                                    DeathBone0 = bone;
+                                else if (bone.Name == "Dead1N")
+                                    DeathBone1 = bone;
                             }
                     }
                     else if (TargetModel.Name.Contains("Position"));
@@ -235,10 +242,25 @@ namespace System.Windows.Forms
                                 CamBone0 = bone;
                             else if (bone.Name == "CamLimit1N")
                                 CamBone1 = bone;
+                            else if (bone.Name == "Dead0N")
+                                DeathBone0 = bone;
+                            else if (bone.Name == "Dead1N")
+                                DeathBone1 = bone;
                         }
                     }
-            if(CamBone0 != null && CamBone1 != null)
-                    context.DrawBox(CamBone0.Translation,CamBone1.Translation);
+                    if (CamBone0 != null && CamBone1 != null && chkBoundries.Checked)
+                    {
+                        GL.Color4(0.0f, 0.0f, 0.0f, 0.1f);
+                        context.DrawBox(CamBone0._frameMatrix.GetPoint(),CamBone1._frameMatrix.GetPoint());
+                        GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                        context.DrawBox(DeathBone0._frameMatrix.GetPoint(), DeathBone1._frameMatrix.GetPoint());
+                        GL.Color4(1.0f, 0.0f, 0.0f, 0.3f);
+
+                        context.DrawBox(
+                                    DeathBone0._frameMatrix.GetPoint() + new Vector3(-8.0f,8.0f,0),
+                                    DeathBone1._frameMatrix.GetPoint() +new Vector3(8.0f,-8.0f,0)
+                                        );                        
+                    }
             
             RenderSCN0Controls(context);
             RenderTransformControl(context);

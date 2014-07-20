@@ -187,6 +187,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem chkLinearCamera;
         public ToolStripMenuItem chkBRRESAnims;
         private ToolStripMenuItem detachViewerToolStripMenuItem;
+        private ToolStripButton chkBoundries;
         public LeftPanel leftPanel;
 
         private void InitializeComponent()
@@ -277,10 +278,10 @@ namespace System.Windows.Forms
             this.modelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleBones = new System.Windows.Forms.ToolStripMenuItem();
             this.togglePolygons = new System.Windows.Forms.ToolStripMenuItem();
-            this.wireframeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleVertices = new System.Windows.Forms.ToolStripMenuItem();
-            this.toggleNormals = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleCollisions = new System.Windows.Forms.ToolStripMenuItem();
+            this.wireframeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toggleNormals = new System.Windows.Forms.ToolStripMenuItem();
             this.boundingBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -333,8 +334,9 @@ namespace System.Windows.Forms
             this.toolStrip1 = new System.Windows.Forms.ToolStrip();
             this.chkBones = new System.Windows.Forms.ToolStripButton();
             this.chkPolygons = new System.Windows.Forms.ToolStripButton();
-            this.chkCollisions = new System.Windows.Forms.ToolStripButton();
             this.chkVertices = new System.Windows.Forms.ToolStripButton();
+            this.chkCollisions = new System.Windows.Forms.ToolStripButton();
+            this.chkBoundries = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
             this.button1 = new System.Windows.Forms.ToolStripButton();
@@ -357,8 +359,8 @@ namespace System.Windows.Forms
             this.weightEditor = new System.Windows.Forms.WeightEditor();
             this.vertexEditor = new System.Windows.Forms.VertexEditor();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.leftPanel = new System.Windows.Forms.LeftPanel();
             this.rightPanel = new System.Windows.Forms.RightPanel();
+            this.leftPanel = new System.Windows.Forms.LeftPanel();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -640,7 +642,7 @@ namespace System.Windows.Forms
             this.chkGenTansFog,
             this.chkGenTansCamera});
             this.generateTangentsToolStripMenuItem.Name = "generateTangentsToolStripMenuItem";
-            this.generateTangentsToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.generateTangentsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.generateTangentsToolStripMenuItem.Text = "Generate tangents";
             // 
             // chkGenTansCHR
@@ -708,7 +710,7 @@ namespace System.Windows.Forms
             this.displayFrameCountDifferencesToolStripMenuItem.CheckOnClick = true;
             this.displayFrameCountDifferencesToolStripMenuItem.Enabled = false;
             this.displayFrameCountDifferencesToolStripMenuItem.Name = "displayFrameCountDifferencesToolStripMenuItem";
-            this.displayFrameCountDifferencesToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.displayFrameCountDifferencesToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.displayFrameCountDifferencesToolStripMenuItem.Text = "Warn if frame counts differ";
             this.displayFrameCountDifferencesToolStripMenuItem.Visible = false;
             // 
@@ -717,7 +719,7 @@ namespace System.Windows.Forms
             this.alwaysSyncFrameCountsToolStripMenuItem.CheckOnClick = true;
             this.alwaysSyncFrameCountsToolStripMenuItem.Enabled = false;
             this.alwaysSyncFrameCountsToolStripMenuItem.Name = "alwaysSyncFrameCountsToolStripMenuItem";
-            this.alwaysSyncFrameCountsToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.alwaysSyncFrameCountsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.alwaysSyncFrameCountsToolStripMenuItem.Text = "Always sync frame counts";
             this.alwaysSyncFrameCountsToolStripMenuItem.Visible = false;
             // 
@@ -727,7 +729,7 @@ namespace System.Windows.Forms
             this.syncAnimationsTogetherToolStripMenuItem.CheckOnClick = true;
             this.syncAnimationsTogetherToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.syncAnimationsTogetherToolStripMenuItem.Name = "syncAnimationsTogetherToolStripMenuItem";
-            this.syncAnimationsTogetherToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.syncAnimationsTogetherToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.syncAnimationsTogetherToolStripMenuItem.Text = "Retrieve corresponding animations";
             this.syncAnimationsTogetherToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncAnimationsTogetherToolStripMenuItem_CheckedChanged);
             // 
@@ -735,7 +737,7 @@ namespace System.Windows.Forms
             // 
             this.syncTexObjToolStripMenuItem.CheckOnClick = true;
             this.syncTexObjToolStripMenuItem.Name = "syncTexObjToolStripMenuItem";
-            this.syncTexObjToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.syncTexObjToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.syncTexObjToolStripMenuItem.Text = "Sync texture list with object list";
             this.syncTexObjToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncTexObjToolStripMenuItem_CheckedChanged);
             // 
@@ -743,7 +745,7 @@ namespace System.Windows.Forms
             // 
             this.syncObjectsListToVIS0ToolStripMenuItem.CheckOnClick = true;
             this.syncObjectsListToVIS0ToolStripMenuItem.Name = "syncObjectsListToVIS0ToolStripMenuItem";
-            this.syncObjectsListToVIS0ToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.syncObjectsListToVIS0ToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.syncObjectsListToVIS0ToolStripMenuItem.Text = "Sync objects list edits to VIS0";
             this.syncObjectsListToVIS0ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncObjectsListToVIS0ToolStripMenuItem_CheckedChanged);
             // 
@@ -753,14 +755,14 @@ namespace System.Windows.Forms
             this.disableBonesWhenPlayingToolStripMenuItem.CheckOnClick = true;
             this.disableBonesWhenPlayingToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.disableBonesWhenPlayingToolStripMenuItem.Name = "disableBonesWhenPlayingToolStripMenuItem";
-            this.disableBonesWhenPlayingToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.disableBonesWhenPlayingToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.disableBonesWhenPlayingToolStripMenuItem.Text = "Disable bones when playing";
             // 
             // chkDontRenderOffscreen
             // 
             this.chkDontRenderOffscreen.Enabled = false;
             this.chkDontRenderOffscreen.Name = "chkDontRenderOffscreen";
-            this.chkDontRenderOffscreen.Size = new System.Drawing.Size(258, 22);
+            this.chkDontRenderOffscreen.Size = new System.Drawing.Size(276, 22);
             this.chkDontRenderOffscreen.Text = "Don\'t render offscreen objects";
             this.chkDontRenderOffscreen.Visible = false;
             // 
@@ -768,14 +770,14 @@ namespace System.Windows.Forms
             // 
             this.dontHighlightBonesAndVerticesToolStripMenuItem.CheckOnClick = true;
             this.dontHighlightBonesAndVerticesToolStripMenuItem.Name = "dontHighlightBonesAndVerticesToolStripMenuItem";
-            this.dontHighlightBonesAndVerticesToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.dontHighlightBonesAndVerticesToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.dontHighlightBonesAndVerticesToolStripMenuItem.Text = "Don\'t highlight bones and vertices";
             // 
             // enablePointAndLineSmoothingToolStripMenuItem
             // 
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckOnClick = true;
             this.enablePointAndLineSmoothingToolStripMenuItem.Name = "enablePointAndLineSmoothingToolStripMenuItem";
-            this.enablePointAndLineSmoothingToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.enablePointAndLineSmoothingToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.enablePointAndLineSmoothingToolStripMenuItem.Text = "Enable point and line smoothing";
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged);
             // 
@@ -783,7 +785,7 @@ namespace System.Windows.Forms
             // 
             this.enableTextOverlaysToolStripMenuItem.CheckOnClick = true;
             this.enableTextOverlaysToolStripMenuItem.Name = "enableTextOverlaysToolStripMenuItem";
-            this.enableTextOverlaysToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.enableTextOverlaysToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.enableTextOverlaysToolStripMenuItem.Text = "Enable text overlays";
             this.enableTextOverlaysToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enableTextOverlaysToolStripMenuItem_CheckedChanged);
             // 
@@ -792,7 +794,7 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem.CheckOnClick = true;
             this.syncStartendTangentsToolStripMenuItem.Enabled = false;
             this.syncStartendTangentsToolStripMenuItem.Name = "syncStartendTangentsToolStripMenuItem";
-            this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(258, 22);
+            this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
             this.syncStartendTangentsToolStripMenuItem.Text = "Sync first && last frame tangents";
             this.syncStartendTangentsToolStripMenuItem.Visible = false;
             // 
@@ -800,14 +802,14 @@ namespace System.Windows.Forms
             // 
             this.chkSnapToColl.CheckOnClick = true;
             this.chkSnapToColl.Name = "chkSnapToColl";
-            this.chkSnapToColl.Size = new System.Drawing.Size(258, 22);
+            this.chkSnapToColl.Size = new System.Drawing.Size(276, 22);
             this.chkSnapToColl.Text = "Snap dragged bones to floor collisions";
             // 
             // chkMaximize
             // 
             this.chkMaximize.CheckOnClick = true;
             this.chkMaximize.Name = "chkMaximize";
-            this.chkMaximize.Size = new System.Drawing.Size(258, 22);
+            this.chkMaximize.Size = new System.Drawing.Size(276, 22);
             this.chkMaximize.Text = "Maximize upon opening";
             // 
             // allSettingsToolStripMenuItem
@@ -1178,14 +1180,6 @@ namespace System.Windows.Forms
             this.togglePolygons.Text = "Polygons";
             this.togglePolygons.Click += new System.EventHandler(this.togglePolygons_Click);
             // 
-            // wireframeToolStripMenuItem
-            // 
-            this.wireframeToolStripMenuItem.Name = "wireframeToolStripMenuItem";
-            this.wireframeToolStripMenuItem.ShortcutKeyDisplayString = "";
-            this.wireframeToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
-            this.wireframeToolStripMenuItem.Text = "Wireframe";
-            this.wireframeToolStripMenuItem.Click += new System.EventHandler(this.wireframeToolStripMenuItem_Click);
-            // 
             // toggleVertices
             // 
             this.toggleVertices.Checked = true;
@@ -1202,6 +1196,14 @@ namespace System.Windows.Forms
             this.toggleCollisions.Size = new System.Drawing.Size(159, 22);
             this.toggleCollisions.Text = "Collisions";
             this.toggleCollisions.Click += new System.EventHandler(this.toggleCollisions_Click);
+            // 
+            // wireframeToolStripMenuItem
+            // 
+            this.wireframeToolStripMenuItem.Name = "wireframeToolStripMenuItem";
+            this.wireframeToolStripMenuItem.ShortcutKeyDisplayString = "";
+            this.wireframeToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.wireframeToolStripMenuItem.Text = "Wireframe";
+            this.wireframeToolStripMenuItem.Click += new System.EventHandler(this.wireframeToolStripMenuItem_Click);
             // 
             // toggleNormals
             // 
@@ -1635,6 +1637,7 @@ namespace System.Windows.Forms
             this.chkPolygons,
             this.chkVertices,
             this.chkCollisions,
+            this.chkBoundries,
             this.toolStripSeparator1,
             this.chkFloor,
             this.button1,
@@ -1668,17 +1671,6 @@ namespace System.Windows.Forms
             this.chkPolygons.Text = "Polygons";
             this.chkPolygons.Click += new System.EventHandler(this.chkPolygons_Click);
             // 
-            // chkCollisions
-            // 
-            this.chkCollisions.Checked = true;
-            this.chkCollisions.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.chkCollisions.Name = "chkCollisions";
-            this.chkCollisions.Size = new System.Drawing.Size(76, 21);
-            this.chkCollisions.Text = "Collisions";
-            this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
-            // 
             // chkVertices
             // 
             this.chkVertices.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -1687,6 +1679,28 @@ namespace System.Windows.Forms
             this.chkVertices.Size = new System.Drawing.Size(52, 21);
             this.chkVertices.Text = "Vertices";
             this.chkVertices.Click += new System.EventHandler(this.chkVertices_Click);
+            // 
+            // chkCollisions
+            // 
+            this.chkCollisions.Checked = true;
+            this.chkCollisions.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkCollisions.Name = "chkCollisions";
+            this.chkCollisions.Size = new System.Drawing.Size(62, 21);
+            this.chkCollisions.Text = "Collisions";
+            this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
+            // 
+            // chkBoundries
+            // 
+            this.chkBoundries.CheckOnClick = true;
+            this.chkBoundries.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkBoundries.Image = ((System.Drawing.Image)(resources.GetObject("chkBoundries.Image")));
+            this.chkBoundries.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkBoundries.Name = "chkBoundries";
+            this.chkBoundries.Size = new System.Drawing.Size(70, 21);
+            this.chkBoundries.Text = "Boundaries";
+            this.chkBoundries.CheckedChanged += new System.EventHandler(this.chkBoundries_CheckedChanged);
             // 
             // toolStripSeparator1
             // 
@@ -1707,7 +1721,7 @@ namespace System.Windows.Forms
             this.button1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.button1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(83, 21);
+            this.button1.Size = new System.Drawing.Size(83, 19);
             this.button1.Text = "Reset Camera";
             this.button1.Click += new System.EventHandler(this.resetCameraToolStripMenuItem_Click_1);
             // 
@@ -1716,7 +1730,7 @@ namespace System.Windows.Forms
             this.btnSaveCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.btnSaveCam.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.btnSaveCam.Name = "btnSaveCam";
-            this.btnSaveCam.Size = new System.Drawing.Size(79, 21);
+            this.btnSaveCam.Size = new System.Drawing.Size(79, 19);
             this.btnSaveCam.Text = "Save Camera";
             this.btnSaveCam.Click += new System.EventHandler(this.btnSaveCam_Click);
             // 
@@ -1907,6 +1921,15 @@ namespace System.Windows.Forms
             this.splitter2.TabStop = false;
             this.splitter2.Visible = false;
             // 
+            // rightPanel
+            // 
+            this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
+            this.rightPanel.Location = new System.Drawing.Point(676, 24);
+            this.rightPanel.Name = "rightPanel";
+            this.rightPanel.Size = new System.Drawing.Size(125, 391);
+            this.rightPanel.TabIndex = 32;
+            this.rightPanel.Visible = false;
+            // 
             // leftPanel
             // 
             this.leftPanel.Dock = System.Windows.Forms.DockStyle.Left;
@@ -1916,15 +1939,6 @@ namespace System.Windows.Forms
             this.leftPanel.TabIndex = 4;
             this.leftPanel.TargetAnimType = System.Windows.Forms.AnimType.None;
             this.leftPanel.Visible = false;
-            // 
-            // rightPanel
-            // 
-            this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPanel.Location = new System.Drawing.Point(676, 24);
-            this.rightPanel.Name = "rightPanel";
-            this.rightPanel.Size = new System.Drawing.Size(125, 391);
-            this.rightPanel.TabIndex = 32;
-            this.rightPanel.Visible = false;
             // 
             // ModelEditControl
             // 
@@ -2023,5 +2037,10 @@ namespace System.Windows.Forms
         }
 
         #endregion
+
+        private void chkBoundries_CheckedChanged(object sender, EventArgs e)
+        {
+            ModelPanel.Invalidate();
+        }
     }
 }
