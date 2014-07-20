@@ -64,11 +64,11 @@ namespace System.Windows.Forms
         Vector3 BoneLoc { get { return SelectedBone == null ? new Vector3() : SelectedBone._frameMatrix.GetPoint(); } }
 
         Vector3? _vertexLoc = null;
-        Vector3? VertexLoc 
+        Vector3? VertexLoc
         {
             get
             {
-                if (_selectedVertices == null || _selectedVertices.Count == 0) 
+                if (_selectedVertices == null || _selectedVertices.Count == 0)
                     return null;
 
                 if (_vertexLoc != null && _rotating)
@@ -88,7 +88,7 @@ namespace System.Windows.Forms
 
         float OrbRadius { get { return BoneLoc.TrueDistance(CamLoc) / _orbRadius * 0.1f; } }
         float VertexOrbRadius { get { return ((Vector3)VertexLoc).TrueDistance(CamLoc) / _orbRadius * 0.1f; } }
-        
+
         Matrix CamFacingMatrix { get { return Matrix.TransformMatrix(new Vector3(OrbRadius), BoneLoc.LookatAngles(CamLoc) * Maths._rad2degf, BoneLoc); } }
 
         public TransformType _editType = TransformType.Rotation;
@@ -211,7 +211,33 @@ namespace System.Windows.Forms
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
             foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
-
+            MDL0BoneNode CamBone0 = null;
+            MDL0BoneNode CamBone1 = null;
+            GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                    if (_editingAll)
+                    {
+                        foreach (MDL0Node m in _targetModels)
+                            foreach (MDL0BoneNode bone in m._linker.BoneCache)
+                            {
+                                if (bone._name == "CamLimit0N")
+                                    CamBone0 = bone;
+                                else if (bone.Name == "CamLimit1N")
+                                    CamBone1 = bone;
+                            }
+                    }
+                    else if (TargetModel.Name.Contains("Position"));
+                    {
+                        foreach (MDL0BoneNode bone in _targetModel._linker.BoneCache)
+                        {
+                            if (bone._name == "CamLimit0N")
+                                CamBone0 = bone;
+                            else if (bone.Name == "CamLimit1N")
+                                CamBone1 = bone;
+                        }
+                    }
+            if(CamBone0 != null && CamBone1 != null)
+                    context.DrawBox(CamBone0.Translation,CamBone1.Translation);
+            
             RenderSCN0Controls(context);
             RenderTransformControl(context);
 
@@ -562,7 +588,7 @@ namespace System.Windows.Forms
                 //if (_editType == TransformType.Rotation)
                 //    RenderRotationControl(context, ((Vector3)VertexLoc), VertexOrbRadius, _oldAngles);
                 //else
-                    RenderTranslationControl(context, ((Vector3)VertexLoc), VertexOrbRadius);
+                RenderTranslationControl(context, ((Vector3)VertexLoc), VertexOrbRadius);
             }
         }
         public unsafe void RenderTranslationControl(TKContext context, Vector3 position, float radius)
@@ -638,7 +664,7 @@ namespace System.Windows.Forms
             ModelPanel.ScreenText["X"] = ModelPanel.Project(new Vector3(1.1f, 0, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             ModelPanel.ScreenText["Y"] = ModelPanel.Project(new Vector3(0, 1.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             ModelPanel.ScreenText["Z"] = ModelPanel.Project(new Vector3(0, 0, 1.1f) * m) - new Vector3(8.0f, 8.0f, 0);
-            
+
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
@@ -673,7 +699,7 @@ namespace System.Windows.Forms
             //Pop
             GL.PopMatrix();
         }
-        
+
         #endregion
 
         #region Scale/Translation Display Lists
@@ -980,7 +1006,7 @@ namespace System.Windows.Forms
         }
 
         #endregion
-        
+
         /// <summary>
         /// Gets world-point of specified mouse point projected onto the selected bone's local space if rotating or in world space if translating or scaling.
         /// Intersects the projected ray with the appropriate plane using the snap flags.
@@ -1068,29 +1094,29 @@ namespace System.Windows.Forms
                     break;
 
                 case TransformType.Rotation:
-                    //if (_snapX)
-                    //    normal = (new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                    //else if (_snapY)
-                    //    normal = (new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                    //else if (_snapZ)
-                    //    normal = (new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
-                    //else if (_snapCirc)
-                    //{
-                    //    radius *= _circOrbScale;
-                    //    normal = camera.Normalize(center);
-                    //}
-                    //else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
-                    //    return true;
-                    //else
-                    //    normal = camera.Normalize(center);
+                //if (_snapX)
+                //    normal = (new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
+                //else if (_snapY)
+                //    normal = (new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
+                //else if (_snapZ)
+                //    normal = (new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                //else if (_snapCirc)
+                //{
+                //    radius *= _circOrbScale;
+                //    normal = camera.Normalize(center);
+                //}
+                //else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
+                //    return true;
+                //else
+                //    normal = camera.Normalize(center);
 
-                    //if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-                    //{
-                    //    point = Maths.PointAtLineDistance(center, point, radius);
-                    //    return true;
-                    //}
+                //if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
+                //{
+                //    point = Maths.PointAtLineDistance(center, point, radius);
+                //    return true;
+                //}
 
-                    //break;
+                //break;
 
                 case TransformType.Translation:
 
