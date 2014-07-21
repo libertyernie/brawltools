@@ -188,6 +188,7 @@ namespace System.Windows.Forms
         public ToolStripMenuItem chkBRRESAnims;
         private ToolStripMenuItem detachViewerToolStripMenuItem;
         private ToolStripButton chkBoundries;
+        private ToolStripButton chkZoomExtents;
         public LeftPanel leftPanel;
 
         private void InitializeComponent()
@@ -340,6 +341,7 @@ namespace System.Windows.Forms
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
             this.button1 = new System.Windows.Forms.ToolStripButton();
+            this.chkZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.btnSaveCam = new System.Windows.Forms.ToolStripButton();
             this.panel2 = new System.Windows.Forms.Panel();
             this.spltRight = new System.Windows.Forms.Splitter();
@@ -1641,6 +1643,7 @@ namespace System.Windows.Forms
             this.toolStripSeparator1,
             this.chkFloor,
             this.button1,
+            this.chkZoomExtents,
             this.btnSaveCam});
             this.toolStrip1.Location = new System.Drawing.Point(431, 0);
             this.toolStrip1.Name = "toolStrip1";
@@ -1722,6 +1725,16 @@ namespace System.Windows.Forms
             this.button1.Size = new System.Drawing.Size(83, 19);
             this.button1.Text = "Reset Camera";
             this.button1.Click += new System.EventHandler(this.resetCameraToolStripMenuItem_Click_1);
+            // 
+            // chkZoomExtents
+            // 
+            this.chkZoomExtents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.chkZoomExtents.Image = ((System.Drawing.Image)(resources.GetObject("chkZoomExtents.Image")));
+            this.chkZoomExtents.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.chkZoomExtents.Name = "chkZoomExtents";
+            this.chkZoomExtents.Size = new System.Drawing.Size(83, 19);
+            this.chkZoomExtents.Text = "Zoom Extents";
+            this.chkZoomExtents.Click += new System.EventHandler(this.chkZoomExtents_Click);
             // 
             // btnSaveCam
             // 
@@ -2039,6 +2052,18 @@ namespace System.Windows.Forms
         private void chkBoundries_Click(object sender, EventArgs e)
         {
             ModelPanel.Invalidate();
+        }
+
+        private void chkZoomExtents_Click(object sender, EventArgs e)
+        {
+            if (SelectedBone != null)
+            {
+                modelPanel._camera.Reset();
+                modelPanel._camera.Translate(_selectedBone._frameMatrix.GetPoint() + new Vector3(0.0f,0.0f,27.0f));
+                ModelPanel.Invalidate();
+            }
+            else
+                MessageBox.Show("Select a bone!");
         }
 
     }
