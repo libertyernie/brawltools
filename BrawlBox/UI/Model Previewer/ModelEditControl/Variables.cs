@@ -488,7 +488,8 @@ namespace System.Windows.Forms
                         foreach (CollisionObject o in m._objects)
                             o._render = _renderCollisions;
                 else
-                    if (TargetCollision != null) {
+                    if (TargetCollision != null)
+                    {
                         foreach (CollisionObject o in TargetCollision._objects)
                             o._render = _renderCollisions;
                         for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)

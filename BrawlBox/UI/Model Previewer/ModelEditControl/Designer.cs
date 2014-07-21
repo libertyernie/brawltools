@@ -1695,12 +1695,10 @@ namespace System.Windows.Forms
             // 
             this.chkBoundries.CheckOnClick = true;
             this.chkBoundries.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkBoundries.Image = ((System.Drawing.Image)(resources.GetObject("chkBoundries.Image")));
-            this.chkBoundries.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.chkBoundries.Name = "chkBoundries";
             this.chkBoundries.Size = new System.Drawing.Size(70, 21);
             this.chkBoundries.Text = "Boundaries";
-            this.chkBoundries.CheckedChanged += new System.EventHandler(this.chkBoundries_CheckedChanged);
+            this.chkBoundries.Click += new System.EventHandler(this.chkBoundries_Click);
             // 
             // toolStripSeparator1
             // 
@@ -2038,9 +2036,10 @@ namespace System.Windows.Forms
 
         #endregion
 
-        private void chkBoundries_CheckedChanged(object sender, EventArgs e)
+        private void chkBoundries_Click(object sender, EventArgs e)
         {
             ModelPanel.Invalidate();
         }
+
     }
 }
