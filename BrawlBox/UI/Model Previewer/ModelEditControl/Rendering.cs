@@ -252,15 +252,50 @@ namespace System.Windows.Forms
                     
                     if (CamBone0 != null && CamBone1 != null && chkBoundries.Checked)
                     {
-                        GL.Color4(0.0f, 0.0f, 0.0f, 0.1f);
-                        context.DrawBox(CamBone0._frameMatrix.GetPoint(), CamBone1._frameMatrix.GetPoint());
+                        GL.Color4(Color.Blue);
+                        GL.Begin(BeginMode.LineLoop);
+                        GL.LineWidth(15.0f);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone0.Translation._y);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone0.Translation._y);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone1.Translation._y);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone1.Translation._y);
+                        GL.End();
+                        GL.Begin(BeginMode.LineLoop);
+                        GL.Color4(Color.Red);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone1.Translation._y);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone1.Translation._y);
+                        GL.End();
                         GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
-                        context.DrawBox(DeathBone0._frameMatrix.GetPoint(), DeathBone1._frameMatrix.GetPoint());
-                        GL.Color4(1.0f, 0.0f, 0.0f, 0.3f);
-                        context.DrawBox(
-                                    DeathBone0._frameMatrix.GetPoint() + new Vector3(-8.0f,8.0f,0),
-                                    DeathBone1._frameMatrix.GetPoint() +new Vector3(8.0f,-8.0f,0)
-                                        );
+                        GL.Begin(BeginMode.TriangleFan);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone0.Translation._y);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone0.Translation._y);
+                        GL.End();
+                        GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                        GL.Begin(BeginMode.TriangleFan);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone1.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone1.Translation._y);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone1.Translation._y);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone1.Translation._y);
+                        GL.End();
+                        GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                        GL.Begin(BeginMode.TriangleFan);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone0.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(DeathBone1.Translation._x, DeathBone1.Translation._y);
+                        GL.Vertex2(CamBone1.Translation._x, CamBone1.Translation._y);
+                        GL.End();
+                        GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                        GL.Begin(BeginMode.TriangleFan);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone1.Translation._y);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone1.Translation._y);
+                        GL.Vertex2(DeathBone0.Translation._x, DeathBone0.Translation._y);
+                        GL.Vertex2(CamBone0.Translation._x, CamBone0.Translation._y);
+                        GL.End();
+
                     }
             #endregion
 
