@@ -213,55 +213,57 @@ namespace System.Windows.Forms
             if(chkCollisions.Checked)
             foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
 
+            #region RenderBoundaries
             MDL0BoneNode CamBone0 = null;
             MDL0BoneNode CamBone1 = null;
             MDL0BoneNode DeathBone0 = null;
             MDL0BoneNode DeathBone1 = null;
 
-            GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
-                    if (_editingAll)
+            foreach (MDL0Node m in _targetModels)
+            {
+                foreach (MDL0BoneNode bone in m._linker.BoneCache)
+                {
+                    if (bone._name == "CamLimit0N")
+                        CamBone0 = bone;
+                    else if (bone.Name == "CamLimit1N")
+                        CamBone1 = bone;
+                    else if (bone.Name == "Dead0N")
+                        DeathBone0 = bone;
+                    else if (bone.Name == "Dead1N")
+                        DeathBone1 = bone;
+                }
+                foreach (MDL0BoneNode bone in m._linker.BoneCache)
+                {
+                    if (bone._name.Contains("Player") && chkBoundries.Checked)
                     {
-                        foreach (MDL0Node m in _targetModels)
-                            foreach (MDL0BoneNode bone in m._linker.BoneCache)
-                            {
-                                if (bone._name == "CamLimit0N")
-                                    CamBone0 = bone;
-                                else if (bone.Name == "CamLimit1N")
-                                    CamBone1 = bone;
-                                else if (bone.Name == "Dead0N")
-                                    DeathBone0 = bone;
-                                else if (bone.Name == "Dead1N")
-                                    DeathBone1 = bone;
-                            }
+                        GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);
+                        TKContext.DrawSphere(bone.Translation, 5.0f, 32);
                     }
-                    else if (TargetModel.Name.Contains("Position"));
+                }
+                foreach (MDL0BoneNode bone in m._linker.BoneCache)
+                {
+                    if (bone._name.Contains("Rebirth") && chkBoundries.Checked)
                     {
-                        foreach (MDL0BoneNode bone in _targetModel._linker.BoneCache)
-                        {
-                            if (bone._name == "CamLimit0N")
-                                CamBone0 = bone;
-                            else if (bone.Name == "CamLimit1N")
-                                CamBone1 = bone;
-                            else if (bone.Name == "Dead0N")
-                                DeathBone0 = bone;
-                            else if (bone.Name == "Dead1N")
-                                DeathBone1 = bone;
-                        }
+                        GL.Color4(1.0f, 1.0f, 1.0f, 0.5f);
+                        TKContext.DrawSphere(bone.Translation, 5.0f, 32);
                     }
+                }
+            }
+                    
                     if (CamBone0 != null && CamBone1 != null && chkBoundries.Checked)
                     {
                         GL.Color4(0.0f, 0.0f, 0.0f, 0.1f);
-                        context.DrawBox(CamBone0._frameMatrix.GetPoint(),CamBone1._frameMatrix.GetPoint());
+                        context.DrawBox(CamBone0._frameMatrix.GetPoint(), CamBone1._frameMatrix.GetPoint());
                         GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
                         context.DrawBox(DeathBone0._frameMatrix.GetPoint(), DeathBone1._frameMatrix.GetPoint());
                         GL.Color4(1.0f, 0.0f, 0.0f, 0.3f);
-
                         context.DrawBox(
                                     DeathBone0._frameMatrix.GetPoint() + new Vector3(-8.0f,8.0f,0),
                                     DeathBone1._frameMatrix.GetPoint() +new Vector3(8.0f,-8.0f,0)
-                                        );                        
+                                        );
                     }
-            
+            #endregion
+
             RenderSCN0Controls(context);
             RenderTransformControl(context);
 
