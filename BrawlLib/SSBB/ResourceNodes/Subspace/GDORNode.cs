@@ -45,7 +45,6 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-        internal UnsafeBuffer data;
         [Category("Door Info")]
         [DisplayName("Stage ID")]
         public string FileID

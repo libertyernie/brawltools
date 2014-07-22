@@ -10,15 +10,23 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct BLOC
     {
         public const uint Tag = 0x434F4C42;
-        public const int Size = 20;
+        public const int Size = 0x10;
         public uint _tag;
         public bint _count;
-        public int unk0;
-        public int pad1;
+        public bint _unk0;
+        public int _pad1;
 
         public VoidPtr this[int index] { get { return (VoidPtr)((byte*)Address + Offsets(index)); } }
         public uint Offsets(int index) { return *(buint*)((byte*)Address + 0x10 + (index * 4)); }
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+
+        public BLOC(int count)
+        {
+            _tag = Tag;
+            _count = count;
+            _unk0 = 0x80;
+            _pad1 = 0x00;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

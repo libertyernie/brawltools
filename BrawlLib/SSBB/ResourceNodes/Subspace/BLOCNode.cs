@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Runtime.InteropServices;
 using BrawlLib.Imaging;
 using BrawlLib.Wii;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -40,6 +41,25 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }  
     }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = BLOC.Size + (Children.Count * 4);
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(force);
+            return size;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            BLOC* header = (BLOC*)address;
+            *header = new BLOC(Children.Count);
+            uint offset = (uint)(0x10 + (Children.Count * 4));
+            for (int i = 0; i < Children.Count; i++)
+            {            
+                if (i > 0){offset += (uint)(Children[i - 1].CalculateSize(false));}
+                *(buint*)((VoidPtr)address + 0x10 + i * 4) = offset;
+                _children[i].Rebuild((VoidPtr)address + offset, _children[i].CalculateSize(false), true);
+            }
+        }
 
         internal static ResourceNode TryParse(DataSource source) { return ((BLOC*)source.Address)->_tag == BLOC.Tag ? new BLOCNode() : null; }
     }

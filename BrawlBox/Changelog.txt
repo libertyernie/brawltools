@@ -14,6 +14,10 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+ - v0.73b- (6/28/2014) - BrawlLib v0.20a
+	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
+	. Added a "Zoom Extents" Button to the model previewer which will zoom the camera to the selected bone.
+	. BLOC archives are now rebuildable
 
  - v0.73a- (6/28/2014) - BrawlLib v0.20a
 	. Interpolation Editor changes (TheShyGuy)
