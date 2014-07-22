@@ -37,6 +37,25 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _name = "Adventure Doors";
             return Header->_count > 0;
         }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = GDOR.Size + (Children.Count * 4);
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(force);
+            return size;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            GDOR* header = (GDOR*)address;
+            *header = new GDOR(Children.Count);
+            uint offset = (uint)(0x08 + (Children.Count * 4));
+            for (int i = 0; i < Children.Count; i++)
+            {
+                if (i > 0) { offset += (uint)(Children[i - 1].CalculateSize(false)); }
+                *(buint*)((VoidPtr)address + 0x08 + i * 4) = offset;
+                _children[i].Rebuild((VoidPtr)address + offset, _children[i].CalculateSize(false), true);
+            }
+        }
 
         internal static ResourceNode TryParse(DataSource source) { return ((GDOR*)source.Address)->_tag == GDOR.Tag ? new GDORNode() : null; }
     }
@@ -45,6 +64,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        internal UnsafeBuffer entries;
         [Category("Door Info")]
         [DisplayName("Stage ID")]
         public string FileID
@@ -57,8 +77,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     int i1 = *(byte*)(Header + 0x30 + i);
                     if (i1 < 10) { s1 += i1.ToString("x").PadLeft(2, '0'); } else { s1 += i1.ToString("x"); }
                 }
-                return s1; ;
+                return s1;
             }
+           
         }
 
         [Category("Door Info")]
@@ -69,7 +90,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (_name == null)
                 _name = "Door["+(Index+1)+']';
+            entries = new UnsafeBuffer(WorkingUncompressed.Length);
+            Memory.Move(entries.Address, Header, (uint)entries.Length);
             return false;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            GDOREntry* header = (GDOREntry*)address;
+            Memory.Move(header, entries.Address, (uint)entries.Length);
         }
     }
 }
