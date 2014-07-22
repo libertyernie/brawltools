@@ -39,11 +39,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             STPM* header = (STPM*)address;
             *header = new STPM(Children.Count);
+            uint offset = (uint)(0x10 + (Children.Count * 4));
             for (int i = 0; i < Children.Count; i++)
             {
-                uint offset = (uint)(0x10 + ((i + 1) * 4) + (i * 260));
+                if (i > 0) { offset += (uint)(Children[i - 1].CalculateSize(false)); }
                 *(buint*)((VoidPtr)address + 0x10 + i * 4) = offset;
-                Children[i].Rebuild((VoidPtr)address + offset, 260, true);
+                _children[i].Rebuild((VoidPtr)address + offset, _children[i].CalculateSize(false), true);
             }
         }
 
