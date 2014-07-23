@@ -44,11 +44,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         [Category("Sound")]
         [DisplayName("Bone Name")]
-        public string BName { get { return new String((sbyte*)(Header + 0x1C)); ; } }
-        
+        public string BName { get { return Header->Name; } set { Header->Name = value; } }
+
+        internal bint _infoIndex;
         [Category("Sound")]
         [DisplayName("Info Index")]
-        public bint InfoIndex { get { return *(bint*)(WorkingUncompressed.Address); } }
+        public bint InfoIndex { get { return _infoIndex; } set { _infoIndex = value; SignalPropertyChange();} }
 
         public override bool OnInitialize()
         {
