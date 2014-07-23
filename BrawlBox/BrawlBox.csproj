@@ -167,6 +167,7 @@
     <Compile Include="NodeWrappers\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
     <Compile Include="NodeWrappers\STDTWrapper.cs" />
+    <Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />
     <Compile Include="NodeWrappers\TPLWrapper.cs" />
     <Compile Include="NodeWrappers\RWSDSoundGroupWrapper.cs" />
     <Compile Include="NodeWrappers\U8FolderWrapper.cs" />

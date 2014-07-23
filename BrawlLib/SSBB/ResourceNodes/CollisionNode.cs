@@ -288,7 +288,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //}
 
             foreach (CollisionPlane p in _planes)
-                p.DrawPlanes();
+                p.DrawPlanes(p);
             foreach (CollisionLink l in _points)
                 l.Render(ctx);
 
@@ -642,7 +642,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _parent._planes.Remove(this);
         }
 
-        internal unsafe void DrawPlanes()
+        internal unsafe void DrawPlanes(CollisionPlane p)
         {
             if (!_render)
                 return;
@@ -663,13 +663,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);
 
-            GL.Begin(BeginMode.Quads);
 
+            if (p._type == CollisionPlaneType.Floor) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.None) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
+            GL.Begin(BeginMode.Quads);
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(l._x, l._y, -10.0f);
             GL.Vertex3(r._x, r._y, -10.0f);
             GL.Vertex3(r._x, r._y, 10.0f);
-
             GL.End();
 
             if (lev == 0)
@@ -679,8 +683,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 GL.Color4(0.6f, 0.0f, 0.6f, 0.8f);
 
+            if (p._type == CollisionPlaneType.Floor) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.None) { GL.Color4(1.0f, 1.0f, 1.0f, 0.8f); }
             GL.Begin(BeginMode.Lines);
-
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(r._x, r._y, 10.0f);
             GL.Vertex3(l._x, l._y, -10.0f);
