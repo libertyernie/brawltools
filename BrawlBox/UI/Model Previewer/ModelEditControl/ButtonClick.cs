@@ -842,6 +842,11 @@ namespace System.Windows.Forms
             models.Items.Add("All");
         }
 
+        private void closeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (this.Close()) this.ParentForm.Close();
+        }
+
         #region Rendered Models
 
         private void hideFromSceneToolStripMenuItem_Click(object sender, EventArgs e)

@@ -73,6 +73,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem playVIS0ToolStripMenuItem;
         private ToolStripMenuItem openAnimationsToolStripMenuItem;
         private ToolStripMenuItem openMovesetToolStripMenuItem;
+        private ToolStripMenuItem closeToolStripMenuItem;
         private ToolStripMenuItem btnOpenClose;
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem saveAsToolStripMenuItem;
@@ -209,6 +210,7 @@ namespace System.Windows.Forms
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openMovesetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.closeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnUndo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnRedo = new System.Windows.Forms.ToolStripMenuItem();
@@ -456,7 +458,8 @@ namespace System.Windows.Forms
             this.newSceneToolStripMenuItem,
             this.openModelsToolStripMenuItem,
             this.openAnimationsToolStripMenuItem,
-            this.openMovesetToolStripMenuItem});
+            this.openMovesetToolStripMenuItem,
+            this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
             this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
             this.fileToolStripMenuItem.Text = "File";
@@ -485,6 +488,13 @@ namespace System.Windows.Forms
             this.openAnimationsToolStripMenuItem.Name = "openAnimationsToolStripMenuItem";
             this.openAnimationsToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.openAnimationsToolStripMenuItem.Text = "Animations";
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.closeToolStripMenuItem.Text = "Close Window";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // btnOpenClose
             // 
