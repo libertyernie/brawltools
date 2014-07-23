@@ -656,19 +656,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_linkRight._highlight)
                 lev++;
 
-            if (lev == 0)
-                GL.Color4(0.0f, 0.9f, 0.9f, 0.8f);
-            else if (lev == 1)
-                GL.Color4(1.0f, 0.5f, 0.5f, 0.8f);
-            else
-                GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);
 
 
-            if (p._type == CollisionPlaneType.Floor) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
-            else if (p._type == CollisionPlaneType.Ceiling) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.LeftWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.RightWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.None) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
+            if (lev == 1){GL.Color4(1.0f, 0.5f, 0.5f, 0.8f);}
+            else {GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);}
+
+            if (p._type == CollisionPlaneType.Floor && lev ==0 ) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling && lev == 0) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.None && lev == 0) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
+
             GL.Begin(BeginMode.Quads);
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(l._x, l._y, -10.0f);
@@ -676,18 +674,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.Vertex3(r._x, r._y, 10.0f);
             GL.End();
 
-            if (lev == 0)
-                GL.Color4(0.0f, 0.6f, 0.6f, 0.8f);
-            else if (lev == 1)
-                GL.Color4(0.7f, 0.2f, 0.2f, 0.8f);
-            else
-                GL.Color4(0.6f, 0.0f, 0.6f, 0.8f);
+            if (lev == 1){GL.Color4(0.7f, 0.2f, 0.2f, 0.8f);}
+            else { GL.Color4(0.6f, 0.0f, 0.6f, 0.8f); }
 
-            if (p._type == CollisionPlaneType.Floor) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
-            else if (p._type == CollisionPlaneType.Ceiling) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.LeftWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.RightWall) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.None) { GL.Color4(1.0f, 1.0f, 1.0f, 0.8f); }
+            if (p._type == CollisionPlaneType.Floor && lev == 0) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling && lev == 0) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.None && lev == 0) { GL.Color4(1.0f, 1.0f, 1.0f, 0.8f); }
+
             GL.Begin(BeginMode.Lines);
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(r._x, r._y, 10.0f);
