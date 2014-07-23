@@ -223,28 +223,22 @@ namespace System.Windows.Forms
             {
                 foreach (MDL0BoneNode bone in m._linker.BoneCache)
                 {
-                    if (bone._name == "CamLimit0N")
-                        CamBone0 = bone;
-                    else if (bone.Name == "CamLimit1N")
-                        CamBone1 = bone;
-                    else if (bone.Name == "Dead0N")
-                        DeathBone0 = bone;
-                    else if (bone.Name == "Dead1N")
-                        DeathBone1 = bone;
+                    if (bone._name == "CamLimit0N"){CamBone0 = bone;}
+                    else if (bone.Name == "CamLimit1N"){CamBone1 = bone;}
+                    else if (bone.Name == "Dead0N"){DeathBone0 = bone;}
+                    else if (bone.Name == "Dead1N"){DeathBone1 = bone;}
                 }
                 foreach (MDL0BoneNode bone in m._linker.BoneCache)
                 {
                     if (bone._name.Contains("Player") && chkBoundries.Checked)
                     {
                         Vector3 position = bone._frameMatrix.GetPoint();
+                        
                         if (PointCollides(position))
-                        {
                             GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);
-                        }
                         else
-                        {
                             GL.Color4(1.0f, 0.0f, 0.0f, 0.5f);
-                        }
+                            
                         TKContext.DrawSphere(position, 5.0f, 32);
                     }
                 }
