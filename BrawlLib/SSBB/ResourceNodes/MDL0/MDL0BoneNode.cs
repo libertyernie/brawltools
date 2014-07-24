@@ -661,7 +661,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Vector3 v1 = (_parent == null || !(_parent is MDL0BoneNode)) ? new Vector3(0.0f) : ((MDL0BoneNode)_parent)._frameMatrix.GetPoint();
             Vector3 v = _frameMatrix.GetPoint();
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             GL.Vertex3((float*)&v1);
             GL.Vertex3((float*)&v);
@@ -754,7 +754,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public static void DrawNodeOrients()
         {
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             GL.Color4(1.0f, 0.0f, 0.0f, 1.0f);
             GL.Vertex3(0.0f, 0.0f, 0.0f);

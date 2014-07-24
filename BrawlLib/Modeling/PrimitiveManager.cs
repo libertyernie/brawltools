@@ -1521,7 +1521,7 @@ namespace BrawlLib.Modeling
                 if (d == 0) d = 0.000000000001f;
                 GL.PointSize((5000 / d).Clamp(1.0f, !pass2 ? 5.0f : 8.0f));
 
-                GL.Begin(BeginMode.Points);
+                GL.Begin(PrimitiveType.Points);
                 GL.Vertex3(v.WeightedPosition._x, v.WeightedPosition._y, v.WeightedPosition._z);
                 GL.End();
             }
@@ -1551,7 +1551,7 @@ namespace BrawlLib.Modeling
                 Matrix m = Matrix.TransformMatrix(new Vector3(NormalLength), new Vector3(), n.WeightedPosition);
                 GL.MultMatrix((float*)&m);
 
-                GL.Begin(BeginMode.Lines);
+                GL.Begin(PrimitiveType.Lines);
                 GL.Vertex3(0, 0, 0);
                 GL.Vertex3(w._x, w._y, w._z);
                 GL.End();

@@ -334,7 +334,7 @@ namespace BrawlLib.OpenGL
                     break;
             }
 
-            GL.Begin(BeginMode.Quads);
+            GL.Begin(PrimitiveType.Quads);
 
             GL.TexCoord2(0.0f, 0.0f);
             GL.Vertex2(&points[0]);
@@ -569,7 +569,7 @@ namespace BrawlLib.OpenGL
                 GL.Enable(EnableCap.LineStipple);
                 GL.LineStipple(1, 0x0F0F);
                 GL.Color4(Color.Blue);
-                GL.Begin(BeginMode.LineLoop);
+                GL.Begin(PrimitiveType.LineLoop);
                 GL.Vertex2(_selStart.X, _selStart.Y);
                 GL.Vertex2(_selEnd.X, _selStart.Y);
                 GL.Vertex2(_selEnd.X, _selEnd.Y);
@@ -699,7 +699,7 @@ namespace BrawlLib.OpenGL
 
             //GL.Color4(Color.Transparent);
 
-            GL.Begin(BeginMode.Quads);
+            GL.Begin(PrimitiveType.Quads);
 
             GL.TexCoord2(0.0f, 0.0f); 
             GL.Vertex2(0.0f, 0.0f);

@@ -42,7 +42,7 @@ namespace Ikarus.UI
 
                 _bgTex.Bind();
 
-                GL.Begin(BeginMode.Quads);
+                GL.Begin(PrimitiveType.Quads);
 
                 GL.TexCoord2(0.0f, 0.0f);
                 GL.Vertex3(-e, 0.0f, -e);
@@ -146,7 +146,7 @@ namespace Ikarus.UI
                 float f = (float)((int)e);
                 float diff = (float)Math.Round(e - f, 1);
 
-                GL.Begin(OpenTK.Graphics.OpenGL.BeginMode.Lines);
+                GL.Begin(OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
                 for (i = 0; i < f; i++)
                 {
                     GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -177,7 +177,7 @@ namespace Ikarus.UI
                 f = (float)((int)e);
                 diff = (float)Math.Round(e - f, 1);
 
-                GL.Begin(OpenTK.Graphics.OpenGL.BeginMode.Lines);
+                GL.Begin(OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
                 for (i = 0; i < f; i++)
                 {
                     GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -233,7 +233,7 @@ namespace Ikarus.UI
 
                     selList.Begin();
 
-                    GL.Begin(BeginMode.Quads);
+                    GL.Begin(PrimitiveType.Quads);
 
                     //X Axis
                     //XY quad
@@ -287,7 +287,7 @@ namespace Ikarus.UI
 
                         if (_editType == TransformType.Translation)
                         {
-                            GL.Begin(BeginMode.Quads);
+                            GL.Begin(PrimitiveType.Quads);
 
                             //XY
                             GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
@@ -311,7 +311,7 @@ namespace Ikarus.UI
                         }
                         else
                         {
-                            GL.Begin(BeginMode.Triangles);
+                            GL.Begin(PrimitiveType.Triangles);
 
                             //XY
                             GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
@@ -482,7 +482,7 @@ namespace Ikarus.UI
             GL.Disable(EnableCap.CullFace);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //X
 
@@ -509,7 +509,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(_axisLDist, 0.0f, 0.0f);
             GL.Vertex3(_dst, _apthm, -_apthm);
@@ -529,7 +529,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //Y
 
@@ -556,7 +556,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(0.0f, _axisLDist, 0.0f);
             GL.Vertex3(_apthm, _dst, -_apthm);
@@ -576,7 +576,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //Z
 
@@ -603,7 +603,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(0.0f, 0.0f, _axisLDist);
             GL.Vertex3(_apthm, -_apthm, _dst);
@@ -639,7 +639,7 @@ namespace Ikarus.UI
             GL.Disable(EnableCap.CullFace);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //X
             if ((_snapY && _snapZ) || (_hiY && _hiZ))
@@ -661,7 +661,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(_axisLDist, 0.0f, 0.0f);
             GL.Vertex3(_dst, _apthm, -_apthm);
@@ -681,7 +681,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //Y
             if ((_snapZ && _snapX) || (_hiZ && _hiX))
@@ -702,7 +702,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(0.0f, _axisLDist, 0.0f);
             GL.Vertex3(_apthm, _dst, -_apthm);
@@ -722,7 +722,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
 
             //Z
             if ((_snapX && _snapY) || (_hiX && _hiY))
@@ -743,7 +743,7 @@ namespace Ikarus.UI
 
             GL.End();
 
-            GL.Begin(BeginMode.Triangles);
+            GL.Begin(PrimitiveType.Triangles);
 
             GL.Vertex3(0.0f, 0.0f, _axisLDist);
             GL.Vertex3(_apthm, -_apthm, _dst);

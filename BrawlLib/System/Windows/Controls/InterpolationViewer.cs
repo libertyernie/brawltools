@@ -585,7 +585,7 @@ namespace System.Windows.Forms
             if (e == _selKey)
             {
                 GL.Color4(Color.Purple);
-                GL.Begin(BeginMode.Points);
+                GL.Begin(PrimitiveType.Points);
 
                 GL.Vertex2(one._x, one._y);
                 GL.Vertex2(two._x, two._y);
@@ -602,7 +602,7 @@ namespace System.Windows.Forms
                 GL.Translate(one._x, one._y, 0.0f);
                 GL.Rotate(angle - 180.0f, 0, 0, 1);
 
-                GL.Begin(BeginMode.LineStrip);
+                GL.Begin(PrimitiveType.LineStrip);
                 GL.Vertex2(-7.0f, 3.5f);
                 GL.Vertex2(0.0f, 0.0f);
                 GL.Vertex2(-7.0f, -3.5f);
@@ -614,7 +614,7 @@ namespace System.Windows.Forms
                 GL.Translate(two._x, two._y, 0.0f);
                 GL.Rotate(angle, 0, 0, 1);
 
-                GL.Begin(BeginMode.LineStrip);
+                GL.Begin(PrimitiveType.LineStrip);
                 GL.Vertex2(-7.0f, 3.5f);
                 GL.Vertex2(0.0f, 0.0f);
                 GL.Vertex2(-7.0f, -3.5f);
@@ -623,7 +623,7 @@ namespace System.Windows.Forms
                 GL.PopMatrix();
             }
 
-            GL.Begin(BeginMode.LineStrip);
+            GL.Begin(PrimitiveType.LineStrip);
             GL.Vertex2(one._x, one._y);
             GL.Vertex2(two._x, two._y);
             GL.End();
@@ -665,7 +665,7 @@ namespace System.Windows.Forms
 
                 //Draw interpolation
                 GL.Color4(Color.Red);
-                GL.Begin(BeginMode.LineStrip);
+                GL.Begin(PrimitiveType.LineStrip);
                 if (!_linear)
                     for (float i = 0; i < (float)_frameLimit; i += (1 / _precision))
                         GL.Vertex2(i * _xScale, (GetFrameValue(i) - _minVal) * _yScale);
@@ -678,7 +678,7 @@ namespace System.Windows.Forms
                 GL.Color4(Color.Blue);
                 if (_frame >= 0 && _frame < _frameLimit)
                 {
-                    GL.Begin(BeginMode.Lines);
+                    GL.Begin(PrimitiveType.Lines);
 
                     float r = _frame * _xScale;
                     GL.Vertex2(r, 0.0f);
@@ -689,7 +689,7 @@ namespace System.Windows.Forms
 
                 //Draw points
                 GL.Color4(Color.Black);
-                GL.Begin(BeginMode.Points);
+                GL.Begin(PrimitiveType.Points);
                 for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
                 {
                     bool t = false;
@@ -712,7 +712,7 @@ namespace System.Windows.Forms
             {
                 //Draw lines
                 GL.Color4(Color.Black);
-                GL.Begin(BeginMode.Lines);
+                GL.Begin(PrimitiveType.Lines);
 
                 int min = GetKeyframeMinIndex();
                 int max = GetKeyframeMaxIndex();
@@ -729,7 +729,7 @@ namespace System.Windows.Forms
 
                 //Draw interpolation
                 GL.Color4(Color.Red);
-                GL.Begin(BeginMode.LineStrip);
+                GL.Begin(PrimitiveType.LineStrip);
                 for (float i = 0; i <= (float)(max - min); i += (1 / _precision))
                     GL.Vertex2(i * _xScale, (GetFrameValue(i + min) - _minVal) * _yScale);
                 GL.End();
@@ -746,7 +746,7 @@ namespace System.Windows.Forms
 
                 //Draw points
                 GL.Color4(Color.Black);
-                GL.Begin(BeginMode.Points);
+                GL.Begin(PrimitiveType.Points);
 
                 if (SelectedKeyframe._prev._index != -1)
                     GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (GetFrameValue(SelectedKeyframe._prev._index) - _minVal) * _yScale);

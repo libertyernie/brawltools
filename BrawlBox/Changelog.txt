@@ -18,6 +18,10 @@ they be held accountable for the manner in which it is used.
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
 	. Added a "Zoom Extents" Button to the model previewer which will zoom the camera to the selected bone.
 	. BLOC archives are now rebuildable
+		.GSND files are now partially editable
+	. Collisions are now color coded by type. cyan for floors, green for walls, red for ceilings, and white for no type.
+	. Update OpenTK library to latest stable release for optimizations
+
 
  - v0.73a- (6/28/2014) - BrawlLib v0.20a
 	. Interpolation Editor changes (TheShyGuy)

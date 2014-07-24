@@ -1190,7 +1190,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Vector3 min, max;
             GetBox(out min, out max);
 
-            GL.Begin(BeginMode.LineStrip);
+            GL.Begin(PrimitiveType.LineStrip);
             GL.Vertex3(max._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, min._z);
             GL.Vertex3(min._x, max._y, min._z);
@@ -1199,7 +1199,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.Vertex3(max._x, min._y, max._z);
             GL.Vertex3(max._x, max._y, max._z);
             GL.End();
-            GL.Begin(BeginMode.Lines);
+            GL.Begin(PrimitiveType.Lines);
             GL.Vertex3(min._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, max._z);
             GL.Vertex3(min._x, max._y, max._z);

@@ -50,7 +50,7 @@ namespace System.Windows.Forms
             //Draw BG
             float s = (float)Width / (float)_bgTex.Width, t = (float)Height / (float)_bgTex.Height;
 
-            GL.Begin(BeginMode.Quads);
+            GL.Begin(PrimitiveType.Quads);
 
             GL.TexCoord2(0.0f, 0.0f);
             GL.Vertex2(0.0f, 0.0f);
@@ -89,7 +89,7 @@ namespace System.Windows.Forms
 
                 GL.BindTexture(TextureTarget.Texture2D, _currentTexture._texId);
 
-                GL.Begin(BeginMode.Quads);
+                GL.Begin(PrimitiveType.Quads);
 
                 GL.TexCoord2(0.0f, 0.0f);
                 GL.Vertex2(&points[0]);
