@@ -190,6 +190,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem detachViewerToolStripMenuItem;
         private ToolStripButton chkBoundries;
         private ToolStripButton chkZoomExtents;
+        private ToolStripSeparator toolStripSeparator2;
+        private ToolStripComboBox cboToolSelect;
         public LeftPanel leftPanel;
 
         private void InitializeComponent()
@@ -345,6 +347,8 @@ namespace System.Windows.Forms
             this.button1 = new System.Windows.Forms.ToolStripButton();
             this.chkZoomExtents = new System.Windows.Forms.ToolStripButton();
             this.btnSaveCam = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+            this.cboToolSelect = new System.Windows.Forms.ToolStripComboBox();
             this.panel2 = new System.Windows.Forms.Panel();
             this.spltRight = new System.Windows.Forms.Splitter();
             this.panel1 = new System.Windows.Forms.Panel();
@@ -489,13 +493,6 @@ namespace System.Windows.Forms
             this.openAnimationsToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.openAnimationsToolStripMenuItem.Text = "Animations";
             // 
-            // closeToolStripMenuItem
-            // 
-            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
-            this.closeToolStripMenuItem.Text = "Close Window";
-            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
-            // 
             // btnOpenClose
             // 
             this.btnOpenClose.Name = "btnOpenClose";
@@ -527,6 +524,13 @@ namespace System.Windows.Forms
             this.openMovesetToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
             this.openMovesetToolStripMenuItem.Text = "Load Moveset";
             this.openMovesetToolStripMenuItem.Visible = false;
+            // 
+            // closeToolStripMenuItem
+            // 
+            this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(175, 22);
+            this.closeToolStripMenuItem.Text = "Close Window";
+            this.closeToolStripMenuItem.Click += new System.EventHandler(this.closeToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -1654,7 +1658,9 @@ namespace System.Windows.Forms
             this.chkFloor,
             this.button1,
             this.chkZoomExtents,
-            this.btnSaveCam});
+            this.btnSaveCam,
+            this.toolStripSeparator2,
+            this.cboToolSelect});
             this.toolStrip1.Location = new System.Drawing.Point(431, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
@@ -1754,6 +1760,24 @@ namespace System.Windows.Forms
             this.btnSaveCam.Size = new System.Drawing.Size(79, 19);
             this.btnSaveCam.Text = "Save Camera";
             this.btnSaveCam.Click += new System.EventHandler(this.btnSaveCam_Click);
+            // 
+            // toolStripSeparator2
+            // 
+            this.toolStripSeparator2.Name = "toolStripSeparator2";
+            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 6);
+            // 
+            // cboToolSelect
+            // 
+            this.cboToolSelect.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboToolSelect.FlatStyle = System.Windows.Forms.FlatStyle.Standard;
+            this.cboToolSelect.Items.AddRange(new object[] {
+            "Translation",
+            "Rotation",
+            "Scale"});
+            this.cboToolSelect.Name = "cboToolSelect";
+            this.cboToolSelect.Size = new System.Drawing.Size(121, 23);
+            this.cboToolSelect.SelectedIndex = 1;
+            this.cboToolSelect.SelectedIndexChanged += new System.EventHandler(this.cboToolSelect_SelectedIndexChanged);
             // 
             // panel2
             // 
@@ -2074,6 +2098,14 @@ namespace System.Windows.Forms
             }
             else
                 MessageBox.Show("Select a bone!");
+        }
+
+        private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboToolSelect.SelectedIndex == 0) { _editType = TransformType.Translation; }
+            else if (cboToolSelect.SelectedIndex == 1) { _editType = TransformType.Rotation; }
+            else if (cboToolSelect.SelectedIndex == 2) { _editType = TransformType.Scale; }
+            ModelPanel.Invalidate();
         }
 
     }
