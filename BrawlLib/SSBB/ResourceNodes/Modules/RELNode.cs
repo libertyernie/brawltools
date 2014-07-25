@@ -19,24 +19,136 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal RELHeader* Header { get { return (RELHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.REL; } }
 
-        public static SortedList<int, string> _idNames = new SortedList<int, string>();
-
-        static RELNode()
+        public static SortedList<int, string> _idNames = new SortedList<int, string>()
         {
-            string loc = Application.StartupPath + "/REL ID List.txt";
-            if (File.Exists(loc))
-                using (StreamReader sr = new StreamReader(loc))
-                    for (int i = 0; !sr.EndOfStream; i++)
-                    {
-                        string s = sr.ReadLine();
-                        string[] sp = s.Split(' ');
-                        if (sp.Length < 2 || String.IsNullOrEmpty(sp[1]))
-                            continue;
-                        int x;
-                        if (int.TryParse(sp[0], out x))
-                            _idNames[x] = sp[1];
-                    }
-        }
+            {0, "main.dol"},
+            {1, "sora_scene"},
+            {2, "sora_menu_main"},
+            {3, "sora_menu_tour"},
+            {4, "sora_menu_qm"},
+            {5, "sora_menu_edit"},
+            {6, "sora_menu_collect_viewer"},
+            {7, "sora_menu_replay"},
+            {8, "sora_menu_snap_shot"},
+            {9, "sora_menu_event"},
+            {10, "sora_menu_sel_char"},
+            {11, "sora_menu_sel_stage"},
+            {12, "sora_menu_game_over"},
+            {13, "sora_menu_intro"},
+            {14, "sora_menu_friend_list"},
+            {15, "sora_menu_watch"},
+            {16, "sora_menu_name"},
+            {17, "sora_menu_sel_char_access"},
+            {18, "sora_menu_rule"},
+            {19, "sora_menu_simple_ending"},
+            {20, "sora_minigame"},
+            {21, "sora_menu_time_result"},
+            {22, "sora_menu_boot"},
+            {23, "sora_menu_challenger"},
+            {24, "sora_menu_title"},
+            {25, "sora_menu_title_sunset"},
+            {26, "sora_menu_fig_get_demo"},
+            {27, "sora_melee"},
+            {28, "sora_adv_menu_name"},
+            {29, "sora_adv_menu_visual"},
+            {30, "sora_adv_menu_sel_char"},
+            {31, "sora_adv_menu_sel_map"},
+            {32, "sora_adv_menu_difficulty"},
+            {33, "sora_adv_menu_game_over"},
+            {34, "sora_adv_menu_result"},
+            {35, "sora_adv_menu_save_load"},
+            {36, "sora_adv_menu_seal"},
+            {37, "sora_adv_menu_ending"},
+            {38, "sora_adv_menu_telop"},
+            {39, "sora_adv_menu_save_point"},
+            {40, "sora_adv_stage"},
+            {41, "sora_enemy"},
+            {42, "st_battles"},
+            {43, "st_battle"},
+            {44, "st_config"},
+            {45, "st_final"},
+            {46, "st_dolpic"},
+            {47, "st_mansion"},
+            {48, "st_mariopast"},
+            {49, "st_kart"},
+            {50, "st_donkey"},
+            {51, "st_jungle"},
+            {52, "st_pirates"},
+            {53, "st_oldin"},
+            {54, "st_norfair"},
+            {55, "st_orpheon"},
+            {56, "st_crayon"},
+            {57, "st_halberd"},
+            {58, "st_starfox"},
+            {59, "st_stadium"},
+            {60, "st_tengan"},
+            {61, "st_fzero"},
+            {62, "st_ice"},
+            {63, "st_gw"},
+            {64, "st_emblem"},
+            {65, "st_madein"},
+            {66, "st_earth"},
+            {67, "st_palutena"},
+            {68, "st_famicom"},
+            {69, "st_newpork"},
+            {70, "st_village"},
+            {71, "st_metalgear"},
+            {72, "st_greenhill"},
+            {73, "st_pictchat"},
+            {74, "st_plankton"},
+            {75, "st_dxshrine"},
+            {76, "st_dxyorster"},
+            {77, "st_dxgarden"},
+            {78, "st_dxonett"},
+            {79, "st_dxgreens"},
+            {80, "st_dxrcruise"},
+            {81, "st_dxbigblue"},
+            {82, "st_dxcorneria"},
+            {83, "st_dxpstadium"},
+            {84, "st_dxzebes"},
+            {85, "st_stageedit"},
+            {86, "st_otrain"},
+            {87, "st_heal"},
+            {88, "st_homerun"},
+            {89, "st_tbreak"},
+            {90, "st_croll"},
+            {91, "ft_mario"},
+            {92, "ft_donkey"},
+            {93, "ft_link"},
+            {94, "ft_samus"},
+            {95, "ft_yoshi"},
+            {96, "ft_kirby"},
+            {97, "ft_fox"},
+            {98, "ft_pikachu"},
+            {99, "ft_luigi"},
+            {100, "ft_captain"},
+            {101, "ft_ness"},
+            {102, "ft_koopa"},
+            {103, "ft_peach"},
+            {104, "ft_zelda"},
+            {105, "ft_iceclimber"},
+            {106, "ft_marth"},
+            {107, "ft_gamewatch"},
+            {108, "ft_falco"},
+            {109, "ft_ganon"},
+            {110, "ft_wario"},
+            {111, "ft_metaknight"},
+            {112, "ft_pit"},
+            {113, "ft_pikmin"},
+            {114, "ft_lucas"},
+            {115, "ft_diddy"},
+            {116, "ft_poke"},
+            {117, "ft_dedede"},
+            {118, "ft_lucario"},
+            {119, "ft_ike"},
+            {120, "ft_robot"},
+            {121, "ft_toonlink"},
+            {122, "ft_snake"},
+            {123, "ft_sonic"},
+            {124, "ft_purin"},
+            {125, "ft_wolf"},
+            {126, "ft_zako"},
+        };
 
         [Browsable(false)]
         public ModuleSectionNode[] Sections { get { return _sections; } }
@@ -77,6 +189,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
         [Browsable(false)]
         public new uint ID { get { return _id; } set { _id = value; } }
+
+        [Category("Relocatable Module")]
+        public string ModuleName { get { return _idNames.ContainsKey((int)ID) ? _idNames[(int)ID] : ""; } }
         
         //[Category("REL")]
         //public int NextLink { get { return _linkNext; } }
