@@ -18,6 +18,10 @@ they be held accountable for the manner in which it is used.
  Changes beginning with an asterisk (*) affect BrawlBox behavior,
  while changes beginning with a period (.) serve to add/modify
  features that BrawlBox doesn't use.
+ (7/26/2014) - BrawlLib 0.20b
+ 	* BLOC archives are now rebuildable
+		* GSND files are now partially editable
+	* Module ID list now embedded
 
  (6/28/2014) - BrawlLib 0.20a
     * See BrawlBox 0.73a changelog (additions to interpolation editor, RELNode)
