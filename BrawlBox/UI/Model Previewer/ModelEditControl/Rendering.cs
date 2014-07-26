@@ -219,7 +219,7 @@ namespace System.Windows.Forms
             MDL0BoneNode DeathBone0 = null;
             MDL0BoneNode DeathBone1 = null;
 
-            foreach (MDL0Node m in _targetModels)
+            if (_targetModels != null) foreach (MDL0Node m in _targetModels)
             {
                 foreach (MDL0BoneNode bone in m._linker.BoneCache)
                 {
