@@ -253,6 +253,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             set {
                 // Don't try to set the stage ID if it's not a stage module
                 if (_stageID == null) return;
+				if (value.Length < 2) return;
                 _stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
                 SignalPropertyChange();
             }
@@ -273,6 +274,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             set {
                 // Don't try to set the item ID if it's not an Online Training Room module
                 if (_itemIDs == null) return;
+				if (value.Length < 2) return;
 				if (value.Contains("(")) value = value.Substring(value.IndexOf("(")+1);
 				if (value.Contains(")")) value = value.Substring(0, value.IndexOf(")"));
 				string[] split = value.Split(',');
