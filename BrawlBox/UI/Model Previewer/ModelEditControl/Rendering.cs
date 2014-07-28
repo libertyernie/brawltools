@@ -158,7 +158,7 @@ namespace System.Windows.Forms
                 float f = (float)((int)e);
                 float diff = (float)Math.Round(e - f, 1);
 
-                GL.Begin(OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
+                GL.Begin(PrimitiveType.Lines);
                 for (i = 0; i < f; i++)
                 {
                     GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -189,7 +189,7 @@ namespace System.Windows.Forms
                 f = (float)((int)e);
                 diff = (float)Math.Round(e - f, 1);
 
-                GL.Begin(OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
+                GL.Begin(PrimitiveType.Lines);
                 for (i = 0; i < f; i++)
                 {
                     GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -213,92 +213,96 @@ namespace System.Windows.Forms
             if (RenderCollisions)
             foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
             
-            #region RenderBoundaries
+            #region RenderOverlays
             MDL0BoneNode CamBone0 = null;
             MDL0BoneNode CamBone1 = null;
             MDL0BoneNode DeathBone0 = null;
             MDL0BoneNode DeathBone1 = null;
+            List<MDL0BoneNode> ItemBones = new List<MDL0BoneNode>();
 
+            //Get bones and render spawns if checked
             if (_targetModels != null) foreach (MDL0Node m in _targetModels)
-            {
                 foreach (MDL0BoneNode bone in m._linker.BoneCache)
                 {
-                    if (bone._name == "CamLimit0N"){CamBone0 = bone;}
-                    else if (bone.Name == "CamLimit1N"){CamBone1 = bone;}
-                    else if (bone.Name == "Dead0N"){DeathBone0 = bone;}
-                    else if (bone.Name == "Dead1N"){DeathBone1 = bone;}
-                }
-                foreach (MDL0BoneNode bone in m._linker.BoneCache)
-                {
-                    if (bone._name.Contains("Player") && chkBoundries.Checked)
+                    if (bone._name == "CamLimit0N") { CamBone0 = bone; }
+                    else if (bone.Name == "CamLimit1N") { CamBone1 = bone; }
+                    else if (bone.Name == "Dead0N") { DeathBone0 = bone; }
+                    else if (bone.Name == "Dead1N") { DeathBone1 = bone; }
+                    else if (bone._name.Contains("Player") && chkSpawns.Checked)
                     {
                         Vector3 position = bone._frameMatrix.GetPoint();
-                        
-                        if (PointCollides(position))
-                            GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);
-                        else
-                            GL.Color4(1.0f, 0.0f, 0.0f, 0.5f);
-                            
+                        if (PointCollides(position)){ GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);}
+                        else{ GL.Color4(1.0f, 0.0f, 0.0f, 0.5f); }
                         TKContext.DrawSphere(position, 5.0f, 32);
                     }
-                }
-                foreach (MDL0BoneNode bone in m._linker.BoneCache)
-                {
-                    if (bone._name.Contains("Rebirth") && chkBoundries.Checked)
+                    else if (bone._name.Contains("Rebirth") && chkSpawns.Checked)
                     {
                         GL.Color4(1.0f, 1.0f, 1.0f, 0.5f);
                         TKContext.DrawSphere(bone._frameMatrix.GetPoint(), 5.0f, 32);
                     }
+                    else if (bone._name.Contains("Item"))
+                        ItemBones.Add(bone);
                 }
-            }
-                    if (CamBone0 != null && CamBone1 != null && chkBoundries.Checked)
-                    {
-                        GL.Disable(EnableCap.Lighting);
-                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                        GL.Enable(EnableCap.CullFace);
-                        GL.CullFace(CullFaceMode.Front);
 
-                        GL.Color4(Color.Blue);
-                        GL.Begin(PrimitiveType.LineLoop);
-                        GL.LineWidth(15.0f);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.End();
-                        GL.Begin(PrimitiveType.LineLoop);
-                        GL.Color4(Color.Red);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.End();
-                        GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
-                        GL.Begin(PrimitiveType.TriangleFan);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.End();
-                        GL.Begin(PrimitiveType.TriangleFan);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.End();
-                        GL.Begin(PrimitiveType.TriangleFan);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.End();
-                        GL.Begin(PrimitiveType.TriangleFan);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                        GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                        GL.End();
-                    }
+            //Render item fields if checked
+            if (ItemBones != null && chkItems.Checked) for (int i = 0; i < ItemBones.Count; i += 2)
+                {
+                    GL.Color4(0.5f, 0.0f, 1.0f, 0.6f);
+                    context.DrawBox(
+                    new Vector3(ItemBones[i]._frameMatrix.GetPoint()._x, ItemBones[i]._frameMatrix.GetPoint()._y + 3.0f, 1.0f),
+                    new Vector3(ItemBones[i + 1]._frameMatrix.GetPoint()._x, ItemBones[i + 1]._frameMatrix.GetPoint()._y - 3.0f, 1.0f));
+                }
+
+            //render boundaries if checked
+            if (CamBone0 != null && CamBone1 != null && chkBoundaries.Checked)
+            {
+                GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.Disable(EnableCap.Lighting);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(CullFaceMode.Front);
+
+                GL.Color4(Color.Blue);
+                GL.Begin(PrimitiveType.LineLoop);
+                GL.LineWidth(15.0f);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.End();
+                GL.Begin(PrimitiveType.LineLoop);
+                GL.Color4(Color.Red);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.End();
+                GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
+                GL.Begin(PrimitiveType.TriangleFan);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.End();
+                GL.Begin(PrimitiveType.TriangleFan);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.End();
+                GL.Begin(PrimitiveType.TriangleFan);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.End();
+                GL.Begin(PrimitiveType.TriangleFan);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.End();
+            }
         
             #endregion
 

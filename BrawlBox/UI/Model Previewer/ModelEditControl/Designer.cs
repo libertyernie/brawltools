@@ -188,10 +188,13 @@ namespace System.Windows.Forms
         private ToolStripMenuItem chkLinearCamera;
         public ToolStripMenuItem chkBRRESAnims;
         private ToolStripMenuItem detachViewerToolStripMenuItem;
-        private ToolStripButton chkBoundries;
         private ToolStripButton chkZoomExtents;
         private ToolStripSeparator toolStripSeparator2;
         private ToolStripComboBox cboToolSelect;
+        private ToolStripDropDownButton dropdownOverlays;
+        private ToolStripMenuItem chkBoundaries;
+        private ToolStripMenuItem chkSpawns;
+        private ToolStripMenuItem chkItems;
         public LeftPanel leftPanel;
 
         private void InitializeComponent()
@@ -341,7 +344,6 @@ namespace System.Windows.Forms
             this.chkPolygons = new System.Windows.Forms.ToolStripButton();
             this.chkVertices = new System.Windows.Forms.ToolStripButton();
             this.chkCollisions = new System.Windows.Forms.ToolStripButton();
-            this.chkBoundries = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
             this.button1 = new System.Windows.Forms.ToolStripButton();
@@ -369,6 +371,10 @@ namespace System.Windows.Forms
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
+            this.dropdownOverlays = new System.Windows.Forms.ToolStripDropDownButton();
+            this.chkBoundaries = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkSpawns = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkItems = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -1653,7 +1659,7 @@ namespace System.Windows.Forms
             this.chkPolygons,
             this.chkVertices,
             this.chkCollisions,
-            this.chkBoundries,
+            this.dropdownOverlays,
             this.toolStripSeparator1,
             this.chkFloor,
             this.button1,
@@ -1709,15 +1715,6 @@ namespace System.Windows.Forms
             this.chkCollisions.Size = new System.Drawing.Size(62, 21);
             this.chkCollisions.Text = "Collisions";
             this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
-            // 
-            // chkBoundries
-            // 
-            this.chkBoundries.CheckOnClick = true;
-            this.chkBoundries.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkBoundries.Name = "chkBoundries";
-            this.chkBoundries.Size = new System.Drawing.Size(70, 21);
-            this.chkBoundries.Text = "Boundaries";
-            this.chkBoundries.Click += new System.EventHandler(this.chkBoundries_Click);
             // 
             // toolStripSeparator1
             // 
@@ -1776,7 +1773,7 @@ namespace System.Windows.Forms
             "Scale"});
             this.cboToolSelect.Name = "cboToolSelect";
             this.cboToolSelect.Size = new System.Drawing.Size(121, 23);
-            this.cboToolSelect.SelectedIndex = 1;
+            this.cboToolSelect.Text = "Rotation";
             this.cboToolSelect.SelectedIndexChanged += new System.EventHandler(this.cboToolSelect_SelectedIndexChanged);
             // 
             // panel2
@@ -1985,6 +1982,43 @@ namespace System.Windows.Forms
             this.leftPanel.TargetAnimType = System.Windows.Forms.AnimType.None;
             this.leftPanel.Visible = false;
             // 
+            // dropdownOverlays
+            // 
+            this.dropdownOverlays.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.dropdownOverlays.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.chkBoundaries,
+            this.chkSpawns,
+            this.chkItems});
+            this.dropdownOverlays.Image = ((System.Drawing.Image)(resources.GetObject("dropdownOverlays.Image")));
+            this.dropdownOverlays.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.dropdownOverlays.Name = "dropdownOverlays";
+            this.dropdownOverlays.Size = new System.Drawing.Size(65, 21);
+            this.dropdownOverlays.Text = "Overlays";
+            // 
+            // chkBoundaries
+            // 
+            this.chkBoundaries.CheckOnClick = true;
+            this.chkBoundaries.Name = "chkBoundaries";
+            this.chkBoundaries.Size = new System.Drawing.Size(171, 22);
+            this.chkBoundaries.Text = "Boundaries";
+            this.chkBoundaries.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
+            // chkSpawns
+            // 
+            this.chkSpawns.CheckOnClick = true;
+            this.chkSpawns.Name = "chkSpawns";
+            this.chkSpawns.Size = new System.Drawing.Size(171, 22);
+            this.chkSpawns.Text = "Spawn/Respawns";
+            this.chkSpawns.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
+            // chkItems
+            // 
+            this.chkItems.CheckOnClick = true;
+            this.chkItems.Name = "chkItems";
+            this.chkItems.Size = new System.Drawing.Size(171, 22);
+            this.chkItems.Text = "Item Spawn Zones";
+            this.chkItems.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
             // ModelEditControl
             // 
             this.AllowDrop = true;
@@ -2083,10 +2117,6 @@ namespace System.Windows.Forms
 
         #endregion
 
-        private void chkBoundries_Click(object sender, EventArgs e)
-        {
-            ModelPanel.Invalidate();
-        }
 
         private void chkZoomExtents_Click(object sender, EventArgs e)
         {
@@ -2105,6 +2135,11 @@ namespace System.Windows.Forms
             if (cboToolSelect.SelectedIndex == 0) { _editType = TransformType.Translation; }
             else if (cboToolSelect.SelectedIndex == 1) { _editType = TransformType.Rotation; }
             else if (cboToolSelect.SelectedIndex == 2) { _editType = TransformType.Scale; }
+            ModelPanel.Invalidate();
+        }
+
+        private void chkBoundaries_Click(object sender, EventArgs e)
+        {
             ModelPanel.Invalidate();
         }
 
