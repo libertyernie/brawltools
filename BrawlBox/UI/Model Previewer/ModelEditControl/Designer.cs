@@ -1807,7 +1807,7 @@ namespace System.Windows.Forms
             // 
             // modelPanel
             // 
-            this.modelPanel.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel.DefaultTranslate")));
+            this.modelPanel.DefaultTranslate = new Vector3(0,0,0);
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel.InitialYFactor = 100;
             this.modelPanel.InitialZoomFactor = 5;
