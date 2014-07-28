@@ -253,7 +253,7 @@ namespace System.Windows.Forms
                     context.DrawBox(pos1,pos2);
                 }
 
-            //render boundaries if checked
+            //Render boundaries if checked
             if (CamBone0 != null && CamBone1 != null && chkBoundaries.Checked)
             {
                 GL.Clear(ClearBufferMask.DepthBufferBit);
