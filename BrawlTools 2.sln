@@ -118,8 +118,4 @@ Global
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = BrawlBox\BrawlBox.csproj
 	EndGlobalSection
-	GlobalSection(SubversionScc) = preSolution
-		Svn-Managed = True
-		Manager = AnkhSVN - Subversion Support for Visual Studio
-	EndGlobalSection
 EndGlobal

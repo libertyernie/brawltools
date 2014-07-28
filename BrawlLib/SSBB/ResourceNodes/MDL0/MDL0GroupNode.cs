@@ -140,8 +140,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                             //Double check bone tree using the NodeTree definition.
                             //If the NodeTree is corrupt, the user will be informed that it needs to be rebuilt.
                             byte* pData = (byte*)p.Data;
-
-                        Top:
+                            bool fixCS0159 = false;
+                            STop:
                             if (*pData == 2)
                             {
                                 bone = linker.BoneCache[*(bushort*)(pData + 1)] as MDL0BoneNode;
@@ -165,7 +165,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                                     }
                                 }
                                 pData += 5;
-                                goto Top;
+                                fixCS0159 = true;
+                            }
+                            if (fixCS0159) {
+                                fixCS0159 = false;
+                                goto STop;
                             }
                         }
                         else 
@@ -173,8 +177,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             //Use node mix to create weight groups
                             byte* pData = (byte*)p.Data;
-
-                        Top:
+                            bool fixCS0159 = false;
+                            TTop:
                             switch (*pData)
                             {
                                 //Type 3 is for weighted influences
@@ -218,12 +222,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                                     //Move data pointer to next entry
                                     pData = (byte*)nEntry;
-                                    goto Top;
-
+                                    fixCS0159 = true;
+                                    break;
                                 //Type 5 is for primary influences
                                 case 5:
                                     pData += 5;
-                                    goto Top;
+                                    fixCS0159 = true;
+                                    break;
+                            }
+                            if (fixCS0159) {
+                                fixCS0159 = false;
+                                goto TTop;
                             }
                         }
 

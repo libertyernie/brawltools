@@ -273,7 +273,7 @@ namespace BrawlLib.Wii.Models
                     {
                         *pGrp = new ResourceGroup(BoneCache.Length);
                         foreach (ResourceNode e in BoneCache)
-                            (pEntry++)->_dataOffset = (int)(e.WorkingUncompressed.Address - pGroup);
+                            (pEntry++)->_dataOffset = (int)((byte*)(e.WorkingUncompressed.Address) - pGroup);
                     }
                     else if (resType == MDLResourceType.Shaders)
                     {
@@ -292,7 +292,7 @@ namespace BrawlLib.Wii.Models
                     {
                         *pGrp = new ResourceGroup(group.Children.Count);
                         foreach (ResourceNode e in group.Children)
-                            (pEntry++)->_dataOffset = (int)(e.WorkingUncompressed.Address - pGroup);
+                            (pEntry++)->_dataOffset = (int)((byte*)(e.WorkingUncompressed.Address) - pGroup);
                     }
                     pGroup += pGrp->_totalSize;
                 }

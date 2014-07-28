@@ -529,7 +529,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
                 else
                 {
-                    header->EntryOffset[p.Index] = (int)(p._dataAddr - &header->EntryOffset[p.Index]);
+                    header->EntryOffset[p.Index] = (int)((System.bint*)(p._dataAddr) - &header->EntryOffset[p.Index]);
                     p.Rebuild(p._dataAddr, p._calcSize, true);
                 }
                 addr += p._dataLen;
