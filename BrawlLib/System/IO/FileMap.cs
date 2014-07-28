@@ -76,14 +76,15 @@ namespace BrawlLib.IO
                     return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) {_path = stream.Name };
                 case PlatformID.MacOSX:
                     return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
-                case PlatformID.Unix:
+                case PlatformID.Unix: {
                     if (Directory.Exists("/Applications")
                         & Directory.Exists("/System")
                         & Directory.Exists("/Users")
                         & Directory.Exists("/Volumes"))
-                        goto case PlatformID.MacOSX;
+                        {goto case PlatformID.MacOSX;}
                     else
-                        return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
+                        {return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };}
+                    }
             }
             return null;
         }
@@ -102,14 +103,15 @@ namespace BrawlLib.IO
                     return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
                 case PlatformID.MacOSX:
                     return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
-                case PlatformID.Unix:
+                case PlatformID.Unix: {
                     if (Directory.Exists("/Applications")
                         & Directory.Exists("/System")
                         & Directory.Exists("/Users")
                         & Directory.Exists("/Volumes"))
-                        goto case PlatformID.MacOSX;
+                        {goto case PlatformID.MacOSX;}
                     else
-                        return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
+                        {return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };}
+                    }
             }
             return null;
         }
