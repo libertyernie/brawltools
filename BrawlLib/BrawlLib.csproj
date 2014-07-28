@@ -161,8 +161,6 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\OpenTK.dll</HintPath>
     </Reference>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>

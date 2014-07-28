@@ -263,8 +263,12 @@ namespace BrawlBox
             else
             {
                 propertyGrid1.SelectedObject = null;
+                try {
+                    editToolStripMenuItem.DropDown = null;
+                }
+                catch (System.NullReferenceException zzz) {
 
-                editToolStripMenuItem.DropDown = null;
+                }
                 editToolStripMenuItem.Enabled = false;
             }
 

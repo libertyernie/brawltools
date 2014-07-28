@@ -111,6 +111,7 @@ namespace BrawlLib.Wii.Models
         private static void Color_wRGBA6_RGBA(ref byte* pIn, ref byte* pOut)
         {
             int val, data;
+            data = 0;
             byte* t = (byte*)&data + 3;
             *t-- = *pIn++;
             *t-- = *pIn++;

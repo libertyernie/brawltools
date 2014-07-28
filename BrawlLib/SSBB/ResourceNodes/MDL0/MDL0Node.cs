@@ -407,12 +407,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     MDL0TextureNode texture = (MDL0TextureNode)_texList[i];
 
-                t1:
+                at1:
                     foreach (MDL0MaterialRefNode r in texture._references)
                         if (_matList.IndexOf(r.Parent) == -1)
                         {
                             texture._references.Remove(r);
-                            goto t1;
+                            goto at1;
                         }
 
                     if (texture._references.Count == 0)
@@ -429,12 +429,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     MDL0TextureNode palette = (MDL0TextureNode)_pltList[i];
 
-                t1:
+                bt1:
                     foreach (MDL0MaterialRefNode r in palette._references)
                         if (_matList.IndexOf(r.Parent) == -1)
                         {
                             palette._references.Remove(r);
-                            goto t1;
+                            goto bt1;
                         }
 
                     if (palette._references.Count == 0)

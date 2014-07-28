@@ -57,6 +57,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             int lind, rind, llink, rlink, tmp;
             int cPoint, cPlane;
 
+            lind = 0; rind = 0;
+
             CollisionPlane current, next;
             CollisionLink link;
             foreach (CollisionObject obj in _objects)
