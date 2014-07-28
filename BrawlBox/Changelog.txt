@@ -14,8 +14,9 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
- - v0.73b- (7/26/2014) - BrawlLib v0.20a
+ - v0.73b- (?/??/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
+	  . Spawn areas turn red when they're too far away from the floor
 	. Added a "Zoom Extents" Button to the model previewer which will zoom the camera to the selected bone.
 	. BLOC archives are now rebuildable
 		.GSND files are now partially editable
@@ -27,9 +28,8 @@ they be held accountable for the manner in which it is used.
 		. Fallthrough platforms are rendered yellow.
 		. Ledge grab collisions have their appropriate link rendered purple.
 	. Update OpenTK library to latest stable release for optimizations
-	. Module ID's internalized rather then pulled from external text file
-
-
+	. Module names internalized (rather then pulled from external text file) and shown in properties as ModuleName
+	. BrawlBox icon replaced with 256x256 version
 
  - v0.73a- (6/28/2014) - BrawlLib v0.20a
 	. Interpolation Editor changes (TheShyGuy)
