@@ -553,6 +553,7 @@
     <Compile Include="System\Vector2.cs" />
     <Compile Include="System\Vector3.cs" />
     <Compile Include="Platform\Linux.cs" />
+    <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\BRESNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\CHR0Node.cs" />

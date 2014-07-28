@@ -35,7 +35,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return Header->_count > 0;
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((GBLK*)source.Address)->_tag == GBLK.Tag ? new GBLKNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) { 
+            return ((GBLK*)source.Address)->_tag == GBLK.Tag ? new GBLKNode() : null; 
+        }
     }
 
     public unsafe class GBLKEntryNode : ResourceNode

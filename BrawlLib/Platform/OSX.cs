@@ -6,10 +6,10 @@ using System.Runtime.InteropServices;
 
 namespace System
 {
-    static unsafe class Linux
+    static unsafe class OSX
     {
 
-        public const string libmName = "libm.so";
+        public const string libmName = "libm.dylib";
 
         [DllImport(libmName)]
         public static extern void memset(void* dest, byte value, uint length);
