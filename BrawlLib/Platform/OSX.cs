@@ -9,7 +9,7 @@ namespace System
     static unsafe class OSX
     {
 
-        public const string libmName = "libm.dylib";
+        public const string libmName = "libc.dylib";
 
         [DllImport(libmName)]
         public static extern void memset(void* dest, byte value, uint length);
