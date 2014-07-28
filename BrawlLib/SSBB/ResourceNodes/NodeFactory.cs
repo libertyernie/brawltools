@@ -22,8 +22,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             Delegate del;
             foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
                 if (t.IsSubclassOf(typeof(ResourceNode)))
-                    if ((del = Delegate.CreateDelegate(typeof(ResourceParser), t, "TryParse", false, false)) != null)
-                        _parsers.Add(del as ResourceParser);
+                    try {
+                        if ((del = Delegate.CreateDelegate(typeof(ResourceParser), t, "TryParse", false, false)) != null)
+                            _parsers.Add(del as ResourceParser);
+                    }
+                    catch(NullReferenceException sas) {}
         }
 
         //Parser commands must initialize the node before returning.
@@ -92,50 +95,53 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.Initialize(parent, source);
             else
             {
-                //Check for compression?
-                if (Compressor.IsDataCompressed(source.Address, source.Length))
-                {
-                    if ((*(uint*)source.Address) == YAZ0.Tag)
+                try {
+                    //Check for compression?
+                    if (Compressor.IsDataCompressed(source.Address, source.Length))
                     {
-                        YAZ0* cmpr = (YAZ0*)source.Address;
-                        try
+                        if ((*(uint*)source.Address) == YAZ0.Tag)
                         {
-                            //Expand the whole resource and initialize
-                            FileMap map = FileMap.FromTempFile((int)cmpr->_unCompDataLen);
-                            Compressor.Expand(cmpr, map.Address, map.Length);
-                            source.Compression = CompressionType.RunLength;
-
-                            //Check for a match
-                            if ((n = GetRaw(new DataSource(map.Address, map.Length))) != null)
-                                n.Initialize(parent, source, new DataSource(map));
-                        }
-                        catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
-                    }
-                    else
-                    {
-                        CompressionHeader* cmpr = (CompressionHeader*)source.Address;
-                        if (Compressor.Supports(cmpr->Algorithm))
-                        {
+                            YAZ0* cmpr = (YAZ0*)source.Address;
                             try
                             {
-                                //Expand a portion of the data
-                                byte* buffer = stackalloc byte[CompressBufferLen];
-                                Compressor.Expand(cmpr, buffer, CompressBufferLen);
+                                //Expand the whole resource and initialize
+                                FileMap map = FileMap.FromTempFile((int)cmpr->_unCompDataLen);
+                                Compressor.Expand(cmpr, map.Address, map.Length);
+                                source.Compression = CompressionType.RunLength;
 
                                 //Check for a match
-                                if ((n = GetRaw(new DataSource(buffer, CompressBufferLen))) != null)
-                                {
-                                    //Expand the whole resource and initialize
-                                    FileMap map = FileMap.FromTempFile(cmpr->ExpandedSize);
-                                    Compressor.Expand(cmpr, map.Address, map.Length);
-                                    source.Compression = cmpr->Algorithm;
+                                if ((n = GetRaw(new DataSource(map.Address, map.Length))) != null)
                                     n.Initialize(parent, source, new DataSource(map));
-                                }
                             }
                             catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
                         }
+                        else
+                        {
+                            CompressionHeader* cmpr = (CompressionHeader*)source.Address;
+                            if (Compressor.Supports(cmpr->Algorithm))
+                            {
+                                try
+                                {
+                                    //Expand a portion of the data
+                                    byte* buffer = stackalloc byte[CompressBufferLen];
+                                    Compressor.Expand(cmpr, buffer, CompressBufferLen);
+
+                                    //Check for a match
+                                    if ((n = GetRaw(new DataSource(buffer, CompressBufferLen))) != null)
+                                    {
+                                        //Expand the whole resource and initialize
+                                        FileMap map = FileMap.FromTempFile(cmpr->ExpandedSize);
+                                        Compressor.Expand(cmpr, map.Address, map.Length);
+                                        source.Compression = cmpr->Algorithm;
+                                        n.Initialize(parent, source, new DataSource(map));
+                                    }
+                                }
+                                catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
+                            }
+                        }
                     }
                 }
+                catch(Exception sss) {}
             }
 
             return n;
@@ -144,8 +150,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             ResourceNode n = null;
             foreach (ResourceParser d in _parsers)
-                if ((n = d(source)) != null)
-                    break;
+                try {
+                    if ((n = d(source)) != null)
+                        break;
+                }
+                catch(NullReferenceException dasd) {}
             return n;
         }
     }

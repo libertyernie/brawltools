@@ -33,7 +33,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             return Header->_count > 0;
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((ADSJ*)source.Address)->_tag == ADSJ.Tag ? new ADSJNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) { 
+            return ((ADSJ*)source.Address)->_tag == ADSJ.Tag ? new ADSJNode() : null; }
     }
 
     public unsafe class ADSJEntryNode : ResourceNode

@@ -74,8 +74,16 @@ namespace BrawlLib.IO
             {
                 case PlatformID.Win32NT:
                     return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) {_path = stream.Name };
+                case PlatformID.MacOSX:
+                    return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
                 case PlatformID.Unix:
-                    return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
+                    if (Directory.Exists("/Applications")
+                        & Directory.Exists("/System")
+                        & Directory.Exists("/Users")
+                        & Directory.Exists("/Volumes"))
+                        goto case PlatformID.MacOSX;
+                    else
+                        return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
             }
             return null;
         }
@@ -92,8 +100,16 @@ namespace BrawlLib.IO
             {
                 case PlatformID.Win32NT:
                     return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
+                case PlatformID.MacOSX:
+                    return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
                 case PlatformID.Unix:
-                    return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
+                    if (Directory.Exists("/Applications")
+                        & Directory.Exists("/System")
+                        & Directory.Exists("/Users")
+                        & Directory.Exists("/Volumes"))
+                        goto case PlatformID.MacOSX;
+                    else
+                        return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
             }
             return null;
         }
@@ -158,6 +174,22 @@ namespace BrawlLib.IO
         public override void Dispose()
         {
             if (_addr) { Linux.munmap(_addr, (uint)_length); _addr = null; }
+            base.Dispose();
+        }
+    }
+
+    public unsafe class mFileMap : FileMap
+    {
+        public mFileMap(VoidPtr hFile, FileMapProtect protect, uint offset, uint length)
+        {
+            OSX.MMapProtect mProtect = (protect == FileMapProtect.ReadWrite) ? OSX.MMapProtect.Read | OSX.MMapProtect.Write : OSX.MMapProtect.Read;
+            _addr = OSX.mmap(null, length, mProtect, OSX.MMapFlags.Shared, hFile, offset);
+            _length = (int)length;
+        }
+
+        public override void Dispose()
+        {
+            if (_addr) { OSX.munmap(_addr, (uint)_length); _addr = null; }
             base.Dispose();
         }
     }

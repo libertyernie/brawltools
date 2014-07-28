@@ -84,7 +84,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _blockSize = part1->_blockSize;
             _bps = part1->_bitsPerSample;
 
-            int offset = (int)(Header->DATAData->Data - Header);
+            int offset = ((int)(Header->DATAData->Data) - (int)(Header));
             if (offset < WorkingUncompressed.Length)
             {
                 _audioSource = new DataSource(Header->DATAData->Data, WorkingUncompressed.Length - offset);
@@ -143,7 +143,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 try { ReplaceRaw(RSTMConverter.Encode(stream, null)); }
                 finally { stream.Dispose(); }
 
-            int offset = (int)(Header->DATAData->Data - Header);
+            int offset = ((int)(Header->DATAData->Data) - (int)(Header));
             if (offset < WorkingUncompressed.Length)
             {
                 _audioSource = new DataSource(Header->DATAData->Data, WorkingUncompressed.Length - offset);

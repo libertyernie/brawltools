@@ -114,12 +114,17 @@ namespace BrawlBox
             string cmd;
             foreach (ListViewItem i in listView1.Items)
             {
-                if ((_typeList[index] == _assocList[index].FileType) &&
-                    (!String.IsNullOrEmpty(cmd = _typeList[index].GetCommand("open"))) &&
-                    (cmd.IndexOf(Program.FullPath, StringComparison.OrdinalIgnoreCase) >= 0))
-                    i.Tag = i.Checked = true;
-                else
-                    i.Tag = i.Checked = false;
+                try {
+                    if ((_typeList[index] == _assocList[index].FileType) &&
+                        (!String.IsNullOrEmpty(cmd = _typeList[index].GetCommand("open"))) &&
+                        (cmd.IndexOf(Program.FullPath, StringComparison.OrdinalIgnoreCase) >= 0))
+                        i.Tag = i.Checked = true;
+                    else
+                        i.Tag = i.Checked = false;
+                }
+                catch (System.NullReferenceException ezz) {
+
+                }
                 index++;
             }
             btnApply.Enabled = false;
