@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 
 namespace BrawlLib.IO
 {
@@ -67,9 +68,12 @@ namespace BrawlLib.IO
             if (length == 0)
                 length = (int)stream.Length;
 
+            return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
+
 //#if DEBUG
 //            Console.WriteLine("Opening file map: {0}", stream.Name);
 //#endif
+/*
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
@@ -87,6 +91,7 @@ namespace BrawlLib.IO
                     }
             }
             return null;
+            */
         }
 
         public static FileMap FromStreamInternal(FileStream stream, FileMapProtect prot, int offset, int length)
@@ -97,6 +102,9 @@ namespace BrawlLib.IO
 //#if DEBUG
 //            Console.WriteLine("Opening file map: {0}", stream.Name);
 //#endif
+            
+            return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
+/*
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
@@ -114,6 +122,7 @@ namespace BrawlLib.IO
                     }
             }
             return null;
+            */
         }
 
     }
@@ -192,6 +201,30 @@ namespace BrawlLib.IO
         public override void Dispose()
         {
             if (_addr) { OSX.munmap(_addr, (uint)_length); _addr = null; }
+            base.Dispose();
+        }
+    }
+
+    public unsafe class cFileMap : FileMap
+    {
+        protected MemoryMappedFile _mappedFile;
+        protected MemoryMappedViewAccessor _mappedFileAccessor;
+
+        public cFileMap(FileStream stream, FileMapProtect protect, int offset, int length)
+        {
+            MemoryMappedFileAccess cProtect = (protect == FileMapProtect.ReadWrite) ? MemoryMappedFileAccess.ReadWrite : MemoryMappedFileAccess.Read;
+            _length = length;
+            _mappedFile = MemoryMappedFile.CreateFromFile(stream, stream.Name, _length, cProtect, null, HandleInheritability.None, true);
+            _mappedFileAccessor = _mappedFile.CreateViewAccessor(offset, _length, cProtect);
+            _addr = _mappedFileAccessor.SafeMemoryMappedViewHandle.DangerousGetHandle();
+        }
+
+        public override void Dispose()
+        {
+            if (_mappedFile != null) 
+                _mappedFile.Dispose();
+            if (_mappedFileAccessor != null) 
+                _mappedFileAccessor.Dispose();
             base.Dispose();
         }
     }
