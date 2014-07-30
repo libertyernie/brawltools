@@ -68,7 +68,13 @@ namespace BrawlLib.IO
             if (length == 0)
                 length = (int)stream.Length;
 
-            return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _path = stream.Name };
+                default:
+                    return new cFileMap(stream, prot, offset, length) { _path = stream.Name };
+            }
 
 //#if DEBUG
 //            Console.WriteLine("Opening file map: {0}", stream.Name);
@@ -79,12 +85,19 @@ namespace BrawlLib.IO
         {
             if (length == 0)
                 length = (int)stream.Length;
+
+            switch (Environment.OSVersion.Platform)
+            {
+                case PlatformID.Win32NT:
+                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
+                default:
+                    return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
+            }
             
 //#if DEBUG
 //            Console.WriteLine("Opening file map: {0}", stream.Name);
 //#endif
             
-            return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
         }
 
     }
@@ -94,6 +107,47 @@ namespace BrawlLib.IO
         Read = 0x01,
         ReadWrite = 0x02
     }
+
+    public class wFileMap : FileMap
+    {
+        internal wFileMap(VoidPtr hFile, FileMapProtect protect, long offset, uint length)
+        {
+            long maxSize = offset + length;
+            uint maxHigh = (uint)(maxSize >> 32);
+            uint maxLow = (uint)maxSize;
+            Win32._FileMapProtect mProtect; Win32._FileMapAccess mAccess;
+            if (protect == FileMapProtect.ReadWrite)
+            {
+                mProtect = Win32._FileMapProtect.ReadWrite;
+                mAccess = Win32._FileMapAccess.Write;
+            }
+            else
+            {
+                mProtect = Win32._FileMapProtect.ReadOnly;
+                mAccess = Win32._FileMapAccess.Read;
+            }
+
+            using (Win32.SafeHandle h = Win32.CreateFileMapping(hFile, null, mProtect, maxHigh, maxLow, null))
+            {
+                h.ErrorCheck();
+                _addr = Win32.MapViewOfFile(h.Handle, mAccess, (uint)(offset >> 32), (uint)offset, length);
+                if (!_addr) Marshal.ThrowExceptionForHR(Marshal.GetHRForLastWin32Error());
+                _length = (int)length;
+            }
+        }
+
+        public override void Dispose()
+        {
+            if (_addr) 
+            {
+                Win32.FlushViewOfFile(_addr, 0);
+                Win32.UnmapViewOfFile(_addr);
+                _addr = null;
+            }
+            base.Dispose();
+        }
+    }
+ 
 
     public unsafe class cFileMap : FileMap
     {
