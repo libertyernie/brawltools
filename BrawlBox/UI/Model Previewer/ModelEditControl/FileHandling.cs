@@ -30,7 +30,6 @@ namespace System.Windows.Forms
                 leftPanel.listAnims.BeginUpdate();
                 try
                 {
-                    MessageBox.Show(this, dlgOpen.FileName);
                     if ((node = NodeFactory.FromFile(null, dlgOpen.FileName)) != null)
                     {
                         if (!CloseExternal())

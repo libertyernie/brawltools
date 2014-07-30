@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.IO;
+using System.IO.MemoryMappedFiles;
 
 namespace BrawlLib.IO
 {
@@ -67,53 +68,36 @@ namespace BrawlLib.IO
             if (length == 0)
                 length = (int)stream.Length;
 
-//#if DEBUG
-//            Console.WriteLine("Opening file map: {0}", stream.Name);
-//#endif
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
-                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) {_path = stream.Name };
-                case PlatformID.MacOSX:
-                    return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };
-                case PlatformID.Unix: {
-                    if (Directory.Exists("/Applications")
-                        & Directory.Exists("/System")
-                        & Directory.Exists("/Users")
-                        & Directory.Exists("/Volumes"))
-                        {goto case PlatformID.MacOSX;}
-                    else
-                        {return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _path = stream.Name };}
-                    }
+                    return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _path = stream.Name };
+                default:
+                    return new cFileMap(stream, prot, offset, length) { _path = stream.Name };
             }
-            return null;
+
+//#if DEBUG
+//            Console.WriteLine("Opening file map: {0}", stream.Name);
+//#endif
         }
 
         public static FileMap FromStreamInternal(FileStream stream, FileMapProtect prot, int offset, int length)
         {
             if (length == 0)
                 length = (int)stream.Length;
-            
-//#if DEBUG
-//            Console.WriteLine("Opening file map: {0}", stream.Name);
-//#endif
+
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT:
                     return new wFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, offset, (uint)length) { _baseStream = stream, _path = stream.Name };
-                case PlatformID.MacOSX:
-                    return new mFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };
-                case PlatformID.Unix: {
-                    if (Directory.Exists("/Applications")
-                        & Directory.Exists("/System")
-                        & Directory.Exists("/Users")
-                        & Directory.Exists("/Volumes"))
-                        {goto case PlatformID.MacOSX;}
-                    else
-                        {return new lFileMap(stream.SafeFileHandle.DangerousGetHandle(), prot, (uint)offset, (uint)length) { _baseStream = stream, _path = stream.Name };}
-                    }
+                default:
+                    return new cFileMap(stream, prot, offset, length) { _baseStream = stream, _path = stream.Name };
             }
-            return null;
+            
+//#if DEBUG
+//            Console.WriteLine("Opening file map: {0}", stream.Name);
+//#endif
+            
         }
 
     }
@@ -163,35 +147,28 @@ namespace BrawlLib.IO
             base.Dispose();
         }
     }
+ 
 
-    public unsafe class lFileMap : FileMap
+    public unsafe class cFileMap : FileMap
     {
-        public lFileMap(VoidPtr hFile, FileMapProtect protect, uint offset, uint length)
+        protected MemoryMappedFile _mappedFile;
+        protected MemoryMappedViewAccessor _mappedFileAccessor;
+
+        public cFileMap(FileStream stream, FileMapProtect protect, int offset, int length)
         {
-            Linux.MMapProtect mProtect = (protect == FileMapProtect.ReadWrite) ? Linux.MMapProtect.Read | Linux.MMapProtect.Write : Linux.MMapProtect.Read;
-            _addr = Linux.mmap(null, length, mProtect, Linux.MMapFlags.Shared, hFile, offset);
-            _length = (int)length;
+            MemoryMappedFileAccess cProtect = (protect == FileMapProtect.ReadWrite) ? MemoryMappedFileAccess.ReadWrite : MemoryMappedFileAccess.Read;
+            _length = length;
+            _mappedFile = MemoryMappedFile.CreateFromFile(stream, stream.Name, _length, cProtect, null, HandleInheritability.None, true);
+            _mappedFileAccessor = _mappedFile.CreateViewAccessor(offset, _length, cProtect);
+            _addr = _mappedFileAccessor.SafeMemoryMappedViewHandle.DangerousGetHandle();
         }
 
         public override void Dispose()
         {
-            if (_addr) { Linux.munmap(_addr, (uint)_length); _addr = null; }
-            base.Dispose();
-        }
-    }
-
-    public unsafe class mFileMap : FileMap
-    {
-        public mFileMap(VoidPtr hFile, FileMapProtect protect, uint offset, uint length)
-        {
-            OSX.MMapProtect mProtect = (protect == FileMapProtect.ReadWrite) ? OSX.MMapProtect.Read | OSX.MMapProtect.Write : OSX.MMapProtect.Read;
-            _addr = OSX.mmap(null, length, mProtect, OSX.MMapFlags.Shared, hFile, offset);
-            _length = (int)length;
-        }
-
-        public override void Dispose()
-        {
-            if (_addr) { OSX.munmap(_addr, (uint)_length); _addr = null; }
+            if (_mappedFile != null) 
+                _mappedFile.Dispose();
+            if (_mappedFileAccessor != null) 
+                _mappedFileAccessor.Dispose();
             base.Dispose();
         }
     }
