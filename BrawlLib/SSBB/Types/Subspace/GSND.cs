@@ -23,9 +23,10 @@ namespace BrawlLib.SSBBTypes
             _count = count;
         }
     }
+
     public unsafe struct GSNDEntry
     {
-        public bint _InfoIndex;
+        public bint _infoIndex;
         public const uint unk0 = 0x00000001;
         public int _pad0;
         public int _pad1;
@@ -34,17 +35,17 @@ namespace BrawlLib.SSBBTypes
         public bfloat _unkFloat1;
         public int _pad3;
         fixed sbyte _name[32];
-        public sbyte _Trigger;
+        fixed byte _Trigger[4];
         fixed int _pad4[16];
 
-        public GSNDEntry(bint InfoIndex, bfloat UnkFloat0, bfloat UnkFloat1, sbyte Trigger,string name)
+        public GSNDEntry(bfloat UnkFloat0, bfloat UnkFloat1, string trigger, string name):this()
         {
-            _InfoIndex = InfoIndex;
-            _pad0 = _pad1 = _pad2 =_pad3 = 0;
+            _pad0 = _pad1 = _pad2 = _pad3 = 0;
             _unkFloat0 = UnkFloat0;
             _unkFloat1 = UnkFloat1;
-            _Trigger = Trigger;
             Name = name;
+            Trigger = trigger;
+            Pad4 = 0;
         }
 
         public string Name
@@ -65,6 +66,53 @@ namespace BrawlLib.SSBBTypes
                 }
             }
         }
+        public string Trigger
+        {
+            get 
+            {
+                byte[] bytes = new byte[4];
+                string s1 = "";
+                for (int i = 0; i < 4; i++)
+                {
+                    bytes[i] = *(byte*)((VoidPtr)Address + 0x3C+i);
+                    if (bytes[i].ToString("x").Length < 2) { s1 += bytes[i].ToString("x").PadLeft(2, '0'); }
+                    else
+                        { s1 += bytes[i].ToString("x").ToUpper(); }
+                }
+                return s1;
+          
+            }
+            set
+            {
+                
+                if (value == null)
+                    value = "";
+
+                fixed (byte* ptr = _Trigger)
+                {
+                    for (int i = 0; i < value.Length; i++)
+                    {
+                        ptr[i/2] = Convert.ToByte(value.Substring(i++,2),16);
+                    }
+                }
+            }
+        }
+        public int Pad4
+        {
+            set
+            {
+                fixed (int* ptr = _pad4)
+                {
+                    for (int i = 0; i < 16; i++)
+                    {
+                        ptr[i] = 0;
+                    }
+                }
+            }
+        }
+
+
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+
     }
 }
