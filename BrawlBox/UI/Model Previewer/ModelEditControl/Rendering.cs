@@ -249,7 +249,7 @@ namespace System.Windows.Forms
                 {
                     Vector3 pos1 = new Vector3(ItemBones[i]._frameMatrix.GetPoint()._x, ItemBones[i]._frameMatrix.GetPoint()._y + 3.0f, 1.0f);
                     Vector3 pos2 = new Vector3(ItemBones[i+1]._frameMatrix.GetPoint()._x, ItemBones[i+1]._frameMatrix.GetPoint()._y - 3.0f, 1.0f);
-                    GL.Color4(0.5f, 0.0f, 1.0f, 0.6f);
+                    GL.Color4(0.5f, 0.0f, 1.0f, 0.4f);
                     context.DrawBox(pos1,pos2);
                 }
 
