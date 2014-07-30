@@ -62,15 +62,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [Category("Sound")]
         [DisplayName("Info Index")]
-        public bint infoIndex { get { return Header->_infoIndex; } set { Header->_infoIndex = value; SignalPropertyChange(); } }
+        public int infoIndex { get { return Header->_infoIndex; } set { Header->_infoIndex = value; SignalPropertyChange(); } }
 
         [Category("Misc")]
         [DisplayName("unknown")]
-        public bfloat unkFloat0 { get { return Header->_unkFloat0; } set { Header->_unkFloat0 = value; SignalPropertyChange(); } }
+        public float unkFloat0 { get { return Header->_unkFloat0; } set { Header->_unkFloat0 = value; SignalPropertyChange(); } }
 
         [Category("Misc")]
         [DisplayName("unknown")]
-        public bfloat unkFloat1 { get { return Header->_unkFloat1; } set { Header->_unkFloat1 = value; SignalPropertyChange(); } }
+        public float unkFloat1 { get { return Header->_unkFloat1; } set { Header->_unkFloat1 = value; SignalPropertyChange(); } }
 
         [Category("Misc")]
         [DisplayName("Trigger ID?")]

@@ -38,7 +38,7 @@ namespace BrawlLib.SSBBTypes
         fixed byte _Trigger[4];
         fixed int _pad4[16];
 
-        public GSNDEntry(bfloat UnkFloat0, bfloat UnkFloat1, string trigger, string name):this()
+        public GSNDEntry(float UnkFloat0, float UnkFloat1, string trigger, string name):this()
         {
             _pad0 = _pad1 = _pad2 = _pad3 = 0;
             _unkFloat0 = UnkFloat0;
