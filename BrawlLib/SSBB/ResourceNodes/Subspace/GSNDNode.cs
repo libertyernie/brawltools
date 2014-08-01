@@ -100,6 +100,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _unkfloat0 = Header->_unkFloat0;
             _unkfloat1 = Header->_unkFloat1;
             _trigger = Header->Trigger;
+            Header->unk0 = 0x00000001;
             return false;
         }
         public override int OnCalculateSize(bool force)
@@ -112,11 +113,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             *header = new GSNDEntry();
             header->_infoIndex = _infoindex;
             header->_pad0 = header->_pad1 =
-            header->_pad2 = header->_pad3 = header->Pad4 = 0;
+            header->_pad2 = header->Pad4 = 0;
             header->_unkFloat0 = _unkfloat0;
             header->_unkFloat1 = _unkfloat1;
             header->Name = _Bname;
             header->Trigger = _trigger;
+            header->unk0 = 0x00000001;
         }
     }
 }

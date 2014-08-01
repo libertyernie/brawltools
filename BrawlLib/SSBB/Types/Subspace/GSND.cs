@@ -27,25 +27,25 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct GSNDEntry
     {
         public bint _infoIndex;
-        public const uint unk0 = 0x00000001;
+        public uint unk0;
         public int _pad0;
         public int _pad1;
-        public int _pad2;
         public bfloat _unkFloat0;
         public bfloat _unkFloat1;
-        public int _pad3;
+        public int _pad2;
         fixed sbyte _name[32];
         fixed byte _Trigger[4];
         fixed int _pad4[16];
 
         public GSNDEntry(float UnkFloat0, float UnkFloat1, string trigger, string name):this()
         {
-            _pad0 = _pad1 = _pad2 = _pad3 = 0;
+            _pad0 = _pad1 = _pad2 = 0;
             _unkFloat0 = UnkFloat0;
             _unkFloat1 = UnkFloat1;
             Name = name;
             Trigger = trigger;
             Pad4 = 0;
+            unk0 = 0x00000001;
         }
 
         public string Name
