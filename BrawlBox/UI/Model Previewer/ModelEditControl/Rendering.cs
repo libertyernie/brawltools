@@ -214,6 +214,7 @@ namespace System.Windows.Forms
             foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
             
             #region RenderOverlays
+            MDL0Node stgPos = null;
             MDL0BoneNode CamBone0 = null;
             MDL0BoneNode CamBone1 = null;
             MDL0BoneNode DeathBone0 = null;
@@ -221,8 +222,9 @@ namespace System.Windows.Forms
             List<MDL0BoneNode> ItemBones = new List<MDL0BoneNode>();
 
             //Get bones and render spawns if checked
-            if (_targetModels != null) foreach (MDL0Node m in _targetModels)
-                foreach (MDL0BoneNode bone in m._linker.BoneCache)
+            if (_targetModel.Name.Contains("osition")) {stgPos = _targetModel; }
+            else  { stgPos = _targetModels.Find(x => x.Name.Contains("osition")); }
+                if(stgPos != null) foreach (MDL0BoneNode bone in stgPos._linker.BoneCache)
                 {
                     if (bone._name == "CamLimit0N") { CamBone0 = bone; }
                     else if (bone.Name == "CamLimit1N") { CamBone1 = bone; }

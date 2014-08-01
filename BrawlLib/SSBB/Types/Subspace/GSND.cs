@@ -9,7 +9,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct GSND
     {
         public const uint Tag = 0x444E5347;
-        public const int Size = 0x50;
+        public const int Size = 0x14;
         public uint _tag;
         public bint _count;
 
@@ -103,7 +103,7 @@ namespace BrawlLib.SSBBTypes
             {
                 fixed (int* ptr = _pad4)
                 {
-                    for (int i = 0; i < 16; i++)
+                    for (int i = 0; i <= 16; i++)
                     {
                         ptr[i] = 0;
                     }

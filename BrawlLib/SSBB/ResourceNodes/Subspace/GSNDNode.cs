@@ -34,6 +34,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _name = "Sound Effects";
             return Header->_count > 0;
         }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = 0x08 + (Children.Count * 4);
+            foreach (ResourceNode node in Children)
+                size += 0x50;
+            return size;
+        }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
 
@@ -56,43 +63,59 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal GSNDEntry* Header { get { return (GSNDEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+
+        internal string _Bname;
         [Category("Sound")]
         [DisplayName("Bone Name")]
-        public string BName { get { return Header->Name; } set { Header->Name = value; SignalPropertyChange(); } }
+        public string BName { get { return _Bname; } set {_Bname = value; SignalPropertyChange(); } }
 
+        internal int _infoindex;
         [Category("Sound")]
         [DisplayName("Info Index")]
-        public int infoIndex { get { return Header->_infoIndex; } set { Header->_infoIndex = value; SignalPropertyChange(); } }
+        public int infoIndex { get { return _infoindex; } set {_infoindex = value; SignalPropertyChange(); } }
 
+        internal float _unkfloat0;
         [Category("Misc")]
         [DisplayName("unknown")]
-        public float unkFloat0 { get { return Header->_unkFloat0; } set { Header->_unkFloat0 = value; SignalPropertyChange(); } }
+        public float unkFloat0 { get { return _unkfloat0; } set { _unkfloat0 = value; SignalPropertyChange(); } }
 
+        internal float _unkfloat1;
         [Category("Misc")]
         [DisplayName("unknown")]
-        public float unkFloat1 { get { return Header->_unkFloat1; } set { Header->_unkFloat1 = value; SignalPropertyChange(); } }
+        public float unkFloat1 { get { return _unkfloat1; } set { _unkfloat1 = value; SignalPropertyChange(); } }
 
+        internal string _trigger;
         [Category("Misc")]
         [DisplayName("Trigger ID?")]
-        public string _trigger { get { return Header->Trigger; } set { Header->Trigger = value; SignalPropertyChange(); } }
+        public string Trigger { get { return _trigger; } set {_trigger = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
             if (_name == null)
                 _name = "Sound[" + Index + ']';
+
+            _Bname = Header->Name;
+            _infoindex = Header->_infoIndex;
+            _unkfloat0 = Header->_unkFloat0;
+            _unkfloat1 = Header->_unkFloat1;
+            _trigger = Header->Trigger;
             return false;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            return 0x50;
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             GSNDEntry* header = (GSNDEntry*)address;
             *header = new GSNDEntry();
-            header->_infoIndex = infoIndex;
+            header->_infoIndex = _infoindex;
             header->_pad0 = header->_pad1 =
             header->_pad2 = header->_pad3 = header->Pad4 = 0;
-            header->_unkFloat0 = unkFloat0;
-            header->_unkFloat1 = unkFloat1;
-            header->Name = BName;
+            header->_unkFloat0 = _unkfloat0;
+            header->_unkFloat1 = _unkfloat1;
+            header->Name = _Bname;
             header->Trigger = _trigger;
         }
     }
