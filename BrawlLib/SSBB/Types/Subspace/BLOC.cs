@@ -11,6 +11,7 @@ namespace BrawlLib.SSBBTypes
     {
         public const uint Tag = 0x434F4C42;
         public const int Size = 0x10;
+
         public uint _tag;
         public bint _count;
         public bint _unk0;

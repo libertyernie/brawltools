@@ -100,7 +100,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             _unkfloat0 = Header->_unkFloat0;
             _unkfloat1 = Header->_unkFloat1;
             _trigger = Header->Trigger;
-            Header->unk0 = 0x00000001;
             return false;
         }
         public override int OnCalculateSize(bool force)

@@ -21,7 +21,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.OnInitialize();
             return Header->_count > 0;
         }
-
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)

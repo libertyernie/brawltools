@@ -43,6 +43,9 @@ namespace BrawlLib
             "MSBin Message List (*.msbin)|*.msbin|" +
             "Plain text (*.txt)|*.txt";
 
+        public static string BLOC =
+            "BLOC Adventure Archive (*.BLOC)|*.bloc";
+
         public static string BRES =
             "BRResource Pack (*.brres, *.brtex, *.brmdl, *.branm)|*.brres;*.brtex*.brmdl*.branm";
 
