@@ -19,7 +19,7 @@ they be held accountable for the manner in which it is used.
 	  . Spawn areas turn red when they're too far away from the floor
 	. Added a "Zoom Extents" Button to the model previewer which will zoom the camera to the selected bone.
 	. BLOC archives are now rebuildable
-		.GSND files are now partially editable
+		.GSND files are now fully editable
 	. Collisions are now color coded by type.
 		. Floors = cyan
 		. Ceilings = red
