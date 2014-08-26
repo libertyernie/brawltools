@@ -523,7 +523,7 @@ namespace System.Windows.Forms
         {
             Vector3 v = (Vector3)BackColor;
             GL.ClearColor(v._x, v._y, v._z, 0.0f);
-            GL.ClearDepth(1.0f);
+            GL.ClearDepth(1.0);
 
             GL.Enable(EnableCap.DepthTest);
             GL.DepthFunc(DepthFunction.Less);
