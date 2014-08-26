@@ -286,7 +286,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_redirectIndex != -1)
                 {
                     _resourceType = ResourceType.Redirect;
-                    _name = "Redirect -> " + _redirectIndex;
+                    _name = "Redirect → " + _redirectIndex;
                 }
             }
             else if (_name == null)

@@ -575,13 +575,19 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Export(FileStream outStream)
         {
-            outStream.SetLength(WorkingSource.Length);
-            using (FileMap map = FileMap.FromStream(outStream))
-                Memory.Move(map.Address, WorkingSource.Address, (uint)WorkingSource.Length);
+
+                if (WorkingSource.Length != 0)
+                {
+                    outStream.SetLength(WorkingSource.Length);
+                    using (FileMap map = FileMap.FromStream(outStream))
+                        Memory.Move(map.Address, WorkingSource.Address, (uint)WorkingSource.Length);
+                }
+                else if(WorkingSource.Length == 0) { MessageBox.Show("Data was empty!"); }
         }
 
         public virtual void ExportUncompressed(string outPath)
         {
+            Rebuild(); //Apply changes the user has made by rebuilding.
             try
             {
                 using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
@@ -591,9 +597,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void ExportUncompressed(FileStream outStream)
         {
-            outStream.SetLength(WorkingUncompressed.Length);
-            using (FileMap map = FileMap.FromStream(outStream))
-                Memory.Move(map.Address, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
+            if (WorkingSource.Length != 0)
+            {
+                outStream.SetLength(WorkingUncompressed.Length);
+                using (FileMap map = FileMap.FromStream(outStream))
+                    Memory.Move(map.Address, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
+            }
+            else if (WorkingSource.Length == 0) { MessageBox.Show("Data was empty!"); }
         }
 
         //Combines node and children into single (temp) file map.
