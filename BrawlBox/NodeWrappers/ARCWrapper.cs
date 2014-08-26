@@ -69,11 +69,10 @@ namespace BrawlBox
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             ARCWrapper w = GetInstance<ARCWrapper>();
-
-            _menu.Items[8].Enabled = _menu.Items[15].Enabled = w.Parent != null;
-            _menu.Items[9].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[11].Enabled = w.PrevNode != null;
-            _menu.Items[12].Enabled = w.NextNode != null;
+                _menu.Items[8].Enabled = _menu.Items[15].Enabled = w.Parent != null;
+                _menu.Items[9].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+                _menu.Items[11].Enabled = w.PrevNode != null;
+                _menu.Items[12].Enabled = w.NextNode != null;
         }
         #endregion
 

@@ -207,7 +207,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public unsafe class ARCEntryNode : U8EntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.ARCEntry; } }
+        public override ResourceType ResourceType { get { return _resourceType; }  }
+        public ResourceType _resourceType;
 
         [Browsable(true), TypeConverter(typeof(DropDownListCompression))]
         public override string Compression
@@ -282,6 +283,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _redirectIndex = header->_redirectIndex;
                 if (_name == null)
                     _name = GetName();
+                if (_redirectIndex != -1)
+                {
+                    _resourceType = ResourceType.Redirect;
+                    _name = "Redirect -> " + _redirectIndex;
+                }
             }
             else if (_name == null)
                 _name = Path.GetFileName(_origPath);

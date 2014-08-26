@@ -19,6 +19,9 @@ namespace BrawlBox
         static BLOCWrapper()
         {
             _menu = new ContextMenuStrip();
+            _menu.Items.Add(new ToolStripMenuItem("Ne&w", null,
+            new ToolStripMenuItem("GSND Archive", null, NewGSNDAction)));
+
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
@@ -31,6 +34,7 @@ namespace BrawlBox
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+        protected static void NewGSNDAction(object sender, EventArgs e) { GetInstance<BLOCWrapper>().NewGSND(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[8].Enabled = true;
@@ -43,15 +47,19 @@ namespace BrawlBox
         }
         #endregion
 
-        public override string ExportFilter
-        {
-            get
-            {
-                return "BLOC Adventure Archive (*.BLOC)|*.bloc";
-            }
-        }
+        public override string ExportFilter { get { return "BLOC Adventure Archive (*.BLOC)|*.bloc"; } }
 
         public BLOCWrapper() { ContextMenuStrip = _menu; }
+        public GSNDNode NewGSND()
+        {
+            GSNDNode node = new GSNDNode() { Name = _resource.FindName("NewGSND")};
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            w.TreeView.SelectedNode = w;
+            return node;
+        }
 
         public override void OnExport(string outPath, int filterIndex)
         { 

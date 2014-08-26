@@ -44,6 +44,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 		STDT = 0x5B26,
         SHP0VertexSet = 0x5900,
         DOL = 0x5A00,
+        Redirect = 0x5E30,
 
         //AI
         AI = 0x1616,

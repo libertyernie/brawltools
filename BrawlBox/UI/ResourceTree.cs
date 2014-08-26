@@ -73,6 +73,7 @@ namespace BrawlBox
                         Resources.ADSJ,//45
                         Resources.GBLK,
                         Resources.GMPS,
+                        Resources.Redirect,
                     });
                 }
                 return _imgList;
