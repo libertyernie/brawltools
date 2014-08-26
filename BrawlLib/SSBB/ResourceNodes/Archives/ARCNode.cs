@@ -233,7 +233,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int AbsoluteIndex { get { return base.Index; } }
         
         internal short _redirectIndex = -1;
-        [Category("ARC Entry"), TypeConverter(typeof(DropDownListARCEntry))]
+        [Category("ARC Entry")]
         public short RedirectIndex
         {
             get { return _redirectIndex; }
@@ -242,7 +242,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (value == Index || value == _redirectIndex)
                     return;
 
-                _redirectIndex = (short)((int)value).Clamp(0, Children.Count - 1);
+                _redirectIndex = (short)((int)value).Clamp(0, Parent.Children.Count -1);
 
                 SignalPropertyChange();
             } 
