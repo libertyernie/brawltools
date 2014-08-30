@@ -268,8 +268,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     // If the four IDs are different (not sure why they would be)
                     return "Mismatched (" + string.Join(",", _itemIDs.Select(b => b.ToString("X2"))) + ")";
                 }
-                string item = Items.Where(s => s.StartsWith(_itemIDs[0].ToString("X2"))).FirstOrDefault();
-                return item ?? _itemIDs[0].ToString("X2");
+                Item item = Item.Items.Where(s => s.ID == _itemIDs[0]).FirstOrDefault();
+                return _stageID.Value.ToString("X2") + (item == null ? "" : (" - " + item.Name));
             }
             set {
                 // Don't try to set the item ID if it's not an Online Training Room module
@@ -739,77 +739,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             1627,
         };
 
-        public readonly static string[] Items = {
-            "00 - Assist Trophy",
-            "01 - Franklin Badge",
-            "02 - Banana Peel",
-            "03 - Barrel",
-            "04 - Beam Sword",
-            "05 - Bill (coin mode)",
-            "06 - Bob-Omb",
-            "07 - Crate",
-            "08 - Bumper",
-            "09 - Capsule",
-            "0A - Rolling Crate",
-            "0B - CD",
-            "0C - Gooey Bomb",
-            "0D - Cracker Launcher",
-            "0E - Cracker Launcher Shot",
-            "0F - Coin",
-            "10 - Superspicy Curry",
-            "11 - Superspice Curry Shot",
-            "12 - Deku Nut",
-            "13 - Mr. Saturn",
-            "14 - Dragoon Part",
-            "15 - Dragoon Set",
-            "16 - Dragoon Sight",
-            "17 - Trophy",
-            "18 - Fire Flower",
-            "19 - Fire Flower Shot",
-            "1A - Freezie",
-            "1B - Golden Hammer",
-            "1C - Green Shell",
-            "1D - Hammer",
-            "1E - Hammer Head",
-            "1F - Fan",
-            "20 - Heart Container",
-            "21 - Homerun Bat",
-            "22 - Party Ball",
-            "23 - Manaphy Heart",
-            "24 - Maxim Tomato",
-            "25 - Poison Mushroom",
-            "26 - Super Mushroom",
-            "27 - Metal Box",
-            "28 - Hothead",
-            "29 - Pitfall",
-            "2A - Pokéball",
-            "2B - Blast Box",
-            "2C - Ray Gun",
-            "2D - Ray Gun Shot",
-            "2E - Lipstick",
-            "2F - Lipstick Flower",
-            "30 - Lipstick Shot",
-            "31 - Sandbag",
-            "32 - Screw Attack",
-            "33 - Sticker",
-            "34 - Motion-Sensor Bomb",
-            "35 - Timer",
-            "36 - Smart Bomb",
-            "37 - Smash Ball",
-            "38 - Smoke Screen",
-            "39 - Spring",
-            "3A - Star Rod",
-            "3B - Star Rod Shot",
-            "3C - Soccer Ball",
-            "3D - Super Scope",
-            "3E - Super Scope shot",
-            "3F - Star",
-            "40 - Food",
-            "41 - Team Healer",
-            "42 - Lightning",
-            "43 - Unira",
-            "44 - Bunny Hood",
-            "45 - Warpstar"};
+
         #endregion
     }
 }

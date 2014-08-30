@@ -431,12 +431,15 @@ namespace System
             return base.CanConvertFrom(context, sourceType);
         }
     }
-    public class DropDownListItemIDs : StringConverter {
+    public class DropDownListItemIDs : StringConverter
+    {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
-        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
-            return new StandardValuesCollection(RELNode.Items.ToList());
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(BrawlLib.SSBB.Item.Items.Select(s => s.ID.ToString("X2") + " - " + s.Name).ToList());
         }
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
             return base.CanConvertFrom(context, sourceType);
         }
     }

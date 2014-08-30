@@ -41,8 +41,8 @@ namespace BrawlLib.SSBBTypes
         public bint _ID;
         public bint _subItem;
         public bfloat _frequency;
-        public short _action;
-        public short _subaction;
+        public bshort _action;
+        public bshort _subaction;
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
