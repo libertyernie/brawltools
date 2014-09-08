@@ -222,8 +222,8 @@ namespace System.Windows.Forms
             List<MDL0BoneNode> ItemBones = new List<MDL0BoneNode>();
 
             //Get bones and render spawns if checked
-            if (_targetModel.Name.Contains("osition")) {stgPos = _targetModel; }
-            else  { stgPos = _targetModels.Find(x => x.Name.Contains("osition")); }
+            if (_targetModel != null && _targetModel.Name.Contains("osition")) {stgPos = _targetModel; }
+            else if (_targetModels != null) { stgPos = _targetModels.Find(x => x.Name.Contains("osition")); }
                 if(stgPos != null) foreach (MDL0BoneNode bone in stgPos._linker.BoneCache)
                 {
                     if (bone._name == "CamLimit0N") { CamBone0 = bone; }
