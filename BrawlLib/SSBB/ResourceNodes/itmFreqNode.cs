@@ -1,43 +1,90 @@
 ﻿using BrawlLib.SSBBTypes;
 using System;
 using System.ComponentModel;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class ItmFreqNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
         internal ItmFreqHeader* Header { get { return (ItmFreqHeader*)WorkingUncompressed.Address; } }
+        internal ItmFreqTableList* TList
+        {
+            get
+            {
+                return (ItmFreqTableList*)(WorkingUncompressed.Address + Header->_DataLength - 0x08);
+            }
+        }
+
+
+        public List<ItmFreq> _entries;
+        public List<TableGroupNode> _groups;
+        public List<TableNode> _tables;
+        public List<bint> _pointerList;
+
+        public TableListNode _tablelist;
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
             Name = "Item Generation";
-            return true;
-        }
-        public override void OnPopulate()
-        {
-            ItmFreqTableList* tList = (ItmFreqTableList*)(WorkingUncompressed.Address + Header->_DataLength - 0x08);
-            DataSource source = new DataSource(tList, 0x28);
-            new TableListNode().Initialize(this, source);
-        }
-        public override int OnCalculateSize(bool force)
-        {
-            int size = ItmFreqHeader.Size;
-            foreach (ResourceNode node in Children)
-                size += node.CalculateSize(force);
-            return size;
-        }
+            _tablelist = new TableListNode();
 
-        internal static ResourceNode TryParse(DataSource source) { return ((ItmFreqHeader*)source.Address)->_Length == source.Length &&  ((ItmFreqHeader*)source.Address)->_DataTable == 1 ? new ItmFreqNode() : null; }
+            for (int i = 0; i < 5; i++)
+                _tables.Add(new TableNode());
+            for (int i = 0; i < _tables.Count; i++)
+                _groups.Add(new TableGroupNode());
+            foreach (TableGroupNode g in _groups)
+                for (int i = 0; i < g.Count; i++)
+                    _entries.Add(new ItmFreq());
+
+            foreach (ItmFreq itm in _entries)
+                itm.Initialize(null, new DataSource());
+
+                return _tables.Count > 0;
+        }
     }
 
+    //public unsafe class ItmFreqNode : ARCEntryNode
+    //{
+    //    public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
+    //    internal ItmFreqHeader* Header { get { return (ItmFreqHeader*)WorkingUncompressed.Address; } }
+
+    //    public override bool OnInitialize()
+    //    {
+    //        base.OnInitialize();
+    //        Name = "Item Generation";
+    //        return true;
+    //    }
+    //    public override void OnPopulate()
+    //    {
+    //        List<DataSource> GroupSources = new List<DataSource>();
+    //        List<DataSource> FreqEntrySources = new List<DataSource>();
+    //        List<DataSource> TableSources = new List<DataSource>();
+
+    //        ItmFreqTableList* _TList = (ItmFreqTableList*)(WorkingUncompressed.Address + Header->_DataLength - 0x08);
+    //        DataSource _s_TableList = new DataSource(_TList, 0x28);
+    //        TableListNode TableList = new TableListNode();
+    //        TableList.Initialize(this, _s_TableList);
+
+    //    }
+    //    public override int OnCalculateSize(bool force)
+    //    {
+    //        int size = ItmFreqHeader.Size;
+    //        foreach (ResourceNode node in Children)
+    //            size += node.CalculateSize(force);
+    //        return size;
+    //    }
+
+    //    internal static ResourceNode TryParse(DataSource source) { return ((ItmFreqHeader*)source.Address)->_Length == source.Length && ((ItmFreqHeader*)source.Address)->Str == "genParamSet" ? new ItmFreqNode() : null; }
+    //}
     public unsafe class TableListNode : ResourceNode
     {
         internal ItmFreqTableList* Header { get { return (ItmFreqTableList*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
-        
+
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -51,10 +98,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ItmFreqOffPair* entry = (ItmFreqOffPair*)WorkingUncompressed.Address + i;
                 if (entry->_offset != 0 && entry->_count != 0)
                 {
-                    DataSource _tEntry = new DataSource(entry, 0x08);
-                    new TableNode().Initialize(this, _tEntry);
+                    DataSource source = new DataSource(entry, 0x08);
+                    new TableNode().Initialize(this, source);
                 }
             }
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = ItmFreqTableList.Size;
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(force);
+            return size;
         }
     }
     public unsafe class TableNode : ResourceNode
@@ -75,22 +129,35 @@ namespace BrawlLib.SSBB.ResourceNodes
                 VoidPtr addr = Parent.Parent.WorkingUncompressed.Address;
                 VoidPtr off = Header->_offset + 0x20;
 
-                ItmFreqGroupNode* entry = (ItmFreqGroupNode*)(addr + off + (i*0x14));
-                    DataSource _group = new DataSource(entry, 0x14);
-                    new TableGroupNode().Initialize(this, _group);
+                ItmFreqGroupNode* entry = (ItmFreqGroupNode*)(addr + off + (i * 0x14));
+                DataSource source = new DataSource(entry, 0x14);
+                new TableGroupNode().Initialize(this, source);
             }
         }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = ItmFreqOffPair.Size;
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(force);
+            return size;
+        }
     }
-
     public unsafe class TableGroupNode : ResourceNode
     {
         internal ItmFreqGroupNode* Header { get { return (ItmFreqGroupNode*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
+        private bint _offset;
+        public bint Ofsset { get { return _offset; } set { _offset = value; SignalPropertyChange(); } }
+
+        private bint _count;
+        public bint Count { get { return _count; } set { _count = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
-            Name = "Group["+Parent.Children.IndexOf(this)+"]";
+            Name = "Group[" + Parent.Children.IndexOf(this) + "]";
+            _offset = Header->_entryOffset;
+            _count = Header->_entryCount;
             return true;
         }
         public override void OnPopulate()
@@ -99,10 +166,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 VoidPtr addr = Parent.Parent.Parent.WorkingUncompressed.Address;
 
-                ItmFreqEntry* Entry = (ItmFreqEntry*)(addr + Header->_entryOffset + 0x20 + (i*0x10));
+                ItmFreqEntry* Entry = (ItmFreqEntry*)(addr + Header->_entryOffset + 0x20 + (i * 0x10));
                 DataSource source = new DataSource(Entry, 0x10);
                 new ItmFreq().Initialize(this, source);
             }
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = ItmFreqGroupNode.Size;
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(force);
+            return size;
         }
     }
     public unsafe class ItmFreq : ResourceNode
@@ -123,7 +197,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                if (Header->_ID < 0 ||Header->_ID > 0xB1 && Header->_ID <= 0x7d5) return "N/A";
+                if (Header->_ID < 0) return "N/A";
                 Item item = Item.Items.Where(s => s.ID == Header->_ID).FirstOrDefault();
                 return _id.ToString("X2") + (item == null ? "" : (" - " + item.Name));
             }
@@ -172,6 +246,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             Name = "Item[" + Parent.Children.IndexOf(this) + "]";
             return false;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            int size = ItmFreqEntry.Size;
+            return size;
         }
 
     }

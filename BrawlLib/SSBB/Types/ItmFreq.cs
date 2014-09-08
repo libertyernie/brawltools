@@ -21,6 +21,7 @@ namespace BrawlLib.SSBBTypes
 
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+        public string Str { get { return new string((sbyte*)Address + _DataLength + (_OffCount * 4)+0x28); } }
 
         public ItmFreqHeader(int offCount, int length)
         {
@@ -52,17 +53,11 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x28;
 
-        public bint _table1;
-        public bint _t1_count;
-        public bint _table2;
-        public bint _t2_count;
-        public bint _table3;
-        public bint _t3_count;
-        public bint _table4;
-        public bint _t4_count;
-        public bint _table5;
-        public bint _t5_count;
-
+        public ItmFreqOffPair _table1;
+        public ItmFreqOffPair _table2;
+        public ItmFreqOffPair _table3;
+        public ItmFreqOffPair _table4;
+        public ItmFreqOffPair _table5;
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
