@@ -22,16 +22,6 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public string Str { get { return new string((sbyte*)Address + _DataLength + (_OffCount * 4) + 0x20 + (_DataTable*8)); } }
-
-        public ItmFreqHeader(int offCount, int length)
-        {
-            _Length = length;
-            _DataLength = length - (offCount*4)+(0x20+0x8)+0xC;
-            _OffCount = offCount;
-            _DataTable = 1;
-            _pad0 = _pad1 =
-            _pad2 = _pad3 = 0;
-        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -53,13 +43,13 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x28;
 
-        public ItmFreqOffPair _table1;
-        public ItmFreqOffPair _table2;
-        public ItmFreqOffPair _table3;
-        public ItmFreqOffPair _table4;
-        public ItmFreqOffPair _table5;
+        public ItmFreqOffEntry _table1;
+        public ItmFreqOffEntry _table2;
+        public ItmFreqOffEntry _table3;
+        public ItmFreqOffEntry _table4;
+        public ItmFreqOffEntry _table5;
 
-        public ItmFreqOffPair* Entries { get { return (ItmFreqOffPair*)Address; } }
+        public ItmFreqOffEntry* Entries { get { return (ItmFreqOffEntry*)Address; } }
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
 
@@ -75,6 +65,17 @@ namespace BrawlLib.SSBBTypes
         public bint _entryCount;
         public bint _unknown3;
 
+        public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct ItmFreqOffEntry
+    {
+        public const int Size = 0x08;
+
+        public bint _offset;
+        public bint _count;
+
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
 
@@ -83,8 +84,14 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x08;
 
-        public bint _offset;
-        public bint _count;
+        public bint _offset1;
+        public bint _offset2;
+
+        public ItmFreqOffPair(bint off1, bint off2)
+        {
+            _offset1 = off1;
+            _offset2 = off2;
+        }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
