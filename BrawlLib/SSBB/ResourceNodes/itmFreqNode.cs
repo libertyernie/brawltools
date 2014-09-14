@@ -65,11 +65,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < Header->_DataTable; i++)
                     _DataTable.Add(new ItmFreqOffPair(*(bint*)(_pDataTable + (i * 8)), *(bint*)((_pDataTable + (i * 8)) + 4)));
 
-            Name = "Item Generation";
-
-            // Some nodes alter the root node once initialized,
-            // so manually set IsDirty to false to prevent save nagging.
-            IsDirty = false;
+                if (_name == null)
+                    _name = "Item Generation";
 
             return _numTables > 0;
         }
@@ -160,7 +157,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             _entryOffset = Header->_offset;
             _count = Header->_count;
-            Name = "Table[" + Parent.Children.IndexOf(this) + "]";
+
+            if (_name == null)
+                _name = "Table[" + Index + "]";
+
             return _count > 0;
         }
         public override void OnPopulate()
@@ -169,8 +169,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 ItmFreqGroup* group = (ItmFreqGroup*)(BaseAddress + Offset + (i * 0x14));
                 DataSource GroupSource = new DataSource(group, 0x14);
-                TableGroupNode GroupNode = new TableGroupNode();
-                GroupNode.Initialize(this, GroupSource);
+                new TableGroupNode().Initialize(this, GroupSource);
             }
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -224,13 +223,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            Name = "Group[" + Parent.Children.IndexOf(this) + "]";
             _unk0 = Header->_unknown0;
             _unk1 = Header->_unknown1;
             _unk2 = Header->_unknown2;
             _unk3 = Header->_unknown3;
             _Offset = Header->_entryOffset;
             _count = Header->_entryCount;
+
+            if (_name == null)
+                _name = "Group[" + Index + "]";
 
             return Header->_entryCount > 0;
         }
@@ -240,9 +241,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int b = 0; b < _count; b++)
             {
                 ItmFreqEntry* entry = (ItmFreqEntry*)(BaseAddress + (_Offset + (b * 0x10)));
-                ItmFreqEntryNode EntryNode = new ItmFreqEntryNode();
                 DataSource EntrySource = new DataSource(entry, 0x10);
-                EntryNode.Initialize(this, EntrySource);
+                new ItmFreqEntryNode().Initialize(this, EntrySource);
             }
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -273,7 +273,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal ItmFreqEntry* Header { get { return (ItmFreqEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
-        internal int _id;
+        private int _id;
         [Category("Item")]
         [DisplayName("Item ID")]
         [Description("The ID of the item to spawn.")]
@@ -283,12 +283,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 if (Header->_ID < 0) return "N/A";
-                Item item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
-                return _id.ToString("X") + (item == null ? "" : (" - " + item.Name));
+                Item _item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
+                return _id.ToString("X") + (_item == null ? "" : (" - " + _item.Name));
             }
             set
             {
-                // Don't try to set the stage ID if it's not a stage module
+                 //Don't try to set the stage ID if it's not a stage module
                 if (ItemID == null) return;
                 if (value.Length < 3) return;
                 _id = int.Parse(value.Substring(0, 3), System.Globalization.NumberStyles.HexNumber);
@@ -296,25 +296,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal int _subID;
+        private int _subID;
         [DisplayName("Sub Item ID")]
         [Category("Item")]
         [Description("Seems to be sub-item to spawn from initial item. (e.x Barrel/Crate skin)")]
         public int SubID { get { return _subID; } set { _subID = value; SignalPropertyChange(); } }
 
-        internal float _frequency;
+        private float _frequency;
         [DisplayName("Frequency")]
         [Category("Item Frequency")]
         [Description("The spawn frequency of the selected item. Higher values mean a higher spawn rate.")]
         public string Frequency { get { return _frequency.ToString(); } set { _frequency = float.Parse(value); SignalPropertyChange(); } }
 
-        internal short _action;
+        private short _action;
         [DisplayName("Start Action")]
         [Category("Item")]
         [Description("Possible the spawning action of the item.")]
         public short Action { get { return _action; } set { _action = value; SignalPropertyChange(); } }
 
-        internal short _subaction;
+        private short _subaction;
         [DisplayName("Start Subaction")]
         [Category("Item")]
         [Description("Possible the spawning subaction of the item.")]
@@ -323,13 +323,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
+
             _id = Header->_ID;
             _subID = Header->_subItem;
             _frequency = Header->_frequency;
             _action = Header->_action;
             _subaction = Header->_subaction;
 
-            Name = ItemID;
+            if (_name == null)
+                _name = ItemID;
+
             return false;
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
