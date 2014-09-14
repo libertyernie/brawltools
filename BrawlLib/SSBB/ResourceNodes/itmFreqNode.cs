@@ -8,7 +8,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class ItmFreqNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
         internal ItmFreqHeader* Header { get { return (ItmFreqHeader*)WorkingUncompressed.Address; } }
         internal ItmFreqTableList* TList
         {
@@ -20,32 +20,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         ItmFreqOffEntry _t1, _t2, _t3, _t4, _t5;
 
 
-        // Node cache
-        public List<TableNode> _tables = new List<TableNode>();
+        // Header variables
+        bint _dataLength, _fileSize, _DTableCount, _offCount = 0;
+
+        // Public variables
         public List<bint> _pointerList = new List<bint>();
         public List<ItmFreqOffPair> _DataTable = new List<ItmFreqOffPair>();
         public CompactStringTable _strings = new CompactStringTable();
-
-        // Source cache
-        List<DataSource> _s_tables = new List<DataSource>();
-        
-
-        // Header variables
-        public bint
-            _dataLength,
-            _fileSize,
-            _DTableCount,
-            _offCount = 0;
-
-        // Public variables
         public VoidPtr BaseAddress;
         public VoidPtr _pPointerList;
         public VoidPtr _pDataTable;
         public int _numTables;
 
+
         public override bool OnInitialize()
         {
-            base.OnInitialize();;
+            base.OnInitialize();
 
             _dataLength = Header->_DataLength;
             _fileSize = Header->_Length;
@@ -65,50 +55,47 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < 5; i++)
                 if (TList->Entries[i]._count > 0)
                     _numTables++;
-                
-            
-                Name = "Item Generation";
+
+            // Add the offsets to the pointers list, then the offset to the table list.
+            for (int i = 0; i < _offCount; i++)
+                _pointerList.Add(*(bint*)(_pPointerList + (i * 4)));
+
+            // Get the location for the Data Table, then add each entry to the list.
+            _pDataTable = (VoidPtr)_pPointerList + (_offCount * 4);
+                for (int i = 0; i < Header->_DataTable; i++)
+                    _DataTable.Add(new ItmFreqOffPair(*(bint*)(_pDataTable + (i * 8)), *(bint*)((_pDataTable + (i * 8)) + 4)));
+
+            Name = "Item Generation";
+
+            // Some nodes alter the root node once initialized,
+            // so manually set IsDirty to false to prevent save nagging.
+            IsDirty = false;
+
             return _numTables > 0;
         }
         public override void OnPopulate()
         {
             for (int i = 0; i < 5; i++)
             {
-                //if (TList->Entries[i]._count > 0)
-                //{
-                    ItmFreqOffEntry* table = (ItmFreqOffEntry*)(TList + (i * 8));
-                    _tables.Add(new TableNode());
-                    _s_tables.Add(new DataSource(table, 0x08));
-                    _tables[i].Initialize(this, _s_tables[i]);
-                //}
+                // TODO 
+                // This initiates all 5 tables regardless of whether they are filled in or not because
+                // if they are not initialized, the size of the file will be thrown off by the
+                // size of the missing entries.
+
+                ItmFreqOffEntry* table = (ItmFreqOffEntry*)((int)TList + (int)(i * 8));
+                DataSource TableSource = new DataSource(table, 0x08);
+                new TableNode().Initialize(this, TableSource);
             }
-
-            foreach (TableNode t in _tables)
-                for (int i = 0; i < t.Count; i++)
-                {
-                    ItmFreqGroup* group = (ItmFreqGroup*)(BaseAddress + t.Offset + (i * 0x14));
-                    DataSource GroupSource = new DataSource(group, 0x14);
-                    TableGroupNode GroupNode = new TableGroupNode();
-                    GroupNode.Initialize(t, GroupSource);
-
-                    for (int b = 0; b < group->_entryCount; b++)
-                    {
-                        ItmFreqEntry* entry = (ItmFreqEntry*)(BaseAddress + (group->_entryOffset + (b * 0x10)));
-                        ItmFreqEntryNode EntryNode = new ItmFreqEntryNode();
-                        DataSource EntrySource = new DataSource(entry, 0x10);
-                        EntryNode.Initialize(GroupNode, EntrySource);
-                    }
-                }
-           _pointerList.Add((int)TList - (int)BaseAddress);
-            _pDataTable = (VoidPtr)_pPointerList + (_pointerList.Count * 4);
-            for (int i = 0; i < Header->_DataTable; i++)
-                _DataTable.Add(new ItmFreqOffPair(*(bint*)(_pDataTable + (i * 8)), *(bint*)((_pDataTable + (i * 8)) + 4)));
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
+            // Update base address for children.
             BaseAddress = (VoidPtr)address + 0x20;
-            ItmFreqHeader* Header = (ItmFreqHeader*)address;               
+            _pointerList = new List<bint>();
+
+            // Initiate header struct
+            ItmFreqHeader* Header = (ItmFreqHeader*)address;
             *Header = new ItmFreqHeader();
             Header->_Length = _fileSize;
             Header->_DataTable = _DTableCount;
@@ -117,19 +104,27 @@ namespace BrawlLib.SSBB.ResourceNodes
             Header->_pad0 = Header->_pad1 =
             Header->_pad2 = Header->_pad3 = 0;
 
+            // Initiate the table list and update pointer to pointer list
             ItmFreqTableList* TList = (ItmFreqTableList*)(address + Header->_DataLength - 0x08);
-            _pPointerList = (VoidPtr)TList+0x28;
+            _pPointerList = (VoidPtr)TList + 0x28;
+
+            // Rebuild children using new TableList location
+            for (int i = 0; i < Children.Count; i++)
+                Children[i].Rebuild(TList + (i * 8), 0x08, force);
+
+            // Add pointers to data table.
+            _pointerList.Add((int)TList - (int)BaseAddress);
             _pDataTable = (VoidPtr)_pPointerList + (_pointerList.Count * 4);
 
-            for (int i = 0; i < Children.Count; i++)
-                Children[i].Rebuild(TList + (i*8), 0x08, force);
-
+            // Write pointers to the rebuilt address
             for (int i = 0; i < _pointerList.Count; i++)
-                *(bint*)((VoidPtr)_pPointerList+(i*4)) = _pointerList[i];
+                *(bint*)((VoidPtr)_pPointerList + (i * 4)) = _pointerList[i];
 
+            // Write the datatable to the rebuilt address
             for (int i = 0; i < _DataTable.Count; i++)
                 *(ItmFreqOffPair*)((VoidPtr)_pDataTable + (i * 8)) = _DataTable[i];
-            
+
+            // Finally, write the string table for the Data and external data tables
             _strings.WriteTable(_pDataTable + (_DataTable.Count * 8));
         }
         public override int OnCalculateSize(bool force)
@@ -149,11 +144,14 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableNode : ItmFreqBaseNode
     {
         internal ItmFreqOffEntry* Header { get { return (ItmFreqOffEntry*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+
         private int _entryOffset;
+        [Browsable(false)]
         public int Offset { get { return _entryOffset; } set { _entryOffset = value; SignalPropertyChange(); } }
 
         private int _count;
+        [Browsable(false)]
         public int Count { get { return _count; } set { _count = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
@@ -163,7 +161,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             _entryOffset = Header->_offset;
             _count = Header->_count;
             Name = "Table[" + Parent.Children.IndexOf(this) + "]";
-            return true;
+            return _count > 0;
+        }
+        public override void OnPopulate()
+        {
+            for (int i = 0; i < Count; i++)
+            {
+                ItmFreqGroup* group = (ItmFreqGroup*)(BaseAddress + Offset + (i * 0x14));
+                DataSource GroupSource = new DataSource(group, 0x14);
+                TableGroupNode GroupNode = new TableGroupNode();
+                GroupNode.Initialize(this, GroupSource);
+            }
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
@@ -173,7 +181,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Header->_count = _count;
 
             for (int i = 0; i < Children.Count; i++)
-                Children[i].Rebuild(BaseAddress + Header->_offset + (i*0x14), 0x14, force);
+                Children[i].Rebuild(BaseAddress + Header->_offset + (i * 0x14), 0x14, force);
         }
         public override int OnCalculateSize(bool force)
         {
@@ -186,25 +194,31 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableGroupNode : ItmFreqBaseNode
     {
         internal ItmFreqGroup* Header { get { return (ItmFreqGroup*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.U8Folder; } }
-
-        private bint _unk3;
-        public bint Unknown3 { get { return _unk3; } set { _unk3 = value; SignalPropertyChange(); } }
-
-        private bint _unk2;
-        public bint Unknown2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
-
-        private bint _unk1;
-        public bint Unknown1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
 
         private bint _unk0;
+        [Category("Group Node")]
         public bint Unknown0 { get { return _unk0; } set { _unk0 = value; SignalPropertyChange(); } }
 
-        private bint _entryOffset;
-        public bint Offset { get { return _entryOffset; } set { _entryOffset = value; SignalPropertyChange(); } }
+        private bint _unk1;
+        [Category("Group Node")]
+        public bint Unknown1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
+
+        private bint _unk2;
+        [Category("Group Node")]
+        public bint Unknown2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
+
+        private bint _unk3;
+        [Category("Group Node")]
+        public bint Unknown3 { get { return _unk3; } set { _unk3 = value; SignalPropertyChange(); } }
+
+        private bint _Offset;
+        [Browsable(false)]
+        public bint Offset { get { return _Offset; } }
 
         private bint _count;
-        public bint Count { get { return _count; } set { _count = value; SignalPropertyChange(); } }
+        [Browsable(false)]
+        public bint Count { get { return _count; } }
 
         public override bool OnInitialize()
         {
@@ -215,25 +229,36 @@ namespace BrawlLib.SSBB.ResourceNodes
             _unk1 = Header->_unknown1;
             _unk2 = Header->_unknown2;
             _unk3 = Header->_unknown3;
-            _entryOffset = Header->_entryOffset;
+            _Offset = Header->_entryOffset;
             _count = Header->_entryCount;
 
-            Root._pointerList.Add(_offset + 0x0C);
             return Header->_entryCount > 0;
+        }
+        public override void OnPopulate()
+        {
+            // initiate the frequency entries corrosponding to the current group.
+            for (int b = 0; b < _count; b++)
+            {
+                ItmFreqEntry* entry = (ItmFreqEntry*)(BaseAddress + (_Offset + (b * 0x10)));
+                ItmFreqEntryNode EntryNode = new ItmFreqEntryNode();
+                DataSource EntrySource = new DataSource(entry, 0x10);
+                EntryNode.Initialize(this, EntrySource);
+            }
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             ItmFreqGroup* Header = (ItmFreqGroup*)address;
             *Header = new ItmFreqGroup();
             Header->_entryCount = _count;
-            Header->_entryOffset = _entryOffset;
+            Header->_entryOffset = _Offset;
             Header->_unknown0 = _unk0;
             Header->_unknown1 = _unk1;
             Header->_unknown2 = _unk2;
             Header->_unknown3 = _unk3;
+            Root._pointerList.Add(((int)address - (int)BaseAddress) + 0x0c);
 
             for (int i = 0; i < Children.Count; i++)
-                Children[i].Rebuild(BaseAddress + Header->_entryOffset + (i*0x10), 0x10, force);
+                Children[i].Rebuild(BaseAddress + Header->_entryOffset + (i * 0x10), 0x10, force);
         }
         public override int OnCalculateSize(bool force)
         {
@@ -258,8 +283,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 if (Header->_ID < 0) return "N/A";
-                Item item = Item.Items.Where(s => s.ID == Header->_ID).FirstOrDefault();
-                return _id.ToString("X2") + (item == null ? "" : (" - " + item.Name));
+                Item item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
+                return _id.ToString("X") + (item == null ? "" : (" - " + item.Name));
             }
             set
             {
@@ -281,7 +306,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [DisplayName("Frequency")]
         [Category("Item Frequency")]
         [Description("The spawn frequency of the selected item. Higher values mean a higher spawn rate.")]
-        public string Frequency { get { return _frequency.ToString("0.00"); } set { _frequency = float.Parse(value); SignalPropertyChange(); } }
+        public string Frequency { get { return _frequency.ToString(); } set { _frequency = float.Parse(value); SignalPropertyChange(); } }
 
         internal short _action;
         [DisplayName("Start Action")]
@@ -351,6 +376,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
         [Browsable(false)]
-        public int _offset { get { if (Data != null) return (int)Data - (int)BaseAddress; else return 0; } }
+        public int _FileOffset { get { if (Data != null) return (int)Data - (int)BaseAddress; else return 0; } }
+
+        [Browsable(true)]
+        [Category("Entry")]
+        public string FileOffset { get { return _FileOffset.ToString("x"); } }
+
+        [Browsable(true)]
+        [Category("Entry")]
+        public string Length { get { return WorkingUncompressed.Length.ToString("x"); } }
+
     }
 }
