@@ -107,7 +107,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             // Rebuild children using new TableList location
             for (int i = 0; i < Children.Count; i++)
-                Children[i].Rebuild(TList + (i * 8), 0x08, force);
+                Children[i].Rebuild(TList + (i * 8), 0x08, true);
 
             // Add pointers to data table.
             _pointerList.Add((int)TList - (int)BaseAddress);
@@ -128,7 +128,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             int size = ItmFreqHeader.Size;
             foreach (TableNode node in Children)
-                size += node.CalculateSize(force);
+                size += node.CalculateSize(true);
             size += (_pointerList.Count * 4);
             size += _DataTable.Count * 8;
             size += _strings.TotalSize;
@@ -306,7 +306,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [DisplayName("Frequency")]
         [Category("Item Frequency")]
         [Description("The spawn frequency of the selected item. Higher values mean a higher spawn rate.")]
-        public string Frequency { get { return _frequency.ToString(); } set { _frequency = float.Parse(value); SignalPropertyChange(); } }
+        public string Frequency { get { return _frequency.ToString("0.00"); } set { _frequency = float.Parse(value); SignalPropertyChange(); } }
 
         private short _action;
         [DisplayName("Start Action")]
