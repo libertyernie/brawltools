@@ -40,8 +40,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
-            if (_name == null)
+            if (_name == null && _dataSize > 0)
                 _name = String.Format("Section[{0}] ", Index);
+            else { _name = String.Format("null[{0}]", Index); }
 
             if (_dataOffset == 0 && WorkingUncompressed.Length != 0)
             {
