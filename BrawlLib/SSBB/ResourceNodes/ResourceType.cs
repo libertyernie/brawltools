@@ -33,7 +33,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         REFTImage = 0x0F1E,
 
         //Modules
-        REL = 0x1000,
+        REL = 0x1031,
         RELImport = 0x1100,
         RELSection = 0x1200,
 

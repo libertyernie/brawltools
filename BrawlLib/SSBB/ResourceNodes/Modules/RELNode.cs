@@ -299,8 +299,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             _files.Add(this);
 
-            _name = Path.GetFileName(_origPath);
-
             _id = Header->_info._id;
             _linkNext = Header->_info._link._linkNext; //0
             _linkPrev = Header->_info._link._linkPrev; //0
@@ -337,6 +335,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 do { _imports[id].Add(*link); }
                 while ((link++)->_type != RELLinkType.End);
             }
+
+            if(_name == null)
+                _name = _idNames.ContainsKey((int)_id) ? _idNames[(int)_id] : Path.GetFileName(_origPath);
 
             return true;
         }
@@ -741,5 +742,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
 
         #endregion
+
+        internal static ResourceNode TryParse(DataSource source) { return ((RELHeader*)source.Address)->_info._id <= 0x7E ? new RELNode() : null; }
+
     }
 }
