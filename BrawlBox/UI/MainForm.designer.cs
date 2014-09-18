@@ -56,6 +56,7 @@ namespace BrawlBox
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
             this.modelPanel1 = new System.Windows.Forms.ModelPanel();
             this.previewPanel2 = new System.Windows.Forms.PreviewPanel();
@@ -70,7 +71,6 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
-            this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -99,6 +99,7 @@ namespace BrawlBox
             this.splitContainer1.Size = new System.Drawing.Size(617, 411);
             this.splitContainer1.SplitterDistance = 214;
             this.splitContainer1.TabIndex = 1;
+            this.splitContainer1.TabStop = false;
             // 
             // resourceTree
             // 
@@ -282,7 +283,7 @@ namespace BrawlBox
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -317,6 +318,7 @@ namespace BrawlBox
             this.splitContainer2.Size = new System.Drawing.Size(399, 411);
             this.splitContainer2.SplitterDistance = 205;
             this.splitContainer2.TabIndex = 3;
+            this.splitContainer2.TabStop = false;
             // 
             // propertyGrid1
             // 
@@ -329,6 +331,15 @@ namespace BrawlBox
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
             // 
+            // attributeGrid1
+            // 
+            this.attributeGrid1.AttributeArray = null;
+            this.attributeGrid1.Location = new System.Drawing.Point(46, 56);
+            this.attributeGrid1.Name = "attributeGrid1";
+            this.attributeGrid1.Size = new System.Drawing.Size(479, 305);
+            this.attributeGrid1.TabIndex = 18;
+            this.attributeGrid1.Visible = false;
+            // 
             // videoPlaybackPanel1
             // 
             this.videoPlaybackPanel1.Location = new System.Drawing.Point(85, -16);
@@ -339,7 +350,7 @@ namespace BrawlBox
             // 
             // modelPanel1
             // 
-            this.modelPanel1.DefaultTranslate = new System.Vector3(0, 0, 0);
+            this.modelPanel1.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel1.DefaultTranslate")));
             this.modelPanel1.InitialYFactor = 100;
             this.modelPanel1.InitialZoomFactor = 5;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
@@ -347,6 +358,7 @@ namespace BrawlBox
             this.modelPanel1.RotationScale = 0.4F;
             this.modelPanel1.Size = new System.Drawing.Size(381, 169);
             this.modelPanel1.TabIndex = 15;
+            this.modelPanel1.TabStop = false;
             this.modelPanel1.TranslationScale = 0.05F;
             this.modelPanel1.Visible = false;
             this.modelPanel1.ZoomScale = 2.5F;
@@ -421,6 +433,7 @@ namespace BrawlBox
             this.audioPlaybackPanel1.TabIndex = 4;
             this.audioPlaybackPanel1.TargetStreams = null;
             this.audioPlaybackPanel1.Visible = false;
+            this.audioPlaybackPanel1.Volume = null;
             // 
             // visEditor
             // 
@@ -455,15 +468,6 @@ namespace BrawlBox
             this.msBinEditor1.Size = new System.Drawing.Size(146, 82);
             this.msBinEditor1.TabIndex = 2;
             this.msBinEditor1.Visible = false;
-            // 
-            // attributeGrid1
-            // 
-            this.attributeGrid1.AttributeArray = null;
-            this.attributeGrid1.Location = new System.Drawing.Point(46, 56);
-            this.attributeGrid1.Name = "attributeGrid1";
-            this.attributeGrid1.Size = new System.Drawing.Size(479, 305);
-            this.attributeGrid1.TabIndex = 18;
-            this.attributeGrid1.Visible = false;
             // 
             // MainForm
             // 

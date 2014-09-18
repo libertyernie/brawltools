@@ -103,6 +103,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             // Initiate the table list and update pointer to pointer list
             ItmFreqTableList* TList = (ItmFreqTableList*)(address + Header->_DataLength - 0x08);
+            *TList = new ItmFreqTableList();
+            TList->_table1 = _t1;
+            TList->_table2 = _t2;
+            TList->_table3 = _t3;
+            TList->_table4 = _t4;
+            TList->_table5 = _t5;
+
             _pPointerList = (VoidPtr)TList + 0x28;
 
             // Rebuild children using new TableList location
@@ -110,7 +117,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Children[i].Rebuild(TList + (i * 8), 0x08, true);
 
             // Add pointers to data table.
-            _pointerList.Add((int)TList - (int)BaseAddress);
             _pDataTable = (VoidPtr)_pPointerList + (_pointerList.Count * 4);
 
             // Write pointers to the rebuilt address
@@ -178,6 +184,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             *Header = new ItmFreqOffEntry();
             Header->_offset = _entryOffset;
             Header->_count = _count;
+            Root._pointerList.Add(((int)address - (int)BaseAddress));
 
             for (int i = 0; i < Children.Count; i++)
                 Children[i].Rebuild(BaseAddress + Header->_offset + (i * 0x14), 0x14, force);
@@ -274,6 +281,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
         private int _id;
+        private Item _item;
         [Category("Item")]
         [DisplayName("Item ID")]
         [Description("The ID of the item to spawn.")]
@@ -283,7 +291,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 if (Header->_ID < 0) return "N/A";
-                Item _item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
+                _item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
                 return _id.ToString("X") + (_item == null ? "" : (" - " + _item.Name));
             }
             set
@@ -292,7 +300,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (ItemID == null) return;
                 if (value.Length < 3) return;
                 _id = int.Parse(value.Substring(0, 3), System.Globalization.NumberStyles.HexNumber);
-                SignalPropertyChange();
+                SignalPropertyChange(); UpdateName();
             }
         }
 
@@ -349,6 +357,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             int size = ItmFreqEntry.Size;
             return size;
+        }
+        public void UpdateName()
+        {
+            Name = ItemID;
         }
 
     }

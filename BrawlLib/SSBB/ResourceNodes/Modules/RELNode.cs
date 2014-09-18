@@ -743,7 +743,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
-        internal static ResourceNode TryParse(DataSource source) { return ((RELHeader*)source.Address)->_info._id <= 0x7E ? new RELNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) 
+        { 
+            return ((RELHeader*)source.Address)->_info._id <= 0x7E && ((RELHeader*)source.Address)->_info._numSections <= 20 ? new RELNode() : null; 
+        }
 
     }
 }
