@@ -130,6 +130,7 @@ namespace System.Windows.Forms
                 _updating = true;
                 scaleToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
                 _editType = TransformType.Rotation;
+                cboToolSelect.SelectedIndex = 1;
                 _snapCirc = _snapX = _snapY = _snapZ = false;
                 _updating = false;
                 ModelPanel.Invalidate();
@@ -146,6 +147,7 @@ namespace System.Windows.Forms
                 _updating = true;
                 rotationToolStripMenuItem.Checked = scaleToolStripMenuItem.Checked = false;
                 _editType = TransformType.Translation;
+                cboToolSelect.SelectedIndex = 0;
                 _snapCirc = _snapX = _snapY = _snapZ = false;
                 _updating = false;
                 ModelPanel.Invalidate();
@@ -162,6 +164,7 @@ namespace System.Windows.Forms
                 _updating = true;
                 rotationToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
                 _editType = TransformType.Scale;
+                cboToolSelect.SelectedIndex = 2;
                 _snapCirc = _snapX = _snapY = _snapZ = false;
                 _updating = false;
                 ModelPanel.Invalidate();

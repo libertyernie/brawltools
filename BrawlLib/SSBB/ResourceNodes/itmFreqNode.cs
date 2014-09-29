@@ -165,7 +165,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _count = Header->_count;
 
             if (_name == null)
-                _name = "Table[" + Index + "]";
+                _name = String.Format("Table[{0}]", Index);
 
             return _count > 0;
         }
@@ -238,7 +238,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _count = Header->_entryCount;
 
             if (_name == null)
-                _name = "Group[" + Index + "]";
+                _name = String.Format("Group[{0}]", Index);
 
             return Header->_entryCount > 0;
         }

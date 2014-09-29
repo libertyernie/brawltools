@@ -378,7 +378,7 @@ namespace System.Windows.Forms
             listBox1.BeginUpdate();
             listBox2.BeginUpdate();
             SHP0Indices = new Dictionary<int, List<int>>();
-            if (SelectedAnimation != null && TargetModel != null)
+            if (SelectedAnimation != null && TargetModel != null && TargetModel._vertList != null)
             foreach (SHP0EntryNode e in SelectedAnimation.Children)
                 foreach (MDL0VertexNode v1 in TargetModel._vertList)
                     if (e.Name == v1.Name)

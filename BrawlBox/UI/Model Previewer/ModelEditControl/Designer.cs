@@ -2132,9 +2132,9 @@ namespace System.Windows.Forms
 
         private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (cboToolSelect.SelectedIndex == 0) { _editType = TransformType.Translation; }
-            else if (cboToolSelect.SelectedIndex == 1) { _editType = TransformType.Rotation; }
-            else if (cboToolSelect.SelectedIndex == 2) { _editType = TransformType.Scale; }
+            if (cboToolSelect.SelectedIndex == 0) { translationToolStripMenuItem.PerformClick(); }
+            else if (cboToolSelect.SelectedIndex == 1) { rotationToolStripMenuItem.PerformClick(); }
+            else if (cboToolSelect.SelectedIndex == 2) { scaleToolStripMenuItem.PerformClick(); }
             ModelPanel.Invalidate();
         }
 

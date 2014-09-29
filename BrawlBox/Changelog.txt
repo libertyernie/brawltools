@@ -14,7 +14,17 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
- - v0.73b- (?/??/2014) - BrawlLib v0.20b
+ - v0.7??- (??/??/2014) - BrawlLib v0.2??
+	. Added ability to add new collision nodes to ARC.
+	. BrawlBox now displays redirected nodes with their own icon
+	. Fix setting redirect index.
+	. Added support for item frequency nodes.
+	. Fixed embedded module files (common2 and common3) not parsing.
+	. Fixed BBox crashing when no vertices exist in Target model. (Thanks BlackJax!)
+	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa
+
+
+ - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
 	  . Spawn areas turn red when they're too far away from the floor
 	. Added a "Zoom Extents" Button to the model previewer which will zoom the camera to the selected bone.
