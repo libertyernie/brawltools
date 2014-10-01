@@ -15,12 +15,14 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  - v0.7??- (??/??/2014) - BrawlLib v0.2??
-	. Added ability to add new collision nodes to ARC.
+	. Support adding new collision nodes to ARC via right click.
+	. Support adding new BLOC to ARC via right click.
+	. Support for item frequency nodes.
 	. BrawlBox now displays redirected nodes with their own icon
-	. Fix setting redirect index.
-	. Added support for item frequency nodes.
+	. Fixed setting redirect index.
 	. Fixed embedded module files (common2 and common3) not parsing.
-	. Fixed BBox crashing when no vertices exist in Target model. (Thanks BlackJax!)
+	. Fixed BBox crashing when no vertices exist in Target model.
+	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
 	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa
 
 

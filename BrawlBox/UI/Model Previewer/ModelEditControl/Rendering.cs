@@ -132,7 +132,7 @@ namespace System.Windows.Forms
                 GL.Disable(EnableCap.DepthTest);
 
                 GL.Scale(ModelPanel.LightPosition._x, ModelPanel.LightPosition._x, ModelPanel.LightPosition._x);
-                
+
                 GL.Rotate(90.0f, 1, 0, 0);
 
                 float azimuth = ModelPanel.LightPosition._y.Clamp180Deg();
@@ -204,8 +204,11 @@ namespace System.Windows.Forms
                 GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
                 GL.Color4(Color.Orange);
                 GL.Vertex3(0, 0, 0);
-
                 GL.End();
+
+                GL.Scale(0.01f, 0.01f, 0.01f);
+                GL.Rotate(azimuth, 0, 1, 0);
+                GL.Enable(EnableCap.DepthTest);
             }
 
             GL.Clear(ClearBufferMask.DepthBufferBit);
