@@ -239,7 +239,7 @@ namespace System.Windows.Forms
 
             float xVal = e.X / _xScale;
             float y = (Height - e.Y);
-            int frameVal = (int)(xVal + 1.5f);
+            int frameVal = (int)(xVal + 0.5f);
             int min = GetKeyframeMinIndex();
             if (!_dragging)
             {
@@ -396,7 +396,7 @@ namespace System.Windows.Forms
                 else if (_keyDraggingAllowed)
                 {
                     float yVal = y / _yScale + _minVal;
-                    int xv = frameVal - 1;
+                    int xv = frameVal;
                     int xDiff = xv - (int)_prevX;
                     float yDiff = (yVal - _prevY);
 
@@ -442,7 +442,7 @@ namespace System.Windows.Forms
                         SignalChange(this, null);
                 }
             }
-            else if (frameVal > 0 && _selKey == null)
+            else if (frameVal >= 0 && frameVal < _frameLimit && _selKey == null)
                 FrameIndex = frameVal;
         }
 
