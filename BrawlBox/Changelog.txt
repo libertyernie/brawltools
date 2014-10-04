@@ -24,6 +24,7 @@ they be held accountable for the manner in which it is used.
 	. Fixed BBox crashing when no vertices exist in Target model.
 	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
 	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa
+	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor
 
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
