@@ -817,6 +817,37 @@ namespace System.Windows.Forms
 
         #endregion
 
+        private void LiveTextureFolderPath_Click(object sender, EventArgs e)
+        {
+            using (FolderBrowserDialog d = new FolderBrowserDialog())
+            {
+                d.SelectedPath = LiveTextureFolderPath.Text;
+                d.Description = "Choose a place to automatically scan for textures to apply when modified.";
+                if (d.ShowDialog(this) == DialogResult.OK)
+                    LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = d.SelectedPath;
+            }
+            if (String.IsNullOrEmpty(LiveTextureFolderPath.Text))
+                LiveTextureFolderPath.Text = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+            modelPanel.RefreshReferences();
+        }
+
+        private void chkZoomExtents_Click(object sender, EventArgs e)
+        {
+            if (SelectedBone != null)
+            {
+                modelPanel._camera.Reset();
+                modelPanel._camera.Translate(_selectedBone._frameMatrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
+                ModelPanel.Invalidate();
+            }
+            else
+                MessageBox.Show("Select a bone!");
+        }
+        private void chkBoundaries_Click(object sender, EventArgs e)
+        {
+            ModelPanel.Invalidate();
+        }
+
         private void syncTexObjToolStripMenuItem_CheckedChanged(object sender, EventArgs e) { leftPanel.UpdateTextures(); }
 
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
@@ -834,7 +865,7 @@ namespace System.Windows.Forms
                 return;
 
             TargetModel = null;
-            _targetModels = null;
+            _targetModels.Clear();
 
             ModelPanel.ClearAll();
 

@@ -3,6 +3,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -10,6 +11,31 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : UserControl, IMainWindow
     {
+        private void _folderWatcher_Deleted(object sender, FileSystemEventArgs e)
+        {
+            ModelPanel.RefreshReferences();
+        }
+
+        private void _folderWatcher_Created(object sender, FileSystemEventArgs e)
+        {
+            ModelPanel.RefreshReferences();
+        }
+
+        private void _folderWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            ModelPanel.RefreshReferences();
+        }
+
+        void _folderWatcher_Error(object sender, ErrorEventArgs e)
+        {
+            ModelPanel.RefreshReferences();
+        }
+
+        void _folderWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
+            ModelPanel.RefreshReferences();
+        }
+
         private void VISEntryChanged(object sender, EventArgs e)
         {
             UpdateModel();
@@ -20,6 +46,14 @@ namespace System.Windows.Forms
             int i = KeyframePanel.visEditor.listBox1.SelectedIndex;
             if (i >= 0 && i <= MaxFrame && i != CurrentFrame - 1)
                 SetFrame(i + 1);
+        }
+
+        private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (cboToolSelect.SelectedIndex == 0) { translationToolStripMenuItem.PerformClick(); }
+            else if (cboToolSelect.SelectedIndex == 1) { rotationToolStripMenuItem.PerformClick(); }
+            else if (cboToolSelect.SelectedIndex == 2) { scaleToolStripMenuItem.PerformClick(); }
+            ModelPanel.Invalidate();
         }
 
         private void models_SelectedIndexChanged(object sender, EventArgs e)
@@ -116,6 +150,7 @@ namespace System.Windows.Forms
 
                 BrawlBox.Properties.Settings.Default.ViewerSettings = CollectSettings();
                 BrawlBox.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
+                BrawlBox.Properties.Settings.Default.LiveTextureFolderPath = LiveTextureFolderPath.Text;
                 BrawlBox.Properties.Settings.Default.ViewerSettingsSet = true;
                 BrawlBox.Properties.Settings.Default.Save();
 
@@ -361,7 +396,6 @@ namespace System.Windows.Forms
             chkGenTansCamera.Checked = settings.GenTansCam;
 
             ModelPanel.EndUpdate();
-            ModelPanel.Invalidate();
             _updating = false;
         }
         #endregion

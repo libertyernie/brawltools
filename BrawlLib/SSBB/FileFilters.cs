@@ -4,7 +4,7 @@ namespace BrawlLib
 {
     public static class FileFilters
     {
-        private static string i =
+        public static string ImageList =
             "Portable Network Graphics (*.png)|*.png|" +
             "Truevision TARGA (*.tga)|*.tga|" +
             "Tagged Image File Format (*.tif, *.tiff)|*.tif;*.tiff|" +
@@ -14,7 +14,7 @@ namespace BrawlLib
 
         public static string TEX0 =
             "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif,*.tex0)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif;*.tex0|" +
-            i + "|" +
+            ImageList + "|" +
             "TEX0 Texture (*.tex0)|*.tex0";
 
         public static string MDL0Import =
@@ -86,7 +86,7 @@ namespace BrawlLib
 
         public static string Images =
             "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +
-            i;
+            ImageList;
 
         public static string EFLS =
             "Effect List (*.efls)|*.efls";

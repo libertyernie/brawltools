@@ -56,7 +56,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             set 
             {
                 _moved = true;
-                Model.SignalPropertyChange();
+                MDL0Node model = Model;
+                model._linker = ModelLinker.Prepare(model);
+                model.SignalPropertyChange();
             } 
         }
 

@@ -195,6 +195,9 @@ namespace System.Windows.Forms
         private ToolStripMenuItem chkBoundaries;
         private ToolStripMenuItem chkSpawns;
         private ToolStripMenuItem chkItems;
+        private ToolStripMenuItem liveTextureFolderToolStripMenuItem;
+        public ToolStripMenuItem LiveTextureFolderPath;
+        public ToolStripMenuItem EnableLiveTextureFolder;
         public LeftPanel leftPanel;
 
         private void InitializeComponent()
@@ -324,6 +327,9 @@ namespace System.Windows.Forms
             this.interpolationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.averageAllStartEndTangentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.averageboneStartendTangentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.liveTextureFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.LiveTextureFolderPath = new System.Windows.Forms.ToolStripMenuItem();
+            this.EnableLiveTextureFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.targetModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.hideFromSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -344,6 +350,10 @@ namespace System.Windows.Forms
             this.chkPolygons = new System.Windows.Forms.ToolStripButton();
             this.chkVertices = new System.Windows.Forms.ToolStripButton();
             this.chkCollisions = new System.Windows.Forms.ToolStripButton();
+            this.dropdownOverlays = new System.Windows.Forms.ToolStripDropDownButton();
+            this.chkBoundaries = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkSpawns = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkItems = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.chkFloor = new System.Windows.Forms.ToolStripButton();
             this.button1 = new System.Windows.Forms.ToolStripButton();
@@ -371,10 +381,6 @@ namespace System.Windows.Forms
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
-            this.dropdownOverlays = new System.Windows.Forms.ToolStripDropDownButton();
-            this.chkBoundaries = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkSpawns = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkItems = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -458,7 +464,7 @@ namespace System.Windows.Forms
             this.kinectToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(303, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(395, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1443,7 +1449,8 @@ namespace System.Windows.Forms
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.interpolationEditorToolStripMenuItem,
-            this.selectedAnimationToolStripMenuItem});
+            this.selectedAnimationToolStripMenuItem,
+            this.liveTextureFolderToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -1523,6 +1530,30 @@ namespace System.Windows.Forms
             this.averageboneStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(255, 22);
             this.averageboneStartendTangentsToolStripMenuItem.Text = "Average entry start/end keyframes";
             this.averageboneStartendTangentsToolStripMenuItem.Click += new System.EventHandler(this.averageboneStartendTangentsToolStripMenuItem_Click);
+            // 
+            // liveTextureFolderToolStripMenuItem
+            // 
+            this.liveTextureFolderToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.LiveTextureFolderPath,
+            this.EnableLiveTextureFolder});
+            this.liveTextureFolderToolStripMenuItem.Name = "liveTextureFolderToolStripMenuItem";
+            this.liveTextureFolderToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.liveTextureFolderToolStripMenuItem.Text = "Live Texture Folder";
+            // 
+            // LiveTextureFolderPath
+            // 
+            this.LiveTextureFolderPath.Name = "LiveTextureFolderPath";
+            this.LiveTextureFolderPath.Size = new System.Drawing.Size(152, 22);
+            this.LiveTextureFolderPath.Text = "<path>";
+            this.LiveTextureFolderPath.Click += new System.EventHandler(this.LiveTextureFolderPath_Click);
+            // 
+            // EnableLiveTextureFolder
+            // 
+            this.EnableLiveTextureFolder.CheckOnClick = true;
+            this.EnableLiveTextureFolder.Name = "EnableLiveTextureFolder";
+            this.EnableLiveTextureFolder.Size = new System.Drawing.Size(152, 22);
+            this.EnableLiveTextureFolder.Text = "Enabled";
+            this.EnableLiveTextureFolder.CheckedChanged += new System.EventHandler(this.EnableLiveTextureFolder_CheckedChanged);
             // 
             // targetModelToolStripMenuItem
             // 
@@ -1716,6 +1747,43 @@ namespace System.Windows.Forms
             this.chkCollisions.Text = "Collisions";
             this.chkCollisions.Click += new System.EventHandler(this.chkCollisions_Click);
             // 
+            // dropdownOverlays
+            // 
+            this.dropdownOverlays.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.dropdownOverlays.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.chkBoundaries,
+            this.chkSpawns,
+            this.chkItems});
+            this.dropdownOverlays.Image = ((System.Drawing.Image)(resources.GetObject("dropdownOverlays.Image")));
+            this.dropdownOverlays.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.dropdownOverlays.Name = "dropdownOverlays";
+            this.dropdownOverlays.Size = new System.Drawing.Size(65, 21);
+            this.dropdownOverlays.Text = "Overlays";
+            // 
+            // chkBoundaries
+            // 
+            this.chkBoundaries.CheckOnClick = true;
+            this.chkBoundaries.Name = "chkBoundaries";
+            this.chkBoundaries.Size = new System.Drawing.Size(171, 22);
+            this.chkBoundaries.Text = "Boundaries";
+            this.chkBoundaries.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
+            // chkSpawns
+            // 
+            this.chkSpawns.CheckOnClick = true;
+            this.chkSpawns.Name = "chkSpawns";
+            this.chkSpawns.Size = new System.Drawing.Size(171, 22);
+            this.chkSpawns.Text = "Spawn/Respawns";
+            this.chkSpawns.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
+            // chkItems
+            // 
+            this.chkItems.CheckOnClick = true;
+            this.chkItems.Name = "chkItems";
+            this.chkItems.Size = new System.Drawing.Size(171, 22);
+            this.chkItems.Text = "Item Spawn Zones";
+            this.chkItems.Click += new System.EventHandler(this.chkBoundaries_Click);
+            // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
@@ -1773,7 +1841,6 @@ namespace System.Windows.Forms
             "Scale"});
             this.cboToolSelect.Name = "cboToolSelect";
             this.cboToolSelect.Size = new System.Drawing.Size(121, 23);
-            this.cboToolSelect.Text = "Rotation";
             this.cboToolSelect.SelectedIndexChanged += new System.EventHandler(this.cboToolSelect_SelectedIndexChanged);
             // 
             // panel2
@@ -1807,7 +1874,7 @@ namespace System.Windows.Forms
             // 
             // modelPanel
             // 
-            this.modelPanel.DefaultTranslate = new Vector3(0,0,0);
+            this.modelPanel.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel.DefaultTranslate")));
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel.InitialYFactor = 100;
             this.modelPanel.InitialZoomFactor = 5;
@@ -1849,7 +1916,6 @@ namespace System.Windows.Forms
             this.pnlPlayback.Name = "pnlPlayback";
             this.pnlPlayback.Size = new System.Drawing.Size(541, 60);
             this.pnlPlayback.TabIndex = 15;
-            this.pnlPlayback.Resize += new System.EventHandler(this.pnlPlayback_Resize);
             // 
             // animCtrlPnl
             // 
@@ -1982,43 +2048,6 @@ namespace System.Windows.Forms
             this.leftPanel.TargetAnimType = System.Windows.Forms.AnimType.None;
             this.leftPanel.Visible = false;
             // 
-            // dropdownOverlays
-            // 
-            this.dropdownOverlays.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.dropdownOverlays.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.chkBoundaries,
-            this.chkSpawns,
-            this.chkItems});
-            this.dropdownOverlays.Image = ((System.Drawing.Image)(resources.GetObject("dropdownOverlays.Image")));
-            this.dropdownOverlays.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.dropdownOverlays.Name = "dropdownOverlays";
-            this.dropdownOverlays.Size = new System.Drawing.Size(65, 21);
-            this.dropdownOverlays.Text = "Overlays";
-            // 
-            // chkBoundaries
-            // 
-            this.chkBoundaries.CheckOnClick = true;
-            this.chkBoundaries.Name = "chkBoundaries";
-            this.chkBoundaries.Size = new System.Drawing.Size(171, 22);
-            this.chkBoundaries.Text = "Boundaries";
-            this.chkBoundaries.Click += new System.EventHandler(this.chkBoundaries_Click);
-            // 
-            // chkSpawns
-            // 
-            this.chkSpawns.CheckOnClick = true;
-            this.chkSpawns.Name = "chkSpawns";
-            this.chkSpawns.Size = new System.Drawing.Size(171, 22);
-            this.chkSpawns.Text = "Spawn/Respawns";
-            this.chkSpawns.Click += new System.EventHandler(this.chkBoundaries_Click);
-            // 
-            // chkItems
-            // 
-            this.chkItems.CheckOnClick = true;
-            this.chkItems.Name = "chkItems";
-            this.chkItems.Size = new System.Drawing.Size(171, 22);
-            this.chkItems.Text = "Item Spawn Zones";
-            this.chkItems.Click += new System.EventHandler(this.chkBoundaries_Click);
-            // 
             // ModelEditControl
             // 
             this.AllowDrop = true;
@@ -2090,7 +2119,15 @@ namespace System.Windows.Forms
 
             TargetAnimType = AnimType.CHR;
             m_DelegateOpenFile = new DelegateOpenFile(OpenFile);
-            ScreenCapBgLocText.Text = Application.StartupPath + "\\ScreenCaptures";
+
+            string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+            ScreenCapBgLocText.Text = applicationFolder + "\\ScreenCaptures";
+            LiveTextureFolderPath.Text = applicationFolder;
+
+            MDL0TextureNode.TextureOverrideDirectory = LiveTextureFolderPath.Text;
+
+            cboToolSelect.SelectedIndex = 1;
 
             _timer = new CoolTimer();
             _timer.RenderFrame += _timer_RenderFrame;
@@ -2103,6 +2140,12 @@ namespace System.Windows.Forms
 
             KeyframePanel.visEditor.EntryChanged += new EventHandler(this.VISEntryChanged);
             KeyframePanel.visEditor.IndexChanged += new EventHandler(this.VISIndexChanged);
+
+            MDL0TextureNode._folderWatcher.Changed += _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Created += _folderWatcher_Created;
+            MDL0TextureNode._folderWatcher.Deleted += _folderWatcher_Deleted;
+            MDL0TextureNode._folderWatcher.Renamed += _folderWatcher_Renamed;
+            MDL0TextureNode._folderWatcher.Error += _folderWatcher_Error;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -2116,32 +2159,5 @@ namespace System.Windows.Forms
         }
 
         #endregion
-
-
-        private void chkZoomExtents_Click(object sender, EventArgs e)
-        {
-            if (SelectedBone != null)
-            {
-                modelPanel._camera.Reset();
-                modelPanel._camera.Translate(_selectedBone._frameMatrix.GetPoint() + new Vector3(0.0f,0.0f,27.0f));
-                ModelPanel.Invalidate();
-            }
-            else
-                MessageBox.Show("Select a bone!");
-        }
-
-        private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (cboToolSelect.SelectedIndex == 0) { translationToolStripMenuItem.PerformClick(); }
-            else if (cboToolSelect.SelectedIndex == 1) { rotationToolStripMenuItem.PerformClick(); }
-            else if (cboToolSelect.SelectedIndex == 2) { scaleToolStripMenuItem.PerformClick(); }
-            ModelPanel.Invalidate();
-        }
-
-        private void chkBoundaries_Click(object sender, EventArgs e)
-        {
-            ModelPanel.Invalidate();
-        }
-
     }
 }

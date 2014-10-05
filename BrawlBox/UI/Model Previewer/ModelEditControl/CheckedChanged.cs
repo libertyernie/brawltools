@@ -250,29 +250,45 @@ namespace System.Windows.Forms
 
         #endregion
 
+        private void EnableLiveTextureFolder_CheckedChanged(object sender, EventArgs e)
+        {
+            MDL0TextureNode._folderWatcher.EnableRaisingEvents = EnableLiveTextureFolder.Checked;
+            ModelPanel.RefreshReferences();
+        }
+
         public void SelectedPolygonChanged(object sender, EventArgs e)
         {
-            if (leftPanel.SelectedPolygon == null) return;
-            _targetModel._polyIndex = _targetModel._objList.IndexOf(leftPanel.SelectedPolygon);
+            //We can't return here if the selected polygon is set to null.
+            //If the target model is changed or the selected object is cleared,
+            //things relying on the selected object must be updated to reflect that.
+            //if (leftPanel.SelectedPolygon == null) return;
 
+            //This sets the selected object index internally in the model.
+            //This determines the target object for focus editing vertices, normals, etc in the viewer
+            //If the selected object is set to null, the poly index will be set to -1 by IndexOf.
+            //This means vertices, normals etc will be drawn for all objects, if enabled.
+            _targetModel._polyIndex = _targetModel._objList.IndexOf(leftPanel.SelectedObject);
+
+            //If this setting is enabled, we need to show the user what textures only this object uses.
+            //If the polygon is set to null, all of the model's texture references will be shown.
             if (syncTexObjToolStripMenuItem.Checked)
                 leftPanel.UpdateTextures();
 
-            if (TargetAnimType == AnimType.VIS)
-                if (leftPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
-                {
-                    int x = 0;
-                    foreach (object i in vis0Editor.listBox1.Items)
-                        if (i.ToString() == leftPanel.TargetObject.VisibilityBone)
-                        {
-                            vis0Editor.listBox1.SelectedIndex = x;
-                            break;
-                        }
-                        else
-                            x++;
-                    if (x == vis0Editor.listBox1.Items.Count)
-                        vis0Editor.listBox1.SelectedIndex = -1;
-                }
+            //Update the VIS editor to show the entries for the selected object
+            if (TargetAnimType == AnimType.VIS && leftPanel.SelectedObject != null && vis0Editor.listBox1.Items.Count != 0)
+            {
+                int x = 0;
+                foreach (object i in vis0Editor.listBox1.Items)
+                    if (i.ToString() == leftPanel.SelectedObject.VisibilityBone)
+                    {
+                        vis0Editor.listBox1.SelectedIndex = x;
+                        break;
+                    }
+                    else
+                        x++;
+                if (x == vis0Editor.listBox1.Items.Count)
+                    vis0Editor.listBox1.SelectedIndex = -1;
+            }
 
             ModelPanel.Invalidate();
         }

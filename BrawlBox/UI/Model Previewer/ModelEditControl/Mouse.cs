@@ -42,7 +42,7 @@ namespace System.Windows.Forms
                 _snapX = _snapY = _snapZ = _snapCirc = false;
 
                 MDL0BoneNode bone = SelectedBone;
-                MDL0ObjectNode poly = leftPanel.SelectedPolygon;
+                MDL0ObjectNode poly = leftPanel.SelectedObject;
 
                 //Re-target selected bone
                 if (bone != null)
@@ -404,7 +404,7 @@ namespace System.Windows.Forms
             
             MDL0BoneNode bone = SelectedBone;
             //Vertex3 vertex = TargetVertex;
-            MDL0ObjectNode poly = leftPanel.SelectedPolygon;
+            MDL0ObjectNode poly = leftPanel.SelectedObject;
 
             if (bone != null)
             {
