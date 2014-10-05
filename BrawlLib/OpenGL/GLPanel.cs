@@ -58,7 +58,18 @@ namespace BrawlLib.OpenGL
         public void BeginUpdate() { _updateCounter++; }
         public void EndUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Invalidate(); }
 
-        public new void Capture() { if (_ctx != null) _ctx.Capture(); }
+        protected delegate void NoArgsDelegate();
+        public new void Capture()
+        {
+            if (InvokeRequired)
+            {
+                Invoke(new NoArgsDelegate(Capture));
+                return;
+            }
+
+            if (_ctx != null)
+                _ctx.Capture();
+        }
         public void Release() { if (_ctx != null) _ctx.Release(); }
 
         protected override void OnLoad(EventArgs e)

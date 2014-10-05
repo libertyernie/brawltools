@@ -91,30 +91,34 @@ namespace BrawlBox
 
         public unsafe void ReadSettings()
         {
-            string t = BrawlBox.Properties.Settings.Default.ScreenCapBgLocText;
+            BrawlBox.Properties.Settings settings = BrawlBox.Properties.Settings.Default;
+
+            string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+            string t = settings.ScreenCapBgLocText;
             if (!String.IsNullOrEmpty(t))
                 modelEditControl1.ScreenCapBgLocText.Text = t;
             else
-                modelEditControl1.ScreenCapBgLocText.Text = Application.StartupPath + "\\ScreenCaptures";
+                modelEditControl1.ScreenCapBgLocText.Text = applicationFolder + "\\ScreenCaptures";
 
-            BrawlBoxViewerSettings? s;
-
-            if (!BrawlBox.Properties.Settings.Default.ViewerSettingsSet)
-            {
-                s = BrawlBoxViewerSettings.Default;
-                BrawlBox.Properties.Settings.Default.ViewerSettingsSet = true;
-            }
+            t = settings.LiveTextureFolderPath;
+            if (!String.IsNullOrEmpty(t))
+                modelEditControl1.LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = t;
             else
-                s = BrawlBox.Properties.Settings.Default.ViewerSettings;
+                modelEditControl1.LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = applicationFolder;
+
+            modelEditControl1.EnableLiveTextureFolder.Checked = MDL0TextureNode._folderWatcher.EnableRaisingEvents;
+
+            BrawlBoxViewerSettings? s = settings.ViewerSettingsSet ? settings.ViewerSettings : BrawlBoxViewerSettings.Default;
 
             if (s == null)
                 return;
 
-            BrawlBoxViewerSettings settings = (BrawlBoxViewerSettings)s;
-            modelEditControl1.DistributeSettings(settings);
+            BrawlBoxViewerSettings viewerSettings = (BrawlBoxViewerSettings)s;
+            modelEditControl1.DistributeSettings(viewerSettings);
             modelEditControl1.ModelPanel.ResetCamera();
 
-            if (settings.Maximize)
+            if (viewerSettings.Maximize)
                 WindowState = FormWindowState.Maximized;
         }
 
@@ -176,8 +180,7 @@ namespace BrawlBox
                     if (modelEditControl1.TargetModel != null)
                         modelEditControl1.TargetModel = null;
 
-                    if (modelEditControl1._targetModels != null)
-                        modelEditControl1._targetModels = null;
+                    modelEditControl1._targetModels.Clear();
 
                     modelEditControl1.ModelPanel.ClearAll();
                     modelEditControl1.models.Items.Clear();

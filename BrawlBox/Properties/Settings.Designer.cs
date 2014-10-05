@@ -71,6 +71,21 @@ namespace BrawlBox.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string LiveTextureFolderPath
+        {
+            get
+            {
+                return ((string)(this["LiveTextureFolderPath"]));
+            }
+            set
+            {
+                this["LiveTextureFolderPath"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         public global::System.Collections.Specialized.StringCollection RecentFiles
         {
             get

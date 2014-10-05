@@ -15,11 +15,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class MDL0TextureNode : MDL0EntryNode, IComparable
     {
-        public int CompareTo(object obj)
+        static MDL0TextureNode()
         {
-            if (obj is MDL0TextureNode)
-                return this.Name.CompareTo(((MDL0TextureNode)obj).Name);
-            else return 1;
+            _folderWatcher = new FileSystemWatcher() { Filter = "*.*", IncludeSubdirectories = false };
         }
 
         //internal MDL0Texture* Header { get { return (MDL0Texture*)WorkingUncompressed.Address; } }
@@ -62,6 +60,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         //[Category("Texture Data")]
         //public string[] Entries { get { return _entries; } }
         //internal string[] _entries;
+
+        public static string TextureOverrideDirectory
+        {
+            get { return _folderWatcher.Path; }
+            set
+            {
+                if (!String.IsNullOrEmpty(value) && Directory.Exists(value))
+                    _folderWatcher.Path = value + "\\";
+                else
+                    _folderWatcher.Path = "";
+            }
+        }
+        public static FileSystemWatcher _folderWatcher;
 
         public override bool OnInitialize()
         {
@@ -247,12 +258,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             //ctx._states[String.Format("{0}_TexRef", Name)] = Texture;
 
             Bitmap bmp = null;
-            TEX0Node tNode = null;
 
-            if (_context._states.ContainsKey("_Node_Refs"))
+            if (_folderWatcher.EnableRaisingEvents && !String.IsNullOrEmpty(_folderWatcher.Path))
+                bmp = SearchDirectory(_folderWatcher.Path + Name);
+
+            if (bmp == null && _context._states.ContainsKey("_Node_Refs"))
             {
                 List<ResourceNode> nodes = _context._states["_Node_Refs"] as List<ResourceNode>;
                 List<ResourceNode> searched = new List<ResourceNode>(nodes.Count);
+                TEX0Node tNode = null;
 
                 foreach (ResourceNode n in nodes)
                 {
@@ -272,43 +286,54 @@ namespace BrawlLib.SSBB.ResourceNodes
                         return;
                     }
                     else
-                    {
-                        //Then search node directory
-                        string path = node._origPath;
-                        if (path != null)
-                        {
-                            DirectoryInfo dir = new DirectoryInfo(Path.GetDirectoryName(path));
-                            if (dir.Exists && Name != "<null>")
-                                foreach (FileInfo file in dir.GetFiles(Name + ".*"))
-                                {
-                                    if (file.Name.EndsWith(".tga"))
-                                    {
-                                        Source = file.FullName;
-                                        bmp = TGA.FromFile(file.FullName);
-                                        break;
-                                    }
-                                    else if (file.Name.EndsWith(".png") || file.Name.EndsWith(".tiff") || file.Name.EndsWith(".tif"))
-                                    {
-                                        Source = file.FullName;
-                                        bmp = (Bitmap)Bitmap.FromFile(file.FullName);
-                                        break;
-                                    }
-                                }
-                        }
-                    }
+                        bmp = SearchDirectory(node._origPath);
+
                     if (bmp != null)
                         break;
                 }
                 searched.Clear();
-
-                if (bmp != null)
-                    Texture.Attach(bmp);
             }
+
+            if (bmp != null)
+                Texture.Attach(bmp);
+        }
+
+        private Bitmap SearchDirectory(string path)
+        {
+            Bitmap bmp = null;
+            if (!String.IsNullOrEmpty(path))
+            {
+                DirectoryInfo dir = new DirectoryInfo(Path.GetDirectoryName(path));
+                if (dir.Exists && Name != "<null>")
+                    foreach (FileInfo file in dir.GetFiles(Name + ".*"))
+                    {
+                        if (file.Name.EndsWith(".tga"))
+                        {
+                            Source = file.FullName;
+                            bmp = TGA.FromFile(file.FullName);
+                            break;
+                        }
+                        else if (file.Name.EndsWith(".png") || file.Name.EndsWith(".tiff") || file.Name.EndsWith(".tif"))
+                        {
+                            Source = file.FullName;
+                            bmp = (Bitmap)Bitmap.FromFile(file.FullName);
+                            break;
+                        }
+                    }
+            }
+            return bmp;
         }
 
         public static int Compare(MDL0TextureNode t1, MDL0TextureNode t2)
         {
             return String.Compare(t1.Name, t2.Name, false);
+        }
+
+        public int CompareTo(object obj)
+        {
+            if (obj is MDL0TextureNode)
+                return this.Name.CompareTo(((MDL0TextureNode)obj).Name);
+            else return 1;
         }
 
         internal override void Bind(TKContext ctx)

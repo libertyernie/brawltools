@@ -228,8 +228,16 @@ namespace System.Windows.Forms
         }
         public void RefreshReferences()
         {
+            if (InvokeRequired)
+            {
+                Invoke(new NoArgsDelegate(RefreshReferences));
+                return;
+            }
+
             foreach (IRenderedObject o in _settings._renderList)
                 o.Refesh();
+
+            Invalidate();
         }
 
         private float _multiplier = 1.0f;

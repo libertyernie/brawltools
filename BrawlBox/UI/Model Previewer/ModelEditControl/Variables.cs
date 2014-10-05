@@ -306,22 +306,27 @@ namespace System.Windows.Forms
             {
                 if (_selectedBone != null)
                     _selectedBone._boneColor = _selectedBone._nodeColor = Color.Transparent;
-
-                if ((_selectedBone = value) != null)
+                
+                bool boneSelected = (_selectedBone = value) != null;
+                if (boneSelected)
                 {
                     _selectedBone._boneColor = Color.FromArgb(0, 128, 255);
                     _selectedBone._nodeColor = Color.FromArgb(255, 128, 0);
                 }
 
-                if (models.SelectedItem != null & !(models.SelectedItem is MDL0Node) && models.SelectedItem.ToString() == "All")
-                    if (_selectedBone != null)
-                        if (TargetModel != _selectedBone.Model)
-                        {
-                            _resetCamera = false;
+                chkZoomExtents.Enabled = boneSelected;
 
-                            //The user selected a bone from another model.
-                            TargetModel = _selectedBone.Model;
-                        }
+                if (models.SelectedItem != null
+                    && !(models.SelectedItem is MDL0Node)
+                    && models.SelectedItem.ToString() == "All"
+                    && boneSelected
+                    && TargetModel != _selectedBone.Model)
+                {
+                    _resetCamera = false;
+
+                    //The user selected a bone from another model.
+                    TargetModel = _selectedBone.Model;
+                }
 
                 rightPanel.pnlBones.lstBones.SelectedItem = _selectedBone;
                 //weightEditor.BoneChanged();
@@ -330,10 +335,10 @@ namespace System.Windows.Forms
                     TargetModel._selectedBone = _selectedBone;
 
                 if (TargetAnimType == AnimType.CHR)
-                    if (_chr0 != null && _selectedBone != null)
-                        rightPanel.pnlKeyframes.TargetSequence = _chr0.FindChild(_selectedBone.Name, false);
-                    else
-                        rightPanel.pnlKeyframes.TargetSequence = null;
+                    rightPanel.pnlKeyframes.TargetSequence =
+                        _chr0 != null && _selectedBone != null ?
+                        _chr0.FindChild(_selectedBone.Name, false) :
+                        null;
 
                 UpdatePropDisplay();
             }

@@ -542,17 +542,10 @@ namespace System.Windows.Forms
         public bool _syncPat0 = false;
 
         private bool _updating = false;
-        private MDL0ObjectNode _targetObject;
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0ObjectNode TargetObject
-        {
-            get { return _targetObject; }
-            set { _targetObject = value; }
-        }
 
-        private MDL0ObjectNode _selectedPolygon;
+        private MDL0ObjectNode _selectedObject;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0ObjectNode SelectedPolygon { get { return _selectedPolygon; } set { lstObjects.SelectedItem = value; } }
+        public MDL0ObjectNode SelectedObject { get { return _selectedObject; } set { lstObjects.SelectedItem = value; } }
 
         private MDL0TextureNode _selectedTexture;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -757,8 +750,8 @@ namespace System.Windows.Forms
             chkAllTextures.CheckState = CheckState.Checked;
 
             ResourceNode n;
-            if (_selectedPolygon != null && _mainWindow.syncTexObjToolStripMenuItem.Checked)
-                foreach (MDL0MaterialRefNode tref in _selectedPolygon.UsableMaterialNode.Children)
+            if (_selectedObject != null && _mainWindow.syncTexObjToolStripMenuItem.Checked)
+                foreach (MDL0MaterialRefNode tref in _selectedObject.UsableMaterialNode.Children)
                     lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
             else if (TargetModel != null && (n = TargetModel.FindChild("Textures", false)) != null)
                 foreach (MDL0TextureNode tref in n.Children)
@@ -785,8 +778,7 @@ namespace System.Windows.Forms
             lstTextures.BeginUpdate();
             lstTextures.Items.Clear();
 
-            _selectedPolygon = null;
-            _targetObject = null;
+            _selectedObject = null;
 
             chkAllObj.CheckState = CheckState.Checked;
             chkAllTextures.CheckState = CheckState.Checked;
@@ -882,8 +874,8 @@ namespace System.Windows.Forms
 
         private void lstPolygons_SelectedValueChanged(object sender, EventArgs e)
         {
-            _targetObject = _selectedPolygon = lstObjects.SelectedItem as MDL0ObjectNode;
-            TargetTexRef = _selectedPolygon != null && _selectedTexture != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+            _selectedObject = lstObjects.SelectedItem as MDL0ObjectNode;
+            TargetTexRef = _selectedObject != null && _selectedTexture != null ? _selectedObject.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             _mainWindow.SelectedPolygonChanged(this, null);
             overObjPnl.Invalidate();
             overTexPnl.Invalidate();
@@ -955,7 +947,7 @@ namespace System.Windows.Forms
                 if (_mainWindow.syncTexObjToolStripMenuItem.Checked)
                     _selectedTexture.ObjOnly = true;
 
-                TargetTexRef = _selectedPolygon != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                TargetTexRef = _selectedObject != null ? _selectedObject.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             }
             if (!_updating) _mainWindow.ModelPanel.Invalidate();
         }
@@ -1363,14 +1355,14 @@ namespace System.Windows.Forms
                 return;
             Graphics g = e.Graphics;
             ResourceNode rn = null;
-            if (_selectedPolygon != null && _selectedPolygon.UsableMaterialNode != null)
+            if (_selectedObject != null && _selectedObject.UsableMaterialNode != null)
                 for (int i = 0; i < lstTextures.Items.Count; i++)
                 {
                     MDL0TextureNode tex = lstTextures.Items[i] as MDL0TextureNode;
-                    if ((rn = _selectedPolygon.UsableMaterialNode.FindChild(tex.Name, true)) != null)
+                    if ((rn = _selectedObject.UsableMaterialNode.FindChild(tex.Name, true)) != null)
                         if (_srt0Selection != null)
                         {
-                            if (_srt0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
+                            if (_srt0Selection.FindChildByType(_selectedObject.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
                             {
                                 Rectangle r = lstTextures.GetItemRectangle(i);
                                 g.DrawRectangle(Pens.Black, r);
@@ -1378,7 +1370,7 @@ namespace System.Windows.Forms
                         }
                         else if (_pat0Selection != null)
                         {
-                            if (_pat0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
+                            if (_pat0Selection.FindChildByType(_selectedObject.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
                             {
                                 Rectangle r = lstTextures.GetItemRectangle(i);
                                 g.DrawRectangle(Pens.Black, r);
