@@ -96,7 +96,6 @@ namespace System.Windows.Forms
         private ToolStripButton chkCollisions;
         public ToolStripButton btnSaveCam;
         private SCN0Editor scn0Editor;
-        private Splitter splitter2;
         private ToolStripMenuItem showRight;
         public ToolStripMenuItem showCameraCoordinatesToolStripMenuItem;
         private ToolStripMenuItem sCN0ToolStripMenuItem;
@@ -378,7 +377,6 @@ namespace System.Windows.Forms
             this.clr0Editor = new System.Windows.Forms.CLR0Editor();
             this.weightEditor = new System.Windows.Forms.WeightEditor();
             this.vertexEditor = new System.Windows.Forms.VertexEditor();
-            this.splitter2 = new System.Windows.Forms.Splitter();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
             this.menuStrip1.SuspendLayout();
@@ -410,7 +408,7 @@ namespace System.Windows.Forms
             // btnRightToggle
             // 
             this.btnRightToggle.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnRightToggle.Location = new System.Drawing.Point(657, 24);
+            this.btnRightToggle.Location = new System.Drawing.Point(586, 24);
             this.btnRightToggle.Name = "btnRightToggle";
             this.btnRightToggle.Size = new System.Drawing.Size(15, 391);
             this.btnRightToggle.TabIndex = 6;
@@ -424,7 +422,7 @@ namespace System.Windows.Forms
             this.btnBottomToggle.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnBottomToggle.Location = new System.Drawing.Point(157, 400);
             this.btnBottomToggle.Name = "btnBottomToggle";
-            this.btnBottomToggle.Size = new System.Drawing.Size(500, 15);
+            this.btnBottomToggle.Size = new System.Drawing.Size(429, 15);
             this.btnBottomToggle.TabIndex = 8;
             this.btnBottomToggle.TabStop = false;
             this.btnBottomToggle.UseVisualStyleBackColor = false;
@@ -445,7 +443,7 @@ namespace System.Windows.Forms
             this.btnTopToggle.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnTopToggle.Location = new System.Drawing.Point(157, 24);
             this.btnTopToggle.Name = "btnTopToggle";
-            this.btnTopToggle.Size = new System.Drawing.Size(500, 15);
+            this.btnTopToggle.Size = new System.Drawing.Size(429, 15);
             this.btnTopToggle.TabIndex = 11;
             this.btnTopToggle.TabStop = false;
             this.btnTopToggle.UseVisualStyleBackColor = false;
@@ -464,7 +462,7 @@ namespace System.Windows.Forms
             this.kinectToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(395, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(303, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1543,7 +1541,7 @@ namespace System.Windows.Forms
             // LiveTextureFolderPath
             // 
             this.LiveTextureFolderPath.Name = "LiveTextureFolderPath";
-            this.LiveTextureFolderPath.Size = new System.Drawing.Size(152, 22);
+            this.LiveTextureFolderPath.Size = new System.Drawing.Size(116, 22);
             this.LiveTextureFolderPath.Text = "<path>";
             this.LiveTextureFolderPath.Click += new System.EventHandler(this.LiveTextureFolderPath_Click);
             // 
@@ -1551,7 +1549,7 @@ namespace System.Windows.Forms
             // 
             this.EnableLiveTextureFolder.CheckOnClick = true;
             this.EnableLiveTextureFolder.Name = "EnableLiveTextureFolder";
-            this.EnableLiveTextureFolder.Size = new System.Drawing.Size(152, 22);
+            this.EnableLiveTextureFolder.Size = new System.Drawing.Size(116, 22);
             this.EnableLiveTextureFolder.Text = "Enabled";
             this.EnableLiveTextureFolder.CheckedChanged += new System.EventHandler(this.EnableLiveTextureFolder_CheckedChanged);
             // 
@@ -1856,7 +1854,7 @@ namespace System.Windows.Forms
             // spltRight
             // 
             this.spltRight.Dock = System.Windows.Forms.DockStyle.Right;
-            this.spltRight.Location = new System.Drawing.Point(672, 24);
+            this.spltRight.Location = new System.Drawing.Point(601, 24);
             this.spltRight.Name = "spltRight";
             this.spltRight.Size = new System.Drawing.Size(4, 391);
             this.spltRight.TabIndex = 23;
@@ -1869,7 +1867,7 @@ namespace System.Windows.Forms
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(157, 39);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(500, 361);
+            this.panel1.Size = new System.Drawing.Size(429, 361);
             this.panel1.TabIndex = 25;
             // 
             // modelPanel
@@ -1881,7 +1879,7 @@ namespace System.Windows.Forms
             this.modelPanel.Location = new System.Drawing.Point(0, 0);
             this.modelPanel.Name = "modelPanel";
             this.modelPanel.RotationScale = 0.4F;
-            this.modelPanel.Size = new System.Drawing.Size(500, 361);
+            this.modelPanel.Size = new System.Drawing.Size(429, 361);
             this.modelPanel.TabIndex = 0;
             this.modelPanel.TranslationScale = 0.05F;
             this.modelPanel.ZoomScale = 2.5F;
@@ -2019,22 +2017,12 @@ namespace System.Windows.Forms
             this.vertexEditor.TabIndex = 32;
             this.vertexEditor.Visible = false;
             // 
-            // splitter2
-            // 
-            this.splitter2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter2.Location = new System.Drawing.Point(801, 24);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(4, 391);
-            this.splitter2.TabIndex = 31;
-            this.splitter2.TabStop = false;
-            this.splitter2.Visible = false;
-            // 
             // rightPanel
             // 
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
-            this.rightPanel.Location = new System.Drawing.Point(676, 24);
+            this.rightPanel.Location = new System.Drawing.Point(605, 24);
             this.rightPanel.Name = "rightPanel";
-            this.rightPanel.Size = new System.Drawing.Size(125, 391);
+            this.rightPanel.Size = new System.Drawing.Size(200, 391);
             this.rightPanel.TabIndex = 32;
             this.rightPanel.Visible = false;
             // 
@@ -2057,7 +2045,6 @@ namespace System.Windows.Forms
             this.Controls.Add(this.btnRightToggle);
             this.Controls.Add(this.spltRight);
             this.Controls.Add(this.rightPanel);
-            this.Controls.Add(this.splitter2);
             this.Controls.Add(this.btnLeftToggle);
             this.Controls.Add(this.spltLeft);
             this.Controls.Add(this.leftPanel);
@@ -2140,12 +2127,6 @@ namespace System.Windows.Forms
 
             KeyframePanel.visEditor.EntryChanged += new EventHandler(this.VISEntryChanged);
             KeyframePanel.visEditor.IndexChanged += new EventHandler(this.VISIndexChanged);
-
-            MDL0TextureNode._folderWatcher.Changed += _folderWatcher_Changed;
-            MDL0TextureNode._folderWatcher.Created += _folderWatcher_Created;
-            MDL0TextureNode._folderWatcher.Deleted += _folderWatcher_Deleted;
-            MDL0TextureNode._folderWatcher.Renamed += _folderWatcher_Renamed;
-            MDL0TextureNode._folderWatcher.Error += _folderWatcher_Error;
         }
 
         protected override void OnLoad(EventArgs e)

@@ -87,7 +87,7 @@ namespace BrawlLib.OpenGL
             CurrentContexts.Add(this);
         }
 
-        public delegate void ContextChangedEventHandler(bool enabled);
+        public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
 
         public void Dispose()
@@ -113,17 +113,21 @@ namespace BrawlLib.OpenGL
         {
             try
             {
-                bool notThis = CurrentlyEnabled != this && CurrentlyEnabled != null && CurrentlyEnabled._context.IsCurrent;
-                
-                if (notThis)
-                    CurrentlyEnabled.Release();
+                //Only proceed if this window is not already current
+                if (CurrentlyEnabled != this)
+                {
+                    //Release the current context if it exists
+                    if (CurrentlyEnabled != null)
+                        CurrentlyEnabled.Release();
 
-                CurrentlyEnabled = this;
-                if (!_context.IsCurrent)
-                    _context.MakeCurrent(WindowInfo);
+                    //Make this context the current one
+                    CurrentlyEnabled = this;
+                    if (!_context.IsCurrent)
+                        _context.MakeCurrent(WindowInfo);
 
-                if (ContextChanged != null && notThis)
-                    ContextChanged(true);
+                    if (ContextChanged != null)
+                        ContextChanged(true);
+                }
             }
             catch //(Exception x)
             {
@@ -182,13 +186,13 @@ namespace BrawlLib.OpenGL
         }
         public void Release()
         {
-            if (CurrentlyEnabled == this && !CurrentlyEnabled._context.IsDisposed && _context.IsCurrent)
+            if (CurrentlyEnabled == this && !_context.IsDisposed && _context.IsCurrent)
             {
                 CurrentlyEnabled = null;
                 _context.MakeCurrent(null);
 
-                //if (ContextChanged != null)
-                //    ContextChanged(false);
+                if (ContextChanged != null)
+                    ContextChanged(false);
             }
         }
         public void Update()

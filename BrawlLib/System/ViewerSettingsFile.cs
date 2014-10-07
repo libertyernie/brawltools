@@ -78,6 +78,9 @@ namespace System
 
         public bool DisplayBRRESAnims { get { return _flags3[14]; } set { _flags3[14] = value; } }
         public bool SnapToColl { get { return _flags3[15]; } set { _flags3[15] = value; } }
+        public bool FlatBoneList { get { return _flags3[16]; } set { _flags3[16] = value; } }
+        public bool BoneListContains { get { return _flags3[17]; } set { _flags3[17] = value; } }
+        public uint RightPanelWidth { get { return _flags3[18, 10]; } set { _flags3[18, 10] = value; } }
         
         private VoidPtr Address { get { fixed (void* p = &this)return p; } }
 
@@ -135,6 +138,8 @@ namespace System
             DisplayBRRESAnims = true,
             CameraSet = false,
             SnapToColl = false,
+            FlatBoneList = true,
+            BoneListContains = false,
         };
     }
 }

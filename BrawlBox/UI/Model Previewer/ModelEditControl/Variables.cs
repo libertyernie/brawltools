@@ -328,7 +328,7 @@ namespace System.Windows.Forms
                     TargetModel = _selectedBone.Model;
                 }
 
-                rightPanel.pnlBones.lstBones.SelectedItem = _selectedBone;
+                rightPanel.pnlBones.SetSelectedBone(_selectedBone);
                 //weightEditor.BoneChanged();
 
                 if (TargetModel != null)

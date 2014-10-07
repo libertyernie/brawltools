@@ -90,11 +90,12 @@ namespace BrawlLib.OpenGL
             base.OnLoad(e);
         }
 
-        void ContextChanged(bool enabled)
+        void ContextChanged(bool isCurrent)
         {
-            //if (enabled)
             OnResize(null);
             OnResized();
+
+            MDL0TextureNode._folderWatcher.SynchronizingObject = isCurrent ? this : null;
         }
 
         protected override void DestroyHandle()

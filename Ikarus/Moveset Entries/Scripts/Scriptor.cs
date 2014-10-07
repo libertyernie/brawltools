@@ -603,7 +603,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         RSARNode node = Manager.SoundArchive;
                         List<RSAREntryNode> sounds = node._infoCache[0];
-                        if (id >= 0 && id < sounds.Count)
+                        if (sounds != null && id >= 0 && id < sounds.Count)
                         {
                             RSARSoundNode s = sounds[id] as RSARSoundNode;
                             if (s != null)
@@ -753,6 +753,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             main.AddTarget(articleInfo._model);
                             articleInfo._model._visible = true;
+
+                            articleInfo._model._renderBones = RunTime.MainWindow._renderBones;
+                            articleInfo._model._renderWireframe = RunTime.MainWindow._renderWireframe;
+                            articleInfo._model._renderPolygons = RunTime.MainWindow._renderPolygons;
+                            articleInfo._model._renderVertices = RunTime.MainWindow._renderVertices;
+                            articleInfo._model._renderBox = RunTime.MainWindow._renderBox;
+                            articleInfo._model._renderNormals = RunTime.MainWindow._renderNormals;
+                            articleInfo._model._dontRenderOffscreen = RunTime.MainWindow._dontRenderOffscreen;
                         }
 
                         //This article is now available for use

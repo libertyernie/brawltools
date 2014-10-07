@@ -3,7 +3,6 @@ using BrawlLib.SSBB.ResourceNodes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -11,31 +10,6 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : UserControl, IMainWindow
     {
-        private void _folderWatcher_Deleted(object sender, FileSystemEventArgs e)
-        {
-            ModelPanel.RefreshReferences();
-        }
-
-        private void _folderWatcher_Created(object sender, FileSystemEventArgs e)
-        {
-            ModelPanel.RefreshReferences();
-        }
-
-        private void _folderWatcher_Changed(object sender, FileSystemEventArgs e)
-        {
-            ModelPanel.RefreshReferences();
-        }
-
-        void _folderWatcher_Error(object sender, ErrorEventArgs e)
-        {
-            ModelPanel.RefreshReferences();
-        }
-
-        void _folderWatcher_Renamed(object sender, RenamedEventArgs e)
-        {
-            ModelPanel.RefreshReferences();
-        }
-
         private void VISEntryChanged(object sender, EventArgs e)
         {
             UpdateModel();
@@ -50,10 +24,11 @@ namespace System.Windows.Forms
 
         private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ModelPanel.BeginUpdate();
             if (cboToolSelect.SelectedIndex == 0) { translationToolStripMenuItem.PerformClick(); }
             else if (cboToolSelect.SelectedIndex == 1) { rotationToolStripMenuItem.PerformClick(); }
             else if (cboToolSelect.SelectedIndex == 2) { scaleToolStripMenuItem.PerformClick(); }
-            ModelPanel.Invalidate();
+            ModelPanel.EndUpdate();
         }
 
         private void models_SelectedIndexChanged(object sender, EventArgs e)
@@ -167,6 +142,8 @@ namespace System.Windows.Forms
                     TargetModel.ApplySRT(null, 0);
                 }
                 ResetBoneColors();
+
+                MDL0TextureNode._folderWatcher.SynchronizingObject = null;
             }
             catch { }
             return true;
@@ -267,6 +244,7 @@ namespace System.Windows.Forms
             settings.SyncObjToVIS0 = syncObjectsListToVIS0ToolStripMenuItem.Checked;
             settings.DisableBonesOnPlay = disableBonesWhenPlayingToolStripMenuItem.Checked;
 
+            settings.RightPanelWidth = (uint)rightPanel.Width;
             settings._defaultCam = ModelPanel.DefaultTranslate;
             settings._defaultRot = ModelPanel.DefaultRotate;
             settings._amb = ModelPanel.Ambient;
@@ -287,6 +265,8 @@ namespace System.Windows.Forms
             settings._matCount = 0;
             settings._emis = ModelPanel.Emission;
 
+            settings.FlatBoneList = rightPanel.pnlBones.chkFlat.Checked;
+            settings.BoneListContains = rightPanel.pnlBones.chkContains.Checked;
             settings.SnapToColl = chkSnapToColl.Checked;
             settings.Maximize = chkMaximize.Checked;
             settings.CameraSet = btnSaveCam.Text == "Clear Camera";
@@ -335,6 +315,12 @@ namespace System.Windows.Forms
             chkExternalAnims.Checked = settings.DisplayExternalAnims;
             chkBRRESAnims.Checked = settings.DisplayBRRESAnims;
             chkNonBRRESAnims.Checked = settings.DisplayNonBRRESAnims;
+            rightPanel.pnlBones.chkFlat.Checked = settings.FlatBoneList;
+            rightPanel.pnlBones.chkContains.Checked = settings.BoneListContains;
+
+            int w = (int)settings.RightPanelWidth;
+            if (w >= 50)
+                rightPanel.Width = w;
 
             ModelPanel.Ambient = settings._amb;
             ModelPanel.LightPosition = settings._pos;
