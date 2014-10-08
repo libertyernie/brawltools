@@ -10,6 +10,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
 using BrawlLib.Imaging;
+using System.IO;
 
 namespace System.Windows.Forms
 {
@@ -119,6 +120,34 @@ namespace System.Windows.Forms
             this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.ModelPanel_MouseDown);
             this.MouseMove += new System.Windows.Forms.MouseEventHandler(this.ModelPanel_MouseMove);
             this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.ModelPanel_MouseUp);
+
+            MDL0TextureNode._folderWatcher.Changed += _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Created += _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Deleted += _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Renamed += _folderWatcher_Renamed;
+            MDL0TextureNode._folderWatcher.Error += _folderWatcher_Error;
+        }
+
+        ~ModelPanel()
+        {
+            MDL0TextureNode._folderWatcher.Changed -= _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Created -= _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Deleted -= _folderWatcher_Changed;
+            MDL0TextureNode._folderWatcher.Renamed -= _folderWatcher_Renamed;
+            MDL0TextureNode._folderWatcher.Error -= _folderWatcher_Error;
+        }
+
+        private void _folderWatcher_Changed(object sender, FileSystemEventArgs e)
+        {
+            RefreshReferences();
+        }
+        void _folderWatcher_Error(object sender, ErrorEventArgs e)
+        {
+            RefreshReferences();
+        }
+        void _folderWatcher_Renamed(object sender, RenamedEventArgs e)
+        {
+            RefreshReferences();
         }
 
         protected override void OnLoad(EventArgs e)

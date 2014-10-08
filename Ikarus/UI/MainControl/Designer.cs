@@ -1271,7 +1271,6 @@ namespace Ikarus.UI
             // 
             // modelPanel
             // 
-            this.modelPanel.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel.DefaultTranslate")));
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel.InitialYFactor = 100;
             this.modelPanel.InitialZoomFactor = 5;
@@ -1565,7 +1564,10 @@ namespace Ikarus.UI
             base.OnLoad(e);
 
             if (!String.IsNullOrEmpty(Ikarus.Properties.Settings.Default.RootPath))
+            { 
                 Program.OpenRootFromPath(pathToolStripMenuItem.Text = Ikarus.Properties.Settings.Default.RootPath);
+                comboCharacters.Enabled = true;
+            }
 
             RunTime.FramesPerSecond = (double)pnlPlayback.numFPS.Value;
             RunTime.UpdatesPerSecond = 0;
@@ -1746,7 +1748,7 @@ namespace Ikarus.UI
 
         private void LoadArticles(Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> t1, int groupID, ArticleInfo info, bool addTarget)
         {
-            if (t1.ContainsKey(groupID))
+            if (t1 != null && t1.ContainsKey(groupID))
             {
                 var t2 = t1[groupID];
                 if (t2.ContainsKey(ARCFileType.ModelData))
