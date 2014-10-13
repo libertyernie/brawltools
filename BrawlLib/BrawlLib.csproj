@@ -181,6 +181,7 @@
     <Compile Include="SSBB\Item.cs" />
     <Compile Include="SSBB\ResourceNodes\ItmFreqNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\ADSJNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Subspace\BGMGNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GBLKNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\GEG1Node.cs" />
     <Compile Include="SSBB\ResourceNodes\IAttributeList.cs" />
@@ -191,6 +192,7 @@
     <Compile Include="SSBB\Stage.cs" />
     <Compile Include="SSBB\Types\ItmFreq.cs" />
     <Compile Include="SSBB\Types\Subspace\ADSJ.cs" />
+    <Compile Include="SSBB\Types\Subspace\BGMG.cs" />
     <Compile Include="SSBB\Types\Subspace\GBLK.cs" />
     <Compile Include="SSBB\Types\Subspace\GEG1.cs" />
     <Compile Include="SSBB\Types\Subspace\GMOT.cs" />
