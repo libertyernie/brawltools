@@ -8,13 +8,13 @@ using BrawlLib.SSBBTypes;
 
 namespace BrawlBox.NodeWrappers
 {
-    [NodeWrapper(ResourceType.GDOR)]
-    class GDORWrapper : GenericWrapper
+    [NodeWrapper(ResourceType.ADSJ)]
+    class ADSJWrapper : GenericWrapper
     {
         #region Menu
 
         private static ContextMenuStrip _menu;
-        static GDORWrapper()
+        static ADSJWrapper()
         {
             _menu = new ContextMenuStrip();
 
@@ -33,14 +33,14 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        protected static void NewEntryAction(object sender, EventArgs e) { GetInstance<GDORWrapper>().NewEntry(); }
+        protected static void NewEntryAction(object sender, EventArgs e) { GetInstance<ADSJWrapper>().NewEntry(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[6].Enabled = _menu.Items[7].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
-            GDORWrapper w = GetInstance<GDORWrapper>();
+            ADSJWrapper w = GetInstance<ADSJWrapper>();
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
         }
@@ -48,11 +48,10 @@ namespace BrawlBox.NodeWrappers
 
         public void NewEntry()
         {
-            GDOREntryNode node = new GDOREntryNode() { Name = "NewEntry", Trigger0 ="00000100",
-                Trigger1 = "00000100", Trigger2 = "00000100", StageID = "00000000" };
+            ADSJEntryNode node = new ADSJEntryNode() {StageID = "00000000", SendingID = "00000000", JumpBone = "NewJump"};
             _resource.AddChild(node);
         }
 
-        public GDORWrapper() { ContextMenuStrip = _menu; }
+        public ADSJWrapper() { ContextMenuStrip = _menu; }
     }
 }

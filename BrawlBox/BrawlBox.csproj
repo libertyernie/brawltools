@@ -163,6 +163,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />

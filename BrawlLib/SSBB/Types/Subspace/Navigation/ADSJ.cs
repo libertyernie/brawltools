@@ -101,7 +101,7 @@ namespace BrawlLib.SSBBTypes
                 }
             }
         }
-        public string Name
+        public string JumpBone
         {
             get { return new String((sbyte*)Address + 0x0C); }
             set
@@ -118,6 +118,14 @@ namespace BrawlLib.SSBBTypes
                     while (i < 0x20) ptr[i++] = 0;
                 }
             }
+        }
+
+        public ADSJEntry(string Stage, string SendingID, string Bone)
+        {         
+            _unk0 = _unk1 = _unk2 = _unk3 = 0;
+            StageID = Stage;
+            SendStage = SendingID;
+            JumpBone = Bone;         
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }

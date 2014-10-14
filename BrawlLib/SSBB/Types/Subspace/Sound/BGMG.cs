@@ -40,12 +40,13 @@ namespace BrawlLib.SSBBTypes
         public bint _volume;
         public int _pad;
 
-        public BGMGEntry(string ID, int InfoIndex, int Volume) : this()
+        public BGMGEntry(string ID, int InfoIndex, int Volume)
         {
-            StageID = ID;
+
             _infoIndex = InfoIndex;
             _volume = Volume;
             _pad = 0;
+            StageID = ID;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }

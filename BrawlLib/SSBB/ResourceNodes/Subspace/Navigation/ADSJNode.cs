@@ -8,14 +8,15 @@ using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class ADSJNode : ARCEntryNode
+    public unsafe class ADSJNode : ResourceNode
     {
         internal ADSJ* Header { get { return (ADSJ*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.ADSJ; } }
 
+        private int _count;
         [Category("ADSJ")]
         [DisplayName("Entries")]
-        public int count { get { return Header->_count; } }
+        public int count { get { return _count; } }
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)
@@ -30,6 +31,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
+            _count = Header->_count;
+
+            if (_name == null)
+                _name = "Stepjumps";
             return Header->_count > 0;
         }
         public override int OnCalculateSize(bool force)
@@ -96,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.OnInitialize();
             _stageID = Header->StageID;
             _sendingID = Header->SendStage;
-            _jumpBone = Header->Name;
+            _jumpBone = Header->JumpBone;
             _flag0 = Header->_unk0;
             _flag1 = Header->_unk1;
             _flag2 = Header->_unk2;
@@ -118,7 +123,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_unk1 = _flag1;
             header->_unk2 = _flag2;
             header->_unk3 = _flag3;
-            header->Name = _jumpBone;
+            header->JumpBone = _jumpBone;
             header->StageID = _stageID;
             header->SendStage = _sendingID;
         }
