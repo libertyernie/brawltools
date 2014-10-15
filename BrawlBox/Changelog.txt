@@ -31,6 +31,7 @@ they be held accountable for the manner in which it is used.
 	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor.
 	. Fixed shader0's tex ref not being set when importing .dae files.
 	. Added a live texture folder to the model previewer.
+	. Fixed always asking to save after opening the collision editor, regardless if things were changed.
 
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b

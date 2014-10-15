@@ -229,12 +229,12 @@ namespace System.Windows.Forms
             foreach (CollisionNode node in _collisions) node.Render(context, ModelPanel);
             
             #region RenderOverlays
-            MDL0Node stgPos = null;
-            MDL0BoneNode CamBone0 = null;
-            MDL0BoneNode CamBone1 = null;
-            MDL0BoneNode DeathBone0 = null;
-            MDL0BoneNode DeathBone1 = null;
             List<MDL0BoneNode> ItemBones = new List<MDL0BoneNode>();
+
+            MDL0Node stgPos = null;
+
+            MDL0BoneNode CamBone0 = null, CamBone1 = null,
+                         DeathBone0 = null, DeathBone1 = null;
 
             //Get bones and render spawns if checked
             if (_targetModel != null && _targetModel.Name.Contains("osition")) {stgPos = _targetModel; }
