@@ -28,7 +28,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Vertex Data")]
         public byte EntryStride { get { return hdr._entryStride; } }
         [Category("Vertex Data")]
-        public short NumVertices { get { return hdr._numVertices; } }
+        public ushort NumVertices { get { return hdr._numVertices; } }
         [Category("Vertex Data")]
         public Vector3 EMin { get { return hdr._eMin; } }
         [Category("Vertex Data")]
@@ -46,6 +46,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            //Clear the coordinates so they're reparsed,
+            //just in case the node has been replaced.
+            _vertices = null;
+
             hdr = *Header;
             base.OnInitialize();
 
@@ -83,7 +87,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_type = (int)_enc._type;
                 header->_divisor = (byte)_enc._scale;
                 header->_entryStride = (byte)_enc._dstStride;
-                header->_numVertices = (short)_enc._srcCount;
+                header->_numVertices = (ushort)_enc._srcCount;
                 header->_eMin = _enc._min;
                 header->_eMax = _enc._max;
                 header->_pad1 = header->_pad2 = 0;

@@ -357,11 +357,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                             m.SignalPropertyChange();
                         }
 
-                        if (m.HasTexMtx && m.HasNonFloatVertices)
-                        {
-                            ((MDL0Node)Parent)._errors.Add("Object " + m.Index + " has texture matrices and non-float vertices, meaning it will explode in-game.");
-                            m.SignalPropertyChange();
-                        }
+                        //This error doesn't seem to always be true for factory models...
+                        //if (m.HasTexMtx && m.HasNonFloatVertices)
+                        //{
+                        //    ((MDL0Node)Parent)._errors.Add("Object " + m.Index + " has texture matrices and non-float vertices, meaning it will explode in-game.");
+                        //    m.SignalPropertyChange();
+                        //}
                     }
                     break;
 

@@ -711,7 +711,7 @@ namespace BrawlLib.Wii.Models
                     header->_type = (int)c._type;
                     header->_divisor = (byte)c._scale;
                     header->_entryStride = (byte)c._dstStride;
-                    header->_numVertices = (short)c._dstCount;
+                    header->_numVertices = (ushort)c._dstCount;
                     header->_eMin = c._min;
                     header->_eMax = c._max;
                     header->_pad1 = header->_pad2 = 0;

@@ -199,6 +199,8 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ResourceGroup : IEnumerable<ResourcePair>
     {
+        public const int Size = 0x18;
+
         public bint _totalSize;
         public bint _numEntries;
         public ResourceEntry _first;
@@ -268,7 +270,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ResourceEntry
     {
-        public const uint Size = 0x10;
+        public const int Size = 0x10;
 
         public bushort _id;
         public bushort _flag;
