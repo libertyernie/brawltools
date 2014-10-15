@@ -528,7 +528,7 @@ namespace BrawlLib.SSBBTypes
         public bint _type;
         public byte _divisor;
         public byte _entryStride;
-        public bshort _numVertices;
+        public bushort _numVertices;
         public BVec3 _eMin;
         public BVec3 _eMax;
         public bint _pad1;

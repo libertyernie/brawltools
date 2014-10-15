@@ -367,7 +367,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (Model._isImport)
             {
-                _ref1 =
+                _ref1 = 0;
                 _ref2 =
                 _ref3 =
                 _ref4 =

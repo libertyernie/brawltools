@@ -34,7 +34,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
-            base.OnInitialize();
+            //Clear the colors so they're reparsed,
+            //just in case the node has been replaced.
+            _colors = null;
 
             if ((_name == null) && (Header->_stringOffset != 0))
                 _name = Header->ResourceString;

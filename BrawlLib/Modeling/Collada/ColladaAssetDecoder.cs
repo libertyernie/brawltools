@@ -18,7 +18,10 @@ namespace BrawlLib.Modeling
             MDL0BoneNode[] boneList;
             MDL0BoneNode bone = null;
             int boneCount;
-            string[] jointStrings = null;
+
+            string[] jointStringArray = null;
+            string jointString = null;
+
             byte* pCmd = stackalloc byte[4];
             int cmdCount = skin._weightInputs.Count;
             float weight = 0;
@@ -50,7 +53,8 @@ namespace BrawlLib.Modeling
                     foreach (SourceEntry src in skin._sources)
                         if (src._id == inp._source)
                         {
-                            jointStrings = src._arrayData as string[];
+                            jointStringArray = src._arrayData as string[];
+                            jointString = src._arrayDataString;
                             break;
                         }
                 }
@@ -67,10 +71,31 @@ namespace BrawlLib.Modeling
             Error = "There was a problem creating the list of bones for geometry entry " + geo._name;
 
             //Populate bone list
-            boneCount = jointStrings.Length;
+            boneCount = jointStringArray.Length;
             boneList = new MDL0BoneNode[boneCount];
             for (int i = 0; i < boneCount; i++)
-                boneList[i] = scene.FindNode(jointStrings[i])._node as MDL0BoneNode;
+            {
+                NodeEntry entry =  scene.FindNode(jointStringArray[i]);
+                if (entry != null && entry._node != null)
+                    boneList[i] = entry._node as MDL0BoneNode;
+                else
+                {
+                    //Search in reverse!
+                    foreach (NodeEntry node in scene._nodes)
+                    {
+                        if ((entry = RecursiveTestNode(jointString, node)) != null)
+                        {
+                            if (entry._node != null)
+                                boneList[i] = entry._node as MDL0BoneNode;
+                            break;
+                        }
+                    }
+
+                    //Couldn't find the bone
+                    if (boneList[i] == null)
+                        boneList[i] = new MDL0BoneNode();
+                }
+            }
 
             //Build command list
             foreach (InputEntry inp in skin._weightInputs)
@@ -170,6 +195,23 @@ namespace BrawlLib.Modeling
             remap.Dispose();
             return manager;
         }
+        static NodeEntry RecursiveTestNode(string jointStrings, NodeEntry node)
+        {
+            if (jointStrings.IndexOf(node._name) >= 0)
+                return node;
+            else if (jointStrings.IndexOf(node._sid) >= 0)
+                return node;
+            else if (jointStrings.IndexOf(node._id) >= 0)
+                return node;
+
+            NodeEntry e;
+            foreach (NodeEntry n in node._children)
+                if ((e = RecursiveTestNode(jointStrings, n)) != null)
+                    return e;
+
+            return null;
+        }
+
         static PrimitiveManager DecodePrimitivesUnweighted(NodeEntry n, GeometryEntry geo)
         {
             PrimitiveManager manager = DecodePrimitives(n._matrix, geo);
@@ -197,7 +239,7 @@ namespace BrawlLib.Modeling
             //Create remap table
             for (int i = 0; i < vCount; i++)
             {
-                //Create Vertex and look for match
+                //Create vertex and look for match
                 Vertex3 v = new Vertex3(n._matrix * pVert[i]);
 
                 int index = 0;

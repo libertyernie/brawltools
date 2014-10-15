@@ -208,7 +208,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class ARCEntryNode : U8EntryNode
     {
         public override ResourceType ResourceType { get { return _resourceType; }  }
-        public ResourceType _resourceType;
+        public ResourceType _resourceType = ResourceType.ARCEntry;
 
         [Browsable(true), TypeConverter(typeof(DropDownListCompression))]
         public override string Compression
@@ -243,8 +243,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (value == Index || value == _redirectIndex)
                     return;
 
-                _redirectIndex = (short)((int)value).Clamp(0, Parent.Children.Count -1);
-                SignalPropertyChange();
+                if ((_redirectIndex = (short)((int)value).Clamp(-1, Parent.Children.Count - 1)) < 0)
+                {
+                    _resourceType = ResourceType.ARCEntry;
+                    Name = GetName();
+                }
+                else
+                {
+                    _resourceType = ResourceType.Redirect;
+                    Name = "Redirect → " + _redirectIndex;
+                }
             } 
         }
 
@@ -268,8 +276,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _fileType = 0;
                 _fileIndex = (short)Parent._children.IndexOf(this);
                 _group = 0;
-                //_unk = 0;
                 _redirectIndex = 0;
+
                 if (_name == null)
                     _name = GetName();
             }
@@ -279,15 +287,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _fileType = header->FileType;
                 _fileIndex = header->_index;
                 _group = header->_groupIndex;
-                //_unk = header->_padding;
                 _redirectIndex = header->_redirectIndex;
+
                 if (_name == null)
-                    _name = GetName();
-                if (_redirectIndex != -1)
-                {
-                    _resourceType = ResourceType.Redirect;
-                    _name = "Redirect → " + _redirectIndex;
-                }
+                    if (_redirectIndex != -1)
+                    {
+                        _resourceType = ResourceType.Redirect;
+                        _name = "Redirect → " + _redirectIndex;
+                    }
+                    else
+                        _name = GetName();
             }
             else if (_name == null)
                 _name = Path.GetFileName(_origPath);

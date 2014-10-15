@@ -44,6 +44,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            //Clear the coordinates so they're reparsed,
+            //just in case the node has been replaced.
+            _points = null;
+
             hdr = *Header;
 
             if ((_name == null) && (Header->_stringOffset != 0))

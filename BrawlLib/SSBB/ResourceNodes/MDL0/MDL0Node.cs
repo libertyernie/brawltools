@@ -1336,7 +1336,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             v3._weightedPosition *= baseWeight;
 
                             foreach (MDL0VertexNode vNode in nodes)
-                                if (vNode != null)
+                                if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
                                     v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x++];
                             
                             v3._weightedPosition /= (totalWeight + baseWeight);

@@ -465,12 +465,14 @@ namespace BrawlLib.Modeling
                     model.BuildFromScratch(this);
                 }
             }
+#if !DEBUG
             catch (Exception x)
             {
                 MessageBox.Show("Cannot continue importing this model.\n" + Error + "\n\nException:\n" + x.ToString());
                 model = null;
                 Close();
             }
+#endif
             finally
             {
                 //Clean up the mess we've made
@@ -627,6 +629,7 @@ namespace BrawlLib.Modeling
             internal string _arrayId;
             internal int _arrayCount;
             internal object _arrayData; //Parser must dispose!
+            internal string _arrayDataString;
 
             internal string _accessorSource;
             internal int _accessorCount;
@@ -1447,6 +1450,12 @@ namespace BrawlLib.Modeling
                             string[] list = new string[src._arrayCount];
                             src._arrayData = list;
 
+                            byte* tempPtr = _reader._ptr;
+                            bool tempInTag = _reader._inTag;
+                            src._arrayDataString = _reader.ReadElementString();
+                            _reader._ptr = tempPtr;
+                            _reader._inTag = tempInTag;
+
                             for (int i = 0; i < src._arrayCount; i++)
                                 if (!_reader.ReadStringSingle())
                                     break;
@@ -1651,6 +1660,24 @@ namespace BrawlLib.Modeling
                         node._instances.Add(ParseInstance(InstanceType.Geometry));
                     else if (_reader.Name.Equals("instance_node", true))
                         node._instances.Add(ParseInstance(InstanceType.Node));
+                    else if (_reader.Name.Equals("extra", true))
+                    {
+                        while (_reader.BeginElement())
+                        {
+                            if (_reader.Name.Equals("technique", true))
+                            {
+                                while (_reader.BeginElement())
+                                {
+                                    if (_reader.Name.Equals("visibility", true))
+                                    {
+
+                                    }
+                                    _reader.EndElement();
+                                }
+                            }
+                            _reader.EndElement();
+                        }
+                    }
 
                     _reader.EndElement();
                 }
