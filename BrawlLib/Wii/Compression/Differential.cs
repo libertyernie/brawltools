@@ -50,7 +50,7 @@ namespace BrawlLib.Wii.Compression
                     total += *pSrc++;
                     *pDst++ = (ushort)total;
                 }
-                while (pSrc < (System.bushort*)ceil);
+                while ((byte*)pSrc < (byte*)ceil);
             }
         }
     }

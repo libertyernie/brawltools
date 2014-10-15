@@ -725,7 +725,7 @@ namespace BrawlLib.Wii.Animations
                                     *(bfloat*)pOffset++ = kf._keyRoots[0]._next._value;
                                 else
                                 {
-                                    *pOffset = (int)((System.bint*)(dataAddress) - pOffset); pOffset++;
+                                    *pOffset = (int)dataAddress - (int)pOffset; pOffset++;
                                     dataAddress += EncodeEntry(r + axis, AnimDataFormat.I12, kf, dataAddress);
                                 }
                             }
