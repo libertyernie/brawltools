@@ -70,6 +70,7 @@ namespace BrawlBox
         public DialogResult ShowDialog(MDL0Node model) { return ShowDialog(null, model); }
         public DialogResult ShowDialog(IWin32Window owner, MDL0Node model)
         {
+            model.Rebuild();
             _models.Add(model);
             try { return base.ShowDialog(owner); }
             finally { _models = null; }

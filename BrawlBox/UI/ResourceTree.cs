@@ -75,6 +75,7 @@ namespace BrawlBox
                         Resources.GMPS,
                         Resources.Redirect,
                         Resources.REL,//50
+                        Resources.BGMG,
                     });
                 }
                 return _imgList;

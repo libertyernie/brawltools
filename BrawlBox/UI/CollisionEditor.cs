@@ -1313,6 +1313,7 @@ namespace System.Windows.Forms
             {
                 CreateUndo();
                 hasMoved = true;
+                TargetNode.SignalPropertyChange();
             }
             
             _selectStart = _selectLast = point;

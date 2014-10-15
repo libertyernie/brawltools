@@ -17,14 +17,20 @@ they be held accountable for the manner in which it is used.
  - v0.7??- (??/??/2014) - BrawlLib v0.2??
 	. Support adding new collision nodes to ARC via right click.
 	. Support adding new BLOC to ARC via right click.
+	. Support adding and editing the following nodes in / to BLOC archives.
+		- GSND sound files
+		- ADSJ StepJump files, required to link rooms and levels.
+		- GDOR Adventure door files, requires rooms linked via ADSJ.
 	. Support for item frequency nodes.
 	. BrawlBox now displays redirected nodes with their own icon
 	. Fixed setting redirect index.
 	. Fixed embedded module files (common2 and common3) not parsing.
 	. Fixed BBox crashing when no vertices exist in Target model.
 	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
-	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa
-	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor
+	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
+	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor.
+	. Fixed shader0's tex ref not being set when importing .dae files.
+	. Added a live texture folder to the model previewer.
 
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b

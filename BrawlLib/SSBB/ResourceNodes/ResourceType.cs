@@ -139,5 +139,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         ADSJ = 0x5D2D,
         GBLK = 0x5D2E,
         GMPS = 0x5D2F,
+        BGMG = 0x5F32,
     }
 }

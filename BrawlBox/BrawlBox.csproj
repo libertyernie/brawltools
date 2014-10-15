@@ -163,6 +163,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
@@ -459,6 +460,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Brawlbox.ico" />
+    <None Include="Resources\BGMG.png" />
     <None Include="Resources\REL.png" />
     <None Include="Resources\Redirect.png" />
     <None Include="Resources\GMPS.png" />
