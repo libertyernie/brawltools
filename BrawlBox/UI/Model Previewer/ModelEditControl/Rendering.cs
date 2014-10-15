@@ -124,6 +124,8 @@ namespace System.Windows.Forms
                 else if (TargetModel != null)
                     TargetModel.RenderNormals(context);
 
+            #region Light Source Rendering
+
             //Show the user where the light source is
             if (_renderLightDisplay)
             {
@@ -211,10 +213,20 @@ namespace System.Windows.Forms
                 GL.Enable(EnableCap.DepthTest);
             }
 
+            #endregion
+
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
+            //If you ever make changes to GL attributes (enabled and disabled things)
+            //and don't want to keep track of what you changed,
+            //you can push all attributes and then pop them when you're done, like this.
+            //This will make sure the GL state is back to how it was before you changed it.
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
+            #region Brawl Stage Data Rendering
+
             if (RenderCollisions)
-            foreach (CollisionNode node in _collisions) node.Render(context, this.Parent as ModelPanel);
+            foreach (CollisionNode node in _collisions) node.Render(context, ModelPanel);
             
             #region RenderOverlays
             MDL0Node stgPos = null;
@@ -270,46 +282,57 @@ namespace System.Windows.Forms
                 GL.Color4(Color.Blue);
                 GL.Begin(PrimitiveType.LineLoop);
                 GL.LineWidth(15.0f);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+
+                Vector3
+                    camBone0 = CamBone0._frameMatrix.GetPoint(),
+                    camBone1 = CamBone1._frameMatrix.GetPoint(),
+                    deathBone0 = DeathBone0._frameMatrix.GetPoint(),
+                    deathBone1 = DeathBone1._frameMatrix.GetPoint();
+
+                GL.Vertex2(camBone0._x, camBone0._y);
+                GL.Vertex2(camBone1._x, camBone0._y);
+                GL.Vertex2(camBone1._x, camBone1._y);
+                GL.Vertex2(camBone0._x, camBone1._y);
                 GL.End();
                 GL.Begin(PrimitiveType.LineLoop);
                 GL.Color4(Color.Red);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(deathBone0._x, deathBone0._y);
+                GL.Vertex2(deathBone1._x, deathBone0._y);
+                GL.Vertex2(deathBone1._x, deathBone1._y);
+                GL.Vertex2(deathBone0._x, deathBone1._y);
                 GL.End();
                 GL.Color4(0.0f, 0.5f, 1.0f, 0.3f);
                 GL.Begin(PrimitiveType.TriangleFan);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(camBone0._x, camBone0._y);
+                GL.Vertex2(deathBone0._x, deathBone0._y);
+                GL.Vertex2(deathBone1._x, deathBone0._y);
+                GL.Vertex2(camBone1._x, camBone0._y);
                 GL.End();
                 GL.Begin(PrimitiveType.TriangleFan);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(camBone1._x, camBone1._y);
+                GL.Vertex2(deathBone1._x, deathBone1._y);
+                GL.Vertex2(deathBone0._x, deathBone1._y);
+                GL.Vertex2(camBone0._x, camBone1._y);
                 GL.End();
                 GL.Begin(PrimitiveType.TriangleFan);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone1._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone1._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
+                GL.Vertex2(camBone1._x, camBone0._y);
+                GL.Vertex2(deathBone1._x, deathBone0._y);
+                GL.Vertex2(deathBone1._x, deathBone1._y);
+                GL.Vertex2(camBone1._x, camBone1._y);
                 GL.End();
                 GL.Begin(PrimitiveType.TriangleFan);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone1._frameMatrix.GetPoint()._y);
-                GL.Vertex2(DeathBone0._frameMatrix.GetPoint()._x, DeathBone0._frameMatrix.GetPoint()._y);
-                GL.Vertex2(CamBone0._frameMatrix.GetPoint()._x, CamBone0._frameMatrix.GetPoint()._y);
+                GL.Vertex2(camBone0._x, camBone1._y);
+                GL.Vertex2(deathBone0._x, deathBone1._y);
+                GL.Vertex2(deathBone0._x, deathBone0._y);
+                GL.Vertex2(camBone0._x, camBone0._y);
                 GL.End();
             }
         
             #endregion
+
+            #endregion
+
+            GL.PopAttrib();
 
             RenderSCN0Controls(context);
             RenderTransformControl(context);
@@ -344,7 +367,7 @@ namespace System.Windows.Forms
                 }
 
                 //Render invisible depth planes for translation and scale controls
-                if (_editType != TransformType.Rotation && ((SelectedBone != null && RenderBones) || (VertexLoc != null && RenderVertices)))
+                if (_editType != TransformType.Rotation && (SelectedBone != null || VertexLoc != null))
                 {
                     #region Axis Selection Display List
 

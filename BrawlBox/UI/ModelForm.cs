@@ -130,7 +130,12 @@ namespace BrawlBox
                 for (int i = 0; i < _models.Count; i++)
                     if (_models[i] != null)
                         modelEditControl1.AppendTarget(_models[i]);
-                modelEditControl1.TargetModel = _models[0];
+
+                if (_models.Count > 1)
+                    modelEditControl1.models.SelectedIndex = 0;
+                else
+                    modelEditControl1.TargetModel = _models[0];
+
                 modelEditControl1.ResetBoneColors();
             }
             else
