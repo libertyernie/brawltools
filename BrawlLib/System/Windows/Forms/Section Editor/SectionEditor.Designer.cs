@@ -77,7 +77,7 @@
             this.hexBox1 = new Be.Windows.Forms.HexBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.fileSizeToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.selectedBytesToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.bitToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.OffsetToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -429,7 +429,7 @@
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -437,7 +437,7 @@
             // 
             this.pasteOverwriteToolStripMenuItem.Name = "pasteOverwriteToolStripMenuItem";
             this.pasteOverwriteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteOverwriteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pasteOverwriteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.pasteOverwriteToolStripMenuItem.Text = "Paste";
             this.pasteOverwriteToolStripMenuItem.Click += new System.EventHandler(this.pasteOverwriteToolStripMenuItem_Click);
             // 
@@ -601,7 +601,7 @@
             this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
-            this.fileSizeToolStripStatusLabel,
+            this.selectedBytesToolStripStatusLabel,
             this.bitToolStripStatusLabel,
             this.toolStripStatusLabel1,
             this.OffsetToolStripStatusLabel,
@@ -621,12 +621,12 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(75, 17);
             this.toolStripStatusLabel.Text = "Ln 0    Col 0";
             // 
-            // fileSizeToolStripStatusLabel
+            // selectedBytesToolStripStatusLabel
             // 
-            this.fileSizeToolStripStatusLabel.Name = "fileSizeToolStripStatusLabel";
-            this.fileSizeToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.fileSizeToolStripStatusLabel.Size = new System.Drawing.Size(52, 17);
-            this.fileSizeToolStripStatusLabel.Text = "0 Bytes";
+            this.selectedBytesToolStripStatusLabel.Name = "selectedBytesToolStripStatusLabel";
+            this.selectedBytesToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.selectedBytesToolStripStatusLabel.Size = new System.Drawing.Size(52, 17);
+            this.selectedBytesToolStripStatusLabel.Text = "0 Bytes";
             // 
             // bitToolStripStatusLabel
             // 
@@ -956,7 +956,7 @@
         private Panel pnlRight;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel toolStripStatusLabel;
-        private ToolStripStatusLabel fileSizeToolStripStatusLabel;
+        private ToolStripStatusLabel selectedBytesToolStripStatusLabel;
         private ToolStripStatusLabel bitToolStripStatusLabel;
         private Splitter splitter2;
         private ToolStripMenuItem fileToolStripMenuItem;

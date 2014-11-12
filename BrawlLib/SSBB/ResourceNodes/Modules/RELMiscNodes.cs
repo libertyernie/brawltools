@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public class RELGroupNode : RELEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
     }
 
     public unsafe class RELEntryNode : ResourceNode
@@ -23,7 +23,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         
         [Browsable(false)]
         public uint _offset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
+
         public string FileOffset { get { return "0x" + _offset.ToString("X"); } }
+        public string Size { get { return "0x" + WorkingUncompressed.Length.ToString("X"); } }
 
         [Browsable(false)]
         public VoidPtr BaseAddress { get { if (Root != null) return Root.WorkingUncompressed.Address; else return null; } }
@@ -40,17 +42,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        //[Browsable(false)]
-        //public ModuleSectionNode Location
-        //{
-        //    get
-        //    {
-        //        if (Root is RELNode)
-        //            foreach (ModuleSectionNode s in (Root as RELNode)._sections)
-        //                if (s.Offset <= _offset && s.Offset + s.Size > _offset)
-        //                    return s;
-        //        return null;
-        //    }
-        //}
+        [Browsable(false)]
+        public ModuleSectionNode Location
+        {
+            get
+            {
+                if (Root is RELNode)
+                    foreach (ModuleSectionNode s in (Root as RELNode)._sections)
+                        if (s._offset <= _offset && s._offset + s._dataSize > _offset)
+                            return s;
+                return null;
+            }
+        }
     }
 }

@@ -36,6 +36,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         REL = 0x1031,
         RELImport = 0x1100,
         RELSection = 0x1200,
+        RELMethod = 0x1300,
+        RELExternalMethod = 0x1400,
+        RELInheritance = 0x1500,
 
         //Misc
         CollisionDef = 0x1314,

@@ -852,6 +852,7 @@ namespace System.PowerPcAssembly
         cntlzd = 0x7C000074,
         addze = 0x7C000194,
         addme = 0x7C0001D4,
+        mullw = 0x7C0001D6, // mullw
 
         add = 0x7C000214, //add.
         add_D = 0x7C000215,

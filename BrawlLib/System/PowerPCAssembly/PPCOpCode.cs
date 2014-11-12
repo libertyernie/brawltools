@@ -106,6 +106,23 @@ namespace System.PowerPcAssembly
         }
     }
 
+    //  mullw
+    public unsafe class PPCMullw : PPCOpCode
+    {
+        public int LeftRegister { get { return _operands[0].Value; } set { _operands[0].Value = value; } }
+        public int RightRegister { get { return _operands[1].Value; } set { _operands[1].Value = value; } }
+        public int Value { get { return _operands[2].Value; } set { _operands[2].Value = value; } }
+
+        internal PPCMullw(uint value) : base(value)
+        {
+
+            _names.Add("mullw");
+            _operands.Add(new PPCOperand(this, OperandType.REGISTER, 16, 0x1F));       //  [0] Left Register
+            _operands.Add(new PPCOperand(this, OperandType.REGISTER, 21, 0x1F));       //  [1] Right Register
+            _operands.Add(new PPCOperand(this, OperandType.REGISTER, 11, 0x1F));       //  [2] Immediate Value
+        }
+    }
+
     //  subfic
     public unsafe class PPCSubfic : PPCOpCode
     {
