@@ -350,7 +350,7 @@ namespace BrawlBox
             // 
             // modelPanel1
             // 
-            this.modelPanel1.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel1.DefaultTranslate")));
+            this.modelPanel1.DefaultTranslate = new System.Vector3(0);
             this.modelPanel1.InitialYFactor = 100;
             this.modelPanel1.InitialZoomFactor = 5;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
