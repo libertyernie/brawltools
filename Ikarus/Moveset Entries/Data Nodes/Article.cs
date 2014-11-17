@@ -8,10 +8,12 @@ using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using Ikarus;
 using OpenTK.Graphics.OpenGL;
+using BrawlLib.SSBB.ResourceNodes;
+using Ikarus.ModelViewer;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class ArticleEntry : MovesetEntry
+    public unsafe class ArticleEntry : MovesetEntryNode
     {
         [Browsable(false)]
         public MDL0BoneNode CharBoneNode
@@ -67,7 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal List<int>[] _scriptOffsets;
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sArticle* hdr = (sArticle*)address;
             id = hdr->_id;
@@ -85,12 +87,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             off3 = hdr->_unknownD3;
 
             _extraOffsets = new List<int>();
-            _extraEntries = new List<MovesetEntry>();
+            _extraEntries = new List<MovesetEntryNode>();
             bint* extraAddr = (bint*)(address + 52);
-            for (int i = 0; i < (_size - 52) / 4; i++)
+            for (int i = 0; i < (_initSize - 52) / 4; i++)
                 _extraOffsets.Add(extraAddr[i]);
 
-            Static = _size > 52 && _extraOffsets[0] < 1480 && _extraOffsets[0] >= 0;
+            Static = _initSize > 52 && _extraOffsets[0] < 1480 && _extraOffsets[0] >= 0;
 
             //_collisionData = Parse<CollisionData>(off1);
 
@@ -175,8 +177,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public List<int> ExtraOffsets { get { return _extraOffsets; } }
         public List<int> _extraOffsets;
         [Category("Article"), Browsable(false)]
-        public List<MovesetEntry> ExtraEntries { get { return _extraEntries; } }
-        public List<MovesetEntry> _extraEntries;
+        public List<MovesetEntryNode> ExtraEntries { get { return _extraEntries; } }
+        public List<MovesetEntryNode> _extraEntries;
 
         /*
         public override void Parse(VoidPtr address)

@@ -5,7 +5,7 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     //public unsafe class MoveDefUnk7Node : MovesetEntry
     //{
@@ -45,7 +45,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     //    }
     //}
 
-    public unsafe class Unknown7Entry : MovesetEntry
+    public unsafe class Unknown7Entry : MovesetEntryNode
     {
         Bin32 v1, v2;
 
@@ -54,7 +54,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Unknown 7 Entry"), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 Flags2 { get { return v2; } set { v2 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             v1 = new Bin32(*(buint*)address);
             v2 = new Bin32(*(buint*)(address + 4));
@@ -68,7 +68,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
 
             *(buint*)address = v1._data;
             *(buint*)(address + 4) = v2._data;

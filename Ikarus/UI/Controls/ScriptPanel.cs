@@ -13,6 +13,8 @@ using System.Globalization;
 using System.Timers;
 using System.Windows.Forms;
 using System.Audio;
+using Ikarus.MovesetFile;
+using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
@@ -99,8 +101,8 @@ namespace Ikarus.UI
             this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
             this.dlgSave = new System.Windows.Forms.SaveFileDialog();
             this.ActionEditor = new System.Windows.Forms.Panel();
-            this.scriptEditor1 = new Ikarus.NewScriptEditor();
-            this.scriptEditor2 = new Ikarus.UI.ScriptEditor();
+            this.scriptEditor1 = new NewScriptEditor();
+            this.scriptEditor2 = new ScriptEditor();
             this.button1 = new System.Windows.Forms.Button();
             this.ActionFlagsPanel = new System.Windows.Forms.Panel();
             this.SubActionFlagsPanel = new System.Windows.Forms.Panel();
@@ -119,7 +121,7 @@ namespace Ikarus.UI
             this.comboActionEntry = new System.Windows.Forms.ComboBox();
             this.flagsToggle = new System.Windows.Forms.Button();
             this.spltEventMod = new System.Windows.Forms.Splitter();
-            this.eventModifier = new System.Windows.Forms.EventModifier();
+            this.eventModifier = new EventModifier();
             this.ctxSubActions.SuspendLayout();
             this.ActionEditor.SuspendLayout();
             this.SubActionFlagsPanel.SuspendLayout();
@@ -536,7 +538,7 @@ namespace Ikarus.UI
         public int _actionIndex = 0, _subActionIndex = 0;
         public void ActionGroupChanged()
         {
-            if (_scriptType != UI.ScriptType.Actions)
+            if (_scriptType != ScriptType.Actions)
                 return;
 
             if (comboActionEntry.SelectedIndex == _actionIndex)
@@ -547,7 +549,7 @@ namespace Ikarus.UI
 
         public void SubRoutineChanged()
         {
-            if (_scriptType != UI.ScriptType.Subroutines)
+            if (_scriptType != ScriptType.Subroutines)
                 return;
 
             if (RunTime.CurrentSubRoutine != null)
@@ -559,7 +561,7 @@ namespace Ikarus.UI
 
         public void SubactionGroupChanged()
         {
-            if (_scriptType != UI.ScriptType.Subactions)
+            if (_scriptType != ScriptType.Subactions)
                 return;
 
             if (comboActionEntry.SelectedIndex == _subActionIndex)
@@ -617,7 +619,7 @@ namespace Ikarus.UI
                 ActionFlagsPanel.Visible = false;
                 flagsToggle.Text = "[+] Flags";
                 comboActionEntry.Items.Clear();
-                if ((_scriptType = value) == UI.ScriptType.Subactions)
+                if ((_scriptType = value) == ScriptType.Subactions)
                 {
                     panel2.Visible = true;
                     flagsToggle.Visible = true;
@@ -629,7 +631,7 @@ namespace Ikarus.UI
                         "Other"});
                     comboActionEntry.SelectedIndex = _subActionIndex;
                 }
-                else if (_scriptType == UI.ScriptType.Actions)
+                else if (_scriptType == ScriptType.Actions)
                 {
                     panel2.Visible = true;
                     flagsToggle.Visible = true;
@@ -649,7 +651,7 @@ namespace Ikarus.UI
         }
         private void flagsToggle_Click(object sender, EventArgs e)
         {
-            if (ScriptType == UI.ScriptType.Subactions)
+            if (ScriptType == ScriptType.Subactions)
                 if (SubActionFlagsPanel.Visible)
                 {
                     SubActionFlagsPanel.Visible = false;
@@ -676,7 +678,7 @@ namespace Ikarus.UI
         public void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (comboActionEntry.SelectedIndex != -1)
-                if (ScriptType == UI.ScriptType.Subactions)
+                if (ScriptType == ScriptType.Subactions)
                 {
                     if (RunTime.CurrentSubaction != null)
                     {

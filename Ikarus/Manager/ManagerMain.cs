@@ -10,6 +10,9 @@ using BrawlLib.SSBBTypes;
 using System.Audio;
 using System.Globalization;
 using System.Threading;
+using Ikarus.MovesetFile;
+using Ikarus.ModelViewer;
+using Ikarus.UI;
 
 namespace Ikarus
 {
@@ -35,7 +38,7 @@ namespace Ikarus
         //This is the character that will be loaded at startup
         private static CharName _targetChar = CharName.Mario;
         private static CharacterInfo _selected = null;
-        private static MovesetFile _cmnMoveset;
+        private static MovesetNode _cmnMoveset;
         private static RSARNode _rsar;
 
         private static ARCNode _cmnMovesetArc;
@@ -159,7 +162,7 @@ namespace Ikarus
 
         //Nodes specific to the selected character
         public static BRESNode Animations { get { return _selected == null ? null : _selected.Animations; } }
-        public static MovesetFile Moveset { get { return _selected == null ? null : _selected.Moveset; } }
+        public static MovesetNode Moveset { get { return _selected == null ? null : _selected.Moveset; } }
 
         public static unsafe MDL0Node TargetModel { get { return SelectedInfo == null ? null : SelectedInfo.SelectedModel; } }
 
@@ -182,7 +185,7 @@ namespace Ikarus
             }
         }
 
-        public static MovesetFile CommonMoveset
+        public static MovesetNode CommonMoveset
         {
             get
             {
@@ -191,7 +194,7 @@ namespace Ikarus
                 if (CommonMovesetArc == null) return null;
                 if (CommonMovesetArc.Children.Count == 0) return null;
                 ARCEntryNode entry = CommonMovesetArc.Children[0] as ARCEntryNode;
-                (_cmnMoveset = new MovesetFile(CharName.None)).Initialize(null, entry.WorkingUncompressed);
+                (_cmnMoveset = new MovesetNode(CharName.None)).Initialize(null, entry.WorkingUncompressed);
                 return _cmnMoveset;
             }
         }

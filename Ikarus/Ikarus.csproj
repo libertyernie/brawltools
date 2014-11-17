@@ -70,6 +70,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Moveset Builder\LookupManager.cs" />
+    <Compile Include="Moveset Builder\MovesetBuilder.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12 - Copy - Copy - Copy.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk10.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk7.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12.cs" />
+    <Compile Include="Moveset Entries\MovesetEntryNode.cs" />
     <Compile Include="Moveset Entries\Scripts\Script.cs" />
     <Compile Include="Moveset Entries\Scripts\Event.cs" />
     <Compile Include="Moveset Entries\Scripts\Parameter.cs" />
@@ -110,7 +117,7 @@
     <Compile Include="Moveset Entries\General.cs" />
     <Compile Include="Moveset Entries\Items\AnimParamNode.cs" />
     <None Include="Moveset Entries\Lookup.cs" />
-    <Compile Include="Moveset Entries\MovesetFile.cs" />
+    <Compile Include="Moveset Entries\MovesetNode.cs" />
     <Compile Include="Moveset Entries\RawParamList.cs" />
     <Compile Include="Moveset Entries\Scripts\Scriptor.cs" />
     <Compile Include="RunTimeData\Attributes.cs" />
@@ -157,6 +164,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\SyntaxTextBox\Win32.cs" />
+    <Compile Include="Unk12.cs" />
     <Compile Include="Utilities.cs" />
     <None Include="Moveset Builder\DataCommonBuilder.cs" />
     <Compile Include="Moveset Builder\DataBuilder.cs" />

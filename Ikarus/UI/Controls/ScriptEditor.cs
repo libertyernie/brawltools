@@ -5,6 +5,8 @@ using System.Drawing;
 using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
+using Ikarus.MovesetFile;
+using Ikarus;
 
 namespace Ikarus.UI
 {
@@ -236,12 +238,12 @@ namespace Ikarus.UI
 
         public ScriptPanel _mainWindow;
 
-        private MovesetFile _mDef;
+        private MovesetNode _mDef;
         private Panel panel2;
         public ListBox EventList;
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MovesetFile MoveDef
+        public MovesetNode MoveDef
         {
             get { return _mDef; }
             set { _mDef = value; }

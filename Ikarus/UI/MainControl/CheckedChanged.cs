@@ -15,6 +15,8 @@ using Gif.Components;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
+using Ikarus;
+using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
@@ -98,7 +100,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundType.Stretch;
+                modelPanel._bgType = GLPanel.BackgroundImageType.Stretch;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -111,7 +113,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundType.Center;
+                modelPanel._bgType = GLPanel.BackgroundImageType.Center;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -124,7 +126,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundType.ResizeWithBars;
+                modelPanel._bgType = GLPanel.BackgroundImageType.ResizeWithBars;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -301,8 +303,7 @@ namespace Ikarus.UI
         public ScriptPanel MovesetPanel { get { return scriptPanel.scriptPanel; } }
         public void numFPS_ValueChanged(object sender, EventArgs e) 
         {
-            RunTime._timer.TargetRenderFrequency = 
-            (double)pnlPlayback.numFPS.Value; 
+            RunTime._timer.TargetRenderFrequency = (double)pnlPlayback.numFPS.Value; 
         }
         public void chkLoop_CheckedChanged(object sender, EventArgs e) 
         {
@@ -338,7 +339,7 @@ namespace Ikarus.UI
 
         public void SelectedPolygonChanged(object sender, EventArgs e) 
         {
-            _targetModel._polyIndex = _targetModel._objList.IndexOf(modelListsPanel1.SelectedPolygon);
+            _targetModel._selectedObjectIndex = _targetModel._objList.IndexOf(modelListsPanel1.SelectedPolygon);
 
             if (modelListsPanel1._syncObjTex)
                 modelListsPanel1.UpdateTextures();

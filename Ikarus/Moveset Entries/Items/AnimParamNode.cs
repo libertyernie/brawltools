@@ -11,9 +11,9 @@ using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.OpenGL;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class AnimParamSection : ExternalEntry
+    public unsafe class AnimParamSection : ExternalEntryNode
     {
         AnimParamHeader hdr;
 
@@ -50,7 +50,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Data Offsets")]
         public int Unk15 { get { return hdr.Unknown15; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             AnimParamHeader* h = (AnimParamHeader*)address;
 

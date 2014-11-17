@@ -10,6 +10,9 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using System.Linq;
 using OpenTK.Graphics.OpenGL;
+using Ikarus.ModelViewer;
+using Ikarus.MovesetFile;
+using Ikarus;
 
 namespace Ikarus.UI
 {
@@ -581,7 +584,7 @@ namespace Ikarus.UI
             _animations = new SortedList<string, Dictionary<AnimType, AnimationNode>>();
             foreach (var grid in new AttributeGrid[] { attributeGridSSE, attributeGridMain }) {
                 grid.AttributeArray = Manager.AttributeArray;
-                grid.CellEdited += (o, e) => MainForm.UpdateMDLPnl();
+                grid.CellEdited += (o, e) => MainForm.UpdateModelPanel();
                 grid.DictionaryChanged += (o, e) => Manager._dictionaryChanged = true;
             }
         }
@@ -939,7 +942,7 @@ namespace Ikarus.UI
 
         public void UpdateMoveset()
         {
-            MovesetFile moveset = Manager.Moveset;
+            MovesetNode moveset = Manager.Moveset;
 
             if (moveset == null)
                 return;

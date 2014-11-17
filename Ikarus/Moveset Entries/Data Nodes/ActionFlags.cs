@@ -6,9 +6,9 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class ActionFlags : MovesetEntry
+    public unsafe class ActionFlags : MovesetEntryNode
     {
         public Bin32 flags1, flags2, flags3, flags4;
 
@@ -21,7 +21,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Raw Flags Binary"), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 Flags4b { get { return flags4; } set { flags4 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sActionFlags* hdr = (sActionFlags*)address;
             flags1 = new Bin32((uint)hdr->_flags1);
@@ -38,7 +38,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
 
             sActionFlags* header = (sActionFlags*)address;
             header->_flags1 = (int)(uint)flags1;

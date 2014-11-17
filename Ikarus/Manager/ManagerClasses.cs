@@ -7,6 +7,9 @@ using System.IO;
 using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
+using Ikarus.MovesetFile;
+using Ikarus.ModelViewer;
+using Ikarus.UI;
 
 namespace Ikarus
 {
@@ -20,7 +23,7 @@ namespace Ikarus
         public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFiles;
 
         private BRESNode _animations = null;
-        private MovesetFile _moveset = null;
+        private MovesetNode _moveset = null;
 
         private string RLoc(int i) { return String.Format(_Rlocs[i], Folder); }
         private static readonly string[] _Rlocs = 
@@ -125,7 +128,7 @@ namespace Ikarus
             }
         }
 
-        internal MovesetFile Moveset
+        internal MovesetNode Moveset
         {
             get
             {
@@ -135,7 +138,7 @@ namespace Ikarus
                 if (m == null) return null;
                 if (m.Children.Count == 0) return null;
                 ARCEntryNode entry = m.Children[0] as ARCEntryNode;
-                (_moveset = new MovesetFile((CharName)_charId)).Initialize(null, entry.WorkingUncompressed);
+                (_moveset = new MovesetNode((CharName)_charId)).Initialize(null, entry.WorkingUncompressed);
                 return _moveset;
             }
         }

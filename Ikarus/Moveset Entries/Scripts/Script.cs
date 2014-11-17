@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using System.Drawing;
-using Ikarus;
 using System.Collections;
+using Ikarus.ModelViewer;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public class SubActionEntry : MovesetEntry
+    public class SubActionEntry : MovesetEntryNode
     {
         [Category("Sub Action")]
         public AnimationFlags Flags { get { return _flags; } set { _flags = value; SignalPropertyChange(); } }
@@ -78,7 +76,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString() { return String.Format("[{0}] {1}", _index.ToString().PadLeft(3), _animationName); }
     }
-    public class ActionEntry : MovesetEntry
+    public class ActionEntry : MovesetEntryNode
     {
         [Category("Action")]
         public int ID { get { return _id; } }
@@ -126,7 +124,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString() { return String.Format("[{0}] Action", ID.ToString().PadLeft(3)); }
     }
-    public unsafe class Script : ExternalEntry, IEnumerable<Event>
+    public unsafe class Script : ExternalEntryNode, IEnumerable<Event>
     {
         #region Child Enumeration
 
@@ -198,8 +196,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Script")]
         public bool ForceWrite { get { return _build; } set { _build = value; } }
 
-        public List<MovesetEntry> _actionRefs = new List<MovesetEntry>();
-        public MovesetEntry[] ActionRefs { get { return _actionRefs.ToArray(); } }
+        public List<MovesetEntryNode> _actionRefs = new List<MovesetEntryNode>();
+        public MovesetEntryNode[] ActionRefs { get { return _actionRefs.ToArray(); } }
 
         public ArticleEntry _parentArticle = null;
         public Script(ArticleEntry article) 
@@ -215,7 +213,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _scriptor = new Scriptor(this);
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _build = true;
             sEvent* ev = (sEvent*)address;
@@ -249,12 +247,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             sParameter* paramAddr = (sParameter*)address;
             sEvent* eventAddr = (sEvent*)(address + off);
 
-            _rebuildAddr = eventAddr;
+            RebuildAddress = eventAddr;
 
             foreach (Event e in _children)
             {
                 if (e._name == "FADEF00D" || e._name == "FADE0D8A") continue;
-                e._rebuildAddr = eventAddr;
+                e.RebuildAddress = eventAddr;
                 *eventAddr = new sEvent() { _id = e.ID, _nameSpace = e.NameSpace, _numArguments = (byte)e.Count, _unk1 = e._unknown };
                 if (e.Count > 0)
                 {
@@ -266,11 +264,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 eventAddr++;
                 foreach (Parameter p in e)
                 {
-                    p._rebuildAddr = paramAddr;
+                    p.RebuildAddress = paramAddr;
                     if (p.ParamType != ParamType.Offset)
                         *paramAddr = new sParameter() { _type = (int)p.ParamType, _data = p.Data };
                     else
-                        MovesetFile.Builder._postProcessNodes.Add(p);
+                        MovesetNode.Builder._postProcessNodes.Add(p);
                     paramAddr++;
                 }
             }

@@ -4,16 +4,16 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using Ikarus;
+using Ikarus.MovesetFile;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus
 {
     public class DropDownListBonesMDef : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            MDL0Node model = (context.Instance as MovesetEntry).Model;
+            MDL0Node model = (context.Instance as MovesetEntryNode).Model;
             if (model != null)
                 return new StandardValuesCollection(model._linker.BoneCache.Select(n => n.ToString()).ToList());
             return null;
@@ -49,7 +49,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            ExternalEntry[] values = (context.Instance as MovesetEntry)._root.ReferenceList.ToArray();
+            ExternalEntryNode[] values = (context.Instance as MovesetEntryNode)._root.ReferenceList.ToArray();
             if (values != null)
                 return new StandardValuesCollection(values.Select(n => n.ToString()).ToList());
             return null;

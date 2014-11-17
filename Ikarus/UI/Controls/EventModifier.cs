@@ -3,8 +3,11 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
 using System.Drawing;
 using System.Reflection;
-using Ikarus.UI;
+using System.Windows.Forms;
 using Ikarus;
+using Ikarus.MovesetFile;
+using System.Windows.Forms;
+using Ikarus.ModelViewer;
 
 namespace System.Windows.Forms
 {
@@ -703,7 +706,7 @@ namespace System.Windows.Forms
                         _targetNode._externalEntry.References.Remove(_targetNode);
                         _targetNode._externalEntry = null;
                     }
-                    (param._externalEntry = param._root.ReferenceList[comboBox2.SelectedIndex] as ExternalEntry).References.Add(param);
+                    (param._externalEntry = param._root.ReferenceList[comboBox2.SelectedIndex] as ExternalEntryNode).References.Add(param);
                 }
             }
             else

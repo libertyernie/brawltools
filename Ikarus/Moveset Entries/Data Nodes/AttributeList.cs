@@ -5,10 +5,11 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
+using BrawlLib.SSBB.ResourceNodes;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class AttributeList : MovesetEntry, IAttributeList
+    public unsafe class AttributeList : MovesetEntryNode, IAttributeList
     {
         [Browsable(false)]
         public UnsafeBuffer AttributeBuffer { get { if (_buffer != null) return _buffer; else return _buffer = new UnsafeBuffer(0x2E4); } }
@@ -25,7 +26,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _buffer = new UnsafeBuffer(0x2E4);
             Memory.Move(_buffer.Address, address, 0x2E4);
@@ -37,7 +38,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             Memory.Move(address, _buffer.Address, 0x2E4);
         }
 

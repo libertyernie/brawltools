@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     public class MoveDefCharSpecificNode : ExternalEntry { }
     public unsafe class MoveDefParamListNode : MoveDefCharSpecificNode

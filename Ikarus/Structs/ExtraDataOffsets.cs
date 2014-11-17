@@ -1,16 +1,16 @@
-﻿using BrawlLib.SSBB.ResourceNodes;
+﻿using Ikarus.MovesetBuilder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace Ikarus
+namespace Ikarus.MovesetFile
 {
     public interface OffsetHolder
     {
         void Parse(DataSection node, VoidPtr address);
-        void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address);
+        void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address);
         int Count { get; }
     }
     public unsafe class ExtraDataOffsets
@@ -159,13 +159,13 @@ namespace Ikarus
                     node._articles.Add((int)addr->Entries[i], node.Parse<ArticleEntry>((int)addr->Entries[i]));
             }
 
-            public void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
             {
                 Offsets* addr = (Offsets*)address;
                 int i = 0;
-                foreach (MovesetEntry e in entries)
+                foreach (MovesetEntryNode e in entries)
                 {
-                    addr->Entries[i] = (uint)e._rebuildAddr - (uint)basePtr;
+                    addr->Entries[i] = (uint)e.RebuildAddress - (uint)basePtr;
                     lookup.Add(&addr->Entries[i++]);
                 }
             }
@@ -215,7 +215,7 @@ namespace Ikarus
                         node._articles.Add((int)addr->Entries[i], node.Parse<ArticleEntry>((int)addr->Entries[i]));
             }
 
-            public void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
             {
 
             }
@@ -256,7 +256,7 @@ namespace Ikarus
                 }
             }
 
-            public void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
             {
 
             }
@@ -299,7 +299,7 @@ namespace Ikarus
                 }
             }
 
-            public void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
             {
 
             }
@@ -342,7 +342,7 @@ namespace Ikarus
                 }
             }
 
-            public void Write(List<MovesetEntry> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
             {
 
             }

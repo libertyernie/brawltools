@@ -2,18 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrawlLib.OpenGL;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
-using Ikarus;
-using BrawlLib.Modeling;
 using System.Collections;
+using BrawlLib.SSBB.ResourceNodes;
+using BrawlLib.OpenGL;
+using Ikarus.ModelViewer;
+using BrawlLib.Modeling;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class Event : MovesetEntry, IEnumerable<Parameter>
+    public unsafe class Event : MovesetEntryNode, IEnumerable<Parameter>
     {
         #region Child Enumeration
 
@@ -149,7 +148,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return s;
         }
 
-        public static Event Deserialize(string s, MovesetFile node)
+        public static Event Deserialize(string s, MovesetNode node)
         {
             if (String.IsNullOrEmpty(s))
                 return null;
@@ -211,9 +210,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 NewParam(i, 0);
         }
 
-        public MovesetEntry NewParam(int i, int value) { return NewParam(i, value, -1); }
-        public MovesetEntry NewParam(int i, int value, ParamType type) { return NewParam(i, value, (int)type); }
-        public MovesetEntry NewParam(int i, int value, int typeOverride)
+        public MovesetEntryNode NewParam(int i, int value) { return NewParam(i, value, -1); }
+        public MovesetEntryNode NewParam(int i, int value, ParamType type) { return NewParam(i, value, (int)type); }
+        public MovesetEntryNode NewParam(int i, int value, int typeOverride)
         {
             Parameter child = null;
             EventInformation info = Info;
@@ -295,7 +294,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         #region Reading/Writing
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sEvent* e = (sEvent*)address;
             _eventOffset = e->_argumentOffset;
@@ -362,7 +361,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                             //If the offset is -1, this is probably an external reference.
                             //Otherwise, check to see if the offset point to an external entry.
-                            ExternalEntry ext;
+                            ExternalEntryNode ext;
                             if (offset == -1)
                                 ext = _root.TryGetExternal((int)_eventOffset + i * 8 + 4);
                             else
@@ -644,7 +643,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public int _articleIndex;
         public MDL0Node _model;
-        public MovesetFile Root;
+        public MovesetNode Root;
         public int HitboxID = -1;
         public int HitboxSize = 0;
         public uint _event = 0;
@@ -690,7 +689,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_event != 0x06000D00) //Offensive Collision
                 return;
 
-            MovesetFile node = Root;
+            MovesetNode node = Root;
             ResourceNode[] bl = _model._linker.BoneCache;
 
             int boneindex = (int)_parameters[0] >> 16;

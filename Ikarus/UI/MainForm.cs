@@ -16,14 +16,14 @@ using BrawlLib.Wii.Audio;
 using BrawlLib.OpenGL;
 using System.Diagnostics;
 
-namespace Ikarus
+namespace Ikarus.UI
 {
     public partial class MainForm : Form
     {
         private static MainForm _instance;
         public static MainForm Instance { get { return _instance == null ? _instance = new MainForm(null) : _instance; } }
         
-        public static void UpdateMDLPnl() { Instance._mainControl.ModelPanel.Invalidate(); }
+        public static void UpdateModelPanel() { Instance._mainControl.ModelPanel.Invalidate(); }
 
         SplashForm _splashForm;
         public MainForm(SplashForm s)

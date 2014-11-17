@@ -2,157 +2,39 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using BrawlLib.IO;
-using BrawlLib.Wii.Animations;
-using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
-using BrawlLib.Wii.Compression;
 using System.Runtime.InteropServices;
-using Ikarus;
+using Ikarus.MovesetBuilder;
+using BrawlLib.SSBB.ResourceNodes;
+using Ikarus.ModelViewer;
+using Ikarus.UI;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public abstract unsafe class MovesetEntry
+    public unsafe class MovesetNode : ARCEntryNode
     {
-        //Properties
-        [Browsable(false)]
-        public int RebuildOffset { get { return _rebuildAddr == null || BaseAddress == null || _rebuildAddr < BaseAddress ? -1 : (int)_rebuildAddr - (int)BaseAddress; } }
-        [Browsable(false)]
-        public VoidPtr BaseAddress { get { return _root.BaseAddress; } }
-        [Browsable(false)]
-        public MDL0Node Model { get { return _root.Model; } }
-        public MovesetFile _root;
-        [Browsable(false)]
-        public bool External { get { return _externalEntry != null; } }
-        [Browsable(false)]
-        public bool HasChanged
-        {
-            get { return _changed || (_root != null && _root.ChangedEntries.Contains(this)); }
-            set { _changed = value; if (_root != null) _root.ChangedEntries.Remove(this); }
-        }
-        [Browsable(false)]
-        public virtual string Name
-        {
-            get { return _name; }
-        }
-
-        //Variables
-        public int _size = -1;
-        public string _name;
-        public int _offset;
-        public ExternalEntry _externalEntry = null;
-        public int _offsetID = 0;
-        public VoidPtr _rebuildAddr = null;
-        public int _entryLength = 0, _childLength = 0;
-        public int _lookupCount = 0;
-        public List<VoidPtr> _lookupOffsets = new List<VoidPtr>();
-        private bool _changed;
-        internal int _index;
-        public int _calcSize;
-
-        [Browsable(false)]
-        public virtual bool IsDirty { get { return HasChanged; } set { HasChanged = value; } }
-        [Browsable(false)]
-        public virtual int Index { get { return _index; } }
-
-        //Functions
-        /// <summary>
-        /// Call this when an entry's size changes
-        /// </summary>
-        public void SignalRebuildChange() { if (_root != null) _root.RebuildNeeded = true; HasChanged = true; }
-        /// <summary>
-        /// Call this when a property has been changed but the size remains the same
-        /// </summary>
-        public void SignalPropertyChange() { HasChanged = true; }
-
-        /// <summary>
-        /// Returns an offset of the given address relative to the base address.
-        /// </summary>
-        public int Offset(VoidPtr address) { return _root.Offset(address); }
-        /// <summary>
-        /// Returns an address of the given offset relative to the base address.
-        /// </summary>
-        public VoidPtr Address(int offset) { return BaseAddress + offset; }
-        /// <summary>
-        /// Returns the size of the entry at the given offset.
-        /// </summary>
-        public int GetSize(int offset) { return _root.GetSize(offset); }
-
-        /// <summary>
-        /// Use this to parse a node of a specific type at the given offset.
-        /// This will automatically add the node to the entry cache, get its size,
-        /// set its offset value, and attach its external entry if it has one.
-        /// Be sure to send the proper constructor parameters for the given type
-        /// as well, or an error will be thrown.
-        /// </summary>
-        public T Parse<T>(int offset, params object[] parameters) where T : MovesetEntry
-        {
-            //The attributes entry is an exception; it's the only entry that has an offset of 0.
-            if (parameters.Length > 0 && parameters[0] is string && (string)parameters[0] == "Attributes")
-                parameters = new object[0];
-            else if (offset <= 0)
-                return null;
-
-            T n = Activator.CreateInstance(typeof(T), parameters) as T;
-            n.Setup(_root, offset);
-            n.Parse(Address(offset));
-            return n;
-        }
-        /// <summary>
-        /// Use this to parse a node of a specific type at the given address.
-        /// This will automatically add the node to the entry cache, get its size,
-        /// set its offset value, and attach its external entry if it has one.
-        /// Be sure to send the proper constructor parameters for the given type
-        /// as well, or an error will be thrown.
-        /// </summary>
-        public T Parse<T>(VoidPtr address, params object[] parameters) where T : MovesetEntry
-        {
-            int offset = Offset(address);
-            if (offset <= 0)
-                return null;
-
-            T n = Activator.CreateInstance(typeof(T), parameters) as T;
-            n.Setup(_root, offset);
-            n.Parse(address);
-            return n;
-        }
-        internal void Setup(MovesetFile node, int offset) { Setup(node, offset, null); }
-        internal void Setup(MovesetFile node, int offset, string name)
-        {
-            _name = name;
-            _root = node;
-            _offset = offset;
-            if (_size <= 0)
-                _size = _root.GetSize(_offset);
-            _root.EntryCache[_offset] = this;
-            if ((_externalEntry = _root.TryGetExternal(offset)) != null)
-                _externalEntry.References.Add(this);
-        }
-        public int GetSize() { return _calcSize = OnGetSize(); }
-        public int Write(VoidPtr address) { OnWrite(address); return RebuildOffset; }
-
-        //Overridable functions
-        public virtual void Parse(VoidPtr address) { }
-        protected virtual void OnWrite(VoidPtr address) { }
-        protected virtual int OnGetSize() { return 0; }
-        protected virtual void PostProcess(LookupManager lookupOffsets) { }
-
-        public override string ToString() { return String.IsNullOrEmpty(Name) ? base.ToString() : Name; }
-    }
-
-    public unsafe class MovesetFile : ARCEntryNode
-    {
-        public MovesetFile(CharName character) { _character = character; }
+        public MovesetNode(CharName character) { _character = character; }
 
         #region Variables & Properties
+
+        /// <summary>
+        /// 
+        /// </summary>
+        [Browsable(true), Category("Moveset Node")]
+        public int DataSize { get { return _dataSize; } }
+        internal int _dataSize;
+
+        [Browsable(false)]
+        public bool Initializing { get { return _initializing; } }
+        internal bool _initializing = false;
 
         /// <summary>
         /// Returns the name of the character this moveset is for.
         /// This can be directed converted into CharFolder for easy access to necessary files
         /// </summary>
+        [Browsable(false)]
         public CharName Character { get { return _character; } }
         private CharName _character;
 
@@ -160,31 +42,37 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// Returns the address after the moveset header that all offsets use as a base.
         /// This should only be used when parsing or writing.
         /// </summary>
-        public VoidPtr BaseAddress { get { return MovesetFile.Builder == null ? WorkingUncompressed.Address + 0x20 : MovesetFile.Builder._baseAddress; } }
+        [Browsable(false)]
+        public VoidPtr BaseAddress { get { return MovesetNode.Builder == null ? WorkingUncompressed.Address + MovesetHeader.Size : MovesetNode.Builder._baseAddress; } }
 
         /// <summary>
         /// Returns all entries in the moveset that have had a property changed.
         /// Changed entries do not necessarily mean that a rebuild is needed.
         /// </summary>
-        public BindingList<MovesetEntry> ChangedEntries { get { return _changedEntries; } }
-        private BindingList<MovesetEntry> _changedEntries = new BindingList<MovesetEntry>();
+        [Browsable(false)]
+        public BindingList<MovesetEntryNode> ChangedEntries { get { return _changedEntries; } }
+        private BindingList<MovesetEntryNode> _changedEntries = new BindingList<MovesetEntryNode>();
 
         /// <summary>
         /// True if the moveset file has had something added or removed and must be rebuilt.
         /// </summary>
+        [Browsable(false)]
         public bool RebuildNeeded { get { return _rebuildNeeded; } set { _rebuildNeeded = value; } }
         private bool _rebuildNeeded = false;
 
         /// <summary>
         /// List of external subroutines located in Fighter.pac.
         /// </summary>
-        public BindingList<ExternalEntry> ReferenceList { get { return _referenceList; } }
-        private BindingList<ExternalEntry> _referenceList;
+        [Browsable(false)]
+        public BindingList<ExternalEntryNode> ReferenceList { get { return _referenceList; } }
+        private BindingList<ExternalEntryNode> _referenceList;
+
         /// <summary>
         /// List of important entries located in this moveset file.
         /// </summary>
-        public BindingList<ExternalEntry> SectionList { get { return _sectionList; } }
-        private BindingList<ExternalEntry> _sectionList;
+        [Browsable(false)]
+        public BindingList<ExternalEntryNode> SectionList { get { return _sectionList; } }
+        private BindingList<ExternalEntryNode> _sectionList;
 
         #region Important Sections
         /// <summary>
@@ -212,27 +100,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// A list of all action scripts referenced only through offset events.
         /// </summary>
+        [Browsable(false)]
         public BindingList<Script> SubRoutines { get { return _subRoutines; } }
         private BindingList<Script> _subRoutines;
+
+        /// <summary>
+        /// A list of all action scripts referenced in the section list.
+        /// </summary>
+        [Browsable(false)]
         public BindingList<Script> CommonSubRoutines { get { return _commonSubRoutines; } }
         private BindingList<Script> _commonSubRoutines;
 
-        public BindingList<ActionEntry> Actions
-        {
-            get { return _actions; }
-            set
-            {
-                if ((value == null && _actions != null) || (value != null && _actions == null) || value.Count != _actions.Count)
-                    SignalPropertyChange();
-                _actions = value;
-                SignalPropertyChange();
-            }
-        }
-        private BindingList<ActionEntry> _actions;
+        [Browsable(false)]
+        public BindingList<ActionEntry> Actions { get { return _actions; } }
+        internal BindingList<ActionEntry> _actions;
 
         /// <summary>
         /// Provides the size of any entry based on its offset.
         /// </summary>
+        [Browsable(false)]
         public SortedList<int, int> LookupSizes { get { return _lookupSizes; } }
         private SortedList<int, int> _lookupSizes;
 
@@ -240,54 +126,63 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// Provides easy access to any entry in the moveset using its original offset.
         /// Use only when parsing.
         /// </summary>
-        internal SortedDictionary<int, MovesetEntry> EntryCache { get { return _entryCache; } }
-        private SortedDictionary<int, MovesetEntry> _entryCache;
+        internal SortedDictionary<int, MovesetEntryNode> EntryCache { get { return _entryCache; } }
+        private SortedDictionary<int, MovesetEntryNode> _entryCache;
 
         /// <summary>
         /// Provides easy access to the model that this moveset will affect.
         /// </summary>
         public MDL0Node Model { get { return MainForm.Instance._mainControl.TargetModel; } }
 
-        internal List<MovesetEntry> _postProcessEntries;
+        internal List<MovesetEntryNode> _postProcessEntries;
         internal List<List<int>>[] _scriptOffsets;
 
         #endregion
 
         #region Parsing
 
-        /// <summary>
-        /// Returns a node of the given type at the offset in the moveset file.
-        /// </summary>
-        public T Parse<T>(int offset) where T : MovesetEntry
-        {
-            T n = Activator.CreateInstance(typeof(T)) as T;
-            n.Setup(this, offset);
-            n.Parse(BaseAddress + offset);
-            return n;
-        }
-
-        internal int _dataSize;
-        internal bool _initializing = false;
         public override bool OnInitialize()
         {
             //Start initializing. 
             //This enables some functions for use.
             _initializing = true;
 
-            //Get structs
             MovesetHeader* hdr = (MovesetHeader*)WorkingUncompressed.Address;
-            sStringTable* stringTable = hdr->StringTable;
+
+            InitData(hdr);
+            GetLookupSizes(hdr);
+            ParseExternals(hdr);
+
+            PostParse();
+            CleanUp();
+
+            return _initializing = false;
+        }
+        /// <summary>
+        /// Initializes all variables.
+        /// </summary>
+        private void InitData(MovesetHeader* hdr)
+        {
+            //Get header values
             _dataSize = hdr->_fileSize;
+
+            //Debug
+            for (int i = 0; i < 3; i++)
+            {
+                int value = (&hdr->_pad1)[i];
+                if (value != 0)
+                    Console.WriteLine("MovesetNode InitData " + i);
+            }
 
             //Create lists
             _subRoutines = new BindingList<Script>();
             _commonSubRoutines = new BindingList<Script>();
-            _referenceList = new BindingList<ExternalEntry>();
-            _sectionList = new BindingList<ExternalEntry>();
+            _referenceList = new BindingList<ExternalEntryNode>();
+            _sectionList = new BindingList<ExternalEntryNode>();
             _lookupSizes = new SortedList<int, int>();
             _actions = new BindingList<ActionEntry>();
-            _entryCache = new SortedDictionary<int, MovesetEntry>();
-            _postProcessEntries = new List<MovesetEntry>();
+            _entryCache = new SortedDictionary<int, MovesetEntryNode>();
+            _postProcessEntries = new List<MovesetEntryNode>();
             _scriptOffsets = new List<List<int>>[5];
             for (int i = 0; i < 5; i++)
             {
@@ -295,7 +190,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int x = 0; x < (i == 0 ? 2 : i == 1 ? 4 : 1); x++)
                     _scriptOffsets[i].Add(new List<int>());
             }
-
+        }
+        /// <summary>
+        /// Creates a table of offsets with a corresponding data size at each offset.
+        /// </summary>
+        private void GetLookupSizes(MovesetHeader* hdr)
+        {
             //Read lookup offsets first and use them to get entry sizes at each offset.
             bint* lookup = hdr->LookupEntries;
             //First add each offset to the dictionary with size of 0.
@@ -320,6 +220,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             //The last entry in the moveset file goes right up to the lookup offsets.
             _lookupSizes[prev] = Offset(lookup) - prev;
+        }
+        /// <summary>
+        /// Parses references and section data.
+        /// </summary>
+        private void ParseExternals(MovesetHeader* hdr)
+        {
+            sStringTable* stringTable = hdr->StringTable;
 
             //Parse references
             int numRefs = hdr->_externalSubRoutineCount;
@@ -328,22 +235,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 sStringEntry* entries = (sStringEntry*)hdr->ExternalSubRoutines;
                 for (int i = 0; i < numRefs; i++)
                 {
-                    ExternalEntry e = Parse<ExternalEntry>(entries[i]._dataOffset);
+                    ExternalEntryNode e = Parse<ExternalEntryNode>(entries[i]._dataOffset);
                     e._name = stringTable->GetString(entries[i]._stringOffset);
                     _referenceList.Add(e);
                 }
             }
 
             //Parse sections
-            int numSections = hdr->_dataTableEntryCount;
+            int numSections = hdr->_sectionCount;
             if (numSections > 0)
             {
                 int dataIndex = -1;
-                sStringEntry* entries = (sStringEntry*)hdr->DataTable;
+                sStringEntry* entries = (sStringEntry*)hdr->Sections;
                 for (int i = 0; i < numSections; i++)
                 {
-                    ExternalEntry e = null;
-                    int off = entries[i]._dataOffset;
+                    ExternalEntryNode entry = null;
+                    int offset = entries[i]._dataOffset;
                     string name = stringTable->GetString(entries[i]._stringOffset);
                     switch (name)
                     {
@@ -353,27 +260,28 @@ namespace BrawlLib.SSBB.ResourceNodes
                             dataIndex = i;
                             _sectionList.Add(null);
                             continue;
-                        //case "animParam":
-                        //    e = _animParam = Parse<AnimParamSection>(off);
-                        //    break;
+                        case "animParam":
+                            entry = _animParam = Parse<AnimParamSection>(offset);
+                            break;
                         //case "subParam":
-                        //    e = _subParam = Parse<SubParamSection>(off);
+                        //    entry = _subParam = Parse<SubParamSection>(offset);
                         //    break;
                         default:
                             if (name.Contains("AnimCmd"))
                             {
-                                e = Parse<Script>(off);
-                                _commonSubRoutines.Add(e as Script);
+                                entry = Parse<Script>(offset);
+                                _commonSubRoutines.Add(entry as Script);
                             }
                             else
-                                e = Parse<RawData>(off);
+                                entry = Parse<RawDataNode>(offset);
                             break;
                     }
-                    e.DataOffsets.Add(off);
-                    e._name = name;
-                    _sectionList.Add(e);
+                    entry.DataOffsets.Add(offset);
+                    entry._name = name;
+                    _sectionList.Add(entry);
                 }
 
+                //Now parse the data section. This contains all the main moveset information.
                 if (dataIndex >= 0)
                 {
                     int off = entries[dataIndex]._dataOffset;
@@ -395,19 +303,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
             }
-
+        }
+        private void PostParse()
+        {
             while (_postProcessEntries.Count > 0)
             {
                 //Make a copy of the post process nodes
-                MovesetEntry[] arr = _postProcessEntries.ToArray();
+                MovesetEntryNode[] arr = _postProcessEntries.ToArray();
                 //Clear the original array so it can be repopulated
                 _postProcessEntries.Clear();
                 //Parse subroutines - may add more entries to post process
-                foreach (MovesetEntry e in arr)
+                foreach (MovesetEntryNode e in arr)
                     if (e is EventOffset)
                         ((EventOffset)e).LinkScript();
             }
-
+        }
+        /// <summary>
+        /// Makes all final changes before the parsed data is ready to be used.
+        /// </summary>
+        private void CleanUp()
+        {
             //Sort subroutines by offset
             _subRoutines = new BindingList<Script>(_subRoutines.OrderBy(x => x._offset).ToList());
             //Add the proper information to the sorted subroutines
@@ -418,8 +333,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (EventOffset e in s.ActionRefs)
                     e._offsetInfo = new ScriptOffsetInfo(ListValue.SubRoutines, TypeValue.None, s.Index);
             }
-
-            return _initializing = false;
+        }
+        class Temp
+        {
+            public int _offset;
+            public int _size;
+            public Temp(int offset, int size)
+            {
+                _offset = offset;
+                _size = size;
+            }
         }
 
         //This calculate data entry sizes.
@@ -444,28 +367,49 @@ namespace BrawlLib.SSBB.ResourceNodes
             return t.Select(x => x._size).ToArray();
         }
 
+        /// <summary>
+        /// Returns a node of the given type at an offset in the moveset file.
+        /// </summary>
+        public T Parse<T>(int offset) where T : MovesetEntryNode
+        {
+            return MovesetEntryNode.Parse<T>(this, Address(offset));
+        }
+        /// <summary>
+        /// Returns a node of the given type at an address in the moveset file.
+        /// </summary>
+        public T Parse<T>(VoidPtr address) where T : MovesetEntryNode
+        {
+            return MovesetEntryNode.Parse<T>(this, address);
+        }
+
         #endregion
 
         #region Saving
 
         /// <summary>
         /// Returns the moveset builder of the moveset currently being written.
-        /// Use only after calling CalculateSize or Rebuild.
+        /// This can only be used while calculating the size or rebuilding a moveset.
         /// </summary>
         public static NewMovesetBuilder Builder { get { return _currentlyBuilding == null ? null : _currentlyBuilding._builder; } }
-        public static MovesetFile _currentlyBuilding = null;
+        public static MovesetNode _currentlyBuilding = null;
+
+        public bool IsRebuilding { get { return _builder != null && _builder.Rebuilding; } }
+        public bool IsCalculatingSize { get { return _builder != null && _builder.CalculatingSize; } }
 
         internal NewMovesetBuilder _builder;
         public override int OnCalculateSize(bool force)
         {
             _currentlyBuilding = this;
-            return (_builder = new NewMovesetBuilder()).CalcSize(this);
+            int size = (_builder = new NewMovesetBuilder(this)).GetSize();
+            _currentlyBuilding = null;
+            return size;
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             _currentlyBuilding = this;
             _builder.Write(this, address, length);
             _currentlyBuilding = null;
+            _builder = null;
         }
         #endregion
 
@@ -476,7 +420,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Offset(VoidPtr address) 
         { 
             if (!_initializing && _currentlyBuilding != this) 
-                throw new Exception("Error: Not initializing or rebuilding."); 
+                throw new Exception("Not initializing or rebuilding."); 
             return (int)(address - BaseAddress);
         }
         /// <summary>
@@ -485,7 +429,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public VoidPtr Address(int offset)
         {
             if (!_initializing && _currentlyBuilding != this)
-                throw new Exception("Error: Not initializing or rebuilding.");
+                throw new Exception("Not initializing or rebuilding.");
             return BaseAddress + offset;
         }
         /// <summary>
@@ -494,7 +438,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int GetSize(int offset)
         {
             if (!_initializing)
-                throw new Exception("Error: Not initializing.");
+                throw new Exception("Not initializing.");
             if (_lookupSizes.ContainsKey(offset))
             {
                 int size = _lookupSizes[offset];
@@ -506,15 +450,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Use this only when parsing.
         /// </summary>
-        public ExternalEntry TryGetExternal(int offset)
+        public ExternalEntryNode TryGetExternal(int offset)
         {
             if (!_initializing)
-                throw new Exception("Error: Not initializing."); 
-            foreach (ExternalEntry e in _referenceList)
+                throw new Exception("Not initializing."); 
+            foreach (ExternalEntryNode e in _referenceList)
                 foreach (int i in e.DataOffsets)
                     if (i == offset)
                         return e;
-            foreach (ExternalEntry e in _sectionList)
+            foreach (ExternalEntryNode e in _sectionList)
                 if (e!= null && e.DataOffsets.Count > 0 && e.DataOffsets[0] == offset)
                     return e;
             return null;
@@ -522,10 +466,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Use this only when parsing.
         /// </summary>
-        public MovesetEntry GetEntry(int offset)
+        public MovesetEntryNode GetEntry(int offset)
         {
             if (!_initializing)
-                throw new Exception("Error: Not initializing."); 
+                throw new Exception("Not initializing."); 
             if (_entryCache.ContainsKey(offset))
                 return _entryCache[offset];
             return null;
@@ -536,12 +480,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Script GetScript(int offset)
         {
             if (!_initializing)
-                throw new Exception("Error: Not initializing."); 
+                throw new Exception("Not initializing."); 
 
             if (offset < 0)
                 return null;
 
-            MovesetEntry e = GetEntry(offset);
+            MovesetEntryNode e = GetEntry(offset);
 
             if (e is Script)
                 return e as Script;
@@ -556,7 +500,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal ScriptOffsetInfo GetScriptLocation(int offset)
         {
             if (!_initializing)
-                throw new Exception("Error: Not initializing."); 
+                throw new Exception("Not initializing."); 
 
             //Create new offset info
             ScriptOffsetInfo info = new ScriptOffsetInfo();
@@ -589,8 +533,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             info.list++;
 
             //Search reference entry offsets
-            MovesetEntry e = GetEntry(offset);
-            if (e is ExternalEntry && e != null)
+            MovesetEntryNode e = GetEntry(offset);
+            if (e is ExternalEntryNode && e != null)
             {
                 info.index = e.Index;
                 return info;
@@ -620,7 +564,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             return info;
         }
-#endregion
+        #endregion
+
+        #region Misc Functions
 
         /// <summary>
         /// Returns the script at the given location.
@@ -722,6 +668,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             //        }
             //}
         }
+
+        #endregion
     }
 
     public enum ListValue
@@ -744,52 +692,5 @@ namespace BrawlLib.SSBB.ResourceNodes
         Other = 3,
         Entry = 0,
         Exit = 1,
-    }
-
-    public unsafe class OffsetValue : MovesetEntry
-    {
-        [Category("Offset Entry")]
-        public int DataOffset { get { return _dataOffset; } }
-        private int _dataOffset = 0;
-
-        public override void Parse(VoidPtr address) { _dataOffset = *(bint*)address; }
-    }
-
-    public unsafe class ExternalEntry : MovesetEntry
-    {
-        [Browsable(false)]
-        public List<int> DataOffsets { get { return _dataOffsets; } set { _dataOffsets = value; } }
-        private List<int> _dataOffsets = new List<int>();
-
-        [Browsable(false)]
-        public List<MovesetEntry> References { get { return _references; } set { _references = value; } }
-        private List<MovesetEntry> _references = new List<MovesetEntry>();
-
-        public override void Parse(VoidPtr address)
-        {
-            _dataOffsets = new List<int>();
-            _dataOffsets.Add(_offset);
-            int offset = *(bint*)address;
-            while (offset > 0)
-            {
-                _dataOffsets.Add(offset);
-                offset = *(bint*)(BaseAddress + offset);
-
-                //Infinite loops are NO GOOD
-                if (_dataOffsets.Contains(offset))
-                    break;
-            }
-        }
-    }
-
-    internal class Temp
-    {
-        public int _offset;
-        public int _size;
-        public Temp(int offset, int size)
-        {
-            _offset = offset;
-            _size = size;
-        }
     }
 }

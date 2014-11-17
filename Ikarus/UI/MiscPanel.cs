@@ -12,6 +12,7 @@ using BrawlLib.SSBBTypes;
 using System.Globalization;
 using System.Timers;
 using System.Windows.Forms;
+using Ikarus.MovesetFile;
 
 namespace Ikarus.UI
 {

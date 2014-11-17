@@ -6,7 +6,7 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     public unsafe class MoveDefStaticArticleGroupNode : MovesetEntry
     {

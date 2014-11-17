@@ -7,10 +7,12 @@ using System.Windows.Forms;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
 using Ikarus;
+using Ikarus.MovesetBuilder;
+using Ikarus.ModelViewer;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class Parameter : MovesetEntry
+    public unsafe class Parameter : MovesetEntryNode
     {
         public Event _event;
 
@@ -85,7 +87,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return Data.ToString();
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sParameter* hdr = (sParameter*)address;
             _value = hdr->_data;
@@ -99,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sParameter* header = (sParameter*)address;
             header->_type = (int)ParamType;
             header->_data = _value;
@@ -295,7 +297,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //    SignalPropertyChange();
                 //    return;
                 //}
-                MovesetEntry r = _root.GetEntry(value);
+                MovesetEntryNode r = _root.GetEntry(value);
                 if (r != null && r is Script)
                     Data = value;
                 else MessageBox.Show("An action could not be located.");
@@ -311,7 +313,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (_externalEntry.Name != value)
                         _externalEntry.References.Remove(this);
 
-                foreach (ExternalEntry e in _root.ReferenceList)
+                foreach (ExternalEntryNode e in _root.ReferenceList)
                     if (e.Name == value)
                     {
                         _externalEntry = e;
@@ -330,9 +332,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal Script GetScript() { return _root.GetScript(RawOffset); }
         public Script _script;
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             
             //if (RawOffset > 0)
             //{
@@ -363,7 +365,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal void LinkScript()
         {
-            MovesetEntry e = _root.GetEntry(RawOffset);
+            MovesetEntryNode e = _root.GetEntry(RawOffset);
             bool exist = e != null && e is Event;
 
             _offsetInfo = _root.GetScriptLocation(RawOffset);
@@ -403,14 +405,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void PostProcess(LookupManager lookupOffsets)
         {
-            sParameter* arg = (sParameter*)_rebuildAddr;
+            sParameter* arg = (sParameter*)RebuildAddress;
             arg->_type = (int)ParamType;
             if (_script != null)
             {
                 //if (action._entryOffset == 0)
                 //    Console.WriteLine("Action offset = 0");
                 
-                arg->_data = Offset(_script._rebuildAddr);
+                arg->_data = Offset(_script.RebuildAddress);
                 if (arg->_data > 0)
                     lookupOffsets.Add(arg->_data.Address);
             }
@@ -418,15 +420,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 arg->_data = -1;
                 if (External)
-                    _rebuildAddr += 4;
+                    RebuildAddress += 4;
                 else
-                    foreach (ExternalEntry e in _root.ReferenceList)
+                    foreach (ExternalEntryNode e in _root.ReferenceList)
                         if (e.Name == this.Name)
                         {
                             _externalEntry = e;
                             //if (!e.References.Contains(this))
                                 e.References.Add(this);
-                            _rebuildAddr += 4;
+                            RebuildAddress += 4;
                             break;
                         }
             }
@@ -515,9 +517,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Variable")]
         public int Number { get { return number; } set { number = value; GetValue(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             _val = ResolveVariable(Data);
         }
 
@@ -588,9 +590,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Requirement")]
         public bool Not { get { return not; } set { not = value; GetValue(); } }
 
-        public override void  Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
- 	        base.Parse(address);
+ 	        base.OnParse(address);
             _val = GetRequirement(Data);
         }
 
@@ -677,9 +679,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             val._data = (uint)Data;
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             val._data = (uint)Data;
         }
 
@@ -796,9 +798,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             val._data = (uint)Data;
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
- 	         base.Parse(address);
+ 	         base.OnParse(address);
              val._data = (uint)Data;
         }
         

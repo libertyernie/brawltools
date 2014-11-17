@@ -81,7 +81,7 @@ namespace Ikarus.UI
                             _scaling = true;
                             _oldScale = bone._frameState._scale;
                         }
-                        modelPanel._forceNoSelection = true;
+                        modelPanel._allowSelection = false;
                         if (_rotating || _translating || _scaling)
                             BoneChange(SelectedBone);
                     }
@@ -133,9 +133,7 @@ namespace Ikarus.UI
 
                 _snapX = _snapY = _snapZ = _snapCirc = false;
                 _rotating = _translating = _scaling = false;
-                modelPanel._forceNoSelection = false;
-                //if (modelPanel1._selecting)
-                    modelPanel._selecting = false;
+                modelPanel.AllowSelection = true;
             }
         }
 
@@ -463,9 +461,9 @@ namespace Ikarus.UI
 
                 Vector3 vec3 = v.WeightedPosition;
                 Vector2 vec2 = (Vector2)modelPanel.Project(vec3);
-                Point start = modelPanel._selStart, end = modelPanel._selEnd;
-                Vector2 min = new Vector2(Math.Min(start.X, end.X), Math.Min(start.Y, end.Y));
-                Vector2 max = new Vector2(Math.Max(start.X, end.X), Math.Max(start.Y, end.Y));
+                System.Drawing.Point start = modelPanel._selStart, end = modelPanel._selEnd;
+                Vector2 min = new Vector2((float)Math.Min(start.X, end.X), (float)Math.Min(start.Y, end.Y));
+                Vector2 max = new Vector2((float)Math.Max(start.X, end.X), (float)Math.Max(start.Y, end.Y));
                 if ((vec2 <= max) && (vec2 >= min))
                     if (Alt)
                     {
@@ -487,26 +485,25 @@ namespace Ikarus.UI
         public void ResetBoneColors()
         {
             if (_targetModels != null)
-            foreach (MDL0Node m in _targetModels)
-                if (m._linker != null && m._linker.BoneCache != null)
-                    foreach (MDL0BoneNode b in m._linker.BoneCache)
-                        b._boneColor = b._nodeColor = Color.Transparent;
+                foreach (MDL0Node m in _targetModels)
+                    if (m._linker != null && m._linker.BoneCache != null)
+                        foreach (MDL0BoneNode b in m._linker.BoneCache)
+                            b._boneColor = b._nodeColor = Color.Transparent;
         }
         
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
         public void ResetVertexColors()
         {
-            //foreach (Vertex3 v in _selectedVertices)
             if (_targetModels != null)
-            foreach (MDL0Node m in _targetModels)
-                if (m._objList != null)
-                    foreach (MDL0ObjectNode o in m._objList)
-                        if (o._manager != null)
-                            foreach (Vertex3 v in o._manager._vertices)
-                            {
-                                v._highlightColor = Color.Transparent;
-                                v._selected = false;
-                            }
+                foreach (MDL0Node m in _targetModels)
+                    if (m._objList != null)
+                        foreach (MDL0ObjectNode o in m._objList)
+                            if (o._manager != null)
+                                foreach (Vertex3 v in o._manager._vertices)
+                                {
+                                    v._highlightColor = Color.Transparent;
+                                    v._selected = false;
+                                }
         }
         #endregion
     }

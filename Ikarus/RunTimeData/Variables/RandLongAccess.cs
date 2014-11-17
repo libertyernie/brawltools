@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Globalization;
 using System.ComponentModel;
+using Ikarus.MovesetFile;
+using Ikarus.ModelViewer;
 
 namespace Ikarus
 {

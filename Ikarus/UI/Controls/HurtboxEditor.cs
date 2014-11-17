@@ -7,8 +7,10 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
+using Ikarus.MovesetFile;
+using Ikarus;
 
-namespace Ikarus.UI.Controls
+namespace Ikarus.UI
 {
     public partial class HurtboxEditor : UserControl
     {

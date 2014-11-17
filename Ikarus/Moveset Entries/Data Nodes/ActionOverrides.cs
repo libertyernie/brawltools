@@ -6,10 +6,11 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 using System.Collections;
+using Ikarus.MovesetBuilder;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class ActionOverrideList : MovesetEntry, IEnumerable<ActionOverrideEntry>, IList
+    public unsafe class ActionOverrideList : MovesetEntryNode, IEnumerable<ActionOverrideEntry>, IList
     {
         #region Child Enumeration
 
@@ -122,7 +123,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _children = new List<ActionOverrideEntry>();
             sActionOverride* entry = (sActionOverride*)address;
@@ -145,13 +146,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             foreach (ActionOverrideEntry e in _children)
             {
-                e._rebuildAddr = address;
+                e.RebuildAddress = address;
                 sActionOverride* addr = (sActionOverride*)address;
                 addr->_actionID = e._actionId;
-                MovesetFile.Builder._postProcessNodes.Add(this);
+                MovesetNode.Builder._postProcessNodes.Add(this);
                 if (e._script != null && e._script.Count > 0)
                     _lookupOffsets.Add(addr->_commandListOffset.Address);
                 address += 8;
@@ -166,11 +167,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             foreach (ActionOverrideEntry e in _children)
                 if (e._script != null && e._script.Count > 0)
-                    ((sActionOverride*)e._rebuildAddr)->_commandListOffset = Offset(e._script._rebuildAddr);
+                    ((sActionOverride*)e.RebuildAddress)->_commandListOffset = Offset(e._script.RebuildAddress);
         }
     }
 
-    public unsafe class ActionOverrideEntry : MovesetEntry
+    public unsafe class ActionOverrideEntry : MovesetEntryNode
     {
         public int _actionId;
         private int _commandListOffset;
@@ -181,7 +182,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Script Override")]
         public int CommandListOffset { get { return _commandListOffset; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sActionOverride* hdr = (sActionOverride*)address;
             _actionId = hdr->_actionID;

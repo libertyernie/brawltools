@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.ExceptionServices;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     public unsafe class MoveDefLookupNode : MovesetEntry
     {

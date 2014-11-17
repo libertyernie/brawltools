@@ -6,9 +6,9 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class BoneReferences2 : MovesetEntry
+    public unsafe class BoneReferences2 : MovesetEntryNode
     {
         public List<BoneIndexValue> _bones;
         private int _handNBoneIndex1, _handNBoneIndex2, _handNBoneIndex3, _handNBoneIndex4, _dataOffset, _count;
@@ -26,7 +26,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Bone References 2")]
         public int EntryCount { get { return _count; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _bones = new List<BoneIndexValue>();
 
@@ -56,7 +56,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (BoneIndexValue b in _bones)
                 b.Write(addr++);
 
-            _rebuildAddr = addr;
+            RebuildAddress = addr;
 
             sDataBoneRef2* header = (sDataBoneRef2*)addr;
             header->_handNBoneIndex1 = HandNBoneIndex1;

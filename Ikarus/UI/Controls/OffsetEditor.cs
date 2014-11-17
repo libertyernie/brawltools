@@ -3,6 +3,9 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
 using System.Drawing;
 using Ikarus;
+using Ikarus.MovesetFile;
+using System.Windows.Forms;
+using Ikarus.ModelViewer;
 
 namespace System.Windows.Forms
 {

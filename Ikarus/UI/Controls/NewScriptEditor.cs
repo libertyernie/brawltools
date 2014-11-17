@@ -10,8 +10,10 @@ using System.Globalization;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Threading;
 using UrielGuy.SyntaxHighlightingTextBox;
+using Ikarus.MovesetFile;
+using Ikarus;
 
-namespace Ikarus
+namespace System.Windows.Forms
 {
     public partial class NewScriptEditor : UserControl
     {
@@ -32,6 +34,7 @@ namespace Ikarus
                 intelBox.SelectedIndex = 0;
         }
 
+        #region Arrays
         public string[] _highlightWords = 
         {
             "Ref",
@@ -54,6 +57,26 @@ namespace Ikarus
             "default",
             "loop",
         };
+        public char[] _separators =
+        {
+            ' ',
+            '\r',
+            '\n',
+            ',',
+            '.',
+            ')',
+            '(',
+            '!',
+            ']',
+            '[',
+            '}',
+            '{',
+            ';',
+            '+',
+            '=',
+            '\t',
+        };
+        #endregion
 
         //Milliseconds the user has to type before errors are highlighted
         const int _errorCheckTime = 2000;
@@ -74,22 +97,7 @@ namespace Ikarus
             _bWorker.WorkerSupportsCancellation = true;
             _bWorker.DoWork += _bWorker_DoWork;
 
-            textBox.Seperators.Add(' ');
-            textBox.Seperators.Add('\r');
-            textBox.Seperators.Add('\n');
-            textBox.Seperators.Add(',');
-            textBox.Seperators.Add('.');
-            textBox.Seperators.Add(')');
-            textBox.Seperators.Add('(');
-            textBox.Seperators.Add('!');
-            textBox.Seperators.Add(']');
-            textBox.Seperators.Add('[');
-            textBox.Seperators.Add('}');
-            textBox.Seperators.Add('{');
-            textBox.Seperators.Add(';');
-            textBox.Seperators.Add('+');
-            textBox.Seperators.Add('=');
-            textBox.Seperators.Add('\t');
+            textBox.Seperators.AddRange(_separators);
 
             Font tmp = new Font(textBox.Font, FontStyle.Bold);
 
@@ -212,7 +220,7 @@ namespace Ikarus
                 if (CharOK(c, e.Shift) && !e.Alt && !e.Control)
                 {
                     _start = textBox.SelectionStart;
-                    Point p = textBox.GetPositionFromCharIndex(textBox.SelectionStart);
+                    System.Drawing.Point p = textBox.GetPositionFromCharIndex(textBox.SelectionStart);
                     p.Y += (int)textBox.Font.GetHeight() * 2 - 6;
                     pnlIntel.Location = p;
 

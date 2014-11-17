@@ -7,9 +7,9 @@ using BrawlLib.SSBBTypes;
 using Ikarus;
 using System.Collections;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class ModelVisibility : MovesetEntry, IEnumerable<ModelVisReference>
+    public unsafe class ModelVisibility : MovesetEntryNode, IEnumerable<ModelVisReference>
     {
         #region Child Enumeration
 
@@ -82,7 +82,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Model Visibility")]
         public int DefaultsCount { get { return hdr._defaultsCount; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _references = new List<ModelVisReference>();
 
@@ -327,15 +327,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _switches = new List<ModelVisBoneSwitch>();
 
-            base.Parse(address);
+            base.OnParse(address);
         }
     }
 
-    public unsafe class ModelVisBoneSwitch : MovesetEntry, IEnumerable<ModelVisGroup>
+    public unsafe class ModelVisBoneSwitch : MovesetEntryNode, IEnumerable<ModelVisGroup>
     {
         #region Child Enumeration
 
@@ -407,7 +407,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Bone Group Switch")]
         public int DefaultGroup { get { return _defaultGroup; } set { _defaultGroup = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _children = new List<ModelVisGroup>();
 
@@ -421,7 +421,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class ModelVisGroup : MovesetEntry
+    public unsafe class ModelVisGroup : MovesetEntryNode
     {
         public List<BoneIndexValue> _bones;
         
@@ -435,7 +435,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Bone Group Switch")]
         public int DefaultGroup { get { return _defaultGroup; } set { _defaultGroup = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _bones = new List<BoneIndexValue>();
 

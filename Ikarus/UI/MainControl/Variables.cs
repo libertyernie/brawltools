@@ -15,6 +15,9 @@ using Gif.Components;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
+using Ikarus.ModelViewer;
+using Ikarus;
+using Ikarus.MovesetFile;
 
 namespace Ikarus.UI
 {

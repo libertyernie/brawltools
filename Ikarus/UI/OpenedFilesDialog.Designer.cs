@@ -1,4 +1,4 @@
-﻿namespace Ikarus.UI
+﻿namespace System.Windows.Forms
 {
     partial class OpenedFilesDialog
     {

@@ -15,50 +15,50 @@ using Ikarus;
 using BrawlLib.Modeling;
 using System.Windows.Forms;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class Miscellaneous : MovesetEntry
+    public unsafe class Miscellaneous : MovesetEntryNode
     {
-        sDataMisc misc;
+        sDataMisc _hdr;
 
         [Category("Misc Offsets")]
-        public int UnknownSection1Offset { get { return misc.UnknownSection1Offset; } }
+        public int UnknownSection1Offset { get { return _hdr.UnknownSection1Offset; } }
         [Category("Misc Offsets")]
-        public int FinalSmashAuraOffset { get { return misc.FinalSmashAuraOffset; } }
+        public int FinalSmashAuraOffset { get { return _hdr.FinalSmashAuraOffset; } }
         [Category("Misc Offsets")]
-        public int UnkBoneSectionCount { get { return misc.FinalSmashAuraCount; } }
+        public int UnkBoneSectionCount { get { return _hdr.FinalSmashAuraCount; } }
         [Category("Misc Offsets")]
-        public int HurtBoxOffset { get { return misc.HurtBoxOffset; } }
+        public int HurtBoxOffset { get { return _hdr.HurtBoxOffset; } }
         [Category("Misc Offsets")]
-        public int HurtBoxCount { get { return misc.HurtBoxCount; } }
+        public int HurtBoxCount { get { return _hdr.HurtBoxCount; } }
         [Category("Misc Offsets")]
-        public int LedgegrabOffset { get { return misc.LedgegrabOffset; } }
+        public int LedgegrabOffset { get { return _hdr.LedgegrabOffset; } }
         [Category("Misc Offsets")]
-        public int LedgegrabCount { get { return misc.LedgegrabCount; } }
+        public int LedgegrabCount { get { return _hdr.LedgegrabCount; } }
         [Category("Misc Offsets")]
-        public int UnknownSection2Offset { get { return misc.UnknownSection2Offset; } }
+        public int UnknownSection2Offset { get { return _hdr.UnknownSection2Offset; } }
         [Category("Misc Offsets")]
-        public int UnknownSection2Count { get { return misc.UnknownSection2Count; } }
+        public int UnknownSection2Count { get { return _hdr.UnknownSection2Count; } }
         [Category("Misc Offsets")]
-        public int BoneRefOffset { get { return misc.BoneRef2Offset; } }
+        public int BoneRefOffset { get { return _hdr.BoneRef2Offset; } }
         [Category("Misc Offsets")]
-        public int UnknownSection3Offset { get { return misc.UnknownSection3Offset; } }
+        public int UnknownSection3Offset { get { return _hdr.UnknownSection3Offset; } }
         [Category("Misc Offsets")]
-        public int SoundDataOffset { get { return misc.SoundDataOffset; } }
+        public int SoundDataOffset { get { return _hdr.SoundDataOffset; } }
         [Category("Misc Offsets")]
-        public int UnkSection5Offset { get { return misc.UnknownSection5Offset; } }
+        public int UnkSection5Offset { get { return _hdr.UnknownSection5Offset; } }
         [Category("Misc Offsets")]
-        public int MultiJumpOffset { get { return misc.MultiJumpOffset; } }
+        public int MultiJumpOffset { get { return _hdr.MultiJumpOffset; } }
         [Category("Misc Offsets")]
-        public int GlideOffset { get { return misc.GlideOffset; } }
+        public int GlideOffset { get { return _hdr.GlideOffset; } }
         [Category("Misc Offsets")]
-        public int CrawlOffset { get { return misc.CrawlOffset; } }
+        public int CrawlOffset { get { return _hdr.CrawlOffset; } }
         [Category("Misc Offsets")]
-        public int CollisionData { get { return misc.CollisionDataOffset; } }
+        public int CollisionData { get { return _hdr.CollisionDataOffset; } }
         [Category("Misc Offsets")]
-        public int TetherOffset { get { return misc.TetherOffset; } }
+        public int TetherOffset { get { return _hdr.TetherOffset; } }
         [Category("Misc Offsets")]
-        public int UnknownSection12Offset { get { return misc.UnknownSection12Offset; } }
+        public int UnknownSection12Offset { get { return _hdr.UnknownSection12Offset; } }
 
         public CollisionData _collisionData;
         public EntryListOffset<IndexValue> _unknown18;
@@ -76,154 +76,36 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MiscGlide _glide;
         public MiscCrawl _crawl;
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             //Get header values
-            sDataMisc* hdr = (sDataMisc*)address;
-            misc = *hdr;
+            _hdr = *(sDataMisc*)address;
 
             //Parse all misc entries.
             //If an offset is 0, the entry will be set to null.
-            _unknown1 = Parse<EntryList<IndexValue>>(misc[0], 4);
-            _finalSmashAura = Parse<EntryList<MiscFinalSmashAura>>(misc[1], 0x14, misc[2]);
-            _hurtBoxes = Parse<EntryList<MiscHurtBox>>(misc[3], 0x20, misc[4]);
-            _ledgeGrabs = Parse<EntryList<MiscLedgeGrab>>(misc[5], 0x10, misc[6]);
-            _unknown7 = Parse<EntryList<MiscUnknown7Entry>>(misc[7], 0x20, misc[8]);
-            _boneRefs = Parse<EntryList<BoneIndexValue>>(misc[9], 4, 10);
-            _unknown10 = Parse<MiscUnknown10>(misc[10]);
-            _soundData = Parse<MiscSoundData>(misc[11]);
-            _unkSection5 = Parse<MiscUnknown12>(misc[12]);
-            _multiJump = Parse<MiscMultiJump>(misc[13]);
-            _glide = Parse<MiscGlide>(misc[14]);
-            _crawl = Parse<MiscCrawl>(misc[15]);
-            _collisionData = Parse<CollisionData>(misc[16]);
-            _tether = Parse<MiscTether>(misc[17]);
-            _unknown18 = Parse<EntryListOffset<IndexValue>>(misc[18], 4);
+            _unknown1 = Parse<EntryList<IndexValue>>(_hdr[0], 4);
+            _finalSmashAura = Parse<EntryList<MiscFinalSmashAura>>(_hdr[1], 0x14, _hdr[2]);
+            _hurtBoxes = Parse<EntryList<MiscHurtBox>>(_hdr[3], 0x20, _hdr[4]);
+            _ledgeGrabs = Parse<EntryList<MiscLedgeGrab>>(_hdr[5], 0x10, _hdr[6]);
+            _unknown7 = Parse<EntryList<MiscUnknown7Entry>>(_hdr[7], 0x20, _hdr[8]);
+            _boneRefs = Parse<EntryList<BoneIndexValue>>(_hdr[9], 4, 10);
+            _unknown10 = Parse<MiscUnknown10>(_hdr[10]);
+            _soundData = Parse<MiscSoundData>(_hdr[11]);
+            _unkSection5 = Parse<MiscUnknown12>(_hdr[12]);
+            _multiJump = Parse<MiscMultiJump>(_hdr[13]);
+            _glide = Parse<MiscGlide>(_hdr[14]);
+            _crawl = Parse<MiscCrawl>(_hdr[15]);
+            _collisionData = Parse<CollisionData>(_hdr[16]);
+            _tether = Parse<MiscTether>(_hdr[17]);
+            _unknown18 = Parse<EntryListOffset<IndexValue>>(_hdr[18], 4);
         }
     }
 
-    public unsafe class MiscUnknown12 : MovesetEntry
-    {
-        int _unk1, _unk2, _unk3, _unk4;
-
-        [Category("Misc Section 5")]
-        public int Unk1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
-        [Category("Misc Section 5")]
-        public int Unk2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
-        [Category("Misc Section 5")]
-        public int Unk3 { get { return _unk3; } set { _unk3 = value; SignalPropertyChange(); } }
-        [Category("Misc Section 5")]
-        public int Unk4 { get { return _unk4; } set { _unk4 = value; SignalPropertyChange(); } }
-
-        public override void Parse(VoidPtr address)
-        {
-            sMiscUnknown12* hdr = (sMiscUnknown12*)address;
-            _unk1 = hdr->_unk1;
-            _unk2 = hdr->_unk2;
-            _unk3 = hdr->_unk3;
-            _unk4 = hdr->_unk4;
-        }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 16;
-        }
-
-        protected override void OnWrite(VoidPtr address)
-        {
-            _rebuildAddr = address;
-            sMiscUnknown12* header = (sMiscUnknown12*)address;
-            header->_unk1 = _unk1;
-            header->_unk2 = _unk2;
-            header->_unk3 = _unk3;
-            header->_unk4 = _unk4;
-        }
-    }
-
-    public unsafe class MiscUnknown7Entry : MovesetEntry
-    {
-        sMiscUnknown7 hdr;
-
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown1 { get { return hdr.unk1; } set { hdr.unk1 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown2 { get { return hdr.unk2; } set { hdr.unk2 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown3 { get { return hdr.unk3; } set { hdr.unk3 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown4 { get { return hdr.unk4; } set { hdr.unk4 = value; SignalPropertyChange(); } }
-
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown5 { get { return hdr.unk5; } set { hdr.unk5 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown6 { get { return hdr.unk6; } set { hdr.unk6 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown7 { get { return hdr.unk7; } set { hdr.unk7 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public byte Unknown8 { get { return hdr.unk8; } set { hdr.unk8 = value; SignalPropertyChange(); } }
-
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown9 { get { return hdr.unk9; } set { hdr.unk9 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown10 { get { return hdr.unk10; } set { hdr.unk10 = value; SignalPropertyChange(); } }
-        
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown11 { get { return hdr.unk11; } set { hdr.unk11 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown12 { get { return hdr.unk12; } set { hdr.unk12 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown13 { get { return hdr.unk13; } set { hdr.unk13 = value; SignalPropertyChange(); } }
-        [Category("Unknown Data 2 Entry")]
-        public float Unknown14 { get { return hdr.unk14; } set { hdr.unk14 = value; SignalPropertyChange(); } }
-
-        public override void Parse(VoidPtr address)
-        {
-            hdr = *(sMiscUnknown7*)address;
-        }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 32;
-        }
-
-        protected override void OnWrite(VoidPtr address)
-        {
-            *(sMiscUnknown7*)(_rebuildAddr = address) = hdr;
-        }
-    }
-
-    public unsafe class MiscUnknown10 : MovesetEntry
+    public unsafe class MiscUnknown10 : MovesetEntryNode
     {
         public List<MiscUnknown10Entry> _entries;
 
         int _haveNBoneIndex1, _haveNBoneIndex2, _haveNBoneIndex3, _throwNBoneIndex, _unkCount, _unkOffset, _pad;
-
-        [Browsable(false)]
-        public MDL0BoneNode HaveNBoneNode1
-        {
-            get { if (Model == null) return null; if (_haveNBoneIndex1 >= Model._linker.BoneCache.Length || _haveNBoneIndex1 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex1]; }
-            set { _haveNBoneIndex1 = value.BoneIndex; }
-        }
-        [Browsable(false)]
-        public MDL0BoneNode HaveNBoneNode2
-        {
-            get { if (Model == null) return null; if (_haveNBoneIndex2 >= Model._linker.BoneCache.Length || _haveNBoneIndex2 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex2]; }
-            set { _haveNBoneIndex2 = value.BoneIndex; }
-        }
-        [Browsable(false)]
-        public MDL0BoneNode ThrowNBoneNode
-        {
-            get { if (Model == null) return null; if (_throwNBoneIndex >= Model._linker.BoneCache.Length || _throwNBoneIndex < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_throwNBoneIndex]; }
-            set { _throwNBoneIndex = value.BoneIndex; }
-        }
-        [Browsable(false)]
-        public MDL0BoneNode HaveNBoneNode3
-        {
-            get { if (Model == null) return null; if (_haveNBoneIndex3 >= Model._linker.BoneCache.Length || _haveNBoneIndex3 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex3]; }
-            set { _haveNBoneIndex3 = value.BoneIndex; }
-        }
 
         [Category("Bone References"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
         public string HaveNBone1 
@@ -277,8 +159,33 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-        
-        public override void Parse(VoidPtr address)
+
+        [Browsable(false)]
+        public MDL0BoneNode HaveNBoneNode1
+        {
+            get { if (Model == null) return null; if (_haveNBoneIndex1 >= Model._linker.BoneCache.Length || _haveNBoneIndex1 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex1]; }
+            set { _haveNBoneIndex1 = value.BoneIndex; }
+        }
+        [Browsable(false)]
+        public MDL0BoneNode HaveNBoneNode2
+        {
+            get { if (Model == null) return null; if (_haveNBoneIndex2 >= Model._linker.BoneCache.Length || _haveNBoneIndex2 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex2]; }
+            set { _haveNBoneIndex2 = value.BoneIndex; }
+        }
+        [Browsable(false)]
+        public MDL0BoneNode ThrowNBoneNode
+        {
+            get { if (Model == null) return null; if (_throwNBoneIndex >= Model._linker.BoneCache.Length || _throwNBoneIndex < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_throwNBoneIndex]; }
+            set { _throwNBoneIndex = value.BoneIndex; }
+        }
+        [Browsable(false)]
+        public MDL0BoneNode HaveNBoneNode3
+        {
+            get { if (Model == null) return null; if (_haveNBoneIndex3 >= Model._linker.BoneCache.Length || _haveNBoneIndex3 < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_haveNBoneIndex3]; }
+            set { _haveNBoneIndex3 = value.BoneIndex; }
+        }
+
+        protected override void OnParse(VoidPtr address)
         {
             _entries = new List<MiscUnknown10Entry>();
             sMiscUnknown10* hdr = (sMiscUnknown10*)address;
@@ -310,7 +217,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (MiscUnknown10Entry e in _entries)
                 e.Write(data++);
 
-            _rebuildAddr = data;
+            RebuildAddress = data;
 
             sMiscUnknown10* header = (sMiscUnknown10*)data;
             header->_haveNBoneIndex1 = _haveNBoneIndex1;
@@ -328,7 +235,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscUnknown10Entry : MovesetEntry
+    public unsafe class MiscUnknown10Entry : MovesetEntryNode
     {
         int _unk1, _unk2, _pad1, _pad2;
         
@@ -341,7 +248,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Unk Section 3 Entry")]
         public int Pad2 { get { return _pad2; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sMiscUnknown10Entry* hdr = (sMiscUnknown10Entry*)address;
             _unk1 = hdr->_unk1;
@@ -358,7 +265,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sMiscUnknown10Entry* header = (sMiscUnknown10Entry*)address;
             header->_unk1 = _unk1;
             header->_unk2 = _unk2;
@@ -367,11 +274,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscHurtBox : MovesetEntry
+    public unsafe class MiscHurtBox : MovesetEntryNode
     {
         internal Vector3 _posOffset, _stretch;
         internal float _radius;
-        internal HurtBoxFlags flags = new HurtBoxFlags();
+        internal sHurtBoxFlags flags = new sHurtBoxFlags();
 
         [Browsable(false)]
         public MDL0BoneNode BoneNode
@@ -402,7 +309,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return Bone; }
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sHurtBox* hdr = (sHurtBox*)address;
             _posOffset = hdr->_offset;
@@ -419,7 +326,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            sHurtBox* header = (sHurtBox*)(_rebuildAddr = address);
+            sHurtBox* header = (sHurtBox*)(RebuildAddress = address);
             header->_offset = _posOffset;
             header->_stretch = _stretch;
             header->_radius = _radius;
@@ -766,7 +673,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
     }
 
-    public unsafe class MiscFinalSmashAura : MovesetEntry
+    public unsafe class MiscFinalSmashAura : MovesetEntryNode
     {
         internal int _boneIndex = 0;
         internal float _x, _y, _width, _height;
@@ -792,7 +699,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return Bone; }
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sMiscFSAura* hdr = (sMiscFSAura*)address;
 
@@ -811,7 +718,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sMiscFSAura* header = (sMiscFSAura*)address;
             header->_boneIndex = _boneIndex;
             header->_height = _height;
@@ -821,7 +728,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscLedgeGrab : MovesetEntry
+    public unsafe class MiscLedgeGrab : MovesetEntryNode
     {
         internal float _width, height;
         Vector2 _xy;
@@ -833,7 +740,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("LedgeGrab")]
         public float Width { get { return _width; } set { _width = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sLedgegrab* hdr = (sLedgegrab*)address;
             _xy = hdr->_xy;
@@ -849,7 +756,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sLedgegrab* header = (sLedgegrab*)address;
             header->_height = height;
             header->_width = _width;
@@ -857,7 +764,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscMultiJump : MovesetEntry
+    public unsafe class MiscMultiJump : MovesetEntryNode
     {
         internal float _unk1, _unk2, _unk3, _horizontalBoost, _turnFrames;
         internal List<float> _hops, _unks;
@@ -877,7 +784,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("MultiJump Attribute")]
         public float[] Unks { get { return _unks.ToArray(); } set { _unks = value.ToList<float>(); SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _unks = new List<float>();
             _hops = new List<float>();
@@ -937,7 +844,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 off += _unks.Count * 4;
 
             sMultiJump* header = (sMultiJump*)(address + off);
-            _rebuildAddr = header;
+            RebuildAddress = header;
 
             bfloat* addr = (bfloat*)address;
 
@@ -981,7 +888,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscGlide : MovesetEntry
+    public unsafe class MiscGlide : MovesetEntryNode
     {
         internal float[] floatEntries;
         internal int intEntry1 = 0;
@@ -991,7 +898,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Glide")]
         public int Unknown { get { return intEntry1; } set { intEntry1 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             bfloat* floatval = (bfloat*)address;
             bint intval1 = *(bint*)(address + 80);
@@ -1010,7 +917,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             for (int i = 0; i < 20; i++)
                 if (i < floatEntries.Length)
                     *(bfloat*)(address + i * 4) = floatEntries[i];
@@ -1020,7 +927,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class MiscCrawl : MovesetEntry
+    public unsafe class MiscCrawl : MovesetEntryNode
     {
         internal float forward, backward;
 
@@ -1029,7 +936,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Crawl Acceleration")]
         public float Backward { get { return backward; } set { backward = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sCrawl* hdr = (sCrawl*)address;
             forward = hdr->_forward;
@@ -1044,14 +951,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sCrawl* header = (sCrawl*)address;
             header->_forward = forward;
             header->_backward = backward;
         }
     }
 
-    public unsafe class MiscTether : MovesetEntry
+    public unsafe class MiscTether : MovesetEntryNode
     {
         internal int _numHangFrame = 0;
         internal float _unknown;
@@ -1061,7 +968,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Tether")]
         public float Unknown { get { return _unknown; } set { _unknown = value; SignalPropertyChange(); } }
         
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sTether* hdr = (sTether*)address;
             _numHangFrame = hdr->_numHangFrame;
@@ -1076,7 +983,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            sTether* header = (sTether*)(_rebuildAddr = address);
+            sTether* header = (sTether*)(RebuildAddress = address);
             header->_numHangFrame = _numHangFrame;
             header->_unk1 = _unknown;
         }
@@ -1085,9 +992,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class MiscSoundData : ListOffset
     {
         public List<EntryListOffset<IndexValue>> _entries;
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             _entries = new List<EntryListOffset<IndexValue>>();
             for (int i = 0; i < Count; i++)
                 _entries.Add(Parse<EntryListOffset<IndexValue>>(DataOffset + i * 8, 4));
@@ -1122,7 +1029,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             sListOffset* sndLists = (sListOffset*)(address + sndOff);
             sListOffset* header = (sListOffset*)((VoidPtr)sndLists + mainOff);
 
-            _rebuildAddr = header;
+            RebuildAddress = header;
 
             if (_entries.Count > 0)
             {
@@ -1143,7 +1050,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 (sndLists++)->_listCount = r._entries.Count;
                 foreach (IndexValue b in r._entries)
                 {
-                    b._rebuildAddr = indices;
+                    b.RebuildAddress = indices;
                     *indices++ = b.ItemIndex;
                 }
             }
