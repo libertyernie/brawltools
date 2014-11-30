@@ -93,6 +93,7 @@ namespace System
 
         public Bin24(BUInt24 val) { _data = val; }
 
+        public static implicit operator int(Bin24 val) { return (int)val._data; }
         public static implicit operator uint(Bin24 val) { return (uint)val._data; }
         public static implicit operator Bin24(uint val) { return new Bin24((BUInt24)val); }
         public static implicit operator BUInt24(Bin24 val) { return val._data; }

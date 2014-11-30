@@ -105,7 +105,12 @@ namespace BrawlLib
             "Raw Data File (*.*)|*.*";
 
         public static string Raw =
-            "Raw Data File (*.dat)|*.dat";
+            //Some files already have an extension in their name,
+            //or sometimes the user will want to add the extension themselves.
+            //Not only that, but '.dat' might be assigned to something else on their computer.
+            //It's possible to assign a program (like a hex editor) to open files without extensions.
+            "Raw Data File (*.*)|*.*|" +
+            "Raw with extension (*.dat)|*.dat";
 
         public static string WAV =
             "Uncompressed PCM (*.wav)|*.wav";

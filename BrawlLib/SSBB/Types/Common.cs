@@ -51,6 +51,11 @@ namespace BrawlLib.SSBBTypes
         public static implicit operator uint(BinTag r) { return r.Get(true); }
 
         public sbyte* Address { get { fixed (void* ptr = &this)return (sbyte*)ptr; } }
+
+        public override string ToString()
+        {
+            return Get();
+        }
     }
 
     struct DataBlock

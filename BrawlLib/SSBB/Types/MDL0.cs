@@ -44,9 +44,9 @@ namespace BrawlLib.SSBBTypes
             return (ResourceGroup*)(Address + offset);
         }
 
-        public VoidPtr UserData { get { return (_userDataOffset > 0) ? Address + _userDataOffset : null; } }
+        public VoidPtr UserData { get { return (UserDataOffset > 0) ? Address + UserDataOffset : null; } }
 
-        public int _userDataOffset
+        public int UserDataOffset
         {
             get
             {
@@ -894,14 +894,13 @@ namespace BrawlLib.SSBBTypes
         public bint _numTextures;
         public bint _matRefOffset;
 
-        public bint _userDataOffset;
-        public bint _dlOffset;
+        //These next three offsets are to the display list, user data and fur data.
+        //Which is which depends on the model version. Don't access these directly.
+        internal bint _dataOffset1;
+        internal bint _dataOffset2;
+        internal bint _dataOffset3; //Not here in v9 MDL0 or lower
         
-        public bint _dlOffsetv10p; //Not here in v9 MDL0 or lower
-        
-        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public MDL0Header* Parent { get { return (MDL0Header*)(Address + _mdl0Offset); } }
-
         public MDL0TextureRef* First { get { return (_matRefOffset != 0) ? (MDL0TextureRef*)(Address + _matRefOffset) : null; } }
 
         public int DisplayListOffset(int version)
@@ -910,9 +909,9 @@ namespace BrawlLib.SSBBTypes
             {
                 case 10:
                 case 11:
-                    return _dlOffsetv10p;
+                    return _dataOffset3;
                 default:
-                    return _dlOffset;
+                    return _dataOffset2;
             }
         }
 
@@ -922,9 +921,9 @@ namespace BrawlLib.SSBBTypes
             {
                 case 10:
                 case 11:
-                    return _dlOffset;
+                    return _dataOffset2;
                 default:
-                    return _userDataOffset;
+                    return _dataOffset1;
             }
         }
 
@@ -934,8 +933,9 @@ namespace BrawlLib.SSBBTypes
             {
                 case 10:
                 case 11:
-                    return _userDataOffset;
-                default: return 0;
+                    return _dataOffset1;
+                default: 
+                    return 0;
             }
         }
 
@@ -953,6 +953,8 @@ namespace BrawlLib.SSBBTypes
             get { return (VoidPtr)Address + _stringOffset; }
             set { _stringOffset = (int)value - (int)Address; }
         }
+
+        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct MatDLData

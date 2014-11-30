@@ -61,10 +61,15 @@ namespace BrawlBox
                 }
                 
                 Application.Run(MainForm.Instance);
-            } catch (FileNotFoundException x) {
-                if (x.Message.Contains("Could not load file or assembly")) {
+            }
+            catch (FileNotFoundException x)
+            {
+                if (x.Message.Contains("Could not load file or assembly"))
+                {
                     MessageBox.Show(x.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                } else {
+                }
+                else
+                {
                     throw x;
                 }
             }
@@ -114,8 +119,10 @@ namespace BrawlBox
             if (!Close())
                 return false;
 
+            #if !DEBUG
             try
             {
+            #endif
                 if ((_rootNode = NodeFactory.FromFile(null, _rootPath = path)) != null)
                 {
                     MainForm.Instance.Reset();
@@ -127,8 +134,10 @@ namespace BrawlBox
                     Say("Unable to recognize input file.");
                     MainForm.Instance.Reset();
                 }
+            #if !DEBUG
             }
             catch (Exception x) { Say(x.ToString()); }
+            #endif
 
             Close();
 
@@ -175,10 +184,10 @@ namespace BrawlBox
         {
             if (_rootNode != null)
             {
-                //#if !DEBUG
-                //try
+                #if !DEBUG
+                try
                 {
-                //#endif
+                #endif
                     if (_rootPath == null)
                         return SaveAs();
 
@@ -192,10 +201,10 @@ namespace BrawlBox
                     _rootNode.Export(_rootPath);
                     _rootNode.IsDirty = false;
                     return true;
-                //#if !DEBUG
+                #if !DEBUG
                 }
-                //catch (Exception x) { Say(x.Message); }
-                //#endif
+                catch (Exception x) { Say(x.Message); }
+                #endif
             }
             return false;
         }
@@ -212,10 +221,10 @@ namespace BrawlBox
         {
             _openDlg.Filter = filter;
             //_openDlg.AutoUpgradeEnabled = false;
-            //#if !DEBUG
+            #if !DEBUG
             try
             {
-            //#endif
+            #endif
                 if (_openDlg.ShowDialog() == DialogResult.OK)
                 {
                     fileName = _openDlg.FileName;
@@ -224,13 +233,12 @@ namespace BrawlBox
                     else
                         return _openDlg.FilterIndex;
                 }
-            //#if !DEBUG
+            #if !DEBUG
             }
             catch (Exception ex) { Say(ex.ToString()); }
-            //#endif
+            #endif
             fileName = null;
             return 0;
-            
         }
         public static int SaveFile(string filter, string name, out string fileName) { return SaveFile(filter, name, out fileName, true); }
         public static int SaveFile(string filter, string name, out string fileName, bool categorize)
@@ -290,10 +298,10 @@ namespace BrawlBox
         {
             if (MainForm.Instance.RootNode is GenericWrapper)
             {
-                //#if !DEBUG
+                #if !DEBUG
                 try
                 {
-                //#endif
+                #endif
                     GenericWrapper w = MainForm.Instance.RootNode as GenericWrapper;
                     string path = w.Export();
                     if (path != null)
@@ -303,11 +311,11 @@ namespace BrawlBox
                         w.ResourceNode.IsDirty = false;
                         return true;
                     }
-                //#if !DEBUG
+                #if !DEBUG
                 }
                 catch (Exception x) { Say(x.Message); }
                 //finally { }
-                //#endif
+                #endif
             }
             return false;
         }

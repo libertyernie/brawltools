@@ -24,38 +24,42 @@ namespace BrawlLib.Wii.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct GXAlphaFunction
     {
-        public static readonly GXAlphaFunction Default = new GXAlphaFunction() { dat = 0x3F };
+        public static readonly GXAlphaFunction Default = new GXAlphaFunction() { _data = 0x3F };
         //0000 0000 0000 0000 1111 1111   ref0
         //0000 0000 1111 1111 0000 0000   ref1
         //0000 0111 0000 0000 0000 0000   comp0
         //0011 1000 0000 0000 0000 0000   comp1
         //1100 0000 0000 0000 0000 0000   logic
 
-        public byte dat;
-        public byte ref1;
-        public byte ref0;
+        public Bin8 _data;
+        public byte _ref1, _ref0;
 
-        public AlphaCompare Comp0 { get { return (AlphaCompare)(dat & 7); } set { dat = (byte)((dat & 0xF8) | ((int)value & 7)); } }
-        public AlphaCompare Comp1 { get { return (AlphaCompare)((dat >> 3) & 7); } set { dat = (byte)((dat & 0xC7) | (((int)value & 7) << 3)); } }
-        public AlphaOp Logic { get { return (AlphaOp)((dat >> 6) & 3); } set { dat = (byte)((dat & 0x3F) | (((int)value & 3) << 6)); } }
+        public AlphaCompare Comp0 { get { return (AlphaCompare)_data[0, 3]; } set { _data[0, 3] = (byte)value; } }
+        public AlphaCompare Comp1 { get { return (AlphaCompare)_data[3, 3]; } set { _data[3, 3] = (byte)value; } }
+        public AlphaOp Logic { get { return (AlphaOp)_data[6, 2]; } set { _data[6, 2] = (byte)value; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ZMode
     {
-        public static readonly ZMode Default = new ZMode() { data = 0x17 };
+        public static readonly ZMode Default = new ZMode() { _data = 0x17 };
 
-        public byte pad0, pad1, data;
+        //0000 0001    Enable Depth Test
+        //0000 1110    Depth Function
+        //0001 0000    Enable Depth Update
 
-        public bool EnableDepthTest { get { return (data & 1) != 0; } set { data = (byte)((data & 0xFE) | (value ? 1 : 0)); } }
-        public bool EnableDepthUpdate { get { return (data & 0x10) != 0; } set { data = (byte)((data & 0xEF) | (value ? 0x10 : 0));} }
-        public GXCompare DepthFunction { get { return (GXCompare)((data >> 1) & 7); } set { data = (byte)((data & 0xF1) | ((int)value << 1)); } }
+        public byte _pad0, _pad1;
+        public Bin8 _data;
+
+        public bool EnableDepthTest { get { return _data[0]; } set { _data[0] = value; } }
+        public bool EnableDepthUpdate { get { return _data[4]; } set { _data[4] = value; } }
+        public GXCompare DepthFunction { get { return (GXCompare)_data[1, 3]; } set { _data[1, 3] = (byte)value; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BlendMode
     {
-        public static readonly BlendMode Default = new BlendMode() { dat1 = 0xA0, dat2 = 0x34 };
+        public static readonly BlendMode Default = new BlendMode() { _data = 0x34A0 };
 
         //0000 0000 0000 0001    EnableBlend
         //0000 0000 0000 0010    EnableLogic
@@ -67,24 +71,27 @@ namespace BrawlLib.Wii.Graphics
         //0000 1000 0000 0000    Subtract
         //1111 0000 0000 0000    LogicOp
 
-        public byte pad, dat2, dat1;
+        public byte _pad;
+        public Bin16 _data;
 
-        public bool EnableBlend { get { return (dat1 & 1) != 0; } set { dat1 = (byte)((dat1 & 0xFE) | (value ? 1 : 0)); } }
-        public bool EnableLogicOp { get { return (dat1 & 2) != 0; } set { dat1 = (byte)((dat1 & 0xFD) | (value ? 2 : 0)); } }
-        public bool EnableDither { get { return (dat1 & 4) != 0; } set { dat1 = (byte)((dat1 & 0xFB) | (value ? 4 : 0)); } }
-        public bool EnableColorUpdate { get { return (dat1 & 8) != 0; } set { dat1 = (byte)((dat1 & 0xF7) | (value ? 8 : 0)); } }
-        public bool EnableAlphaUpdate { get { return (dat1 & 0x10) != 0; } set { dat1 = (byte)((dat1 & 0xEF) | (value ? 0x10 : 0)); } }
-        public BlendFactor DstFactor { get { return (BlendFactor)(dat1 >> 5); } set { dat1 = (byte)((dat1 & 0x1F) | ((int)value << 5)); } }
-        public BlendFactor SrcFactor { get { return (BlendFactor)(dat2 & 7); } set { dat2 = (byte)((dat2 & 0xF8) | (int)value); } }
-        public bool Subtract { get { return (dat2 & 8) != 0; } set { dat2 = (byte)((dat2 & 0xF7) | (value ? 8 : 0)); } }
-        public GXLogicOp LogicOp { get { return (GXLogicOp)(dat2 >> 4); } set { dat2 = (byte)((dat2 & 0xF) | ((int)value << 4)); } }
+        public bool EnableBlend { get { return _data[0]; } set { _data[0] = value; } }
+        public bool EnableLogicOp { get { return _data[1]; } set { _data[1] = value; } }
+        public bool EnableDither { get { return _data[2]; } set { _data[2] = value; } }
+        public bool EnableColorUpdate { get { return _data[3]; } set { _data[3] = value; } }
+        public bool EnableAlphaUpdate { get { return _data[4]; } set { _data[4] = value; } }
+        public BlendFactor DstFactor { get { return (BlendFactor)_data[5, 3]; } set { _data[5, 3] = (ushort)value; } }
+        public BlendFactor SrcFactor { get { return (BlendFactor)_data[8, 3]; } set { _data[8, 3] = (ushort)value; } }
+        public bool Subtract { get { return _data[11]; } set { _data[11] = value; } }
+        public GXLogicOp LogicOp { get { return (GXLogicOp)_data[12, 4]; } set { _data[12, 4] = (ushort)value; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct ColorEnv
     {
-        public static implicit operator int(ColorEnv val) { return (int)(uint)val._data; }
+        public static implicit operator int(ColorEnv val) { return val._data; }
+        public static implicit operator uint(ColorEnv val) { return val._data; }
         public static implicit operator ColorEnv(int val) { return new ColorEnv((uint)val); }
+        public static implicit operator ColorEnv(uint val) { return new ColorEnv(val); }
         public static implicit operator BUInt24(ColorEnv val) { return val._data; }
         public static implicit operator ColorEnv(BUInt24 val) { return new ColorEnv(val); }
 
@@ -116,8 +123,10 @@ namespace BrawlLib.Wii.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct AlphaEnv
     {
-        public static implicit operator int(AlphaEnv val) { return (int)(uint)val._data; }
+        public static implicit operator int(AlphaEnv val) { return val._data; }
+        public static implicit operator uint(AlphaEnv val) { return val._data; }
         public static implicit operator AlphaEnv(int val) { return new AlphaEnv((uint)val); }
+        public static implicit operator AlphaEnv(uint val) { return new AlphaEnv(val); }
         public static implicit operator BUInt24(AlphaEnv val) { return val._data; }
         public static implicit operator AlphaEnv(BUInt24 val) { return new AlphaEnv(val); }
 
@@ -153,12 +162,14 @@ namespace BrawlLib.Wii.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RAS1_IRef
     {
-        public static implicit operator int(RAS1_IRef val) { return (int)(uint)val._data; }
+        public static implicit operator int(RAS1_IRef val) { return val._data; }
+        public static implicit operator uint(RAS1_IRef val) { return val._data; }
         public static implicit operator RAS1_IRef(int val) { return new RAS1_IRef((uint)val); }
+        public static implicit operator RAS1_IRef(uint val) { return new RAS1_IRef(val); }
         public static implicit operator BUInt24(RAS1_IRef val) { return val._data; }
         public static implicit operator RAS1_IRef(BUInt24 val) { return new RAS1_IRef(val); }
 
-        public RAS1_IRef(BUInt24 value) { _data = value; }
+        //public RAS1_IRef(BUInt24 value) { _data = value; }
         public RAS1_IRef(uint value) { _data = value; }
         public Bin24 _data;
         
@@ -184,8 +195,10 @@ namespace BrawlLib.Wii.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct RAS1_TRef
     {
-        public static implicit operator int(RAS1_TRef val) { return (int)(uint)val._data; }
+        public static implicit operator int(RAS1_TRef val) { return val._data; }
+        public static implicit operator uint(RAS1_TRef val) { return val._data; }
         public static implicit operator RAS1_TRef(int val) { return new RAS1_TRef((uint)val); }
+        public static implicit operator RAS1_TRef(uint val) { return new RAS1_TRef(val); }
         public static implicit operator BUInt24(RAS1_TRef val) { return val._data; }
         public static implicit operator RAS1_TRef(BUInt24 val) { return new RAS1_TRef(val); }
 
@@ -231,9 +244,11 @@ namespace BrawlLib.Wii.Graphics
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct KSel
-    {        
-        public static implicit operator int(KSel val) { return (int)(uint)val._data; }
+    {
+        public static implicit operator int(KSel val) { return val._data; }
+        public static implicit operator uint(KSel val) { return val._data; }
         public static implicit operator KSel(int val) { return new KSel((uint)val); }
+        public static implicit operator KSel(uint val) { return new KSel(val); }
         public static implicit operator BUInt24(KSel val) { return val._data; }
         public static implicit operator KSel(BUInt24 val) { return new KSel(val); }
 
@@ -247,7 +262,7 @@ namespace BrawlLib.Wii.Graphics
                 ((uint)kc1 << 14) |
                 ((uint)ka1 << 19);
         }
-        public KSel(BUInt24 value) { _data = value; }
+        //public KSel(BUInt24 value) { _data = value; }
         public KSel(uint value) { _data = value; }
         public Bin24 _data;
 
@@ -268,9 +283,11 @@ namespace BrawlLib.Wii.Graphics
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct CMD
-    {        
-        public static implicit operator int(CMD val) { return (int)(uint)val._data; }
+    {
+        public static implicit operator int(CMD val) { return val._data; }
+        public static implicit operator uint(CMD val) { return val._data; }
         public static implicit operator CMD(int val) { return new CMD((uint)val); }
+        public static implicit operator CMD(uint val) { return new CMD(val); }
         public static implicit operator BUInt24(CMD val) { return val._data; }
         public static implicit operator CMD(BUInt24 val) { return new CMD(val); }
 

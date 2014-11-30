@@ -24,20 +24,28 @@ namespace System
             return value <= min ? min : value >= max ? max : value;
         }
 
+        /// <summary>
+        /// Clamps the value to the rotational range of [-180, 180).
+        /// </summary>
         public static Single Clamp180Deg(this Single value)
         {
-            float e = value;
+            //Figure out how many multiples of 360 there are.
+            //Dividing the value by 360 and cutting off the decimal places
+            //will return the number of multiples of whole 360's in the value.
+            //Then those multiples need to be subtracted out.
+            value -= 360.0f * (int)(value / 360.0f);
 
-            float d = (int)(e / 360.0f);
-            e -= 360.0f * d;
+            //Now the value is in the range of +360 to -360.
+            //The range needs to be from +180 to -180.
+            value += value > 180.0f ? -360.0f : value < -180.0f ? 360.0f : 0;
 
-            float l = e / 180.0f;
-            if (l > 1)
-                e -= 360.0f;
-            else if (l < -1)
-                e += 360.0f;
+            //180 and -180 represent the same rotation.
+            //When it comes to signed numbers, negative is highest. 
+            //For example, -128 (0xFF) vs 127 (0x7F)
+            if (value == 180.0f)
+                value = -180.0f;
 
-            return e;
+            return value;
         }
     }
 }

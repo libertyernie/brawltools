@@ -75,7 +75,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public ResourceNode _parent;
         public List<ResourceNode> _children = new List<ResourceNode>();
 
-        //LinkedList<ResourceNode> _list = new LinkedList<ResourceNode>();
         public int _calcSize;
 
         internal protected ResourceNode _first, _last;
@@ -86,6 +85,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored;
         public event ResourceChildEventHandler ChildAdded, ChildRemoved;
         public event ResourceChildInsertEventHandler ChildInserted;
+
+        #region Properties
 
         [Browsable(false)]
         public string FilePath { get { return _origPath; } }
@@ -99,7 +100,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public DataSource WorkingSource { get { return _replSrc != DataSource.Empty ? _replSrc : _origSource; } }
         [Browsable(false)]
         public DataSource WorkingUncompressed { get { return _replUncompSrc != DataSource.Empty ? _replUncompSrc : _uncompSource; } }
-
         [Browsable(false)]
         public virtual bool HasChildren { get { return (_children == null) || (_children.Count != 0); } }
         [Browsable(false)]
@@ -120,12 +120,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         [Browsable(false)]
         public virtual int Level { get { return _parent == null ? 0 : _parent.Level + 1; } }
-
         [Browsable(false)]
         public virtual bool AllowDuplicateNames { get { return false; } }
         [Browsable(false)]
         public virtual bool AllowNullNames { get { return false; } }
-
         [Browsable(false)]
         public virtual string Name
         {
@@ -172,7 +170,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         [Browsable(false)]
         public int Index { get { return _parent == null ? -1 : _parent.Children.IndexOf(this); } }
-
         [Browsable(false)]
         public bool IsCompressed { get { return _compression != CompressionType.None; } }
 
@@ -245,6 +242,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        #endregion
+
+        #region Disposal
+
         ~ResourceNode() { Dispose(); }
         public virtual void Dispose()
         {
@@ -282,6 +283,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             GC.SuppressFinalize(this);
         }
 
+        #endregion
+
         public void UpdateProperties()
         {
             if (UpdateProps != null)
@@ -292,7 +295,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (UpdateCurrControl != null)
                 UpdateCurrControl(this, null);
         }
-        
+
+        #region Moving
+
         public virtual bool MoveUp()
         {
             if (Parent == null)
@@ -373,13 +378,57 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return false;
         }
 
+        #endregion
+
+        #region Child Population
+        public void Populate() { Populate(-1); }
+        public void Populate(int levels)
+        {
+            if (levels > 0)
+                foreach (ResourceNode r in Children)
+                    r.Populate(levels - 1);
+            else if (levels < 0)
+                foreach (ResourceNode r in Children)
+                    r.Populate();
+            else if (_children == null || _children.Count == 0)
+            {
+                _children = new List<ResourceNode>();
+                if (WorkingSource != DataSource.Empty)
+                    OnPopulate();
+            }
+        }
         //Called when children are first requested. Allows node to cache child nodes.
         public virtual void OnPopulate() { }
+        #endregion
 
+        #region Initialization
+        public void Initialize(ResourceNode parent, FileMap source) { Initialize(parent, new DataSource(source)); }
+        public void Initialize(ResourceNode parent, VoidPtr address, int length) { Initialize(parent, new DataSource(address, length)); }
+        public void Initialize(ResourceNode parent, DataSource origSource) { Initialize(parent, origSource, origSource); }
+        public virtual void Initialize(ResourceNode parent, DataSource origSource, DataSource uncompSource)
+        {
+            _origSource = origSource;
+            _uncompSource = uncompSource;
+            _compression = _origSource.Compression;
+
+            if (origSource.Map != null)
+                _origPath = origSource.Map.FilePath;
+
+            Parent = parent;
+
+            _children = null;
+
+            if (Parent != null && Parent._replaced)
+                _replaced = true;
+
+            if (!OnInitialize())
+                _children = new List<ResourceNode>();
+
+            _replaced = false;
+        }
         //Called when property values are requested. Allows node to cache values from source data.
         //Return true to indicate there are child nodes.
         public virtual bool OnInitialize() { return false; }
-
         //Restores node to its original form using the backing tree. 
         public virtual void Restore()
         {
@@ -405,48 +454,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (Restored != null)
                 Restored(this);
         }
+        #endregion
 
-        public void Populate() { Populate(-1); }
-        public void Populate(int levels)
-        {
-            if (levels > 0)
-                foreach (ResourceNode r in Children)
-                    r.Populate(levels - 1);
-            else if (levels < 0)
-                foreach (ResourceNode r in Children)
-                    r.Populate();
-            else if (_children == null || _children.Count == 0)
-            {
-                _children = new List<ResourceNode>();
-                if (WorkingSource != DataSource.Empty)
-                    OnPopulate();
-            }
-        }
-
-        public void Initialize(ResourceNode parent, FileMap source) { Initialize(parent, new DataSource(source)); }
-        public void Initialize(ResourceNode parent, VoidPtr address, int length) { Initialize(parent, new DataSource(address, length)); }
-        public void Initialize(ResourceNode parent, DataSource origSource) { Initialize(parent, origSource, origSource); }
-        public virtual void Initialize(ResourceNode parent, DataSource origSource, DataSource uncompSource)
-        {
-            _origSource = origSource;
-            _uncompSource = uncompSource;
-            _compression = _origSource.Compression;
-
-            if (origSource.Map != null)
-                _origPath = origSource.Map.FilePath;
-
-            Parent = parent;
-
-            _children = null;
-
-            if (Parent != null && Parent._replaced)
-                _replaced = true;
-
-            if (!OnInitialize())
-                _children = new List<ResourceNode>();
-
-            _replaced = false;
-        }
+        #region Adding/Removing
 
         public virtual void Remove()
         {
@@ -484,6 +494,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (change)
                 _changed = true;
         }
+
+        #endregion
+
         public void SetSizeInternal(int size)
         {
             if (IsBranch)
@@ -497,6 +510,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                     _origSource.Length = _uncompSource.Length = size;
         }
+
+        #region Replacing
 
         //Causes a deviation in the resource tree. This node and all child nodes will be backed by a temporary file until the tree is merged.
         //Causes parent node(s) to become dirty.
@@ -533,7 +548,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _compression = cmpr->Algorithm;
                 if (Compressor.Supports(cmpr->Algorithm))
                 {
-                    FileMap uncompMap = FileMap.FromTempFile(cmpr->ExpandedSize);
+                    FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
                     Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
                     _replSrc = new DataSource(map, cmpr->Algorithm);
                     _replUncompSrc = new DataSource(uncompMap);
@@ -557,10 +572,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Replaced(this);
         }
 
-		protected void ForceReplacedEvent() {
+		protected void ForceReplacedEvent()
+        {
 			if (Replaced != null)
 				Replaced(this);
 		}
+
+        #endregion
+
+        #region Export
 
         public unsafe virtual void Export(string outPath)
         {
@@ -575,14 +595,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Export(FileStream outStream)
         {
-
-                if (WorkingSource.Length != 0)
-                {
-                    outStream.SetLength(WorkingSource.Length);
-                    using (FileMap map = FileMap.FromStream(outStream))
-                        Memory.Move(map.Address, WorkingSource.Address, (uint)WorkingSource.Length);
-                }
-                else if(WorkingSource.Length == 0) { MessageBox.Show("Data was empty!"); }
+            if (WorkingSource.Length != 0)
+            {
+                outStream.SetLength(WorkingSource.Length);
+                using (FileMap map = FileMap.FromStream(outStream))
+                    Memory.Move(map.Address, WorkingSource.Address, (uint)WorkingSource.Length);
+            }
+            else
+                MessageBox.Show("Data was empty!");
         }
 
         public virtual void ExportUncompressed(string outPath)
@@ -597,14 +617,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void ExportUncompressed(FileStream outStream)
         {
-            if (WorkingSource.Length != 0)
+            if (WorkingUncompressed.Length != 0)
             {
                 outStream.SetLength(WorkingUncompressed.Length);
                 using (FileMap map = FileMap.FromStream(outStream))
                     Memory.Move(map.Address, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
             }
-            else if (WorkingSource.Length == 0) { MessageBox.Show("Data was empty!"); }
+            else
+                MessageBox.Show("Data was empty!");
         }
+
+        #endregion
+
+        #region Rebuilding
 
         //Combines node and children into single (temp) file map.
         //Does nothing if node is not dirty or rebuild is not forced.
@@ -614,10 +639,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (!IsDirty && !force)
                 return;
-            
+
             //Get uncompressed size
             int size = OnCalculateSize(force);
-            
+
             //Create temp map
             FileMap uncompMap = FileMap.FromTempFile(size);
 
@@ -638,22 +663,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 catch (Exception x) { stream.Dispose(); throw x; }
             }
         }
-
-        //public virtual void RebuildUncompressed(VoidPtr address, int length, bool force)
-        //{
-        //    if (!IsDirty && !force)
-        //    {
-        //        Memory.Move(address, WorkingSource.Address, (uint)WorkingSource.Length);
-        //        DataSource newsrc = new DataSource(address, WorkingSource.Length);
-        //        _replSrc.Close();
-        //        _replUncompSrc.Close();
-        //        _replSrc = _replUncompSrc = newsrc;
-        //    }
-        //    else
-        //        OnRebuild(address, length, force);
-
-        //    HasChanged = false;
-        //}
 
         //Called on child nodes in order to rebuild them at a specified address.
         //This will occur after CalculateSize, so compressed nodes will already be rebuilt.
@@ -677,7 +686,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Overridden by parent nodes in order to rebuild children.
         //Size is the value returned by OnCalculateSize (or _calcSize)
         //Node MUST dispose of and assign both repl sources before exiting. (Not exactly, see Rebuild())
-        public virtual void OnRebuild(VoidPtr address, int length, bool force) { MoveRaw(address, length); }
+        public virtual void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            Memory.Move(address, WorkingUncompressed.Address, (uint)length);
+        }
 
         //Shouldn't this move compressed data? YES!
         internal virtual void MoveRaw(VoidPtr address, int length)
@@ -725,6 +737,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        #endregion
+
+        #region Size Calculation
+
         //Calculate size to be passed to parent node.
         //If node is compressed, rebuild now and compress to temp file. Return temp file size.
         //Called on child nodes only, because it can trigger a rebuild.
@@ -739,16 +755,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             return _calcSize = WorkingSource.Length;
         }
 
-        //Write compressed data to specified address.
-        //Essentialy relocates data source.
-        //MoveRaw does this already...
-        //internal protected virtual void WriteCompressed(VoidPtr address, int length)
-        //{
-        //    Memory.Move(address, WorkingSource.Address, (uint)length);
-        //    _replSrc.Close();
-        //    _replSrc = new DataSource(address, length, _compression);
-        //}
-
         //Returns uncompressed size of node data.
         //It's up to the child nodes to return compressed sizes.
         //If this has been called, it means a rebuild must happen.
@@ -756,6 +762,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             return WorkingUncompressed.Length;
         }
+
+        #endregion
+
+        #region Merging
 
         //Combines deviated tree into backing tree. Backing tree will have moved completely to a temporary file.
         //All references to backing tree will be gone! Including file handles.
@@ -767,26 +777,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (forceBuild || IsDirty)
                 Rebuild(forceBuild);
-
-            //Merging when the tree isn't dirty does nothing!
-            //if (!forceBuild && !IsDirty)
-            //    return;
-
-            //Rebuild node
-            //Rebuild(forceBuild);
-
-            //Copy new data to original file. This causes the original file to be freed.
-            //if (_origSource.Map != null)
-            //{
-            //    string path = _origSource.Map.FilePath;
-            //    _origSource.Close();
-            //    using (FileStream stream = new FileStream(path, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 0x1000, FileOptions.WriteThrough))
-            //    {
-            //        stream.SetLength(_replSrc.Length);
-            //        using (FileMap map = FileMap.FromStream(stream))
-            //            Memory.Move(map.Address, _replSrc.Address, (uint)_replSrc.Length);
-            //    }
-            //}
 
             MergeInternal();
             _merged = true;
@@ -813,6 +803,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
+
+        #endregion
+
+        #region Child Node Searches
 
         public static ResourceNode FindNode(ResourceNode root, string path, bool searchChildren)
         {
@@ -963,8 +957,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             return null;
         }
 
-		#region MD5
-		private static MD5CryptoServiceProvider _md5provider;
+        #endregion
+
+        #region MD5
+        private static MD5CryptoServiceProvider _md5provider;
 		protected static MD5CryptoServiceProvider MD5Provider {
 			get {
 				if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
@@ -991,6 +987,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 		/// Determines whether all of this node's direct children are contained between the start and end of its own data.
 		/// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.
 		/// </summary>
+        /// Or you could just use HasMerged...
 		public unsafe bool DataSourceContainsAllChildren() {
 			DataSource data = OriginalSource;
 			int paddr = (int)OriginalSource.Address.address;

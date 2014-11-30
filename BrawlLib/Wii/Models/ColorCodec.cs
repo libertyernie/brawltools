@@ -279,6 +279,33 @@ namespace BrawlLib.Wii.Models
             return buffer;
         }
 
+        public static UnsafeBuffer Decode(VoidPtr addr, uint length, WiiColorComponentType componentType)
+        {
+            int bytesPerVal = 0;
+            ColorCodecConverter dec;
+            switch (componentType)
+            {
+                case WiiColorComponentType.RGB565: dec = Color_wRGB565_RGBA; bytesPerVal = 2; break;
+                case WiiColorComponentType.RGB8: dec = Color_RGB_RGBA; bytesPerVal = 3; break;
+                case WiiColorComponentType.RGBA4: dec = Color_wRGBA4_RGBA; bytesPerVal = 3; break;
+                case WiiColorComponentType.RGBA6: dec = Color_wRGBA6_RGBA; bytesPerVal = 2; break;
+                case WiiColorComponentType.RGBA8: dec = Color_RGBA_RGBA; bytesPerVal = 4; break;
+                case WiiColorComponentType.RGBX8: dec = Color_RGBX_RGBA; bytesPerVal = 4; break;
+                default: return null;
+            }
+
+            int count = (int)(length / bytesPerVal);
+
+            UnsafeBuffer buffer = new UnsafeBuffer(count * 4);
+            byte* pIn = (byte*)addr;
+            byte* pOut = (byte*)buffer.Address;
+
+            while (count-- > 0)
+                dec(ref pIn, ref pOut);
+
+            return buffer;
+        }
+
         public static ARGBPixel[] ExtractColors(MDL0ColorData* colors)
         {
             int count = colors->_numEntries;

@@ -186,8 +186,8 @@ namespace BrawlLib.Imaging
         
         public byte R, G, B, A;
 
-        public static explicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static explicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static implicit operator RGBAPixel(ARGBPixel p) { return new RGBAPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static implicit operator ARGBPixel(RGBAPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
         public static explicit operator Color(RGBAPixel p) 
         {
             ARGBPixel a = (ARGBPixel)p;

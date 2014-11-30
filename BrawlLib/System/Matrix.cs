@@ -300,6 +300,32 @@ namespace System
 
             return m;
         }
+        public static Matrix ReverseRotationMatrix(Vector3 angles) { return ReverseRotationMatrix(angles._x, angles._y, angles._z); }
+        public static Matrix ReverseRotationMatrix(float x, float y, float z)
+        {
+            float cosx = (float)Math.Cos(x * Maths._deg2radf);
+            float sinx = (float)Math.Sin(x * Maths._deg2radf);
+            float cosy = (float)Math.Cos(y * Maths._deg2radf);
+            float siny = (float)Math.Sin(y * Maths._deg2radf);
+            float cosz = (float)Math.Cos(z * Maths._deg2radf);
+            float sinz = (float)Math.Sin(z * Maths._deg2radf);
+
+            Matrix m = Identity;
+            float* p = (float*)&m;
+
+            p[0] = cosy * cosz;
+            p[1] = sinx * siny * cosz - cosx * sinz;
+            p[2] = cosx * siny * cosz + sinx * sinz;
+            p[4] = cosy * sinz;
+            p[5] = sinx * siny * sinz + cosx * cosz;
+            p[6] = cosx * siny * sinz - sinx * cosz;
+            p[8] = -siny;
+            p[9] = sinx * cosy;
+            p[10] = cosx * cosy;
+        
+            return m;
+        }
+
         public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
         public void Translate(float x, float y, float z)
         {

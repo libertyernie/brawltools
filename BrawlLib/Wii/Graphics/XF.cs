@@ -25,24 +25,46 @@ namespace BrawlLib.Wii.Graphics
 
     public class XFData
     {
-        public XFMemoryAddr addr;
-        public List<uint> values = new List<uint>();
+        public XFMemoryAddr _addr;
+        public List<uint> _values = new List<uint>();
 
         public XFData() { }
-        public XFData(XFMemoryAddr mem) { addr = mem; }
+        public XFData(XFMemoryAddr mem) { _addr = mem; }
 
-        public int Size { get { return 5 + values.Count * 4; } }
+        public unsafe static List<XFData> Parse(VoidPtr address)
+        {
+            List<XFData> XFCmds = new List<XFData>();
+            byte* pData = (byte*)address;
+        Top:
+            if (*pData++ == 0x10)
+            {
+                XFData dat = new XFData();
+                int count = (ushort)*(bushort*)pData; pData += 2;
+                dat._addr = (XFMemoryAddr)(ushort)*(bushort*)pData; pData += 2;
+                dat._values = new List<uint>();
+                for (int i = 0; i < count + 1; i++) 
+                {
+                    dat._values.Add(*(buint*)pData); 
+                    pData += 4; 
+                }
+                XFCmds.Add(dat);
+                goto Top;
+            }
+            return XFCmds;
+        }
+
+        public int Size { get { return 5 + _values.Count * 4; } }
 
         public override string ToString()
         {
-            string str = "Address: " + addr;
-            if (values != null)
-            for (int i = 0; i < values.Count; i++)
+            string str = "Address: " + _addr;
+            if (_values != null)
+            for (int i = 0; i < _values.Count; i++)
             {
-                if (addr >= XFMemoryAddr.XF_TEX0_ID && addr <= XFMemoryAddr.XF_TEX7_ID)
-                    str += " | Value " + i + ": (" + new XFTexMtxInfo(values[i]) + ")";
-                else if (addr >= XFMemoryAddr.XF_DUALTEX0_ID && addr <= XFMemoryAddr.XF_DUALTEX7_ID)
-                    str += " | Value " + i + ": (" + new XFDualTex(values[i]) + ")";
+                if (_addr >= XFMemoryAddr.XF_TEX0_ID && _addr <= XFMemoryAddr.XF_TEX7_ID)
+                    str += " | Value " + i + ": (" + new XFTexMtxInfo(_values[i]) + ")";
+                else if (_addr >= XFMemoryAddr.XF_DUALTEX0_ID && _addr <= XFMemoryAddr.XF_DUALTEX7_ID)
+                    str += " | Value " + i + ": (" + new XFDualTex(_values[i]) + ")";
             }
             return str;
         }
@@ -63,7 +85,6 @@ namespace BrawlLib.Wii.Graphics
         internal uint _data;
 
         public TexProjection Projection { get { return (TexProjection)((_data >> 1) & 1); } }
-        //Normal enable is true when projection is XF_TEX_STQ
         public TexInputForm InputForm { get { return (TexInputForm)((_data >> 2) & 3); } }
         public TexTexgenType TexGenType { get { return (TexTexgenType)((_data >> 4) & 7); } }
         public TexSourceRow SourceRow { get { return (TexSourceRow)((_data >> 7) & 7); } }
@@ -81,32 +102,34 @@ namespace BrawlLib.Wii.Graphics
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct XFDualTex
     {
-        //0000 0000 1111 1111   Dual Mtx
-        //1111 1111 0000 0000   Normal Enable
-        
-        public byte pad0, pad1, NormalEnable, DualMtx;
+        public byte
+            _pad0,
+            _pad1,
+            _normalEnable,
+            _dualMtx;
+
         //Normal enable is true when projection is XF_TEX_STQ
         //DualMtx starts at 0 and increases by 3 for each texture (for every 3 matrix rows)
 
         public XFDualTex(uint value) 
         {
-            pad0 = pad1 = 0;
-            DualMtx = (byte)(value & 0xFF); 
-            NormalEnable = (byte)((value >> 8) & 0xFF);
+            _pad0 = _pad1 = 0;
+            _dualMtx = (byte)(value & 0xFF); 
+            _normalEnable = (byte)((value >> 8) & 0xFF);
         }
 
         public XFDualTex(int mtx, int norm)
         {
-            pad0 = pad1 = 0;
-            DualMtx = (byte)mtx;
-            NormalEnable = (byte)norm;
+            _pad0 = _pad1 = 0;
+            _dualMtx = (byte)mtx;
+            _normalEnable = (byte)norm;
         }
 
-        public uint Value { get { return (uint)(((ushort)NormalEnable << 8) | DualMtx); } }
+        public uint Value { get { return (uint)(((ushort)_normalEnable << 8) | _dualMtx); } }
 
         public override string ToString()
         {
-            return String.Format("Normal Enable: {0} | Dual Matrix: {1}", NormalEnable != 0 ? "True" : "False", DualMtx);
+            return String.Format("Normal Enable: {0} | Dual Matrix: {1}", _normalEnable != 0 ? "True" : "False", _dualMtx);
         }
     }
 
@@ -321,6 +344,9 @@ namespace BrawlLib.Wii.Graphics
         NrmMtxArray,
         TexMtxArray,
         LightArray,
-        NBT // normal, bi-normal, tangent 
+        NBT, //normal, bi-normal, tangent
+
+        Max,
+        Null = 0xFF
     }
 }

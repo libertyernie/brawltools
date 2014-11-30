@@ -22,6 +22,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         BRESEntry = 0x0700,
         MRG = 0x0801,
         BLOC = 0x5C25,
+        Redirect = 0x5E30,
+        RARC = 0x6300,
+        RARCEntry = 0x6400,
+        RARCFolder = 0x6501,
 
         //Effects
         EFLS = 0x0913,
@@ -36,15 +40,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         REL = 0x1031,
         RELImport = 0x1100,
         RELSection = 0x1200,
+        DOL = 0x5A00,
 
         //Misc
         CollisionDef = 0x1314,
         MSBin = 0x1404,
         STPM = 0x1520,
 		STDT = 0x5B26,
-        SHP0VertexSet = 0x5900,
-        DOL = 0x5A00,
-        Redirect = 0x5E30,
 
         //AI
         AI = 0x1616,
@@ -60,7 +62,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         TPLTexture = 0x1E1E,
         TPLPalette = 0x1F22,
 
-        //BRRES Nodes
+        //NW4R
         TEX0 = 0x2005,
         PLT0 = 0x2106,
 
@@ -80,16 +82,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         CLR0MaterialEntry = 0x2D00,
 
         VIS0 = 0x2E0A,
+        SCN0 = 0x381F,
+
         SHP0 = 0x2F0B,
+        SHP0VertexSet = 0x5900,
         SHP0Entry = 0x3000,
+
         SRT0 = 0x310C,
         SRT0Entry = 0x3200,
         SRT0Texture = 0x3300,
+
         PAT0 = 0x341D,
         PAT0Entry = 0x3500,
         PAT0Texture = 0x3600,
         PAT0TextureEntry = 0x3700,
-        SCN0 = 0x381F,
 
         //Audio
         RSAR = 0x390D,
@@ -128,6 +134,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         MDefRefList = 0x5601,
         Event = 0x571B,
         Parameter = 0x5800,
+
+        //Nintendo Disc Image
+        DiscImage = 0x5B00,
+        DiscImagePartition = 0x5C01,
+        DiscImageEntry = 0x6000,
+
+        //J3D
+        BMD = 0x6100,
+        BMDGroup = 0x6101,
+        BTI = 0x6200,
         
         //Subspace Emmisary
         GDOR = 0x5D27,

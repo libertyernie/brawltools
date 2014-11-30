@@ -833,7 +833,7 @@ namespace System.Windows.Forms
                     n.Loop = enableLoop.Checked;
 
                 if (Rename.Checked)
-                    n.Name = newName.Text;
+                    n.Name = n.Parent.FindName(newName.Text);
 
                 if (ChangeVersion.Checked)
                     n.Version = Version.SelectedIndex + 4;

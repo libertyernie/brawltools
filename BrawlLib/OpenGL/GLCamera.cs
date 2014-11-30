@@ -9,13 +9,12 @@ namespace BrawlLib.OpenGL
 
         public Vector3 _rotation;
         public Vector3 _scale;
-
-        internal float _z;
+        public float _z;
 
         public GLCamera() { Reset(); }
 
         public Vector3 GetPoint() { return _matrixInverse.Multiply(new Vector3()); }
-        
+
         public void Scale(float x, float y, float z) { Scale(new Vector3(x, y, z)); }
         public void Scale(Vector3 v)
         {
@@ -60,7 +59,7 @@ namespace BrawlLib.OpenGL
         {
             _matrix = _matrixInverse = Matrix.Identity;
             _rotation = new Vector3();
-            _scale = new Vector3(1.5f);
+            _scale = new Vector3(1.0f);
             _z = 0.0f;
         }
     }
