@@ -21,17 +21,20 @@ namespace BrawlLib.OpenGL
         public IWindowInfo WindowInfo { get { return _winInfo; } }
 
         //These provide a way to manage which context is in use to avoid errors
-        public static List<TKContext> _currentContexts;
-        public static List<TKContext> CurrentContexts { get { return _currentContexts == null ? _currentContexts = new List<TKContext>() : _currentContexts; } }
-        public static TKContext CurrentlyEnabled = null;
+        public static List<TKContext> BoundContexts { get { return _boundContexts == null ? _boundContexts = new List<TKContext>() : _boundContexts; } }
+        public static List<TKContext> _boundContexts;
+        public static TKContext CurrentContext = null;
 
         internal Dictionary<string, object> _states = new Dictionary<string, object>();
-        public T FindOrCreate<T>(string name, GLCreateHandler<T> handler)
+        public static T FindOrCreate<T>(string name, GLCreateHandler<T> handler)
         {
-            if (_states.ContainsKey(name))
-                return (T)_states[name];
-            T obj = handler(this);
-            _states[name] = obj;
+            if (CurrentContext == null)
+                return default(T);
+
+            if (CurrentContext._states.ContainsKey(name))
+                return (T)CurrentContext._states[name];
+            T obj = handler(CurrentContext);
+            CurrentContext._states[name] = obj;
             return obj;
         }
 
@@ -39,7 +42,6 @@ namespace BrawlLib.OpenGL
         {
             try
             {
-                //Capture();
                 foreach (object o in _states.Values)
                 {
                     if (o is GLDisplayList)
@@ -53,7 +55,7 @@ namespace BrawlLib.OpenGL
         }
 
         public bool bSupportsGLSLBinding, bSupportsGLSLUBO, bSupportsGLSLATTRBind, bSupportsGLSLCache;
-        public bool _shadersEnabled = true, _needsUpdate = false;
+        public bool _shadersEnabled = true;
         public int _version = 0;
 
         private Control _window;
@@ -61,7 +63,7 @@ namespace BrawlLib.OpenGL
         {
             _window = window;
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
-            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo, 1, 0, GraphicsContextFlags.Default);
+            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
             _context.MakeCurrent(WindowInfo);
             (_context as IGraphicsContextInternal).LoadAll();
             
@@ -84,19 +86,20 @@ namespace BrawlLib.OpenGL
                 if (extensions.Contains("GL_ARB_get_program_binary"))
                     bSupportsGLSLCache = true;
             }
-            CurrentContexts.Add(this);
+            BoundContexts.Add(this);
         }
 
         public delegate void ContextChangedEventHandler(bool isCurrent);
         public event ContextChangedEventHandler ContextChanged;
-
+        public event EventHandler ResetOccured;
+        
         public void Dispose()
         {
-            //Release();
+            Release();
             if (_context != null)
                 _context.Dispose();
-            if (CurrentContexts.Contains(this))
-                CurrentContexts.Remove(this);
+            if (BoundContexts.Contains(this))
+                BoundContexts.Remove(this);
         }
 
         public void CheckErrors()
@@ -109,19 +112,20 @@ namespace BrawlLib.OpenGL
             Reset();
         }
 
-        public void Capture() 
+        public void Capture() { Capture(false); }
+        public void Capture(bool force)
         {
             try
             {
                 //Only proceed if this window is not already current
-                if (CurrentlyEnabled != this)
+                if (force || CurrentContext != this)
                 {
                     //Release the current context if it exists
-                    if (CurrentlyEnabled != null)
-                        CurrentlyEnabled.Release();
+                    if (CurrentContext != null)
+                        CurrentContext.Release();
 
                     //Make this context the current one
-                    CurrentlyEnabled = this;
+                    CurrentContext = this;
                     if (!_context.IsCurrent)
                         _context.MakeCurrent(WindowInfo);
 
@@ -139,7 +143,7 @@ namespace BrawlLib.OpenGL
         {
             try
             {
-                if (CurrentlyEnabled == this &&
+                if (CurrentContext == this &&
                     _context != null &&
                     _context.IsCurrent &&
                     !_context.IsDisposed)
@@ -152,19 +156,25 @@ namespace BrawlLib.OpenGL
             }
         }
 
+        public bool Resetting { get { return _resetting; } }
+        private bool _resetting = false;
+
         public void Reset()
         {
+            if (_resetting) //Prevent a possible infinite loop
+                return;
+
+            _resetting = true;
             _window.Reset();
             Dispose();
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
-            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo, 1, 0, GraphicsContextFlags.Default);
-            Capture();
+            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
+            Capture(true);
             Update();
             (_context as IGraphicsContextInternal).LoadAll();
 
             // Check for GLSL support
-            string version = GL.GetString(StringName.Version);
-            _version = int.Parse(version[0].ToString());
+            //_version = int.Parse(GL.GetString(StringName.Version)[0].ToString());
             //if (_version < 2)
             _shadersEnabled = false;
 
@@ -181,14 +191,15 @@ namespace BrawlLib.OpenGL
                 if (extensions.Contains("GL_ARB_get_program_binary"))
                     bSupportsGLSLCache = true;
             }
-            CurrentContexts.Add(this);
-            _needsUpdate = true;
+            _resetting = false;
+            if (ResetOccured != null)
+                ResetOccured(this, EventArgs.Empty);
         }
         public void Release()
         {
-            if (CurrentlyEnabled == this && !_context.IsDisposed && _context.IsCurrent)
+            if (CurrentContext == this && !_context.IsDisposed && _context.IsCurrent)
             {
-                CurrentlyEnabled = null;
+                CurrentContext = null;
                 _context.MakeCurrent(null);
 
                 if (ContextChanged != null)
@@ -197,11 +208,11 @@ namespace BrawlLib.OpenGL
         }
         public void Update()
         {
-            if (CurrentlyEnabled == this)
+            if (CurrentContext == this)
                 _context.Update(WindowInfo); 
         }
 
-        public unsafe void DrawBox(Vector3 p1, Vector3 p2)
+        public static unsafe void DrawBox(Vector3 p1, Vector3 p2)
         {
             GL.Begin(PrimitiveType.QuadStrip);
 
@@ -233,7 +244,7 @@ namespace BrawlLib.OpenGL
             GL.End();
         }
 
-        public unsafe void DrawInvertedBox(Vector3 p1, Vector3 p2)
+        public unsafe static void DrawInvertedBox(Vector3 p1, Vector3 p2)
         {
             GL.Begin(PrimitiveType.QuadStrip);
 
@@ -265,21 +276,21 @@ namespace BrawlLib.OpenGL
             GL.End();
         }
 
-        public void DrawCube(Vector3 p, float radius)
+        public static void DrawCube(Vector3 p, float radius)
         {
             Vector3 p1 = new Vector3(p._x + radius, p._y + radius, p._z + radius);
             Vector3 p2 = new Vector3(p._x - radius, p._y - radius, p._z - radius);
             DrawBox(p2, p1);
         }
 
-        public void DrawInvertedCube(Vector3 p, float radius)
+        public static void DrawInvertedCube(Vector3 p, float radius)
         {
             Vector3 p1 = new Vector3(p._x + radius, p._y + radius, p._z + radius);
             Vector3 p2 = new Vector3(p._x - radius, p._y - radius, p._z - radius);
             DrawInvertedBox(p2, p1);
         }
 
-        public void DrawRing(float radius)
+        public static void DrawRing(float radius)
         {
             GL.PushMatrix();
             GL.Scale(radius, radius, radius);
@@ -302,7 +313,7 @@ namespace BrawlLib.OpenGL
             return list;
         }
 
-        public GLDisplayList GetRingList() { return FindOrCreate<GLDisplayList>("Ring", CreateRing); }
+        public static GLDisplayList GetRingList() { return FindOrCreate<GLDisplayList>("Ring", CreateRing); }
         private static GLDisplayList CreateRing(TKContext ctx)
         {
             GLDisplayList list = new GLDisplayList();
@@ -320,7 +331,7 @@ namespace BrawlLib.OpenGL
             return list;
         }
 
-        public GLDisplayList GetSquareList() { return FindOrCreate<GLDisplayList>("Square", CreateSquare); }
+        public static GLDisplayList GetSquareList() { return FindOrCreate<GLDisplayList>("Square", CreateSquare); }
         private static GLDisplayList CreateSquare(TKContext ctx)
         {
             GLDisplayList list = new GLDisplayList();
@@ -340,7 +351,7 @@ namespace BrawlLib.OpenGL
             return list;
         }
 
-        public GLDisplayList GetAxisList() { return FindOrCreate<GLDisplayList>("Axes", CreateAxes); }
+        public static GLDisplayList GetAxisList() { return FindOrCreate<GLDisplayList>("Axes", CreateAxes); }
         private static GLDisplayList CreateAxes(TKContext ctx)
         {
             GLDisplayList list = new GLDisplayList();
@@ -380,7 +391,7 @@ namespace BrawlLib.OpenGL
             list.End();
             return list;
         }
-        public GLDisplayList GetCubeList() { return FindOrCreate<GLDisplayList>("Cube", CreateCube); }
+        public static GLDisplayList GetCubeList() { return FindOrCreate<GLDisplayList>("Cube", CreateCube); }
         private static GLDisplayList CreateCube(TKContext ctx)
         {
             GLDisplayList list = new GLDisplayList();
@@ -422,7 +433,7 @@ namespace BrawlLib.OpenGL
             return list;
         }
 
-        public GLDisplayList GetCircleList() { return FindOrCreate<GLDisplayList>("Circle", CreateCircle); }
+        public static GLDisplayList GetCircleList() { return FindOrCreate<GLDisplayList>("Circle", CreateCircle); }
         private static GLDisplayList CreateCircle(TKContext ctx)
         {
             GLDisplayList list = new GLDisplayList();
@@ -442,14 +453,14 @@ namespace BrawlLib.OpenGL
             return list;
         }
 
-        public void DrawSphere(float radius)
+        public static void DrawSphere(float radius)
         {
             GL.PushMatrix();
             GL.Scale(radius, radius, radius);
             GetSphereList().Call();
             GL.PopMatrix();
         }
-        public GLDisplayList GetSphereList() { return FindOrCreate<GLDisplayList>("Sphere", CreateSphere); }
+        public static GLDisplayList GetSphereList() { return FindOrCreate<GLDisplayList>("Sphere", CreateSphere); }
         public static GLDisplayList CreateSphere(TKContext ctx)
         {
             //IntPtr quad = Glu.NewQuadric();

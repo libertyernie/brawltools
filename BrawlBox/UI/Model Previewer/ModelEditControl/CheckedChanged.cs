@@ -67,7 +67,7 @@ namespace System.Windows.Forms
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                ModelPanel._bgType = GLPanel.BackgroundType.Stretch;
+                ModelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
                 _updating = false;
                 ModelPanel.Invalidate();
             }
@@ -80,7 +80,7 @@ namespace System.Windows.Forms
             {
                 _updating = true;
                 stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                ModelPanel._bgType = GLPanel.BackgroundType.Center;
+                ModelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
                 _updating = false;
                 ModelPanel.Invalidate();
             }
@@ -93,7 +93,7 @@ namespace System.Windows.Forms
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
-                ModelPanel._bgType = GLPanel.BackgroundType.ResizeWithBars;
+                ModelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
                 _updating = false;
                 ModelPanel.Invalidate();
             }
@@ -108,7 +108,7 @@ namespace System.Windows.Forms
         }
         private void enableTextOverlaysToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            ModelPanel._textEnabled = enableTextOverlaysToolStripMenuItem.Checked;
+            ModelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
         }
         private void enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
@@ -267,7 +267,7 @@ namespace System.Windows.Forms
             //This determines the target object for focus editing vertices, normals, etc in the viewer
             //If the selected object is set to null, the poly index will be set to -1 by IndexOf.
             //This means vertices, normals etc will be drawn for all objects, if enabled.
-            _targetModel._polyIndex = _targetModel._objList.IndexOf(leftPanel.SelectedObject);
+            _targetModel.SelectedObjectIndex = _targetModel.Objects.IndexOf(leftPanel.SelectedObject);
 
             //If this setting is enabled, we need to show the user what textures only this object uses.
             //If the polygon is set to null, all of the model's texture references will be shown.
@@ -275,17 +275,21 @@ namespace System.Windows.Forms
                 leftPanel.UpdateTextures();
 
             //Update the VIS editor to show the entries for the selected object
-            if (TargetAnimType == AnimType.VIS && leftPanel.SelectedObject != null && vis0Editor.listBox1.Items.Count != 0)
+            if (TargetAnimType == AnimType.VIS && 
+                leftPanel.SelectedObject != null && 
+                vis0Editor.listBox1.Items.Count != 0 && 
+                leftPanel.SelectedObject is MDL0ObjectNode)
             {
                 int x = 0;
                 foreach (object i in vis0Editor.listBox1.Items)
-                    if (i.ToString() == leftPanel.SelectedObject.VisibilityBone)
+                    if (i.ToString() == ((MDL0ObjectNode)leftPanel.SelectedObject).VisibilityBone)
                     {
                         vis0Editor.listBox1.SelectedIndex = x;
                         break;
                     }
                     else
                         x++;
+
                 if (x == vis0Editor.listBox1.Items.Count)
                     vis0Editor.listBox1.SelectedIndex = -1;
             }

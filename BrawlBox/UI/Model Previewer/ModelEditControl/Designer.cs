@@ -1872,17 +1872,11 @@ namespace System.Windows.Forms
             // 
             // modelPanel
             // 
-            this.modelPanel.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel.DefaultTranslate")));
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelPanel.InitialYFactor = 100;
-            this.modelPanel.InitialZoomFactor = 5;
             this.modelPanel.Location = new System.Drawing.Point(0, 0);
             this.modelPanel.Name = "modelPanel";
-            this.modelPanel.RotationScale = 0.4F;
             this.modelPanel.Size = new System.Drawing.Size(429, 361);
             this.modelPanel.TabIndex = 0;
-            this.modelPanel.TranslationScale = 0.05F;
-            this.modelPanel.ZoomScale = 2.5F;
             // 
             // label1
             // 
@@ -2101,10 +2095,7 @@ namespace System.Windows.Forms
                 pnlPlayback.Dock = DockStyle.Fill;
 
             _interpolationEditor = new Forms.InterpolationEditor(this);
-
-            leftPanel.fileType.DataSource = _editableAnimTypes;
-
-            TargetAnimType = AnimType.CHR;
+            
             m_DelegateOpenFile = new DelegateOpenFile(OpenFile);
 
             string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
@@ -2113,8 +2104,6 @@ namespace System.Windows.Forms
             LiveTextureFolderPath.Text = applicationFolder;
 
             MDL0TextureNode.TextureOverrideDirectory = LiveTextureFolderPath.Text;
-
-            cboToolSelect.SelectedIndex = 1;
 
             _timer = new CoolTimer();
             _timer.RenderFrame += _timer_RenderFrame;
@@ -2127,6 +2116,8 @@ namespace System.Windows.Forms
 
             KeyframePanel.visEditor.EntryChanged += new EventHandler(this.VISEntryChanged);
             KeyframePanel.visEditor.IndexChanged += new EventHandler(this.VISIndexChanged);
+
+            leftPanel.fileType.DataSource = _editableAnimTypes;
         }
 
         protected override void OnLoad(EventArgs e)
@@ -2137,6 +2128,8 @@ namespace System.Windows.Forms
             _interpolationEditor.SendToBack();
             _interpolationEditor.Dock = DockStyle.Fill;
             _interpolationEditor.Visible = false;
+
+            cboToolSelect.SelectedIndex = 1;
         }
 
         #endregion

@@ -620,7 +620,7 @@ namespace BrawlLib.Modeling
                 Vector3* Normals = (Vector3*)p._manager._faceData[1].Address;
                 Vector2* UVs = (Vector2*)p._manager._faceData[4].Address;
 
-                manager._triangles = new NewPrimitive((int)m._faceVertCount, BeginMode.Triangles);
+                manager._triangles = new GLPrimitive((int)m._faceVertCount, PrimitiveType.Triangles);
                 uint[] pTriarr = manager._triangles._indices;
                 uint pTri = 0;
 
@@ -659,7 +659,7 @@ namespace BrawlLib.Modeling
                         t._x = mv._position[0];
                         t._y = mv._position[1];
                         t._z = mv._position[2];
-                        if (inf._weights.Count > 1)
+                        if (inf.Weights.Count > 1)
                         {
                             inf = model._influences.FindOrCreate(inf, true);
                             inf.CalcMatrix();
@@ -667,7 +667,7 @@ namespace BrawlLib.Modeling
                         }
                         else
                         {
-                            MDL0BoneNode bone = inf._weights[0].Bone;
+                            MDL0BoneNode bone = inf.Weights[0].Bone as MDL0BoneNode;
                             v = new Vertex3(t * bone._inverseBindMatrix, bone);
                         }
 
@@ -772,7 +772,7 @@ namespace BrawlLib.Modeling
                 shader.TextureRef0 = true;
                 shader.TextureRef1 = true;
 
-                TEVStage s = new TEVStage();
+                TEVStageNode s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFF8;
@@ -784,7 +784,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.ColorChannel = ColorSelChan.Zero;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
@@ -796,7 +796,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.ColorChannel = ColorSelChan.Zero;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
@@ -808,7 +808,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -820,7 +820,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -842,7 +842,7 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStage s = new TEVStage();
+                TEVStageNode s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFFA;
@@ -854,7 +854,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
                 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
@@ -866,7 +866,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.ColorChannel = ColorSelChan.Zero;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
@@ -878,7 +878,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -890,7 +890,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -912,7 +912,7 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStage s = new TEVStage();
+                TEVStageNode s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFF8;
@@ -924,7 +924,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.ColorChannel = ColorSelChan.Zero;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -936,7 +936,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -957,7 +957,7 @@ namespace BrawlLib.Modeling
             {
                 MDL0ShaderNode shader = new MDL0ShaderNode();
 
-                TEVStage s = new TEVStage();
+                TEVStageNode s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFFA;
@@ -969,7 +969,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -981,7 +981,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.ColorChannel = ColorSelChan.ColorChannel0;
 
-                s = new TEVStage();
+                s = new TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;

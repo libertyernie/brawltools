@@ -25,25 +25,29 @@ namespace System
         }
 
         /// <summary>
-        /// Clamps the value to the rotational range of [-180, 180).
+        /// Remaps values outside of a range into the first multiple of that range.
+        /// When it comes to signed numbers, negative is highest.
+        /// For example, -128 (0xFF) vs 127 (0x7F).
+        /// Because of this, the max value is non-inclusive while the min value is.
         /// </summary>
-        public static Single Clamp180Deg(this Single value)
+        public static Single RemapToRange(this Single value, Single min, Single max)
         {
-            //Figure out how many multiples of 360 there are.
-            //Dividing the value by 360 and cutting off the decimal places
-            //will return the number of multiples of whole 360's in the value.
-            //Then those multiples need to be subtracted out.
-            value -= 360.0f * (int)(value / 360.0f);
+            //Get the distance between max and min
+            float range = max - min;
 
-            //Now the value is in the range of +360 to -360.
-            //The range needs to be from +180 to -180.
-            value += value > 180.0f ? -360.0f : value < -180.0f ? 360.0f : 0;
+            //First figure out how many multiples of the range there are.
+            //Dividing the value by the range and cutting off the decimal places
+            //will return the number of multiples of whole ranges in the value.
+            //Those multiples need to be subtracted out.
+            value -= range * (int)(value / range);
 
-            //180 and -180 represent the same rotation.
-            //When it comes to signed numbers, negative is highest. 
-            //For example, -128 (0xFF) vs 127 (0x7F)
-            if (value == 180.0f)
-                value = -180.0f;
+            //Now the value is in the range of +range to -range.
+            //The value needs to be within +(range/2) to -(range/2).
+            value += value > max ? -range : value < min ? range : 0;
+
+            //Max value is non-inclusive
+            if (value == max)
+                value = min;
 
             return value;
         }

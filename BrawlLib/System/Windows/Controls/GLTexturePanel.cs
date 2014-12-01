@@ -20,35 +20,51 @@ namespace System.Windows.Forms
                 if (_currentTexture == value)
                     return;
 
-                //if (((
                 _currentTexture = value;
-                //) != null))
-                //    _currentTexture._context.Share(_context);
             }
         }
 
         unsafe internal override void OnInit(TKContext ctx)
         {
-            //Share lists with original context
-            //if (_currentTexture != null)
-            //    _currentTexture._context.Share(_context);
-
             //Set caps
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.Texture2D);
             GL.Disable(EnableCap.DepthTest);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
-            OnResized();
+            UpdateProjection();
         }
 
-        protected internal unsafe override void OnRender(TKContext ctx, PaintEventArgs e)
+        protected internal unsafe override void OnRender(PaintEventArgs e)
         {
-            GLTexture _bgTex = ctx.FindOrCreate<GLTexture>("TexBG", CreateBG);
-            _bgTex.Bind();
+            RenderBGTexture(Width, Height, _currentTexture);
+        }
+
+        public override void UpdateProjection()
+        {
+            if (_ctx == null)
+                return;
+
+            Capture();
+
+            GL.Viewport(0, 0, Width, Height);
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(0.0f, 1.0f, 1.0f, 0.0f, -0.1f, 1.0f);
+        }
+
+        public static unsafe void RenderBGTexture(int width, int height, GLTexture texture)
+        {
+            float[] points = new float[8];
+            RenderBGTexture(width, height, texture, ref points);
+        }
+        public static unsafe void RenderBGTexture(int width, int height, GLTexture texture, ref float[] points)
+        {
+            GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", CreateBG);
+            bgTex.Bind();
 
             //Draw BG
-            float s = (float)Width / (float)_bgTex.Width, t = (float)Height / (float)_bgTex.Height;
+            float s = (float)width / (float)bgTex.Width, t = (float)height / (float)bgTex.Height;
 
             GL.Begin(PrimitiveType.Quads);
 
@@ -64,18 +80,17 @@ namespace System.Windows.Forms
             GL.End();
 
             //Draw texture
-            if ((_currentTexture != null) && (_currentTexture._texId != 0))
+            if ((texture != null) && (texture._texId != 0))
             {
-                float tAspect = (float)_currentTexture.Width / _currentTexture.Height;
-                float wAspect = (float)Width / Height;
-                float* points = stackalloc float[8];
+                float tAspect = (float)texture.Width / texture.Height;
+                float wAspect = (float)width / height;
 
                 if (tAspect > wAspect) //Texture is wider, use horizontal fit
                 {
                     points[0] = points[6] = 0.0f;
                     points[2] = points[4] = 1.0f;
 
-                    points[1] = points[3] = ((Height - ((float)Width / _currentTexture.Width * _currentTexture.Height))) / Height / 2.0f;
+                    points[1] = points[3] = ((height - ((float)width / texture.Width * texture.Height))) / height / 2.0f;
                     points[5] = points[7] = 1.0f - points[1];
                 }
                 else
@@ -83,35 +98,25 @@ namespace System.Windows.Forms
                     points[1] = points[3] = 0.0f;
                     points[5] = points[7] = 1.0f;
 
-                    points[0] = points[6] = (Width - ((float)Height / _currentTexture.Height * _currentTexture.Width)) / Width / 2.0f;
+                    points[0] = points[6] = (width - ((float)height / texture.Height * texture.Width)) / width / 2.0f;
                     points[2] = points[4] = 1.0f - points[0];
                 }
 
-                GL.BindTexture(TextureTarget.Texture2D, _currentTexture._texId);
+                GL.BindTexture(TextureTarget.Texture2D, texture._texId);
 
                 GL.Begin(PrimitiveType.Quads);
 
                 GL.TexCoord2(0.0f, 0.0f);
-                GL.Vertex2(&points[0]);
+                GL.Vertex2(points[0], points[1]);
                 GL.TexCoord2(1.0f, 0.0f);
-                GL.Vertex2(&points[2]);
+                GL.Vertex2(points[2], points[3]);
                 GL.TexCoord2(1.0f, 1.0f);
-                GL.Vertex2(&points[4]);
+                GL.Vertex2(points[4], points[5]);
                 GL.TexCoord2(0.0f, 1.0f);
-                GL.Vertex2(&points[6]);
+                GL.Vertex2(points[6], points[7]);
 
                 GL.End();
             }
-        }
-
-        public override void OnResized()
-        {
-            //Set up orthographic projection
-
-            GL.Viewport(0, 0, Width, Height);
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.LoadIdentity();
-            GL.Ortho(0.0f, 1.0f, 1.0f, 0.0f, -0.1f, 1.0f);
         }
 
         public static RGBAPixel _left = new RGBAPixel(192, 192, 192, 255), _right = new RGBAPixel(240, 240, 240, 255);

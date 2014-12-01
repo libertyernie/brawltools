@@ -251,7 +251,7 @@ namespace BrawlLib.Wii.Models
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ElementDescriptor
+    public unsafe class ElementDescriptor
     {
         public int Stride;
         public bool Weighted;
@@ -259,29 +259,28 @@ namespace BrawlLib.Wii.Models
         public byte[] Commands;
         public int[] Defs;
         private ushort[] Nodes;
-        public int[] RemapTable;
-        public int RemapSize;
+        public List<int> RemapTable;
         public List<List<Facepoint>> _points;
 
-        public ElementDescriptor(MDL0Object* polygon)
+        public ElementDescriptor()
         {
-            byte* pData = (byte*)polygon->DefList;
-            byte* pCom;
-            ElementDef* pDef;
-
-            CPElementSpec UVATGroups;
-            int format; //0 for direct, 1 for byte, 2 for short
-
-            //Create remap table for vertex weights
-            RemapTable = new int[polygon->_numVertices];
-            RemapSize = 0;
+            RemapTable = new List<int>();
             Stride = 0;
             HasData = new bool[12];
             Nodes = new ushort[16];
             Commands = new byte[31];
             Defs = new int[12];
-
+            Weighted = false;
             _points = new List<List<Facepoint>>();
+        }
+
+        public void SetupMDL0(MDL0Object* polygon)
+        {
+            byte* pCom;
+            ElementDef* pDef;
+
+            CPElementSpec UVATGroups;
+            int format; //0 for direct, 1 for byte, 2 for short
 
             //Read element descriptor from polygon display list
             MDL0PolygonDefs* Definitons = (MDL0PolygonDefs*)polygon->DefList;
@@ -442,7 +441,7 @@ namespace BrawlLib.Wii.Models
         }
         
         //Set node ID/Index using specified command block
-        public void SetNode(ref byte* pIn, byte* start)
+        public void SetNode(byte* pIn)
         {
             //Get node ID
             ushort node = *(bushort*)pIn;
@@ -456,13 +455,22 @@ namespace BrawlLib.Wii.Models
             //Assign node ID to cache, using index
             fixed (ushort* n = Nodes)
                 n[index] = node;
-
-            //Increment pointer
-            pIn += 4;
+        }
+        public void SetNode(ushort index, ushort node)
+        {
+            fixed (ushort* n = Nodes)
+                n[index] = node;
         }
 
         //Decode a single primitive using command list
-        public void Run(ref byte* pIn, byte** pAssets, byte** pOut, int count, PrimitiveGroup group, ref ushort* indices, IMatrixNode[] nodeTable)
+        public void Run(
+            ref byte* pIn,
+            byte** pAssets,
+            byte** pOut,
+            int count,
+            PrimitiveGroup group,
+            ref ushort* indices,
+            IMatrixNode[] nodeTable)
         {
             //pIn is the address in the primitives
             //pOut is address of the face data buffers
@@ -554,14 +562,15 @@ namespace BrawlLib.Wii.Models
 
                                 //Find matching index, starting at end of list
                                 //Lower index until a match is found at that index or index is less than 0
-                                index = RemapSize;
+                                index = RemapTable.Count;
                                 while ((--index >= 0) && (RemapTable[index] != mapEntry)) ;
 
                                 //No match, create new entry
                                 //Will be processed into vertices at the end!
                                 if (index < 0)
                                 {
-                                    RemapTable[index = RemapSize++] = mapEntry;
+                                    index = RemapTable.Count;
+                                    RemapTable.Add(mapEntry);
                                     _points.Add(new List<Facepoint>());
                                 }
 
@@ -629,12 +638,12 @@ namespace BrawlLib.Wii.Models
         internal unsafe List<Vertex3> Finish(Vector3* pVert, IMatrixNode[] nodeTable)
         {
             //Create vertex list from remap table
-            List<Vertex3> list = new List<Vertex3>(RemapSize);
+            List<Vertex3> list = new List<Vertex3>(RemapTable.Count);
 
             if (!Weighted)
             {
                 //Add vertex to list using raw value.
-                for (int i = 0; i < RemapSize; i++)
+                for (int i = 0; i < RemapTable.Count; i++)
                 {
                     Vertex3 v = new Vertex3(pVert[RemapTable[i]]) { _facepoints = _points[i] };
                     foreach (Facepoint f in v._facepoints) f._vertex = v;
@@ -643,11 +652,22 @@ namespace BrawlLib.Wii.Models
             }
             else if (nodeTable != null)
             {
-                for (int i = 0; i < RemapSize; i++)
+                for (int i = 0; i < RemapTable.Count; i++)
                 {
                     int x = RemapTable[i];
                     //Create new vertex, assigning the value + influence from the remap table
-                    Vertex3 v = new Vertex3(pVert[x & 0xFFFF], nodeTable[x >> 16]) { _facepoints = _points[i] };
+                    int node = (x >> 16) & 0xFFFF;
+                    IMatrixNode mtx;
+                    if (node == 0xFFFF)
+                    {
+                        mtx = null;
+                    }
+                    else
+                    {
+                        mtx = nodeTable[node];
+                    }
+
+                    Vertex3 v = new Vertex3(pVert[x & 0xFFFF], mtx) { _facepoints = _points[i] };
                     foreach (Facepoint f in v._facepoints) f._vertex = v;
                     //Add vertex to list
                     list.Add(v);

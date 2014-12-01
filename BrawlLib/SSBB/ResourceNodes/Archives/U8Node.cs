@@ -10,7 +10,7 @@ using System.Collections.Specialized;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class U8Node : ARCEntryNode
+    public unsafe class U8Node : ResourceNode
     {
         internal U8* Header { get { return (U8*)WorkingUncompressed.Address; } }
         
@@ -21,6 +21,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 return new Type[] { typeof(U8EntryNode) };
             }
+        }
+
+        [Browsable(true), TypeConverter(typeof(DropDownListCompression))]
+        public override string Compression
+        {
+            get { return base.Compression; }
+            set { base.Compression = value; }
         }
 
         public override void OnPopulate()
@@ -215,7 +222,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 using (FileStream inStream = new FileStream(Path.GetTempFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 0x8, FileOptions.SequentialScan | FileOptions.DeleteOnClose))
                 using (FileStream outStream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
                 {
-                    Compressor.CompactYAZ0(WorkingUncompressed.Address, WorkingUncompressed.Length, inStream, this);
+                    Compressor.Compact(CompressionType.RunLengthYAZ0, WorkingUncompressed.Address, WorkingUncompressed.Length, inStream, this);
                     outStream.SetLength(inStream.Length);
                     using (FileMap map = FileMap.FromStream(inStream))
                     using (FileMap outMap = FileMap.FromStream(outStream))

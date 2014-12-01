@@ -68,11 +68,11 @@ namespace System.Windows.Forms
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
-        public void BoneChange(MDL0BoneNode bone)
+        public void BoneChange(IBoneNode bone)
         {
             SaveState state = new SaveState();
             state._bone = bone;
-            state._frameState = bone._frameState;
+            state._frameState = bone.FrameState;
             state._animation = SelectedCHR0;
             state._frameIndex = CurrentFrame;
 

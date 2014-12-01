@@ -19,8 +19,7 @@ namespace System.Windows.Forms
         public DialogResult ShowDialog(IWin32Window owner, GLTexture texture)
         {
             panel.Texture = texture;
-            this.Width = texture.Width + 16;
-            this.Height = texture.Height + 32;
+            this.ClientSize = new Drawing.Size(texture.Width, texture.Height);
             try { return this.ShowDialog(owner); }
             finally { panel.Texture = null; }
         }

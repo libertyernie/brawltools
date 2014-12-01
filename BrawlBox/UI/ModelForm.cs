@@ -55,11 +55,11 @@ namespace BrawlBox
 
         public ModelForm() { InitializeComponent(); }
 
-        private List<MDL0Node> _models = new List<MDL0Node>();
+        private List<IModel> _models = new List<IModel>();
         private List<CollisionNode> _collisions = new List<CollisionNode>();
 
-        public DialogResult ShowDialog(List<MDL0Node> models) { return ShowDialog(null, models); }
-        public DialogResult ShowDialog(IWin32Window owner, List<MDL0Node> models,
+        public DialogResult ShowDialog(List<IModel> models) { return ShowDialog(null, models); }
+        public DialogResult ShowDialog(IWin32Window owner, List<IModel> models,
             List<CollisionNode> collisions = null)
         {
             _models = models;
@@ -67,22 +67,22 @@ namespace BrawlBox
             try { return base.ShowDialog(owner); }
             finally { _models = null; }
         }
-        public DialogResult ShowDialog(MDL0Node model) { return ShowDialog(null, model); }
-        public DialogResult ShowDialog(IWin32Window owner, MDL0Node model)
+        public DialogResult ShowDialog(IModel model) { return ShowDialog(null, model); }
+        public DialogResult ShowDialog(IWin32Window owner, IModel model)
         {
             _models.Add(model);
             try { return base.ShowDialog(owner); }
             finally { _models = null; }
         }
 
-        public void Show(List<MDL0Node> models) { Show(null, models); }
-        public void Show(IWin32Window owner, List<MDL0Node> models)
+        public void Show(List<IModel> models) { Show(null, models); }
+        public void Show(IWin32Window owner, List<IModel> models)
         {
             _models = models;
             base.Show(owner);
         }
-        public void Show(MDL0Node model) { Show(null, model); }
-        public void Show(IWin32Window owner, MDL0Node model)
+        public void Show(IModel model) { Show(null, model); }
+        public void Show(IWin32Window owner, IModel model)
         {
             _models.Add(model);
             base.Show(owner);
@@ -148,7 +148,7 @@ namespace BrawlBox
                     // Link bones
                     foreach (CollisionObject obj in node._objects) {
                         if (obj._modelName == "" || obj._boneName == "") continue;
-                        MDL0Node model = _models.Where(m => m.Name == obj._modelName).FirstOrDefault();
+                        MDL0Node model = _models.Where(m => m is MDL0Node && ((ResourceNode)m).Name == obj._modelName).FirstOrDefault() as MDL0Node;
                         if (model != null) {
                             MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
                             if (bone != null) {
@@ -212,7 +212,7 @@ namespace BrawlBox
         private void TargetModelChanged(object sender, EventArgs e)
         {
             if (modelEditControl1.TargetModel != null)
-                Text = String.Format("{1} - Advanced Model Editor - {0}", modelEditControl1.TargetModel.Name, Program.AssemblyTitle);
+                Text = String.Format("{1} - Advanced Model Editor - {0}", ((ResourceNode)modelEditControl1.TargetModel).Name, Program.AssemblyTitle);
             else
                 Text = Text = Program.AssemblyTitle + " - Advanced Model Editor";
         }

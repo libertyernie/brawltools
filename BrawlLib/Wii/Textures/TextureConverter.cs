@@ -59,7 +59,7 @@ namespace BrawlLib.Wii.Textures
         public virtual FileMap EncodeTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm, out FileMap paletteFile)
         {
             using (Bitmap indexed = src.Quantize(algorithm, numColors, RawFormat, format, null))
-                return EncodeTextureIndexed(indexed, mipLevels, format, out paletteFile);
+                return EncodeTEX0TextureIndexed(indexed, mipLevels, format, out paletteFile);
         }
         public virtual FileMap EncodeREFTTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm)
         {
@@ -82,7 +82,7 @@ namespace BrawlLib.Wii.Textures
 
             return EncodeREFTTexture(src, mipLevels, format);
         }
-        public virtual FileMap EncodeTextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out FileMap paletteFile)
+        public virtual FileMap EncodeTEX0TextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out FileMap paletteFile)
         {
             if (!src.IsIndexed())
                 throw new ArgumentException("Source image must be indexed.");

@@ -8,10 +8,12 @@ namespace BrawlLib.OpenGL
 {
     public interface IRenderedObject
     {
-        void Attach(TKContext ctx);
+        bool IsRendering { get; set; }
+        bool Attached { get; }
+        void Attach();
         void Detach();
         void Refesh();
-        void Render(TKContext ctx, ModelPanel mainWindow);
+        void Render(params object[] args);
         void GetBox(out Vector3 min, out Vector3 max);
     }
 }

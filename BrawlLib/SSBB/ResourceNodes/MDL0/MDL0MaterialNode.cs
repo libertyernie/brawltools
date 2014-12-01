@@ -23,6 +23,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.MDL0Material; } }
         public override bool AllowDuplicateNames { get { return true; } }
 
+        public bool _updating = false;
+
         public MDL0MaterialNode()
         {
             _normMapRefLight1 =
@@ -35,26 +37,62 @@ namespace BrawlLib.SSBB.ResourceNodes
             _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
         }
 
+        //Just settings some extra, more brawl-specific defaults here
+        public void SetImportValues()
+        {
+            _lightSetIndex = 20;
+            _fogIndex = 4;
+            _activeStages = 3;
+
+            C1ColorEnabled = true;
+            C1AlphaMaterialSource = GXColorSrc.Vertex;
+            C1ColorMaterialSource = GXColorSrc.Vertex;
+            C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
+            C1ColorAttenuation = GXAttnFn.Spotlight;
+            C1AlphaEnabled = true;
+            C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
+            C1AlphaAttenuation = GXAttnFn.Spotlight;
+
+            C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
+            C2ColorAttenuation = GXAttnFn.None;
+            C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
+            C2AlphaAttenuation = GXAttnFn.None;
+        }
+
         #region Variables
-
-        //Use these for streaming values into the shader
-        public RGBAPixel amb1, amb2, clr1, clr2;
-        public GXColorS10 k1, k2, k3, k4, c1, c2, c3;
-
-        MatModeBlock* mode;
 
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
 
-        internal int _dataLen, _mdl0Offset, _stringOffset, _shaderOffset, _matRefOffset, _userDataOffset, _furDataOffset, _dlOffset, _pad;
-        internal byte _numTextures, _numLights, _indirectMethod1, _indirectMethod2, _indirectMethod3, _indirectMethod4;
-        public sbyte _normMapRefLight1, _normMapRefLight2, _normMapRefLight3, _normMapRefLight4, _lSet, _fSet;
-        internal Bin32 _usageFlags = new Bin32();
-        public byte _ssc;
-        internal byte _clip;
-        public byte _transp;
-        internal CullMode _cull;
+        public byte
+            _numLights,
+            _indirectMethod1,
+            _indirectMethod2,
+            _indirectMethod3,
+            _indirectMethod4,
+            _activeStages,
+            _activeIndStages,
+            _zCompLoc;
+        public sbyte
+            _normMapRefLight1,
+            _normMapRefLight2,
+            _normMapRefLight3,
+            _normMapRefLight4,
+            _lightSetIndex,
+            _fogIndex;
+        private Bin32 _usageFlags = new Bin32();
+        public CullMode _cull;
+
+        public uint _layerFlags; //Usage flags. Each set of 4 bits represents one texture layer.
+        public uint _texMtxFlags;
+
+        public LightChannel 
+            _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0),
+            _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0);
+
+        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        internal List<XFData> XFCmds = new List<XFData>();
 
         //In order of appearance in display list:
         //Mode block
@@ -78,38 +116,59 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Attributes
 
         public MDL0ObjectNode[] Objects { get { if (!isMetal) return _objects.ToArray(); else return MetalMaterial == null ? null : MetalMaterial._objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        
+        #region Konstant Block
 
-        [Browsable(false)]
-        public XFData[] XFCommands { get { return XFCmds.ToArray(); } }
-        internal List<XFData> XFCmds = new List<XFData>();
+        const string KonstDesc = @"
+This color is used by the linked shader. 
+In each shader stage, there are properties called KonstantColorSelection and KonstantAlphaSelection.
+Those properties can use this color as an argument. This color is referred to as ";
 
-        [Category("TEV Konstant Block"), TypeConverter(typeof(GXColorS10StringConverter))]
-        public GXColorS10 KReg0Color 
+        [Category("TEV Konstant Block"), 
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(KonstDesc + "KSel_0.")]
+        public GXColorS10 KReg0Color
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg0Lo.RB, A = _tevKonstBlock.TevReg0Lo.AG, B = _tevKonstBlock.TevReg0Hi.RB, G = _tevKonstBlock.TevReg0Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg0Lo.RB = value.R; _tevKonstBlock.TevReg0Lo.AG = value.A; _tevKonstBlock.TevReg0Hi.RB = value.B; _tevKonstBlock.TevReg0Hi.AG = value.G; k1 = value; } } 
         }
-        [Category("TEV Konstant Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        [Category("TEV Konstant Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(KonstDesc + "KSel_1.")]
         public GXColorS10 KReg1Color 
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg1Lo.RB, A = _tevKonstBlock.TevReg1Lo.AG, B = _tevKonstBlock.TevReg1Hi.RB, G = _tevKonstBlock.TevReg1Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg1Lo.RB = value.R; _tevKonstBlock.TevReg1Lo.AG = value.A; _tevKonstBlock.TevReg1Hi.RB = value.B; _tevKonstBlock.TevReg1Hi.AG = value.G; k2 = value; } } 
         }
-        [Category("TEV Konstant Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        [Category("TEV Konstant Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(KonstDesc + "KSel_2.")]
         public GXColorS10 KReg2Color 
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg2Lo.RB, A = _tevKonstBlock.TevReg2Lo.AG, B = _tevKonstBlock.TevReg2Hi.RB, G = _tevKonstBlock.TevReg2Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg2Lo.RB = value.R; _tevKonstBlock.TevReg2Lo.AG = value.A; _tevKonstBlock.TevReg2Hi.RB = value.B; _tevKonstBlock.TevReg2Hi.AG = value.G; k3 = value; } } 
         }
-        [Category("TEV Konstant Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        [Category("TEV Konstant Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(KonstDesc + "KSel_3.")]
         public GXColorS10 KReg3Color 
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg3Lo.RB, A = _tevKonstBlock.TevReg3Lo.AG, B = _tevKonstBlock.TevReg3Hi.RB, G = _tevKonstBlock.TevReg3Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg3Lo.RB = value.R; _tevKonstBlock.TevReg3Lo.AG = value.A; _tevKonstBlock.TevReg3Hi.RB = value.B; _tevKonstBlock.TevReg3Hi.AG = value.G; k4 = value; } } 
         }
 
-        [Category("TEV Color Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        #endregion
+
+        #region Color Block
+
+        const string ColorDesc = @"
+This color is used by the linked shader. 
+In each shader stage, there are properties called Color/Alpha Selection A, B, C and D.
+Those properties can use this color as an argument. This color is referred to as ";
+
+        [Category("TEV Color Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(ColorDesc + "Color0 and Alpha0.")]
         public GXColorS10 CReg0Color 
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg1Lo.RB, A = _tevColorBlock.TevReg1Lo.AG, B = _tevColorBlock.TevReg1Hi0.RB, G = _tevColorBlock.TevReg1Hi0.AG }; }
@@ -120,7 +179,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _tevColorBlock.TevReg1Lo.RB = value.R;
                     _tevColorBlock.TevReg1Lo.AG = value.A;
 
-                    //Hi values are always the same...
+                    //High values are always the same...
                     _tevColorBlock.TevReg1Hi0.RB =
                     _tevColorBlock.TevReg1Hi1.RB =
                     _tevColorBlock.TevReg1Hi2.RB = value.B;
@@ -132,7 +191,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        [Category("TEV Color Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        [Category("TEV Color Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(ColorDesc + "Color1 and Alpha1.")]
         public GXColorS10 CReg1Color 
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg2Lo.RB, A = _tevColorBlock.TevReg2Lo.AG, B = _tevColorBlock.TevReg2Hi0.RB, G = _tevColorBlock.TevReg2Hi0.AG }; }
@@ -143,7 +204,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _tevColorBlock.TevReg2Lo.RB = value.R;
                     _tevColorBlock.TevReg2Lo.AG = value.A;
 
-                    //Hi values are always the same...
+                    //High values are always the same...
                     _tevColorBlock.TevReg2Hi0.RB =
                     _tevColorBlock.TevReg2Hi1.RB =
                     _tevColorBlock.TevReg2Hi2.RB = value.B;
@@ -155,7 +216,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        [Category("TEV Color Block"), TypeConverter(typeof(GXColorS10StringConverter))]
+        [Category("TEV Color Block"),
+        TypeConverter(typeof(GXColorS10StringConverter)),
+        Description(ColorDesc + "Color2 and Alpha2.")]
         public GXColorS10 CReg2Color 
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg3Lo.RB, A = _tevColorBlock.TevReg3Lo.AG, B = _tevColorBlock.TevReg3Hi0.RB, G = _tevColorBlock.TevReg3Hi0.AG }; } 
@@ -163,11 +226,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (!CheckIfMetal()) 
                 {
-
                     _tevColorBlock.TevReg3Lo.RB = value.R; 
-                    _tevColorBlock.TevReg3Lo.AG = value.A; 
+                    _tevColorBlock.TevReg3Lo.AG = value.A;
 
-                    //Hi values are always the same...
+                    //High values are always the same...
                     _tevColorBlock.TevReg3Hi0.RB =
                     _tevColorBlock.TevReg3Hi1.RB =
                     _tevColorBlock.TevReg3Hi2.RB = value.B; 
@@ -180,33 +242,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg1Lo { get { return _tevColorBlock.TevReg1Lo; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg1Hi0 { get { return _tevColorBlock.TevReg1Hi0; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg1Hi1 { get { return _tevColorBlock.TevReg1Hi1; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg1Hi2 { get { return _tevColorBlock.TevReg1Hi2; } }
+        #endregion
 
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg2Lo { get { return _tevColorBlock.TevReg2Lo; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg2Hi0 { get { return _tevColorBlock.TevReg2Hi0; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg2Hi1 { get { return _tevColorBlock.TevReg2Hi1; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg2Hi2 { get { return _tevColorBlock.TevReg2Hi2; } }
-
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg3Lo { get { return _tevColorBlock.TevReg3Lo; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg3Hi0 { get { return _tevColorBlock.TevReg3Hi0; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg3Hi1 { get { return _tevColorBlock.TevReg3Hi1; } }
-        //[Category("TEV Color Block")]
-        //public ColorReg Reg3Hi2 { get { return _tevColorBlock.TevReg3Hi2; } }
-        
         #region Shader linkage
         internal MDL0ShaderNode _shader;
         [Browsable(false)]
@@ -220,9 +257,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_shader != null)
                     _shader._materials.Remove(this);
                 if ((_shader = value) != null)
+                {
                     _shader._materials.Add(this);
-                if (_shader != null)
-                    ActiveShaderStages = _shader._stages;
+                    ActiveShaderStages = _shader.Stages;
+                }
             }
         }
         [Browsable(true), TypeConverter(typeof(DropDownListShaders))]
@@ -246,16 +284,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         #endregion
 
+        #region Alpha Func
+
         [Category("Alpha Function")]
-        public byte Ref0 { get { return _alphaFunc.ref0; } set { if (!CheckIfMetal()) _alphaFunc.ref0 = value; } }
+        public byte Ref0 { get { return _alphaFunc._ref0; } set { if (!CheckIfMetal()) _alphaFunc._ref0 = value; } }
         [Category("Alpha Function")]
         public AlphaCompare Comp0 { get { return _alphaFunc.Comp0; } set { if (!CheckIfMetal()) _alphaFunc.Comp0 = value;  } }
         [Category("Alpha Function")]
         public AlphaOp Logic { get { return _alphaFunc.Logic; } set { if (!CheckIfMetal()) _alphaFunc.Logic = value;  } }
         [Category("Alpha Function")]
-        public byte Ref1 { get { return _alphaFunc.ref1; } set { if (!CheckIfMetal()) _alphaFunc.ref1 = value;  } }
+        public byte Ref1 { get { return _alphaFunc._ref1; } set { if (!CheckIfMetal()) _alphaFunc._ref1 = value;  } }
         [Category("Alpha Function")]
         public AlphaCompare Comp1 { get { return _alphaFunc.Comp1; } set { if (!CheckIfMetal()) _alphaFunc.Comp1 = value;  } }
+
+        #endregion
+
+        #region Depth Func
 
         [Category("Z Mode")]
         public bool EnableDepthTest { get { return _zMode.EnableDepthTest; } set { if (!CheckIfMetal()) _zMode.EnableDepthTest = value;  } }
@@ -263,6 +307,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool EnableDepthUpdate { get { return _zMode.EnableDepthUpdate; } set { if (!CheckIfMetal()) _zMode.EnableDepthUpdate = value;  } }
         [Category("Z Mode")]
         public GXCompare DepthFunction { get { return _zMode.DepthFunction; } set { if (!CheckIfMetal()) _zMode.DepthFunction = value;  } }
+
+        #endregion
+
+        #region Blend Mode
 
         [Category("Blend Mode")] //Allows textures to be opaque. Cannot be used with Alpha Function
         public bool EnableBlend { get { return _blendMode.EnableBlend; } set { if (!CheckIfMetal()) { _blendMode.EnableBlend = value; } } }
@@ -287,45 +335,61 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Blend Mode")]
         public bool Subtract { get { return _blendMode.Subtract; } set { if (!CheckIfMetal()) _blendMode.Subtract = value;  } }
 
+        #endregion
+
+        #region Constant Alpha
+
         [Category("Constant Alpha")]
         public bool Enabled { get { return _constantAlpha.Enable != 0; } set { if (!CheckIfMetal()) _constantAlpha.Enable = (byte)(value ? 1 : 0); } }
         [Category("Constant Alpha")]
         public byte Value { get { return _constantAlpha.Value; } set { if (!CheckIfMetal()) _constantAlpha.Value = value; } }
 
-        [Category("Material"), Browsable(false)]
-        public int TotalLen { get { return _dataLen; } }
-        [Category("Material"), Browsable(false)]
-        public int MDL0Offset { get { return _mdl0Offset; } }
-        [Category("Material"), Browsable(false)]
-        public int StringOffset { get { return _stringOffset; } }
-        [Category("Material")]
-        public int ID { get { return Index; } }
+        #endregion
 
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        #region Indirect Texturing
+
+        [Category("Indirect Texturing")]
+        public IndirectMethod IndirectMethodTex0 { get { return (IndirectMethod)_indirectMethod1; } set { if (!CheckIfMetal()) _indirectMethod1 = (byte)value; } }
+        [Category("Indirect Texturing")]
+        public IndirectMethod IndirectMethodTex1 { get { return (IndirectMethod)_indirectMethod2; } set { if (!CheckIfMetal()) _indirectMethod2 = (byte)value; } }
+        [Category("Indirect Texturing")]
+        public IndirectMethod IndirectMethodTex2 { get { return (IndirectMethod)_indirectMethod3; } set { if (!CheckIfMetal()) _indirectMethod3 = (byte)value; } }
+        [Category("Indirect Texturing")]
+        public IndirectMethod IndirectMethodTex3 { get { return (IndirectMethod)_indirectMethod4; } set { if (!CheckIfMetal()) _indirectMethod4 = (byte)value; } }
+        
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex0ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale0 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex0ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale0 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex1ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale1 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex1ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale1 = value; } }
         
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex2ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale0 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex2ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale0 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex3ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale1 = value; } }
-        [Category("Indirect Texture Scale"), Browsable(true)]
+        [Category("Indirect Texturing")]
         public IndTexScale IndirectTex3ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale1 = value; } }
-        
-        //Usage flags. Each set of 4 bits represents one texture layer.
-        [Category("Texture Flags"), Browsable(false)]
-        public string LayerFlags { get { return _layerFlags.ToString("X"); } }//set { if (!CheckIfMetal()) _layerFlags = UInt32.Parse(value, System.Globalization.NumberStyles.HexNumber);  } }
-        public uint _layerFlags;
-        [Category("Texture Flags")]
-        public TexMatrixMode TexMatrixFlags { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
-        public uint _texMtxFlags;
+
+        public enum IndirectMethod
+        {
+            Warp = 0,
+            NormalMap,
+            NormalMapSpecular,
+            Fur,
+            Reserved0,
+            Reserved1,
+            User0,
+            User1
+        }
+
+        #endregion
+
+        #region Lighting Channels
 
         [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public LightChannel LightChannel1 { get { return _chan1; } set { if (!CheckIfMetal()) _chan1 = value; } }
@@ -494,9 +558,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { if (!CheckIfMetal()) _chan2.AlphaLights = value; }
         }
 
-        public LightChannel _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0), _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0);
+        #endregion
 
-        [Category("Material")]
+        #region General Material
+
+        [Category("Material"), Description("Determines how the game should calculate texture matrices.")]
+        public TexMatrixMode TexMatrixFlags { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
+        
+        [Category("Material"), Description("True if this material uses transparency.")]
         public bool XLUMaterial 
         {
             get { return _usageFlags[31]; }
@@ -528,98 +597,79 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        
-        //[Category("Material")]
-        //public byte Texgens { get { return _numTextures; } }//set { if (!CheckIfMetal()) _numTextures = value;  } }
+
         [Category("Material")]
+        public int ID { get { return Index; } }
+        [Category("Material"), Description(@"
+This is how many light channels this material uses. Minimum of 0, maximum of 2.
+If this number is 0, all light channels in this material are ignored.
+If this number is 1, only Light Channel 1 is applied. 
+If this number is 2, both channels are applied.")]
         public byte LightChannels { get { return _numLights; } set { if (!CheckIfMetal()) _numLights = value.Clamp(0, 2); } }
-        [Category("Material")]
-        public byte ActiveShaderStages { get { return _ssc; } set { if (!CheckIfMetal()) _ssc = (value > ShaderNode._stages ? (byte)ShaderNode._stages : value < 1 ? (byte)1 : value); } }
-        [Category("Material")]
-        public byte IndirectShaderStages { get { return _clip; } set { if (!CheckIfMetal()) _clip = (value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
-        [Category("Material")]
+        [Category("Material"), Description(@"
+This dictates how many consecutive stages in the attached shader should be applied to produce the final output color.
+For example, if the shader has two stages but this number is 1, the second stage in the shader will be ignored.")]
+        public byte ActiveShaderStages { get { return _activeStages; } set { if (!CheckIfMetal()) _activeStages = (value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value); } }
+        [Category("Material"), Description(@"
+")]
+        public byte IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
+        [Category("Material"), Description("This will make one, neither or both sides of the linked objects' mesh invisible.")]
         public CullMode CullMode { get { return _cull; } set { if (!CheckIfMetal()) _cull = value;  } }
-        [Category("Material")]
-        public bool ZCompareLoc { get { return _transp != 1; } set { if (!CheckIfMetal()) _transp = (byte)(value ? 0 : 1); } }
-        [Category("SCN0 References")]
-        public sbyte LightSetIndex { get { return _lSet; } set { if (!CheckIfMetal()) { _lSet = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
-        [Category("SCN0 References")]
-        public sbyte FogIndex { get { return _fSet; } set { if (!CheckIfMetal()) { _fSet = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
+        [Category("Material"), Description("Generally this should be true if using Alpha Compare (transparency).")]
+        public bool ZCompareLoc { get { return _zCompLoc != 1; } set { if (!CheckIfMetal()) _zCompLoc = (byte)(value ? 0 : 1); } }
 
-        public enum IndirectMethod
-        {
-            Warp = 0,
-            NormalMap,
-            NormalMapSpecular,
-            Fur,
-            Reserved0,
-            Reserved1,
-            User0,
-            User1
-        }
-        
-        [Category("Material")]
-        public IndirectMethod IndirectMethod1 { get { return (IndirectMethod)_indirectMethod1; } set { if (!CheckIfMetal()) _indirectMethod1 = (byte)value; } }
-        [Category("Material")]
-        public IndirectMethod IndirectMethod2 { get { return (IndirectMethod)_indirectMethod2; } set { if (!CheckIfMetal()) _indirectMethod2 = (byte)value; } }
-        [Category("Material")]
-        public IndirectMethod IndirectMethod3 { get { return (IndirectMethod)_indirectMethod3; } set { if (!CheckIfMetal()) _indirectMethod3 = (byte)value; } }
-        [Category("Material")]
-        public IndirectMethod IndirectMethod4 { get { return (IndirectMethod)_indirectMethod4; } set { if (!CheckIfMetal()) _indirectMethod4 = (byte)value; } }
+        #endregion
 
-        [Category("SCN0 References")]
+        #region SCN0 References
+
+        [Category("SCN0 References"), 
+        Description("This is the index of the SCN0 LightSet that should be applied to this model. Set to -1 if unused.")]
+        public sbyte LightSetIndex { get { return _lightSetIndex; } set { if (!CheckIfMetal()) { _lightSetIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
+        [Category("SCN0 References"), 
+        Description("This is the index of the SCN0 Fog that should be applied to this model. Set to -1 if unused.")]
+        public sbyte FogIndex { get { return _fogIndex; } set { if (!CheckIfMetal()) { _fogIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
+        [Category("SCN0 References"), 
+        Description("This is the index of the 1st SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
         public sbyte NormMapRefLight1 { get { return _normMapRefLight1; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References")]
+        [Category("SCN0 References"), 
+        Description("This is the index of the 2nd SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
         public sbyte NormMapRefLight2 { get { return _normMapRefLight2; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References")]
+        [Category("SCN0 References"), 
+        Description("This is the index of the 3rd SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
         public sbyte NormMapRefLight3 { get { return _normMapRefLight3; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References")]
+        [Category("SCN0 References"), 
+        Description("This is the index of the 4th SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
         public sbyte NormMapRefLight4 { get { return _normMapRefLight4; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        
-//#if DEBUG
-//        [Category("Material")]
-//        public int NumTextures { get { return _numTextures; } }
-//        [Category("Material")]
-//        public int ShaderOffset { get { return _shaderOffset; } }
-//        [Category("Material")]
-//        public int MaterialRefOffset { get { return _matRefOffset; } }
-//        [Category("Material")]
-//        public int UserDataOffset { get { return _userDataOffset; } }
-//        [Category("Material")]
-//        public int DisplayListOffset { get { return _dlOffset; } }
-//        [Category("Material")]
-//        public int FurDataOffset { get { return _furDataOffset; } }
-//        [Category("Material")]
-//        public int Pad { get { return _pad; } }
-//#endif
+
+        #endregion
+
         #endregion
 
         #region Metal
 
-        public bool _updating = false;
         public void UpdateAsMetal()
         {
             if (!isMetal)
                 return;
 
             _updating = true;
-            if (ShaderNode != null && ShaderNode._autoMetal && ShaderNode.texCount == Children.Count)
+            if (ShaderNode != null && ShaderNode._autoMetal && ShaderNode._texCount == Children.Count)
             {
                 //ShaderNode.DefaultAsMetal(Children.Count); 
             }
             else
             {
                 bool found = false;
-                foreach (MDL0ShaderNode s in Model._shadGroup.Children)
+                foreach (MDL0ShaderNode s in Model._shadList)
                 {
-                    if (s._autoMetal && s.texCount == Children.Count)
+                    if (s._autoMetal && s._texCount == Children.Count)
                     {
                         ShaderNode = s;
                         found = true;
                     }
                     else
                     {
-                        if (s._stages == 4)
+                        if (s.Stages == 4)
                         {
                             foreach (MDL0MaterialNode y in s._materials)
                                 if (!y.isMetal || y.Children.Count != Children.Count)
@@ -645,7 +695,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (MetalMaterial != null)
             {
                 Name = MetalMaterial.Name + "_ExtMtl";
-                _ssc = 4;
+                _activeStages = 4;
 
                 if (Children.Count - 1 != MetalMaterial.Children.Count)
                 {
@@ -698,7 +748,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         mr._embossSource = 4;
                         mr._embossLight = 2;
 
-                        mr.getTexMtxVal();
+                        mr.SetTextMtxData();
                     }
 
                     _chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
@@ -716,8 +766,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
                     C2AlphaAttenuation = GXAttnFn.Specular;
 
-                    _lSet = MetalMaterial._lSet;
-                    _fSet = MetalMaterial._fSet;
+                    _lightSetIndex = MetalMaterial._lightSetIndex;
+                    _fogIndex = MetalMaterial._fogIndex;
 
                     _cull = MetalMaterial._cull;
                     _numLights = 2;
@@ -785,37 +835,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if ((_name == null) && (header->_stringOffset != 0))
                 _name = header->ResourceString;
 
-            XFCmds.Clear();
-
             //Get XF Commands
-            byte* pData = (byte*)header->DisplayLists(Model._version) + 0xE0;
-        Top:
-            if (*pData++ == 0x10)
-            {
-                XFData dat = new XFData();
-                int count = (ushort)*(bushort*)pData; pData += 2;
-                dat.addr = (XFMemoryAddr)(ushort)*(bushort*)pData; pData += 2;
-                dat.values = new List<uint>();
-                for (int i = 0; i < count + 1; i++) 
-                {
-                    dat.values.Add(*(buint*)pData); 
-                    pData += 4; 
-                }
-                XFCmds.Add(dat);
-                goto Top;
-            }
+            XFCmds = XFData.Parse((byte*)header->DisplayLists(_initVersion) + 0xE0);
 
-            _mdl0Offset = header->_mdl0Offset;
-            _stringOffset = header->_stringOffset;
-            _userDataOffset = header->UserDataOffset(_initVersion);
-            _shaderOffset = header->_shaderOffset;
-            _dlOffset = header->DisplayListOffset(_initVersion);
-            _furDataOffset = header->FurDataOffset(_initVersion);
-            _matRefOffset = header->_matRefOffset;
-            _pad = header->_pad;
-
-            _dataLen = header->_dataLen;
-            _numTextures = header->_numTexGens;
             _numLights = header->_numLightChans;
             _usageFlags = new Bin32(header->_usageFlags);
 
@@ -829,22 +851,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             _normMapRefLight3 = header->_normMapRefLight3;
             _normMapRefLight4 = header->_normMapRefLight4;
 
-            _ssc = header->_activeTEVStages;
-            _clip = header->_numIndTexStages;
-            _transp = header->_enableAlphaTest;
+            _activeStages = header->_activeTEVStages;
+            _activeIndStages = header->_numIndTexStages;
+            _zCompLoc = header->_enableAlphaTest;
 
-            _lSet = header->_lightSet;
-            _fSet = header->_fogSet;
+            _lightSetIndex = header->_lightSet;
+            _fogIndex = header->_fogSet;
 
             _cull = (CullMode)(int)header->_cull;
 
-            if ((-header->_mdl0Offset + (int)header->DisplayListOffset(_initVersion)) % 0x20 != 0)
+            if (!_replaced && (-header->_mdl0Offset + (int)header->DisplayListOffset(_initVersion)) % 0x20 != 0)
             {
                 Model._errors.Add("Material " + Index + " has an improper align offset.");
                 SignalPropertyChange();
             }
 
-            mode = header->DisplayLists(_initVersion);
+            MatModeBlock* mode = header->DisplayLists(_initVersion);
             _alphaFunc = mode->AlphaFunction;
             _zMode = mode->ZMode;
             _blendMode = mode->BlendMode;
@@ -906,7 +928,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.GetStrings(table);
         }
 
-        public int _dataAlign = 0, _mdlOffset = 0;
+        internal int _dataAlign = 0, _mdlOffset = 0;
         public override int OnCalculateSize(bool force)
         {
             int temp, size;
@@ -937,21 +959,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             return size;
         }
 
-        public bool New = false;
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
+            MDL0Node model = Model;
             MDL0Material* header = (MDL0Material*)address;
-
-            ushort i1 = 0x1040, i2 = 0x1050; int mtx = 0;
-
+            
             //Set offsets
-            header->_dataLen = _dataLen = length;
+            header->_dataLen = length;
 
             int addr = 0;
-            if (Model._version >= 10)
+            if (model._version >= 10)
             {
-                header->_dlOffset = 0; //Fur Data not supported
-                header->_dlOffsetv10p = length - 0x180;
+                header->_dataOffset2 = 0; //Fur Data not supported
+                header->_dataOffset3 = length - 0x180;
                 if (Children.Count > 0)
                     header->_matRefOffset = addr = 1048;
                 else
@@ -959,7 +979,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             else
             {
-                header->_dlOffset = length - 0x180;
+                header->_dataOffset2 = length - 0x180;
                 if (Children.Count > 0)
                     header->_matRefOffset = addr = 1044;
                 else
@@ -970,40 +990,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_userEntries.Count > 0)
             {
                 addr += Children.Count * 0x34;
-                if (Model._version == 11 || Model._version == 10)
-                    header->_dlOffset = addr;
+                if (model._version == 11 || model._version == 10)
+                    header->_dataOffset2 = addr;
                 else
-                    header->_userDataOffset = addr;
+                    header->_dataOffset1 = addr;
                 
-                _userEntries.Write(header->UserData(Model._version));
+                _userEntries.Write(header->UserData(model._version));
             }
             else
-                addr = header->_userDataOffset = 0;
+                addr = header->_dataOffset1 = 0;
 
-            //Set defaults if the model is an import or the material was created
-            if (Model._isImport || New)
+            ushort i1 = 0x1040, i2 = 0x1050, mtx = 0;
+            if (Model._isImport)
             {
-                if (New)
-                {
-                    _lSet = 20;
-                    _fSet = 4;
-                    _ssc = 3;
-
-                    C1ColorEnabled = true;
-                    C1AlphaMaterialSource = GXColorSrc.Vertex;
-                    C1ColorMaterialSource = GXColorSrc.Vertex;
-                    C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-                    C1ColorAttenuation = GXAttnFn.Spotlight;
-                    C1AlphaEnabled = true;
-                    C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-                    C1AlphaAttenuation = GXAttnFn.Spotlight;
-
-                    C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-                    C2ColorAttenuation = GXAttnFn.None;
-                    C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-                    C2AlphaAttenuation = GXAttnFn.None;
-                }
-
                 //Set default texgen flags
                 for (int i = 0; i < Children.Count; i++)
                 {
@@ -1011,27 +1010,27 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     //Tex Mtx
                     XFData dat = new XFData();
-                    dat.addr = (XFMemoryAddr)i1++;
+                    dat._addr = (XFMemoryAddr)i1++;
                     XFTexMtxInfo tex = new XFTexMtxInfo();
-                    tex._data = (uint)(0 | 
+                    tex._data = (uint)(0 |
                         ((int)TexProjection.ST << 1) |
                         ((int)TexInputForm.AB11 << 2) |
                         ((int)TexTexgenType.Regular << 4) |
                         ((int)(0x5) << 7) |
-                        (4 << 10) | 
+                        (4 << 10) |
                         (2 << 13));
-                    dat.values.Add(tex._data); 
+                    dat._values.Add(tex._data);
                     XFCmds.Add(dat);
-                    node.TexMtxFlags = tex;
+                    node._texMtxFlags = tex;
 
                     //Dual Tex
                     dat = new XFData();
-                    dat.addr = (XFMemoryAddr)i2++;
+                    dat._addr = (XFMemoryAddr)i2++;
                     XFDualTex dtex = new XFDualTex(mtx, 0); mtx += 3;
-                    dat.values.Add(dtex.Value);
+                    dat._values.Add(dtex.Value);
                     XFCmds.Add(dat);
-                    node.DualTexFlags = dtex;
-                    node.getValues();
+                    node._dualTexFlags = dtex;
+                    node.GetTexMtxValues();
                     node._texFlags.TexScale = new Vector2(1);
                     node._bindState._scale = new Vector3(1);
                     node._texMatrix.TexMtx = Matrix43.Identity;
@@ -1044,15 +1043,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Set header values
             header->_numTextures = Children.Count;
-            header->_numTexGens = _numTextures = (byte)Children.Count;
+            header->_numTexGens = (byte)Children.Count;
             header->_index = Index;
             header->_numLightChans = _numLights;
-            header->_activeTEVStages = (byte)_ssc;
-            header->_numIndTexStages = _clip;
-            header->_enableAlphaTest = _transp;
+            header->_activeTEVStages = (byte)_activeStages;
+            header->_numIndTexStages = _activeIndStages;
+            header->_enableAlphaTest = _zCompLoc;
 
-            header->_lightSet = _lSet;
-            header->_fogSet = _fSet;
+            header->_lightSet = _lightSetIndex;
+            header->_fogSet = _fogIndex;
             header->_pad = 0;
 
             header->_cull = (int)_cull;
@@ -1069,7 +1068,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_normMapRefLight4 = _normMapRefLight4;
 
             //Generate layer flags and write texture matrices
-            MDL0TexSRTData* TexSettings = header->TexMatrices(Model._version);
+            MDL0TexSRTData* TexSettings = header->TexMatrices(model._version);
             *TexSettings = MDL0TexSRTData.Default;
 
             _layerFlags = 0;
@@ -1109,7 +1108,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             TexSettings->_mtxFlags = _texMtxFlags;
 
             //Write lighting flags
-            MDL0MaterialLighting* Light = header->Light(Model._version);
+            MDL0MaterialLighting* Light = header->Light(model._version);
 
             Light->Channel1 = _chan1;
             Light->Channel2 = _chan2;
@@ -1122,13 +1121,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.Rebuild(mRefs++, 0x34, force);
             
             //Set Display Lists
-            *header->TevKonstBlock(Model._version) = _tevKonstBlock;
-            *header->TevColorBlock(Model._version) = _tevColorBlock;
-            *header->IndMtxBlock(Model._version) = _indMtx;
+            *header->TevKonstBlock(model._version) = _tevKonstBlock;
+            *header->TevColorBlock(model._version) = _tevColorBlock;
+            *header->IndMtxBlock(model._version) = _indMtx;
 
-            mode = header->DisplayLists(Model._version);
+            MatModeBlock* mode = header->DisplayLists(model._version);
             *mode = MatModeBlock.Default;
-            if (Model._isImport)
+            if (model._isImport)
             {
                 _alphaFunc = mode->AlphaFunction;
                 _zMode = mode->ZMode;
@@ -1144,28 +1143,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             //Write XF flags
-            byte* xfData = (byte*)header->DisplayLists(Model._version) + 0xE0;
-            i1 = 0x1040; i2 = 0x1050; mtx = 0;
+            i1 = 0x1040; i2 = 0x1050;  mtx = 0;
+            byte* xfData = (byte*)header->DisplayLists(model._version) + 0xE0;
             foreach (MDL0MaterialRefNode mr in Children)
             {
                 //Tex Mtx
                 *xfData++ = 0x10;
                 *(bushort*)xfData = 0; xfData += 2;
                 *(bushort*)xfData = (ushort)i1++;  xfData += 2;
-                *(buint*)xfData = mr.TexMtxFlags._data; xfData += 4;
+                *(buint*)xfData = mr._texMtxFlags._data; xfData += 4;
 
                 //Dual Tex
                 *xfData++ = 0x10;
                 *(bushort*)xfData = 0; xfData += 2;
                 *(bushort*)xfData = (ushort)i2++; xfData += 2;
-                *(buint*)xfData = new XFDualTex(mtx, mr.DualTexFlags.NormalEnable).Value; xfData += 4;
+                *(buint*)xfData = new XFDualTex(mtx, mr._dualTexFlags._normalEnable).Value; xfData += 4;
                 
                 mtx += 3;
             }
-            
-            New = false;
         }
-
         protected internal override void PostProcess(VoidPtr mdlAddress, VoidPtr dataAddress, StringTable stringTable)
         {
             MDL0Material* header = (MDL0Material*)dataAddress;
@@ -1179,7 +1175,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (MDL0MaterialRefNode n in Children)
                 n.PostProcess(mdlAddress, first++, stringTable);
         }
-        
+        public override unsafe void Export(string outPath)
+        {
+            StringTable table = new StringTable();
+            GetStrings(table);
+            int dataLen = CalculateSize(false);
+            int totalLen = dataLen + table.GetTotalSize();
+
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            {
+                stream.SetLength(totalLen);
+                using (FileMap map = FileMap.FromStream(stream))
+                {
+                    Rebuild(map.Address, dataLen, false);
+                    table.WriteTable(map.Address + dataLen);
+                    PostProcess(map.Address, map.Address, table);
+                    ((MDL0Material*)map.Address)->_pad = (byte)Model._version;
+                }
+            }
+        }
         #endregion
 
         #region Rendering
@@ -1197,10 +1211,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         public SCN0LightSetNode _lightSet;
         public int _animFrame;
 
-        public void Render(TKContext ctx, ModelPanel mainWindow)
+        public void Render()
         {
             foreach (MDL0ObjectNode p in _objects)
-                p.Render(ctx, false, mainWindow);
+                p.Render(false);
 
             #region Old
 
@@ -1269,7 +1283,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             #endregion
         }
 
-        internal override void Bind(TKContext ctx)
+        internal override void Bind()
         {
             _renderUpdate = true;
         }
@@ -1297,10 +1311,29 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplySRT0Texture(null, 0, linear);
         }
-        
+
+        //Use these for streaming values into the shader
+        public RGBAPixel amb1, amb2, clr1, clr2;
+        public GXColorS10 k1, k2, k3, k4, c1, c2, c3;
+
         internal void ApplyCLR0(CLR0Node node, int index)
         {
-            if (node == null) return;
+            if (node == null || index <= 0)
+            {
+                clr1 = C1MaterialColor;
+                clr2 = C2MaterialColor;
+                amb1 = C1AmbientColor;
+                amb2 = C2AmbientColor;
+                c1 = CReg0Color;
+                c2 = CReg1Color;
+                c3 = CReg2Color;
+                k1 = KReg0Color;
+                k2 = KReg1Color;
+                k3 = KReg2Color;
+                k4 = KReg3Color;
+                return;
+            }
+
             CLR0MaterialNode mat = node.FindChild(Name, false) as CLR0MaterialNode;
             if (mat != null)
                 foreach (CLR0MaterialEntryNode e in mat.Children)
@@ -1400,27 +1433,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!_updating && Model._autoMetal && MetalMaterial != null && !this.isMetal)
                 MetalMaterial.UpdateAsMetal();
         }
-
-        public override unsafe void Export(string outPath)
-        {
-            StringTable table = new StringTable();
-            GetStrings(table);
-            int dataLen = CalculateSize(false);
-            int totalLen = dataLen + table.GetTotalSize();
-
-            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
-            {
-                stream.SetLength(totalLen);
-                using (FileMap map = FileMap.FromStream(stream))
-                {
-                    Rebuild(map.Address, dataLen, false);
-                    table.WriteTable(map.Address + dataLen);
-                    PostProcess(map.Address, map.Address, table);
-                    ((MDL0Material*)map.Address)->_pad = (byte)Model._version;
-                }
-            }
-        }
     }
+
+    #region Light Channel Info
 
     public class LightChannel
     {
@@ -1649,4 +1664,5 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
     }
+    #endregion
 }

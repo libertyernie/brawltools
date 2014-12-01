@@ -80,7 +80,7 @@ namespace System.Windows.Forms
                 _externalAnimationsNode = null;
 
                 if (SelectedBone != null)
-                    SelectedBone._boneColor = SelectedBone._nodeColor = Color.Transparent;
+                    SelectedBone.BoneColor = SelectedBone.NodeColor = Color.Transparent;
 
                 leftPanel.UpdateAnimations(TargetAnimType);
                 SetAnimation(TargetAnimType, null);
@@ -161,9 +161,11 @@ namespace System.Windows.Forms
                 if ((node = NodeFactory.FromFile(null, file)) != null)
                 {
                     if (_targetModels == null)
-                        _targetModels = new List<MDL0Node>();
+                        _targetModels = new List<IModel>();
 
-                    LoadModels(node, _targetModels);
+                    List<IModel> modelList = ModelPanel.CollectModels(node);
+                    foreach (IModel m in modelList)
+                        AppendTarget(m);
 
                     if (TargetModel == null)
                         TargetModel = _targetModels[0];
@@ -174,43 +176,28 @@ namespace System.Windows.Forms
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Error loading model(s) from file."); }
         }
 
-        private void LoadModels(ResourceNode node, List<MDL0Node> models)
-        {
-            switch (node.ResourceType)
-            {
-                case ResourceType.ARC:
-                case ResourceType.U8:
-                case ResourceType.U8Folder:
-                case ResourceType.MRG:
-                case ResourceType.BRES:
-                case ResourceType.BRESGroup:
-                    foreach (ResourceNode n in node.Children)
-                        LoadModels(n, models);
-                    break;
-                case ResourceType.MDL0:
-                    AppendTarget((MDL0Node)node);
-                    break;
-            }
-        }
-
-        public void AppendTarget(MDL0Node model)
+        public void AppendTarget(IModel model)
         {
             if (!_targetModels.Contains(model))
                 _targetModels.Add(model);
+
             if (!models.Items.Contains(model))
                 models.Items.Add(model);
+
             ModelPanel.AddTarget(model);
-            model.ApplyCHR(null, 0);
-            model.ApplySRT(null, 0);
-            model._renderBones = true;
+            model.ResetToBindState();
         }
 
-        public void AppendTarget(CollisionNode collision) {
+        public void AppendTarget(CollisionNode collision)
+        {
             if (!_collisions.Contains(collision))
                 _collisions.Add(collision);
+
             if (!models.Items.Contains(collision))
                 models.Items.Add(collision);
-            foreach (CollisionObject o in collision._objects) o._render = true;
+
+            foreach (CollisionObject o in collision._objects)
+                o._render = true;
         }
     }
 }

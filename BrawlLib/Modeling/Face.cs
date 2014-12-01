@@ -84,8 +84,12 @@ namespace BrawlLib.Modeling
 
         //For imports
         public PrimitiveHeader TriangleHeader { get { return new PrimitiveHeader(WiiPrimitiveType.TriangleList, _triangles.Count * 3); } }
+        public PrimitiveHeader LineHeader { get { return new PrimitiveHeader(WiiPrimitiveType.Lines, _lines.Count * 2); } }
+        
         public List<PointTriangle> _triangles = new List<PointTriangle>();
         public List<PointTriangleStrip> _tristrips = new List<PointTriangleStrip>();
+        public List<PointLine> _lines = new List<PointLine>();
+        public List<PointLineStrip> _linestrips = new List<PointLineStrip>();
         
         //For existing models
         public List<PrimitiveHeader> _headers = new List<PrimitiveHeader>();
@@ -113,6 +117,57 @@ namespace BrawlLib.Modeling
             if (!_nodes.Contains(t._y.NodeID)) _nodes.Add(t._y.NodeID);
             if (!_nodes.Contains(t._z.NodeID)) _nodes.Add(t._z.NodeID);
         }
+        private void AddTristrip(PointTriangleStrip t)
+        {
+            _tristrips.Add(t);
+            foreach (Facepoint p in t._points)
+                if (!_nodes.Contains(p.NodeID))
+                    _nodes.Add(p.NodeID);
+        }
+        private void AddLine(PointLine t)
+        {
+            _lines.Add(t);
+            if (!_nodes.Contains(t._x.NodeID)) _nodes.Add(t._x.NodeID);
+            if (!_nodes.Contains(t._y.NodeID)) _nodes.Add(t._y.NodeID);
+        }
+        private void AddLinestrip(PointLineStrip t)
+        {
+            _linestrips.Add(t);
+            foreach (Facepoint p in t._points)
+                if (!_nodes.Contains(p.NodeID))
+                    _nodes.Add(p.NodeID);
+        }
+
+        public bool TryAdd(PrimitiveClass p)
+        {
+            if (p is PointTriangleStrip)
+                return TryAdd(p as PointTriangleStrip);
+            else if (p is PointTriangle)
+                return TryAdd(p as PointTriangle);
+            else if (p is PointLineStrip)
+                return TryAdd(p as PointLineStrip);
+            else if (p is PointLine)
+                return TryAdd(p as PointLine);
+            return false;
+        }
+
+        private bool TryAdd(PointTriangleStrip t)
+        {
+            List<ushort> newIds = new List<ushort>();
+            foreach (Facepoint p in t._points)
+            {
+                ushort id = p.NodeID;
+                if (!_nodes.Contains(id) && !newIds.Contains(id))
+                    newIds.Add(id);
+            }
+
+            if (newIds.Count + _nodes.Count <= _nodeCountMax)
+            {
+                AddTristrip(t);
+                return true;
+            }
+            return false;
+        }
 
         private bool TryAdd(PointTriangle t)
         {
@@ -135,23 +190,7 @@ namespace BrawlLib.Modeling
             return false;
         }
 
-        public bool TryAdd(PrimitiveClass p)
-        {
-            if (p is PointTriangleStrip)
-                return TryAdd(p as PointTriangleStrip);
-            else //if (p is PointTriangle)
-                return TryAdd(p as PointTriangle);
-        }
-
-        private void AddTristrip(PointTriangleStrip t)
-        {
-            _tristrips.Add(t);
-            foreach (Facepoint p in t._points)
-                if (!_nodes.Contains(p.NodeID))
-                    _nodes.Add(p.NodeID);
-        }
-
-        private bool TryAdd(PointTriangleStrip t)
+        private bool TryAdd(PointLineStrip t)
         {
             List<ushort> newIds = new List<ushort>();
             foreach (Facepoint p in t._points)
@@ -163,12 +202,30 @@ namespace BrawlLib.Modeling
 
             if (newIds.Count + _nodes.Count <= _nodeCountMax)
             {
-                AddTristrip(t);
+                AddLinestrip(t);
                 return true;
             }
             return false;
         }
 
+        private bool TryAdd(PointLine t)
+        {
+            List<ushort> newIds = new List<ushort>();
+
+            ushort x = t._x.NodeID;
+            ushort y = t._y.NodeID;
+
+            if (!_nodes.Contains(x) && !newIds.Contains(x)) newIds.Add(x);
+            if (!_nodes.Contains(y) && !newIds.Contains(y)) newIds.Add(y);
+
+            //There's a limit of 10 matrices per group...
+            if (newIds.Count + _nodes.Count <= _nodeCountMax)
+            {
+                AddLine(t);
+                return true;
+            }
+            return false;
+        }
         public override string ToString() { return String.Format("Nodes: {0} - Primitives: {1}", _nodes.Count, _headers.Count); }
     }
 
@@ -263,7 +320,71 @@ namespace BrawlLib.Modeling
             if (_z == f) return true;
             return false;
         }
+    }
 
-        public bool _grouped = false;
+    public class PointLineStrip : PrimitiveClass
+    {
+        public PrimitiveHeader Header { get { return new PrimitiveHeader(WiiPrimitiveType.LineStrip, _points.Count); } }
+        public List<Facepoint> _points = new List<Facepoint>();
+
+        public override List<Facepoint> Points
+        {
+            get { return _points; }
+            set { _points = value; }
+        }
+    }
+
+    public class PointLine : PrimitiveClass
+    {
+        public Facepoint _x;
+        public Facepoint _y;
+
+        public Facepoint this[int i]
+        {
+            get
+            {
+                switch (i)
+                {
+                    case 0: return _x;
+                    case 1: return _y;
+                }
+                return null;
+            }
+            set
+            {
+                switch (i)
+                {
+                    case 0: _x = value; break;
+                    case 1: _y = value; break;
+                }
+            }
+        }
+
+        public override List<Facepoint> Points
+        {
+            get
+            {
+                return new List<Facepoint>() { _x, _y };
+            }
+            set
+            {
+                _x = value[0];
+                _y = value[1];
+            }
+        }
+
+        public PointLine() { }
+        public PointLine(Facepoint x, Facepoint y)
+        {
+            _x = x;
+            _y = y;
+        }
+
+        public bool Contains(Facepoint f)
+        {
+            if (_x == f) return true;
+            if (_y == f) return true;
+            return false;
+        }
     }
 }

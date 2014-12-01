@@ -358,7 +358,7 @@ namespace System.Windows.Forms
             src.UnlockBits(srcData);
         }
 
-        private void UpdatePreview()
+        internal void UpdatePreview()
         {
             if (_source == null)
                 return;
@@ -534,7 +534,7 @@ namespace System.Windows.Forms
             if (format.IsIndexed)
             {
                 if (_origTEX0 != null || _bresParent != null)
-                    _textureData = format.EncodeTextureIndexed(_indexed, (int)numLOD.Value, (WiiPaletteFormat)cboPaletteFormat.SelectedItem, out _paletteData);
+                    _textureData = format.EncodeTEX0TextureIndexed(_indexed, (int)numLOD.Value, (WiiPaletteFormat)cboPaletteFormat.SelectedItem, out _paletteData);
                 else if (_origREFT != null || _reftParent != null)
                     _textureData = format.EncodeREFTTextureIndexed(_indexed, (int)numLOD.Value, (WiiPaletteFormat)cboPaletteFormat.SelectedItem);
                 else if (_origTPL != null || _tplParent != null)
@@ -545,7 +545,7 @@ namespace System.Windows.Forms
                 if ((format.RawFormat == WiiPixelFormat.CMPR) && (_cmprBuffer != null))
                 {
                     if (_origTEX0 != null || _bresParent != null)
-                        _textureData = ((CMPR)format).EncodeTextureCached(_source, (int)numLOD.Value, _cmprBuffer);
+                        _textureData = ((CMPR)format).EncodeTEX0TextureCached(_source, (int)numLOD.Value, _cmprBuffer);
                     else if (_origREFT != null || _reftParent != null)
                         _textureData = ((CMPR)format).EncodeREFTTextureCached(_source, (int)numLOD.Value, _cmprBuffer);
                     else if (_origTPL != null || _tplParent != null)

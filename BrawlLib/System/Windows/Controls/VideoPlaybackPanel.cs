@@ -1,4 +1,5 @@
-﻿using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlLib.Imaging;
+using BrawlLib.SSBB.ResourceNodes;
 using System;
 using System.Audio;
 using System.ComponentModel;
@@ -122,9 +123,9 @@ namespace System.Windows.Forms
         private DateTime _frameTime;
         CoolTimer _timer;
 
-        private THPNode _targetSource;
+        private IVideo _targetSource;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public THPNode TargetSource
+        public IVideo TargetSource
         {
             get { return _targetSource; }
             set { TargetChanged(value); }
@@ -158,16 +159,11 @@ namespace System.Windows.Forms
         {
             if ((_isPlaying))
             {
+                //TODO: Sync video to audio
                 if (_buffer != null)
-                {
-                    //TODO: Sync video to audio
-                    _frame++;
                     _buffer.Fill();
-                }
-                else
-                    _frame++;
 
-                trackBar1.Value = _frame;
+                trackBar1.Value = ++_frame;
                 
                 if (_frame >= _targetSource.NumFrames)
                     if (!_loop)
@@ -199,7 +195,7 @@ namespace System.Windows.Forms
             chkLoop.Checked = false;
         }
 
-        private void TargetChanged(THPNode newTarget)
+        private void TargetChanged(IVideo newTarget)
         {
             if (_targetSource == newTarget)
                 return;
@@ -211,7 +207,7 @@ namespace System.Windows.Forms
 
             previewPanel1.RenderingTarget = _targetSource;
 
-            IAudioStream s = _targetSource._audio;
+            IAudioStream s = _targetSource.Audio;
 
             //Create provider
             if (_provider == null && s != null)
@@ -248,7 +244,7 @@ namespace System.Windows.Forms
             DateTime t = new DateTime((long)((float)trackBar1.Value * 10000000.0f / _targetSource.FrameRate));
             lblProgress.Text = String.Format("{0:mm:ss.ff} / {1:mm:ss.ff} - Frame {2} of {3}", t, _frameTime, _frame, TargetSource.NumFrames);
 
-            previewPanel1.CurrentIndex = _frame;
+            previewPanel1.CurrentIndex = _targetSource.GetImageIndexAtFrame(_frame);
         }
 
         private void Seek(int frame)
@@ -261,9 +257,9 @@ namespace System.Windows.Forms
             }
 
             _frame = trackBar1.Value = frame.Clamp(0, (int)_targetSource.NumFrames - 1);
-            float sample = frame / _targetSource.FrameRate * _targetSource.Frequency;
-            int s = (int)Math.Round(sample, 0);
-            _buffer.Seek(s);
+
+            if (_buffer != null)
+                _buffer.Seek((int)Math.Round(frame / _targetSource.FrameRate * _targetSource.Frequency, 0));
 
             if (temp)
                 Play();
@@ -283,24 +279,20 @@ namespace System.Windows.Forms
             if (trackBar1.Value == _targetSource.NumFrames)
                 trackBar1.Value = 0;
 
-            //Seek buffer to current sample
-
-            if (_buffer != null)
-            {
-                float sample = trackBar1.Value / _targetSource.FrameRate * _targetSource.Frequency;
-                int s = (int)Math.Round(sample, 0);
-                _buffer.Seek(s);
-            }
-
-            //Fill initial buffer
-            RenderUpdate(null, null);
-
             btnPlay.Text = "Stop";
             previewPanel1.btnLeft.Visible = previewPanel1.btnRight.Visible = false;
 
-            //Begin playback
             if (_buffer != null)
+            {
+                //Seek buffer to current sample
+                _buffer.Seek((int)Math.Round(trackBar1.Value / _targetSource.FrameRate * _targetSource.Frequency, 0));
+
+                //Fill initial buffer
+                _buffer.Fill();
+
+                //Begin playback
                 _buffer.Play();
+            }
 
             _timer.Run(0, _targetSource.FrameRate);
         }

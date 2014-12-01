@@ -991,7 +991,7 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             _modelPanel.DefaultTranslate = new Vector3(0.0f, 10.0f, 250.0f);
-            _modelPanel._forceNoSelection = true;
+            _modelPanel.AllowSelection = false;
 
             pnlObjProps.Dock = DockStyle.Fill;
             pnlPlaneProps.Dock = DockStyle.Fill;
@@ -1109,9 +1109,6 @@ namespace System.Windows.Forms
                     foreach (MDL0BoneNode bone in n._linker.BoneCache)
                         modelNode.Nodes.Add(new TreeNode(bone._name) { Tag = bone, Checked = true });
 
-                    n._visible = true;
-                    n._renderBones = chkBones.Checked;
-                    n._renderPolygons = chkPoly.Checked;
                     _modelPanel.AddTarget(n);
                 }
 
@@ -1664,12 +1661,12 @@ namespace System.Windows.Forms
             UpdateHover(e.X, e.Y);
         }
 
-        private void _modelPanel_PreRender(object sender, TKContext context)
+        private void _modelPanel_PreRender(object sender)
         {
 
         }
 
-        private unsafe void _modelPanel_PostRender(object sender, TKContext context)
+        private unsafe void _modelPanel_PostRender(object sender)
         {
             //Clear depth buffer so we can hit-detect
             GL.Clear(ClearBufferMask.DepthBufferBit);
@@ -1677,7 +1674,7 @@ namespace System.Windows.Forms
 
             //Render objects
             if (_targetNode != null)
-                _targetNode.Render(context, null);
+                _targetNode.Render();
 
             //Render selection box
             if (!_selecting)
@@ -1689,12 +1686,12 @@ namespace System.Windows.Forms
             //Draw lines
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
             GL.Color4(0.0f, 0.0f, 1.0f, 0.5f);
-            context.DrawBox(_selectStart, _selectEnd);
+            TKContext.DrawBox(_selectStart, _selectEnd);
 
             //Draw box
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
             GL.Color4(1.0f, 1.0f, 0.0f, 0.2f);
-            context.DrawBox(_selectStart, _selectEnd);
+            TKContext.DrawBox(_selectStart, _selectEnd);
         }
 
         private void btnSplit_Click(object sender, EventArgs e)
@@ -1948,27 +1945,22 @@ namespace System.Windows.Forms
 
         private void chkPoly_CheckStateChanged(object sender, EventArgs e)
         {
-            foreach (TreeNode n in modelTree.Nodes)
-            {
-                MDL0Node node = n.Tag as MDL0Node;
-                node._renderPolygons = chkPoly.CheckState == CheckState.Checked;
-                node._renderWireframe = chkPoly.CheckState == CheckState.Indeterminate;
-            }
-            _modelPanel.Invalidate();
+            _modelPanel.BeginUpdate();
+            _modelPanel.RenderPolygons = chkPoly.CheckState == CheckState.Checked;
+            _modelPanel.RenderWireframe = chkPoly.CheckState == CheckState.Indeterminate;
+            _modelPanel.EndUpdate();
         }
 
         private void chkBones_CheckedChanged(object sender, EventArgs e)
         {
-            foreach (TreeNode n in modelTree.Nodes)
-                ((MDL0Node)n.Tag)._renderBones = chkBones.Checked;
-            _modelPanel.Invalidate();
+            _modelPanel.RenderBones = chkBones.Checked;
         }
 
         private void modelTree_AfterCheck(object sender, TreeViewEventArgs e)
         {
             if (e.Node.Tag is MDL0Node)
             {
-                ((MDL0Node)e.Node.Tag)._visible = e.Node.Checked;
+                ((MDL0Node)e.Node.Tag).IsRendering = e.Node.Checked;
                 if (!_updating)
                 {
                     _updating = true;

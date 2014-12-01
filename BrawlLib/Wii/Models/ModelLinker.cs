@@ -66,7 +66,7 @@ namespace BrawlLib.Wii.Models
             MR.UVs,
         };
 
-        internal static readonly List<MR>[] IndexBank = new List<MR>[]{
+        public static readonly List<MR>[] IndexBank = new List<MR>[]{
             null, //0
             null, //1
             null, //2

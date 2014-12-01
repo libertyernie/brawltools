@@ -203,27 +203,24 @@ namespace System.Windows.Forms
             UpdateToolButtons();
         }
 
-        public bool _editingAll { get { return (!(models.SelectedItem is MDL0Node) && models.SelectedItem != null && models.SelectedItem.ToString() == "All"); } }
+        public bool EditingAll { get { return (!(models.SelectedItem is MDL0Node) && models.SelectedItem != null && models.SelectedItem.ToString() == "All"); } }
         public void UpdateModel()
         {
             if (_updating || models == null)
                 return;
 
-            if (!_editingAll)
-            {
-                if (TargetModel != null)
-                    UpdateModel(TargetModel);
-            }
-            else
-                foreach (MDL0Node n in _targetModels)
+            if (EditingAll)
+                foreach (IModel n in _targetModels)
                     UpdateModel(n);
+            else if (TargetModel != null)
+                UpdateModel(TargetModel);
 
             if (!_playing)
                 UpdatePropDisplay();
 
             ModelPanel.Invalidate();
         }
-        private void UpdateModel(MDL0Node model)
+        private void UpdateModel(IModel model)
         {
             if (_chr0 != null && playCHR0ToolStripMenuItem.Checked)
                 model.ApplyCHR(_chr0, _animFrame);
@@ -282,7 +279,7 @@ namespace System.Windows.Forms
             if (type != AnimType.SRT) leftPanel.UpdateSRT0Selection(null);
             if (type != AnimType.PAT) leftPanel.UpdatePAT0Selection(null);
             if (type != AnimType.SCN)
-                foreach (MDL0Node m in _targetModels)
+                foreach (IModel m in _targetModels)
                     m.SetSCN0(null);
 
             switch (type)
@@ -388,6 +385,29 @@ namespace System.Windows.Forms
         private static readonly Type[] Resizable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
         private static readonly Type[] Interpolated = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node) };
 
+        /// <summary>
+        /// Call this after the frame is set
+        /// </summary>
+        private void HandleFirstPersonCamera()
+        {
+            if (stPersonToolStripMenuItem.Checked && _scn0 != null && scn0Editor._camera != null)
+            {
+                SCN0CameraNode c = scn0Editor._camera;
+                CameraAnimationFrame f = c.GetAnimFrame(CurrentFrame - 1);
+                Vector3 r = f.GetRotate(CurrentFrame, c.Type);
+                Vector3 t = f.Pos;
+
+                ModelPanel.Camera.Reset();
+                ModelPanel.Camera.Translate(t._x, t._y, t._z);
+                ModelPanel.Camera.Rotate(r._x, r._y, r._z);
+                ModelPanel._aspect = f.Aspect;
+                ModelPanel._farZ = f.FarZ;
+                ModelPanel._nearZ = f.NearZ;
+                ModelPanel._fovY = f.FovY;
+                ModelPanel.UpdateProjection();
+            }
+        }
+
         public bool _playing = false;
         public void SetFrame(int index)
         {
@@ -398,21 +418,7 @@ namespace System.Windows.Forms
 
             CurrentFrame = index;
 
-            if (stPersonToolStripMenuItem.Checked && _scn0 != null && scn0Editor._camera != null)
-            {
-                SCN0CameraNode c = scn0Editor._camera;
-                CameraAnimationFrame f = c.GetAnimFrame(index - 1);
-                Vector3 r = f.GetRotate(index, c.Type);
-                Vector3 t = f.Pos;
-                ModelPanel._camera.Reset();
-                ModelPanel._camera.Translate(t._x, t._y, t._z);
-                ModelPanel._camera.Rotate(r._x, r._y, r._z);
-                ModelPanel._aspect = f.Aspect;
-                ModelPanel._farZ = f.FarZ;
-                ModelPanel._nearZ = f.NearZ;
-                ModelPanel._fovY = f.FovY;
-                ModelPanel.OnResized();
-            }
+            HandleFirstPersonCamera();
 
             pnlPlayback.btnNextFrame.Enabled = _animFrame < _maxFrame;
             pnlPlayback.btnPrevFrame.Enabled = _animFrame > 0;

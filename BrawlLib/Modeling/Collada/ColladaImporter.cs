@@ -66,7 +66,7 @@ namespace BrawlLib.Modeling
             }
         }
 
-        public MDL0Node ShowDialog(string filePath)
+        public IModel ShowDialog(string filePath, ImportType type)
         {
             _importOptions = BrawlLib.Properties.Settings.Default.ColladaImportOptions;
             propertyGrid1.SelectedObject = _importOptions;
@@ -79,7 +79,7 @@ namespace BrawlLib.Modeling
                 Text = "Please wait...";
                 Show();
                 Update();
-                MDL0Node model = ImportModel(filePath);
+                IModel model = ImportModel(filePath, type);
                 BrawlLib.Properties.Settings.Default.Save();
                 Close();
                 _importOptions = new ImportOptions();
@@ -176,59 +176,117 @@ namespace BrawlLib.Modeling
         }
 
         public static string Error;
-        public MDL0Node ImportModel(string filePath)
-        {
-            MDL0Node model = new MDL0Node() { _name = Path.GetFileNameWithoutExtension(filePath) };
-            model.InitGroups();
-            if (_importOptions._setOrigPath)
-                model._originalPath = filePath;
+        public static IModel CurrentModel;
 
-            //Parse the collada file and use the data to create an MDL0
+        public enum ImportType
+        {
+            MDL0,
+            BMD,
+            //LM
+        }
+
+        public IModel ImportModel(string filePath, ImportType type)
+        {
+            IModel model = null;
+
+            switch (type)
+            {
+                case ImportType.MDL0:
+                    MDL0Node m = new MDL0Node() { _name = Path.GetFileNameWithoutExtension(filePath) };
+                    m.InitGroups();
+                    if (_importOptions._setOrigPath)
+                        m._originalPath = filePath;
+                    m._version = _importOptions._modelVersion;
+                    model = m;
+                    break;
+                case ImportType.BMD:
+                    break;
+            }
+
+            CurrentModel = model;
+
+            Error = "There was a problem reading the model.";
             using (DecoderShell shell = DecoderShell.Import(filePath))
             try
             {
-                model._version = _importOptions._modelVersion;
-
-                Error = "There was a problem reading the model.";
+                Error = "There was a problem reading texture entries.";
 
                 //Extract images, removing duplicates
                 foreach (ImageEntry img in shell._images)
                 {
                     string name;
-                    MDL0TextureNode tex;
-
                     if (img._path != null)
                         name = Path.GetFileNameWithoutExtension(img._path);
                     else
                         name = img._name != null ? img._name : img._id;
 
-                    tex = model.FindOrCreateTexture(name);
-                    img._node = tex;
+                    switch (type)
+                    {
+                        case ImportType.MDL0:
+                            img._node = ((MDL0Node)model).FindOrCreateTexture(name);
+                            break;
+                    }
                 }
 
-                //Extract materials and create shaders
-                int tempNo = -1;
+                Error = "There was a problem creating a default shader.";
+
+                //Create a shader
+                ResourceNode shader = null;
+                switch (type)
+                {
+                    case ImportType.MDL0:
+                        MDL0Node m = (MDL0Node)model;
+                        MDL0ShaderNode shadNode = new MDL0ShaderNode()
+                        {
+                            _ref0 = 0,
+                            _ref1 = -1,
+                            _ref2 = -1,
+                            _ref3 = -1,
+                            _ref4 = -1,
+                            _ref5 = -1,
+                            _ref6 = -1,
+                            _ref7 = -1,
+                        };
+
+                        shadNode._parent = m._shadGroup;
+                        m._shadList.Add(shadNode);
+
+                        switch (_importOptions._mdlType)
+                        {
+                            case ImportOptions.MDLType.Character:
+                                for (int i = 0; i < 3; i++)
+                                {
+                                    switch (i)
+                                    {
+                                        case 0:
+                                            shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                            break;
+                                        case 1:
+                                            shadNode.AddChild(new TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.KSel_1_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.ColorChannel0, false));
+                                            break;
+                                        case 2:
+                                            shadNode.AddChild(new TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
+                                            break;
+                                    }
+                                }
+                                break;
+                            case ImportOptions.MDLType.Stage:
+                                shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                break;
+                        }
+
+                        shader = shadNode;
+
+                        break;
+                }
+
+                Error = "There was a problem extracting materials.";
+
+                //Extract materials
                 foreach (MaterialEntry mat in shell._materials)
                 {
-                    tempNo += 1;
-                    MDL0MaterialNode matNode = new MDL0MaterialNode();
+                    List<ImageEntry> imgEntries = new List<ImageEntry>();
 
-                    matNode._parent = model._matGroup;
-                    matNode._name = mat._name != null ? mat._name : mat._id;
-
-                    if (tempNo == 0)
-                    {
-                        MDL0ShaderNode shadNode = new MDL0ShaderNode();
-                        shadNode._parent = model._shadGroup;
-                        shadNode._name = "Shader" + tempNo;
-                        model._shadList.Add(shadNode);
-                    }
-                    matNode.Shader = "Shader0";
-                    matNode.ShaderNode = (MDL0ShaderNode)model._shadGroup.Children[0];
-
-                    mat._node = matNode;
-                    matNode._cull = _importOptions._culling;
-                    
                     //Find effect
                     if (mat._effect != null)
                         foreach (EffectEntry eff in shell._effects)
@@ -243,30 +301,46 @@ namespace BrawlLib.Modeling
                                                 {
                                                     path = p._sampler2D._url;
                                                     if (!String.IsNullOrEmpty(p._sampler2D._source))
-                                                    {
                                                         foreach (EffectNewParam p2 in eff._newParams)
                                                             if (p2._sid == p._sampler2D._source)
                                                                 path = p2._path;
-                                                    }
                                                 }
 
                                             foreach (ImageEntry img in shell._images)
                                                 if (img._id == path)
                                                 {
-                                                    MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
-                                                    (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
-                                                    mr._name = mr._texture.Name;
-                                                    matNode._children.Add(mr);
-                                                    mr._parent = matNode;
-                                                    mr._minFltr = mr._magFltr = 1;
-                                                    mr._index1 = mr._index2 = mr.Index;
-                                                    mr._uWrap = mr._vWrap = (int)_importOptions._wrap;
+                                                    imgEntries.Add(img);
                                                     break;
                                                 }
                                         }
+                    switch (type)
+                    {
+                        case ImportType.MDL0:
+                            MDL0MaterialNode matNode = new MDL0MaterialNode();
 
-                    matNode._numTextures = (byte)matNode.Children.Count;
-                    model._matList.Add(matNode);
+                            MDL0Node m = (MDL0Node)model;
+                            matNode._parent = m._matGroup;
+                            m._matList.Add(matNode);
+
+                            matNode._name = mat._name != null ? mat._name : mat._id;
+                            matNode.ShaderNode = shader as MDL0ShaderNode;
+
+                            mat._node = matNode;
+                            matNode._cull = _importOptions._culling;
+
+                            foreach (ImageEntry img in imgEntries)
+                            {
+                                MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+                                (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
+                                mr._name = mr._texture.Name;
+                                matNode._children.Add(mr);
+                                mr._parent = matNode;
+                                mr._minFltr = mr._magFltr = 1;
+                                mr._index1 = mr._index2 = mr.Index;
+                                mr._uWrap = mr._vWrap = (int)_importOptions._wrap;
+                            }
+                            break;
+                    }
                 }
 
                 Say("Extracting scenes...");
@@ -277,192 +351,27 @@ namespace BrawlLib.Modeling
                     //Parse joints first
                     NodeEntry[] joints = scene._nodes.Where(x => x._type == NodeType.JOINT).ToArray();
                     NodeEntry[] nodes = scene._nodes.Where(x => x._type != NodeType.JOINT).ToArray();
+
+                    ResourceNode parent = null;
+                    
+                    switch (type)
+                    {
+                        case ImportType.MDL0:
+                            parent = ((MDL0Node)model)._boneGroup;
+                            break;
+                    }
+
                     foreach (NodeEntry node in joints)
-                        EnumNode(node, model._boneGroup, scene, model, shell);
+                        EnumNode(node, parent, scene, model, shell, type);
                     foreach (NodeEntry node in nodes)
-                        EnumNode(node, model._boneGroup, scene, model, shell);
+                        EnumNode(node, parent, scene, model, shell, type);
                 }
 
-                //If there are no bones, rig all objects to a single bind.
-                if (model._boneGroup._children.Count == 0)
+                switch (type)
                 {
-                    for (int i = 0; i < 2; i++)
-                    {
-                        MDL0BoneNode bone = new MDL0BoneNode();
-                        bone.Scale = new Vector3(1);
-
-                        bone._bindMatrix =
-                        bone._inverseBindMatrix =
-                        Matrix.Identity;
-
-                        switch (i)
-                        {
-                            case 0:
-                                bone._name = "TopN";
-                                model._boneGroup._children.Add(bone);
-                                bone._parent = model._boneGroup;
-                                break;
-                            case 1:
-                                bone._name = "TransN";
-                                model._boneGroup._children[0]._children.Add(bone);
-                                bone._parent = model._boneGroup._children[0];
-                                bone.ReferenceCount = model._objList.Count;
-                                break;
-                        }
-                    }
-                    if (model._objList != null && model._objList.Count != 0)
-                        foreach (MDL0ObjectNode poly in model._objList)
-                        {
-                            poly._nodeId = 0;
-                            poly.MatrixNode = (MDL0BoneNode)model._boneGroup._children[0]._children[0];
-                        }
-                }
-                else
-                {
-                    //Check each polygon to see if it can be rigged to a single influence
-                    if (model._objList != null && model._objList.Count != 0)
-                        foreach (MDL0ObjectNode p in model._objList)
-                        {
-                            IMatrixNode node = null; 
-                            bool singlebind = true;
-
-                            foreach (Vertex3 v in p._manager._vertices)
-                                if (v._matrixNode != null)
-                                {
-                                    if (node == null)
-                                        node = v._matrixNode;
-
-                                    if (v._matrixNode != node)
-                                    {
-                                        singlebind = false;
-                                        break;
-                                    }
-                                }
-
-                            if (singlebind && p._matrixNode == null)
-                            {
-                                //Increase reference count ahead of time for rebuild
-                                if (p._manager._vertices[0]._matrixNode != null)
-                                    p._manager._vertices[0]._matrixNode.ReferenceCount++;
-
-                                foreach (Vertex3 v in p._manager._vertices)
-                                    if (v._matrixNode != null)
-                                        v._matrixNode.ReferenceCount--;
-                                
-                                p._nodeId = -2; //Continued on polygon rebuild
-                            }
-                        }
-                }
-
-                //Remove original color buffers if option set
-                if (_importOptions._ignoreColors)
-                {
-                    if (model._objList != null && model._objList.Count != 0)
-                        foreach (MDL0ObjectNode p in model._objList)
-                            for (int x = 2; x < 4; x++)
-                                if (p._manager._faceData[x] != null)
-                                {
-                                    p._manager._faceData[x].Dispose();
-                                    p._manager._faceData[x] = null;
-                                }
-                }
-
-                //Add color buffers if option set
-                if (_importOptions._addClrs)
-                {
-                    RGBAPixel pixel = _importOptions._dfltClr;
-
-                    //Add a color buffer to objects that don't have one
-                    if (model._objList != null && model._objList.Count != 0)
-                        foreach (MDL0ObjectNode p in model._objList)
-                            if (p._manager._faceData[2] == null)
-                            {
-                                RGBAPixel* pIn = (RGBAPixel*)(p._manager._faceData[2] = new UnsafeBuffer(4 * p._manager._pointCount)).Address;
-                                for (int i = 0; i < p._manager._pointCount; i++)
-                                    *pIn++ = pixel;
-                            }
-                }
-
-                //Apply defaults to materials
-                if (model._matList != null)
-                    foreach (MDL0MaterialNode p in model._matList)
-                    {
-                        if (_importOptions._mdlType == 0)
-                        {
-                            p._lSet = 20;
-                            p._fSet = 4;
-                            p._ssc = 3;
-
-                            p.C1ColorEnabled = true;
-                            p.C1AlphaMaterialSource = GXColorSrc.Vertex;
-                            p.C1ColorMaterialSource = GXColorSrc.Vertex;
-                            p.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-                            p.C1ColorAttenuation = GXAttnFn.Spotlight;
-                            p.C1AlphaEnabled = true;
-                            p.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-                            p.C1AlphaAttenuation = GXAttnFn.Spotlight;
-
-                            p.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-                            p.C2ColorAttenuation = GXAttnFn.None;
-                            p.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-                            p.C2AlphaAttenuation = GXAttnFn.None;
-                        }
-                        else
-                        {
-                            p._lSet = 0;
-                            p._fSet = 0;
-                            p._ssc = 1;
-
-                            p._chan1.Color = new LightChannelControl(1795);
-                            p._chan1.Alpha = new LightChannelControl(1795);
-                            p._chan2.Color = new LightChannelControl(1795);
-                            p._chan2.Alpha = new LightChannelControl(1795);
-                        }
-                    }
-
-                //Set materials to use register color if option set
-                if (_importOptions._useReg && model._objList != null)
-                    foreach (MDL0ObjectNode p in model._objList)
-                    {
-                        MDL0MaterialNode m = p.OpaMaterialNode;
-                        if (m != null && p._manager._faceData[2] == null && p._manager._faceData[3] == null)
-                        {
-                            m.C1MaterialColor = _importOptions._dfltClr;
-                            m.C1ColorMaterialSource = GXColorSrc.Register;
-                            m.C1AlphaMaterialSource = GXColorSrc.Register;
-                        }
-                    }
-
-                //Remap materials if option set
-                if (_importOptions._rmpMats && model._matList != null && model._objList != null)
-                {
-                    foreach (MDL0ObjectNode p in model._objList)
-                        foreach (MDL0MaterialNode m in model._matList)
-                            if (m.Children.Count > 0 &&
-                                m.Children[0] != null &&
-                                p.OpaMaterialNode != null &&
-                                p.OpaMaterialNode.Children.Count > 0 &&
-                                p.OpaMaterialNode.Children[0] != null &&
-                                m.Children[0].Name == p.OpaMaterialNode.Children[0].Name &&
-                                m.C1ColorMaterialSource == p.OpaMaterialNode.C1ColorMaterialSource)
-                            {
-                                p.OpaMaterialNode = m;
-                                break;
-                            }
-
-                    //Remove unused materials
-                    for (int i = 0; i < model._matList.Count; i++)
-                        if (((MDL0MaterialNode)model._matList[i])._objects.Count == 0)
-                            model._matList.RemoveAt(i--);
-                }
-
-                Error = "There was a problem writing the model.";
-
-                //Clean the model and then build it!
-                if (model != null)
-                {
-                    model.CleanGroups();
-                    model.BuildFromScratch(this);
+                    case ImportType.MDL0:
+                        FinishMDL0((MDL0Node)model);
+                        break;
                 }
             }
 #if !DEBUG
@@ -478,38 +387,52 @@ namespace BrawlLib.Modeling
                 //Clean up the mess we've made
                 GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
             }
+
+            CurrentModel = null;
+            Error = null;
+
             return model;
         }
-        private void EnumNode(NodeEntry node, ResourceNode parent, SceneEntry scene, MDL0Node model, DecoderShell shell)
+        private void EnumNode(NodeEntry node, ResourceNode parent, SceneEntry scene, IModel model, DecoderShell shell, ImportType type)
         {
-            MDL0BoneNode bone = null;
-            Influence inf = null;
-
             if (node._type == NodeType.JOINT)
             {
                 Error = "There was a problem creating a new bone.";
 
-                bone = new MDL0BoneNode();
-                bone._name = node._name != null ? node._name : node._id;
+                Influence inf = null;
+                ResourceNode newParent = null;
 
-                bone._bindState = node._transform;
-                node._node = bone;
+                switch (type)
+                {
+                    case ImportType.MDL0:
+                        MDL0BoneNode bone = new MDL0BoneNode();
+                        bone._name = node._name != null ? node._name : node._id;
 
-                parent._children.Add(bone);
-                bone._parent = parent;
+                        bone._bindState = node._transform;
+                        node._node = bone;
 
-                bone.RecalcBindState();
-                bone.CalcFlags();
+                        parent._children.Add(bone);
+                        bone._parent = parent;
 
-                foreach (NodeEntry e in node._children)
-                    EnumNode(e, bone, scene, model, shell);
+                        bone.RecalcBindState();
+                        bone.CalcFlags();
 
-                inf = new Influence(bone);
-                model._influences._influences.Add(inf);
+                        newParent = bone;
+
+                        inf = new Influence(bone);
+                        break;
+                }
+
+                if (newParent != null)
+                    foreach (NodeEntry e in node._children)
+                        EnumNode(e, newParent, scene, model, shell, type);
+
+                if (inf != null)
+                    model.Influences._influences.Add(inf);
             }
             else
                 foreach (NodeEntry e in node._children)
-                    EnumNode(e, parent, scene, model, shell);
+                    EnumNode(e, parent, scene, model, shell, type);
 
             foreach (InstanceEntry inst in node._instances)
             {
@@ -522,10 +445,23 @@ namespace BrawlLib.Modeling
                                 if (g._id == skin._skinSource)
                                 {
                                     Error = @"
-                                    There was a problem decoding weighted primitives for the object " + (node._name != null ? node._name : node._id) + 
+                                    There was a problem decoding weighted primitives for the object " 
+                                        + (node._name != null ? node._name : node._id) + 
                                     ".\nOne or more vertices may not be weighted correctly.";
+
                                     Say("Decoding weighted primitives for " + (g._name != null ? g._name : g._id) + "...");
-                                    CreateObject(inst, node, parent, DecodePrimitivesWeighted(node, g, skin, scene, model._influences, ref Error), model, shell);
+
+                                    Type boneType = type == ImportType.MDL0 ? typeof(MDL0BoneNode) : null;
+
+                                    PrimitiveManager manager = DecodePrimitivesWeighted(node, g, skin, scene, model.Influences, ref Error, boneType);
+
+                                    switch (type)
+                                    {
+                                        case ImportType.MDL0:
+                                            CreateMDL0Object(inst, node, parent, manager, (MDL0Node)model, shell);
+                                            break;
+                                    }
+
                                     break;
                                 }
                             break;
@@ -536,9 +472,20 @@ namespace BrawlLib.Modeling
                     foreach (GeometryEntry g in shell._geometry)
                         if (g._id == inst._url)
                         {
-                            Error = "There was a problem decoding unweighted primitives for the object " + (node._name != null ? node._name : node._id) + ".";
+                            Error = "There was a problem decoding unweighted primitives for the object "
+                                + (node._name != null ? node._name : node._id) + ".";
+
                             Say("Decoding unweighted primitives for " + (g._name != null ? g._name : g._id) + "...");
-                            CreateObject(inst, node, parent, DecodePrimitivesUnweighted(node, g), model, shell);
+
+                            PrimitiveManager manager = DecodePrimitivesUnweighted(node, g);
+                                
+                            switch (type)
+                            {
+                                case ImportType.MDL0:
+                                    CreateMDL0Object(inst, node, parent, manager, (MDL0Node)model, shell);
+                                    break;
+                            }
+                            
                             break;
                         }
                 }
@@ -546,12 +493,12 @@ namespace BrawlLib.Modeling
                 {
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(e, parent, scene, model, shell);
+                            EnumNode(e, parent, scene, model, shell, type);
                 }
             }
         }
 
-        private void CreateObject(InstanceEntry inst, NodeEntry node, ResourceNode parent, PrimitiveManager manager, MDL0Node model, DecoderShell shell)
+        private void CreateMDL0Object(InstanceEntry inst, NodeEntry node, ResourceNode parent, PrimitiveManager manager, MDL0Node model, DecoderShell shell)
         {
             if (manager != null)
             {
@@ -561,7 +508,6 @@ namespace BrawlLib.Modeling
                     v._index = i++;
 
                 MDL0ObjectNode poly = new MDL0ObjectNode() { _manager = manager };
-                poly._manager._polygon = poly;
                 poly._name = node._name != null ? node._name : node._id;
 
                 //Attach single-bind
@@ -582,6 +528,203 @@ namespace BrawlLib.Modeling
                 
                 poly._parent = model._objGroup;
                 model._objList.Add(poly);
+            }
+        }
+
+        private void FinishMDL0(MDL0Node model)
+        {
+            //If there are no bones, rig all objects to a single bind.
+            if (model._boneGroup._children.Count == 0)
+            {
+                Error = "There was a problem rigging all objects to a single bone.";
+
+                for (int i = 0; i < 2; i++)
+                {
+                    MDL0BoneNode bone = new MDL0BoneNode();
+                    bone.Scale = new Vector3(1);
+
+                    bone._bindMatrix =
+                    bone._inverseBindMatrix =
+                    Matrix.Identity;
+
+                    switch (i)
+                    {
+                        case 0:
+                            bone._name = "TopN";
+                            model._boneGroup._children.Add(bone);
+                            bone._parent = model._boneGroup;
+                            break;
+                        case 1:
+                            bone._name = "TransN";
+                            model._boneGroup._children[0]._children.Add(bone);
+                            bone._parent = model._boneGroup._children[0];
+                            bone.ReferenceCount = model._objList.Count;
+                            break;
+                    }
+                }
+                if (model._objList != null && model._objList.Count != 0)
+                    foreach (MDL0ObjectNode poly in model._objList)
+                    {
+                        poly._nodeId = 0;
+                        poly.MatrixNode = (MDL0BoneNode)model._boneGroup._children[0]._children[0];
+                    }
+            }
+            else
+            {
+                Error = "There was a problem checking if objects are rigged to a single bone.";
+
+                //Check each polygon to see if it can be rigged to a single influence
+                if (model._objList != null && model._objList.Count != 0)
+                    foreach (MDL0ObjectNode p in model._objList)
+                    {
+                        IMatrixNode node = null;
+                        bool singlebind = true;
+
+                        foreach (Vertex3 v in p._manager._vertices)
+                            if (v._matrixNode != null)
+                            {
+                                if (node == null)
+                                    node = v._matrixNode;
+
+                                if (v._matrixNode != node)
+                                {
+                                    singlebind = false;
+                                    break;
+                                }
+                            }
+
+                        if (singlebind && p._matrixNode == null)
+                        {
+                            //Increase reference count ahead of time for rebuild
+                            if (p._manager._vertices[0]._matrixNode != null)
+                                p._manager._vertices[0]._matrixNode.ReferenceCount++;
+
+                            foreach (Vertex3 v in p._manager._vertices)
+                                if (v._matrixNode != null)
+                                    v._matrixNode.ReferenceCount--;
+
+                            p._nodeId = -2; //Continued on polygon rebuild
+                        }
+                    }
+            }
+
+            Error = "There was a problem removing original color buffers.";
+
+            //Remove original color buffers if option set
+            if (_importOptions._ignoreColors)
+            {
+                if (model._objList != null && model._objList.Count != 0)
+                    foreach (MDL0ObjectNode p in model._objList)
+                        for (int x = 2; x < 4; x++)
+                            if (p._manager._faceData[x] != null)
+                            {
+                                p._manager._faceData[x].Dispose();
+                                p._manager._faceData[x] = null;
+                            }
+            }
+
+            Error = "There was a problem adding default color values.";
+
+            //Add color buffers if option set
+            if (_importOptions._addClrs)
+            {
+                RGBAPixel pixel = _importOptions._dfltClr;
+
+                //Add a color buffer to objects that don't have one
+                if (model._objList != null && model._objList.Count != 0)
+                    foreach (MDL0ObjectNode p in model._objList)
+                        if (p._manager._faceData[2] == null)
+                        {
+                            RGBAPixel* pIn = (RGBAPixel*)(p._manager._faceData[2] = new UnsafeBuffer(4 * p._manager._pointCount)).Address;
+                            for (int i = 0; i < p._manager._pointCount; i++)
+                                *pIn++ = pixel;
+                        }
+            }
+
+            Error = "There was a problem initializing materials.";
+
+            //Apply defaults to materials
+            if (model._matList != null)
+                foreach (MDL0MaterialNode p in model._matList)
+                {
+                    if (_importOptions._mdlType == 0)
+                    {
+                        p._lightSetIndex = 20;
+                        p._fogIndex = 4;
+                        p._activeStages = 3;
+
+                        p.C1ColorEnabled = true;
+                        p.C1AlphaMaterialSource = GXColorSrc.Vertex;
+                        p.C1ColorMaterialSource = GXColorSrc.Vertex;
+                        p.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
+                        p.C1ColorAttenuation = GXAttnFn.Spotlight;
+                        p.C1AlphaEnabled = true;
+                        p.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
+                        p.C1AlphaAttenuation = GXAttnFn.Spotlight;
+
+                        p.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
+                        p.C2ColorAttenuation = GXAttnFn.None;
+                        p.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
+                        p.C2AlphaAttenuation = GXAttnFn.None;
+                    }
+                    else
+                    {
+                        p._lightSetIndex = 0;
+                        p._fogIndex = 0;
+                        p._activeStages = 1;
+
+                        p._chan1.Color = new LightChannelControl(1795);
+                        p._chan1.Alpha = new LightChannelControl(1795);
+                        p._chan2.Color = new LightChannelControl(1795);
+                        p._chan2.Alpha = new LightChannelControl(1795);
+                    }
+                }
+
+            //Set materials to use register color if option set
+            if (_importOptions._useReg && model._objList != null)
+                foreach (MDL0ObjectNode p in model._objList)
+                {
+                    MDL0MaterialNode m = p.OpaMaterialNode;
+                    if (m != null && p._manager._faceData[2] == null && p._manager._faceData[3] == null)
+                    {
+                        m.C1MaterialColor = _importOptions._dfltClr;
+                        m.C1ColorMaterialSource = GXColorSrc.Register;
+                        m.C1AlphaMaterialSource = GXColorSrc.Register;
+                    }
+                }
+
+            Error = "There was a problem remapping materials.";
+
+            //Remap materials if option set
+            if (_importOptions._rmpMats && model._matList != null && model._objList != null)
+            {
+                foreach (MDL0ObjectNode p in model._objList)
+                    foreach (MDL0MaterialNode m in model._matList)
+                        if (m.Children.Count > 0 &&
+                            m.Children[0] != null &&
+                            p.OpaMaterialNode != null &&
+                            p.OpaMaterialNode.Children.Count > 0 &&
+                            p.OpaMaterialNode.Children[0] != null &&
+                            m.Children[0].Name == p.OpaMaterialNode.Children[0].Name &&
+                            m.C1ColorMaterialSource == p.OpaMaterialNode.C1ColorMaterialSource)
+                        {
+                            p.OpaMaterialNode = m;
+                            break;
+                        }
+
+                //Remove unused materials
+                for (int i = 0; i < model._matList.Count; i++)
+                    if (((MDL0MaterialNode)model._matList[i])._objects.Count == 0)
+                        model._matList.RemoveAt(i--);
+            }
+
+            Error = "There was a problem writing the model.";
+
+            //Clean the model and then build it!
+            if (model != null)
+            {
+                model.CleanGroups();
+                model.BuildFromScratch(this);
             }
         }
 

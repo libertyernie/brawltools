@@ -18,7 +18,7 @@ using System.Drawing;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class MDL0Node : BRESEntryNode, IRenderedObject
+    public unsafe class MDL0Node : BRESEntryNode, IModel
     {
         internal MDL0Header* Header { get { return (MDL0Header*)WorkingUncompressed.Address; } }
 
@@ -38,13 +38,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public ModelLinker _linker;
         internal AssetStorage _assets;
-        internal bool _hasTree, _hasMix, _hasOpa, _hasXlu, _isImport, _rebuildAllObj, _autoMetal;
+        internal bool _hasTree, _hasMix, _hasOpa, _hasXlu, _isImport, _autoMetal;
 
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
 
+        [Browsable(false)]
+        public InfluenceManager Influences { get { return _influences; } }
         public InfluenceManager _influences = new InfluenceManager();
+
         public List<string> _errors = new List<string>();
         //public TextureManager _textures = new TextureManager();
 
@@ -87,16 +90,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _version; } 
             set 
             {
-                if (_version != value)
+                int newVersion = value.Clamp(8, 11);
+                if (_version != newVersion)
                 {
-                    if (((_version == 11 || _version == 10) && (value != 11 && value != 10)) ||
-                        ((_version != 11 && _version != 10) && (value == 11 || value == 10)))
-                        _rebuildAllObj = true;
+                    //Version 10 and 11 objects are slighly different from 8 and 9
+                    if (((_version > 9 && newVersion <= 9) ||
+                        (_version <= 9 && newVersion > 9)) &&
+                        _objList != null)
+                        foreach (MDL0ObjectNode o in _objList)
+                            o._rebuild = true;
 
                     if (_children == null)
                         Populate();
 
-                    _version = value;
+                    _version = newVersion;
                     SignalPropertyChange();
                 }
             } 
@@ -268,8 +275,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 _matGroup.AddChild(node);
                                 node._updating = true;
                                 node.Name = n.Name + "_ExtMtl";
-                                node._ssc = 4;
-                                node.New = true;
+                                node.SetImportValues();
+                                node._activeStages = 4;
 
                                 for (int i = 0; i <= n.Children.Count; i++)
                                 {
@@ -297,7 +304,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                                         mr.MapMode = (MDL0MaterialRefNode.MappingMethod)1;
 
-                                        mr.getTexMtxVal();
+                                        mr.SetTextMtxData();
 
                                         break;
                                     }
@@ -318,8 +325,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 node.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
                                 node.C2AlphaAttenuation = GXAttnFn.Specular;
 
-                                node._lSet = n._lSet;
-                                node._fSet = n._fSet;
+                                node._lightSetIndex = n._lightSetIndex;
+                                node._fogIndex = n._fogIndex;
 
                                 node._cull = n._cull;
                                 node._numLights = 2;
@@ -340,14 +347,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                         if (node.ShaderNode != null)
                         {
-                            if (node.ShaderNode._autoMetal && node.ShaderNode.texCount == node.Children.Count)
+                            if (node.ShaderNode._autoMetal && node.ShaderNode._texCount == node.Children.Count)
                             {
                                 node._updating = false;
                                 continue;
                             }
                             else
                             {
-                                if (node.ShaderNode._stages == 4)
+                                if (node.ShaderNode.Stages == 4)
                                 {
                                     foreach (MDL0MaterialNode y in node.ShaderNode._materials)
                                         if (!y.isMetal || y.Children.Count != node.Children.Count)
@@ -361,14 +368,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                         bool found = false;
                         foreach (MDL0ShaderNode s in _shadGroup.Children)
                         {
-                            if (s._autoMetal && s.texCount == node.Children.Count)
+                            if (s._autoMetal && s._texCount == node.Children.Count)
                             {
                                 node.ShaderNode = s;
                                 found = true;
                             }
                             else
                             {
-                                if (s._stages == 4)
+                                if (s.Stages == 4)
                                 {
                                     foreach (MDL0MaterialNode y in s._materials)
                                         if (!y.isMetal || y.Children.Count != node.Children.Count)
@@ -478,9 +485,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (MDL0BoneNode b in _linker.BoneCache)
                 if (b.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return b;
-            
-            //MDL0BoneNode node = new MDL0BoneNode() { _name = name };
-            //_boneGroup.AddChild(node, false);
 
             return null;
         }
@@ -493,6 +497,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             MDL0MaterialNode node = new MDL0MaterialNode() { _name = _matGroup.FindName(name) };
             _matGroup.AddChild(node, false);
 
+            SignalPropertyChange();
+
             return node;
         }
         public MDL0MaterialNode FindOrCreateXluMaterial(string name)
@@ -503,6 +509,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             MDL0MaterialNode node = new MDL0MaterialNode() { _name = _matGroup.FindName(name), XLUMaterial = true };
             _matGroup.AddChild(node, false);
+
+            SignalPropertyChange();
 
             return node;
         }
@@ -768,7 +776,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (path.EndsWith(".mdl0", StringComparison.OrdinalIgnoreCase))
                 return NodeFactory.FromFile(null, path) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
-                return new Collada().ShowDialog(path);
+                return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
             else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
                 return PMDModel.ImportModel(path);
             //else if (string.Equals(ext, "fbx", StringComparison.OrdinalIgnoreCase))
@@ -867,7 +875,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             ModelEncoder.Build(_linker, (MDL0Header*)address, length, force);
-            _rebuildAllObj = false;
         }
         protected internal override void PostProcess(VoidPtr bresAddress, VoidPtr dataAddress, int dataLength, StringTable stringTable)
         {
@@ -931,53 +938,82 @@ namespace BrawlLib.SSBB.ResourceNodes
             
             //Write part2 entries
             if (Version > 9)
-                _userEntries.PostProcess((VoidPtr)header + header->_userDataOffset, stringTable);
+                _userEntries.PostProcess((VoidPtr)header + header->UserDataOffset, stringTable);
         }
         #endregion
 
         #region Rendering
-        
-        public bool _isTargetModel = false;
-        public bool _renderPolygons = true;
-        public bool _renderWireframe = false;
-        public bool _renderBones = true;
-        public bool _renderVertices = false;
-        public bool _renderNormals = false;
-        public bool _dontRenderOffscreen = false;
-        public bool _renderBox = false;
-        public int _polyIndex = -1;
-        public bool _visible = false;
-        //public int _animFrame = 0;
+
+        [Browsable(false)]
+        public IBoneNode[] BoneCache
+        {
+            get
+            {
+                if (_linker != null && _linker.BoneCache != null)
+                    return _linker.BoneCache.Select(x => x as IBoneNode).ToArray();
+                return new IBoneNode[0];
+            }
+        }
+
+        [Browsable(false)]
+        public IBoneNode[] RootBones
+        {
+            get { return _boneList == null ? new IBoneNode[0] : _boneList.Select(x => x as IBoneNode).ToArray(); }
+        }
+
+        [Browsable(false)]
+        public bool IsRendering { get { return _render; } set { _render = value; } }
+        bool _render = true;
+
+        public ModelRenderAttributes _renderAttribs = new ModelRenderAttributes();
+        public bool _ignoreModelViewerAttribs = false;
+
+        public int _selectedObjectIndex = -1;
+
+        [Browsable(false)]
+        public bool Attached { get { return _attached; } }
+        private bool _attached = false;
+
+        SHP0Node _currentSHP = null;
+        int _currentSHPIndex = 0;
 
         public Dictionary<string, List<int>> VIS0Indices;
 
-        public void Attach(TKContext ctx)
+        public void Attach()
         {
-            _visible = true;
-            ApplyCHR(null, 0);
-            ApplySRT(null, 0);
-
+            _attached = true;
+            ResetToBindState();
             foreach (MDL0GroupNode g in Children)
-                g.Bind(ctx);
+                g.Bind();
 
-            VIS0Indices = new Dictionary<string, List<int>>(); int i = 0;
+            RegenerateVIS0Indices();
+        }
+
+        /// <summary>
+        /// This only needs to be called when the model is
+        /// currently attached to a model renderer and
+        /// the amount of objects change or an object's visibility bone changes.
+        /// </summary>
+        public void RegenerateVIS0Indices()
+        {
+            int i = 0;
+            VIS0Indices = new Dictionary<string, List<int>>();
             if (_objList != null)
-            foreach (MDL0ObjectNode p in _objList)
-            {
-                if (p._bone != null && p._bone.BoneIndex != 0)
-                    if (VIS0Indices.ContainsKey(p._bone.Name))
-                        if (!VIS0Indices[p._bone.Name].Contains(i))
+                foreach (MDL0ObjectNode p in _objList)
+                {
+                    if (p._bone != null && p._bone.BoneIndex != 0)
+                        if (!VIS0Indices.ContainsKey(p._bone.Name))
+                            VIS0Indices.Add(p._bone.Name, new List<int> { i });
+                        else if (!VIS0Indices[p._bone.Name].Contains(i))
                             VIS0Indices[p._bone.Name].Add(i);
-                        else { }
-                    else VIS0Indices.Add(p._bone.Name, new List<int> { i });
-                i++;
-            }
+                    i++;
+                }
         }
 
         public void Detach()
         {
-            _visible = false;
-            //Unweight();
+            _attached = false;
+            ResetToBindState();
             foreach (MDL0GroupNode g in Children)
                 g.Unbind();
         }
@@ -989,15 +1025,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                     t.Reload();
         }
 
-        public Matrix floorShadow;
-        public MDL0BoneNode _selectedBone;
-        public ModelPanel _mainWindow;
-
-        public void RenderObject(MDL0ObjectNode p, TKContext ctx, ModelPanel mainWindow, float maxDrawPriority)
+        public static void RenderObject(
+            MDL0ObjectNode p, 
+            float maxDrawPriority,
+            bool dontRenderOffscreen,
+            bool renderPolygons,
+            bool renderWireframe)
         {
             if (p._render)
             {
-                if (_dontRenderOffscreen)
+                if (dontRenderOffscreen)
                 {
                     Vector3 min = new Vector3(float.MaxValue);
                     Vector3 max = new Vector3(float.MinValue);
@@ -1005,23 +1042,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (p._manager != null)
                         foreach (Vertex3 vertex in p._manager._vertices)
                         {
-                            Vector3 v = mainWindow.Project(vertex.WeightedPosition);
+                            Vector3 v = GLPanel.Current.Project(vertex.WeightedPosition);
 
                             min.Min(v);
                             max.Max(v);
                         }
 
-                    if (max._x < 0 || min._x > mainWindow.Size.Width ||
-                        max._y < 0 || min._y > mainWindow.Size.Height)
+                    if (max._x < 0 || min._x > GLPanel.Current.Size.Width ||
+                        max._y < 0 || min._y > GLPanel.Current.Size.Height)
                         return;
                 }
 
-                if (_renderPolygons)
+                if (renderPolygons)
                 {
                     float polyOffset = 0.0f;
                     //polyOffset -= p.DrawPriority;
                     //polyOffset += maxDrawPriority;
-                    if (_renderWireframe)
+                    if (renderWireframe)
                         polyOffset += 1.0f;
                     if (polyOffset != 0)
                     {
@@ -1031,28 +1068,32 @@ namespace BrawlLib.SSBB.ResourceNodes
                     else
                         GL.Disable(EnableCap.PolygonOffsetFill);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    p.Render(ctx, false, mainWindow);
+                    p.Render(false);
                 }
-                if (_renderWireframe)
+                if (renderWireframe)
                 {
                     GL.Disable(EnableCap.PolygonOffsetFill);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     GL.LineWidth(0.5f);
-                    p.Render(ctx, true, mainWindow);
+                    p.Render(true);
                 }
             }
         }
 
         public Matrix _matrixOffset = Matrix.Identity;
-        public void Render(TKContext ctx, ModelPanel mainWindow)
+        public void Render(params object[] args)
         {
-            if (!_visible)
+            if (!_render || TKContext.CurrentContext == null)
                 return;
+
+            ModelRenderAttributes attrib;
+            if (!_ignoreModelViewerAttribs && args.Length > 0 && args[0] is ModelRenderAttributes)
+                attrib = args[0] as ModelRenderAttributes;
+            else
+                attrib = _renderAttribs;
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-
-            _mainWindow = mainWindow;
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
             {
@@ -1061,7 +1102,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.MultMatrix((float*)&m);
             }
 
-            if (_renderPolygons || _renderWireframe)
+            if (attrib._renderPolygons || attrib._renderWireframe)
             {
                 GL.Enable(EnableCap.Lighting);
                 GL.Enable(EnableCap.DepthTest);
@@ -1077,7 +1118,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     foreach (MDL0MaterialNode m in _matList)
                         foreach (MDL0ObjectNode p in m._objects)
                         {
-                            RenderObject(p, ctx, mainWindow, maxDrawPriority);
+                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
                             rendered.Add(p);
                         }
 
@@ -1085,10 +1126,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_objList != null)
                     foreach (MDL0ObjectNode p in _objList)
                         if (!rendered.Contains(p))
-                            RenderObject(p, ctx, mainWindow, maxDrawPriority);
+                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
             }
 
-            if (_renderBox)
+            if (attrib._renderBox)
             {
                 //GL.LineWidth(1.0f);
                 GL.Disable(EnableCap.Lighting);
@@ -1100,8 +1141,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 DrawBox();
 
                 if (_objList != null)
-                    if (_polyIndex != -1 && ((MDL0ObjectNode)_objList[_polyIndex])._render)
-                        ((MDL0ObjectNode)_objList[_polyIndex]).DrawBox();
+                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
+                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
                 //else
                 //    foreach (MDL0ObjectNode p in _polyList)
                 //        if (p._render)
@@ -1109,9 +1150,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             //Turn off the last bound shader program.
-            if (ctx._shadersEnabled) { GL.UseProgram(0); GL.ClientActiveTexture(TextureUnit.Texture0); }
-            
-            if (_renderBones)
+            if (TKContext.CurrentContext._shadersEnabled) { GL.UseProgram(0); GL.ClientActiveTexture(TextureUnit.Texture0); }
+
+            if (attrib._renderBones)
             {
                 GL.Enable(EnableCap.Blend);
                 GL.Disable(EnableCap.Lighting);
@@ -1121,68 +1162,81 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 if (_boneList != null)
                     foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render(ctx, mainWindow);
+                        bone.Render();
             }
 
-            //if (_billboardBones.Count > 0)
-            //{
-            //    //Transform bones
-            //    if (_boneList != null)
-            //        foreach (MDL0BoneNode b in _boneList)
-            //            b.RecalcFrameState();
-            //    //Transform nodes
-            //    foreach (Influence inf in _influences._influences)
-            //        inf.CalcMatrix();
-            //    //Weight Vertices
-            //    if (_objList != null)
-            //        foreach (MDL0ObjectNode poly in _objList)
-            //            poly.WeightVertices();
-            //    //Morph vertices to currently selected SHP
-            //    ApplySHP(_currentSHP, _currentSHPIndex);
-            //}
+            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
+            {
+                List<IMatrixNodeUser> affected = new List<IMatrixNodeUser>();
+                foreach (MDL0BoneNode b in _billboardBones)
+                    b.RecalcFrameState();
+
+                foreach (Influence inf in _influences._influences)
+                    inf.CalcMatrix();
+
+                if (_objList != null)
+                    foreach (MDL0ObjectNode o in _objList)
+                        o.WeightVertices();
+
+                ApplySHP(_currentSHP, _currentSHPIndex);
+            }
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
                 GL.PopMatrix();
         }
 
-        public void RenderVertices(TKContext ctx, bool pass2)
+        public void RenderVertices(bool depthPass, IBoneNode weightTarget)
         {
-            if (_renderVertices && _objList != null)
+            if (_objList != null)
             {
-                GL.Disable(EnableCap.Lighting); 
+                GL.Disable(EnableCap.Lighting);
                 GL.Enable(EnableCap.DepthTest);
-                if (_polyIndex != -1)
+                if (_selectedObjectIndex != -1)
                 {
-                    MDL0ObjectNode o = (MDL0ObjectNode)_objList[_polyIndex];
+                    MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
                     if (o._render)
                     {
-                        o._manager.RenderVerts(ctx, o._matrixNode, _selectedBone, _mainWindow._camera.GetPoint(), pass2);
+                        o._manager.RenderVertices(o._matrixNode, weightTarget, depthPass);
                         return;
                     }
                 }
                 foreach (MDL0ObjectNode p in _objList)
                     if (p._render)
-                        p._manager.RenderVerts(ctx, p._matrixNode, _selectedBone, _mainWindow._camera.GetPoint(), pass2);
+                        p._manager.RenderVertices(p._matrixNode, weightTarget, depthPass);
             }
         }
 
-        public void RenderNormals(TKContext ctx)
+        public void RenderNormals()
         {
-            if (_renderNormals && _objList != null)
+            if (_objList != null)
             {
                 GL.Disable(EnableCap.Lighting);
                 GL.Enable(EnableCap.DepthTest);
-                if (_polyIndex != -1)
+                if (_selectedObjectIndex != -1)
                 {
-                    MDL0ObjectNode o = (MDL0ObjectNode)_objList[_polyIndex];
+                    MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
                     if (o._render)
-                        o._manager.RenderNormals(ctx, _mainWindow);
+                        o._manager.RenderNormals();
                 }
                 else 
                     foreach (MDL0ObjectNode p in _objList)
                         if (p._render)
-                            p._manager.RenderNormals(ctx, _mainWindow);
+                            p._manager.RenderNormals();
             }
+        }
+
+        [Browsable(false)]
+        public int SelectedObjectIndex { get { return _selectedObjectIndex; } set { _selectedObjectIndex = value; } }
+        [Browsable(false)]
+        public IObject[] Objects { get { return _objList == null ? new IObject[0] : _objList.Select(x => x as IObject).ToArray(); } }
+
+        public void ResetToBindState()
+        {
+            ApplyCHR(null, 0);
+            ApplySRT(null, 0);
+            ApplyVIS(null, 0);
+            ApplyPAT(null, 0);
+            ApplyCLR(null, 0);
         }
 
         public void DrawBox()
@@ -1260,36 +1314,43 @@ namespace BrawlLib.SSBB.ResourceNodes
                     m.ApplyPAT0(node, index);
         }
 
-        public void ApplyVIS(VIS0Node _vis0, int _animFrame)
+        public void ApplyVIS(VIS0Node node, int index)
         {
-            foreach (string n in VIS0Indices.Keys)
+            if (node == null || index <= 0)
             {
-                VIS0EntryNode node = null;
-                List<int> indices = VIS0Indices[n];
-                for (int i = 0; i < indices.Count; i++)
-                    if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
-                        if (node._entryCount != 0 && _animFrame != 0)
-                            ((MDL0ObjectNode)_objList[indices[i]])._render = node.GetEntry(_animFrame - 1);
-                        else
-                            ((MDL0ObjectNode)_objList[indices[i]])._render = node._flags.HasFlag(VIS0Flags.Enabled);
+                if (_objList != null)
+                    foreach (MDL0ObjectNode o in _objList)
+                        if (o._bone != null)
+                            o._render = o._bone.Flags.HasFlag(BoneFlags.Visible);
+                return;
             }
+
+            if (VIS0Indices != null)
+                foreach (string n in VIS0Indices.Keys)
+                {
+                    VIS0EntryNode entry = null;
+                    List<int> indices = VIS0Indices[n];
+                    for (int i = 0; i < indices.Count; i++)
+                        if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
+                            if (entry._entryCount != 0 && index != 0)
+                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry(index - 1);
+                            else
+                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry._flags.HasFlag(VIS0Flags.Enabled);
+                }
         }
 
-        public unsafe void SetSCN0(SCN0Node node)
+        public void SetSCN0(SCN0Node node)
         {
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
                     mat.SetSCN0(node);
         }
-        public unsafe void SetSCN0Frame(int frame)
+        public void SetSCN0Frame(int index)
         {
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
-                    mat.SetSCN0Frame(frame);
+                    mat.SetSCN0Frame(index);
         }
-
-        SHP0Node _currentSHP = null;
-        int _currentSHPIndex = 0;
 
         //This only modifies vertices after ApplyCHR0 has weighted them.
         //It cannot be used without calling ApplyCHR0 first.
@@ -1311,15 +1372,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                         float[] weights = new float[n.Children.Count];
                         MDL0VertexNode[] nodes = new MDL0VertexNode[n.Children.Count];
 
-                        foreach (SHP0VertexSetNode v in n.Children)
+                        foreach (SHP0VertexSetNode shpSet in n.Children)
                         {
-                            MDL0VertexNode vNode = null;
-                            foreach (MDL0VertexNode vn in _vertList)
-                                if (vn.Name == v.Name)
-                                { vNode = vn; break; }
+                            MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
 
-                            weights[v.Index] = vNode != null ? v.Keyframes.GetFrameValue(index - 1, SHP0VertexSetNode._linear) : 0;
-                            nodes[v.Index] = vNode;
+                            weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1, SHP0VertexSetNode._linear) : 0;
+                            nodes[shpSet.Index] = vNode;
                         }
 
                         float totalWeight = 0;
@@ -1341,10 +1399,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                             
                             v3._weightedPosition /= (totalWeight + baseWeight);
 
-                            v3.weights = weights;
-                            v3.nodes = nodes;
-                            v3.baseWeight = baseWeight;
-                            v3.bCenter = v3._weightedPosition;
+                            v3._weights = weights;
+                            v3._nodes = nodes;
+                            v3._baseWeight = baseWeight;
+                            v3._bCenter = v3._weightedPosition;
                         }
                     }
         }

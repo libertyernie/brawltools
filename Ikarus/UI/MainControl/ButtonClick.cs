@@ -218,8 +218,8 @@ namespace Ikarus.UI
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                modelPanel.DefaultRotate = new Vector2(modelPanel._camera._rotation._x, modelPanel._camera._rotation._y);
-                modelPanel.DefaultTranslate = modelPanel._camera._matrixInverse.Multiply(new Vector3());
+                modelPanel.DefaultRotate = new Vector2(modelPanel.Camera.Rotation._x, modelPanel.Camera.Rotation._y);
+                modelPanel.DefaultTranslate = modelPanel.Camera._matrixInverse.Multiply(new Vector3());
 
                 btnSaveCam.Text = "Clear Camera";
             }

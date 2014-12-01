@@ -8,21 +8,6 @@ using BrawlLib.Wii.Graphics;
 namespace BrawlLib.SSBBTypes
 {
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct YAZ0
-    {
-        public const int Size = 0x10;
-        public const uint Tag = 0x307A6159;
-
-        public uint _tag;
-        public buint _unCompDataLen;
-        public fixed int padding[2];
-
-        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-
-        public VoidPtr Data { get { return Address + Size; } }
-    }
-
-    [StructLayout(LayoutKind.Sequential)]
     public unsafe struct U8
     {
         public const int Size = 0x20;

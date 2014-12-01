@@ -17,6 +17,8 @@ using BrawlLib.OpenGL;
 using System.Diagnostics;
 using BrawlBox.Properties;
 using System.Collections.Specialized;
+using BrawlLib.SSBB;
+using BrawlLib.Modeling;
 
 namespace BrawlBox
 {
@@ -78,14 +80,17 @@ namespace BrawlBox
             previewPanel2.Dock =
             videoPlaybackPanel1.Dock =
 			attributeGrid1.Dock =
+            texCoordRenderer1.Dock =
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
-            modelPanel1._forceNoSelection = true;
+            modelPanel1.AllowSelection = false;
             _currentControl = modelPanel1;
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
+
+            _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
         }
 
         private delegate bool DelegateOpenFile(String s);
@@ -167,10 +172,14 @@ namespace BrawlBox
             {
                 propertyGrid1.SelectedObject = node;
 
-                if (node is THPNode)
+                if (node is IVideo)
                 {
-                    videoPlaybackPanel1.TargetSource = node as THPNode;
+                    videoPlaybackPanel1.TargetSource = node as IVideo;
                     newControl = videoPlaybackPanel1;
+                }
+                else if (node is MDL0TextureNode || node is MDL0MaterialRefNode)
+                {
+                    newControl = texCoordRenderer1;
                 }
                 else if (node is MSBinNode)
                 {
@@ -263,10 +272,12 @@ namespace BrawlBox
             else
             {
                 propertyGrid1.SelectedObject = null;
-                try {
+                try
+                {
                     editToolStripMenuItem.DropDown = null;
                 }
-                catch (System.NullReferenceException zzz) {
+                catch
+                {
 
                 }
                 editToolStripMenuItem.Enabled = false;
@@ -306,21 +317,12 @@ namespace BrawlBox
             if (_currentControl is ModelPanel)
             {
                 if (node._children == null)
+                    node.Populate(0);
+                
+                if (node is IModel)
                 {
-                    node._children = new List<ResourceNode>();
-                    node.OnPopulate();
-                }
-
-                if (node is MDL0Node)
-                {
-                    MDL0Node m = node as MDL0Node;
-                    m._renderBones = false;
-                    m._renderPolygons = true;
-                    m._renderWireframe = false;
-                    m._renderVertices = false;
-                    m._renderBox = false;
-                    m.ApplyCHR(null, 0);
-                    m.ApplySRT(null, 0);
+                    IModel m = node as IModel;
+                    m.ResetToBindState();
                 }
 
                 modelPanel1.AddTarget((IRenderedObject)node);
@@ -328,6 +330,13 @@ namespace BrawlBox
                 Vector3 min, max;
                 ((IRenderedObject)node).GetBox(out min, out max);
                 modelPanel1.SetCamWithBox(min, max);
+            }
+            else if (_currentControl is TexCoordRenderer)
+            {
+                if (node is MDL0TextureNode)
+                    texCoordRenderer1.SetTarget((MDL0TextureNode)node);
+                else
+                    texCoordRenderer1.SetTarget(((MDL0MaterialRefNode)node).TextureNode);
             }
         }
 
@@ -339,96 +348,31 @@ namespace BrawlBox
             base.OnClosing(e);
         }
 
-        private static string _filter = null;
-        private static string InFilter 
-        {
-            get 
-            {
-                if (_filter != null)
-                    return _filter;
-
-                string f = "All Supported Formats (*.*)|";
-                string f2 = "";
-                string[] s = _inFilter.Split('|');
-                for (int i = 0; i < s.Length; i++)
-                {
-                    if ((i & 1) != 0)
-                    {
-                        string[] t = s[i].Split(';');
-                        string n = "";
-                        for (int x = 0; x < t.Length; x++)
-                        {
-                            string l = t[x].Substring(t[x].IndexOf('.') + 1);
-                            if (!l.Contains("*"))
-                                n += (x != 0 ? ";" : "") + t[x];
-                        }
-                        f += (i != 1 ? ";" : "") + n;
-                    }
-                    else
-                        f2 += String.Format("|{0} ({1})|{1}", s[i], s[i + 1]);
-                }
-                return _filter = f + f2;
-            }
-        }
-
-        private static string _inFilter =
-        "PAC File Archive|*.pac"
-        +"|PCS Compressed File Archive|*.pcs"
-        +"|Binary Revolution Resource|*.brres;*.brtex;*.brmdl;*.branm"
-        +"|Palette|*.plt0"
-        +"|Texture|*.tex0"
-        +"|TPL Texture Archive|*.tpl"
-        +"|Model|*.mdl0"
-        +"|Model Animation|*.chr0"
-        +"|Texture Animation|*.srt0"
-        +"|Vertex Morph|*.shp0"
-        +"|Texture Pattern|*.pat0"
-        +"|Visibility Sequence|*.vis0"
-        +"|Color Sequence|*.clr0"
-        +"|Scene Settings|*.scn0"
-        +"|Message Pack|*.msbin"
-        +"|Audio Stream|*.brstm"
-        +"|Sound Archive|*.brsar"
-        +"|Sound Stream|*.brwsd"
-        +"|Sound Bank|*.brbnk"
-        +"|Sound Sequence|*.brseq"
-        +"|Effect List|*.efls"
-        +"|Effect Parameters|*.breff"
-        +"|Effect Textures|*.breft"
-        +"|ARC File Archive|*.arc"
-        +"|SZS Compressed File Archive|*.szs"
-        +"|Static Module|*.dol"
-        +"|Relocatable Module|*.rel"
-        +"|MRG Resource Group|*.mrg"
-        +"|MRG Compressed Resource Group|*.mrgc"
-        +"|THP Audio/Video|*.thp"
-        //+"|Scan File|*.*"
-        ;
-
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string inFile;
-            int i = Program.OpenFile(InFilter, out inFile);
+            int i = Program.OpenFile(SuppertedFilesHandler.CompleteFilter, out inFile);
             if (i != 0)
             {
-                if (i == 32)
-                {
-                    FileMap map = FileMap.FromFile(inFile, FileMapProtect.Read);
-                    FileScanNode node = new FileScanNode();
-                    Program.Scan(map, node);
-                    if (node.Children.Count == 0)
-                        MessageBox.Show("No formats recognized.");
-                    else
-                    {
-                        Program._rootNode = node;
-                        Program._rootPath = inFile;
-                        node._list = node._children;
-                        node.Initialize(null, new DataSource(map));
-                        Reset();
-                    }
-                }
-                else if (Program.Open(inFile))
-                    RecentFileHandler.AddFile(inFile);
+                //if (i >= SupportedFilesHandler.Files.Length)
+                //{
+                //    FileMap map = FileMap.FromFile(inFile, FileMapProtect.Read);
+                //    FileScanNode node = new FileScanNode();
+                //    Program.Scan(map, node);
+                //    if (node.Children.Count == 0)
+                //        MessageBox.Show("No formats recognized.");
+                //    else
+                //    {
+                //        Program._rootNode = node;
+                //        Program._rootPath = inFile;
+                //        node._list = node._children;
+                //        node.Initialize(null, new DataSource(map));
+                //        Reset();
+                //    }
+                //}
+                //else 
+                    if (Program.Open(inFile))
+                        RecentFileHandler.AddFile(inFile);
             }
         }
 
@@ -478,22 +422,35 @@ namespace BrawlBox
             }
         }
 
+        public bool DisplayPropertyDescription 
+        {
+            get { return _displayPropertyDescription; }
+            set
+            {
+                _displayPropertyDescription = value;
+
+                BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable = _displayPropertyDescription;
+                BrawlBox.Properties.Settings.Default.Save();
+                UpdatePropertyDescriptionBox(propertyGrid1.SelectedGridItem);
+            }
+        }
+        bool _displayPropertyDescription;
+        
+        private void UpdatePropertyDescriptionBox(GridItem item)
+        {
+            if (!DisplayPropertyDescription)
+            {
+                if (propertyGrid1.HelpVisible != false)
+                    propertyGrid1.HelpVisible = false;
+            }
+            else
+                propertyGrid1.HelpVisible = item != null && item.PropertyDescriptor != null && !String.IsNullOrEmpty(item.PropertyDescriptor.Description);
+        }
+
         private void propertyGrid1_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
         {
-            //object o;
-            //GoodColorDialog d;
-            //if ((o = propertyGrid1.SelectedObject) is ResourceNode)
-            //{
-            //    ResourceNode n = (ResourceNode)o;
-            //    if ((o = propertyGrid1.SelectedGridItem.Value) is RGBAPixel)
-            //    {
-            //        RGBAPixel p = (RGBAPixel)o;
-            //        if ((d = new GoodColorDialog() { Color = Color.FromArgb(p.A, p.R, p.G, p.B) }).ShowDialog(this) == System.Windows.Forms.DialogResult.OK)
-            //        {
-
-            //        }
-            //    }
-            //}
+            if (DisplayPropertyDescription)
+                UpdatePropertyDescriptionBox(e.NewSelection);
         }
 
         private void MainForm_DragDrop(object sender, DragEventArgs e)

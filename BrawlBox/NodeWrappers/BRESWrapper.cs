@@ -7,6 +7,7 @@ using BrawlLib;
 using System.Collections.Generic;
 using BrawlLib.IO;
 using BrawlLib.SSBB;
+using BrawlLib.Modeling;
 
 namespace BrawlBox
 {
@@ -413,12 +414,8 @@ namespace BrawlBox
 
         public void PreviewAll()
         {
-            List<MDL0Node> models = new List<MDL0Node>();
-            LoadModels(_resource, models);
             using (ModelForm form = new ModelForm())
-            {
-                form.ShowDialog(_owner, models);
-            }
+                form.ShowDialog(_owner, ModelPanel.CollectModels(_resource));
         }
     }
 }

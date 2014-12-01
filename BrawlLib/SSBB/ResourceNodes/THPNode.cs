@@ -14,7 +14,7 @@ using BrawlLib.Wii.Audio;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class THPNode : ResourceNode, IImageSource
+    public unsafe class THPNode : ResourceNode, IVideo
     {
         internal THPFile* Header { get { return (THPFile*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
@@ -48,7 +48,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public THPFrame[] _frames;
         public List<byte> _componentTypes;
 
-        internal THPStream _audio;
+        public IAudioStream Audio { get { return (IAudioStream)_audio; } }
+        private THPStream _audio;
 
         public override bool OnInitialize()
         {
@@ -100,6 +101,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public int ImageCount { get { return _frames.Length; } }
         public Bitmap GetImage(int index) { return _frames[index.Clamp(0, ImageCount - 1)].GetImage(); }
+
+        public int GetImageIndexAtFrame(int frame)
+        {
+            return frame;
+        }
     }
 
     public enum JpegMarkers : ushort

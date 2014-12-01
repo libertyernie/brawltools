@@ -283,7 +283,7 @@ namespace BrawlLib.Modeling
             writer.WriteLine();
             writer.WriteLine("#Trilist");
             
-            int count = p._triangles._elementCount / 3;
+            int count = p._triangles._indices.Length / 3;
 
             //Loop through triangles
             for (int tri = 0; tri < count; tri++)

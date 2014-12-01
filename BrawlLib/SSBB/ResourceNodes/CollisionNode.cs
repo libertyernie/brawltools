@@ -5,6 +5,7 @@ using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
+using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -14,6 +15,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.CollisionDef; } }
 
         public List<CollisionObject> _objects = new List<CollisionObject>();
+
+        [Browsable(false)]
+        public bool IsRendering { get { return _render; } set { _render = value; } }
+        bool _render = true;
 
         internal int _unk1;
 
@@ -133,7 +138,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void Attach(TKContext ctx) { }
         public void Detach() { }
         public void Refesh() { }
-        public void Render(TKContext ctx, ModelPanel mainWindow)
+        public void Render(params object[] args)
         {
             GL.Disable(EnableCap.Lighting);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
@@ -141,7 +146,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.CullFace(CullFaceMode.Front);
 
             foreach (CollisionObject obj in _objects)
-                obj.Render(ctx);
+                obj.Render();
         }
         public void GetBox(out Vector3 min, out Vector3 max)
         {
@@ -168,6 +173,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return null;
 
             return new CollisionNode();
+        }
+
+
+        public bool Attached
+        {
+            get { throw new NotImplementedException(); }
+        }
+
+        public void Attach()
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -276,7 +292,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal unsafe void Render(TKContext ctx)
+        internal unsafe void Render()
         {
             if (!_render)
                 return;
@@ -291,7 +307,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //}
 
             foreach (CollisionPlane p in _planes)
-                p.DrawPlanes(p, ctx);
+                p.DrawPlanes(p);
             //foreach (CollisionLink l in _points)
             //    l.Render(ctx);
 
@@ -474,9 +490,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _parent._points.Remove(this);
         }
 
-        public void Render(TKContext ctx) { Render(ctx, 1.0f); }
-        public void Render(TKContext ctx, float mult) { Render(ctx, new Color4(1.0f, 1.0f, 1.0f, 1.0f), mult); }
-        public void Render(TKContext ctx, Color4 clr, float mult)
+        public void Render() { Render(1.0f); }
+        public void Render(float mult) { Render(new Color4(1.0f, 1.0f, 1.0f, 1.0f), mult); }
+        public void Render(Color4 clr, float mult)
         {
             if (_highlight)
                 GL.Color4(1.0f, 1.0f, 0.0f, 1.0f);
@@ -485,9 +501,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             Vector2 v = Value;
 
-            ctx.DrawBox(
-                new Vector3(v._x - mult*BoxRadius, v._y - mult*BoxRadius,  LineWidth),
-                new Vector3(v._x + mult*BoxRadius, v._y + mult*BoxRadius, -LineWidth));
+            TKContext.DrawBox(
+                new Vector3(v._x - mult * BoxRadius, v._y - mult * BoxRadius,  LineWidth),
+                new Vector3(v._x + mult * BoxRadius, v._y + mult * BoxRadius, -LineWidth));
         }
     }
 
@@ -497,7 +513,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public CollisionLink _linkLeft, _linkRight;
         
-
         public CollisionPlaneMaterial _material;
         public CollisionPlaneFlags _flags;
         public CollisionPlaneType _type;
@@ -648,10 +663,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             _parent._planes.Remove(this);
         }
 
-        internal unsafe void DrawPlanes(CollisionPlane p, TKContext ctx)
+        internal unsafe void DrawPlanes(CollisionPlane p)
         {
             if (!_render)
                 return;
+
             Color4 clr = new Color4(1.0f, 0.0f, 1.0f, 1.0f);
             Vector2 l = _linkLeft.Value;
             Vector2 r = _linkRight.Value;
@@ -662,10 +678,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_linkRight._highlight)
                 lev++;
 
-
-
-            if (lev == 1){GL.Color4(1.0f, 0.5f, 0.5f, 0.8f);}
-            else {GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);}
+            if (lev == 1)
+                GL.Color4(1.0f, 0.5f, 0.5f, 0.8f);
+            else
+                GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);
 
             if (p._type == CollisionPlaneType.Floor && lev == 0 && !IsFallThrough ) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
             else if (p._type == CollisionPlaneType.Ceiling && lev == 0 && !IsFallThrough) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
@@ -698,13 +714,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.Vertex3(r._x, r._y, -10.0f);
             GL.End();
 
-            if (p.IsRightLedge && p.IsLeftLedge) { _linkLeft.Render(ctx, clr, 3.0f); _linkRight.Render(ctx, clr, 3.0f); }
-            else if (p.IsLeftLedge && !p.IsRightLedge) {  _linkLeft.Render(ctx, clr, 3.0f); _linkRight.Render(ctx); }
-            else if (p.IsRightLedge && !p.IsLeftLedge) { _linkLeft.Render(ctx); _linkRight.Render(ctx, clr, 3.0f); }
+            if (p.IsRightLedge && p.IsLeftLedge) { _linkLeft.Render(clr, 3.0f); _linkRight.Render(clr, 3.0f); }
+            else if (p.IsLeftLedge && !p.IsRightLedge) {  _linkLeft.Render(clr, 3.0f); _linkRight.Render(); }
+            else if (p.IsRightLedge && !p.IsLeftLedge) { _linkLeft.Render(); _linkRight.Render(clr, 3.0f); }
             else
             {
-                _linkLeft.Render(ctx);
-                _linkRight.Render(ctx);
+                _linkLeft.Render();
+                _linkRight.Render();
             }
         }
     }

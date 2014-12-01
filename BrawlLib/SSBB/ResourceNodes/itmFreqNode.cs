@@ -141,7 +141,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             return size;
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((ItmFreqHeader*)source.Address)->_Length == source.Length && ((ItmFreqHeader*)source.Address)->Str == "genParamSet" ? new ItmFreqNode() : null; }
+        internal static ResourceNode TryParse(DataSource source)
+        {
+            ItmFreqHeader* header = (ItmFreqHeader*)source.Address;
+            return header->_Length == source.Length &&
+                header->_DataLength < source.Length &&
+                header->Str == "genParamSet" ? new ItmFreqNode() : null;
+        }
     }
 
     public unsafe class TableNode : ItmFreqBaseNode

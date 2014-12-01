@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
+using BrawlLib.Modeling;
 
 namespace System.Windows.Forms
 {
@@ -49,7 +50,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }

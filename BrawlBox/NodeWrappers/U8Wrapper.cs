@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using BrawlLib;
+using BrawlLib.Modeling;
 
 namespace BrawlBox
 {
@@ -153,30 +154,9 @@ namespace BrawlBox
                 case 3: ((U8Node)_resource).ExportPair(outPath); break;
             }
         }
-
-        private void LoadModels(ResourceNode node, List<MDL0Node> models)
-        {
-            switch (node.ResourceType)
-            {
-                case ResourceType.ARC:
-                case ResourceType.MRG:
-                case ResourceType.BRES:
-                case ResourceType.BRESGroup:
-                case ResourceType.U8:
-                case ResourceType.U8Folder:
-                    foreach (ResourceNode n in node.Children)
-                        LoadModels(n, models);
-                    break;
-                case ResourceType.MDL0:
-                    models.Add((MDL0Node)node);
-                    break;
-            }
-        }
-
         public void PreviewAll()
         {
-            List<MDL0Node> models = new List<MDL0Node>();
-            LoadModels(_resource, models);
+            List<IModel> models = ModelPanel.CollectModels(_resource);
             using (ModelForm form = new ModelForm())
                 form.ShowDialog(_owner, models);
         }

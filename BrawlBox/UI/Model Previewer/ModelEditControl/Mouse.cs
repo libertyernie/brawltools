@@ -41,10 +41,8 @@ namespace System.Windows.Forms
                 //Reset snap flags
                 _snapX = _snapY = _snapZ = _snapCirc = false;
 
-                MDL0BoneNode bone = SelectedBone;
-                MDL0ObjectNode poly = leftPanel.SelectedObject;
-
                 //Re-target selected bone
+                IBoneNode bone = SelectedBone;
                 if (bone != null)
                 {
                     _snapX = _hiX;
@@ -65,23 +63,23 @@ namespace System.Windows.Forms
                     Vector3 point;
                     if (GetOrbPoint(new Vector2(e.X, e.Y), out point))
                     {
-                        _firstPointBone = _lastPointBone = bone._inverseFrameMatrix * (_lastPointWorld = _firstPointWorld = point);
+                        _firstPointBone = _lastPointBone = bone.InverseMatrix * (_lastPointWorld = _firstPointWorld = point);
                         if (_editType == TransformType.Rotation)
                         {
                             _rotating = true;
-                            _oldAngles = bone._frameState._rotate;
+                            _oldAngles = bone.FrameState._rotate;
                         }
                         else if (_editType == TransformType.Translation)
                         {
                             _translating = true;
-                            _oldPosition = bone._frameState._translate;
+                            _oldPosition = bone.FrameState._translate;
                         }
                         else if (_editType == TransformType.Scale)
                         {
                             _scaling = true;
-                            _oldScale = bone._frameState._scale;
+                            _oldScale = bone.FrameState._scale;
                         }
-                        ModelPanel._forceNoSelection = true;
+                        ModelPanel.AllowSelection = false;
                         if (_rotating || _translating || _scaling)
                             BoneChange(SelectedBone);
                     }
@@ -117,7 +115,7 @@ namespace System.Windows.Forms
                     Vector3 point;
                     if (GetVertexOrbPoint(new Vector2(e.X, e.Y), ((Vector3)VertexLoc), out point))
                     {
-                        ModelPanel._forceNoSelection = true;
+                        ModelPanel.AllowSelection = false;
                         if (_editType == TransformType.Rotation)
                         {
                             _rotating = true;
@@ -222,14 +220,14 @@ namespace System.Windows.Forms
 
                 _snapX = _snapY = _snapZ = _snapCirc = false;
                 _rotating = _translating = _scaling = false;
-                ModelPanel._forceNoSelection = false;
+                ModelPanel.AllowSelection = true;
                 //if (modelPanel1._selecting)
                 //{
                 if (weightEditor.TargetVertices != _selectedVertices)
                     weightEditor.TargetVertices = _selectedVertices;
                 if (vertexEditor.TargetVertices != _selectedVertices)
                     vertexEditor.TargetVertices = _selectedVertices;
-                    ModelPanel._selecting = false;
+                    //ModelPanel.Selecting = false;
                 //}
             }
         }
@@ -245,7 +243,7 @@ namespace System.Windows.Forms
 
             bool moving = _scaling || _rotating || _translating;
 
-            MDL0BoneNode bone = SelectedBone;
+            IBoneNode bone = SelectedBone;
 
             if (moving)
             {
@@ -255,7 +253,7 @@ namespace System.Windows.Forms
                     if (GetOrbPoint(new Vector2(e.X, e.Y), out point))
                     {
                         //Convert to local point
-                        Vector3 lPoint = bone._inverseFrameMatrix * point;
+                        Vector3 lPoint = bone.InverseMatrix * point;
 
                         //Check for change in selection.
                         if (_lastPointBone != lPoint)
@@ -281,10 +279,10 @@ namespace System.Windows.Forms
                                     }
                                     else
                                     {
-                                        lPoint = bone._inverseFrameMatrix * point;
+                                        lPoint = bone.InverseMatrix * point;
 
-                                        Vector3 point1 = bone._frameState._transform * lPoint;
-                                        Vector3 point2 = bone._frameState._transform * _lastPointBone;
+                                        Vector3 point1 = bone.FrameState._transform * lPoint;
+                                        Vector3 point2 = bone.FrameState._transform * _lastPointBone;
 
                                         Vector3 scale = (point1 / point2);
 
@@ -297,10 +295,10 @@ namespace System.Windows.Forms
                                 case TransformType.Rotation:
 
                                     //Get matrix with new rotation applied
-                                    Matrix m = bone._frameState._transform * Matrix.AxisAngleMatrix(_lastPointBone, lPoint);
+                                    Matrix m = bone.FrameState._transform * Matrix.AxisAngleMatrix(_lastPointBone, lPoint);
 
                                     //Derive angles from matrices, get difference
-                                    Vector3 angles = m.GetAngles() - bone._frameState._transform.GetAngles();
+                                    Vector3 angles = m.GetAngles() - bone.FrameState._transform.GetAngles();
 
                                     //Truncate (allows winding)
                                     if (angles._x > 180.0f) angles._x -= 360.0f;
@@ -322,9 +320,9 @@ namespace System.Windows.Forms
                                     if (!_snapY) point._y = _lastPointWorld._y;
                                     if (!_snapZ) point._z = _lastPointWorld._z;
 
-                                    lPoint = bone._inverseFrameMatrix * point;
+                                    lPoint = bone.InverseMatrix * point;
 
-                                    Vector3 trans = (bone._frameState._transform * lPoint - bone._frameState._transform * _lastPointBone);
+                                    Vector3 trans = (bone.FrameState._transform * lPoint - bone.FrameState._transform * _lastPointBone);
 
                                     if (trans._x != 0.0f) ApplyTranslation(0, trans._x);
                                     if (trans._y != 0.0f) ApplyTranslation(1, trans._y);
@@ -333,7 +331,7 @@ namespace System.Windows.Forms
                             }
 
                             _lastPointWorld = point;
-                            _lastPointBone = bone._inverseFrameMatrix * point;
+                            _lastPointBone = bone.InverseMatrix * point;
                         }
                     }
                 }
@@ -390,10 +388,10 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (!moving && (!dontHighlightBonesAndVerticesToolStripMenuItem.Checked || (dontHighlightBonesAndVerticesToolStripMenuItem.Checked && ModelPanel._selecting)))
+            if (!moving && (!dontHighlightBonesAndVerticesToolStripMenuItem.Checked || (dontHighlightBonesAndVerticesToolStripMenuItem.Checked && ModelPanel.Selecting)))
                 HighlightStuff(e);
         }
-        public MDL0BoneNode _hiBone = null;
+        public IBoneNode _hiBone = null;
         public Vertex3 _hiVertex = null;
         public void HighlightStuff(MouseEventArgs e)
         {
@@ -402,9 +400,7 @@ namespace System.Windows.Forms
 
             _hiX = _hiY = _hiZ = _hiCirc = _hiSphere = false;
             
-            MDL0BoneNode bone = SelectedBone;
-            //Vertex3 vertex = TargetVertex;
-            MDL0ObjectNode poly = leftPanel.SelectedObject;
+            IBoneNode bone = SelectedBone;
 
             if (bone != null)
             {
@@ -412,7 +408,7 @@ namespace System.Windows.Forms
                 Vector3 center = BoneLoc;
 
                 //Standard radius scaling snippet. This is used for orb scaling depending on camera distance.
-                float radius = center.TrueDistance(ModelPanel._camera.GetPoint()) / _orbRadius * 0.1f;
+                float radius = center.TrueDistance(ModelPanel.Camera.GetPoint()) / _orbRadius * 0.1f;
 
                 if (_editType == TransformType.Rotation)
                 {
@@ -427,7 +423,7 @@ namespace System.Windows.Forms
                         _hiSphere = true;
 
                         //Determine axis snapping
-                        Vector3 angles = (bone._inverseFrameMatrix * point).GetAngles() * Maths._rad2degf;
+                        Vector3 angles = (bone.InverseMatrix * point).GetAngles() * Maths._rad2degf;
                         angles._x = (float)Math.Abs(angles._x);
                         angles._y = (float)Math.Abs(angles._y);
                         angles._z = (float)Math.Abs(angles._z);
@@ -552,38 +548,38 @@ namespace System.Windows.Forms
             //}
             //else
             {
-                if (!(_scaling || _rotating || _translating) && (depth < 1.0f) && (_targetModel != null) && (_targetModel._boneList != null))
+                if (!(_scaling || _rotating || _translating) && depth < 1.0f && _targetModel != null)
                 {
-                    MDL0BoneNode o = null;
+                    IBoneNode o = null;
 
                     Vector3 point = ModelPanel.UnProject(e.X, e.Y, depth);
 
                     //Find orb near chosen point
-                    if (_editingAll)
+                    if (EditingAll)
                     {
-                        foreach (MDL0Node m in _targetModels)
-                            foreach (MDL0BoneNode b in m._boneList)
+                        foreach (IModel m in _targetModels)
+                            foreach (IBoneNode b in m.RootBones)
                                 if (CompareDistanceRecursive(b, point, ref o))
                                     break;
                     }
                     else
-                        foreach (MDL0BoneNode b in _targetModel._boneList)
+                        foreach (IBoneNode b in _targetModel.RootBones)
                             if (CompareDistanceRecursive(b, point, ref o))
                                 break;
 
                     if (_hiBone != null && _hiBone != SelectedBone)
-                        _hiBone._nodeColor = Color.Transparent;
+                        _hiBone.NodeColor = Color.Transparent;
                     
                     if ((_hiBone = o) != null)
                     {
-                        _hiBone._nodeColor = Color.FromArgb(255, 128, 0);
+                        _hiBone.NodeColor = Color.FromArgb(255, 128, 0);
                         ModelPanel.Cursor = Cursors.Hand;
                     }
                 }
                 else if (_hiBone != null)
                 {
                     if (_hiBone != SelectedBone)
-                        _hiBone._nodeColor = Color.Transparent;
+                        _hiBone.NodeColor = Color.Transparent;
                     _hiBone = null;
                 }
             }
@@ -594,7 +590,7 @@ namespace System.Windows.Forms
                 Vector3 center = ((Vector3)VertexLoc);
 
                 //Standard radius scaling snippet. This is used for orb scaling depending on camera distance.
-                float radius = center.TrueDistance(ModelPanel._camera.GetPoint()) / _orbRadius * 0.1f;
+                float radius = center.TrueDistance(ModelPanel.Camera.GetPoint()) / _orbRadius * 0.1f;
 
                 //if (_editType == TransformType.Rotation)
                 //{
@@ -676,32 +672,32 @@ namespace System.Windows.Forms
             //Try targeting a vertex
             if (RenderVertices)
             {
-                if (ModelPanel._selecting)
+                if (ModelPanel.Selecting)
                 {
                     if (NotCtrlAlt)
                         ResetVertexColors();
 
-                    if (TargetModel._polyIndex == -1)
+                    if (TargetModel.SelectedObjectIndex < 0)
                     {
-                        foreach (MDL0ObjectNode o in TargetModel._objList)
-                            if (o._render)
-                                SelectVerts(o);
+                        foreach (IObject o in TargetModel.Objects)
+                            if (o.IsRendering)
+                                SelectVertices(o);
                     }
                     else
                     {
-                        MDL0ObjectNode w = (MDL0ObjectNode)TargetModel._objList[TargetModel._polyIndex];
-                        if (w._render)
-                            SelectVerts(w);
+                        IObject w = TargetModel.Objects[TargetModel.SelectedObjectIndex];
+                        if (w.IsRendering)
+                            SelectVertices(w);
                         else
-                            foreach (MDL0ObjectNode h in TargetModel._objList)
-                                if (h._render)
-                                    SelectVerts(h);
+                            foreach (IObject h in TargetModel.Objects)
+                                if (h.IsRendering)
+                                    SelectVertices(h);
                     }
                 }
                 else
                 {
                     Vector3 point = ModelPanel.UnProject(e.X, e.Y, depth);
-                    if ((depth < 1.0f) && (_targetModel != null) && (_targetModel._objList != null))
+                    if ((depth < 1.0f) && _targetModel != null)
                     {
                         Vertex3 v = null;
 
@@ -710,13 +706,13 @@ namespace System.Windows.Forms
                         if (_hiVertex != null && !_hiVertex._selected)
                         {
                             _hiVertex._highlightColor = Color.Transparent;
-                            ModelPanel._forceNoSelection = false;
+                            //ModelPanel.AllowSelection = true;
                         }
                         if ((_hiVertex = v) != null)
                         {
                             _hiVertex._highlightColor = Color.Orange;
                             ModelPanel.Cursor = Cursors.Cross;
-                            ModelPanel._forceNoSelection = true;
+                            //ModelPanel.AllowSelection = false;
                         }
                     }
                     else if (_hiVertex != null)
@@ -724,7 +720,7 @@ namespace System.Windows.Forms
                         if (!_hiVertex._selected)
                         {
                             _hiVertex._highlightColor = Color.Transparent;
-                            ModelPanel._forceNoSelection = false;
+                            //ModelPanel.AllowSelection = true;
                         }
                         _hiVertex = null;
                     }
@@ -733,20 +729,20 @@ namespace System.Windows.Forms
             
             ModelPanel.Invalidate();
         }
-        private void SelectVerts(MDL0ObjectNode o)
+        private void SelectVertices(IObject o)
         {
-            foreach (Vertex3 v in o._manager._vertices)
+            foreach (Vertex3 v in o.PrimitiveManager._vertices)
             {
                 //Project each vertex into screen coordinates.
                 //Then check to see if the 2D coordinates lie within the selection box.
                 //In Soviet Russia, vertices come to YOUUUUU
 
-                Vector3 vec3 = v.WeightedPosition;
-                Vector2 vec2 = (Vector2)ModelPanel.Project(vec3);
-                Point start = ModelPanel._selStart, end = ModelPanel._selEnd;
+                Vector3 worldPos = v.WeightedPosition;
+                Vector2 screenPos = (Vector2)ModelPanel.Project(worldPos);
+                Point start = ModelPanel.SelectionStart, end = ModelPanel.SelectionEnd;
                 Vector2 min = new Vector2((float)Math.Min(start.X, end.X), (float)Math.Min(start.Y, end.Y));
                 Vector2 max = new Vector2((float)Math.Max(start.X, end.X), (float)Math.Max(start.Y, end.Y));
-                if ((vec2 <= max) && (vec2 >= min))
+                if ((screenPos <= max) && (screenPos >= min))
                     if (Alt)
                     {
                         v._selected = false;
@@ -767,10 +763,9 @@ namespace System.Windows.Forms
         public void ResetBoneColors()
         {
             if (_targetModels != null)
-            foreach (MDL0Node m in _targetModels)
-                if (m._linker != null && m._linker.BoneCache != null)
-                    foreach (MDL0BoneNode b in m._linker.BoneCache)
-                        b._boneColor = b._nodeColor = Color.Transparent;
+                foreach (IModel m in _targetModels)
+                    foreach (IBoneNode b in m.BoneCache)
+                        b.BoneColor = b.NodeColor = Color.Transparent;
         }
         
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
@@ -778,11 +773,10 @@ namespace System.Windows.Forms
         public void ResetVertexColors()
         {
             if (_targetModels != null)
-            foreach (MDL0Node m in _targetModels)
-                if (m._objList != null)
-                    foreach (MDL0ObjectNode o in m._objList)
-                        if (o._manager != null && o._manager._vertices != null)
-                            foreach (Vertex3 v in o._manager._vertices)
+                foreach (IModel m in _targetModels)
+                    foreach (IObject o in m.Objects)
+                        if (o.PrimitiveManager != null && o.PrimitiveManager._vertices != null)
+                            foreach (Vertex3 v in o.PrimitiveManager._vertices)
                             {
                                 v._highlightColor = Color.Transparent;
                                 v._selected = false;

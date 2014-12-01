@@ -156,7 +156,8 @@ namespace BrawlBox.NodeWrappers
             MDL0MaterialNode mat = new MDL0MaterialNode();
             model._matGroup.AddChild(mat);
             mat.Name = "Material" + mat.Index;
-            mat.New = true;
+            mat.SetImportValues();
+
             if (model._shadGroup == null)
             {
                 MDL0GroupNode g = model._shadGroup;

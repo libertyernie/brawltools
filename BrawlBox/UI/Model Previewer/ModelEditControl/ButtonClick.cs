@@ -248,7 +248,10 @@ namespace System.Windows.Forms
                 detachViewerToolStripMenuItem.Text = "Attach";
 
                 _viewerForm = new ModelViewerForm(this);
-                _viewerForm.modelPanel1._settings = modelPanel._settings;
+
+                //_viewerForm.modelPanel1._settings = modelPanel._settings;
+                //_viewerForm.modelPanel1._camera = modelPanel._camera;
+
                 _viewerForm.FormClosed += _viewerForm_FormClosed;
 
                 modelPanel.PreRender -= EventPreRender;
@@ -268,8 +271,6 @@ namespace System.Windows.Forms
                     ModelViewerChanged(this, null);
 
                 _viewerForm.Show();
-
-                _viewerForm.modelPanel1._camera = modelPanel._camera;
                 _viewerForm.modelPanel1.Invalidate();
 
                 _interpolationEditor.Visible = true;
@@ -375,8 +376,8 @@ namespace System.Windows.Forms
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                ModelPanel._settings._defaultRotate = new Vector2(ModelPanel._camera._rotation._x, ModelPanel._camera._rotation._y);
-                ModelPanel._settings._defaultTranslate = ModelPanel._camera._matrixInverse.Multiply(new Vector3());
+                ModelPanel._settings._defaultRotate = new Vector2(ModelPanel.Camera._rotation._x, ModelPanel.Camera._rotation._y);
+                ModelPanel._settings._defaultTranslate = ModelPanel.Camera._matrixInverse.Multiply(new Vector3());
 
                 btnSaveCam.Text = "Clear Camera";
             }
@@ -489,24 +490,24 @@ namespace System.Windows.Forms
                     {
                         ResetVertexColors();
                         if (_targetModels != null)
-                            foreach (MDL0Node mdl in _targetModels)
-                                if (mdl._objList != null)
-                                    if (mdl._polyIndex != -1 && mdl._polyIndex >= 0 && mdl._polyIndex < mdl._objList.Count)
-                                        foreach (Vertex3 v in ((MDL0ObjectNode)mdl._objList[mdl._polyIndex])._manager._vertices)
+                            foreach (IModel mdl in _targetModels)
+                                if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
+                                    foreach (Vertex3 v in ((IObject)mdl.Objects[mdl.SelectedObjectIndex]).PrimitiveManager._vertices)
+                                    {
+                                        _selectedVertices.Add(v);
+                                        v._selected = true;
+                                        v._highlightColor = Color.Orange;
+                                    }
+                                else
+                                    foreach (IObject o in mdl.Objects)
+                                        foreach (Vertex3 v in o.PrimitiveManager._vertices)
                                         {
                                             _selectedVertices.Add(v);
                                             v._selected = true;
                                             v._highlightColor = Color.Orange;
                                         }
-                                    else
-                                        foreach (MDL0ObjectNode o in mdl._objList)
-                                            foreach (Vertex3 v in o._manager._vertices)
-                                            {
-                                                _selectedVertices.Add(v);
-                                                v._selected = true;
-                                                v._highlightColor = Color.Orange;
-                                            }
-                        weightEditor.TargetVertices = _selectedVertices;
+
+                        //weightEditor.TargetVertices = _selectedVertices;
                         vertexEditor.TargetVertices = _selectedVertices;
                         ModelPanel.Invalidate();
                     }
@@ -762,7 +763,6 @@ namespace System.Windows.Forms
                         chr0Editor.BoxChanged(chr0Editor.numRotX, null);
                         chr0Editor.BoxChanged(chr0Editor.numRotY, null);
                         chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
-                        ModelPanel._forceNoSelection = false;
                     }
                     if (_translating)
                     {
@@ -773,7 +773,6 @@ namespace System.Windows.Forms
                         chr0Editor.BoxChanged(chr0Editor.numTransX, null);
                         chr0Editor.BoxChanged(chr0Editor.numTransY, null);
                         chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
-                        ModelPanel._forceNoSelection = false;
                     }
                     if (_scaling)
                     {
@@ -784,8 +783,8 @@ namespace System.Windows.Forms
                         chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
                         chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
                         chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
-                        ModelPanel._forceNoSelection = false;
                     }
+                    ModelPanel.AllowSelection = true;
                 }
                 else if (key == Keys.Space)
                 {
@@ -795,9 +794,8 @@ namespace System.Windows.Forms
                         return true;
                     }
                 }
-                //Weight editor has been disabled due to the necessity of re-encoding objects
-                //after making influence changes. Each primitive must be regrouped if their influences have
-                //changed, and this will get confusing with tristrips and other types of primitives.
+                //Weight editor has been disabled due to the necessity 
+                //of re-encoding objects after making influence changes.
                 //else if (key == Keys.H)
                 //{
                 //    ToggleWeightEditor();
@@ -834,10 +832,11 @@ namespace System.Windows.Forms
 
         private void chkZoomExtents_Click(object sender, EventArgs e)
         {
+            //TODO: different handling based on if viewport is perspective, front, side, or top
             if (SelectedBone != null)
             {
-                modelPanel._camera.Reset();
-                modelPanel._camera.Translate(_selectedBone._frameMatrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
+                ModelPanel.Camera.Reset();
+                ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
                 ModelPanel.Invalidate();
             }
             else
@@ -908,7 +907,7 @@ namespace System.Windows.Forms
 
         private void hideAllOtherModelsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (MDL0Node node in _targetModels)
+            foreach (IModel node in _targetModels)
                 if (node != TargetModel)
                     ModelPanel.RemoveTarget(node);
 
@@ -917,7 +916,7 @@ namespace System.Windows.Forms
 
         private void deleteAllOtherModelsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            foreach (MDL0Node node in _targetModels)
+            foreach (IModel node in _targetModels)
                 if (node != TargetModel)
                 {
                     _targetModels.Remove(node);
@@ -950,12 +949,12 @@ namespace System.Windows.Forms
 
         private void portToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (TargetModel == null)
+            if (TargetModel == null || !(TargetModel is MDL0Node))
                 return;
 
             AnimationNode node = TargetAnimation;
             if (node is CHR0Node)
-                (node as CHR0Node).Port(TargetModel);
+                (node as CHR0Node).Port((MDL0Node)TargetModel);
 
             AnimChanged(TargetAnimType);
         }

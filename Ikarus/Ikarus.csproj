@@ -72,8 +72,6 @@
   <ItemGroup>
     <Compile Include="Moveset Builder\LookupManager.cs" />
     <Compile Include="Moveset Builder\MovesetBuilder.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12 - Copy - Copy - Copy.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk10.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk7.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12.cs" />
     <Compile Include="Moveset Entries\MovesetEntryNode.cs" />
@@ -164,7 +162,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="UI\SyntaxTextBox\Win32.cs" />
-    <Compile Include="Unk12.cs" />
     <Compile Include="Utilities.cs" />
     <None Include="Moveset Builder\DataCommonBuilder.cs" />
     <Compile Include="Moveset Builder\DataBuilder.cs" />

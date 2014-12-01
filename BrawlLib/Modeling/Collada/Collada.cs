@@ -621,7 +621,7 @@ namespace BrawlLib.Modeling
             writer.WriteEndElement(); //source
         }
 
-        private static unsafe void WritePrimitive(MDL0ObjectNode poly, NewPrimitive prim, XmlWriter writer)
+        private static unsafe void WritePrimitive(MDL0ObjectNode poly, GLPrimitive prim, XmlWriter writer)
         {
             PrimitiveManager manager = poly._manager;
             int count;
@@ -634,22 +634,22 @@ namespace BrawlLib.Modeling
 
             switch (prim._type)
             {
-                case BeginMode.Triangles:
+                case OpenTK.Graphics.OpenGL.PrimitiveType.Triangles:
                     writer.WriteStartElement("triangles");
                     stride = 3;
                     break;
 
-                case BeginMode.Lines:
+                case OpenTK.Graphics.OpenGL.PrimitiveType.Lines:
                     writer.WriteStartElement("lines");
                     stride = 2;
                     break;
 
-                case BeginMode.Points:
+                case OpenTK.Graphics.OpenGL.PrimitiveType.Points:
                     writer.WriteStartElement("points");
                     stride = 1;
                     break;
             }
-            count = prim._elementCount / stride;
+            count = prim._indices.Length / stride;
 
             if (poly.UsableMaterialNode != null)
                 writer.WriteAttributeString("material", poly.UsableMaterialNode.Name);

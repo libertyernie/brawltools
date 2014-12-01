@@ -600,7 +600,7 @@ namespace System.Windows.Forms
         //private AnimationFrame _tempFrame = AnimationFrame.Identity;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef { get { return _mainWindow.TargetTexRef; } set { _mainWindow.TargetTexRef = value; } }
@@ -612,7 +612,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -673,7 +673,7 @@ namespace System.Windows.Forms
         public unsafe void ResetBox(int index)
         {
             NumericInputBox box = _transBoxes[index];
-            MDL0BoneNode bone = TargetBone;
+            IBoneNode bone = TargetBone;
             CHR0EntryNode entry;
             if (TargetBone != null)
             {
@@ -693,7 +693,7 @@ namespace System.Windows.Forms
                 }
                 else
                 {
-                    FrameState state = bone._bindState;
+                    FrameState state = bone.BindState;
                     box.Value = ((float*)&state)[index];
                     box.BackColor = Color.White;
                 }
@@ -737,7 +737,7 @@ namespace System.Windows.Forms
             NumericInputBox box = sender as NumericInputBox;
             int index = (int)box.Tag;
 
-            MDL0BoneNode bone = TargetBone;
+            IBoneNode bone = TargetBone;
             AnimationFrame kf; 
             float* pkf = (float*)&kf;
 
@@ -751,7 +751,7 @@ namespace System.Windows.Forms
                         entry = SelectedAnimation.CreateEntry();
                         entry.Name = bone.Name;
 
-                        FrameState state = bone._bindState;
+                        FrameState state = bone.BindState;
                         float* p = (float*)&state;
                         for (int i = 0; i < 3; i++)
                             if (p[i] != 1.0f)
@@ -772,12 +772,12 @@ namespace System.Windows.Forms
             else
             {
                 //Change base transform
-                FrameState state = bone._bindState;
+                FrameState state = bone.BindState;
                 float* p = (float*)&state;
                 p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
-                bone._bindState = bone._frameState = state;
-                bone._bindState.CalcTransforms();
-                bone.SignalPropertyChange();
+                bone.BindState = bone.FrameState = state;
+                bone.BindState.CalcTransforms();
+                ((ResourceNode)bone).SignalPropertyChange();
             }
 
             _mainWindow.UpdateModel();
@@ -797,7 +797,7 @@ namespace System.Windows.Forms
             _copyAllState.Clear();
 
             if (CurrentFrame == 0)
-                foreach (MDL0BoneNode bone in TargetModel._linker.BoneCache)
+                foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                 {
                     AnimationFrame frame = (AnimationFrame)bone._bindState;
                     if (!AllTrans.Checked)
@@ -832,7 +832,7 @@ namespace System.Windows.Forms
 
             if (CurrentFrame == 0)
             {
-                foreach (MDL0BoneNode bone in TargetModel._linker.BoneCache)
+                foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                     if (_copyAllState.ContainsKey(bone._name))
                     {
                         AnimationFrame f = _copyAllState[bone._name];
@@ -913,7 +913,10 @@ namespace System.Windows.Forms
 
         private void btnClean_Click(object sender, EventArgs e)
         {
-            ResourceNode group = TargetModel._boneGroup;
+            if (!(TargetModel is MDL0Node))
+                return;
+
+            ResourceNode group = ((MDL0Node)TargetModel)._boneGroup;
             if (group == null)
                 return;
 

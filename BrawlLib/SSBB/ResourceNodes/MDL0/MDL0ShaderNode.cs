@@ -19,7 +19,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal MDL0Shader* Header { get { return (MDL0Shader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.MDL0Shader; } }
 
+        [Browsable(false)]
+        public byte Stages { get { return (byte)Children.Count; } }
+        public MDL0MaterialNode[] Materials { get { return _materials.ToArray(); } }
+
         public KSelSwapBlock _swapBlock = KSelSwapBlock.Default;
+        //Used by Alpha Env to retrieve what values to swap
+        public string[] swapModeTable = new string[4];
+        public List<MDL0MaterialNode> _materials = new List<MDL0MaterialNode>();
+        public sbyte
+            _ref0 = -1,
+            _ref1 = -1,
+            _ref2 = -1,
+            _ref3 = -1,
+            _ref4 = -1,
+            _ref5 = -1,
+            _ref6 = -1,
+            _ref7 = -1;
 
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap0Red { get { return (ColorChannel)_swapBlock._Value01.XRB; } set { _swapBlock._Value01.XRB = value; SignalPropertyChange(); } }
@@ -61,16 +77,30 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap3Alpha { get { return (ColorChannel)_swapBlock._Value15.XGA; } set { _swapBlock._Value15.XGA = value; SignalPropertyChange(); } }
 
-        //Used by Alpha Env to retrieve what values to swap
-        public string[] swapModeTable = new string[4];
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexMapID IndTex0MapID { get { return _swapBlock._Value16.TexMap0; } set { _swapBlock._Value16.TexMap0 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexCoordID IndTex0Coord { get { return _swapBlock._Value16.TexCoord0; } set { _swapBlock._Value16.TexCoord0 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexMapID IndTex1MapID { get { return _swapBlock._Value16.TexMap1; } set { _swapBlock._Value16.TexMap1 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexCoordID IndTex1Coord { get { return _swapBlock._Value16.TexCoord1; } set { _swapBlock._Value16.TexCoord1 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexMapID IndTex2MapID { get { return _swapBlock._Value16.TexMap2; } set { _swapBlock._Value16.TexMap2 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexCoordID IndTex2Coord { get { return _swapBlock._Value16.TexCoord2; } set { _swapBlock._Value16.TexCoord2 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexMapID IndTex3MapID { get { return _swapBlock._Value16.TexMap3; } set { _swapBlock._Value16.TexMap3 = value; SignalPropertyChange(); } }
+        [Category("TEV RAS1 IRef"), Browsable(true)]
+        public TexCoordID IndTex3Coord { get { return _swapBlock._Value16.TexCoord3; } set { _swapBlock._Value16.TexCoord3 = value; SignalPropertyChange(); } }
 
         private void BuildSwapModeTable()
         {
-	        string swapColors = "rgba";
+            string swapColors = "rgba";
 
             //Iterate through the swaps
-	        for (int i = 0; i < 4; i++)
-	        {
+            for (int i = 0; i < 4; i++)
+            {
                 switch (i)
                 {
                     case 0:
@@ -102,64 +132,32 @@ namespace BrawlLib.SSBB.ResourceNodes
                         swapColors[(int)Swap3Alpha]});
                         break;
                 }
-	        }
-        }
-
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexMapID IndTex0MapID { get { return _swapBlock._Value16.TexMap0; } set { _swapBlock._Value16.TexMap0 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexCoordID IndTex0Coord { get { return _swapBlock._Value16.TexCoord0; } set { _swapBlock._Value16.TexCoord0 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexMapID IndTex1MapID { get { return _swapBlock._Value16.TexMap1; } set { _swapBlock._Value16.TexMap1 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexCoordID IndTex1Coord { get { return _swapBlock._Value16.TexCoord1; } set { _swapBlock._Value16.TexCoord1 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexMapID IndTex2MapID { get { return _swapBlock._Value16.TexMap2; } set { _swapBlock._Value16.TexMap2 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexCoordID IndTex2Coord { get { return _swapBlock._Value16.TexCoord2; } set { _swapBlock._Value16.TexCoord2 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexMapID IndTex3MapID { get { return _swapBlock._Value16.TexMap3; } set { _swapBlock._Value16.TexMap3 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
-        public TexCoordID IndTex3Coord { get { return _swapBlock._Value16.TexCoord3; } set { _swapBlock._Value16.TexCoord3 = value; SignalPropertyChange(); } }
-
-        public MDL0MaterialNode[] Materials { get { return _materials.ToArray(); } }
-        public List<MDL0MaterialNode> _materials = new List<MDL0MaterialNode>();
-
-        public sbyte _ref0 = -1, _ref1 = -1, _ref2 = -1, _ref3 = -1, _ref4 = -1, _ref5 = -1, _ref6 = -1, _ref7 = -1;
-        public byte _stages, _res0, _res1, _res2;
-        int _datalen, _mdl0offset, _pad0, _pad1;
-
-        [Category("Shader Data"), Browsable(false)]
-        public int DataLength { get { return _datalen; } }
-        [Category("Shader Data"), Browsable(false)]
-        public int MDL0Offset { get { return _mdl0offset; } }
-
-        [Category("Shader Data"), Browsable(false)]
-        public byte Stages { get { return _stages; } } //Max 16 (2 stages per group - 8 groups)
-        [Browsable(false)]
-        public byte STGs 
-        {
-            get { return _stages; } 
-            set 
-            {
-                _stages = value; 
-                SignalPropertyChange();
-
-                foreach (MDL0MaterialNode m in Materials)
-                {
-                    m._updating = true;
-                    m.ActiveShaderStages = value;
-                    m._updating = false;
-                }
             }
         }
-        
-        //[Category("Shader Data"), Browsable(true)]
-        //public byte Res0 { get { return res0; } set { res0 = value; SignalPropertyChange(); } }
-        //[Category("Shader Data"), Browsable(true)]
-        //public byte Res1 { get { return res1; } set { res1 = value; SignalPropertyChange(); } }
-        //[Category("Shader Data"), Browsable(true)]
-        //public byte Res2 { get { return res2; } set { res2 = value; SignalPropertyChange(); } }
+
+        public override void RemoveChild(ResourceNode child)
+        {
+            base.RemoveChild(child);
+
+            foreach (MDL0MaterialNode m in Materials)
+            {
+                m._updating = true;
+                m.ActiveShaderStages = Stages;
+                m._updating = false;
+            }
+        }
+
+        public override void AddChild(ResourceNode child, bool change)
+        {
+            base.AddChild(child, change);
+
+            foreach (MDL0MaterialNode m in Materials)
+            {
+                m._updating = true;
+                m.ActiveShaderStages = Stages;
+                m._updating = false;
+            }
+        }
 
         [Category("Shader Data"), Browsable(true)]
         public bool TextureRef0 { get { return _ref0 != -1; } set { _ref0 = (sbyte)(value ? 0 : -1); SignalPropertyChange(); } }
@@ -178,11 +176,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Shader Data"), Browsable(true)]
         public bool TextureRef7 { get { return _ref7 != -1; } set { _ref7 = (sbyte)(value ? 7 : -1); SignalPropertyChange(); } }
 
-        //[Category("Shader Data"), Browsable(true)]
-        //public int Pad0 { get { return pad0; } }
-        //[Category("Shader Data"), Browsable(true)]
-        //public int Pad1 { get { return pad1; } }
-
         public bool _renderUpdate = false;
         public new void SignalPropertyChange()
         {
@@ -191,10 +184,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public bool _enabled = true;
-
         public bool _autoMetal = false;
-        public int texCount = -1;
-        public bool rendered = false;
+        public int _texCount = -1;
+        public bool _rendered = false;
 
         public override string Name
         {
@@ -208,9 +200,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public void Default()
+        public void Default() { Default(true); }
+        public void Default(bool change)
         {
-            _datalen = 512;
             _ref0 =
             _ref1 =
             _ref2 =
@@ -220,16 +212,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             _ref6 =
             _ref7 = -1;
 
-            _stages = 1;
-
-            TEVStage stage = new TEVStage();
-            AddChild(stage, true);
-            stage.Default();
+            TEVStageNode stage = new TEVStageNode();
+            AddChild(stage, change);
         }
 
         public void DefaultAsMetal(int texcount)
         {
-            _datalen = 512;
             _autoMetal = true;
 
             _ref0 =
@@ -241,7 +229,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _ref6 =
             _ref7 = -1;
 
-            switch ((texCount = texcount) - 1)
+            switch ((_texCount = texcount) - 1)
             {
                 case 0: _ref0 = 0; break;
                 case 1: _ref1 = 1; break;
@@ -253,15 +241,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 case 7: _ref7 = 7; break;
             }
 
-            _stages = 4;
-
             Children.Clear();
 
             int i = 0;
-            TEVStage s;
+            TEVStageNode s;
             while (i++ < 4)
             {
-                AddChild(s = new TEVStage());
+                AddChild(s = new TEVStageNode());
                 s.DefaultAsMetal(texcount - 1);
             }
         }
@@ -273,28 +259,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
-            MDL0Shader* header = Header;
-
-            _datalen = header->_dataLength;
-            _mdl0offset = header->_mdl0Offset;
-
-            _stages = header->_stages;
-
-            _res0 = header->_res0;
-            _res1 = header->_res1;
-            _res2 = header->_res2;
-
-            _ref0 = header->_ref0;
-            _ref1 = header->_ref1;
-            _ref2 = header->_ref2;
-            _ref3 = header->_ref3;
-            _ref4 = header->_ref4;
-            _ref5 = header->_ref5;
-            _ref6 = header->_ref6;
-            _ref7 = header->_ref7;
-
-            _pad0 = header->_pad0;
-            _pad1 = header->_pad1;
+            _ref0 = Header->_ref0;
+            _ref1 = Header->_ref1;
+            _ref2 = Header->_ref2;
+            _ref3 = Header->_ref3;
+            _ref4 = Header->_ref4;
+            _ref5 = Header->_ref5;
+            _ref6 = Header->_ref6;
+            _ref7 = Header->_ref7;
             
             //Attach to materials
             byte* pHeader = (byte*)Header;
@@ -309,10 +281,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
 
-            _swapBlock = *header->SwapBlock;
+            _swapBlock = *Header->SwapBlock;
 
-            Populate();
-            return true;
+            return Header->_stages > 0;
         }
 
         public override void OnPopulate()
@@ -321,7 +292,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int r = 0; r < 8; r++, grp = grp->Next)
                 if (grp->mask.Reg == 0x61)
                 {
-                    TEVStage s0 = new TEVStage();
+                    TEVStageNode s0 = new TEVStageNode();
 
                     KSel ksel = new KSel(grp->ksel.Data.Value);
                     RAS1_TRef tref = new RAS1_TRef(grp->tref.Data.Value);
@@ -338,11 +309,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     s0._colorChan = tref.ColorChannel0;
                     s0._texEnabled = tref.TexEnabled0;
 
-                    AddChild(s0, false);
+                    s0._parent = this;
+                    _children.Add(s0);
 
                     if (grp->oClrEnv.Reg == 0x61 && grp->oAlpEnv.Reg == 0x61 && grp->oCMD.Reg == 0x61)
                     {
-                        TEVStage s1 = new TEVStage();
+                        TEVStageNode s1 = new TEVStageNode();
 
                         s1._colorEnv = grp->oClrEnv.Data;
                         s1._alphaEnv = grp->oAlpEnv.Data;
@@ -356,7 +328,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                         s1._colorChan = tref.ColorChannel1;
                         s1._texEnabled = tref.TexEnabled1;
 
-                        AddChild(s1, false);
+                        s1._parent = this;
+                        _children.Add(s1);
                     }
                 }
         }
@@ -365,26 +338,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             MDL0Shader* header = (MDL0Shader*)address;
 
-            if (Model._isImport)
-            {
-                _ref1 = 0;
-                _ref2 =
-                _ref3 =
-                _ref4 =
-                _ref5 =
-                _ref6 =
-                _ref7 = -1;
-
-                if (Collada._importOptions._mdlType == 0)
-                    _stages = 3;
-                else
-                    _stages = 1;
-            }
-
             header->_dataLength = length;
             header->_index = Index;
 
-            header->_stages = Model._isImport ? _stages : (byte)Children.Count;
+            header->_stages = Stages;
 
             header->_res0 = 0;
             header->_res1 = 0;
@@ -407,7 +364,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             StageGroup* grp = (StageGroup*)(address + 0x80);
             for (int i = 0; i < Children.Count; i++)
             {
-                TEVStage c = (TEVStage)Children[i]; //Current Stage
+                TEVStageNode c = (TEVStageNode)Children[i]; //Current Stage
 
                 if (i % 2 == 0) //Even Stage
                 {
@@ -428,7 +385,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
                 else //Odd Stage
                 {
-                    TEVStage p = (TEVStage)Children[i - 1]; //Previous Stage
+                    TEVStageNode p = (TEVStageNode)Children[i - 1]; //Previous Stage
 
                     grp->SetStage(i);
 
@@ -442,55 +399,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     grp = grp->Next;
                 }
             }
-
-            if (Model._isImport)
-            {
-                StageGroup* struct0 = header->First;
-                *struct0 = StageGroup.Default;
-                struct0->SetGroup(0);
-
-                switch (Collada._importOptions._mdlType)
-                {
-                    case Modeling.Collada.ImportOptions.MDLType.Character:
-
-                        struct0->SetStage(0);
-                        struct0->SetStage(1);
-
-                        struct0->mask.Data.Value = 0xFFFFF0;
-                        struct0->ksel.Data.Value = 0xE378C0;
-                        struct0->tref.Data.Value = 0x03F040;
-                        struct0->eClrEnv.Data.Value = 0x28F8AF;
-                        struct0->oClrEnv.Data.Value = 0x08FEB0;
-                        struct0->eAlpEnv.Data.Value = 0x08F2F0;
-                        struct0->oAlpEnv.Data.Value = 0x081FF0;
-
-                        StageGroup* struct1 = struct0->Next;
-                        *struct1 = StageGroup.Default;
-
-                        struct1->SetGroup(1);
-                        struct1->SetStage(2);
-
-                        struct1->mask.Data.Value = 0xFFFFF0;
-                        struct1->ksel.Data.Value = 0x0038C0;
-                        struct1->tref.Data.Value = 0x3BF3BF;
-                        struct1->eClrEnv.Data.Value = 0x0806EF;
-                        struct1->eAlpEnv.Data.Value = 0x081FF0;
-
-                        break;
-
-                    case Modeling.Collada.ImportOptions.MDLType.Stage:
-
-                        struct0->SetStage(0);
-
-                        struct0->mask.Data.Value = 0xFFFFF0;
-                        struct0->ksel.Data.Value = 0x0038C0;
-                        struct0->tref.Data.Value = 0x3BF040;
-                        struct0->eClrEnv.Data.Value = 0x28F8AF;
-                        struct0->eAlpEnv.Data.Value = 0x08F2F0;
-
-                        break;
-                }
-            }
         }
 
         public override int OnCalculateSize(bool force)
@@ -498,9 +406,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return 512;
         }
 
-        internal override void Bind(TKContext ctx)
+        internal override void Bind()
         {
-            BuildSwapModeTable();
+            //BuildSwapModeTable();
         }
     }
 }

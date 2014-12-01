@@ -506,7 +506,7 @@ namespace System.Windows.Forms
         internal NumericInputBox[] _transBoxes = new NumericInputBox[9];
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef { get { return _mainWindow.TargetTexRef; } set { _mainWindow.TargetTexRef = value; } }
@@ -518,7 +518,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -679,9 +679,12 @@ namespace System.Windows.Forms
             _copyAllState.Clear();
 
             if (CurrentFrame == 0)
-                foreach (MDL0MaterialNode mat in TargetModel.FindChildrenByType("Materials", ResourceType.MDL0Material))
-                    foreach (MDL0MaterialRefNode mr in mat.Children) 
-                        _copyAllState[mr.Parent.Name + mr.Index] = (AnimationFrame)mr._bindState;
+            {
+                if (TargetModel is MDL0Node)
+                    foreach (MDL0MaterialNode mat in ((MDL0Node)TargetModel).MaterialList)
+                        foreach (MDL0MaterialRefNode mr in mat.Children)
+                            _copyAllState[mr.Parent.Name + mr.Index] = (AnimationFrame)mr._bindState;
+            }
             else
                 foreach (SRT0EntryNode entry in SelectedAnimation.Children)
                     foreach (SRT0TextureNode tex in entry.Children)
@@ -695,18 +698,19 @@ namespace System.Windows.Forms
 
             if (CurrentFrame == 0)
             {
-                foreach (MDL0MaterialNode mat in TargetModel.FindChildrenByType("Materials", ResourceType.MDL0Material))
-                    foreach (MDL0MaterialRefNode mr in mat.Children)
-                        if (_copyAllState.ContainsKey(mr.Parent.Name + mr.Index))
-                        {
-                            if (AllTrans.Checked)
-                                mr._bindState._translate = _copyAllState[mr.Parent.Name + mr.Index].Translation;
-                            if (AllRot.Checked)
-                                mr._bindState._rotate = _copyAllState[mr.Parent.Name + mr.Index].Rotation;
-                            if (AllScale.Checked)
-                                mr._bindState._scale = _copyAllState[mr.Parent.Name + mr.Index].Scale;
-                            mr.SignalPropertyChange();
-                        }
+                if (TargetModel is MDL0Node)
+                    foreach (MDL0MaterialNode mat in ((MDL0Node)TargetModel).MaterialList)
+                        foreach (MDL0MaterialRefNode mr in mat.Children)
+                            if (_copyAllState.ContainsKey(mr.Parent.Name + mr.Index))
+                            {
+                                if (AllTrans.Checked)
+                                    mr._bindState._translate = _copyAllState[mr.Parent.Name + mr.Index].Translation;
+                                if (AllRot.Checked)
+                                    mr._bindState._rotate = _copyAllState[mr.Parent.Name + mr.Index].Rotation;
+                                if (AllScale.Checked)
+                                    mr._bindState._scale = _copyAllState[mr.Parent.Name + mr.Index].Scale;
+                                mr.SignalPropertyChange();
+                            }
             }
             else
                 foreach (SRT0EntryNode entry in SelectedAnimation.Children)
@@ -745,7 +749,10 @@ namespace System.Windows.Forms
 
         private void btnClean_Click(object sender, EventArgs e)
         {
-            ResourceNode group = TargetModel._matGroup;
+            if (!(TargetModel is MDL0Node))
+                return;
+
+            ResourceNode group = ((MDL0Node)TargetModel)._matGroup;
             ResourceNode mat = null;
             if (group == null)
                 return;
