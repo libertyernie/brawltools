@@ -50,7 +50,7 @@ namespace BrawlLib.Wii.Textures
         }
         public static explicit operator I8Pixel(ARGBPixel p)
         {
-            return new I8Pixel() { _value = (byte)((p.R + p.G + p.B) / 3) };
+            return new I8Pixel() { _value = (byte)((p.R + p.G + p.B + 1) / 3) };    // Extra 1 added to get effect of rounding to nearest instead of rounding down
         }
     }
 }
