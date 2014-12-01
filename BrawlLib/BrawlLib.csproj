@@ -293,7 +293,7 @@
     <Compile Include="SSBB\ResourceNodes\Graphics\TPLNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\REFFTEVStage.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RELMethodNode.cs" />
-    <None Include="SSBB\ResourceNodes\Modules\RELObjectParser.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RELObjectParser.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\ModuleDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RELDeConStructorNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RELCommand.cs" />
@@ -1010,7 +1010,6 @@
   <ItemGroup />
   <ItemGroup>
     <Content Include="OpenTK.dll" />
-    <Content Include="System\Windows\Controls\Hex Editor\HexBox.bmp" />
     <Content Include="BrawlLib.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

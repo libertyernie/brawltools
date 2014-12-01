@@ -72,6 +72,7 @@ namespace System.PowerPcAssembly
                         case PPCMnemonic.mtspr: return new PPCMtspr(value);
                         case PPCMnemonic.extsh: return new PPCExtsh(value);
                         case PPCMnemonic.extsb: return new PPCExtsb(value);
+                        case PPCMnemonic.mullw: return new PPCMullw(value);
                     }
                     break;
                 case PPCMnemonic.lwz: return new PPCLwz(value);

@@ -29,6 +29,9 @@ namespace System.Windows.Controls
             oldValue = _targetRelocation.RawValue;
             propertyGrid1.SelectedObject = _code = _targetRelocation.Code;
             label3.Text = "0x" + (_targetRelocation._index * 4).ToString("X");
+            if (_code is PPCbx)
+                btnBranch.Visible = true;
+
             return base.ShowDialog();
         }
 
@@ -51,6 +54,36 @@ namespace System.Windows.Controls
             _mainWindow.Position = _mainWindow.Position;
             _mainWindow.hexBox1.Invalidate();
             _targetRelocation.RawValue = _code;
+        }
+
+        private void btnBranch_Click(object sender, EventArgs e)
+        {
+            foreach (SectionEditor l in SectionEditor._openedSections)
+                if (l.Position == (_targetRelocation._index *4))
+                {
+                    if (_code.Operands[0].Name.Contains('-'))
+                        l.Position = Int32.Parse(label3.Text.Substring(2), Globalization.NumberStyles.HexNumber) - _code.Operands[0].Value;
+                    else
+                    {
+                        l.Position = Int32.Parse(label3.Text.Substring(2), Globalization.NumberStyles.HexNumber) + _code.Operands[0].Value;
+                    }
+
+                    l.Focus();
+                    this.Close();
+                    return;
+                }
+
+            SectionEditor x = new SectionEditor(_mainWindow._section);
+            x.Text = String.Format("Module Section Editor - {0}", _mainWindow._section._name);
+
+            if (_code.Operands[0].Name.Contains('-'))
+                x.Position = Int32.Parse(label3.Text.Substring(2), Globalization.NumberStyles.HexNumber) - _code.Operands[0].Value;
+            else
+                x.Position = Int32.Parse(label3.Text.Substring(2),Globalization.NumberStyles.HexNumber) + _code.Operands[0].Value;
+
+            x.Show();
+            x.hexBox1.Focus();
+            this.Close();
         }
     }
 }

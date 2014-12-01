@@ -15,7 +15,8 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal VoidPtr Header { get { return WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RELSection; } }
-        
+        ObjectParser parser;
+
         [Browsable(false)]
         public override uint ASMOffset { get { return (uint)_dataOffset; } }
 
@@ -30,10 +31,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool HasCode { get { return _isCodeSection; } }
         [Category("REL Section")]
         public bool IsBSS { get { return _isBSSSection; } }
-        //[Category("REL Section")]
-        //public int Offset { get { return _dataOffset; } }
-        //[Category("REL Section")]
-        //public uint Size { get { return _dataSize; } }
+
 
         public ModuleSectionNode() { }
         public ModuleSectionNode(uint size) { InitBuffer(size); }
@@ -41,7 +39,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             if (_name == null && _dataSize > 0)
-                _name = String.Format("Section[{0}] ", Index);
+                _name = String.Format("Section[{0}]", Index);
             else { _name = String.Format("null[{0}]", Index); }
 
             if (_dataOffset == 0 && WorkingUncompressed.Length != 0)
@@ -55,7 +53,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                 InitBuffer(_dataSize, Header);
             }
 
-            return false;
+            if (Index == 5)
+                parser = new ObjectParser(this);
+
+            return parser != null;
+        }
+        public override void OnPopulate()
+        {
+            parser.Parse();
+            parser.Populate();
         }
 
         public override int OnCalculateSize(bool force)
@@ -107,7 +113,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     //    public void ParseObjects()
     //    {
-    //        (_objectParser = new ObjectParser(this)).Parse();
+    //        (_objectParser = new ObjectParser(this)).Parse();            
     //    }
 
     //    public override bool OnInitialize()

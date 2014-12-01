@@ -79,16 +79,9 @@ namespace System.Windows.Forms
  	        base.OnClosed(e);
         }
 
-        void ByteProvider_LengthChanged(object sender, EventArgs e)
-        {
-            UpdateFileSizeStatus();
-        }
-
         private void Init()
         {
             SetByteProvider();
-            UpdateFileSizeStatus();
-
             //ppcDisassembler1.TargetNode = _section;
         }
 
@@ -98,7 +91,6 @@ namespace System.Windows.Forms
                 ((DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
 
             hexBox1.ByteProvider = new DynamicFileByteProvider(new UnmanagedMemoryStream((byte*)_section._dataBuffer.Address, _section._dataBuffer.Length, _section._dataBuffer.Length, FileAccess.ReadWrite)) { _supportsInsDel = false };
-            hexBox1.ByteProvider.LengthChanged += ByteProvider_LengthChanged;
             hexBox1.InsertActiveChanged += hexBox1_InsertActiveChanged;
         }
 
@@ -112,12 +104,12 @@ namespace System.Windows.Forms
             Init();
         }
 
-        void UpdateFileSizeStatus()
+        void UpdateSelectedBytesStatus()
         {
             if (hexBox1.ByteProvider == null)
-                fileSizeToolStripStatusLabel.Text = string.Empty;
+                selectedBytesToolStripStatusLabel.Text = string.Empty;
             else
-                fileSizeToolStripStatusLabel.Text = GetDisplayBytes(hexBox1.ByteProvider.Length);
+                selectedBytesToolStripStatusLabel.Text = "Selected: 0x"+hexBox1.SelectionLength.ToString("X");
         }
 
         string GetDisplayBytes(long size)
@@ -380,6 +372,7 @@ namespace System.Windows.Forms
         private void hexBox1_SelectionLengthChanged(object sender, EventArgs e)
         {
             EnableButtons();
+            UpdateSelectedBytesStatus();
         }
 
         private void hexBox1_SelectionStartChanged(object sender, EventArgs e)
@@ -858,7 +851,7 @@ namespace System.Windows.Forms
             }
         }
 
-        private void btnInsertWord_Click(object sender, EventArgs e)
+        public void btnInsertWord_Click(object sender, EventArgs e)
         {
             long offset = Position.RoundDown(4);
             long index = offset / 4;
@@ -1100,5 +1093,6 @@ namespace System.Windows.Forms
                 }
             }
         }
+
     }
 }

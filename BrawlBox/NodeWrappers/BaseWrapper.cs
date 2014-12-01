@@ -50,6 +50,7 @@ namespace BrawlBox
 
         public void Link(ResourceNode res)
         {
+            
             Unlink();
             if (res != null)
             {
