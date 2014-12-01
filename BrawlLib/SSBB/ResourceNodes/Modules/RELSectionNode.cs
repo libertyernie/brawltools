@@ -23,6 +23,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool _isBSSSection = false;
         public int _dataOffset = 0;
         public uint _dataSize;
+        public int _dataAlign;
+
+        public string DataAlign { get { return "0x" + _dataAlign.ToString("X"); } }
 
         [Category("REL Section")]
         public bool HasCommands { get { return First != null; } }
@@ -30,19 +33,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool HasCode { get { return _isCodeSection; } }
         [Category("REL Section")]
         public bool IsBSS { get { return _isBSSSection; } }
-        //[Category("REL Section")]
-        //public int Offset { get { return _dataOffset; } }
-        //[Category("REL Section")]
-        //public uint Size { get { return _dataSize; } }
 
         public ModuleSectionNode() { }
         public ModuleSectionNode(uint size) { InitBuffer(size); }
 
         public override bool OnInitialize()
         {
-            if (_name == null && _dataSize > 0)
-                _name = String.Format("Section[{0}] ", Index);
-            else { _name = String.Format("null[{0}]", Index); }
+            if (_name == null)
+                if (_dataSize > 0)
+                    _name = String.Format("[{0}] Section ", Index);
+                else
+                    _name = String.Format("[{0}] null", Index);
 
             if (_dataOffset == 0 && WorkingUncompressed.Length != 0)
             {

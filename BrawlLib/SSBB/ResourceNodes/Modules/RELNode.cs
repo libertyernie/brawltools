@@ -19,137 +19,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal RELHeader* Header { get { return (RELHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.REL; } }
 
-        public static SortedList<int, string> _idNames = new SortedList<int, string>()
-        {
-            {0, "main.dol"},
-            {1, "sora_scene"},
-            {2, "sora_menu_main"},
-            {3, "sora_menu_tour"},
-            {4, "sora_menu_qm"},
-            {5, "sora_menu_edit"},
-            {6, "sora_menu_collect_viewer"},
-            {7, "sora_menu_replay"},
-            {8, "sora_menu_snap_shot"},
-            {9, "sora_menu_event"},
-            {10, "sora_menu_sel_char"},
-            {11, "sora_menu_sel_stage"},
-            {12, "sora_menu_game_over"},
-            {13, "sora_menu_intro"},
-            {14, "sora_menu_friend_list"},
-            {15, "sora_menu_watch"},
-            {16, "sora_menu_name"},
-            {17, "sora_menu_sel_char_access"},
-            {18, "sora_menu_rule"},
-            {19, "sora_menu_simple_ending"},
-            {20, "sora_minigame"},
-            {21, "sora_menu_time_result"},
-            {22, "sora_menu_boot"},
-            {23, "sora_menu_challenger"},
-            {24, "sora_menu_title"},
-            {25, "sora_menu_title_sunset"},
-            {26, "sora_menu_fig_get_demo"},
-            {27, "sora_melee"},
-            {28, "sora_adv_menu_name"},
-            {29, "sora_adv_menu_visual"},
-            {30, "sora_adv_menu_sel_char"},
-            {31, "sora_adv_menu_sel_map"},
-            {32, "sora_adv_menu_difficulty"},
-            {33, "sora_adv_menu_game_over"},
-            {34, "sora_adv_menu_result"},
-            {35, "sora_adv_menu_save_load"},
-            {36, "sora_adv_menu_seal"},
-            {37, "sora_adv_menu_ending"},
-            {38, "sora_adv_menu_telop"},
-            {39, "sora_adv_menu_save_point"},
-            {40, "sora_adv_stage"},
-            {41, "sora_enemy"},
-            {42, "st_battles"},
-            {43, "st_battle"},
-            {44, "st_config"},
-            {45, "st_final"},
-            {46, "st_dolpic"},
-            {47, "st_mansion"},
-            {48, "st_mariopast"},
-            {49, "st_kart"},
-            {50, "st_donkey"},
-            {51, "st_jungle"},
-            {52, "st_pirates"},
-            {53, "st_oldin"},
-            {54, "st_norfair"},
-            {55, "st_orpheon"},
-            {56, "st_crayon"},
-            {57, "st_halberd"},
-            {58, "st_starfox"},
-            {59, "st_stadium"},
-            {60, "st_tengan"},
-            {61, "st_fzero"},
-            {62, "st_ice"},
-            {63, "st_gw"},
-            {64, "st_emblem"},
-            {65, "st_madein"},
-            {66, "st_earth"},
-            {67, "st_palutena"},
-            {68, "st_famicom"},
-            {69, "st_newpork"},
-            {70, "st_village"},
-            {71, "st_metalgear"},
-            {72, "st_greenhill"},
-            {73, "st_pictchat"},
-            {74, "st_plankton"},
-            {75, "st_dxshrine"},
-            {76, "st_dxyorster"},
-            {77, "st_dxgarden"},
-            {78, "st_dxonett"},
-            {79, "st_dxgreens"},
-            {80, "st_dxrcruise"},
-            {81, "st_dxbigblue"},
-            {82, "st_dxcorneria"},
-            {83, "st_dxpstadium"},
-            {84, "st_dxzebes"},
-            {85, "st_stageedit"},
-            {86, "st_otrain"},
-            {87, "st_heal"},
-            {88, "st_homerun"},
-            {89, "st_tbreak"},
-            {90, "st_croll"},
-            {91, "ft_mario"},
-            {92, "ft_donkey"},
-            {93, "ft_link"},
-            {94, "ft_samus"},
-            {95, "ft_yoshi"},
-            {96, "ft_kirby"},
-            {97, "ft_fox"},
-            {98, "ft_pikachu"},
-            {99, "ft_luigi"},
-            {100, "ft_captain"},
-            {101, "ft_ness"},
-            {102, "ft_koopa"},
-            {103, "ft_peach"},
-            {104, "ft_zelda"},
-            {105, "ft_iceclimber"},
-            {106, "ft_marth"},
-            {107, "ft_gamewatch"},
-            {108, "ft_falco"},
-            {109, "ft_ganon"},
-            {110, "ft_wario"},
-            {111, "ft_metaknight"},
-            {112, "ft_pit"},
-            {113, "ft_pikmin"},
-            {114, "ft_lucas"},
-            {115, "ft_diddy"},
-            {116, "ft_poke"},
-            {117, "ft_dedede"},
-            {118, "ft_lucario"},
-            {119, "ft_ike"},
-            {120, "ft_robot"},
-            {121, "ft_toonlink"},
-            {122, "ft_snake"},
-            {123, "ft_sonic"},
-            {124, "ft_purin"},
-            {125, "ft_wolf"},
-            {126, "ft_zako"},
-        };
-
         [Browsable(false)]
         public ModuleSectionNode[] Sections { get { return _sections; } }
         public ModuleSectionNode[] _sections;
@@ -209,40 +78,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Relocatable Module")]
         public uint Version { get { return _version; } }
 
-        //[Category("REL")]
-        //public uint BSSSize { get { return _bssSize; } }
-        //[Category("REL")]
-        //public uint RelOffset { get { return _relOffset; } }
-        //[Category("REL")]
-        //public uint ImpOffset { get { return _impOffset; } }
-        //[Category("REL")]
-        //public uint ImpSize { get { return _impSize; } }
+        [Category("Relocatable Module")]
+        public uint PrologSection { get { return _prologSection; } }
+        [Category("Relocatable Module")]
+        public uint EpilogSection { get { return _epilogSection; } }
+        [Category("Relocatable Module")]
+        public uint UnresolvedSection { get { return _unresolvedSection; } }
+        [Category("Relocatable Module")]
+        public uint BSSSection { get { return _bssSection; } }
 
-        //[Category("REL")]
-        //public uint PrologSection { get { return _prologSection; } }
-        //[Category("REL")]
-        //public uint EpilogSection { get { return _epilogSection; } }
-        //[Category("REL")]
-        //public uint UnresolvedSection { get { return _unresolvedSection; } }
-        //[Category("REL")]
-        //public uint BSSSection { get { return _bssSection; } }
-
-        //[Category("REL")]
-        //public uint PrologOffset { get { return _prologOffset; } }
-        //[Category("REL")]
-        //public uint EpilogOffset { get { return _epilogOffset; } }
-        //[Category("REL")]
-        //public uint UnresolvedOffset { get { return _unresolvedOffset; } }
-
-        //[Category("REL")]
-        //public uint ModuleAlign { get { return _moduleAlign; } }
-        //[Category("REL")]
-        //public uint BSSAlign { get { return _bssAlign; } }
-        //[Category("REL")]
-        //public uint FixSize { get { return _fixSize; } }
+        [Category("Relocatable Module")]
+        public uint ModuleAlign { get { return _moduleAlign; } }
+        [Category("Relocatable Module")]
+        public uint BSSAlign { get { return _bssAlign; } }
 
         #region Stage module conversion - designer properties
-        [Category("Relocatable Module")]
+        [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
         public string StageID {
             get {
@@ -259,7 +110,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        [Category("Relocatable Module")]
+        [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListItemIDs))]
         public string ItemID {
             get {
@@ -346,16 +197,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             _sections = new ModuleSectionNode[_numSections];
+            int prevOffset = RELHeader.Size + RELSectionEntry.Size * (int)_numSections;
             for (int i = 0; i < _numSections; i++)
             {
                 RELSectionEntry entry = Header->SectionInfo[i];
                 ModuleSectionNode section = _sections[i] = new ModuleSectionNode();
 
+                int dataOffset = entry.Offset, dataSize = (int)(uint)entry._size;
+
                 section._isCodeSection = entry.IsCodeSection;
-                section._dataOffset = entry.Offset;
+                section._dataOffset = dataOffset;
                 section._dataSize = entry._size;
 
-                section.Initialize(this, WorkingUncompressed.Address + Header->SectionInfo[i].Offset, (int)Header->SectionInfo[i]._size);
+                section.Initialize(this, WorkingUncompressed.Address + dataOffset, dataSize);
+
+                if (dataOffset > 0)
+                {
+                    section._dataAlign = dataOffset - prevOffset;
+                    prevOffset = dataOffset + dataSize;
+                }
             }
 
             ApplyRelocations();
@@ -414,7 +274,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_prologReloc == null)
             {
                 s = _sections[Header->_prologSection];
-                offset = (int)Header->_prologOffset - (int)s._offset;
+                offset = (int)Header->_prologOffset - (int)s.RootOffset;
             }
             else
             {
@@ -428,7 +288,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_epilogReloc == null)
             {
                 s = _sections[Header->_epilogSection];
-                offset = (int)Header->_epilogOffset - (int)s._offset;
+                offset = (int)Header->_epilogOffset - (int)s.RootOffset;
             }
             else
             {
@@ -442,7 +302,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_unresReloc == null)
             {
                 s = _sections[Header->_unresolvedSection];
-                offset = (int)Header->_unresolvedOffset - (int)s._offset;
+                offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
             }
             else
             {
@@ -456,66 +316,85 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         class ImportData
         {
-            public bool _first = true;
+            public bool _newSection = true;
             public uint _lastOffset = 0;
         }
 
         public void GenerateImports()
         {
             _imports.Clear();
-            Dictionary<uint, ImportData> data = new Dictionary<uint, ImportData>();
+            Dictionary<uint, ImportData> tempImports = new Dictionary<uint, ImportData>();
             foreach (ModuleSectionNode s in _sections)
             {
-                foreach (ImportData e in data.Values)
+                foreach (ImportData e in tempImports.Values)
                 {
-                    e._first = true;
+                    e._newSection = true;
                     e._lastOffset = 0;
                 }
-                uint i = 0;
+
                 uint offset = 0;
-                List<RELLink> cmds;
-                foreach (Relocation loc in s._relocations)
+                List<RELLink> links;
+
+                //Iterate through each command in the section
+                RelCommand command = s._firstCommand;
+                while (command != null)
                 {
-                    if (loc.Command != null)
+                    ImportData impData;
+                    uint moduleID = command._moduleID;
+
+                    //Check if an import has been created for the target module.
+                    if (_imports.ContainsKey(moduleID))
                     {
-                        RelCommand cmd = loc.Command;
-                        ImportData d;
-                        uint id = cmd._moduleID;
-
-                        if (_imports.ContainsKey(id))
-                        {
-                            cmds = _imports[id];
-                            d = data[id];
-                        }
-                        else
-                        {
-                            _imports.Add(id, cmds = new List<RELLink>());
-                            data.Add(id, d = new ImportData() { _first = true, _lastOffset = 0 });
-                        }
-
-                        if (d._first)
-                        {
-                            cmds.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
-                            d._first = false;
-                        }
-
-                        offset = i * 4 + (cmd.IsHalf ? 2u : 0);
-                        uint diff = offset - d._lastOffset;
-                        while (offset - d._lastOffset > 0xFFFF)
-                        {
-                            d._lastOffset += 0xFFFF;
-                            cmds.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
-                        }
-
-                        byte targetSection = (byte)cmd._targetSectionId;
-                        RELLinkType type = (RELLinkType)cmd._command;
-                        uint val = cmd._addend;
-
-                        cmds.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
-
-                        d._lastOffset = offset;
+                        //An import already exists, so we'll add to it.
+                        links = _imports[moduleID];
+                        impData = tempImports[moduleID];
                     }
-                    i++;
+                    else
+                    {
+                        //An import does not exist, so it must be made.
+                        _imports.Add(moduleID, links = new List<RELLink>());
+
+                        //Create new temporary import data
+                        tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
+                    }
+
+                    //This is true when a new section is being evaluated.
+                    if (impData._newSection)
+                    {
+                        links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
+                        impData._newSection = false;
+                    }
+
+                    //Get the offset of the command within the section.
+                    offset = (uint)command._parentRelocation._index * 4 + (command.IsHalf ? 2u : 0);
+
+                    //Get the offset to this address relative to the last written link offset.
+                    uint diff = offset - impData._lastOffset;
+
+                    //If the difference is greater than ushort allows, 
+                    //add increment links until the difference works
+                    while (diff > 0xFFFF)
+                    {
+                        impData._lastOffset += 0xFFFF;
+                        diff = offset - impData._lastOffset;
+
+                        links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
+                    }
+
+                    //Gather the link information
+                    byte targetSection = (byte)command._targetSectionId;
+                    RELLinkType type = (RELLinkType)command._command;
+                    uint val = command._addend;
+
+                    //Write command link
+                    links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
+
+                    //Don't bother adding the difference, 
+                    //just set the exact offset as the last offset
+                    impData._lastOffset = offset;
+
+                    //Move to the next command
+                    command = command.Next;
                 }
             }
 
@@ -530,11 +409,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             int size = RELHeader.Size + Children.Count * RELSectionEntry.Size + _imports.Keys.Count * RELImportEntry.Size;
             foreach (ModuleSectionNode s in Children)
             {
-                if (s.Index > 3)
-                    size = size.Align(8);
+                //Section 4 and 5 seem to be the only ones that are aligned.
+                //I don't know the exact alignment procedure. It's not consistent
+                //if (s.Index > 3)
+                //    size = size.Align(8);
+
                 int r = s.CalculateSize(true);
                 if (!s._isBSSSection)
                     size += r;
+                
             }
             foreach (List<RELLink> s in _imports.Values)
                 size += s.Count * RELLink.Size;
@@ -558,7 +441,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_bssAlign = 0x8;
             header->_commandOffset = 0;
 
-            bool bssFound = false;
+            header->_bssSize = 0;
+            header->_bssSection = 0;
+
             RELSectionEntry* sections = (RELSectionEntry*)(address + RELHeader.Size);
             VoidPtr dataAddr = address + RELHeader.Size + Children.Count * RELSectionEntry.Size;
             foreach (ModuleSectionNode s in Children)
@@ -566,39 +451,34 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     int i = s.Index;
 
-                    if (i > 3)
-                    {
-                        int off = (int)(dataAddr - address);
-                        int aligned = off.Align(8);
-                        int diff = aligned - off;
-                        dataAddr += diff;
-                    }
+                    sections[i]._size = (uint)s._calcSize;
+
+                    //Align sections 4 and 5?
+                    //if (i > 3)
+                    //{
+                    //    int off = (int)(dataAddr - address);
+                    //    int aligned = off.Align(8);
+                    //    int diff = aligned - off;
+                    //    dataAddr += diff;
+                    //}
 
                     if (!s._isBSSSection)
                     {
                         sections[i]._offset = (uint)(dataAddr - address);
                         sections[i].IsCodeSection = s.HasCode;
-
+                        
                         s.Rebuild(dataAddr, s._calcSize, true);
+
                         dataAddr += s._calcSize;
                     }
                     else
                     {
-                        bssFound = true;
                         sections[i]._offset = 0;
+
+                        header->_bssSection = 0; //This is always 0 it seems
                         header->_bssSize = (uint)s._calcSize;
-
-                        //This is always 0 it seems
-                        header->_bssSection = 0;
                     }
-                    sections[i]._size = (uint)s._calcSize;
                 }
-
-            if (!bssFound)
-            {
-                header->_bssSize = 0;
-                header->_bssSection = 0;
-            }
 
             if (_prologReloc != null)
             {
@@ -745,8 +625,143 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal static ResourceNode TryParse(DataSource source) 
         { 
-            return ((RELHeader*)source.Address)->_info._id <= 0x7E && ((RELHeader*)source.Address)->_info._numSections <= 20 ? new RELNode() : null; 
+            RELHeader* header = (RELHeader*)source.Address;
+            return header->_info._id <= 0x7E &&
+                header->_info._numSections <= 20 &&
+                header->_bssAlign == 8 &&
+                header->_moduleAlign == 32
+                ? new RELNode() : null; 
         }
 
+        public static SortedList<int, string> _idNames = new SortedList<int, string>()
+        {
+            {0, "main.dol"},
+            {1, "sora_scene"},
+            {2, "sora_menu_main"},
+            {3, "sora_menu_tour"},
+            {4, "sora_menu_qm"},
+            {5, "sora_menu_edit"},
+            {6, "sora_menu_collect_viewer"},
+            {7, "sora_menu_replay"},
+            {8, "sora_menu_snap_shot"},
+            {9, "sora_menu_event"},
+            {10, "sora_menu_sel_char"},
+            {11, "sora_menu_sel_stage"},
+            {12, "sora_menu_game_over"},
+            {13, "sora_menu_intro"},
+            {14, "sora_menu_friend_list"},
+            {15, "sora_menu_watch"},
+            {16, "sora_menu_name"},
+            {17, "sora_menu_sel_char_access"},
+            {18, "sora_menu_rule"},
+            {19, "sora_menu_simple_ending"},
+            {20, "sora_minigame"},
+            {21, "sora_menu_time_result"},
+            {22, "sora_menu_boot"},
+            {23, "sora_menu_challenger"},
+            {24, "sora_menu_title"},
+            {25, "sora_menu_title_sunset"},
+            {26, "sora_menu_fig_get_demo"},
+            {27, "sora_melee"},
+            {28, "sora_adv_menu_name"},
+            {29, "sora_adv_menu_visual"},
+            {30, "sora_adv_menu_sel_char"},
+            {31, "sora_adv_menu_sel_map"},
+            {32, "sora_adv_menu_difficulty"},
+            {33, "sora_adv_menu_game_over"},
+            {34, "sora_adv_menu_result"},
+            {35, "sora_adv_menu_save_load"},
+            {36, "sora_adv_menu_seal"},
+            {37, "sora_adv_menu_ending"},
+            {38, "sora_adv_menu_telop"},
+            {39, "sora_adv_menu_save_point"},
+            {40, "sora_adv_stage"},
+            {41, "sora_enemy"},
+            {42, "st_battles"},
+            {43, "st_battle"},
+            {44, "st_config"},
+            {45, "st_final"},
+            {46, "st_dolpic"},
+            {47, "st_mansion"},
+            {48, "st_mariopast"},
+            {49, "st_kart"},
+            {50, "st_donkey"},
+            {51, "st_jungle"},
+            {52, "st_pirates"},
+            {53, "st_oldin"},
+            {54, "st_norfair"},
+            {55, "st_orpheon"},
+            {56, "st_crayon"},
+            {57, "st_halberd"},
+            {58, "st_starfox"},
+            {59, "st_stadium"},
+            {60, "st_tengan"},
+            {61, "st_fzero"},
+            {62, "st_ice"},
+            {63, "st_gw"},
+            {64, "st_emblem"},
+            {65, "st_madein"},
+            {66, "st_earth"},
+            {67, "st_palutena"},
+            {68, "st_famicom"},
+            {69, "st_newpork"},
+            {70, "st_village"},
+            {71, "st_metalgear"},
+            {72, "st_greenhill"},
+            {73, "st_pictchat"},
+            {74, "st_plankton"},
+            {75, "st_dxshrine"},
+            {76, "st_dxyorster"},
+            {77, "st_dxgarden"},
+            {78, "st_dxonett"},
+            {79, "st_dxgreens"},
+            {80, "st_dxrcruise"},
+            {81, "st_dxbigblue"},
+            {82, "st_dxcorneria"},
+            {83, "st_dxpstadium"},
+            {84, "st_dxzebes"},
+            {85, "st_stageedit"},
+            {86, "st_otrain"},
+            {87, "st_heal"},
+            {88, "st_homerun"},
+            {89, "st_tbreak"},
+            {90, "st_croll"},
+            {91, "ft_mario"},
+            {92, "ft_donkey"},
+            {93, "ft_link"},
+            {94, "ft_samus"},
+            {95, "ft_yoshi"},
+            {96, "ft_kirby"},
+            {97, "ft_fox"},
+            {98, "ft_pikachu"},
+            {99, "ft_luigi"},
+            {100, "ft_captain"},
+            {101, "ft_ness"},
+            {102, "ft_koopa"},
+            {103, "ft_peach"},
+            {104, "ft_zelda"},
+            {105, "ft_iceclimber"},
+            {106, "ft_marth"},
+            {107, "ft_gamewatch"},
+            {108, "ft_falco"},
+            {109, "ft_ganon"},
+            {110, "ft_wario"},
+            {111, "ft_metaknight"},
+            {112, "ft_pit"},
+            {113, "ft_pikmin"},
+            {114, "ft_lucas"},
+            {115, "ft_diddy"},
+            {116, "ft_poke"},
+            {117, "ft_dedede"},
+            {118, "ft_lucario"},
+            {119, "ft_ike"},
+            {120, "ft_robot"},
+            {121, "ft_toonlink"},
+            {122, "ft_snake"},
+            {123, "ft_sonic"},
+            {124, "ft_purin"},
+            {125, "ft_wolf"},
+            {126, "ft_zako"},
+        };
     }
 }

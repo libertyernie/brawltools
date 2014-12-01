@@ -18,8 +18,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public RelCommand First { get { return _firstCommand; } }
         [Browsable(false)]
-        public virtual uint ASMOffset { get { return _offset; } }
+        public virtual uint ASMOffset { get { return RootOffset; } }
 
+        public string DataSize { get { return "0x" + (_dataBuffer != null ? _dataBuffer.Length.ToString("X") : "0"); } }
+        
         public SectionEditor _linkedEditor = null;
         internal UnsafeBuffer _dataBuffer;
         public List<string>[] _tags;

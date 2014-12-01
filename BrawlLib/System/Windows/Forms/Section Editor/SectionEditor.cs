@@ -285,6 +285,11 @@ namespace System.Windows.Forms
             }
         }
 
+        public PPCBranch TargetBranch { get { return _targetBranch; } }
+        PPCBranch _targetBranch;
+        public Relocation TargetBranchOffsetRelocation { get { return _targetBranchOffsetRelocation; } }
+        Relocation _targetBranchOffsetRelocation;
+        
         Relocation _targetRelocation;
         int _prev, _next;
         public Relocation TargetRelocation
@@ -292,6 +297,8 @@ namespace System.Windows.Forms
             get { return _targetRelocation; }
             set
             {
+                _targetBranch = null;
+
                 if (_targetRelocation != null)
                     _targetRelocation._selected = false;
 
@@ -304,18 +311,17 @@ namespace System.Windows.Forms
                     if (_section.HasCode && ppcDisassembler1.Visible)
                     {
                         //Get the method that the cursor lies in and display it
-
+                        int startIndex = value._index, endIndex = value._index;
+                       
                         Relocation r = value;
-                        while (r.Previous != null && !(r.Previous.Code is PPCblr))
+                        while (r.Previous != null && !(r.Previous.Code is PPCBranch))
                             r = r.Previous;
-
-                        int startIndex = r._index;
+                        startIndex = r._index;
 
                         r = value;
-                        while (!(r.Code is PPCblr) && r.Next != null)
+                        while (!(r.Code is PPCBranch) && r.Next != null)
                             r = r.Next;
-
-                        int endIndex = r._index;
+                        endIndex = r._index;
 
                         if (startIndex != _prev || endIndex != _next)
                         {
@@ -334,6 +340,17 @@ namespace System.Windows.Forms
                         chkDestructor.Checked = _targetRelocation._epilog;
                         chkUnresolved.Checked = _targetRelocation._unresolved;
                         _updating = u;
+
+                        //Set the target branch code
+                        if (_targetRelocation != null && 
+                            _targetRelocation.Code is PPCBranch &&
+                            !(_targetRelocation.Code is PPCblr || _targetRelocation.Code is PPCbctr))
+                        {
+                            _targetBranch = (PPCBranch)_targetRelocation.Code;
+                            btnGotoBranch.Visible = btnGotoBranch.Enabled = (_targetBranchOffsetRelocation = GetBranchOffsetRelocation()) != null;
+                        }
+                        else
+                            btnGotoBranch.Visible = btnGotoBranch.Enabled = false;
                     }
                 }
                 else
@@ -513,7 +530,6 @@ namespace System.Windows.Forms
                                 found = true;
                                 break;
                             }
-
                         }
                         else
                             if (s._isBSSSection)
@@ -1001,13 +1017,13 @@ namespace System.Windows.Forms
         #region Relocation Functions
 
         public Relocation GetRelocationAtOffset(int offset) { return GetRelocationAtIndex(offset.RoundDown(4) / 4); }
-        public Relocation GetRelocationAtIndex(int index) { return _relocations[index]; }
+        public Relocation GetRelocationAtIndex(int index) { if (index >= 0 && index < _relocations.Count) return _relocations[index]; return null; }
 
         public void SetRelocationAtOffset(int offset, Relocation value) { SetRelocationAtOffset(offset.RoundDown(4) / 4, value); }
-        public void SetRelocationAtIndex(int index, Relocation value) { _relocations[index] = value; }
+        public void SetRelocationAtIndex(int index, Relocation value) { if (index >= 0 && index < _relocations.Count) _relocations[index] = value; }
         
         public Color GetStatusColorFromOffset(int offset) { return GetStatusColorFromIndex(offset.RoundDown(4) / 4); }
-        public Color GetStatusColorFromIndex(int index) { return GetStatusColor(_relocations[index]); }
+        public Color GetStatusColorFromIndex(int index) { if (index >= 0 && index < _relocations.Count) return GetStatusColor(_relocations[index]); return ModuleDataNode.clrNotRelocated; }
         public Color GetStatusColor(Relocation c)
         {
             if (c.Code is PPCblr)
@@ -1099,6 +1115,39 @@ namespace System.Windows.Forms
                     _unresReloc._unresolved = true;
                 }
             }
+        }
+        
+        public Relocation GetBranchOffsetRelocation()
+        {
+            if (TargetBranch != null && !(TargetBranch is PPCblr) && !(TargetBranch is PPCbctr))
+                return GetRelocationAtIndex(
+                    !TargetBranch.Absolute ?
+                    (TargetRelocation._index * 4 + TargetBranch.DataOffset).RoundDown(4) / 4 :
+                    -1 //Absolute from start of section, start of file, or start of memory?
+                );
+
+            return null;
+        }
+
+        private void btnGotoBranch_Click(object sender, EventArgs e)
+        {
+            //See if the target is already in this REL
+            if (TargetBranchOffsetRelocation != null)
+                OpenRelocation(TargetBranchOffsetRelocation); //Navigate to it
+            else if (TargetRelocation != null)
+            {
+                //If the target module id isn't this REL nor in the opened rel list, 
+                //ask the user to open the file, add it to the list and then navigate to it.
+
+                if (TargetRelocation.Command != null)
+                {
+                    if (TargetRelocation.Command.Command == RELCommandType.SetBranchDestination)
+                    {
+
+                    }
+                }
+            }
+            
         }
     }
 }
