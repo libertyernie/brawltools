@@ -81,13 +81,13 @@ namespace System.Windows.Forms
 
         void ByteProvider_LengthChanged(object sender, EventArgs e)
         {
-            UpdateFileSizeStatus();
+            //UpdateFileSizeStatus();
         }
 
         private void Init()
         {
             SetByteProvider();
-            UpdateFileSizeStatus();
+            //UpdateFileSizeStatus();
 
             //ppcDisassembler1.TargetNode = _section;
         }
@@ -98,7 +98,7 @@ namespace System.Windows.Forms
                 ((DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
 
             hexBox1.ByteProvider = new DynamicFileByteProvider(new UnmanagedMemoryStream((byte*)_section._dataBuffer.Address, _section._dataBuffer.Length, _section._dataBuffer.Length, FileAccess.ReadWrite)) { _supportsInsDel = false };
-            hexBox1.ByteProvider.LengthChanged += ByteProvider_LengthChanged;
+            //hexBox1.ByteProvider.LengthChanged += ByteProvider_LengthChanged;
             hexBox1.InsertActiveChanged += hexBox1_InsertActiveChanged;
         }
 
@@ -112,12 +112,12 @@ namespace System.Windows.Forms
             Init();
         }
 
-        void UpdateFileSizeStatus()
+        void UpdateSelectedBytesStatus()
         {
             if (hexBox1.ByteProvider == null)
-                fileSizeToolStripStatusLabel.Text = string.Empty;
+                selectedBytesToolStripStatusLabel.Text = String.Empty;
             else
-                fileSizeToolStripStatusLabel.Text = GetDisplayBytes(hexBox1.ByteProvider.Length);
+                selectedBytesToolStripStatusLabel.Text = "Selected: 0x"+hexBox1.SelectionLength.ToString("X");
         }
 
         string GetDisplayBytes(long size)
@@ -396,11 +396,13 @@ namespace System.Windows.Forms
 
         private void hexBox1_SelectionLengthChanged(object sender, EventArgs e)
         {
+            UpdateSelectedBytesStatus();
             EnableButtons();
         }
 
         private void hexBox1_SelectionStartChanged(object sender, EventArgs e)
         {
+            UpdateSelectedBytesStatus();
             EnableButtons();
             PosChanged();
         }

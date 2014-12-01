@@ -72,12 +72,13 @@
             this.displayStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.ppcDisassembler1 = new System.Windows.Forms.PPCDisassembler();
+            this.btnGotoBranch = new System.Windows.Forms.Button();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.pnlHexEditor = new System.Windows.Forms.Panel();
             this.hexBox1 = new Be.Windows.Forms.HexBox();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
-            this.fileSizeToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
+            this.selectedBytesToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.bitToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.OffsetToolStripStatusLabel = new System.Windows.Forms.ToolStripStatusLabel();
@@ -102,7 +103,6 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.splitter3 = new System.Windows.Forms.Splitter();
-            this.btnGotoBranch = new System.Windows.Forms.Button();
             this.grpSettings.SuspendLayout();
             this.grpRelocInfo.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -538,10 +538,22 @@
             // ppcDisassembler1
             // 
             this.ppcDisassembler1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ppcDisassembler1.Location = new System.Drawing.Point(0, 23);
+            this.ppcDisassembler1.Location = new System.Drawing.Point(0, 0);
             this.ppcDisassembler1.Name = "ppcDisassembler1";
             this.ppcDisassembler1.Size = new System.Drawing.Size(277, 574);
             this.ppcDisassembler1.TabIndex = 11;
+            // 
+            // btnGotoBranch
+            // 
+            this.btnGotoBranch.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnGotoBranch.Location = new System.Drawing.Point(0, 574);
+            this.btnGotoBranch.Name = "btnGotoBranch";
+            this.btnGotoBranch.Size = new System.Drawing.Size(277, 23);
+            this.btnGotoBranch.TabIndex = 12;
+            this.btnGotoBranch.Text = "Go to branch location";
+            this.btnGotoBranch.UseVisualStyleBackColor = true;
+            this.btnGotoBranch.Visible = false;
+            this.btnGotoBranch.Click += new System.EventHandler(this.btnGotoBranch_Click);
             // 
             // splitter2
             // 
@@ -566,6 +578,7 @@
             // hexBox1
             // 
             this.hexBox1.BranchColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(100)))));
+            this.hexBox1.BranchOffsetColor = System.Drawing.Color.MediumPurple;
             // 
             // 
             // 
@@ -605,7 +618,7 @@
             this.statusStrip.BackColor = System.Drawing.SystemColors.Control;
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripStatusLabel,
-            this.fileSizeToolStripStatusLabel,
+            this.selectedBytesToolStripStatusLabel,
             this.bitToolStripStatusLabel,
             this.toolStripStatusLabel1,
             this.OffsetToolStripStatusLabel,
@@ -625,12 +638,12 @@
             this.toolStripStatusLabel.Size = new System.Drawing.Size(75, 17);
             this.toolStripStatusLabel.Text = "Ln 0    Col 0";
             // 
-            // fileSizeToolStripStatusLabel
+            // selectedBytesToolStripStatusLabel
             // 
-            this.fileSizeToolStripStatusLabel.Name = "fileSizeToolStripStatusLabel";
-            this.fileSizeToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
-            this.fileSizeToolStripStatusLabel.Size = new System.Drawing.Size(52, 17);
-            this.fileSizeToolStripStatusLabel.Text = "0 Bytes";
+            this.selectedBytesToolStripStatusLabel.Name = "selectedBytesToolStripStatusLabel";
+            this.selectedBytesToolStripStatusLabel.Padding = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.selectedBytesToolStripStatusLabel.Size = new System.Drawing.Size(88, 17);
+            this.selectedBytesToolStripStatusLabel.Text = "Selected: 0x00";
             // 
             // bitToolStripStatusLabel
             // 
@@ -892,18 +905,6 @@
             this.splitter3.TabIndex = 11;
             this.splitter3.TabStop = false;
             // 
-            // btnGotoBranch
-            // 
-            this.btnGotoBranch.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnGotoBranch.Location = new System.Drawing.Point(0, 0);
-            this.btnGotoBranch.Name = "btnGotoBranch";
-            this.btnGotoBranch.Size = new System.Drawing.Size(277, 23);
-            this.btnGotoBranch.TabIndex = 12;
-            this.btnGotoBranch.Text = "Go to branch location";
-            this.btnGotoBranch.UseVisualStyleBackColor = true;
-            this.btnGotoBranch.Visible = false;
-            this.btnGotoBranch.Click += new System.EventHandler(this.btnGotoBranch_Click);
-            // 
             // SectionEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -972,7 +973,7 @@
         private Panel pnlRight;
         private StatusStrip statusStrip;
         private ToolStripStatusLabel toolStripStatusLabel;
-        private ToolStripStatusLabel fileSizeToolStripStatusLabel;
+        private ToolStripStatusLabel selectedBytesToolStripStatusLabel;
         private ToolStripStatusLabel bitToolStripStatusLabel;
         private Splitter splitter2;
         private ToolStripMenuItem fileToolStripMenuItem;

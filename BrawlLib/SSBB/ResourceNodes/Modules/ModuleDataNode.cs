@@ -20,6 +20,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public virtual uint ASMOffset { get { return RootOffset; } }
 
+        [DisplayName("Size")]
         public string DataSize { get { return "0x" + (_dataBuffer != null ? _dataBuffer.Length.ToString("X") : "0"); } }
         
         public SectionEditor _linkedEditor = null;

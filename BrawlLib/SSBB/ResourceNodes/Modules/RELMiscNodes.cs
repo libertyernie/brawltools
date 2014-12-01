@@ -19,7 +19,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public uint RootOffset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
         public string FileOffset { get { return "0x" + RootOffset.ToString("X"); } }
-        public string Size { get { return "0x" + WorkingUncompressed.Length.ToString("X"); } }
 
         [Browsable(false)]
         public VoidPtr BaseAddress { get { if (Root != null) return Root.WorkingUncompressed.Address; else return null; } }
