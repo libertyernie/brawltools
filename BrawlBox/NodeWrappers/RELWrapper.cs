@@ -53,7 +53,7 @@ namespace BrawlBox.NodeWrappers
         }
 
         #endregion
-        
+
         public RELWrapper() { ContextMenuStrip = _menu; }
 
         public void Convert()
@@ -201,6 +201,148 @@ namespace BrawlBox.NodeWrappers
                 }
 
             new SectionEditor(r).Show();
+        }
+
+        public override string ExportFilter { get { return FileFilters.Raw; } }
+    }
+
+    [NodeWrapper(ResourceType.RELMethod)]
+    class RELMethodWrapper : GenericWrapper
+    {
+        #region Menu
+        private static ContextMenuStrip _menu;
+        static RELMethodWrapper()
+        {
+            _menu = new ContextMenuStrip();
+            _menu.Items.Add(new ToolStripMenuItem("O&pen in Memory Viewer", null, OpenAction, Keys.Control | Keys.P));
+            _menu.Items.Add(new ToolStripSeparator());
+            //_menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
+            _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Opening += MenuOpening;
+            _menu.Closing += MenuClosing;
+        }
+        protected static void OpenAction(object sender, EventArgs e) { GetInstance<RELMethodWrapper>().Open(); }
+        //protected static void Export2Action(object sender, EventArgs e) { GetInstance<RELMethodWrapper>().Export2(); }
+        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
+        {
+            _menu.Items[2].Enabled = true;
+        }
+        private static void MenuOpening(object sender, CancelEventArgs e)
+        {
+            RELMethodWrapper w = GetInstance<RELMethodWrapper>();
+            _menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+        }
+
+        #endregion
+
+        public RELMethodWrapper() { ContextMenuStrip = _menu; }
+
+        public void Export2()
+        {
+            //if (_modelViewerOpen)
+            //    return;
+
+            //string outPath;
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //    (_resource as ModuleSectionNode).ExportInitialized(outPath);
+        }
+
+        public void Open()
+        {
+            RELMethodNode r = _resource as RELMethodNode;
+            ModuleSectionNode section = r.Root.Children[r.TargetSectionID] as ModuleSectionNode;
+
+            foreach (SectionEditor l in SectionEditor._openedSections)
+                if (l._section == section)
+                {
+                    if (l.Position != r._offset - section._offset)
+                        l.Position = r._offset - section._offset;
+
+                    l.Focus();
+                    return;
+                }
+
+            SectionEditor x = new SectionEditor(section);
+            x.Show();
+            x.Text = String.Format("Module Section Editor - {0}->{1}", r.Object._name, r._name);
+
+            x.Position = r._offset - section._offset;
+            x.hexBox1.Focus();
+        }
+
+        public override string ExportFilter { get { return FileFilters.Raw; } }
+    }
+
+    [NodeWrapper(ResourceType.RELExternalMethod)]
+    class RELExternalMethodWrapper : GenericWrapper
+    {
+        public RELExternalMethodWrapper() { BackColor = System.Drawing.Color.FromArgb(255,255,180,180); }
+
+    }
+
+    [NodeWrapper(ResourceType.RELInheritance)]
+    class RELInheritanceWrapper : GenericWrapper
+    {
+        #region Menu
+        private static ContextMenuStrip _menu;
+        static RELInheritanceWrapper()
+        {
+            _menu = new ContextMenuStrip();
+            _menu.Items.Add(new ToolStripMenuItem("O&pen in Memory Viewer", null, OpenAction, Keys.Control | Keys.P));
+            _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
+            _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Opening += MenuOpening;
+            _menu.Closing += MenuClosing;
+        }
+        protected static void OpenAction(object sender, EventArgs e) { GetInstance<RELInheritanceWrapper>().Open(); }
+        protected static void Export2Action(object sender, EventArgs e) { GetInstance<RELInheritanceWrapper>().Export2(); }
+        private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
+        {
+            _menu.Items[3].Enabled = true;
+        }
+        private static void MenuOpening(object sender, CancelEventArgs e)
+        {
+            RELInheritanceWrapper w = GetInstance<RELInheritanceWrapper>();
+            _menu.Items[3].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+        }
+
+        #endregion
+
+        public RELInheritanceWrapper() { ContextMenuStrip = _menu; }
+
+        public void Export2()
+        {
+            if (_modelViewerOpen)
+                return;
+
+            string outPath;
+            int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            if (index != 0)
+                (_resource as ModuleSectionNode).ExportInitialized(outPath);
+        }
+
+        public void Open()
+        {
+            InheritanceItemNode r = _resource as InheritanceItemNode;
+            ModuleSectionNode section = r.Root.Children[5] as ModuleSectionNode;
+
+
+            foreach (SectionEditor l in SectionEditor._openedSections)
+                if (l._section == section)
+                {
+                    l.Focus();
+                    return;
+                }
+
+
+
+            SectionEditor x = new SectionEditor(section);
+            x.Show();
+            x.Text = String.Format("Module Section Editor - {0}", section._name);
+            x.Position = r._offset;
+            x.hexBox1.Focus();
         }
 
         public override string ExportFilter { get { return FileFilters.Raw; } }

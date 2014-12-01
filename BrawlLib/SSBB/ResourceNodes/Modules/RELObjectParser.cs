@@ -30,6 +30,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (Relocation rel = _objectSection[0]; rel != null; rel = rel.Next)
                 ParseObject(ref rel);
+
         }
 
         private unsafe RELType ParseDeclaration(Relocation rel)
@@ -38,7 +39,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_types.TryGetValue(rel, out type))
                 return type;
 
-            if (rel.Command == null || rel.Command._targetRelocation._section != _objectSection)
+            if (rel.Command == null || rel.Command._targetRelocation == null || rel.Command._targetRelocation._section != _objectSection)
                 return null;
 
             string name = new string((sbyte*)(rel._section.BaseAddress + rel.RelOffset));
@@ -47,6 +48,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return null;
 
             type = new RELType(name);
+
+
 
             //Get inheritances, if any.
             if (rel.Next.Command != null)
@@ -57,7 +60,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     RELType inheritance = ParseDeclaration(r.Command._targetRelocation);
                     if (inheritance != null)
                     {
-                        type.Inheritance.Add(new InheritanceItemNode(inheritance, r.Next.RawValue));
+                        InheritanceItemNode TypeNode = new InheritanceItemNode(inheritance, r.Next.RawValue);
+                        TypeNode.Initialize(null, (r.Address - r._section._offset), 0);
+                        type.Inheritance.Add(TypeNode);
                         inheritance.Inherited = true;
                     }
                     else break;
@@ -73,12 +78,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         private unsafe RELObjectNode ParseObject(ref Relocation rel)
         {
-            if (rel.Command == null || rel.Command._targetRelocation._section != _objectSection)
+            if (rel.Command == null || rel.Command._targetRelocation == null || rel.Command._targetRelocation._section != _objectSection)
                 return null;
 
             RELType declaration = null;
 
-            if (!_types.TryGetValue(rel.Command.TargetRelocation, out declaration) || declaration.Inherited)
+            if (!_types.TryGetValue(rel.Command._targetRelocation, out declaration) || declaration.Inherited)
                 return null;
 
             RELObjectNode obj = null;
@@ -105,24 +110,39 @@ namespace BrawlLib.SSBB.ResourceNodes
             int methodIndex = 0;
             int setIndex = 0;
 
+
             // Read object methods.
-            while (rel.Command != null && (rel.Command._targetRelocation._section != _objectSection || rel.SectionOffset == baseRel.SectionOffset))
+
+            while (rel.Command != null)
             {
-                if (rel.SectionOffset != baseRel.SectionOffset)
+
+                if (rel.Command._targetRelocation == null && rel.SectionOffset != baseRel.SectionOffset)
                 {
-                    new RELMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex) }.Initialize(obj.Children[1], rel.Target.Address, 0);
+                    new RELExternalMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex), _rel = rel }.Initialize(obj.Children[1], 0, 0);
+                    methodIndex++;
+                    rel = rel.Next;
+                    goto End;
+                }
+
+                else if (rel.SectionOffset != baseRel.SectionOffset)
+                {
+                    new RELMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex), TargetSectionID = (int)rel.Command.TargetSectionID }.Initialize(obj.Children[1], rel.Target.Address, 0);
                     methodIndex++;
                 }
                 else
                 {
+
                     if (rel.Next.RawValue != 0)
                         setIndex++;
 
                     methodIndex = 0;
                     rel = rel.Next;
                 }
+
+            End:
                 rel = rel.Next;
             }
+
 
             baseRel.Tags.Add(obj.Type.FullName);
 

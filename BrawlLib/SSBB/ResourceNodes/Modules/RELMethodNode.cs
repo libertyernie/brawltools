@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Drawing;
 using BrawlLib.IO;
+using System.Windows.Forms;
 using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -14,12 +15,23 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class RELMethodNode : ModuleDataNode
     {
         internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.RELMethod; } }
 
         [Browsable(false)]
         public RELObjectNode Object { get { return Parent.Parent as RELObjectNode; } }
 
         [Browsable(false)]
         public string FullName { get { return (Object != null ? Object.Type.FullName + "." : "") + _name; } }
+
+        [Browsable(false)]
+        public string FileOffset { get; set; }
+
+        [Category("Module Method")]
+        [DisplayName("Section Offset")]
+        [Description("Offset of the method's assembly code relative to the target section")]
+        public string SectionOffset { get { return "0x" + ((int)Header - (int)this.Root.Children[TargetSectionID].WorkingUncompressed.Address).ToString("X"); } }
+
+        public int TargetSectionID;
         
         public override bool OnInitialize()
         {
@@ -30,12 +42,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             //uint relative = (uint)Header - (uint)section.WorkingUncompressed.Address;
 
             //int x = 0;
-            //while (!((PPCOpCode.Disassemble(&Header[x++])) is OpBlr)) ;
+            //while (!((PowerPC.Disassemble(*&Header[x++])) is PPCblr)) ;
 
-            //_relocations = new List<Relocation>();
-            //Array.Copy(section._relocations, relative / 4, _relocations, 0, x);
 
-            //_dataBuffer = new UnsafeBuffer(x * 4);
+            //Relocation[] tmp1 = section._relocations.ToArray();
+            //_relocations = new List<Relocation>(tmp1);
+            //Relocation[] tmp2 = _relocations.ToArray();
+
+            //Array.Copy(tmp1, relative / 4, tmp2, 0, x);
+            //_relocations = tmp2.ToList();
+
+            //InitBuffer((uint)x * 4, Header);
 
             //byte* pOut = (byte*)_dataBuffer.Address;
             //byte* pIn = (byte*)section._dataBuffer.Address + relative;
@@ -53,19 +70,37 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override unsafe void Export(string outPath)
         {
-            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
-            {
-                stream.SetLength(_dataBuffer.Length);
-                using (FileMap map = FileMap.FromStream(stream))
-                {
-                    VoidPtr addr = _dataBuffer.Address;
+        //    using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+        //    {
+        //        stream.SetLength(WorkingUncompressed.Length);
+        //        using (FileMap map = FileMap.FromStream(stream))
+        //        {
+        //            VoidPtr addr = Header;
 
-                    byte* pIn = (byte*)addr;
-                    byte* pOut = (byte*)map.Address;
-                    for (int i = 0; i < _dataBuffer.Length; i++)
-                        *pOut++ = *pIn++;
-                }
-            }
+        //            byte* pIn = (byte*)addr;
+        //            byte* pOut = (byte*)map.Address;
+        //            for (int i = 0; i < _dataBuffer.Length; i++)
+        //                *pOut++ = *pIn++;
+        //        }
+        //    }
         }
+    }
+
+    public unsafe class RELExternalMethodNode : ModuleDataNode
+    {
+        internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.RELExternalMethod; } }
+
+        public Relocation _rel;
+
+        [Category("External Method")]
+        [DisplayName("Target Module")]
+        [Description("Name of the target module which the assembly code for this method resides")]
+        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_rel.Command._moduleID) ? RELNode._idNames[(int)_rel.Command._moduleID] : ""; } }
+    
+        [Category("External Method")]
+        [DisplayName("Target Offset")]
+        [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
+        public string TargetOffset { get { return _rel.Command.TargetOffset; } }
     }
 }

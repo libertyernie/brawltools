@@ -84,6 +84,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _targetSectionId;
         public uint _moduleID;
 
+        [Browsable(false)]
+        public Relocation _targetRelocation { get { return GetTargetRelocation(); } set { SetTargetRelocation(value); } }
+
         //Added is an offset relative to the start of the section
         public uint _addend;
         public bool _initialized = false;
@@ -134,9 +137,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (_parentRelocation == null)
                 return null;
+
             RELNode r = _parentRelocation._section.Root as RELNode;
             if (r != null && _targetSectionId > 0 && _targetSectionId < r.Sections.Length && r.ModuleID == _moduleID)
                 return r.Sections[_targetSectionId].GetRelocationAtOffset((int)_addend);
+
             return null;
         }
 

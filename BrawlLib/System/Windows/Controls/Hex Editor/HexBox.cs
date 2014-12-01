@@ -681,8 +681,8 @@ namespace Be.Windows.Forms
 					(!sw && pos != _hexBox._byteProvider.Length) ||
 					(!si && pos == _hexBox._byteProvider.Length))
 				{
-					return _hexBox.BasePreProcessMessage(ref m);
-				}
+                    return _hexBox.BasePreProcessMessage(ref m);
+                }
 
 				char c = (char)m.WParam.ToInt32();
 
@@ -2148,6 +2148,7 @@ namespace Be.Windows.Forms
 			}
 			return buffer;
 		}
+
 		/// <summary>
 		/// Copies the current selection in the hex box to the Clipboard.
 		/// </summary>
@@ -2165,13 +2166,20 @@ namespace Be.Windows.Forms
             {
                 string s = "";
                 bool first = true;
+                int i = 0;
+
                 foreach (byte b in buffer)
                 {
                     if (first)
                         first = false;
-                    else
+                    else if (i == 4)
+                    {
                         s += " ";
-                    s += b.ToString("X");
+                        i = -1;
+                    }
+
+                    s += b.ToString("X2");
+                    i++;
                 }
                 text = s;
             }
@@ -2550,12 +2558,12 @@ namespace Be.Windows.Forms
 				PointF headerPointF = GetColumnInfoPointF(col);
 				headerPointF.X -= _charSize.Width / 2;
 				g.DrawLine(pen, headerPointF, new PointF(headerPointF.X, headerPointF.Y + _recColumnInfo.Height + _recHex.Height));
-				if (StringViewVisible)
-				{
-					PointF byteStringPointF = GetByteStringPointF(new Point(col, 0));
-					headerPointF.X -= 2;
-					g.DrawLine(pen, new PointF(byteStringPointF.X, byteStringPointF.Y), new PointF(byteStringPointF.X, byteStringPointF.Y + _recHex.Height));
-				}
+                //if (StringViewVisible)
+                //{
+                //    PointF byteStringPointF = GetByteStringPointF(new Point(col, 0));
+                //    headerPointF.X -= 2;
+                //    g.DrawLine(pen, new PointF(byteStringPointF.X, byteStringPointF.Y), new PointF(byteStringPointF.X, byteStringPointF.Y + _recHex.Height));
+                //}
 			}
 		}
 

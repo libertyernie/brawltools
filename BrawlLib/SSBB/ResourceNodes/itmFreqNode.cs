@@ -62,11 +62,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             // Get the location for the Data Table, then add each entry to the list.
             _pDataTable = (VoidPtr)_pPointerList + (_offCount * 4);
-                for (int i = 0; i < Header->_DataTable; i++)
-                    _DataTable.Add(new ItmFreqOffPair(*(bint*)(_pDataTable + (i * 8)), *(bint*)((_pDataTable + (i * 8)) + 4)));
+            for (int i = 0; i < Header->_DataTable; i++)
+                _DataTable.Add(new ItmFreqOffPair(*(bint*)(_pDataTable + (i * 8)), *(bint*)((_pDataTable + (i * 8)) + 4)));
 
-                if (_name == null)
-                    _name = "Item Generation";
+            if (_name == null)
+                _name = "Item Generation";
 
             return _numTables > 0;
         }
@@ -116,14 +116,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < Children.Count; i++)
                 Children[i].Rebuild(TList + (i * 8), 0x08, true);
 
-            // Add pointers to data table.
-            _pDataTable = (VoidPtr)_pPointerList + (_pointerList.Count * 4);
+            // Add Data header offsets to pointer list
+            foreach (ItmFreqOffPair p in _DataTable)
+                _pointerList.Add(p._offset1);
 
             // Write pointers to the rebuilt address
             for (int i = 0; i < _pointerList.Count; i++)
                 *(bint*)((VoidPtr)_pPointerList + (i * 4)) = _pointerList[i];
 
-            // Write the datatable to the rebuilt address
+            // Update the pointer to the data table and write data table to it
+            _pDataTable = (VoidPtr)_pPointerList + (_pointerList.Count * 4);
             for (int i = 0; i < _DataTable.Count; i++)
                 *(ItmFreqOffPair*)((VoidPtr)_pDataTable + (i * 8)) = _DataTable[i];
 
@@ -190,7 +192,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             *Header = new ItmFreqOffEntry();
             Header->_offset = _entryOffset;
             Header->_count = _count;
-            Root._pointerList.Add(((int)address - (int)BaseAddress));
+            //Root._pointerList.Add(((int)address - (int)BaseAddress));
 
             for (int i = 0; i < Children.Count; i++)
                 Children[i].Rebuild(BaseAddress + Header->_offset + (i * 0x14), 0x14, force);
@@ -302,7 +304,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             set
             {
-                 //Don't try to set the stage ID if it's not a stage module
+                //Don't try to set the stage ID if it's not a stage module
                 if (ItemID == null) return;
                 if (value.Length < 3) return;
                 _id = int.Parse(value.Substring(0, 3), System.Globalization.NumberStyles.HexNumber);
