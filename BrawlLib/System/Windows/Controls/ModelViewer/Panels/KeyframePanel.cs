@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
+using BrawlLib.Modeling;
 
 namespace System.Windows.Forms
 {

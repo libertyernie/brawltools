@@ -40,7 +40,7 @@ namespace BrawlLib.OpenGL
         protected int _updateCounter;
         protected bool _projectionChanged = true;
         protected TKContext _ctx;
-        protected GLCamera _camera;
+        public GLCamera _camera;
 
         public bool IsOrthographic { get { return _orthographic; } set { _orthographic = value; _projectionChanged = true; Invalidate(); } }
         protected bool _orthographic = false;

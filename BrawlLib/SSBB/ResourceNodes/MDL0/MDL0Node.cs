@@ -777,8 +777,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return NodeFactory.FromFile(null, path) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
                 return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
-            else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
-                return PMDModel.ImportModel(path);
+            //else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
+            //    return PMDModel.ImportModel(path);
             //else if (string.Equals(ext, "fbx", StringComparison.OrdinalIgnoreCase))
             //{
             //}
@@ -828,8 +828,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (outPath.ToUpper().EndsWith(".DAE"))
                 Collada.Serialize(this, outPath);
-            else if (outPath.ToUpper().EndsWith(".PMD"))
-                PMDModel.Export(this, outPath);
+            //else if (outPath.ToUpper().EndsWith(".PMD"))
+            //    PMDModel.Export(this, outPath);
             else
                 base.Export(outPath);
         }
