@@ -4,15 +4,17 @@ using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.SSBB.ResourceNodes;
 
-namespace Ikarus
+namespace Ikarus.MovesetFile
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MovesetHeader
     {
+        public const int Size = 0x20;
+
         public bint _fileSize;
         public bint _lookupOffset;
         public bint _lookupEntryCount;
-        public bint _dataTableEntryCount; //Has string entry
+        public bint _sectionCount; //Has string entry
         public bint _externalSubRoutineCount; //Has string entry
         public int _pad1, _pad2, _pad3;
 
@@ -21,11 +23,11 @@ namespace Ikarus
 
         public bint* LookupEntries { get { return (bint*)(Address + _lookupOffset + 0x20); } }
         
-        public sStringEntry* DataTable { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4); } }
-        public sStringEntry* ExternalSubRoutines { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4 + _dataTableEntryCount * 8); } }
+        public sStringEntry* Sections { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4); } }
+        public sStringEntry* ExternalSubRoutines { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4 + _sectionCount * 8); } }
         
         //for DataTable and ExternalSubRoutines
-        public sStringTable* StringTable { get { return (sStringTable*)((Address + _lookupOffset + 0x20) + (_lookupEntryCount * 4) + (_dataTableEntryCount * 8) + (_externalSubRoutineCount * 8)); } }
+        public sStringTable* StringTable { get { return (sStringTable*)((Address + _lookupOffset + 0x20) + (_lookupEntryCount * 4) + (_sectionCount * 8) + (_externalSubRoutineCount * 8)); } }
         
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
@@ -628,7 +630,7 @@ namespace Ikarus
         public BVec3 _offset;
         public BVec3 _stretch;
         public bfloat _radius;
-        public HurtBoxFlags _flags;
+        public sHurtBoxFlags _flags;
         
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
@@ -641,21 +643,22 @@ namespace Ikarus
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct HurtBoxFlags
+    public struct sHurtBoxFlags
     {
         //0000 0000 0000 0001   Enabled
-        //0000 0000 0000 0110   Unused
+        //0000 0000 0000 0110   Unknown
         //0000 0000 0001 1000   Zone
         //0000 0000 0110 0000   Region
         //1111 1111 1000 0000   Bone Index
 
-        byte dat0, dat1, pad0, pad1;
-        
-        public int BoneIndex { get { return (int)((((dat1 >> 7) & 1) | (int)dat0 << 1) & 0x1FF); } set { dat0 = (byte)(value >> 1); dat1 = (byte)((dat1 & 0x7F) | ((value & 1) << 7)); } }
-        public HurtBoxZone Zone { get { return (HurtBoxZone)((dat1 >> 3) & 3); } set { dat1 = (byte)((dat1 & 0xE7) | (((byte)value & 3) << 3)); } }
-        public bool Enabled { get { return (dat1 & 1) != 0; } set { dat1 = (byte)((dat1 & 0xFE) | ((byte)(value ? 1 : 0) & 1)); } }
-        public int Region { get { return ((dat1 >> 5) & 3); } set { dat1 = (byte)((dat1 & 0x9F) | (((byte)value & 3) << 5)); } }
-        public int Unk { get { return ((dat1 >> 1) & 3); } set { dat1 = (byte)((dat1 & 0xF9) | (((byte)value & 3) << 1)); } }
+        public Bin16 _data;
+        public short _pad; //0
+
+        public bool Enabled { get { return _data[0]; } set { _data[0] = value; } }
+        public int Unk { get { return _data[1, 2]; } set { _data[1, 2] = (ushort)value; } }
+        public HurtBoxZone Zone { get { return (HurtBoxZone)_data[3, 2]; } set { _data[3, 2] = (ushort)value; } }
+        public int Region { get { return _data[5, 2]; } set { _data[5, 2] = (ushort)value; } }
+        public int BoneIndex { get { return _data[7, 9]; } set { _data[7, 9] = (ushort)value; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

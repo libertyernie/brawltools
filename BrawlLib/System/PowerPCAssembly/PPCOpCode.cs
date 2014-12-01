@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrawlLib.SSBB.ResourceNodes;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -277,8 +278,39 @@ namespace System.PowerPcAssembly
         }
     }
 
+    public unsafe class PPCBranch : PPCOpCode
+    {
+        internal PPCBranch(uint value) : base(value) { }
+
+        public int _offsetID;
+
+        [Browsable(false)]
+        public int DataOffset
+        {
+            get { return _operands[_offsetID].Value; }
+            set { _operands[_offsetID].Value = value; }
+        }
+
+        public string Offset
+        {
+            get { return (DataOffset < 0 ? "-" : "") + "0x" + Math.Abs(DataOffset).ToString("X"); }
+            set
+            {
+                string s = value;
+                bool neg = s.StartsWith("-");
+                if (neg) s = s.Substring(1);
+                s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
+                int offset;
+                if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
+                    DataOffset = (offset * (neg ? -1 : 1));
+            }
+        }
+        public bool Absolute { get { return _operands[_offsetID + 1].Value != 0; } set { _operands[_offsetID + 1].Value = value ? 1 : 0; } }
+        public bool Link { get { return _operands[_offsetID + 2].Value != 0; } set { _operands[_offsetID + 2].Value = value ? 1 : 0; } }
+    }
+
     //  bc, bdnz, bdnzf, bdnzt, bdz, bdzf, bdzt, beq, bne, bgt, blt, bge, ble
-    public unsafe class PPCBc : PPCOpCode
+    public unsafe class PPCBc : PPCBranch
     {
         public bool IgnoreCr { get { return _operands[0].Value != 0; } set { _operands[0].Value = value ? 1 : 0; } }
         public bool CrState { get { return _operands[1].Value != 0; } set { _operands[1].Value = value ? 1 : 0; } }
@@ -289,25 +321,27 @@ namespace System.PowerPcAssembly
         public int CompareType { get { return _operands[6].Value; } set { _operands[6].Value = value; } }
         public int BranchInputs { get { return _operands[7].Value; } set { _operands[7].Value = value; } }
         public int BranchOptions { get { return _operands[8].Value; } set { _operands[8].Value = value; } }
-        public string Offset
-        {
-            get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
-            set
-            {
-                string s = value;
-                bool neg = s.StartsWith("-");
-                if (neg) s = s.Substring(1);
-                s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
-                int offset;
-                if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
-                    _operands[9].Value = (offset * (neg ? -1 : 1));
-            }
-        }
-        public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
-        public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
+        //public string Offset
+        //{
+        //    get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
+        //    set
+        //    {
+        //        string s = value;
+        //        bool neg = s.StartsWith("-");
+        //        if (neg) s = s.Substring(1);
+        //        s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
+        //        int offset;
+        //        if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
+        //            _operands[9].Value = (offset * (neg ? -1 : 1));
+        //    }
+        //}
+        //public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
+        //public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
 
         internal PPCBc(uint value) : base(value)
         {
+            _offsetID = 9;
+
             _names.Add("bc");
             _names.Add("bdnz");
             _names.Add("bdz");
@@ -388,27 +422,29 @@ namespace System.PowerPcAssembly
     }
 
     //  b, bl, ba, bla
-    public unsafe class PPCbx : PPCOpCode
+    public unsafe class PPCbx : PPCBranch
     {
-        public string Offset
-        {
-            get { return (_operands[0].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[0].Value).ToString("X"); }
-            set
-            {
-                string s = value;
-                bool neg = s.StartsWith("-");
-                if (neg) s = s.Substring(1);
-                s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
-                int offset;
-                if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
-                    _operands[0].Value = (offset * (neg ? -1 : 1));
-            }
-        }
-        public bool Absolute { get { return _operands[1].Value != 0; } set { _operands[1].Value = value ? 1 : 0; } }
-        public bool Link { get { return _operands[2].Value != 0; } set { _operands[2].Value = value ? 1 : 0; } }
+        //public string Offset
+        //{
+        //    get { return (_operands[0].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[0].Value).ToString("X"); }
+        //    set
+        //    {
+        //        string s = value;
+        //        bool neg = s.StartsWith("-");
+        //        if (neg) s = s.Substring(1);
+        //        s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
+        //        int offset;
+        //        if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
+        //            _operands[0].Value = (offset * (neg ? -1 : 1));
+        //    }
+        //}
+        //public bool Absolute { get { return _operands[1].Value != 0; } set { _operands[1].Value = value ? 1 : 0; } }
+        //public bool Link { get { return _operands[2].Value != 0; } set { _operands[2].Value = value ? 1 : 0; } }
 
         internal PPCbx(uint value) : base(value)
         {
+            _offsetID = 0;
+
             _names.Add("b");
             _operands.Add(new PPCOperand(this, OperandType.OFFSET, 0, 0x3FFFFFC, 0x2000000));    //  [0] Offset
             _operands.Add(new PPCOperand(this, OperandType.VAL, 1, 0x1));                        //  [1] Absolute
@@ -437,7 +473,7 @@ namespace System.PowerPcAssembly
     }
 
     //  blr
-    public unsafe class PPCblr : PPCOpCode
+    public unsafe class PPCblr : PPCBranch
     {
         public bool IgnoreCr { get { return _operands[0].Value != 0; } set { _operands[0].Value = value ? 1 : 0; } }
         public bool CrState { get { return _operands[1].Value != 0; } set { _operands[1].Value = value ? 1 : 0; } }
@@ -448,25 +484,27 @@ namespace System.PowerPcAssembly
         public int CompareType { get { return _operands[6].Value; } set { _operands[6].Value = value; } }
         public int BranchInputs { get { return _operands[7].Value; } set { _operands[7].Value = value; } }
         public int BranchOptions { get { return _operands[8].Value; } set { _operands[8].Value = value; } }
-        public string Offset
-        {
-            get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
-            set
-            {
-                string s = value;
-                bool neg = s.StartsWith("-");
-                if (neg) s = s.Substring(1);
-                s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
-                int offset;
-                if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
-                    _operands[9].Value = (offset * (neg ? -1 : 1));
-            }
-        }
-        public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
-        public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
+        //public string Offset
+        //{
+        //    get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
+        //    set
+        //    {
+        //        string s = value;
+        //        bool neg = s.StartsWith("-");
+        //        if (neg) s = s.Substring(1);
+        //        s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
+        //        int offset;
+        //        if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
+        //            _operands[9].Value = (offset * (neg ? -1 : 1));
+        //    }
+        //}
+        //public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
+        //public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
 
         internal PPCblr(uint value) : base(value)
         {
+            _offsetID = 9;
+
             _names.Add("blr");
             _names.Add("bdnz");
             _names.Add("bdz");
@@ -541,7 +579,7 @@ namespace System.PowerPcAssembly
     }
 
     //  bctr
-    public unsafe class PPCbctr : PPCOpCode
+    public unsafe class PPCbctr : PPCBranch
     {
         public bool IgnoreCr { get { return _operands[0].Value != 0; } set { _operands[0].Value = value ? 1 : 0; } }
         public bool CrState { get { return _operands[1].Value != 0; } set { _operands[1].Value = value ? 1 : 0; } }
@@ -552,25 +590,27 @@ namespace System.PowerPcAssembly
         public int CompareType { get { return _operands[6].Value; } set { _operands[6].Value = value; } }
         public int BranchInputs { get { return _operands[7].Value; } set { _operands[7].Value = value; } }
         public int BranchOptions { get { return _operands[8].Value; } set { _operands[8].Value = value; } }
-        public string Offset
-        {
-            get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
-            set
-            {
-                string s = value;
-                bool neg = s.StartsWith("-");
-                if (neg) s = s.Substring(1);
-                s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
-                int offset;
-                if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
-                    _operands[9].Value = (offset * (neg ? -1 : 1));
-            }
-        }
-        public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
-        public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
+        //public string Offset
+        //{
+        //    get { return (_operands[9].Value < 0 ? "-" : "") + "0x" + Math.Abs(_operands[9].Value).ToString("X"); }
+        //    set
+        //    {
+        //        string s = value;
+        //        bool neg = s.StartsWith("-");
+        //        if (neg) s = s.Substring(1);
+        //        s = (s.StartsWith("0x") ? s.Substring(2, Math.Min(s.Length - 2, 8)) : s.Substring(0, Math.Min(s.Length, 8)));
+        //        int offset;
+        //        if (int.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
+        //            _operands[9].Value = (offset * (neg ? -1 : 1));
+        //    }
+        //}
+        //public bool Absolute { get { return _operands[10].Value != 0; } set { _operands[10].Value = value ? 1 : 0; } }
+        //public bool Link { get { return _operands[11].Value != 0; } set { _operands[11].Value = value ? 1 : 0; } }
 
         internal PPCbctr(uint value) : base(value)
         {
+            _offsetID = 9;
+
             _names.Add("bctr");
             _names.Add("bdnz");
             _names.Add("bdz");

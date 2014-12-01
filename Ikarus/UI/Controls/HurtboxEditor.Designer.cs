@@ -1,4 +1,4 @@
-﻿namespace Ikarus.UI.Controls
+﻿namespace Ikarus.UI
 {
     partial class HurtboxEditor
     {

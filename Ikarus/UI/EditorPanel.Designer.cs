@@ -29,7 +29,7 @@ namespace Ikarus.UI
         /// </summary>
         private void InitializeComponent()
         {
-            this.scriptPanel = new Ikarus.UI.ScriptPanel();
+            this.scriptPanel = new ScriptPanel();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
             this.SuspendLayout();
             // 
@@ -39,7 +39,7 @@ namespace Ikarus.UI
             this.scriptPanel.Location = new System.Drawing.Point(0, 0);
             this.scriptPanel.MinimumSize = new System.Drawing.Size(185, 0);
             this.scriptPanel.Name = "scriptPanel";
-            this.scriptPanel.ScriptType = Ikarus.UI.ScriptType.Subactions;
+            this.scriptPanel.ScriptType = ScriptType.Subactions;
             this.scriptPanel.Size = new System.Drawing.Size(262, 505);
             this.scriptPanel.TabIndex = 0;
             // 

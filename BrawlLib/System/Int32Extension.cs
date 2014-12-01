@@ -19,6 +19,10 @@ namespace System
         {
             return value <= min ? min : value >= max ? max : value;
         }
+        public static Int32 ClampMin(this Int32 value, int min)
+        {
+            return value <= min ? min : value;
+        }
         public static Int32 RoundDownToEven(this Int32 value)
         {
             return value - (value % 2);

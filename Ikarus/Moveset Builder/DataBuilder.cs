@@ -2,16 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using BrawlLib.IO;
-using BrawlLib.Wii.Animations;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
-using Ikarus;
+using Ikarus.MovesetFile;
+using BrawlLib;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetBuilder
 {
     public unsafe partial class NewMovesetBuilder
     {
@@ -74,75 +70,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //References Offsets
         //Sections/References String Table
 
-        public List<MovesetEntry> _postProcessNodes;
-        public VoidPtr _baseAddress;
-        public LookupManager _lookupOffsets;
-        public int _lookupCount = 0, _lookupLen = 0;
-        public int _refCount = 0;
-        CompactStringTable _referenceStringTable;
-
-        //Offset - Size
-        public Dictionary<int, int> _lookupEntries;
-
-        MovesetFile _movesetNode;
-        VoidPtr _dataAddress;
-        
-        public int CalcSize(MovesetFile node)
-        {
-            _movesetNode = node;
-
-            int size = 0x20;
-
-            _postProcessNodes = new List<MovesetEntry>();
-            _lookupOffsets = new LookupManager();
-            _lookupCount = 0;
-            _lookupLen = 0;
-            _referenceStringTable = new CompactStringTable();
-
-            //Calculate the size of each section and add names to string table
-            //foreach (MovesetEntry e in node._sections._sectionList)
-            //{
-            //    MovesetEntry entry = e;
-            //    if (entry is ReferenceEntry)
-            //    {
-            //        ReferenceEntry ext = entry as ReferenceEntry;
-            //        if (ext._references.Count > 0)
-            //            entry = ext._references[0]; //Sections always have only one reference
-            //    }
-                
-            //    int s = 0;
-            //    if (!(entry is RawData))
-            //        s = GetSectionSize(entry);
-            //    else
-            //        if (entry.Children.Count > 0)
-            //            foreach (MovesetEntry n in entry.Children)
-            //                s += GetSectionSize(n);
-            //        else
-            //            s = GetSectionSize(entry);
-
-            //    size += s + 8; //Size of entry + data offset size
-
-            //    _lookupCount += entry._lookupCount;
-            //    _referenceStringTable.Add(entry.Name);
-            //}
-
-            ////Calculate reference table size and add names to string table
-            //if (node._references != null)
-            //    foreach (ReferenceEntry e in node._references.Children)
-            //    {
-            //        if (e._references.Count > 0)
-            //        {
-            //            _referenceStringTable.Add(e.Name);
-            //            size += 8;
-            //        }
-            //        //references don't use lookup table
-            //        //lookupCount += e._refs.Count - 1;
-            //    }
-
-            return size + (_lookupLen = _lookupCount * 4) + _referenceStringTable.TotalSize;
-        }
-
-        public int GetSectionSize(MovesetEntry node)
+        public int GetSectionSize(MovesetEntryNode node)
         {
             //if (node != null)
             //{
@@ -166,7 +94,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         //Children are written in order but before their parent! 
-        public void Write(MovesetFile node, VoidPtr address, int length)
+        public void Write(MovesetNode node, VoidPtr address, int length)
         {
             //_movesetNode = node;
 
@@ -543,7 +471,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return 0;
         }
 
-        public int GetSize(MovesetEntry node)
+        public int GetSize(MovesetEntryNode node)
         {
             //if (node != null)
             //{
@@ -966,7 +894,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //    entry.PostProcess(_lookupOffsets);
         }
         
-        public int Rebuild(MovesetEntry node)
+        public int Rebuild(MovesetEntryNode node)
         {
             //if (node != null)
             //{
@@ -1144,48 +1072,5 @@ namespace BrawlLib.SSBB.ResourceNodes
         //            }
         //        }
         //}
-    }
-
-    /// <summary>
-    /// When rebuilding, add the addresses of all offset values to this collection
-    /// </summary>
-    public class LookupManager : IEnumerable<VoidPtr>
-    {
-        private List<VoidPtr> _values = new List<VoidPtr>();
-        public int Count { get { return _values.Count; } }
-        public VoidPtr this[int index]
-        {
-            get
-            {
-                if (index >= 0 && index < _values.Count)
-                    return _values[index];
-                return null;
-            }
-            set
-            {
-                if (index >= 0 && index < _values.Count)
-                    _values[index] = value;
-            }
-        }
-
-        public void Add(VoidPtr value)
-        {
-            if (!_values.Contains(value))
-                _values.Add(value);
-        }
-        public void AddRange(VoidPtr[] vals)
-        {
-            foreach (VoidPtr value in vals)
-                if (!_values.Contains(value))
-                    _values.Add(value);
-        }
-
-        public IEnumerator<VoidPtr> GetEnumerator() { return _values.GetEnumerator(); }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
-
-        internal void Sort()
-        {
-            _values.Sort();
-        }
     }
 }

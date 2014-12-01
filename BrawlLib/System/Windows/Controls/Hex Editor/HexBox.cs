@@ -2559,68 +2559,97 @@ namespace Be.Windows.Forms
 			}
 		}
 
-        void PaintByte(byte b, long i, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush brush, Brush selBrush, Brush selBrushBack, Brush relocBrush, Brush blrBrush, Brush cmdBrush, Brush selectedBrush, Point gridPoint)
+        void GetBrushes(Relocation r, long remainder, ref Brush foreColor, ref Brush backColor)
+        {
+            foreColor = r.Linked.Count > 0 ? RelocationBrush : foreColor;
+
+            bool branch = (r._section.HasCode && r.Code is PPCBranch && _sectionEditor.highlightBlr.Checked);
+            bool cmd = r.Command != null && ((r.Command.IsHalf && remainder > 1) || (!r.Command.IsHalf));
+
+            if (_sectionEditor._section.HasCode)
+            {
+                //Get the currently selected branch code.
+                //This is not the byte that is being painted!
+                PPCBranch branchOp = _sectionEditor.TargetBranch;
+                if (branchOp != null)
+                {
+                    int index = 
+                        !branchOp.Absolute ? 
+                        (_sectionEditor.TargetRelocation._index * 4 + branchOp.DataOffset).RoundDown(4) / 4 : 
+                        -1; //Absolute from start of section, start of file, or start of memory?
+
+                    if (index == r._index)
+                    {
+                        backColor = BranchOffsetBrush;
+                        return;
+                    }
+                }
+            }
+
+            backColor = 
+                r._selected ? SelectedBrush :   //1st: is this selected?
+                cmd ? CommandBrush :            //2nd: is this a command?
+                branch ? BranchBrush :          //3rd: is this a branch?
+                null;                           //4th: this is nothing important.
+        }
+
+        void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Point gridPoint)
         {
             if (isSelectedByte && isKeyInterpreterActive)
-                PaintHexStringSelected(g, b, selBrush, selBrushBack, gridPoint);
+                PaintHexStringSelected(g, b, SelectionForeBrush, SelectionBackBrush, gridPoint);
             else
             {
                 if (_sectionEditor != null)
                 {
-                    Relocation r = _sectionEditor.GetRelocationAtOffset((int)i);
-                    if (r == null)
-                        PaintHexString(g, b, brush, gridPoint);
-                    else
+                    Relocation r = _sectionEditor.GetRelocationAtOffset((int)offset);
+                    if (r != null)
                     {
-                        Brush text = r.Linked.Count > 0 ? relocBrush : brush;
-                        bool blr = (r._section.HasCode && r.Code is PPCblr && _sectionEditor.highlightBlr.Checked);
-                        long e = i - i.RoundDown(4);
-                        bool cmd = r.Command != null && ((r.Command.IsHalf && e > 1) || (!r.Command.IsHalf));
-                        Brush bg = r._selected ? selectedBrush : cmd ? cmdBrush : blr ? blrBrush : null;
+                        Brush backBrush = null;
+                        long remainder = offset - offset.RoundDown(4);
+                        GetBrushes(r, remainder, ref foreBrush, ref backBrush);
 
-                        //if (r.Command != null && _sectionEditor.displayInitialized.Checked)
-                        //{
-                        //    uint offset = r.RelOffset;
-                        //    b = (byte)((offset >> ((3 - ((int)e)) * 8)) & 0xFF);
-                        //}
+                        if (r.Command != null && _sectionEditor.displayInitialized.Checked)
+                            b = (byte)((r.RelOffset >> ((3 - ((int)remainder)) * 8)) & 0xFF);
 
-                        if (bg != null)
+                        if (backBrush != null)
+                        {
                             if (r.Command != null && r.Command.IsHalf)
-                                if (e > 1 || r._selected)
-                                    PaintHexStringSelected(g, b, text, bg, gridPoint);
-                                else
-                                    if (r.Color != Color.Transparent)
-                                        PaintHexStringSelected(g, b, text, r.ColorBrush, gridPoint);
-                                    else
-                                        PaintHexString(g, b, text, gridPoint);
+                            {
+                                if (remainder > 1 || r._selected)
+                                {
+                                    PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
+                                    return;
+                                }
+                                else if (r.Color != Color.Transparent)
+                                {
+                                    PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
+                                    return;
+                                }
+                            }
                             else
                             {
                                 if ((r._prolog || r._epilog || r._unresolved) && !r._selected)
-                                    PaintHexStringSelected(g, b, text, r.ColorBrush, gridPoint);
+                                    PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
                                 else
-                                    PaintHexStringSelected(g, b, text, bg, gridPoint);
+                                    PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
+                                return;
                             }
-                        else
-                            if (r.Color != Color.Transparent)
-                                PaintHexStringSelected(g, b, text, r.ColorBrush, gridPoint);
-                            else
-                                PaintHexString(g, b, text, gridPoint);
+                        }
+                        else if (r.Color != Color.Transparent)
+                        {
+                            PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
+                            return;
+                        }
                     }
                 }
-                else
-                    PaintHexString(g, b, brush, gridPoint);
+
+                PaintHexString(g, b, foreBrush, gridPoint);
             }
         }
 
 		void PaintHex(Graphics g, long startByte, long endByte)
 		{
 			Brush brush = new SolidBrush(GetDefaultForeColor());
-			Brush selBrush = new SolidBrush(_selectionForeColor);
-			Brush selBrushBack = new SolidBrush(_selectionBackColor);
-            Brush relocBrush = new SolidBrush(_relocationColor);
-            Brush blrBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 100));
-            Brush cmdBrush = new SolidBrush(_commandColor);
-            Brush selectedBrush = new SolidBrush(Color.FromArgb(255, 200, 255, 255));
 
 			int counter = -1;
 			long intern_endByte = Math.Min(_byteProvider.Length - 1, endByte + _iHexMaxHBytes);
@@ -2635,7 +2664,7 @@ namespace Be.Windows.Forms
 
 				bool isSelectedByte = i >= _bytePos && i <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
 
-                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, selBrush, selBrushBack, relocBrush, blrBrush, cmdBrush, selectedBrush, gridPoint);
+                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, gridPoint);
 			}
 		}
 
@@ -2683,12 +2712,6 @@ namespace Be.Windows.Forms
 		void PaintHexAndStringView(Graphics g, long startByte, long endByte)
 		{
 			Brush brush = new SolidBrush(GetDefaultForeColor());
-            Brush relocBrush = new SolidBrush(_relocationColor);
-            Brush blrBrush = new SolidBrush(Color.FromArgb(255, 255, 255, 100));
-            Brush cmdBrush = new SolidBrush(_commandColor);
-			Brush selBrush = new SolidBrush(_selectionForeColor);
-			Brush selBrushBack = new SolidBrush(_selectionBackColor);
-            Brush selectedBrush = new SolidBrush(Color.FromArgb(255, 200, 255, 255));
 
 			int counter = -1;
 			long intern_endByte = Math.Min(_byteProvider.Length - 1, endByte + _iHexMaxHBytes);
@@ -2705,14 +2728,14 @@ namespace Be.Windows.Forms
 
 				bool isSelectedByte = i >= _bytePos && i <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
 
-                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, selBrush, selBrushBack, relocBrush, blrBrush, cmdBrush, selectedBrush, gridPoint);
+                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, gridPoint);
                 
 				string s = new String(ByteCharConverter.ToChar(b), 1);
 
 				if (isSelectedByte && isStringKeyInterpreterActive)
 				{
-					g.FillRectangle(selBrushBack, byteStringPointF.X, byteStringPointF.Y, _charSize.Width, _charSize.Height);
-					g.DrawString(s, Font, selBrush, byteStringPointF, _stringFormat);
+					g.FillRectangle(_selectionBackBrush, byteStringPointF.X, byteStringPointF.Y, _charSize.Width, _charSize.Height);
+					g.DrawString(s, Font, _selectionForeBrush, byteStringPointF, _stringFormat);
 				}
 				else
 					g.DrawString(s, Font, brush, byteStringPointF, _stringFormat);
@@ -3542,6 +3565,16 @@ namespace Be.Windows.Forms
 			get { return _selectionBackColor; }
 			set { _selectionBackColor = value; Invalidate(); }
 		} Color _selectionBackColor = Color.Blue;
+        [Browsable(false)]
+        public Brush SelectionBackBrush
+        {
+            get
+            {
+                return _selectionBackBrush ??
+                    (_selectionBackBrush = new SolidBrush(_selectionBackColor));
+            }
+        }
+        Brush _selectionBackBrush = null;
 
 		/// <summary>
 		/// Gets or sets the foreground color for the selected bytes.
@@ -3552,6 +3585,16 @@ namespace Be.Windows.Forms
 			get { return _selectionForeColor; }
 			set { _selectionForeColor = value; Invalidate(); }
 		} Color _selectionForeColor = Color.White;
+        [Browsable(false)]
+        public Brush SelectionForeBrush
+        {
+            get
+            {
+                return _selectionForeBrush ??
+                    (_selectionForeBrush = new SolidBrush(_selectionForeColor));
+            }
+        }
+        Brush _selectionForeBrush = null;
 
         /// <summary>
 		/// Gets or sets the color for the relocations with commands.
@@ -3562,16 +3605,96 @@ namespace Be.Windows.Forms
             get { return _relocationColor; }
             set { _relocationColor = value; Invalidate(); }
 		}  Color _relocationColor = Color.Red;
+        [Browsable(false)]
+        public Brush RelocationBrush
+        {
+            get
+            {
+                return _relocationBrush ??
+                    (_relocationBrush = new SolidBrush(_relocationColor));
+            }
+        }
+        Brush _relocationBrush = null;
 
         /// <summary>
         /// Gets or sets the color for the relocations with commands.
         /// </summary>
-        [Category("Hex"), Description("Gets or sets the color for the relocations with linked relocations.")]
+        [Category("Hex"), Description("Gets or sets the color for the relocations with a command.")]
         public Color CommandColor
         {
             get { return _commandColor; }
             set { _commandColor = value; Invalidate(); }
         }  Color _commandColor = Color.FromArgb(200, 255, 200);
+        [Browsable(false)]
+        public Brush CommandBrush
+        {
+            get
+            {
+                return _commandBrush ??
+                    (_commandBrush = new SolidBrush(_commandColor));
+            }
+        }
+        Brush _commandBrush = null;
+
+        /// <summary>
+        /// Gets or sets the color for code branch relocations.
+        /// </summary>
+        [Category("Hex"), Description("Gets or sets the color for code branch relocations.")]
+        public Color BranchColor
+        {
+            get { return _branchColor; }
+            set { _branchColor = value; Invalidate(); }
+        }  Color _branchColor = Color.FromArgb(255, 255, 100);
+        [Browsable(false)]
+        public Brush BranchBrush
+        {
+            get
+            {
+                return _branchBrush ??
+                    (_branchBrush = new SolidBrush(_branchColor));
+            }
+        }
+        Brush _branchBrush = null;
+
+        /// <summary>
+        /// Gets or sets the color for relocations that are branched to.
+        /// </summary>
+        [Category("Hex"), Description("Gets or sets the color for branched relocations.")]
+        public Color BranchOffsetColor
+        {
+            get { return _branchOffsetColor; }
+            set { _branchOffsetColor = value; Invalidate(); }
+        }  Color _branchOffsetColor = Color.MediumPurple;
+        [Browsable(false)]
+        public Brush BranchOffsetBrush
+        {
+            get
+            {
+                return _branchOffsetBrush ??
+                    (_branchOffsetBrush = new SolidBrush(_branchOffsetColor));
+            }
+        }
+        Brush _branchOffsetBrush = null;
+
+        /// <summary>
+        /// Gets or sets the color for the selected bytes.
+        /// </summary>
+        [Category("Hex"), Description("Gets or sets the foreground color for the selected bytes.")]
+        public Color SelectedColor
+        {
+            get { return _selectedColor; }
+            set { _selectedColor = value; Invalidate(); }
+        } Color _selectedColor = Color.FromArgb(200, 255, 255);
+        [Browsable(false)]
+        public Brush SelectedBrush
+        {
+            get
+            {
+                return _selectedBrush ??
+                    (_selectedBrush = new SolidBrush(_selectedColor));
+            }
+        }
+        Brush _selectedBrush = null;
 
 		/// <summary>
 		/// Gets or sets the visibility of a shadow selection.

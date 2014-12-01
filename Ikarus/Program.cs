@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Diagnostics;
 using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
+using Ikarus.UI;
 
 namespace Ikarus
 {

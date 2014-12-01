@@ -15,6 +15,8 @@ using Gif.Components;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
+using Ikarus;
+using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
@@ -216,8 +218,8 @@ namespace Ikarus.UI
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                modelPanel.DefaultRotate = new Vector2(modelPanel._camera._rotation._x, modelPanel._camera._rotation._y);
-                modelPanel.DefaultTranslate = modelPanel._camera._matrixInverse.Multiply(new Vector3());
+                modelPanel.DefaultRotate = new Vector2(modelPanel.Camera.Rotation._x, modelPanel.Camera.Rotation._y);
+                modelPanel.DefaultTranslate = modelPanel.Camera._matrixInverse.Multiply(new Vector3());
 
                 btnSaveCam.Text = "Clear Camera";
             }
@@ -719,7 +721,6 @@ namespace Ikarus.UI
                         chr0Editor.BoxChanged(chr0Editor.numRotX, null);
                         chr0Editor.BoxChanged(chr0Editor.numRotY, null);
                         chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
-                        modelPanel._forceNoSelection = false;
                     }
                     if (_translating)
                     {
@@ -730,7 +731,6 @@ namespace Ikarus.UI
                         chr0Editor.BoxChanged(chr0Editor.numTransX, null);
                         chr0Editor.BoxChanged(chr0Editor.numTransY, null);
                         chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
-                        modelPanel._forceNoSelection = false;
                     }
                     if (_scaling)
                     {
@@ -741,8 +741,8 @@ namespace Ikarus.UI
                         chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
                         chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
                         chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
-                        modelPanel._forceNoSelection = false;
                     }
+                    modelPanel.AllowSelection = true;
                 }
                 else if (key == Keys.Space)
                 {

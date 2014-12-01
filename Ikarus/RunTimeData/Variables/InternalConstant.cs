@@ -7,6 +7,8 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Globalization;
 using System.ComponentModel;
+using Ikarus.MovesetFile;
+using Ikarus.ModelViewer;
 
 namespace Ikarus
 {
@@ -147,7 +149,7 @@ namespace Ikarus
                 Vector3 p = Manager.Moveset.Data._misc._boneRefs[4].BoneNode._frameMatrix.GetPoint();
                 return (int)(p._y + 0.5f);
             }
-            return 0; 
+            return 0;
         }
         //Control Stick Forward, 0 to 1
         private static int _1011() { return 0; }
@@ -159,11 +161,11 @@ namespace Ikarus
         private static int _1020() { return 0; }
 
         //Current Subaction
-        private static int _20000() { return RunTime.CurrentSubaction.ID; }
+        private static int _20000() { return RunTime.CurrentSubaction != null ? RunTime.CurrentSubaction.ID : -1; }
         //Current Action
-        private static int _20001() { return RunTime.CurrentAction.ID; }
+        private static int _20001() { return RunTime.CurrentAction != null ? RunTime.CurrentAction.ID : -1; }
         //Previous Action
-        private static int _20003() { return RunTime.PreviousAction.ID; }
+        private static int _20003() { return RunTime.PreviousAction != null ? RunTime.PreviousAction.ID : -1; }
 
         #region Constants
 

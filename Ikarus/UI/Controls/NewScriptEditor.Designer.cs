@@ -1,4 +1,4 @@
-﻿namespace Ikarus
+﻿namespace System.Windows.Forms
 {
     partial class NewScriptEditor
     {

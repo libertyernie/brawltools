@@ -5,8 +5,9 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
+using BrawlLib.SSBB.ResourceNodes;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     //public unsafe class MoveDefItemAnchorListNode : MovesetEntry
     //{
@@ -62,7 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     //    }
     //}
 
-    public unsafe class ItemAnchor : MovesetEntry
+    public unsafe class ItemAnchor : MovesetEntryNode
     {
         int _boneIndex;
         Vector3 _trans, _rot;
@@ -101,7 +102,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sItemAnchor* hdr = (sItemAnchor*)address;
 
@@ -122,7 +123,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sItemAnchor* data = (sItemAnchor*)address;
             data->_boneIndex = _boneIndex;
             data->_translation = _trans;

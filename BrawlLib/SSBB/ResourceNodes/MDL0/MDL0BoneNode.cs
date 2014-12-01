@@ -17,7 +17,7 @@ using OpenTK.Graphics.OpenGL;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class MDL0BoneNode : MDL0EntryNode, IMatrixNode
+    public unsafe class MDL0BoneNode : MDL0EntryNode, IBoneNode
     {
         internal MDL0Bone* Header { get { return (MDL0Bone*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.MDL0Bone; } }
@@ -47,20 +47,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public bool _locked; //For the weight editor
-
         public bool _moved = false;
-        [Browsable(false)]
-        public bool Moved
-        {
-            get { return _moved;  } 
-            set 
-            {
-                _moved = true;
-                MDL0Node model = Model;
-                model._linker = ModelLinker.Prepare(model);
-                model.SignalPropertyChange();
-            } 
-        }
 
         public BoneFlags _flags1 = (BoneFlags)0x100;
         public BillboardFlags _flags2;
@@ -68,10 +55,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public List<MDL0ObjectNode> _infPolys = new List<MDL0ObjectNode>();
         public List<MDL0ObjectNode> _manPolys = new List<MDL0ObjectNode>();
-        [Category("Bone")]
-        public MDL0ObjectNode[] AttachedObjects { get { return _manPolys.ToArray(); } }
-        [Category("Bone")]
-        public MDL0ObjectNode[] InfluencedObjects { get { return _infPolys.ToArray(); } }
 
         public FrameState _bindState = FrameState.Neutral;
         public Matrix _bindMatrix = Matrix.Identity, _inverseBindMatrix = Matrix.Identity;
@@ -81,15 +64,55 @@ namespace BrawlLib.SSBB.ResourceNodes
         private Vector3 _bMin, _bMax;
         internal int _nodeIndex, _weightCount, _refCount, _headerLen, _mdl0Offset, _stringOffset, _parentOffset, _firstChildOffset, _prevOffset, _nextOffset, _userDataOffset;
 
-        [Category("Bone"), Browsable(false)]
-        public Matrix Matrix { get { return _frameMatrix; } }
-        [Category("Bone"), Browsable(false)]
-        public Matrix InverseMatrix { get { return _inverseFrameMatrix; } }
+        #region IBoneNode Implementation
+
+        [Browsable(false)]
+        public IModel IModel { get { return Model; } }
+        [Browsable(false)]
+        public FrameState FrameState { get { return _frameState; } set { _frameState = value; } }
+        [Browsable(false)]
+        public FrameState BindState { get { return _bindState; } set { _bindState = value; } }
+
+        [Browsable(false)]
+        public Color BoneColor { get { return _boneColor; } set { _boneColor = value; } }
+        [Browsable(false)]
+        public Color NodeColor { get { return _nodeColor; } set { _nodeColor = value; } }
+
+        [Browsable(false)]
+        public int WeightCount { get { return _weightCount; } set { _weightCount = value; } }
+
+        [Browsable(false)]
+        public bool Moved
+        {
+            get { return _moved; }
+            set
+            {
+                _moved = true;
+                MDL0Node model = Model;
+                model._linker = ModelLinker.Prepare(model);
+                model.SignalPropertyChange();
+            }
+        }
+
+        [Browsable(false)]
+        public bool Locked
+        {
+            get { return _locked; }
+            set { _locked = value; }
+        }
+
         [Category("Bone"), Browsable(false), TypeConverter(typeof(MatrixStringConverter))]
         public Matrix BindMatrix { get { return _bindMatrix; } set { _bindMatrix = value; SignalPropertyChange(); } }
         [Category("Bone"), Browsable(false), TypeConverter(typeof(MatrixStringConverter))]
         public Matrix InverseBindMatrix { get { return _inverseBindMatrix; } set { _inverseBindMatrix = value; SignalPropertyChange(); } }
 
+        #region IMatrixNode Implementation
+
+        [Category("Bone"), Browsable(false)]
+        public Matrix Matrix { get { return _frameMatrix; } }
+        [Category("Bone"), Browsable(false)]
+        public Matrix InverseMatrix { get { return _inverseFrameMatrix; } }
+        
         [Browsable(false)]
         public int NodeIndex { get { return _nodeIndex; } }
         [Browsable(false)]
@@ -105,25 +128,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public List<IMatrixNodeUser> Users { get { return _users; } set { _users = value; } }
         internal List<IMatrixNodeUser> _users = new List<IMatrixNodeUser>();
 
-//#if DEBUG
-        //[Category("Bone")]
-        //public int HeaderLen { get { return _headerLen; } }
-        //[Category("Bone")]
-        //public int MDL0Offset { get { return _mdl0Offset; } }
-        //[Category("Bone")]
-        //public int StringOffset { get { return _stringOffset; } }
-        //[Category("Bone")]
-        //public int ParentOffset { get { return _parentOffset / 0xD0; } }
-        //[Category("Bone")]
-        //public int FirstChildOffset { get { return _firstChildOffset / 0xD0; } }
-        //[Category("Bone")]
-        //public int NextOffset { get { return _nextOffset / 0xD0; } }
-        //[Category("Bone")]
-        //public int PrevOffset { get { return _prevOffset / 0xD0; } }
-        //[Category("Bone")]
-        //public int UserDataOffset { get { return _userDataOffset; } }
-//#endif
-        
+        #endregion
+
+        #endregion
+
+        #region Properties
+
+        [Category("Bone")]
+        public MDL0ObjectNode[] AttachedObjects { get { return _manPolys.ToArray(); } }
+        [Category("Bone")]
+        public MDL0ObjectNode[] InfluencedObjects { get { return _infPolys.ToArray(); } }
+
         [Category("Bone")]
         public bool Visible
         {
@@ -201,7 +216,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_flags2 != 0 && Model._billboardBones.Contains(this))
                     Model._billboardBones.Remove(this);
                 _flags2 = (BillboardFlags)(int)value;
-                if (_flags2 != 0 && _flags1.HasFlag(BoneFlags.HasGeometry) && !Model._billboardBones.Contains(this))
+                if (_flags2 != 0 && !Model._billboardBones.Contains(this))
                     Model._billboardBones.Add(this);
                 SignalPropertyChange();
             }
@@ -245,10 +260,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-
-        //[Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
-        //public Quaternion QuaternionRotation { get { return _bindState._quaternion; } set { _bindState.QuaternionRotate = value; flagsChanged = true; SignalPropertyChange(); } }
-        
         [Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
         public Vector3 Rotation 
         {
@@ -328,7 +339,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
-        
+
+        #endregion
+
         internal override void GetStrings(StringTable table)
         {
             table.Add(Name);
@@ -573,8 +586,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             else
             {
-                if (_overrideTranslate != new Vector3())
-                    _frameState = new FrameState(_frameState.Scale, _frameState.Rotate, _frameState.Translate + _overrideTranslate);
+                if (_overrideLocalTranslate != new Vector3())
+                    _frameState = new FrameState(_frameState.Scale, _frameState.Rotate, _frameState.Translate + _overrideLocalTranslate);
+
+                _frameState.CalcTransforms();
 
                 if (_parent is MDL0BoneNode)
                 {
@@ -592,7 +607,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //    foreach (MDL0BoneNode b in _overriding)
             //        b.RecalcFrameState();
 
-            if (BillboardSetting == BillboardFlags.PerspectiveSTD)
+            if (BillboardSetting != BillboardFlags.Off)
                 MuliplyRotation();
 
             foreach (MDL0BoneNode bone in Children)
@@ -601,21 +616,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void MuliplyRotation()
         {
-            if (Model._mainWindow != null)
+            if (GLPanel.Current != null &&
+                BillboardSetting != BillboardFlags.Off &&
+                (BillboardSetting == BillboardFlags.STD || BillboardSetting == BillboardFlags.PerspectiveSTD))
             {
-                Vector3 center = _frameMatrix.GetPoint();
-                Vector3 cam = Model._mainWindow._camera.GetPoint();
-                Vector3 scale = new Vector3(1);
-                Vector3 rot = new Vector3();
-                Vector3 trans = new Vector3();
+                Vector3 scale = _frameMatrix.GetScale();
+                Vector3 trans = _frameMatrix.GetPoint();
+                Vector3 rot = trans.LookatAngles(GLPanel.Current.Camera.GetPoint()) * Maths._rad2degf;
 
-                if (BillboardSetting == BillboardFlags.PerspectiveSTD)
-                    rot = center.LookatAngles(cam) * Maths._rad2degf;
-
-                _frameMatrix *= Matrix.TransformMatrix(scale, rot, trans);
-                _inverseFrameMatrix *= Matrix.ReverseTransformMatrix(scale, rot, trans);
+                _frameMatrix = Matrix.TransformMatrix(scale, rot, trans);
+                _inverseFrameMatrix = Matrix.ReverseTransformMatrix(scale, rot, trans);
             }
-
             //foreach (MDL0BoneNode bone in Children)
             //    bone.MuliplyRotation();
         }
@@ -629,6 +640,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             return list;
         }
 
+        [Browsable(false)]
+        public List<Influence> LinkedInfluences { get { return _linkedInfluences; } }
+        List<Influence> _linkedInfluences = new List<Influence>();
+
         #region Rendering
 
         public static Color DefaultBoneColor = Color.FromArgb(0, 0, 128);
@@ -640,7 +655,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public const float _nodeRadius = 0.20f;
 
         public bool _render = true;
-        internal unsafe void Render(TKContext ctx, ModelPanel mainWindow)
+        internal unsafe void Render()
         {
             if (!_render)
                 return;
@@ -650,14 +665,33 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, 1.0f);
 
+            if (BillboardSetting != 0)
+            {
+                Vector3 center = _frameMatrix.GetPoint();
+                Vector3 cam = GLPanel.Current.Camera.GetPoint();
+                //Matrix m2 = new Matrix();
+                //Vector3 scale = new Vector3(1);
+                Vector3 rot = new Vector3();
+                //Vector3 trans = new Vector3();
+
+                if (BillboardSetting == BillboardFlags.PerspectiveSTD)
+                    rot = center.LookatAngles(cam) * Maths._rad2degf;
+
+
+                //m2 = Matrix.TransformMatrix(scale, rot, trans);
+
+                //GL.PushMatrix();
+                //GL.MultMatrix((float*)&m2);
+            }
+
             //GL.LineWidth(1.0f);
 
             //Draw name if selected
-            if (mainWindow != null && _nodeColor != Color.Transparent)
+            if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
             {
                 Vector3 pt = _frameMatrix.GetPoint();
-                Vector3 v2 = mainWindow.Project(pt);
-                mainWindow.ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
+                Vector3 v2 = GLPanel.Current.Project(pt);
+                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
             }
 
             Vector3 v1 = (_parent == null || !(_parent is MDL0BoneNode)) ? new Vector3(0.0f) : ((MDL0BoneNode)_parent)._frameMatrix.GetPoint();
@@ -676,7 +710,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.MultMatrix((float*)m);
 
             //Render node
-            GLDisplayList ndl = ctx.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
+            GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
             if (_nodeColor != Color.Transparent)
                 GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, 1.0f);
             else
@@ -686,31 +720,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             
             DrawNodeOrients();
 
-            if (BillboardSetting != 0 && mainWindow != null)
-            {
-                Vector3 center = _frameMatrix.GetPoint();
-                Vector3 cam = mainWindow._camera.GetPoint();
-                Matrix m2 = new Matrix();
-                Vector3 scale = new Vector3(1);
-                Vector3 rot = new Vector3();
-                Vector3 trans = new Vector3();
-
-                if (BillboardSetting == BillboardFlags.PerspectiveSTD)
-                    rot = center.LookatAngles(cam) * Maths._rad2degf;
-
-                m2 = Matrix.TransformMatrix(scale, rot, trans);
-                GL.PushMatrix();
-                GL.MultMatrix((float*)&m2);
-            }
-
-            if (BillboardSetting != 0 && mainWindow != null)
-                GL.PopMatrix();
-
             GL.PopMatrix();
 
             //Render children
             foreach (MDL0BoneNode n in Children)
-                n.Render(ctx, mainWindow);
+                n.Render();
         }
 
         internal void ApplyCHR0(CHR0Node node, int index, bool linear)
@@ -736,7 +750,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public static GLDisplayList CreateNodeOrb(TKContext ctx)
         {
-            GLDisplayList circle = ctx.GetRingList();
+            GLDisplayList circle = TKContext.GetRingList();
             GLDisplayList orb = new GLDisplayList();
 
             orb.Begin();
@@ -773,7 +787,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.End();
         }
 
-        internal override void Bind(TKContext ctx)
+        internal override void Bind()
         {
             _render = true;
             _boneColor = Color.Transparent;
@@ -782,7 +796,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
-        public Vector3 _overrideTranslate;
+        public Vector3 _overrideLocalTranslate;
 
         //public FrameState BindState 
         //{

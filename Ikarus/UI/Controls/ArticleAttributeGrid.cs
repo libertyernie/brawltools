@@ -5,6 +5,7 @@ using System.Data;
 using System.IO;
 using System.Globalization;
 using Ikarus;
+using Ikarus.MovesetFile;
 
 namespace System.Windows.Forms
 {

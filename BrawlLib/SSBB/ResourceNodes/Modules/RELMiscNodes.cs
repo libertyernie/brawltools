@@ -11,19 +11,14 @@ using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public class RELGroupNode : RELEntryNode
-    {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
-    }
-
     public unsafe class RELEntryNode : ResourceNode
     {
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         internal VoidPtr Data { get { return WorkingUncompressed.Address; } }
         
         [Browsable(false)]
-        public uint _offset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
-        public string FileOffset { get { return "0x" + _offset.ToString("X"); } }
+        public uint RootOffset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
+        public string FileOffset { get { return "0x" + RootOffset.ToString("X"); } }
 
         [Browsable(false)]
         public VoidPtr BaseAddress { get { if (Root != null) return Root.WorkingUncompressed.Address; else return null; } }

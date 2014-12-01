@@ -1,5 +1,6 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
-using Ikarus.UI;
+using Ikarus.MovesetFile;
+using System.Windows.Forms;
 using System;
 using System.Audio;
 using System.Collections.Generic;
@@ -7,8 +8,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using Ikarus.UI;
 
-namespace Ikarus
+namespace Ikarus.ModelViewer
 {
     /// <summary>
     /// Info for displaying and animating articles.
@@ -72,14 +74,12 @@ namespace Ikarus
                     if (RunTime._runningScripts[i]._parentArticle != null)
                         RunTime._runningScripts.RemoveAt(i);
                 
-                foreach (Script a in CurrentSubaction.GetScriptArray())
-                {
-                    if (a != null)
+                foreach (Script script in CurrentSubaction.GetScriptArray())
+                    if (script != null)
                     {
-                        RunTime._runningScripts.Add(a);
-                        a.Reset();
+                        RunTime._runningScripts.Add(script);
+                        script.Reset();
                     }
-                }
             }
         }
 
@@ -186,7 +186,7 @@ namespace Ikarus
             get { return _running; } 
             set { _running = value; }
         }
-        public bool ModelVisible { get { return _model == null ? false : _model._visible; } set { if (_model == null) return; _model._visible = value; } }
+        public bool ModelVisible { get { return _model == null ? false : _model._attached; } set { if (_model == null) return; _model._attached = value; } }
 
         public void UpdateModel()
         {

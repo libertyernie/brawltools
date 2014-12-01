@@ -2,15 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using BrawlLib.IO;
-using BrawlLib.Wii.Animations;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetBuilder
 {
     public unsafe partial class MovesetConverter
     {

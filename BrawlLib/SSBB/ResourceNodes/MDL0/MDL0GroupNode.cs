@@ -41,7 +41,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal virtual void Bind(TKContext ctx) { }
+        internal virtual void Bind() { }
         internal virtual void Unbind() { }
 
         protected internal virtual void PostProcess(VoidPtr mdlAddress, VoidPtr dataAddress, StringTable stringTable) { }
@@ -108,12 +108,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     linker.BoneCache = _children.ToArray();
 
                     //Make sure the node cache is the correct size
-                    int highest = 0;
-                    foreach (MDL0BoneNode b in linker.BoneCache)
-                        if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
-                            highest = b._nodeIndex;
-                    if (highest >= linker.NodeCache.Length)
-                        linker.NodeCache = new IMatrixNode[highest + 1];
+                    //int highest = 0;
+                    //foreach (MDL0BoneNode b in linker.BoneCache)
+                    //    if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
+                    //        highest = b._nodeIndex;
+                    //if (highest >= linker.NodeCache.Length)
+                    //    linker.NodeCache = new IMatrixNode[highest + 1];
 
                     //Reset children so we can rebuild
                     _children.Clear();
@@ -197,28 +197,25 @@ namespace BrawlLib.SSBB.ResourceNodes
                                     List<int> nullIndices = new List<int>();
                                     for (int i = 0; i < count; i++, nEntry++)
                                         if (nEntry->_id < linker.NodeCache.Length && (b = (linker.NodeCache[nEntry->_id] as MDL0BoneNode)) != null)
-                                            inf._weights.Add(new BoneWeight(b, nEntry->_value));
+                                            inf.AddWeight(new BoneWeight(b, nEntry->_value));
                                         else
-                                        {
                                             nullIndices.Add(i);
-                                            nullCount++;
-                                        }
 
-                                    bool d = false;
-                                    if (nullIndices.Count > 0)
+                                    bool noWeights = false;
+                                    if ((nullCount = nullIndices.Count) > 0)
                                     {
                                         List<BoneWeight> newWeights = new List<BoneWeight>();
-                                        for (int i = 0; i < inf._weights.Count; i++)
+                                        for (int i = 0; i < inf.Weights.Count; i++)
                                             if (!nullIndices.Contains(i))
-                                                newWeights.Add(inf._weights[i]);
+                                                newWeights.Add(inf.Weights[i]);
                                         if (newWeights.Count == 0)
-                                            d = true;
+                                            noWeights = true;
                                         else
-                                            inf._weights = newWeights;
+                                            inf.SetWeights(newWeights);
                                     }
 
                                     //Add influence to model object, while adding it to the cache.
-                                    if (!d) ((Influence)(linker.NodeCache[index] = model._influences.FindOrCreate(inf, true)))._index = index;
+                                    if (!noWeights) ((Influence)(linker.NodeCache[index] = model._influences.FindOrCreate(inf, true)))._index = index;
 
                                     //Move data pointer to next entry
                                     pData = (byte*)nEntry;
@@ -345,9 +342,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                         bool hasUnused = false;
                         for (int i = max; i < 8; i++)
-                            if (m.HasTextureMatrix[i])
+                            if (m._manager.HasTextureMatrix[i])
                             {
-                                m.HasTextureMatrix[i] = false;
+                                m._manager.HasTextureMatrix[i] = false;
                                 m._rebuild = true;
                                 hasUnused = true;
                             }
@@ -453,10 +450,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 PostProcessBone(mdlAddress, n, group, ref index, stringTable);
         }
 
-        internal void Bind(TKContext ctx)
+        internal void Bind()
         {
             foreach (MDL0EntryNode e in Children)
-                e.Bind(ctx);
+                e.Bind();
         }
         internal void Unbind()
         {

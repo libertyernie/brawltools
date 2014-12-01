@@ -212,7 +212,7 @@ namespace System.Windows.Forms
 
         public void UpdateDisplay()
         {
-            OnResized();
+            UpdateProjection();
             Invalidate();
         }
 
@@ -229,7 +229,7 @@ namespace System.Windows.Forms
             GL.LineWidth(_lineWidth);
             GL.PointSize(_pointWidth);
 
-            OnResized();
+            UpdateProjection();
         }
 
         protected override void OnMouseMove(MouseEventArgs e)
@@ -629,7 +629,7 @@ namespace System.Windows.Forms
             GL.End();
         }
 
-        protected internal unsafe override void OnRender(TKContext ctx, PaintEventArgs e)
+        protected internal unsafe override void OnRender(PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.ClearColor(Color.White);
@@ -758,7 +758,7 @@ namespace System.Windows.Forms
             }
         }
 
-        public override void OnResized()
+        public override void UpdateProjection()
         {
             if (_ctx == null)
                 return;

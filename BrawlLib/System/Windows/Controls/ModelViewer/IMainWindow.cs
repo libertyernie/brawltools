@@ -1,4 +1,5 @@
-﻿using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlLib.Modeling;
+using BrawlLib.SSBB.ResourceNodes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -23,7 +24,7 @@ namespace System.Windows.Forms
         void UpdateModel();
         void UpdatePropDisplay();
         void SetFrame(int index);
-        void BoneChange(MDL0BoneNode bone);
+        void BoneChange(IBoneNode bone);
         void GetFiles(AnimType focusType);
         void AnimChanged(AnimType type);
 
@@ -52,7 +53,7 @@ namespace System.Windows.Forms
         VIS0Node SelectedVIS0 { get; set; }
         SCN0Node SelectedSCN0 { get; set; }
         CLR0Node SelectedCLR0 { get; set; }
-        MDL0BoneNode SelectedBone { get; set; }
+        IBoneNode SelectedBone { get; set; }
 
         int CurrentFrame { get; set; }
         int MaxFrame { get; set; }
@@ -69,7 +70,7 @@ namespace System.Windows.Forms
         uint AllowedUndos { get; set; }
         bool LinearInterpolation { get; set; }
 
-        MDL0Node TargetModel { get; set; }
+        IModel TargetModel { get; set; }
         VIS0EntryNode TargetVisEntry { get; set; }
         MDL0MaterialRefNode TargetTexRef { get; set; }
         ResourceNode ExternalAnimationsNode { get; }

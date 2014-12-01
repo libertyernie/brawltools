@@ -1,5 +1,6 @@
 ﻿using Ikarus;
-using Ikarus.UI;
+using Ikarus.MovesetFile;
+using System.Windows.Forms;
 using System;
 using System.Audio;
 using System.Collections.Generic;
@@ -8,8 +9,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
+using BrawlLib.SSBB.ResourceNodes;
+using Ikarus.UI;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.ModelViewer
 {
     public class Scriptor
     {
@@ -23,7 +26,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { _script[i] = value; }
         }
 
-        public MovesetFile Root { get { return _script._root; } }
+        public MovesetNode Root { get { return _script._root; } }
         public ArticleEntry Article { get { return _script._parentArticle; } }
 
         #region Variables
@@ -429,7 +432,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         break;
                     articleInfo = RunTime._articles[id];
                     if (articleInfo != null && articleInfo._model != null)
-                        articleInfo._model._visible = p[1] != 0;
+                        articleInfo._model._attached = p[1] != 0;
                     break;
                 case 0x01010000: //Loop Rest
                     _waitFrames = 1;
@@ -678,9 +681,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
                 case 0x0B020100: //Model visibility
                     if (Article == null)
-                        Root.Model._visible = p[0] != 0;
+                        Root.Model._attached = p[0] != 0;
                     else if (Article.Index < RunTime._articles.Length && RunTime._articles[Article.Index]._model != null)
-                        RunTime._articles[Article.Index]._model._visible = p[0] != 0;
+                        RunTime._articles[Article.Index]._model._attached = p[0] != 0;
                     break;
                 case 0x0D000200: //Concurrent Infinite Loop
                     index = p[0];
@@ -709,7 +712,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     //Make sure we have all the data we need available
                     MainControl main = MainForm.Instance._mainControl;
-                    MovesetFile mNode = Manager.Moveset;
+                    MovesetNode mNode = Manager.Moveset;
                     if (mNode == null)
                         break;
                     DataSection d = mNode.Data;
@@ -737,7 +740,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (articleInfo._model != null)
                         {
                             main.RemoveTarget(articleInfo._model);
-                            articleInfo._model._visible = false;
+                            articleInfo._model._attached = false;
                         }
 
                         //This article is no longer available for use
@@ -752,7 +755,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (articleInfo._model != null)
                         {
                             main.AddTarget(articleInfo._model);
-                            articleInfo._model._visible = true;
+                            articleInfo._model._attached = true;
 
                             articleInfo._model._renderBones = RunTime.MainWindow._renderBones;
                             articleInfo._model._renderWireframe = RunTime.MainWindow._renderWireframe;

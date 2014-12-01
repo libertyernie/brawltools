@@ -18,12 +18,16 @@ namespace System
 
         public void Dispose()
         {
-            if (_data)
+            try
             {
-                Marshal.FreeHGlobal(_data);
-                _data = null;
-                GC.SuppressFinalize(this);
+                if (_data)
+                {
+                    Marshal.FreeHGlobal(_data);
+                    _data = null;
+                    GC.SuppressFinalize(this);
+                }
             }
+            catch (Exception e) { Console.WriteLine(e.ToString()); }
         }
     }
 }

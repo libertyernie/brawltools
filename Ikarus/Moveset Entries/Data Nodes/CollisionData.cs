@@ -6,14 +6,14 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     public unsafe class CollisionData : ListOffset
     {
         public List<CollisionDataEntry> _entries;
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             _entries = new List<CollisionDataEntry>();
             if (DataOffset > 0)
             {
@@ -91,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         Type2
     }
 
-    public unsafe class CollisionDataEntry : MovesetEntry
+    public unsafe class CollisionDataEntry : MovesetEntryNode
     {
         public List<BoneIndexValue> _bones;
         public int _dataOffset, _count, _flags;
@@ -109,7 +109,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Collision Data")]
         public int Flags { get { return _flags; } set { _flags = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _bones = new List<BoneIndexValue>();
             _type = *(CollisionType*)address;
@@ -149,7 +149,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if ((_flags & 2) == 2)
                         _unknown = hdr3->unk4;
 
-                    if (_size != 24 && _size != 20)
+                    if (_initSize != 24 && _initSize != 20)
                         throw new Exception("Incorrect size");
 
                     break;
@@ -183,7 +183,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     bint* addr = (bint*)address;
                     foreach (BoneIndexValue b in _bones)
                     {
-                        b._rebuildAddr = addr;
+                        b.RebuildAddress = addr;
                         *addr++ = b.boneIndex;
                     }
 
@@ -198,7 +198,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _lookupOffsets.Add(&data1->_list._startOffset);
                     }
                     data1->_list._listCount = _bones.Count;
-                    _rebuildAddr = addr;
+                    RebuildAddress = addr;
 
                     break;
 
@@ -208,7 +208,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     data2->unk1 = _length;
                     data2->unk2 = _width;
                     data2->unk3 = _height;
-                    _rebuildAddr = address;
+                    RebuildAddress = address;
 
                     break;
 
@@ -223,7 +223,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if ((_flags & 2) == 2)
                         data3->unk4 = _unknown;
 
-                    _rebuildAddr = address;
+                    RebuildAddress = address;
 
                     break;
             }

@@ -24,20 +24,32 @@ namespace System
             return value <= min ? min : value >= max ? max : value;
         }
 
-        public static Single Clamp180Deg(this Single value)
+        /// <summary>
+        /// Remaps values outside of a range into the first multiple of that range.
+        /// When it comes to signed numbers, negative is highest.
+        /// For example, -128 (0xFF) vs 127 (0x7F).
+        /// Because of this, the max value is non-inclusive while the min value is.
+        /// </summary>
+        public static Single RemapToRange(this Single value, Single min, Single max)
         {
-            float e = value;
+            //Get the distance between max and min
+            float range = max - min;
 
-            float d = (int)(e / 360.0f);
-            e -= 360.0f * d;
+            //First figure out how many multiples of the range there are.
+            //Dividing the value by the range and cutting off the decimal places
+            //will return the number of multiples of whole ranges in the value.
+            //Those multiples need to be subtracted out.
+            value -= range * (int)(value / range);
 
-            float l = e / 180.0f;
-            if (l > 1)
-                e -= 360.0f;
-            else if (l < -1)
-                e += 360.0f;
+            //Now the value is in the range of +range to -range.
+            //The value needs to be within +(range/2) to -(range/2).
+            value += value > max ? -range : value < min ? range : 0;
 
-            return e;
+            //Max value is non-inclusive
+            if (value == max)
+                value = min;
+
+            return value;
         }
     }
 }

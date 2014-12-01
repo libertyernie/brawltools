@@ -81,10 +81,39 @@ namespace BrawlLib.Wii.Models
         internal int _index;
         internal Matrix _matrix;
         internal Matrix? _invMatrix;
-        public List<BoneWeight> _weights;
+        private List<BoneWeight> _weights;
 
+        /// <summary>
+        /// Don't modify this array!
+        /// </summary>
         public List<BoneWeight> Weights { get { return _weights; } }
         public List<IMatrixNodeUser> Users { get { return _references; } set { _references = value; } }
+
+        public void AddWeight(BoneWeight weight)
+        {
+            _weights.Add(weight);
+            if (weight.Bone != null && !weight.Bone.LinkedInfluences.Contains(this))
+                weight.Bone.LinkedInfluences.Add(this);
+        }
+        public void RemoveWeight(BoneWeight weight)
+        {
+            if (_weights.Contains(weight))
+            {
+                _weights.Remove(weight);
+                if (weight.Bone != null && weight.Bone.LinkedInfluences.Contains(this))
+                    weight.Bone.LinkedInfluences.Remove(this);
+            }
+        }
+        public void SetWeights(List<BoneWeight> newWeights)
+        {
+            foreach (BoneWeight b in _weights)
+                if (b.Bone != null && b.Bone.LinkedInfluences.Contains(this))
+                    b.Bone.LinkedInfluences.Remove(this);
+            _weights = newWeights;
+            foreach (BoneWeight b in _weights)
+                if (b.Bone != null && !b.Bone.LinkedInfluences.Contains(this))
+                    b.Bone.LinkedInfluences.Add(this);
+        }
 
         //Makes sure all weights add up to 1.0f.
         //Does not modify any locked weights.
@@ -108,7 +137,7 @@ namespace BrawlLib.Wii.Models
         {
             Influence i = new Influence();
             foreach (BoneWeight b in _weights)
-                i._weights.Add(new BoneWeight(b.Bone, b.Weight) { Locked = b.Locked });
+                i.AddWeight(new BoneWeight(b.Bone, b.Weight) { Locked = b.Locked });
             
             return i;
         }
@@ -140,11 +169,33 @@ namespace BrawlLib.Wii.Models
         public bool IsPrimaryNode { get { return false; } }
 
         public bool IsWeighted { get { return _weights.Count > 1; } }
-        public MDL0BoneNode Bone { get { return _weights[0].Bone; } }
+        public IBoneNode Bone { get { return _weights[0].Bone; } }
 
-        public Influence() { _weights = new List<BoneWeight>(); }
-        public Influence(List<BoneWeight> weights) { _weights = weights; }
-        public Influence(MDL0BoneNode bone) { _weights = new List<BoneWeight> { new BoneWeight(bone) }; }
+        public Influence()
+        {
+            _weights = new List<BoneWeight>();
+        }
+        public Influence(List<BoneWeight> weights)
+        {
+            _weights = weights;
+            foreach (BoneWeight b in _weights)
+                if (b.Bone != null && !b.Bone.LinkedInfluences.Contains(this))
+                    b.Bone.LinkedInfluences.Add(this);
+        }
+        public Influence(IBoneNode bone)
+        {
+            _weights = new List<BoneWeight> { new BoneWeight(bone) };
+            if (!bone.LinkedInfluences.Contains(this))
+                bone.LinkedInfluences.Add(this);
+        }
+
+        ~Influence()
+        {
+            if (_weights != null)
+                foreach (BoneWeight b in _weights)
+                    if (b.Bone != null && b.Bone.LinkedInfluences.Contains(this))
+                        b.Bone.LinkedInfluences.Remove(this);
+        }
 
         public void CalcMatrix()
         {
@@ -223,14 +274,14 @@ namespace BrawlLib.Wii.Models
     {
         public override string ToString() { return Bone.Name + " - " + Weight * 100.0f + "%"; }
 
-        public MDL0BoneNode Bone;
+        public IBoneNode Bone;
         public float Weight;
 
-        public bool Locked { get { return Bone._locked; } set { Bone._locked = value; } }
+        public bool Locked { get { return Bone.Locked; } set { Bone.Locked = value; } }
 
         public BoneWeight() : this(null, 1.0f) { }
-        public BoneWeight(MDL0BoneNode bone) : this(bone, 1.0f) { }
-        public BoneWeight(MDL0BoneNode bone, float weight) { Bone = bone; Weight = weight; }
+        public BoneWeight(IBoneNode bone) : this(bone, 1.0f) { }
+        public BoneWeight(IBoneNode bone, float weight) { Bone = bone; Weight = weight; }
 
         public static bool operator ==(BoneWeight b1, BoneWeight b2) 
         {

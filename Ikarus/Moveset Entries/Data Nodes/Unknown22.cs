@@ -6,9 +6,9 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class Unknown22 : MovesetEntry
+    public unsafe class Unknown22 : MovesetEntryNode
     {
         int _unk1, _unk2, _actionOffset;
         Script _script;
@@ -20,7 +20,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Unknown Offset 22")]
         public int ActionOffset { get { return _actionOffset; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sDataUnknown22* hdr = (sDataUnknown22*)address;
             _unk1 = hdr->_unk1;
@@ -46,7 +46,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
 
             sDataUnknown22* data = (sDataUnknown22*)address;
             data->_unk1 = _unk1;
@@ -54,7 +54,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (_script != null && _script.Count > 0)
             {
-                data->_actionOffset = Offset(_script._rebuildAddr);
+                data->_actionOffset = Offset(_script.RebuildAddress);
                 _lookupOffsets.Add(&data->_actionOffset);
             }
         }

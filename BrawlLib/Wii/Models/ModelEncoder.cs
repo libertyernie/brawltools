@@ -39,9 +39,9 @@ namespace BrawlLib.Wii.Models
             foreach (Influence i in model._influences._influences)
             {
                 linker.NodeCache[i._index = index++] = i;
-                foreach (BoneWeight b in i._weights)
+                foreach (BoneWeight b in i.Weights)
                     if (b.Bone != null)
-                        b.Bone._weightCount++;
+                        b.Bone.WeightCount++;
             }
 
             //Add remaining bones
@@ -108,9 +108,12 @@ namespace BrawlLib.Wii.Models
                         foreach (Influence i in model._influences._influences)
                         {
                             mixLen += 4;
-                            foreach (BoneWeight w in i._weights)
-                                if (w.Bone != null && w.Weight != 0 && w.Bone._nodeIndex < linker.NodeCache.Length && w.Bone._nodeIndex >= 0 && linker.NodeCache[w.Bone._nodeIndex] is MDL0BoneNode)
+                            foreach (BoneWeight w in i.Weights)
+                            {
+                                MDL0BoneNode bone = w.Bone as MDL0BoneNode;
+                                if (bone != null && w.Weight != 0 && bone._nodeIndex < linker.NodeCache.Length && bone._nodeIndex >= 0 && linker.NodeCache[bone._nodeIndex] is MDL0BoneNode)
                                     mixLen += 6;
+                            }
                         }
                         foreach (MDL0BoneNode b in linker.BoneCache)
                             if (b._weightCount > 0)
@@ -293,22 +296,28 @@ namespace BrawlLib.Wii.Models
                             if (Collada._importOptions._useOneNode)
                             {
                                 HashSet<RGBAPixel> pixels = new HashSet<RGBAPixel>();
-                                if (model._objList != null) foreach (MDL0ObjectNode obj in model._objList)
-                                {
-                                    for (int i = 0; i < 2; i++)
+                                if (model._objList != null) 
+                                    foreach (MDL0ObjectNode obj in model._objList)
                                     {
-                                        var arr = obj._manager.GetColors(i, false);
-                                        if (arr.Length > 0)
+                                        for (int i = 0; i < 2; i++)
                                         {
-                                            obj._elementIndices[i + 2] = 0;
-                                            foreach (RGBAPixel p in arr)
-                                                pixels.Add(p);
+                                            var arr = obj._manager.GetColors(i, false);
+                                            if (arr.Length > 0)
+                                            {
+                                                obj._elementIndices[i + 2] = 0;
+                                                foreach (RGBAPixel p in arr)
+                                                    pixels.Add(p);
+                                            }
+                                            else
+                                                obj._elementIndices[i + 2] = -1;
                                         }
-                                        else
-                                            obj._elementIndices[i + 2] = -1;
                                     }
-                                }
-                                var le = pixels.ToList(); le.Sort();
+                                var le = pixels.ToList();
+                                le.Sort();
+
+                                if (le.Count == 0)
+                                    break;
+
                                 Collada._importOptions._singleColorNodeEntries = le.ToArray();
 
                                 ColorCodec col = new ColorCodec(Collada._importOptions._singleColorNodeEntries);
@@ -493,11 +502,11 @@ namespace BrawlLib.Wii.Models
             //Write user entries
             if (linker.Model._userEntries.Count > 0 && linker.Version > 9)
             {
-                header->_userDataOffset = (int)dataAddr - (int)header;
+                header->UserDataOffset = (int)dataAddr - (int)header;
                 linker.Model._userEntries.Write(header->UserData);
             }
             else
-                header->_userDataOffset = 0;
+                header->UserDataOffset = 0;
 
             //Write textures
             WriteTextures(linker, ref groupAddr);
@@ -597,22 +606,26 @@ namespace BrawlLib.Wii.Models
                 //Add weight groups (using sorted influence list)
                 foreach (Influence i in mdl._influences._influences)
                 {
-                    *pData = 3; //Tag
-                    *(bushort*)&pData[1] = (ushort)i._index;
-                    int g = 0;
-                    foreach (BoneWeight w in i._weights)
-                        if (w.Bone != null && w.Weight != 0 && w.Bone._nodeIndex < linker.NodeCache.Length && w.Bone._nodeIndex >= 0 && linker.NodeCache[w.Bone._nodeIndex] is MDL0BoneNode) g++;
-                    pData[3] = (byte)g;
-                    pData += 4; //Advance
-                    foreach (BoneWeight w in i._weights)
+                    *pData++ = 3; //Tag
+                    *(bushort*)pData = (ushort)i._index;
+                    pData += 2;
+
+                    byte* countAddr = pData++;
+                    byte count = 0;
+                    foreach (BoneWeight w in i.Weights)
                     {
-                        if (w.Bone == null || w.Weight == 0 || w.Bone._nodeIndex >= linker.NodeCache.Length || w.Bone._nodeIndex < 0)
+                        MDL0BoneNode bone = w.Bone as MDL0BoneNode;
+                        if (bone == null || w.Weight == 0 || bone._nodeIndex >= linker.NodeCache.Length || bone._nodeIndex < 0)
                             continue;
 
-                        *(bushort*)pData = (ushort)w.Bone._nodeIndex;
+                        *(bushort*)pData = (ushort)bone._nodeIndex;
                         *(bfloat*)(pData + 2) = w.Weight;
                         pData += 6; //Advance
+
+                        if (linker.NodeCache[bone._nodeIndex] is MDL0BoneNode)
+                            count++;
                     }
+                    *countAddr = count;
                 }
 
                 *pData++ = 1; //Terminate
@@ -978,7 +991,7 @@ namespace BrawlLib.Wii.Models
             for (int i = 0; i < linker.Model._objList.Count; i++)
             {
                 MDL0ObjectNode poly = (MDL0ObjectNode)linker.Model._objList[i];
-                poly._fmtList = poly._manager.SetFormatList(poly, linker);
+                poly._manager.SetFormatList(poly, linker);
             }
         }
     }

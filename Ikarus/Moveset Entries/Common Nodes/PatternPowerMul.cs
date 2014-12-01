@@ -6,9 +6,9 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class PatternPowerMul : MovesetEntry
+    public unsafe class PatternPowerMul : MovesetEntryNode
     {
         public List<Script> _scripts;
 
@@ -44,7 +44,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Pattern Power Mul")]
         public float Unknown10 { get { return _unk10; } set { _unk10 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sPatternPowerMul* hdr = (sPatternPowerMul*)address;
             _unk1 = hdr->_unk1;
@@ -88,7 +88,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         protected override void OnWrite(VoidPtr address)
         {
             VoidPtr addr = address;
-            _rebuildAddr = addr;
+            RebuildAddress = addr;
             sPatternPowerMul* header = (sPatternPowerMul*)addr;
             header->_unk1 = _unk1;
             header->_unk2 = _unk2;

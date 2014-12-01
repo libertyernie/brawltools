@@ -102,6 +102,7 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.splitter3 = new System.Windows.Forms.Splitter();
+            this.btnGotoBranch = new System.Windows.Forms.Button();
             this.grpSettings.SuspendLayout();
             this.grpRelocInfo.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -429,7 +430,7 @@
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
@@ -437,7 +438,7 @@
             // 
             this.pasteOverwriteToolStripMenuItem.Name = "pasteOverwriteToolStripMenuItem";
             this.pasteOverwriteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteOverwriteToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.pasteOverwriteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
             this.pasteOverwriteToolStripMenuItem.Text = "Paste";
             this.pasteOverwriteToolStripMenuItem.Click += new System.EventHandler(this.pasteOverwriteToolStripMenuItem_Click);
             // 
@@ -510,7 +511,6 @@
             this.displayInitialized.Name = "displayInitialized";
             this.displayInitialized.Size = new System.Drawing.Size(165, 22);
             this.displayInitialized.Text = "Display Initialized";
-            this.displayInitialized.Visible = false;
             this.displayInitialized.CheckedChanged += new System.EventHandler(this.displayInitialized_CheckedChanged);
             // 
             // displayStringsToolStripMenuItem
@@ -526,6 +526,7 @@
             // pnlLeft
             // 
             this.pnlLeft.Controls.Add(this.ppcDisassembler1);
+            this.pnlLeft.Controls.Add(this.btnGotoBranch);
             this.pnlLeft.Controls.Add(this.splitter2);
             this.pnlLeft.Controls.Add(this.pnlHexEditor);
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -537,9 +538,9 @@
             // ppcDisassembler1
             // 
             this.ppcDisassembler1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.ppcDisassembler1.Location = new System.Drawing.Point(0, 0);
+            this.ppcDisassembler1.Location = new System.Drawing.Point(0, 23);
             this.ppcDisassembler1.Name = "ppcDisassembler1";
-            this.ppcDisassembler1.Size = new System.Drawing.Size(277, 597);
+            this.ppcDisassembler1.Size = new System.Drawing.Size(277, 574);
             this.ppcDisassembler1.TabIndex = 11;
             // 
             // splitter2
@@ -564,6 +565,7 @@
             // 
             // hexBox1
             // 
+            this.hexBox1.BranchColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(100)))));
             // 
             // 
             // 
@@ -574,6 +576,7 @@
             this.hexBox1.ColumnDividerColor = System.Drawing.Color.Gray;
             this.hexBox1.ColumnInfoVisible = true;
             this.hexBox1.CommandColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(255)))), ((int)(((byte)(200)))));
+            this.hexBox1.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.hexBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.hexBox1.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.hexBox1.GroupSeparatorVisible = true;
@@ -583,6 +586,7 @@
             this.hexBox1.Margin = new System.Windows.Forms.Padding(10, 3, 3, 3);
             this.hexBox1.Name = "hexBox1";
             this.hexBox1.SectionEditor = null;
+            this.hexBox1.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
             this.hexBox1.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
             this.hexBox1.Size = new System.Drawing.Size(500, 551);
             this.hexBox1.StringViewVisible = true;
@@ -888,6 +892,18 @@
             this.splitter3.TabIndex = 11;
             this.splitter3.TabStop = false;
             // 
+            // btnGotoBranch
+            // 
+            this.btnGotoBranch.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.btnGotoBranch.Location = new System.Drawing.Point(0, 0);
+            this.btnGotoBranch.Name = "btnGotoBranch";
+            this.btnGotoBranch.Size = new System.Drawing.Size(277, 23);
+            this.btnGotoBranch.TabIndex = 12;
+            this.btnGotoBranch.Text = "Go to branch location";
+            this.btnGotoBranch.UseVisualStyleBackColor = true;
+            this.btnGotoBranch.Visible = false;
+            this.btnGotoBranch.Click += new System.EventHandler(this.btnGotoBranch_Click);
+            // 
             // SectionEditor
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1005,5 +1021,6 @@
         private CheckBox chkDestructor;
         private CheckBox chkConstructor;
         private Splitter splitter3;
+        private Button btnGotoBranch;
     }
 }

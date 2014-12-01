@@ -35,30 +35,39 @@ namespace BrawlLib.SSBB.ResourceNodes
             _magFltr = 1;
         }
 
-        public TextureSRT _texFlags;
-        public TexMtxEffect _texMatrix;
-
-        [Browsable(false)]
-        public int TextureCoordId 
+        public override string Name
         {
-            get 
-            {
-                if ((int)Coordinates >= (int)TexSourceRow.TexCoord0)
-                    return (int)Coordinates - (int)TexSourceRow.TexCoord0;
-                else
-                    return -1 - (int)Coordinates;
-            } 
+            get { return _texture != null ? _texture.Name : base.Name; }
+            set { if (_texture != null) Texture = value; base.Name = value; }
         }
 
-        [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Scale { get { return _texFlags.TexScale; } set { if (!CheckIfMetal()) { _texFlags.TexScale = value; _bindState._scale = new Vector3(value._x, value._y, 1); } } }
-        [Category("Texture Coordinates")]
-        public float Rotation { get { return _texFlags.TexRotation; } set { if (!CheckIfMetal()) { _texFlags.TexRotation = value; _bindState._rotate = new Vector3(value, 0, 0); } } }
-        [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Translation { get { return _texFlags.TexTranslation; } set { if (!CheckIfMetal()) { _texFlags.TexTranslation = value; _bindState._translate = new Vector3(value._x, value._y, 0); } } }
-
-        public TexFlags _flags;
-
+        #region Enums
+        public enum Anisotropy
+        {
+            One, //No anisotropic filter.
+            Two, //Filters a maximum of two samples.
+            Four //Filters a maximum of four samples.
+        }
+        public enum WrapMode
+        {
+            Clamp,
+            Repeat,
+            Mirror
+        }
+        public enum TextureMinFilter : uint
+        {
+            Nearest = 0,
+            Linear,
+            Nearest_Mipmap_Nearest,
+            Linear_Mipmap_Nearest,
+            Nearest_Mipmap_Linear,
+            Linear_Mipmap_Linear
+        }
+        public enum TextureMagFilter : uint
+        {
+            Nearest = 0,
+            Linear,
+        }
         public enum MappingMethod
         {
             TexCoord = 0x00,
@@ -67,20 +76,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             EnvLight = 0x03,
             EnvSpec = 0x04
         }
+        #endregion
 
-        [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefCamera { get { return _texMatrix.SCNCamera; } set { if (!CheckIfMetal()) _texMatrix.SCNCamera = value; } }
-        [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefLight { get { return _texMatrix.SCNLight; } set { if (!CheckIfMetal()) _texMatrix.SCNLight = value; } }
-        [Category("Texture Matrix Effect")]
-        public MappingMethod MapMode { get { return (MappingMethod)_texMatrix.MapMode; } set { if (!CheckIfMetal()) _texMatrix.MapMode = (byte)value; } }
-        [Category("Texture Matrix Effect")]
-        public bool IdentityMatrix { get { return _texMatrix.Identity != 0; } set { if (!CheckIfMetal()) _texMatrix.Identity = (byte)(value ? 1 : 0); } }
-        [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter))]
-        public Matrix43 EffectMatrix { get { return _texMatrix.TexMtx; } set { if (!CheckIfMetal()) _texMatrix.TexMtx = value; } }
-        
-        public XFDualTex DualTexFlags;
-        public XFTexMtxInfo TexMtxFlags;
+        #region Variables
+
+        public TextureSRT _texFlags;
+        public TexMtxEffect _texMatrix;
+        public TexFlags _flags;
+        public XFDualTex _dualTexFlags;
+        public XFTexMtxInfo _texMtxFlags;
 
         internal int _projection; //Normal enable is true when projection is XF_TEX_STQ
         internal int _inputForm;
@@ -89,18 +93,35 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal int _embossSource;
         internal int _embossLight;
 
+        internal int _texPtr;
+        internal int _pltPtr;
+        internal int _index1;
+        internal int _index2;
+        internal int _uWrap;
+        internal int _vWrap;
+        internal int _minFltr;
+        internal int _magFltr;
+        internal float _lodBias;
+        internal int _maxAniso;
+        internal bool _clampBias;
+        internal bool _texelInterp;
+
+        #endregion
+
+        #region Properties
+
         public bool HasTextureMatrix
         {
             get
             {
                 bool allsinglebinds = true;
-                if (((MDL0MaterialNode)Parent).Objects != null)
+                if (Material.Objects != null)
                 {
-                    foreach (MDL0ObjectNode n in ((MDL0MaterialNode)Parent).Objects)
+                    foreach (MDL0ObjectNode n in Material.Objects)
                         if (n.Weighted)
                         {
                             allsinglebinds = false;
-                            if (!n.HasTextureMatrix[Index])
+                            if (!n._manager.HasTextureMatrix[Index])
                                 return false;
                         }
                 }
@@ -113,10 +134,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             set
             {
-                foreach (MDL0ObjectNode n in ((MDL0MaterialNode)Parent).Objects)
+                foreach (MDL0ObjectNode n in Material.Objects)
                     if (n.Weighted)
                     {
-                        n.HasTextureMatrix[Index] = value;
+                        n._manager.HasTextureMatrix[Index] = value;
                         n._rebuild = true;
                         Model.SignalPropertyChange();
 
@@ -125,65 +146,58 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
             }
         }
+
+        [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
+        public Vector2 Scale { get { return _texFlags.TexScale; } set { if (!CheckIfMetal()) { _texFlags.TexScale = value; _bindState._scale = new Vector3(value._x, value._y, 1); } } }
+        [Category("Texture Coordinates")]
+        public float Rotation { get { return _texFlags.TexRotation; } set { if (!CheckIfMetal()) { _texFlags.TexRotation = value; _bindState._rotate = new Vector3(value, 0, 0); } } }
+        [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
+        public Vector2 Translation { get { return _texFlags.TexTranslation; } set { if (!CheckIfMetal()) { _texFlags.TexTranslation = value; _bindState._translate = new Vector3(value._x, value._y, 0); } } }
+
+        [Category("Texture Matrix Effect")]
+        public sbyte SCN0RefCamera { get { return _texMatrix.SCNCamera; } set { if (!CheckIfMetal()) _texMatrix.SCNCamera = value; } }
+        [Category("Texture Matrix Effect")]
+        public sbyte SCN0RefLight { get { return _texMatrix.SCNLight; } set { if (!CheckIfMetal()) _texMatrix.SCNLight = value; } }
+        [Category("Texture Matrix Effect")]
+        public MappingMethod MapMode { get { return (MappingMethod)_texMatrix.MapMode; } set { if (!CheckIfMetal()) _texMatrix.MapMode = (byte)value; } }
+        [Category("Texture Matrix Effect")]
+        public bool IdentityMatrix { get { return _texMatrix.Identity != 0; } set { if (!CheckIfMetal()) _texMatrix.Identity = (byte)(value ? 1 : 0); } }
+        [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter))]
+        public Matrix43 EffectMatrix { get { return _texMatrix.TexMtx; } set { if (!CheckIfMetal()) _texMatrix.TexMtx = value; } }
         
         [Category("XF TexGen Flags")]
-        public TexProjection Projection { get { return (TexProjection)_projection; } set { if (!CheckIfMetal()) { _projection = (int)value; getTexMtxVal(); } } }
+        public TexProjection Projection { get { return (TexProjection)_projection; } set { if (!CheckIfMetal()) { _projection = (int)value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public TexInputForm InputForm { get { return (TexInputForm)_inputForm; } set { if (!CheckIfMetal()) { _inputForm = (int)value; getTexMtxVal(); } } }
+        public TexInputForm InputForm { get { return (TexInputForm)_inputForm; } set { if (!CheckIfMetal()) { _inputForm = (int)value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public TexTexgenType Type { get { return (TexTexgenType)_texGenType; } set { if (!CheckIfMetal()) { _texGenType = (int)value; getTexMtxVal(); } } }
+        public TexTexgenType Type { get { return (TexTexgenType)_texGenType; } set { if (!CheckIfMetal()) { _texGenType = (int)value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public TexSourceRow Coordinates { get { return (TexSourceRow)_sourceRow; } set { if (!CheckIfMetal()) { _sourceRow = (int)value; getTexMtxVal(); } } }
+        public TexSourceRow Coordinates { get { return (TexSourceRow)_sourceRow; } set { if (!CheckIfMetal()) { _sourceRow = (int)value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public int EmbossSource { get { return _embossSource; } set { if (!CheckIfMetal()) { _embossSource = value; getTexMtxVal(); } } }
+        public int EmbossSource { get { return _embossSource; } set { if (!CheckIfMetal()) { _embossSource = value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public int EmbossLight { get { return _embossLight; } set { if (!CheckIfMetal()) { _embossLight = value; getTexMtxVal(); } } }
+        public int EmbossLight { get { return _embossLight; } set { if (!CheckIfMetal()) { _embossLight = value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public bool Normalize { get { return DualTexFlags.NormalEnable != 0; } set { if (!CheckIfMetal()) { DualTexFlags.NormalEnable = (byte)(value ? 1 : 0); } } }
-        
-        public void getTexMtxVal()
-        {
-            TexMtxFlags._data = (uint)(0 |
-            (_projection << 1) |
-            (_inputForm << 2) |
-            (_texGenType << 4) |
-            (_sourceRow << 7) |
-            (_embossSource << 10) |
-            (_embossLight << 13));
+        public bool Normalize { get { return _dualTexFlags._normalEnable != 0; } set { if (!CheckIfMetal()) { _dualTexFlags._normalEnable = (byte)(value ? 1 : 0); } } }
 
-            SignalPropertyChange();
-        }
+        [Category("Texture Reference")]
+        public WrapMode UWrapMode { get { return (WrapMode)_uWrap; } set { if (!CheckIfMetal()) _uWrap = (int)value; } }
+        [Category("Texture Reference")]
+        public WrapMode VWrapMode { get { return (WrapMode)_vWrap; } set { if (!CheckIfMetal()) _vWrap = (int)value; } }
+        [Category("Texture Reference")]
+        public TextureMinFilter MinFilter { get { return (TextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) _minFltr = (int)value; } }
+        [Category("Texture Reference")]
+        public TextureMagFilter MagFilter { get { return (TextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) _magFltr = (int)value; } }
+        [Category("Texture Reference")]
+        public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) _lodBias = value; } }
+        [Category("Texture Reference")]
+        public Anisotropy MaxAnisotropy { get { return (Anisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
+        [Category("Texture Reference")]
+        public bool ClampBias { get { return _clampBias; } set { if (!CheckIfMetal()) _clampBias = value; } }
+        [Category("Texture Reference")]
+        public bool TexelInterpolate { get { return _texelInterp; } set { if (!CheckIfMetal()) _texelInterp = value; } }
 
-        public void getValues()
-        {
-            _projection = (int)TexMtxFlags.Projection;
-            _inputForm = (int)TexMtxFlags.InputForm;
-            _texGenType = (int)TexMtxFlags.TexGenType;
-            _sourceRow = (int)TexMtxFlags.SourceRow;
-            _embossSource = (int)TexMtxFlags.EmbossSource;
-            _embossLight = (int)TexMtxFlags.EmbossLight;
-        }
-
-        internal int _texPtr;
-        internal int _pltPtr;
-        internal int _index1;
-        internal int _index2;
-        internal int _uWrap; 
-        internal int _vWrap;
-        internal int _minFltr;
-        internal int _magFltr;
-        internal float _lodBias;
-        internal int _maxAniso;
-        internal bool _clampBias;
-        internal bool _texelInterp;
-        internal int _pad;
-        
-        public enum WrapMode
-        {
-            Clamp,
-            Repeat,
-            Mirror
-        }
+        #endregion
 
         #region Texture linkage
         internal MDL0TextureNode _texture;
@@ -253,56 +267,38 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         #endregion
 
-        public override string Name
+        [Browsable(false)]
+        public int TextureCoordId
         {
-            get { return _texture != null ? _texture.Name : base.Name; }
-            set { if (_texture != null) Texture = value; base.Name = value; }
+            get
+            {
+                if ((int)Coordinates >= (int)TexSourceRow.TexCoord0)
+                    return (int)Coordinates - (int)TexSourceRow.TexCoord0;
+                else
+                    return -1 - (int)Coordinates;
+            }
         }
-
-        public enum TextureMinFilter : uint
+        public void SetTextMtxData()
         {
-            Nearest = 0,
-            Linear,
-            Nearest_Mipmap_Nearest,
-            Linear_Mipmap_Nearest,
-            Nearest_Mipmap_Linear,
-            Linear_Mipmap_Linear
-        }
+            _texMtxFlags._data = (uint)(0 |
+            (_projection << 1) |
+            (_inputForm << 2) |
+            (_texGenType << 4) |
+            (_sourceRow << 7) |
+            (_embossSource << 10) |
+            (_embossLight << 13));
 
-        public enum TextureMagFilter : uint
+            SignalPropertyChange();
+        }
+        public void GetTexMtxValues()
         {
-            Nearest = 0,
-            Linear,
+            _projection = (int)_texMtxFlags.Projection;
+            _inputForm = (int)_texMtxFlags.InputForm;
+            _texGenType = (int)_texMtxFlags.TexGenType;
+            _sourceRow = (int)_texMtxFlags.SourceRow;
+            _embossSource = (int)_texMtxFlags.EmbossSource;
+            _embossLight = (int)_texMtxFlags.EmbossLight;
         }
-
-        //[Category("Texture Reference")]
-        //public int TexMapID { get { return _index1; } set { if (!CheckIfMetal()) _index1 = value; } }
-        //[Category("Texture Reference")]
-        //public int PaletteID { get { return _index2; } set { if (!CheckIfMetal()) _index2 = value; } }
-        [Category("Texture Reference")]
-        public WrapMode UWrapMode { get { return (WrapMode)_uWrap; } set { if (!CheckIfMetal()) _uWrap = (int)value; } }
-        [Category("Texture Reference")]
-        public WrapMode VWrapMode { get { return (WrapMode)_vWrap; } set { if (!CheckIfMetal()) _vWrap = (int)value; } }
-        [Category("Texture Reference")]
-        public TextureMinFilter MinFilter { get { return (TextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) _minFltr = (int)value; } }
-        [Category("Texture Reference")]
-        public TextureMagFilter MagFilter { get { return (TextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) _magFltr = (int)value; } }
-        [Category("Texture Reference")]
-        public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) _lodBias = value; } }
-        [Category("Texture Reference")]
-        public Anisotropy MaxAnisotropy { get { return (Anisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
-        [Category("Texture Reference")]
-        public bool ClampBias { get { return _clampBias; } set { if (!CheckIfMetal()) _clampBias = value; } }
-        [Category("Texture Reference")]
-        public bool TexelInterpolate { get { return _texelInterp; } set { if (!CheckIfMetal()) _texelInterp = value; } }
-        
-        public enum Anisotropy
-        {
-            One,//GX_ANISO_1, //No anisotropic filter.
-            Two,//GX_ANISO_2, //Filters a maximum of two samples.
-            Four//GX_ANISO_4  //Filters a maximum of four samples.
-        }
-
         public bool CheckIfMetal()
         {
             if (Material != null && Material.CheckIfMetal())
@@ -328,7 +324,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             _maxAniso = header->_maxAniso;
             _clampBias = header->_clampBias == 1;
             _texelInterp = header->_texelInterp == 1;
-            _pad = header->_pad;
 
             if (header->_texOffset != 0)
             {
@@ -356,12 +351,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
-            int len = ((MDL0MaterialNode)Parent).XFCommands.Length;
+            int len = Material.XFCmds.Count;
             if (len != 0 && Index * 2 < len)
             {
-                TexMtxFlags = new XFTexMtxInfo(((MDL0MaterialNode)Parent).XFCommands[Index * 2].values[0]);
-                DualTexFlags = new XFDualTex(((MDL0MaterialNode)Parent).XFCommands[Index * 2 + 1].values[0]);
-                getValues();
+                _texMtxFlags = new XFTexMtxInfo(Material.XFCmds[Index * 2]._values[0]);
+                _dualTexFlags = new XFDualTex(Material.XFCmds[Index * 2 + 1]._values[0]);
+                GetTexMtxValues();
             }
 
             //if (PaletteNode == null && TextureNode != null)
@@ -443,14 +438,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_pad = (short)0;
         }
 
-        internal void Bind(TKContext ctx, int prog)
+        internal void Bind(int prog)
         {
             if (!String.IsNullOrEmpty(PAT0Texture))
             {
                 if (!PAT0Textures.ContainsKey(PAT0Texture))
                     PAT0Textures[PAT0Texture] = new MDL0TextureNode(PAT0Texture) { Source = null, palette = !String.IsNullOrEmpty(PAT0Palette) ? RootNode.FindChildByType(PAT0Palette, true, ResourceNodes.ResourceType.PLT0) as PLT0Node : null };
                 MDL0TextureNode t = PAT0Textures[PAT0Texture];
-                t.Bind(ctx);
+                t.Bind();
                 t.Prepare(this, prog);
             }
             else if (_texture != null)
@@ -530,7 +525,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _embossSource = 4;
             _embossLight = 2;
 
-            getTexMtxVal();
+            SetTextMtxData();
 
             _texture = Model.FindOrCreateTexture(_name);
             _texture._references.Add(this);

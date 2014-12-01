@@ -112,5 +112,20 @@ namespace BrawlBox.Properties {
                 this["RecentFilesMax"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("false")]
+        public bool DisplayPropertyDescriptionWhenAvailable
+        {
+            get
+            {
+                return ((bool)(this["DisplayPropertyDescriptionWhenAvailable"]));
+            }
+            set
+            {
+                this["DisplayPropertyDescriptionWhenAvailable"] = value;
+            }
+        }
     }
 }

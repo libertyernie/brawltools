@@ -379,6 +379,26 @@ namespace BrawlLib.Wii.Models
 
             return buffer;
         }
+
+        public static UnsafeBuffer Decode(VoidPtr data, byte divisor, uint length, WiiVertexComponentType componentType, bool UVs, int isSpecial)
+        {
+            float scale = VQuant.DeQuantTable[divisor];
+            int type = isSpecial * 5 + (UVs ? 0 : 10) + (int)componentType;
+            ElementDecoder decoder = ElementCodec.Decoders[type];
+
+            int bytesPerVal = (UVs ? isSpecial + 1 : isSpecial + 2) * (componentType < WiiVertexComponentType.UInt16 ? 1 : componentType < WiiVertexComponentType.Float ? 2 : 4);
+
+            int count = (int)(length / bytesPerVal);
+
+            UnsafeBuffer buffer = new UnsafeBuffer(count * (UVs ? 8 : 12));
+
+            byte* pIn = (byte*)data, pOut = (byte*)buffer.Address;
+            for (int i = 0; i < count; i++)
+                decoder(ref pIn, ref pOut, scale);
+
+            return buffer;
+        }
+
         public static UnsafeBuffer Decode(MDL0VertexData* header)
         {
             int count = header->_numVertices;

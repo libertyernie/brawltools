@@ -15,6 +15,9 @@ using Gif.Components;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
+using Ikarus;
+using Ikarus.ModelViewer;
+using Ikarus.MovesetFile;
 
 namespace Ikarus.UI
 {
@@ -132,7 +135,7 @@ namespace Ikarus.UI
         public ListsPanel listPanel;
         public System.Windows.Forms.ModelPlaybackPanel pnlPlayback;
         public EditorPanel scriptPanel;
-        private Controls.HurtboxEditor hurtboxEditor;
+        private HurtboxEditor hurtboxEditor;
         private ToolStripMenuItem muteSFXToolStripMenuItem;
         public ComboBox fileType;
         private Panel panel1;
@@ -259,7 +262,7 @@ namespace Ikarus.UI
             this.animEditors = new System.Windows.Forms.Panel();
             this.pnlPlayback = new System.Windows.Forms.ModelPlaybackPanel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.hurtboxEditor = new Ikarus.UI.Controls.HurtboxEditor();
+            this.hurtboxEditor = new HurtboxEditor();
             this.vis0Editor = new System.Windows.Forms.VIS0Editor();
             this.pat0Editor = new System.Windows.Forms.PAT0Editor();
             this.shp0Editor = new System.Windows.Forms.SHP0Editor();
@@ -267,14 +270,14 @@ namespace Ikarus.UI
             this.chr0Editor = new System.Windows.Forms.CHR0Editor();
             this.clr0Editor = new System.Windows.Forms.CLR0Editor();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.scriptPanel = new Ikarus.UI.EditorPanel();
+            this.scriptPanel = new EditorPanel();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.listPanel = new Ikarus.UI.ListsPanel();
+            this.listPanel = new ListsPanel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.spltRight = new System.Windows.Forms.Splitter();
-            this.modelListsPanel1 = new Ikarus.UI.ModelListsPanel();
+            this.modelListsPanel1 = new ModelListsPanel();
             this.saveTextInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();

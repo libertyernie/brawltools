@@ -34,7 +34,7 @@ namespace System.Windows.Forms
         {
             _internalModel = internalModel;
             _externalModel = externalModel;
-            _externalModel._renderBones = false;
+            //_externalModel._renderBones = false;
 
             comboBox1.Items.AddRange(_externalModel.FindChild("Objects", true).Children.ToArray());
             comboBox2.Items.AddRange(_internalModel._linker.BoneCache);
@@ -177,7 +177,7 @@ namespace System.Windows.Forms
                         {
                             for (int i = 0; i < vert.MatrixNode.Weights.Count; i++)
                             {
-                                MDL0BoneNode b = vert.MatrixNode.Weights[i].Bone;
+                                MDL0BoneNode b = vert.MatrixNode.Weights[i].Bone as MDL0BoneNode;
                                 if (b != null)
                                     vert.MatrixNode.Weights[i].Bone = _internalModel._boneGroup.FindChildByType(b.Name, true, ResourceType.MDL0Bone) as MDL0BoneNode;
                             }

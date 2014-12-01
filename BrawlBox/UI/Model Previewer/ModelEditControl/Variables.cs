@@ -53,8 +53,8 @@ namespace System.Windows.Forms
         private bool _snapX, _snapY, _snapZ, _snapCirc;
         private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
 
-        public List<MDL0Node> _targetModels = new List<MDL0Node>();
-        private MDL0Node _targetModel;
+        public List<IModel> _targetModels = new List<IModel>();
+        private IModel _targetModel;
         private CollisionNode _targetCollision;
 
         public List<CollisionNode> _collisions = new List<CollisionNode>();
@@ -63,8 +63,6 @@ namespace System.Windows.Forms
         public MDL0MaterialRefNode _targetTexRef = null;
         public VIS0EntryNode _targetVisEntry;
         public bool _enableTransform = true;
-
-        public bool _renderFloor, _renderBones = true, _renderBox, _dontRenderOffscreen = true, _renderVertices, _renderNormals, _renderPolygons = true, _renderCollisions = true, _renderWireframe, _collMatch;
 
         public static BindingList<AnimType> _editableAnimTypes = new BindingList<AnimType>()
         {
@@ -176,13 +174,13 @@ namespace System.Windows.Forms
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
+        public IModel TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CollisionNode TargetCollision { // Should be set only when a collision is chosen in the dropdown.
-            get {
-                return _targetCollision;
-            }
-            set {
+        public CollisionNode TargetCollision //Should be set only when a collision is chosen in the dropdown.
+        {
+            get { return _targetCollision; }
+            set
+            {
                 _targetCollision = value;
                 leftPanel.Reset();
             }
@@ -297,21 +295,21 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Image BGImage { get { return ModelPanel.BackgroundImage; } set { ModelPanel.BackgroundImage = value; } }
 
-        MDL0BoneNode _selectedBone = null;
+        IBoneNode _selectedBone = null;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode SelectedBone 
+        public IBoneNode SelectedBone 
         {
             get { return _selectedBone; } 
             set 
             {
                 if (_selectedBone != null)
-                    _selectedBone._boneColor = _selectedBone._nodeColor = Color.Transparent;
+                    _selectedBone.BoneColor = _selectedBone.NodeColor = Color.Transparent;
                 
                 bool boneSelected = (_selectedBone = value) != null;
                 if (boneSelected)
                 {
-                    _selectedBone._boneColor = Color.FromArgb(0, 128, 255);
-                    _selectedBone._nodeColor = Color.FromArgb(255, 128, 0);
+                    _selectedBone.BoneColor = Color.FromArgb(0, 128, 255);
+                    _selectedBone.NodeColor = Color.FromArgb(255, 128, 0);
                 }
 
                 chkZoomExtents.Enabled = boneSelected;
@@ -320,19 +318,16 @@ namespace System.Windows.Forms
                     && !(models.SelectedItem is MDL0Node)
                     && models.SelectedItem.ToString() == "All"
                     && boneSelected
-                    && TargetModel != _selectedBone.Model)
+                    && TargetModel != _selectedBone.IModel)
                 {
                     _resetCamera = false;
 
                     //The user selected a bone from another model.
-                    TargetModel = _selectedBone.Model;
+                    TargetModel = _selectedBone.IModel;
                 }
 
                 rightPanel.pnlBones.SetSelectedBone(_selectedBone);
                 //weightEditor.BoneChanged();
-
-                if (TargetModel != null)
-                    TargetModel._selectedBone = _selectedBone;
 
                 if (TargetAnimType == AnimType.CHR)
                     rightPanel.pnlKeyframes.TargetSequence =
@@ -400,159 +395,85 @@ namespace System.Windows.Forms
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderFloor 
+        public bool RenderFloor
         {
-            get { return _renderFloor; } 
+            get { return ModelPanel.RenderFloor; }
             set
             {
-                chkFloor.Checked = toggleFloor.Checked = _renderFloor = value;
-                ModelPanel.Invalidate();
+                ModelPanel.RenderFloor = value;
             }
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderBones
         {
-            get { return _renderBones; }
+            get { return ModelPanel.RenderBones; }
             set
             {
-                chkBones.Checked = toggleBones.Checked = _renderBones = value;
-
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderBones = _renderBones;
-                else if (TargetModel != null)
-                    TargetModel._renderBones = _renderBones;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderBones = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderVertices
         {
-            get { return _renderVertices; }
+            get { return ModelPanel.RenderVertices; }
             set
             {
-                chkVertices.Checked = toggleVertices.Checked = _renderVertices = value;
-
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderVertices = _renderVertices;
-                else 
-                    if (TargetModel != null)
-                        TargetModel._renderVertices = _renderVertices;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderVertices = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderNormals
         {
-            get { return _renderNormals; }
+            get { return ModelPanel.RenderNormals; }
             set
             {
-                toggleNormals.Checked = _renderNormals = value;
-
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderNormals = _renderNormals;
-                else
-                    if (TargetModel != null)
-                        TargetModel._renderNormals = _renderNormals;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderNormals = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderPolygons
         {
-            get { return _renderPolygons; }
+            get { return ModelPanel.RenderPolygons; }
             set
             {
-                chkPolygons.Checked = togglePolygons.Checked = _renderPolygons = value;
-
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderPolygons = _renderPolygons;
-                else if (TargetModel != null)
-                    TargetModel._renderPolygons = _renderPolygons;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderPolygons = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderCollisions
         {
-            get { return _renderCollisions; }
+            get { return ModelPanel.RenderCollisions; }
             set
             {
-                chkCollisions.Checked = toggleCollisions.Checked = _renderCollisions = value;
-
-                if (_editingAll)
-                    foreach (CollisionNode m in _collisions)
-                        foreach (CollisionObject o in m._objects)
-                            o._render = _renderCollisions;
-                else
-                    if (TargetCollision != null)
-                    {
-                        foreach (CollisionObject o in TargetCollision._objects)
-                            o._render = _renderCollisions;
-                        for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
-                            leftPanel.lstObjects.SetItemChecked(i, _renderCollisions);
-                    }
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderCollisions = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderWireframe
         {
-            get { return _renderWireframe; }
+            get { return ModelPanel.RenderWireframe; }
             set
             {
-                wireframeToolStripMenuItem.Checked = _renderWireframe = value;
-
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderWireframe = _renderWireframe;
-                else if (TargetModel != null)
-                    TargetModel._renderWireframe = _renderWireframe;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderWireframe = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderBox
         {
-            get { return _renderBox; }
+            get { return ModelPanel.RenderBox; }
             set
             {
-                boundingBoxToolStripMenuItem.Checked = _renderBox = value;
-
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderBox = _renderBox;
-                else if (TargetModel != null)
-                    TargetModel._renderBox = _renderBox;
-
-                ModelPanel.Invalidate();
+                ModelPanel.RenderBox = value;
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DontRenderOffscreen
         {
-            get { return _dontRenderOffscreen; }
+            get { return ModelPanel.DontRenderOffscreen; }
             set
             {
-                chkDontRenderOffscreen.Checked = _dontRenderOffscreen = value;
-
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m._dontRenderOffscreen = _dontRenderOffscreen;
-                else if (TargetModel != null)
-                    TargetModel._dontRenderOffscreen = _dontRenderOffscreen;
-
-                ModelPanel.Invalidate();
+                ModelPanel.DontRenderOffscreen = value;
             }
         }
 

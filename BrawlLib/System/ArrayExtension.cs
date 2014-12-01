@@ -28,5 +28,9 @@ namespace System
                 values.Add(i);
             return values.ToArray();
         }
+        public static int IndexOf(this Array a, object value)
+        {
+            return Array.IndexOf(a, value);
+        }
     }
 }

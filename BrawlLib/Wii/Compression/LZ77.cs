@@ -57,7 +57,7 @@ namespace BrawlLib.Wii.Compression
             //Write header
             CompressionHeader header = new CompressionHeader();
             header.Algorithm = CompressionType.LZ77;
-            header.ExpandedSize = (int)srcLen;
+            header.ExpandedSize = (uint)srcLen;
             header.IsExtendedLZ77 = extFmt;
             outStream.Write(&header, 4 + (header.LargeSize ? 4 : 0));
 

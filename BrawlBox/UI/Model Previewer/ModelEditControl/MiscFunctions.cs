@@ -1,4 +1,5 @@
 ﻿using BrawlLib.Imaging;
+using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
 using System;
 using System.Collections.Generic;
@@ -136,11 +137,6 @@ namespace System.Windows.Forms
                 if (_interpolationForm != null)
                     _interpolationForm.Close();
 
-                if (TargetModel != null)
-                {
-                    TargetModel.ApplyCHR(null, 0);
-                    TargetModel.ApplySRT(null, 0);
-                }
                 ResetBoneColors();
 
                 MDL0TextureNode._folderWatcher.SynchronizingObject = null;
@@ -148,13 +144,10 @@ namespace System.Windows.Forms
             catch { }
             return true;
         }
-        private void ModelChanged(MDL0Node model)
+        private void ModelChanged(IModel model)
         {
             if (model != null && !_targetModels.Contains(model))
                 _targetModels.Add(model);
-
-            if (_targetModel != null)
-                _targetModel._isTargetModel = false;
 
             if (model == null)
                 ModelPanel.RemoveTarget(_targetModel);
@@ -162,8 +155,12 @@ namespace System.Windows.Forms
             if ((_targetModel = model) != null)
             {
                 ModelPanel.AddTarget(_targetModel);
-                leftPanel.VIS0Indices = _targetModel.VIS0Indices;
-                _targetModel._isTargetModel = true;
+
+                if (_targetModel is MDL0Node)
+                    leftPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
+                else
+                    leftPanel.VIS0Indices = new Dictionary<string, List<int>>();
+
                 ResetVertexColors();
             }
             else
@@ -184,12 +181,9 @@ namespace System.Windows.Forms
                 TargetModelChanged(this, null);
 
             _updating = true;
-            if (_targetModel != null && !_editingAll && TargetCollision == null)
+            if (_targetModel != null && !EditingAll && TargetCollision == null)
                 models.SelectedItem = _targetModel;
             _updating = false;
-
-            if (_targetModel != null)
-                RenderBones = _targetModel._renderBones;
         }
 
         private bool PointCollides(Vector3 point) {
@@ -245,44 +239,46 @@ namespace System.Windows.Forms
             settings.DisableBonesOnPlay = disableBonesWhenPlayingToolStripMenuItem.Checked;
 
             settings.RightPanelWidth = (uint)rightPanel.Width;
-            settings._defaultCam = ModelPanel.DefaultTranslate;
-            settings._defaultRot = ModelPanel.DefaultRotate;
-            settings._amb = ModelPanel.Ambient;
-            settings._pos = ModelPanel.LightPosition;
-            settings._diff = ModelPanel.Diffuse;
-            settings._spec = ModelPanel.Specular;
-            settings._yFov = ModelPanel._fovY;
-            settings._nearZ = ModelPanel._nearZ;
-            settings._farz = ModelPanel._farZ;
-            settings._tScale = ModelPanel.TranslationScale;
-            settings._rScale = ModelPanel.RotationScale;
-            settings._zScale = ModelPanel.ZoomScale;
-            settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
-            settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultBoneColor;
-            settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
+            //settings._defaultCam = ModelPanel.DefaultTranslate;
+            //settings._defaultRot = ModelPanel.DefaultRotate;
+            //settings._amb = ModelPanel.Ambient;
+            //settings._pos = ModelPanel.LightPosition;
+            //settings._diff = ModelPanel.Diffuse;
+            //settings._spec = ModelPanel.Specular;
+            //settings._yFov = ModelPanel._fovY;
+            //settings._nearZ = ModelPanel._nearZ;
+            //settings._farz = ModelPanel._farZ;
+            //settings._tScale = ModelPanel.TranslationScale;
+            //settings._rScale = ModelPanel.RotationScale;
+            //settings._zScale = ModelPanel.ZoomScale;
+            //settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
+            //settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultBoneColor;
+            //settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
             settings._undoCount = (uint)_allowedUndos;
             settings._shaderCount = 0;
             settings._matCount = 0;
-            settings._emis = ModelPanel.Emission;
+            //settings._emis = ModelPanel.Emission;
 
             settings.FlatBoneList = rightPanel.pnlBones.chkFlat.Checked;
             settings.BoneListContains = rightPanel.pnlBones.chkContains.Checked;
             settings.SnapToColl = chkSnapToColl.Checked;
             settings.Maximize = chkMaximize.Checked;
-            settings.CameraSet = btnSaveCam.Text == "Clear Camera";
+            //settings.CameraSet = btnSaveCam.Text == "Clear Camera";
             settings.ImageCapFmt = _imgExtIndex;
-            settings.Bones = _renderBones;
-            settings.Polys = _renderPolygons;
-            settings.Wireframe = _renderWireframe;
-            settings.Vertices = _renderVertices;
-            settings.Normals = _renderNormals;
-            settings.HideOffscreen = _dontRenderOffscreen;
-            settings.BoundingBox = _renderBox;
-            settings.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
-            settings.Floor = _renderFloor;
-            settings.OrthoCam = orthographicToolStripMenuItem.Checked;
-            settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
-            settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
+
+            //settings.Bones = _renderBones;
+            //settings.Polys = _renderPolygons;
+            //settings.Wireframe = _renderWireframe;
+            //settings.Vertices = _renderVertices;
+            //settings.Normals = _renderNormals;
+            //settings.HideOffscreen = _dontRenderOffscreen;
+            //settings.BoundingBox = _renderBox;
+            //settings.Floor = _renderFloor;
+
+            //settings.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
+            //settings.OrthoCam = orthographicToolStripMenuItem.Checked;
+            //settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+            //settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
 
             settings.LinearCHR = chkLinearCHR.Checked;
             settings.LinearSRT = chkLinearSRT.Checked;
@@ -322,50 +318,51 @@ namespace System.Windows.Forms
             if (w >= 50)
                 rightPanel.Width = w;
 
-            ModelPanel.Ambient = settings._amb;
-            ModelPanel.LightPosition = settings._pos;
-            ModelPanel.Diffuse = settings._diff;
-            ModelPanel.Specular = settings._spec;
-            ModelPanel.Emission = settings._emis;
+            //ModelPanel.Ambient = settings._amb;
+            //ModelPanel.LightPosition = settings._pos;
+            //ModelPanel.Diffuse = settings._diff;
+            //ModelPanel.Specular = settings._spec;
+            //ModelPanel.Emission = settings._emis;
 
-            ModelPanel._fovY = settings._yFov;
-            ModelPanel._nearZ = settings._nearZ;
-            ModelPanel._farZ = settings._farz;
+            //ModelPanel._fovY = settings._yFov;
+            //ModelPanel._nearZ = settings._nearZ;
+            //ModelPanel._farZ = settings._farz;
 
-            ModelPanel.ZoomScale = settings._zScale;
-            ModelPanel.TranslationScale = settings._tScale;
-            ModelPanel.RotationScale = settings._rScale;
+            //ModelPanel.ZoomScale = settings._zScale;
+            //ModelPanel.TranslationScale = settings._tScale;
+            //ModelPanel.RotationScale = settings._rScale;
 
-            MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
-            MDL0BoneNode.DefaultBoneColor = (Color)settings._lineColor;
-            StaticMainWindow._floorHue = (Color)settings._floorColor;
-            if (settings.CameraSet)
-            {
-                btnSaveCam.Text = "Clear Camera";
-                ModelPanel.DefaultTranslate = settings._defaultCam;
-                ModelPanel.DefaultRotate = settings._defaultRot;
-            }
-            else
-            {
-                btnSaveCam.Text = "Save Camera";
-                ModelPanel.DefaultTranslate = new Vector3();
-                ModelPanel.DefaultRotate = new Vector2();
-            }
+            //MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
+            //MDL0BoneNode.DefaultBoneColor = (Color)settings._lineColor;
+            //StaticMainWindow._floorHue = (Color)settings._floorColor;
+            //if (settings.CameraSet)
+            //{
+            //    btnSaveCam.Text = "Clear Camera";
+            //    ModelPanel.DefaultTranslate = settings._defaultCam;
+            //    ModelPanel.DefaultRotate = settings._defaultRot;
+            //}
+            //else
+            //{
+            //    btnSaveCam.Text = "Save Camera";
+            //    ModelPanel.DefaultTranslate = new Vector3();
+            //    ModelPanel.DefaultRotate = new Vector2();
+            //}
 
             _allowedUndos = settings._undoCount;
             ImgExtIndex = settings.ImageCapFmt;
 
-            RenderBones = settings.Bones;
-            RenderWireframe = settings.Wireframe;
-            RenderPolygons = settings.Polys;
-            RenderVertices = settings.Vertices;
-            RenderBox = settings.BoundingBox;
-            RenderNormals = settings.Normals;
-            DontRenderOffscreen = settings.HideOffscreen;
-            showCameraCoordinatesToolStripMenuItem.Checked = settings.ShowCamCoords;
-            RenderFloor = settings.Floor;
-            enablePointAndLineSmoothingToolStripMenuItem.Checked = settings.EnableSmoothing;
-            enableTextOverlaysToolStripMenuItem.Checked = settings.EnableText;
+            //RenderBones = settings.Bones;
+            //RenderWireframe = settings.Wireframe;
+            //RenderPolygons = settings.Polys;
+            //RenderVertices = settings.Vertices;
+            //RenderBox = settings.BoundingBox;
+            //RenderNormals = settings.Normals;
+            //DontRenderOffscreen = settings.HideOffscreen;
+            //RenderFloor = settings.Floor;
+
+            //showCameraCoordinatesToolStripMenuItem.Checked = settings.ShowCamCoords;
+            //enablePointAndLineSmoothingToolStripMenuItem.Checked = settings.EnableSmoothing;
+            //enableTextOverlaysToolStripMenuItem.Checked = settings.EnableText;
 
             chkLinearCHR.Checked = settings.LinearCHR;
             chkLinearSRT.Checked = settings.LinearSRT;

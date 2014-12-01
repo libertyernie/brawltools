@@ -317,7 +317,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -378,23 +378,29 @@ namespace System.Windows.Forms
             listBox1.BeginUpdate();
             listBox2.BeginUpdate();
             SHP0Indices = new Dictionary<int, List<int>>();
-            if (SelectedAnimation != null && TargetModel != null && TargetModel._vertList != null)
-            foreach (SHP0EntryNode e in SelectedAnimation.Children)
-                foreach (MDL0VertexNode v1 in TargetModel._vertList)
-                    if (e.Name == v1.Name)
-                    {
-                        List<int> indices = new List<int>();
-                        foreach (SHP0VertexSetNode n in e.Children)
-                            foreach (MDL0VertexNode v2 in TargetModel._vertList)
-                                if (n.Name == v2.Name)
-                                {
-                                    indices.Add(v2.Index);
-                                    listBox2.Items.Add(v2);
-                                }
-                        listBox1.Items.Add(v1);
-                        SHP0Indices[v1.Index] = indices;
-                        break;
-                    }
+
+            if (SelectedAnimation != null && TargetModel != null && TargetModel is MDL0Node)
+            {
+                MDL0Node model = TargetModel as MDL0Node;
+                if (model._vertList != null)
+                    foreach (SHP0EntryNode e in SelectedAnimation.Children)
+                        foreach (MDL0VertexNode v1 in model._vertList)
+                            if (e.Name == v1.Name)
+                            {
+                                List<int> indices = new List<int>();
+                                foreach (SHP0VertexSetNode n in e.Children)
+                                    foreach (MDL0VertexNode v2 in model._vertList)
+                                        if (n.Name == v2.Name)
+                                        {
+                                            indices.Add(v2.Index);
+                                            listBox2.Items.Add(v2);
+                                        }
+                                listBox1.Items.Add(v1);
+                                SHP0Indices[v1.Index] = indices;
+                                break;
+                            }
+            }
+
             listBox1.EndUpdate();
             listBox2.EndUpdate();
         }

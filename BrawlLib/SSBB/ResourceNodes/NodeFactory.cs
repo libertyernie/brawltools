@@ -14,8 +14,8 @@ namespace BrawlLib.SSBB.ResourceNodes
     //Factory is for initializing root node, and unknown child nodes.
     public static class NodeFactory
     {
-        private const int CompressBufferLen = 0x60;
-
+        private const bool UseRawDataNode = true;
+        
         private static List<ResourceParser> _parsers = new List<ResourceParser>();
         static NodeFactory()
         {
@@ -46,7 +46,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             try
                             {
                                 //Expand the whole resource and initialize
-                                FileMap uncompMap = FileMap.FromTempFile(cmpr->ExpandedSize);
+                                FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
                                 Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
                                 node.Initialize(parent, source, new DataSource(uncompMap));
                             }
@@ -68,15 +68,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     node = new DOLNode();
                     node.Initialize(parent, map);
                 }
-                else if ((node = FromSource(parent, source)) == null)
-                {
-                    //if (Compressor.IsDataCompressed(source.Address, source.Length))
-                    //{
-                    //    CompressionHeader* cmpr = (CompressionHeader*)source.Address;
-                    //    if (!Compressor.Supports(cmpr->Algorithm))
-                    //        MessageBox.Show("File uses unsupported " + cmpr->Algorithm.ToString() + " compression.");
-                    //}
-                }
+                else if ((node = FromSource(parent, source, UseRawDataNode)) is RawDataNode)
+                    node._name = Path.GetFileNameWithoutExtension(path);
             }
             finally { if (node == null) map.Dispose(); }
             return node;
@@ -85,61 +78,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             return FromSource(parent, new DataSource(address, length));
         }
-        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source)
+
+        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source) { return FromSource(parent, source, false); }
+        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source, bool returnRaw)
         {
             ResourceNode n = null;
             if ((n = GetRaw(source)) != null)
                 n.Initialize(parent, source);
             else
-            {
-                //Check for compression?
-                if (Compressor.IsDataCompressed(source.Address, source.Length))
-                {
-                    if ((*(uint*)source.Address) == YAZ0.Tag)
-                    {
-                        YAZ0* cmpr = (YAZ0*)source.Address;
-                        try
-                        {
-                            //Expand the whole resource and initialize
-                            FileMap map = FileMap.FromTempFile((int)cmpr->_unCompDataLen);
-                            Compressor.Expand(cmpr, map.Address, map.Length);
-                            source.Compression = CompressionType.RunLength;
-
-                            //Check for a match
-                            if ((n = GetRaw(new DataSource(map.Address, map.Length))) != null)
-                                n.Initialize(parent, source, new DataSource(map));
-                        }
-                        catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
-                    }
-                    else
-                    {
-                        CompressionHeader* cmpr = (CompressionHeader*)source.Address;
-                        if (Compressor.Supports(cmpr->Algorithm))
-                        {
-                            try
-                            {
-                                //Expand a portion of the data
-                                byte* buffer = stackalloc byte[CompressBufferLen];
-                                Compressor.Expand(cmpr, buffer, CompressBufferLen);
-
-                                //Check for a match
-                                if ((n = GetRaw(new DataSource(buffer, CompressBufferLen))) != null)
-                                {
-                                    //Expand the whole resource and initialize
-                                    FileMap map = FileMap.FromTempFile(cmpr->ExpandedSize);
-                                    Compressor.Expand(cmpr, map.Address, map.Length);
-                                    source.Compression = cmpr->Algorithm;
-                                    n.Initialize(parent, source, new DataSource(map));
-                                }
-                            }
-                            catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
-                        }
-                    }
-                }
-            }
+                n = Compressor.TryExpand(source, parent, returnRaw);
 
             return n;
         }
+        public static ResourceNode GetRaw(VoidPtr address, int length)
+        {
+            return GetRaw(new DataSource(address, length));
+        }
+
         public static ResourceNode GetRaw(DataSource source)
         {
             ResourceNode n = null;

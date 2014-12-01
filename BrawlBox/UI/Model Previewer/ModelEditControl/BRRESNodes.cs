@@ -51,7 +51,7 @@ namespace System.Windows.Forms
                 _scn0 = null;
                 return false;
             }
-            if (TargetModel != null && (_scn0 = (SCN0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.SCN0)) != null)
+            if (TargetModel != null && (_scn0 = (SCN0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SCN0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_scn0 = (SCN0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.SCN0)) != null)
                 return true;
@@ -65,7 +65,7 @@ namespace System.Windows.Forms
                 _clr0 = null;
                 return false;
             }
-            if (TargetModel != null && (_clr0 = (CLR0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.CLR0)) != null)
+            if (TargetModel != null && (_clr0 = (CLR0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.CLR0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_clr0 = (CLR0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.CLR0)) != null)
                 return true;
@@ -79,7 +79,7 @@ namespace System.Windows.Forms
                 _vis0 = null;
                 return false;
             }
-            if (TargetModel != null && (_vis0 = (VIS0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.VIS0)) != null)
+            if (TargetModel != null && (_vis0 = (VIS0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.VIS0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_vis0 = (VIS0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.VIS0)) != null)
                 return true;
@@ -93,7 +93,7 @@ namespace System.Windows.Forms
                 _pat0 = null;
                 return false;
             }
-            if (TargetModel != null && (_pat0 = (PAT0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.PAT0)) != null)
+            if (TargetModel != null && (_pat0 = (PAT0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.PAT0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_pat0 = (PAT0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.PAT0)) != null)
                 return true;
@@ -107,7 +107,7 @@ namespace System.Windows.Forms
                 _srt0 = null;
                 return false;
             }
-            if (TargetModel != null && (_srt0 = (SRT0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.SRT0)) != null)
+            if (TargetModel != null && (_srt0 = (SRT0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SRT0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_srt0 = (SRT0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.SRT0)) != null)
                 return true;
@@ -121,7 +121,7 @@ namespace System.Windows.Forms
                 _shp0 = null;
                 return false;
             }
-            if (TargetModel != null && (_shp0 = (SHP0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.SHP0)) != null)
+            if (TargetModel != null && (_shp0 = (SHP0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SHP0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_shp0 = (SHP0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.SHP0)) != null)
                 return true;
@@ -135,7 +135,7 @@ namespace System.Windows.Forms
                 _chr0 = null;
                 return false;
             }
-            if (TargetModel != null && (_chr0 = (CHR0Node)TargetModel.RootNode.FindChildByType(focusFile.Name, true, ResourceType.CHR0)) != null)
+            if (TargetModel != null && (_chr0 = (CHR0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.CHR0)) != null)
                 return true;
             if (_externalAnimationsNode != null && (_chr0 = (CHR0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.CHR0)) != null)
                 return true;
@@ -144,6 +144,9 @@ namespace System.Windows.Forms
 
         public void CreateVIS0()
         {
+            if (!(_targetModel is MDL0Node))
+                return;
+
             BRESNode group = null;
             BRESEntryNode n = null;
             if ((n = TargetAnimation as BRESEntryNode) != null &&
@@ -153,7 +156,7 @@ namespace System.Windows.Forms
                 foreach (string s in leftPanel.VIS0Indices.Keys)
                 {
                     VIS0EntryNode node = null;
-                    if ((node = (VIS0EntryNode)_vis0.FindChild(s, true)) == null && ((MDL0BoneNode)_targetModel.FindChildByType(s, true, ResourceType.MDL0Bone)).BoneIndex != 0 && s != "EyeYellowM")
+                    if ((node = (VIS0EntryNode)_vis0.FindChild(s, true)) == null && ((MDL0BoneNode)((ResourceNode)_targetModel).FindChildByType(s, true, ResourceType.MDL0Bone)).BoneIndex != 0 && s != "EyeYellowM")
                     {
                         node = _vis0.CreateEntry();
                         node.Name = s;

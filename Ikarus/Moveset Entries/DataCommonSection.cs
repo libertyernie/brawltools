@@ -11,9 +11,9 @@ using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.OpenGL;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class DataCommonSection : ExternalEntry
+    public unsafe class DataCommonSection : ExternalEntryNode
     {
         CommonHeader hdr;
         
@@ -82,11 +82,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public RawParamList _ICs;
         public RawParamList _sseICs;
         
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             hdr = *(CommonHeader*)address;
             bint* v = (bint*)address;
-            int[] sizes = MovesetFile.CalculateSizes(_root._dataSize, v, 26, false);
+            int[] sizes = MovesetNode.CalculateSizes(_root._dataSize, v, 26, false);
             ParseScripts(v, sizes);
 
             //These ICs need to be sorted into int and float arrays
@@ -146,7 +146,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ActionEntry ag;
             list = _root._scriptOffsets[0];
             count = list[0].Count;
-            _root.Actions = new BindingList<ActionEntry>();
+            _root._actions = new BindingList<ActionEntry>();
             for (int i = 0; i < count; i++)
             {
                 _root.Actions.Add(ag = new ActionEntry(new sActionFlags(), i, i));
@@ -287,10 +287,10 @@ namespace BrawlLib.SSBB.ResourceNodes
          */
     }
     
-    public unsafe class CommonLegBones : MovesetEntry
+    public unsafe class CommonLegBones : MovesetEntryNode
     {
         List<string> _left, _right;
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _left = new List<string>();
             _right = new List<string>();
@@ -324,7 +324,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class CommonUnk7Entry : MovesetEntry
+    public unsafe class CommonUnk7Entry : MovesetEntryNode
     {
         public List<CommonUnk7EntryListEntry> _children;
 
@@ -340,7 +340,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Unknown 7 Entry")]
         public short Unknown2 { get { return unk4; } set { unk4 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _children = new List<CommonUnk7EntryListEntry>();
 
@@ -361,7 +361,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sCommonUnk7Entry* data = (sCommonUnk7Entry*)address;
             data->_list._startOffset = unk1;
             data->_list._listCount = _children.Count;
@@ -370,7 +370,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class CommonUnk7EntryListEntry : MovesetEntry
+    public unsafe class CommonUnk7EntryListEntry : MovesetEntryNode
     {
         public float unk1, unk2;
 
@@ -379,7 +379,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Unknown 7 Entry")]
         public float Unknown2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             sCommonUnk7EntryListEntry* hdr = (sCommonUnk7EntryListEntry*)address;
             unk1 = hdr->_unk1;
@@ -394,7 +394,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             sCommonUnk7EntryListEntry* data = (sCommonUnk7EntryListEntry*)address;
             data->_unk1 = unk1;
             data->_unk2 = unk2;

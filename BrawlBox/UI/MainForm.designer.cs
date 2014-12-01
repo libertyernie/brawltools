@@ -71,6 +71,7 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
+            this.texCoordRenderer1 = new System.Windows.Forms.TexCoordRenderer();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -300,6 +301,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.texCoordRenderer1);
             this.splitContainer2.Panel2.Controls.Add(this.attributeGrid1);
             this.splitContainer2.Panel2.Controls.Add(this.videoPlaybackPanel1);
             this.splitContainer2.Panel2.Controls.Add(this.modelPanel1);
@@ -350,15 +352,20 @@ namespace BrawlBox
             // 
             // modelPanel1
             // 
+            this.modelPanel1.AllowSelection = false;
+            this.modelPanel1.BackgroundImageType = BrawlLib.OpenGL.GLPanel.BGImageType.Stretch;
             this.modelPanel1.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel1.DefaultTranslate")));
             this.modelPanel1.InitialYFactor = 100;
             this.modelPanel1.InitialZoomFactor = 5;
+            this.modelPanel1.IsOrthographic = false;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
+            this.modelPanel1.ProjectionChanged = false;
             this.modelPanel1.RotationScale = 0.4F;
             this.modelPanel1.Size = new System.Drawing.Size(381, 169);
             this.modelPanel1.TabIndex = 15;
             this.modelPanel1.TabStop = false;
+            this.modelPanel1.TextOverlaysEnabled = false;
             this.modelPanel1.TranslationScale = 0.05F;
             this.modelPanel1.Visible = false;
             this.modelPanel1.ZoomScale = 2.5F;
@@ -469,6 +476,16 @@ namespace BrawlBox
             this.msBinEditor1.TabIndex = 2;
             this.msBinEditor1.Visible = false;
             // 
+            // texCoordRenderer1
+            // 
+            this.texCoordRenderer1.IsOrthographic = false;
+            this.texCoordRenderer1.Location = new System.Drawing.Point(0, 0);
+            this.texCoordRenderer1.Name = "texCoordRenderer1";
+            this.texCoordRenderer1.ProjectionChanged = true;
+            this.texCoordRenderer1.Size = new System.Drawing.Size(399, 202);
+            this.texCoordRenderer1.TabIndex = 19;
+            this.texCoordRenderer1.Visible = false;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -543,6 +560,7 @@ namespace BrawlBox
         private ToolStripMenuItem gCTEditorToolStripMenuItem;
         private ToolStripMenuItem recentFilesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
+        private TexCoordRenderer texCoordRenderer1;
     }
 }
 

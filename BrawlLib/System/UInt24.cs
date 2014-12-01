@@ -22,10 +22,10 @@ namespace System
             }
         }
 
-        public static explicit operator int(BUInt24 val) { return (int)val.Value; }
-        public static explicit operator BUInt24(int val) { return new BUInt24((uint)val); }
-        public static explicit operator uint(BUInt24 val) { return (uint)val.Value; }
-        public static explicit operator BUInt24(uint val) { return new BUInt24(val); }
+        public static implicit operator int(BUInt24 val) { return (int)val.Value; }
+        public static implicit operator BUInt24(int val) { return new BUInt24((uint)val); }
+        public static implicit operator uint(BUInt24 val) { return (uint)val.Value; }
+        public static implicit operator BUInt24(uint val) { return new BUInt24(val); }
 
         public BUInt24(uint value)
         {
@@ -59,10 +59,10 @@ namespace System
             }
         }
 
-        public static explicit operator int(UInt24 val) { return (int)val.Value; }
-        public static explicit operator UInt24(int val) { return new UInt24((uint)val); }
-        public static explicit operator uint(UInt24 val) { return (uint)val.Value; }
-        public static explicit operator UInt24(uint val) { return new UInt24(val); }
+        public static implicit operator int(UInt24 val) { return (int)val.Value; }
+        public static implicit operator UInt24(int val) { return new UInt24((uint)val); }
+        public static implicit operator uint(UInt24 val) { return (uint)val.Value; }
+        public static implicit operator UInt24(uint val) { return new UInt24(val); }
 
         public UInt24(uint value)
         {

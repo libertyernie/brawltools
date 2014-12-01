@@ -212,7 +212,7 @@ namespace System.Windows.Forms
         private RefreshableListBox lstBoneWeights;
         private BindingList<BoneWeight> _targetWeights;
 
-        public MDL0BoneNode[] Bones { get { return _targetWeights.Select(x => x.Bone).ToArray(); } }
+        public IBoneNode[] Bones { get { return _targetWeights.Select(x => x.Bone).ToArray(); } }
         public float[] Weights { get { return _targetWeights.Select(x => x.Weight).ToArray(); } }
 
         public IMainWindow _mainWindow;
@@ -232,14 +232,14 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode SelectedBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode SelectedBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
 
         private Vertex3 _vertex = null;
         private Button btnLock;
@@ -274,7 +274,7 @@ namespace System.Windows.Forms
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone
+        public IBoneNode TargetBone
         {
             get { return _targetBone; }
             set
@@ -285,7 +285,7 @@ namespace System.Windows.Forms
                 {
                     lblBoneName.Text = _targetBone.Name;
                     btnLock.Enabled = true;
-                    btnLock.Text = _targetBone._locked ? "Unlock" : "Lock";
+                    btnLock.Text = _targetBone.Locked ? "Unlock" : "Lock";
                     if (_bones != null)
                     {
                         int i = _bones.IndexOf(_targetBone);
@@ -313,7 +313,7 @@ namespace System.Windows.Forms
         private Panel panel1;
         private Splitter splitter1;
         private Splitter splitter2;
-        public MDL0BoneNode _targetBone;
+        public IBoneNode _targetBone;
         public void SetVertices(List<Vertex3> vertices)
         {
             //Remove weights with value 0 from the current vertex's influence
@@ -336,12 +336,12 @@ namespace System.Windows.Forms
         }
         public float _weightTotal = 0;
         Dictionary<string, float[]> _totals = new Dictionary<string, float[]>();
-        public List<MDL0BoneNode> _bones;
+        public List<IBoneNode> _bones;
         public void ResetList()
         {
             lstBoneWeights.Items.Clear();
 
-            _bones = new List<MDL0BoneNode>();
+            _bones = new List<IBoneNode>();
             _totals = new Dictionary<string, float[]>();
             _weightTotal = 0;
             foreach (Vertex3 v in _targetVertices)
@@ -407,13 +407,13 @@ namespace System.Windows.Forms
 
             if (node == null)
             {
-                vertex._object.ConvertInf();
+                ((MDL0ObjectNode)vertex._parent).ConvertInf();
                 node = vertex.MatrixNode;
             }
 
             List<BoneWeight> weights = node.Weights;
 
-            if (_targetBone == null || _targetBone._locked)
+            if (_targetBone == null || _targetBone.Locked)
                 return;
 
             MDL0BoneNode origBone = null;
@@ -430,7 +430,7 @@ namespace System.Windows.Forms
             else
                 targetInf = (node as Influence);
 
-            weights = targetInf._weights;
+            weights = targetInf.Weights;
 
             selectedIndex = vertex.IndexOfBone(TargetBone);
             if (selectedIndex == -1)
@@ -439,7 +439,7 @@ namespace System.Windows.Forms
                 selectedIndex = weights.Count - 1;
             }
 
-            targetWeight = targetInf._weights[selectedIndex];
+            targetWeight = targetInf.Weights[selectedIndex];
             if (targetWeight.Locked) 
                 return;
 
@@ -456,7 +456,7 @@ namespace System.Windows.Forms
             List<int> editableWeights = new List<int>();
 
             int c = 0;
-            foreach (BoneWeight b in targetInf._weights)
+            foreach (BoneWeight b in targetInf.Weights)
             {
                 if (!b.Locked && c != selectedIndex)
                     editableWeights.Add(c);
@@ -472,10 +472,10 @@ namespace System.Windows.Forms
             float val = diff / (editableWeights.Count);
             if (value != max)
                 foreach (int i in editableWeights)
-                    targetInf._weights[i].Weight = (float)Math.Round((targetInf._weights[i].Weight + val).Clamp(0.0f, 1.0f), 7);
+                    targetInf.Weights[i].Weight = (float)Math.Round((targetInf.Weights[i].Weight + val).Clamp(0.0f, 1.0f), 7);
             else
                 foreach (int i in editableWeights)
-                    targetInf._weights[i].Weight = 0;
+                    targetInf.Weights[i].Weight = 0;
 
             //Don't want the modified value to be normalized
             bool locked = targetWeight.Locked;
@@ -483,9 +483,11 @@ namespace System.Windows.Forms
             targetInf.Normalize();
             targetWeight.Locked = locked;
 
-            vertex.MatrixNode = vertex._object.Model._influences.FindOrCreate(targetInf, false);
-            vertex._object.ConvertInf();
-            vertex._object.Model.SignalPropertyChange();
+            MDL0ObjectNode obj = vertex._parent as MDL0ObjectNode;
+
+            vertex.MatrixNode = obj.Model._influences.FindOrCreate(targetInf, false);
+            obj.ConvertInf();
+            obj.Model.SignalPropertyChange();
 
             _mainWindow.UpdateModel();
         }
@@ -532,7 +534,7 @@ namespace System.Windows.Forms
             {
                 //int i = lstBoneWeights.SelectedIndex;
                 if (_bones.Count == 2)
-                    _bones[0]._locked = false;
+                    _bones[0].Locked = false;
                 SetWeight(0.0f);
                 int x;
                 foreach (Vertex3 v in TargetVertices)
@@ -576,10 +578,10 @@ namespace System.Windows.Forms
         private void btnLock_Click(object sender, EventArgs e)
         {
             int i = lstBoneWeights.SelectedIndex;
-            TargetBone._locked = !TargetBone._locked;
+            TargetBone.Locked = !TargetBone.Locked;
             lstBoneWeights.RefreshItems();
             lstBoneWeights.SelectedIndex = i;
-            btnLock.Text = _targetBone._locked ? "Unlock" : "Lock";
+            btnLock.Text = _targetBone.Locked ? "Unlock" : "Lock";
         }
 
         private void lstBoneWeights_DrawItem(object sender, DrawItemEventArgs e)
@@ -594,7 +596,7 @@ namespace System.Windows.Forms
                 string text = lstBoneWeights.Items[index].ToString();
                 Graphics g = e.Graphics;
 
-                Color color = selected ? Color.FromKnownColor(KnownColor.Highlight) : _bones[index]._locked ? Color.Red : Color.White;
+                Color color = selected ? Color.FromKnownColor(KnownColor.Highlight) : _bones[index].Locked ? Color.Red : Color.White;
                 g.FillRectangle(new SolidBrush(color), e.Bounds);
 
                 g.DrawString(text, e.Font, selected ? Brushes.White : Brushes.Black,

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("BrawlBox v0.73b")]
+[assembly: AssemblyTitle("BrawlBox v0.74")]
 [assembly: AssemblyDescription("This program is provided as-is without any warranty, implied or otherwise." +
 " By using this program, the end user agrees to take full responsibility regarding its proper and lawful use." +
 " The authors/hosts/distributors cannot be held responsible for any damage resulting in the use of this program," +
@@ -13,8 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrawlBox")]
-[assembly: AssemblyCopyright(@"Copyright © 2009 - 2013 Bryan Moulton && BlackJax96 
-Copyright © 2014 libertyernie && Sammi Husky
+[assembly: AssemblyCopyright(@"Copyright © 2009 - 2014 Bryan Moulton, BlackJax96, libertyernie && Sammi Husky
 Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 [assembly: AssemblyTrademark(@"Characters are copyrighted by the following:
 © Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA")]
@@ -38,5 +37,5 @@ Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.73.*")]
-[assembly: AssemblyFileVersion("0.73.1.0")]
+[assembly: AssemblyVersion("0.74.*")]
+[assembly: AssemblyFileVersion("0.74.0.0")]

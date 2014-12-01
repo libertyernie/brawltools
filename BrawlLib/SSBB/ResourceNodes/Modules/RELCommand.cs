@@ -149,7 +149,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint Apply(bool absolute)
         {
             uint newValue = _parentRelocation.RawValue;
-            uint addend = _addend + (absolute ? _parentRelocation._section._offset : 0);
+            uint addend = _addend + (absolute ? _parentRelocation._section.RootOffset : 0);
 
             switch (_command)
             {
@@ -186,13 +186,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
 
                 case RELCommandType.SetBranchDestination: //0xA
-                    Console.WriteLine();
+                    Console.WriteLine("SetBranchDestination");
                     break;
 
                 case RELCommandType.SetBranchConditionDestination1: //0xB
                 case RELCommandType.SetBranchConditionDestination2: //0xC
                 case RELCommandType.SetBranchConditionDestination3: //0xD
-                    Console.WriteLine();
+                    Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
                     break;
 
                 default:

@@ -1,6 +1,5 @@
-﻿using Ikarus.UI;
-using System.Windows.Forms;
-namespace Ikarus
+﻿using System.Windows.Forms;
+namespace Ikarus.UI
 {
     partial class MainForm
     {
@@ -31,7 +30,7 @@ namespace Ikarus
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
-            this._mainControl = new Ikarus.UI.MainControl();
+            this._mainControl = new MainControl();
             this.SuspendLayout();
             // 
             // _mainControl

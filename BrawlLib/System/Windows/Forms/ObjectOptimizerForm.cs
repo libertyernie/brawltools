@@ -77,14 +77,14 @@ namespace System.Windows.Forms
                     a._facepoints == null)
                     return;
 
-                TriangleConverter triConverter = new TriangleConverter(chkUseStrips.Checked, (uint)numCacheSize.Value, (uint)numMinStripLen.Value, false, chkPushCacheHits.Checked);
-                Facepoint[] points = new Facepoint[a._object._manager._triangles._elementCount];
+                TriangleConverter triConverter = new TriangleConverter(chkUseStrips.Checked, (uint)numCacheSize.Value, (uint)numMinStripLen.Value, chkPushCacheHits.Checked);
+                Facepoint[] points = new Facepoint[a._object._manager._triangles._indices.Length];
                 uint[] indices = a._object._manager._triangles._indices;
                 bool ccw = Collada._importOptions._forceCCW;
 
                 //Indices are written in reverse for each triangle, 
                 //so they need to be set to a triangle in reverse if not CCW
-                for (int t = 0; t < a._object._manager._triangles._elementCount; t++)
+                for (int t = 0; t < a._object._manager._triangles._indices.Length; t++)
                     points[ccw ? t : (t - (t % 3)) + (2 - (t % 3))] = a._facepoints[indices[t]];
 
                 int pc, fc;
@@ -156,7 +156,7 @@ namespace System.Windows.Forms
                 if (a._groups == null)
                     continue;
 
-                a._object._primGroups = a._groups;
+                a._object._manager._primGroups = a._groups;
                 a._object._numFacepoints = a._pointCount;
                 a._object._numFaces = a._faceCount;
                 a._object._reOptimized = true;

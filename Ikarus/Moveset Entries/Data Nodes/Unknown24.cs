@@ -6,14 +6,14 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     public unsafe class Unknown24 : ListOffset
     {
         public List<IndexValue> _indices;
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
 
             _indices = new List<IndexValue>();
             bint* entry = (bint*)(BaseAddress + DataOffset);
@@ -32,12 +32,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             bint* addr = (bint*)address;
             foreach (IndexValue b in _indices)
             {
-                b._rebuildAddr = addr;
+                b.RebuildAddress = addr;
                 *addr++ = b.ItemIndex;
             }
 
             sListOffset* header = (sListOffset*)addr;
-            _rebuildAddr = addr;
+            RebuildAddress = addr;
 
             if (_indices.Count > 0)
             {

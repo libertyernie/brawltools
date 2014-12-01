@@ -25,18 +25,36 @@ namespace BrawlLib.OpenGL
     }
     public abstract unsafe class GLPanel : UserControl
     {
-        public TKContext _ctx;
-        
-        public bool _projectionChanged = true;
-        private int _updateCounter;
-        public GLCamera _camera;
+        public static GLPanel Current { get { if (_currentPanel == null) TKContext.CurrentContext.Capture(true); return _currentPanel; } }
+        private static GLPanel _currentPanel = null;
+
+        public GLCamera Camera { get { return _camera; } }
+        public TKContext Context { get { return _ctx; } }
+
+        public float _fovY = 45.0f, _nearZ = 1.0f, _farZ = 200000.0f, _aspect;
+        public Matrix _projectionMatrix;
+        public Matrix _projectionInverse;
+
+        public bool ProjectionChanged { get { return _projectionChanged; } set { _projectionChanged = value; } }
+
+        protected int _updateCounter;
+        protected bool _projectionChanged = true;
+        protected TKContext _ctx;
+        protected GLCamera _camera;
+
+        public bool IsOrthographic { get { return _orthographic; } set { _orthographic = value; _projectionChanged = true; Invalidate(); } }
+        protected bool _orthographic = false;
+
+        public enum BGImageType { Stretch, Center, ResizeWithBars }
         
         public GLPanel()
         {
+            _camera = new GLCamera();
+
             SetStyle(
-                ControlStyles.UserPaint | 
-                ControlStyles.AllPaintingInWmPaint | 
-                ControlStyles.Opaque | 
+                ControlStyles.UserPaint |
+                ControlStyles.AllPaintingInWmPaint |
+                ControlStyles.Opaque |
                 ControlStyles.ResizeRedraw,
                 true);
         }
@@ -75,7 +93,6 @@ namespace BrawlLib.OpenGL
         protected override void OnLoad(EventArgs e)
         {
             _ctx = new TKContext(this);
-            _text = new ScreenTextHandler(this);
 
             Vector3 v = (Vector3)BackColor;
             GL.ClearColor(v._x, v._y, v._z, 0.0f);
@@ -85,17 +102,24 @@ namespace BrawlLib.OpenGL
             
             OnInit(_ctx);
 
-            _ctx.ContextChanged += ContextChanged;
+            _ctx.ContextChanged += OnContextChanged;
+            _ctx.ResetOccured += OnReset;
 
             base.OnLoad(e);
         }
 
-        void ContextChanged(bool isCurrent)
+        protected virtual void OnReset(object sender, EventArgs e)
+        {
+            OnInit(_ctx);
+            UpdateProjection();
+        }
+
+        protected virtual void OnContextChanged(bool isCurrent)
         {
             OnResize(null);
-            OnResized();
+            UpdateProjection();
 
-            MDL0TextureNode._folderWatcher.SynchronizingObject = isCurrent ? this : null;
+            _currentPanel = isCurrent ? this : null;
         }
 
         protected override void DestroyHandle()
@@ -119,34 +143,6 @@ namespace BrawlLib.OpenGL
             return val;
         }
 
-        public override Color BackColor
-        {
-            get { return base.BackColor; }
-            set
-            {
-                if (base.BackColor != value)
-                {
-                    base.BackColor = Color.FromArgb(0, value.R, value.G, value.B);
-                    _bgColorChanged = true;
-                    Invalidate();
-                }
-            }
-        }
-
-        bool _bgColorChanged = false;
-        public bool _textEnabled = false;
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ScreenTextHandler ScreenText { get { return _text; } }
-        private ScreenTextHandler _text;
-
-        public Point _selStart, _selEnd;
-        public bool _selecting = false;
-        public GLTexture _bgImage = null;
-        public bool _forceNoSelection = false;
-        public bool _updateImage = false;
-        public BackgroundType _bgType = BackgroundType.Stretch;
-        public enum BackgroundType { Stretch, Center, ResizeWithBars }
-
         protected override void OnPaint(PaintEventArgs e)
         {
             if (_updateCounter > 0)
@@ -161,27 +157,12 @@ namespace BrawlLib.OpenGL
                     //Direct OpenGL calls to this panel
                     Capture();
 
-                    //Render background image
-                    if (BackgroundImage != null)
-                        RenderBackground();
-                    else if (_updateImage && _bgImage != null)
-                    {
-                        _bgImage.Delete();
-                        _bgImage = null;
-                        _updateImage = false;
-                    }
-
-                    if (_bgColorChanged)
-                    {
-                        Vector3 v = (Vector3)BackColor;
-                        GL.ClearColor(v._x, v._y, v._z, 0.0f);
-                        _bgColorChanged = false;
-                    }
+                    BeforeRender();
 
                     //Set projection
                     if (_projectionChanged)
                     {
-                        OnResized();
+                        UpdateProjection();
                         _projectionChanged = false;
                     }
 
@@ -194,42 +175,9 @@ namespace BrawlLib.OpenGL
                         }
                     
                     //Render 3D scene
-                    OnRender(_ctx, e);
+                    OnRender(e);
 
-                    //Render selection overlay and/or text overlays
-                    if ((_selecting && !_forceNoSelection) || _text.Count != 0)
-                    {
-                        GL.Color4(Color.White);
-
-                        GL.PushAttrib(AttribMask.AllAttribBits);
-
-                        GL.Disable(EnableCap.DepthTest);
-                        GL.Disable(EnableCap.Lighting);
-                        GL.Disable(EnableCap.CullFace);
-                        GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                        GL.MatrixMode(MatrixMode.Projection);
-                        GL.PushMatrix();
-                        GL.LoadIdentity();
-                        Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
-                        GL.LoadMatrix((float*)&p);
-                        
-                        GL.MatrixMode(MatrixMode.Modelview);
-                        GL.PushMatrix();
-                        GL.LoadIdentity();
-
-                        if (_text.Count != 0 && _textEnabled)
-                            _text.Draw();
-
-                        if (_selecting && !_forceNoSelection)
-                            RenderSelection();
-
-                        GL.PopAttrib();
-
-                        GL.PopMatrix();
-                        GL.MatrixMode(MatrixMode.Projection);
-                        GL.PopMatrix();
-                    }
+                    AfterRender();
 
                     GL.Finish();
                     _ctx.Swap();
@@ -240,145 +188,19 @@ namespace BrawlLib.OpenGL
                 }
                 finally { Monitor.Exit(_ctx); }
             }
-
-            //Clear text values
-            //This will be filled until the next render
-            _text.Clear();
         }
 
-        public void RenderBackground()
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            GL.Disable(EnableCap.DepthTest);
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.CullFace);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PushMatrix();
-            GL.LoadIdentity();
-            Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
-            GL.LoadMatrix((float*)&p);
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.PushMatrix();
-            GL.LoadIdentity();
-
-            GL.Color4(Color.White);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-            GL.Enable(EnableCap.Texture2D);
-
-            if (_updateImage)
-            {
-                if (_bgImage != null)
-                {
-                    _bgImage.Delete();
-                    _bgImage = null;
-                }
-
-                GL.ClearColor(Color.Black);
-
-                Bitmap bmp = BackgroundImage as Bitmap;
-
-                _bgImage = new GLTexture(bmp);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, 1);
-                _bgImage.Bind();
-
-                _updateImage = false;
-            }
-            else
-                GL.BindTexture(TextureTarget.Texture2D, _bgImage._texId);
-
-            float* points = stackalloc float[8];
-            float tAspect = (float)_bgImage.Width / _bgImage.Height;
-            float wAspect = (float)Width / Height;
-
-            switch (_bgType)
-            {
-                case BackgroundType.Stretch:
-
-                    points[0] = points[1] = points[3] = points[6] = 0.0f;
-                    points[2] = points[4] = Width;
-                    points[5] = points[7] = Height;
-
-                    break;
-
-                case BackgroundType.Center:
-
-                    if (tAspect > wAspect)
-                    {
-                        points[1] = points[3] = 0.0f;
-                        points[5] = points[7] = Height;
-
-                        points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
-                        points[2] = points[4] = Width - points[0];
-                    }
-                    else
-                    {
-                        points[0] = points[6] = 0.0f;
-                        points[2] = points[4] = Width;
-
-                        points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
-                        points[5] = points[7] = Height - points[1];
-                    }
-                    break;
-
-                case BackgroundType.ResizeWithBars:
-
-                    if (tAspect > wAspect)
-                    {
-                        points[0] = points[6] = 0.0f;
-                        points[2] = points[4] = Width;
-
-                        points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
-                        points[5] = points[7] = Height - points[1];
-                    }
-                    else
-                    {
-                        points[1] = points[3] = 0.0f;
-                        points[5] = points[7] = Height;
-
-                        points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
-                        points[2] = points[4] = Width - points[0];
-                    }
-
-                    break;
-            }
-
-            GL.Begin(PrimitiveType.Quads);
-
-            GL.TexCoord2(0.0f, 0.0f);
-            GL.Vertex2(&points[0]);
-            GL.TexCoord2(1.0f, 0.0f);
-            GL.Vertex2(&points[2]);
-            GL.TexCoord2(1.0f, 1.0f);
-            GL.Vertex2(&points[4]);
-            GL.TexCoord2(0.0f, 1.0f);
-            GL.Vertex2(&points[6]);
-
-            GL.End();
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-            GL.Disable(EnableCap.Texture2D);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Lighting);
-
-            GL.PopMatrix();
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PopMatrix();
-        }
+        /// <summary>
+        /// This is for rendering things in the background.
+        /// This is called before projection and camera matrices are applied.
+        /// </summary>
+        protected virtual void BeforeRender() { }
+        /// <summary>
+        /// This is for rendering things in the foreground.
+        /// </summary>
+        protected virtual void AfterRender() { }
 
         internal virtual void OnInit(TKContext ctx) { }
-
-        public float _fovY = 45.0f, _nearZ = 1.0f, _farZ = 200000.0f, _aspect;
-
-        internal Matrix _projectionMatrix;
-        internal Matrix _projectionInverse;
 
         /// <summary>
         /// Projects a screen point to world coordinates.
@@ -493,30 +315,42 @@ namespace BrawlLib.OpenGL
 
             return point;
         }
-        internal bool _ortho = false;
+        
         public void SetProjectionType(bool ortho)
         {
-            _camera.Scale(1.0f / _camera._scale._x, 1.0f / _camera._scale._y, 1.0f / _camera._scale._z);
-            if (_ortho = ortho)
+            if (ortho == _orthographic)
+                return;
+
+            Vector3 point = _camera.GetPoint();
+            Vector3 rot = _camera._rotation;
+            _camera.Reset();
+            _camera.Translate(point);
+            _camera.Rotate(rot);
+
+            if (_orthographic = ortho)
             {
-                _nearZ = -100;
+                //Set near z and far z for orthographic
+                _nearZ = -10000;
+                _farZ = 10000;
+
                 float z = _camera._z;
-                _camera.Translate(0, 0, -_camera._z);
-                float scale = z <= 0 ? -z / 2.0f : 1.0f / z * 2.0f;
+
+                float scale = z == 0 ? 1.0f : 1.0f / z;
                 _camera.Scale(scale, scale, 1.0f);
             }
             else
             {
+                //Set near z and far z for perspective
                 _nearZ = 1;
-                _camera.Translate(0, 0, _camera._z);
+                _farZ = 200000;
             }
             
             _projectionChanged = true;
             Invalidate();
         }
-        protected void CalculateProjection()
+        protected virtual void CalculateProjection()
         {
-            if (_ortho)
+            if (_orthographic)
             {
                 _projectionMatrix = Matrix.OrthographicMatrix(Width, Height, _nearZ, _farZ);
                 _projectionInverse = Matrix.ReverseOrthographicMatrix(Width, Height, _nearZ, _farZ);
@@ -532,16 +366,13 @@ namespace BrawlLib.OpenGL
         {
             _projectionChanged = true;
 
-            if (BackgroundImage != null)
-                GL.Viewport(0, 0, Width, Height);
-
             if (_ctx != null)
                 _ctx.Update();
 
             Invalidate();
         }
 
-        public virtual void OnResized()
+        public virtual void UpdateProjection()
         {
             if (_ctx == null)
                 return;
@@ -551,47 +382,14 @@ namespace BrawlLib.OpenGL
             _aspect = (float)Width / Height;
             CalculateProjection();
 
-            GL.Viewport(0, 0, Width, Height);
+            GL.Viewport(ClientRectangle);
             GL.MatrixMode(MatrixMode.Projection);
 
             fixed (Matrix* p = &_projectionMatrix)
                 GL.LoadMatrix((float*)p);
         }
 
-        public override Image BackgroundImage
-        {
-            get { return base.BackgroundImage; }
-            set
-            {
-                if (base.BackgroundImage != null)
-                    base.BackgroundImage.Dispose();
-
-                base.BackgroundImage = value;
-
-                _updateImage = true;
-
-                Invalidate();
-            }
-        }
-
-        public void RenderSelection()
-        {
-            if (_selecting)
-            {
-                GL.Enable(EnableCap.LineStipple);
-                GL.LineStipple(1, 0x0F0F);
-                GL.Color4(Color.Blue);
-                GL.Begin(PrimitiveType.LineLoop);
-                GL.Vertex2(_selStart.X, _selStart.Y);
-                GL.Vertex2(_selEnd.X, _selStart.Y);
-                GL.Vertex2(_selEnd.X, _selEnd.Y);
-                GL.Vertex2(_selStart.X, _selEnd.Y);
-                GL.End();
-                GL.Disable(EnableCap.LineStipple);
-            }
-        }
-
-        internal protected virtual void OnRender(TKContext ctx, PaintEventArgs e)
+        internal protected virtual void OnRender(PaintEventArgs e)
         {
             GL.Clear(OpenTK.Graphics.OpenGL.ClearBufferMask.ColorBufferBit | OpenTK.Graphics.OpenGL.ClearBufferMask.DepthBufferBit);
         }
@@ -604,131 +402,6 @@ namespace BrawlLib.OpenGL
             // 
             this.Name = "GLPanel";
             this.ResumeLayout(false);
-        }
-    }
-
-    public class ScreenTextHandler
-    {
-        private class TextData
-        {
-            internal string _string;
-            internal List<Vector3> _positions;
-
-            internal TextData() { _positions = new List<Vector3>(); }
-        }
-        public static int _fontSize = 12;
-        private static readonly Font _textFont = new Font("Arial", _fontSize);
-        private GLPanel _panel;
-        private Dictionary<string, TextData> _text = new Dictionary<string, TextData>();
-        public int Count { get { return _text.Count; } }
-
-        private Size _size = new Size();
-        private Bitmap _bitmap = null;
-        private int _texId = -1;
-
-        public Vector3 this[string text]
-        {
-            set 
-            {
-                if (!_text.ContainsKey(text))
-                    _text.Add(text, new TextData() { _string = text });
-                
-                _text[text]._positions.Add(value);
-            }
-        }
-
-        public ScreenTextHandler(GLPanel p)
-        {
-            _text = new Dictionary<string, TextData>();
-            _panel = p;
-        }
-
-        public void Clear() { _text.Clear(); }
-
-        public unsafe void Draw()
-        {
-            GL.Enable(EnableCap.Texture2D);
-            GL.Enable(EnableCap.Blend);
-            //GL.BlendFunc(BlendingFactorSrc.One, BlendingFactorDest.OneMinusSrcColor);
-
-            GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (float)TextureEnvMode.Replace);
-
-            if (_size != _panel.ClientSize)
-            {
-                _size = _panel.ClientSize;
-
-                if (_bitmap != null)
-                    _bitmap.Dispose();
-                if (_texId != -1)
-                {
-                    GL.DeleteTexture(_texId);
-                    _texId = -1;
-                }
-                
-                //Create a texture over the whole model panel
-                _bitmap = new Bitmap(_size.Width, _size.Height);
-
-                _bitmap.MakeTransparent();
-                
-                _texId = GL.GenTexture();
-                GL.BindTexture(TextureTarget.Texture2D, _texId);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)All.Linear);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)All.Linear);
-                GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, _bitmap.Width, _bitmap.Height, 0,
-                    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, IntPtr.Zero);
-            }
-
-            using (Graphics g = Graphics.FromImage(_bitmap))
-            {
-                g.Clear(Color.Transparent);
-                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-
-                List<Vector2> _used = new List<Vector2>();
-
-                foreach (TextData d in _text.Values)
-                    foreach (Vector3 v in d._positions)
-                        if (v._x + d._string.Length * 10 > 0 && v._x < _panel.Width &&
-                            v._y > -10.0f && v._y < _panel.Height &&
-                            v._z > 0 && v._z < 1 && //near and far depth values
-                            !_used.Contains(new Vector2(v._x, v._y)))
-                        {
-                            g.DrawString(d._string, ScreenTextHandler._textFont, Brushes.Black, new PointF(v._x, v._y));
-                            _used.Add(new Vector2(v._x, v._y));
-                        }
-            }
-
-            GL.BindTexture(TextureTarget.Texture2D, _texId);
-
-            BitmapData data = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height),
-            ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            GL.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, _bitmap.Width, _bitmap.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            _bitmap.UnlockBits(data);
-
-            //BitmapData data = _bitmap.LockBits(new Rectangle(0, 0, _bitmap.Width, _bitmap.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-            //GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, _size.Width, _size.Height, 0,
-            //    OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
-            //_bitmap.UnlockBits(data);
-
-            //GL.Color4(Color.Transparent);
-
-            GL.Begin(PrimitiveType.Quads);
-
-            GL.TexCoord2(0.0f, 0.0f); 
-            GL.Vertex2(0.0f, 0.0f);
-
-            GL.TexCoord2(1.0f, 0.0f); 
-            GL.Vertex2(_size.Width, 0.0f);
-
-            GL.TexCoord2(1.0f, 1.0f); 
-            GL.Vertex2(_size.Width, _size.Height);
-
-            GL.TexCoord2(0.0f, 1.0f); 
-            GL.Vertex2(0.0f, _size.Height);
-
-            GL.End();
-
-            GL.Disable(EnableCap.Blend);
-            GL.Disable(EnableCap.Texture2D);
         }
     }
 }

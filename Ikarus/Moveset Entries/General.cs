@@ -6,20 +6,21 @@ using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using Ikarus;
 using System.Collections;
+using BrawlLib.SSBB.ResourceNodes;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class RawData : ExternalEntry
+    public unsafe class RawDataNode : ExternalEntryNode
     {
         internal byte[] _data;
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             DataOffsets.Add(_offset);
 
-            if (_size > 0)
+            if (_initSize > 0)
             {
-                _data = new byte[_size];
+                _data = new byte[_initSize];
                 byte* b = (byte*)address;
                 for (int i = 0; i < _data.Length; i++)
                     _data[i] = b[i];
@@ -36,7 +37,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             byte* header = (byte*)address;
             if (_data != null)
                 for (int i = 0; i < _data.Length; i++)
@@ -44,7 +45,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class BoneIndexValue : MovesetEntry
+    public unsafe class BoneIndexValue : MovesetEntryNode
     {
         [Browsable(false)]
         public MDL0BoneNode BoneNode
@@ -79,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string Name { get { return Bone; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             boneIndex = *(bint*)address;
         }
@@ -92,18 +93,18 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            *(bint*)(_rebuildAddr = address) = boneIndex;
+            *(bint*)(RebuildAddress = address) = boneIndex;
         }
     }
 
-    public unsafe class IndexValue : MovesetEntry
+    public unsafe class IndexValue : MovesetEntryNode
     {
         public int val = 0;
 
         [Category("Index Entry")]
         public int ItemIndex { get { return val; } set { val = value; SignalPropertyChange(); } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             val = *(bint*)address;
         }
@@ -116,26 +117,53 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            *(bint*)(_rebuildAddr = address) = val;
+            *(bint*)(RebuildAddress = address) = val;
         }
     }
 
-    public unsafe class ListOffset : MovesetEntry
+    public unsafe class OffsetValue : MovesetEntryNode
     {
-        sListOffset hdr;
+        [Category("Offset Entry")]
+        public int DataOffset { get { return _dataOffset; } }
+        private int _dataOffset = 0;
 
-        [Category("List Offset")]
-        public int DataOffset { get { return hdr._startOffset; } }
-        [Category("List Offset")]
-        public int Count { get { return hdr._listCount; } }
+        protected override void OnParse(VoidPtr address) { _dataOffset = *(bint*)address; }
+    }
 
-        public override void Parse(VoidPtr address)
+    public unsafe class ExternalEntryNode : MovesetEntryNode
+    {
+        [Browsable(false)]
+        public List<int> DataOffsets { get { return _dataOffsets; } set { _dataOffsets = value; } }
+        private List<int> _dataOffsets = new List<int>();
+
+        [Browsable(false)]
+        public List<MovesetEntryNode> References { get { return _references; } set { _references = value; } }
+        private List<MovesetEntryNode> _references = new List<MovesetEntryNode>();
+
+        protected override void OnParse(VoidPtr address)
         {
-            hdr = *(sListOffset*)address;
+            _dataOffsets = new List<int>() { _offset };
+
+            int offset = *(bint*)address;
+
+            while (offset > 0)
+            {
+                _dataOffsets.Add(offset);
+
+                offset = *(bint*)(BaseAddress + offset);
+
+                //Infinite loops are NO GOOD
+                if (_dataOffsets.Contains(offset))
+                    break;
+            }
         }
     }
 
-    public class EntryList<T> : MovesetEntry, IEnumerable<T>, IListSource where T : MovesetEntry 
+    /// <summary>
+    /// Generic list class for handling structs in a memory array.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class EntryList<T> : MovesetEntryNode, IEnumerable<T>, IListSource where T : MovesetEntryNode 
     {
         #region Child Enumeration
 
@@ -208,18 +236,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         private int _stride, _count = -1;
         private BindingList<T> _entries;
 
-        //public BindingList<T> Entries { get { return _entries; } set { if (value.Count != _entries.Count) SignalRebuildChange(); _entries = value; } }
+        public BindingList<T> Entries { get { return _entries; } }
 
         public EntryList(int stride, int count) { _stride = stride; _count = count; }
         public EntryList(int stride) { _stride = stride; }
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            //if (_count >= 0 && _count != _size / _stride)
-            //    Console.WriteLine("wat");
-
             _entries = new BindingList<T>();
-            if (_count > 0 || _size > 0)
-                for (int i = 0; i < (_count > 0 ? _count : _size / _stride); i++)
+            if (_count > 0 || _initSize > 0)
+                for (int i = 0; i < (_count > 0 ? _count : _initSize / _stride); i++)
                 {
                     T e = Parse<T>(address[i, _stride]);
                     e._index = i;
@@ -234,21 +259,25 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             for (int i = 0; i < _entries.Count; i++)
                 _entries[i].Write(address[i, _stride]);
         }
     }
 
-    public unsafe class EntryListOffset<T> : ListOffset where T : MovesetEntry
+    /// <summary>
+    /// Deprecated; avoid use
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public unsafe class EntryListOffset<T> : ListOffset where T : MovesetEntryNode
     {
         private int _stride;
         public List<T> _entries;
 
         public EntryListOffset(int stride) { _stride = stride; }
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
-            base.Parse(address);
+            base.OnParse(address);
             _entries = new List<T>();
             if (Count > 0)
                 for (int i = 0; i < Count; i++)
@@ -266,7 +295,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < _entries.Count; i++)
                 _entries[i].Write(address[i, _stride]);
 
-            sListOffset* o = (sListOffset*)(_rebuildAddr = address + _entries.Count * _stride);
+            sListOffset* o = (sListOffset*)(RebuildAddress = address + _entries.Count * _stride);
             if (_entries.Count > 0)
             {
                 o->_startOffset = Offset(address);
@@ -278,6 +307,24 @@ namespace BrawlLib.SSBB.ResourceNodes
                 o->_startOffset = 0;
                 o->_listCount = 0;
             }
+        }
+    }
+
+    /// <summary>
+    /// Deprecated; avoid use
+    /// </summary>
+    public unsafe class ListOffset : MovesetEntryNode
+    {
+        sListOffset hdr;
+
+        [Category("List Offset")]
+        public int DataOffset { get { return hdr._startOffset; } }
+        [Category("List Offset")]
+        public int Count { get { return hdr._listCount; } }
+
+        protected override void OnParse(VoidPtr address)
+        {
+            hdr = *(sListOffset*)address;
         }
     }
 }

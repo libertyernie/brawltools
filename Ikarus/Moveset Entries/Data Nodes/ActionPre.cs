@@ -6,7 +6,7 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Windows.Forms;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
     //public unsafe class MoveDefActionPreNode : MovesetEntry
     //{
@@ -48,7 +48,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     //    }
     //}
 
-    public unsafe class ActionPre : MovesetEntry
+    public unsafe class ActionPre : MovesetEntryNode
     {
         private int val = 0;
 
@@ -63,7 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_externalEntry != null && _externalEntry.Name != value)
                     _externalEntry.References.Remove(this);
                 
-                foreach (ExternalEntry e in _root.ReferenceList)
+                foreach (ExternalEntryNode e in _root.ReferenceList)
                     if (e.Name == value)
                     {
                         _externalEntry = e;
@@ -85,7 +85,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             *(bint*)address = val;
         }
     }

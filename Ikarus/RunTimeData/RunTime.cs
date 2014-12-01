@@ -1,5 +1,6 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
-using Ikarus.UI;
+using Ikarus.MovesetFile;
+using System.Windows.Forms;
 using OpenTK.Input;
 using System;
 using System.Collections.Generic;
@@ -7,10 +8,10 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using WiimoteLib;
+using Ikarus.UI;
 
-namespace Ikarus
+namespace Ikarus.ModelViewer
 {
     /// <summary>
     /// A static class containing universally available variables and functions for what is going on in the viewer.
@@ -112,12 +113,19 @@ namespace Ikarus
             }
         }
 
+        /// <summary>
+        /// This determines how many frames should be rendered per second.
+        /// </summary>
         public static double FramesPerSecond 
         {
             get { return _timer.TargetRenderFrequency; }
             set { _timer.TargetRenderFrequency = value; }
         }
 
+        /// <summary>
+        /// This determines how many updates should take place per second.
+        /// Updates include things like executing button input and action changes.
+        /// </summary>
         public static double UpdatesPerSecond
         {
             get { return _timer.TargetUpdateFrequency; }
@@ -255,7 +263,7 @@ namespace Ikarus
                     {
                         if (i._model != null)
                         {
-                            i._model._visible = true;
+                            i._model._attached = true;
                             i._model.ApplyCHR(null, 0);
                         }
                         i.Running = true;
@@ -263,7 +271,7 @@ namespace Ikarus
                     else
                     {
                         if (i._model != null)
-                            i._model._visible = false;
+                            i._model._attached = false;
                         i.Running = false;
                     }
                 }
@@ -309,7 +317,7 @@ namespace Ikarus
         {
             if (Manager.Moveset == null || Manager.Moveset.Data == null) return;
             MDL0BoneNode TopN = Manager.Moveset.Data._boneRef1[0].BoneNode;
-            TopN._overrideTranslate = new Vector3();
+            TopN._overrideLocalTranslate = new Vector3();
         }
 
         public static void UpdateCharPos()

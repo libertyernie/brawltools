@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
+using BrawlLib.Modeling;
 
 namespace System.Windows.Forms
 {
@@ -139,7 +140,7 @@ namespace System.Windows.Forms
         public PAT0Editor() { InitializeComponent(); }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef { get { return _mainWindow.TargetTexRef; } set { _mainWindow.TargetTexRef = value; } }
@@ -151,7 +152,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -284,9 +285,9 @@ namespace System.Windows.Forms
 
             if (TargetModel != null)
             {
-                foreach (ResourceNode s in TargetModel.RootNode.FindChildrenByType(null, ResourceType.TEX0))
+                foreach (ResourceNode s in ((ResourceNode)TargetModel).RootNode.FindChildrenByType(null, ResourceType.TEX0))
                     texBox.Items.Add(s.Name);
-                foreach (ResourceNode s in TargetModel.RootNode.FindChildrenByType(null, ResourceType.PLT0))
+                foreach (ResourceNode s in ((ResourceNode)TargetModel).RootNode.FindChildrenByType(null, ResourceType.PLT0))
                     pltBox.Items.Add(s.Name);
             }
             if (_mainWindow.ExternalAnimationsNode != null)

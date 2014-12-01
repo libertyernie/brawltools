@@ -162,5 +162,10 @@ namespace BrawlLib.OpenGL
             ClearImages();
             ClearTexture();
         }
+
+        public override string ToString()
+        {
+            return _name;
+        }
     }
 }

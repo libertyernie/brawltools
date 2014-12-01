@@ -175,7 +175,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 using (FileStream inStream = new FileStream(Path.GetTempFileName(), FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 0x8, FileOptions.SequentialScan | FileOptions.DeleteOnClose))
                 using (FileStream outStream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
                 {
-                    Compressor.Compact(CompressionType.LZ77, WorkingUncompressed.Address, WorkingUncompressed.Length, inStream, this);
+                    Compressor.Compact(CompressionType.ExtendedLZ77, WorkingUncompressed.Address, WorkingUncompressed.Length, inStream, this);
                     outStream.SetLength(inStream.Length);
                     using (FileMap map = FileMap.FromStream(inStream))
                     using (FileMap outMap = FileMap.FromStream(outStream))

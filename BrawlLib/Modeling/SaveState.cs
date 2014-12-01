@@ -13,7 +13,7 @@ namespace BrawlLib.Modeling
 
         public int _frameIndex = 0;
         public CHR0Node _animation;
-        public MDL0BoneNode _bone;
+        public IBoneNode _bone;
         public FrameState? _frameState = null;
 
         public List<CollisionLink> _collisionLinks;
@@ -29,6 +29,6 @@ namespace BrawlLib.Modeling
         
         public List<Vertex3> _vertices = null;
         public Vector3 _translation;
-        public MDL0Node _targetModel;
+        public IModel _targetModel;
     }
 }

@@ -2,19 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using BrawlLib.IO;
-using BrawlLib.Wii.Animations;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class DataSection : ExternalEntry
+    public unsafe class DataSection : ExternalEntryNode
     {
         DataHeader _hdr;
         int _unk27, _unk28, _flags2;
@@ -103,8 +98,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public EntryList<ItemAnchor> _anchoredItems, _gooeyBomb, _boneFloats3;
         public ActionOverrideList _entryOverrides;
         public ActionOverrideList _exitOverrides;
-        public SortedList<int, MovesetEntry> _articles;
-        public List<MovesetEntry> _extraEntries;
+        public SortedList<int, MovesetEntryNode> _articles;
+        public List<MovesetEntryNode> _extraEntries;
 
         //public MoveDefStaticArticleGroupNode _staticArticles;
         ////Character Specific Nodes
@@ -121,22 +116,22 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public BindingList<SubActionEntry> SubActions { get { return _subActions; } }
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             //Initialize lists
-            _extraEntries = new List<MovesetEntry>();
-            _articles = new SortedList<int, MovesetEntry>();
+            _extraEntries = new List<MovesetEntryNode>();
+            _articles = new SortedList<int, MovesetEntryNode>();
             _subActions = new BindingList<SubActionEntry>();
 
-            //Set header values
-            DataHeader* h = (DataHeader*)address; _hdr = *h;
+            //Get header values
+            _hdr = *(DataHeader*)address; 
             _unk27 = _hdr.Unknown27;
             _unk28 = _hdr.Unknown28;
             _flags1 = _hdr.Flags1;
             _flags2 = _hdr.Flags2;
 
             bint* v = (bint*)address;
-            int[] sizes = MovesetFile.CalculateSizes(_root._dataSize, v, 27, true);
+            int[] sizes = MovesetNode.CalculateSizes(_root._dataSize, v, 27, true);
             ParseScripts(v, sizes);
 
             //Parse all data entries.
@@ -202,7 +197,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ActionEntry ag;
             list = _root._scriptOffsets[0];
             count = list[0].Count;
-            _root.Actions = new BindingList<ActionEntry>();
+            _root._actions = new BindingList<ActionEntry>();
             for (int i = 0; i < count; i++)
             {
                 sActionFlags flag = aflags[i];
@@ -624,14 +619,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         protected override int OnGetSize()
         {
             _entryLength = 124 + ExtraDataOffsets.GetOffsets(_root.Character).Count * 4;
-            _childLength = MovesetFile.Builder.CalcDataSize(this);
+            _childLength = MovesetNode.Builder.CalcDataSize(this);
             return (_entryLength + _childLength);
         }
 
         internal VoidPtr _dataHeader;
         protected override void OnWrite(VoidPtr address)
         {
-            MovesetFile.Builder.BuildData(this, (DataHeader*)_dataHeader, address);
+            MovesetNode.Builder.BuildData(this, (DataHeader*)_dataHeader, address);
         }
     }
 }

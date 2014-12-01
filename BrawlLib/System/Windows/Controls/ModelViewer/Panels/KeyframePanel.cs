@@ -460,7 +460,7 @@ namespace System.Windows.Forms
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -470,7 +470,7 @@ namespace System.Windows.Forms
         public CHR0Node SelectedCHR0 { get { return _mainWindow.SelectedCHR0; } set { _mainWindow.SelectedCHR0 = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode SelectedBone
+        public IBoneNode SelectedBone
         {
             get { return _mainWindow.SelectedBone; }
             set { _mainWindow.SelectedBone = value; }

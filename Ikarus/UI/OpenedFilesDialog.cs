@@ -1,4 +1,5 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
+using Ikarus;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,7 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Ikarus.UI
+namespace System.Windows.Forms
 {
     public partial class OpenedFilesDialog : Form
     {

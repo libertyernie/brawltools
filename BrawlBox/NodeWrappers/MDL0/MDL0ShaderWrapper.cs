@@ -59,11 +59,8 @@ namespace BrawlBox.NodeWrappers
         {
             if (_resource.Children.Count < 16)
             {
-                TEVStage stage = new TEVStage();
+                TEVStageNode stage = new TEVStageNode();
                 _resource.AddChild(stage, true);
-                stage.Default();
-
-                ((MDL0ShaderNode)_resource).STGs = (byte)_resource.Children.Count;
 
                 Nodes[Nodes.Count - 1].EnsureVisible();
                 //TreeView.SelectedNode = Nodes[Nodes.Count - 1];

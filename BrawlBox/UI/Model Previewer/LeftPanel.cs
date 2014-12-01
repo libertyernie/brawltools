@@ -543,16 +543,16 @@ namespace System.Windows.Forms
 
         private bool _updating = false;
 
-        private MDL0ObjectNode _selectedObject;
+        private IObject _selectedObject;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0ObjectNode SelectedObject { get { return _selectedObject; } set { lstObjects.SelectedItem = value; } }
+        public IObject SelectedObject { get { return _selectedObject; } set { lstObjects.SelectedItem = value; } }
 
         private MDL0TextureNode _selectedTexture;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0TextureNode SelectedTexture { get { return _selectedTexture; } set { lstTextures.SelectedItem = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef
@@ -573,7 +573,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -632,7 +632,10 @@ namespace System.Windows.Forms
 
         public bool LoadAnims(ResourceNode node, AnimType type)
         {
-            if (!_mainWindow.chkBRRESAnims.Checked && TargetModel != null && node == TargetModel.BRESNode)
+            if (!_mainWindow.chkBRRESAnims.Checked && 
+                TargetModel != null && 
+                TargetModel is MDL0Node &&
+                node == ((MDL0Node)TargetModel).BRESNode)
                 return false;
 
             bool found = false;
@@ -681,11 +684,11 @@ namespace System.Windows.Forms
             listAnims.BeginUpdate();
             listAnims.Items.Clear();
 
-            if (TargetModel != null)
+            if (TargetModel != null && TargetModel is MDL0Node)
                 if (_mainWindow.chkNonBRRESAnims.Checked)
-                    LoadAnims(TargetModel.RootNode, type);
+                    LoadAnims(((MDL0Node)TargetModel).RootNode, type);
                 else
-                    LoadAnims(TargetModel.BRESNode, type);
+                    LoadAnims(((MDL0Node)TargetModel).BRESNode, type);
 
             if (_mainWindow.ExternalAnimationsNode != null && _mainWindow.chkExternalAnims.Checked)
                 LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type);
@@ -751,11 +754,19 @@ namespace System.Windows.Forms
 
             ResourceNode n;
             if (_selectedObject != null && _mainWindow.syncTexObjToolStripMenuItem.Checked)
-                foreach (MDL0MaterialRefNode tref in _selectedObject.UsableMaterialNode.Children)
-                    lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
-            else if (TargetModel != null && (n = TargetModel.FindChild("Textures", false)) != null)
-                foreach (MDL0TextureNode tref in n.Children)
-                    lstTextures.Items.Add(tref, tref.Enabled);
+            {
+                //Add textures the selected object uses
+                if (_selectedObject is MDL0ObjectNode)
+                    foreach (MDL0MaterialRefNode tref in ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Children)
+                        lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
+            }
+            else if (TargetModel != null)
+            {
+                //Add all model textures
+                if (TargetModel is MDL0Node && (n = ((ResourceNode)TargetModel).FindChild("Textures", false)) != null)
+                    foreach (MDL0TextureNode tref in n.Children)
+                        lstTextures.Items.Add(tref, tref.Enabled);
+            }
             
             lstTextures.EndUpdate();
 
@@ -793,13 +804,16 @@ namespace System.Windows.Forms
 
                 UpdateAnimations(TargetAnimType);
 
-                if ((n = TargetModel.FindChild("Objects", false)) != null)
-                    foreach (MDL0ObjectNode poly in n.Children)
-                        lstObjects.Items.Add(poly, poly._render);
+                if (TargetModel is MDL0Node)
+                {
+                    if ((n = ((MDL0Node)TargetModel).FindChild("Objects", false)) != null)
+                        foreach (MDL0ObjectNode poly in n.Children)
+                            lstObjects.Items.Add(poly, poly._render);
 
-                if ((n = TargetModel.FindChild("Textures", false)) != null)
-                    foreach (MDL0TextureNode tref in n.Children)
-                        lstTextures.Items.Add(tref, tref.Enabled);
+                    if ((n = ((MDL0Node)TargetModel).FindChild("Textures", false)) != null)
+                        foreach (MDL0TextureNode tref in n.Children)
+                            lstTextures.Items.Add(tref, tref.Enabled);
+                }
             }
 
             lstTextures.EndUpdate();
@@ -874,8 +888,12 @@ namespace System.Windows.Forms
 
         private void lstPolygons_SelectedValueChanged(object sender, EventArgs e)
         {
-            _selectedObject = lstObjects.SelectedItem as MDL0ObjectNode;
-            TargetTexRef = _selectedObject != null && _selectedTexture != null ? _selectedObject.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+            if ((_selectedObject = lstObjects.SelectedItem as IObject) != null)
+            {
+                if (_selectedObject is MDL0ObjectNode)
+                    TargetTexRef = _selectedTexture != null ? ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+            }
+
             _mainWindow.SelectedPolygonChanged(this, null);
             overObjPnl.Invalidate();
             overTexPnl.Invalidate();
@@ -947,9 +965,11 @@ namespace System.Windows.Forms
                 if (_mainWindow.syncTexObjToolStripMenuItem.Checked)
                     _selectedTexture.ObjOnly = true;
 
-                TargetTexRef = _selectedObject != null ? _selectedObject.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject).UsableMaterialNode != null)
+                    TargetTexRef = _selectedObject != null ? ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             }
-            if (!_updating) _mainWindow.ModelPanel.Invalidate();
+            if (!_updating)
+                _mainWindow.ModelPanel.Invalidate();
         }
 
         private void chkAllPoly_CheckStateChanged(object sender, EventArgs e)
@@ -1269,10 +1289,10 @@ namespace System.Windows.Forms
 
         private unsafe void portToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (TargetAnimType != 0 || SelectedCHR0 == null)
+            if (TargetAnimType != 0 || SelectedCHR0 == null || !(TargetModel is MDL0Node))
                 return;
 
-            SelectedCHR0.Port(TargetModel);
+            SelectedCHR0.Port(TargetModel as MDL0Node);
 
             _mainWindow.UpdateModel();
             _mainWindow.ModelPanel.Invalidate();
@@ -1324,11 +1344,12 @@ namespace System.Windows.Forms
         {
             if (_srt0Selection == null && _pat0Selection == null)
                 return;
+
             Graphics g = e.Graphics;
             for (int i = 0; i < lstObjects.Items.Count; i++)
             {
                 MDL0ObjectNode poly = lstObjects.Items[i] as MDL0ObjectNode;
-                if (poly.UsableMaterialNode != null)
+                if (poly != null && poly.UsableMaterialNode != null)
                     if (_srt0Selection != null)
                     {
                         if (_srt0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.SRT0Entry) != null)
@@ -1353,16 +1374,20 @@ namespace System.Windows.Forms
         {
             if (_srt0Selection == null && _pat0Selection == null)
                 return;
+
             Graphics g = e.Graphics;
             ResourceNode rn = null;
-            if (_selectedObject != null && _selectedObject.UsableMaterialNode != null)
+
+            if (_selectedObject != null && 
+                _selectedObject is MDL0ObjectNode &&
+                ((MDL0ObjectNode)_selectedObject).UsableMaterialNode != null)
                 for (int i = 0; i < lstTextures.Items.Count; i++)
                 {
                     MDL0TextureNode tex = lstTextures.Items[i] as MDL0TextureNode;
-                    if ((rn = _selectedObject.UsableMaterialNode.FindChild(tex.Name, true)) != null)
+                    if ((rn = ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(tex.Name, true)) != null)
                         if (_srt0Selection != null)
                         {
-                            if (_srt0Selection.FindChildByType(_selectedObject.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
+                            if (_srt0Selection.FindChildByType(((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
                             {
                                 Rectangle r = lstTextures.GetItemRectangle(i);
                                 g.DrawRectangle(Pens.Black, r);
@@ -1370,7 +1395,7 @@ namespace System.Windows.Forms
                         }
                         else if (_pat0Selection != null)
                         {
-                            if (_pat0Selection.FindChildByType(_selectedObject.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
+                            if (_pat0Selection.FindChildByType(((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
                             {
                                 Rectangle r = lstTextures.GetItemRectangle(i);
                                 g.DrawRectangle(Pens.Black, r);

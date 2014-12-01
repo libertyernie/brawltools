@@ -66,6 +66,7 @@ namespace System.Windows.Forms
         private Label label22;
         private Label label21;
         private Label label19;
+        private CheckBox chkOrtho;
         private IMainWindow _form;
 
         public ModelViewerSettingsDialog() 
@@ -168,8 +169,8 @@ namespace System.Windows.Forms
 
         private void BoxValueChanged(object sender, EventArgs e)
         {
-            _boxes[5].Value = _boxes[5].Value.Clamp180Deg();
-            _boxes[6].Value = _boxes[6].Value.Clamp180Deg();
+            _boxes[5].Value = _boxes[5].Value.RemapToRange(-180.0f, 180.0f);
+            _boxes[6].Value = _boxes[6].Value.RemapToRange(-180.0f, 180.0f);
 
             _form.ModelPanel.Ambient = new Vector4(_boxes[0].Value / 255.0f, _boxes[1].Value / 255.0f, _boxes[2].Value / 255.0f, 1.0f);
             _form.ModelPanel.LightPosition = new Vector4(_boxes[4].Value, _boxes[5].Value, _boxes[6].Value, 1.0f);
@@ -198,7 +199,7 @@ namespace System.Windows.Forms
             else
                 UpdateSpe();
 
-            _form.ModelPanel._projectionChanged = true;
+            _form.ModelPanel.ProjectionChanged = true;
 
             _form.ModelPanel.Invalidate();
         }
@@ -263,7 +264,7 @@ namespace System.Windows.Forms
         {
             base.OnFormClosing(e);
 
-            _form.ModelPanel._projectionChanged = true;
+            _form.ModelPanel.ProjectionChanged = true;
             _form.RenderLightDisplay = false;
 
             _form.ModelPanel.Invalidate();
@@ -334,6 +335,7 @@ namespace System.Windows.Forms
             this.label24 = new System.Windows.Forms.Label();
             this.maxUndoCount = new System.Windows.Forms.NumericInputBox();
             this.label18 = new System.Windows.Forms.Label();
+            this.chkOrtho = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBox3.SuspendLayout();
@@ -344,7 +346,7 @@ namespace System.Windows.Forms
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(231, 400);
+            this.btnCancel.Location = new System.Drawing.Point(231, 420);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -355,7 +357,7 @@ namespace System.Windows.Forms
             // btnOkay
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOkay.Location = new System.Drawing.Point(150, 400);
+            this.btnOkay.Location = new System.Drawing.Point(150, 420);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(75, 23);
             this.btnOkay.TabIndex = 1;
@@ -367,7 +369,10 @@ namespace System.Windows.Forms
             // 
             this.ax.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.ax.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ax.Integral = false;
             this.ax.Location = new System.Drawing.Point(88, 81);
+            this.ax.MaximumValue = 3.402823E+38F;
+            this.ax.MinimumValue = -3.402823E+38F;
             this.ax.Name = "ax";
             this.ax.Size = new System.Drawing.Size(50, 20);
             this.ax.TabIndex = 3;
@@ -377,7 +382,10 @@ namespace System.Windows.Forms
             // radius
             // 
             this.radius.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.radius.Integral = false;
             this.radius.Location = new System.Drawing.Point(60, 35);
+            this.radius.MaximumValue = 3.402823E+38F;
+            this.radius.MinimumValue = -3.402823E+38F;
             this.radius.Name = "radius";
             this.radius.Size = new System.Drawing.Size(66, 20);
             this.radius.TabIndex = 4;
@@ -388,7 +396,10 @@ namespace System.Windows.Forms
             // 
             this.dx.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dx.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dx.Integral = false;
             this.dx.Location = new System.Drawing.Point(88, 100);
+            this.dx.MaximumValue = 3.402823E+38F;
+            this.dx.MinimumValue = -3.402823E+38F;
             this.dx.Name = "dx";
             this.dx.Size = new System.Drawing.Size(50, 20);
             this.dx.TabIndex = 5;
@@ -399,7 +410,10 @@ namespace System.Windows.Forms
             // 
             this.sx.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.sx.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.sx.Integral = false;
             this.sx.Location = new System.Drawing.Point(88, 119);
+            this.sx.MaximumValue = 3.402823E+38F;
+            this.sx.MinimumValue = -3.402823E+38F;
             this.sx.Name = "sx";
             this.sx.Size = new System.Drawing.Size(50, 20);
             this.sx.TabIndex = 6;
@@ -486,7 +500,10 @@ namespace System.Windows.Forms
             // 
             this.sy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.sy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.sy.Integral = false;
             this.sy.Location = new System.Drawing.Point(137, 119);
+            this.sy.MaximumValue = 3.402823E+38F;
+            this.sy.MinimumValue = -3.402823E+38F;
             this.sy.Name = "sy";
             this.sy.Size = new System.Drawing.Size(50, 20);
             this.sy.TabIndex = 26;
@@ -497,7 +514,10 @@ namespace System.Windows.Forms
             // 
             this.dy.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dy.Integral = false;
             this.dy.Location = new System.Drawing.Point(137, 100);
+            this.dy.MaximumValue = 3.402823E+38F;
+            this.dy.MinimumValue = -3.402823E+38F;
             this.dy.Name = "dy";
             this.dy.Size = new System.Drawing.Size(50, 20);
             this.dy.TabIndex = 25;
@@ -507,7 +527,10 @@ namespace System.Windows.Forms
             // azimuth
             // 
             this.azimuth.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.azimuth.Integral = false;
             this.azimuth.Location = new System.Drawing.Point(129, 35);
+            this.azimuth.MaximumValue = 3.402823E+38F;
+            this.azimuth.MinimumValue = -3.402823E+38F;
             this.azimuth.Name = "azimuth";
             this.azimuth.Size = new System.Drawing.Size(66, 20);
             this.azimuth.TabIndex = 24;
@@ -518,7 +541,10 @@ namespace System.Windows.Forms
             // 
             this.ay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.ay.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ay.Integral = false;
             this.ay.Location = new System.Drawing.Point(137, 81);
+            this.ay.MaximumValue = 3.402823E+38F;
+            this.ay.MinimumValue = -3.402823E+38F;
             this.ay.Name = "ay";
             this.ay.Size = new System.Drawing.Size(50, 20);
             this.ay.TabIndex = 23;
@@ -529,7 +555,10 @@ namespace System.Windows.Forms
             // 
             this.sz.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.sz.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.sz.Integral = false;
             this.sz.Location = new System.Drawing.Point(186, 119);
+            this.sz.MaximumValue = 3.402823E+38F;
+            this.sz.MinimumValue = -3.402823E+38F;
             this.sz.Name = "sz";
             this.sz.Size = new System.Drawing.Size(50, 20);
             this.sz.TabIndex = 30;
@@ -540,7 +569,10 @@ namespace System.Windows.Forms
             // 
             this.dz.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.dz.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.dz.Integral = false;
             this.dz.Location = new System.Drawing.Point(186, 100);
+            this.dz.MaximumValue = 3.402823E+38F;
+            this.dz.MinimumValue = -3.402823E+38F;
             this.dz.Name = "dz";
             this.dz.Size = new System.Drawing.Size(50, 20);
             this.dz.TabIndex = 29;
@@ -550,7 +582,10 @@ namespace System.Windows.Forms
             // elevation
             // 
             this.elevation.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.elevation.Integral = false;
             this.elevation.Location = new System.Drawing.Point(197, 35);
+            this.elevation.MaximumValue = 3.402823E+38F;
+            this.elevation.MinimumValue = -3.402823E+38F;
             this.elevation.Name = "elevation";
             this.elevation.Size = new System.Drawing.Size(66, 20);
             this.elevation.TabIndex = 28;
@@ -561,7 +596,10 @@ namespace System.Windows.Forms
             // 
             this.az.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.az.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.az.Integral = false;
             this.az.Location = new System.Drawing.Point(186, 81);
+            this.az.MaximumValue = 3.402823E+38F;
+            this.az.MinimumValue = -3.402823E+38F;
             this.az.Name = "az";
             this.az.Size = new System.Drawing.Size(50, 20);
             this.az.TabIndex = 27;
@@ -601,7 +639,7 @@ namespace System.Windows.Forms
             this.groupBox1.Controls.Add(this.sx);
             this.groupBox1.Controls.Add(this.dx);
             this.groupBox1.Controls.Add(this.ax);
-            this.groupBox1.Location = new System.Drawing.Point(0, 91);
+            this.groupBox1.Location = new System.Drawing.Point(0, 111);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(315, 167);
             this.groupBox1.TabIndex = 35;
@@ -652,7 +690,10 @@ namespace System.Windows.Forms
             // 
             this.ez.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.ez.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ez.Integral = false;
             this.ez.Location = new System.Drawing.Point(186, 138);
+            this.ez.MaximumValue = 3.402823E+38F;
+            this.ez.MinimumValue = -3.402823E+38F;
             this.ez.Name = "ez";
             this.ez.Size = new System.Drawing.Size(50, 20);
             this.ez.TabIndex = 40;
@@ -662,7 +703,10 @@ namespace System.Windows.Forms
             // 
             this.ey.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.ey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ey.Integral = false;
             this.ey.Location = new System.Drawing.Point(137, 138);
+            this.ey.MaximumValue = 3.402823E+38F;
+            this.ey.MinimumValue = -3.402823E+38F;
             this.ey.Name = "ey";
             this.ey.Size = new System.Drawing.Size(50, 20);
             this.ey.TabIndex = 39;
@@ -683,7 +727,10 @@ namespace System.Windows.Forms
             // 
             this.ex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.ex.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.ex.Integral = false;
             this.ex.Location = new System.Drawing.Point(88, 138);
+            this.ex.MaximumValue = 3.402823E+38F;
+            this.ex.MinimumValue = -3.402823E+38F;
             this.ex.Name = "ex";
             this.ex.Size = new System.Drawing.Size(50, 20);
             this.ex.TabIndex = 37;
@@ -711,6 +758,7 @@ namespace System.Windows.Forms
             // 
             // groupBox2
             // 
+            this.groupBox2.Controls.Add(this.chkOrtho);
             this.groupBox2.Controls.Add(this.farZ);
             this.groupBox2.Controls.Add(this.nearZ);
             this.groupBox2.Controls.Add(this.yFov);
@@ -726,7 +774,7 @@ namespace System.Windows.Forms
             this.groupBox2.Dock = System.Windows.Forms.DockStyle.Top;
             this.groupBox2.Location = new System.Drawing.Point(0, 0);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(315, 91);
+            this.groupBox2.Size = new System.Drawing.Size(315, 108);
             this.groupBox2.TabIndex = 36;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "Projection";
@@ -734,7 +782,10 @@ namespace System.Windows.Forms
             // farZ
             // 
             this.farZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.farZ.Location = new System.Drawing.Point(247, 57);
+            this.farZ.Integral = false;
+            this.farZ.Location = new System.Drawing.Point(243, 79);
+            this.farZ.MaximumValue = 3.402823E+38F;
+            this.farZ.MinimumValue = -3.402823E+38F;
             this.farZ.Name = "farZ";
             this.farZ.Size = new System.Drawing.Size(60, 20);
             this.farZ.TabIndex = 11;
@@ -744,7 +795,10 @@ namespace System.Windows.Forms
             // nearZ
             // 
             this.nearZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.nearZ.Location = new System.Drawing.Point(247, 38);
+            this.nearZ.Integral = false;
+            this.nearZ.Location = new System.Drawing.Point(243, 60);
+            this.nearZ.MaximumValue = 3.402823E+38F;
+            this.nearZ.MinimumValue = -3.402823E+38F;
             this.nearZ.Name = "nearZ";
             this.nearZ.Size = new System.Drawing.Size(60, 20);
             this.nearZ.TabIndex = 10;
@@ -754,7 +808,10 @@ namespace System.Windows.Forms
             // yFov
             // 
             this.yFov.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.yFov.Location = new System.Drawing.Point(247, 19);
+            this.yFov.Integral = false;
+            this.yFov.Location = new System.Drawing.Point(243, 41);
+            this.yFov.MaximumValue = 3.402823E+38F;
+            this.yFov.MinimumValue = -3.402823E+38F;
             this.yFov.Name = "yFov";
             this.yFov.Size = new System.Drawing.Size(60, 20);
             this.yFov.TabIndex = 9;
@@ -764,7 +821,10 @@ namespace System.Windows.Forms
             // zScale
             // 
             this.zScale.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.zScale.Location = new System.Drawing.Point(109, 57);
+            this.zScale.Integral = false;
+            this.zScale.Location = new System.Drawing.Point(105, 79);
+            this.zScale.MaximumValue = 3.402823E+38F;
+            this.zScale.MinimumValue = -3.402823E+38F;
             this.zScale.Name = "zScale";
             this.zScale.Size = new System.Drawing.Size(50, 20);
             this.zScale.TabIndex = 8;
@@ -774,7 +834,10 @@ namespace System.Windows.Forms
             // tScale
             // 
             this.tScale.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.tScale.Location = new System.Drawing.Point(109, 38);
+            this.tScale.Integral = false;
+            this.tScale.Location = new System.Drawing.Point(105, 60);
+            this.tScale.MaximumValue = 3.402823E+38F;
+            this.tScale.MinimumValue = -3.402823E+38F;
             this.tScale.Name = "tScale";
             this.tScale.Size = new System.Drawing.Size(50, 20);
             this.tScale.TabIndex = 7;
@@ -784,7 +847,10 @@ namespace System.Windows.Forms
             // rScale
             // 
             this.rScale.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.rScale.Location = new System.Drawing.Point(109, 19);
+            this.rScale.Integral = false;
+            this.rScale.Location = new System.Drawing.Point(105, 41);
+            this.rScale.MaximumValue = 3.402823E+38F;
+            this.rScale.MinimumValue = -3.402823E+38F;
             this.rScale.Name = "rScale";
             this.rScale.Size = new System.Drawing.Size(50, 20);
             this.rScale.TabIndex = 6;
@@ -794,7 +860,7 @@ namespace System.Windows.Forms
             // label14
             // 
             this.label14.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label14.Location = new System.Drawing.Point(158, 57);
+            this.label14.Location = new System.Drawing.Point(154, 79);
             this.label14.Name = "label14";
             this.label14.Size = new System.Drawing.Size(90, 20);
             this.label14.TabIndex = 5;
@@ -804,7 +870,7 @@ namespace System.Windows.Forms
             // label13
             // 
             this.label13.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label13.Location = new System.Drawing.Point(158, 38);
+            this.label13.Location = new System.Drawing.Point(154, 60);
             this.label13.Name = "label13";
             this.label13.Size = new System.Drawing.Size(90, 20);
             this.label13.TabIndex = 4;
@@ -814,7 +880,7 @@ namespace System.Windows.Forms
             // label12
             // 
             this.label12.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label12.Location = new System.Drawing.Point(158, 19);
+            this.label12.Location = new System.Drawing.Point(154, 41);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(90, 20);
             this.label12.TabIndex = 3;
@@ -824,7 +890,7 @@ namespace System.Windows.Forms
             // label11
             // 
             this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label11.Location = new System.Drawing.Point(10, 57);
+            this.label11.Location = new System.Drawing.Point(6, 79);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(100, 20);
             this.label11.TabIndex = 2;
@@ -834,7 +900,7 @@ namespace System.Windows.Forms
             // label10
             // 
             this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label10.Location = new System.Drawing.Point(10, 38);
+            this.label10.Location = new System.Drawing.Point(6, 60);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(100, 20);
             this.label10.TabIndex = 1;
@@ -844,7 +910,7 @@ namespace System.Windows.Forms
             // label9
             // 
             this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label9.Location = new System.Drawing.Point(10, 19);
+            this.label9.Location = new System.Drawing.Point(6, 41);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(100, 20);
             this.label9.TabIndex = 0;
@@ -861,7 +927,7 @@ namespace System.Windows.Forms
             this.groupBox3.Controls.Add(this.lblOrbColor);
             this.groupBox3.Controls.Add(this.lblOrbText);
             this.groupBox3.Controls.Add(this.label15);
-            this.groupBox3.Location = new System.Drawing.Point(0, 258);
+            this.groupBox3.Location = new System.Drawing.Point(0, 278);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(315, 62);
             this.groupBox3.TabIndex = 37;
@@ -941,7 +1007,7 @@ namespace System.Windows.Forms
             this.groupBox4.Controls.Add(this.lblCol1Color);
             this.groupBox4.Controls.Add(this.lblCol1Text);
             this.groupBox4.Controls.Add(this.label24);
-            this.groupBox4.Location = new System.Drawing.Point(0, 326);
+            this.groupBox4.Location = new System.Drawing.Point(0, 346);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(315, 42);
             this.groupBox4.TabIndex = 38;
@@ -984,7 +1050,10 @@ namespace System.Windows.Forms
             // maxUndoCount
             // 
             this.maxUndoCount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.maxUndoCount.Location = new System.Drawing.Point(240, 374);
+            this.maxUndoCount.Integral = false;
+            this.maxUndoCount.Location = new System.Drawing.Point(240, 394);
+            this.maxUndoCount.MaximumValue = 3.402823E+38F;
+            this.maxUndoCount.MinimumValue = -3.402823E+38F;
             this.maxUndoCount.Name = "maxUndoCount";
             this.maxUndoCount.Size = new System.Drawing.Size(66, 20);
             this.maxUndoCount.TabIndex = 37;
@@ -994,17 +1063,28 @@ namespace System.Windows.Forms
             // label18
             // 
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(120, 376);
+            this.label18.Location = new System.Drawing.Point(120, 396);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(114, 13);
             this.label18.TabIndex = 39;
             this.label18.Text = "Undo Buffer Maximum:";
             // 
+            // chkOrtho
+            // 
+            this.chkOrtho.AutoSize = true;
+            this.chkOrtho.Location = new System.Drawing.Point(12, 19);
+            this.chkOrtho.Name = "chkOrtho";
+            this.chkOrtho.Size = new System.Drawing.Size(87, 17);
+            this.chkOrtho.TabIndex = 12;
+            this.chkOrtho.Text = "Orthographic";
+            this.chkOrtho.UseVisualStyleBackColor = true;
+            this.chkOrtho.CheckedChanged += new System.EventHandler(this.chkOrtho_CheckedChanged);
+            // 
             // ModelViewerSettingsDialog
             // 
             this.AcceptButton = this.btnOkay;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(315, 432);
+            this.ClientSize = new System.Drawing.Size(315, 453);
             this.Controls.Add(this.maxUndoCount);
             this.Controls.Add(this.label18);
             this.Controls.Add(this.groupBox4);
@@ -1155,6 +1235,11 @@ namespace System.Windows.Forms
                 _updating = false;
                 UpdateEmi();
             }
+        }
+
+        private void chkOrtho_CheckedChanged(object sender, EventArgs e)
+        {
+            _form.ModelPanel.SetProjectionType(chkOrtho.Checked);
         }
     }
 }

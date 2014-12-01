@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 
-namespace Ikarus.UI
+namespace System.Windows.Forms
 {
     public partial class RSAREditor : Form
     {

@@ -98,6 +98,12 @@ namespace System
             else
                 return (float)(lenX / Math.Cos(Math.Atan(lenY / lenX)));
         }
+
+        public Vector2 RemapToRange(float min, float max)
+        {
+            return new Vector2(_x.RemapToRange(min, max), _y.RemapToRange(min, max));
+        }
+
         public override int GetHashCode()
         {
             fixed (Vector2* p = &this)

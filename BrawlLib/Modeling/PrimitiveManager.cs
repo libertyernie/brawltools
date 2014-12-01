@@ -10,6 +10,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
 using System.Windows.Forms;
 using System.Linq;
+using BrawlLib.Modeling.Triangle_Converter;
 
 namespace BrawlLib.Modeling
 {
@@ -20,8 +21,7 @@ namespace BrawlLib.Modeling
         public List<Vertex3> _vertices;
         public UnsafeBuffer _indices;
 
-        public int _pointCount, _faceCount, _stride;
-        public MDL0ObjectNode _polygon;
+        public int _pointCount, _faceCount, _renderStride;
 
         //Face Data:
         //0 is Vertices
@@ -38,7 +38,30 @@ namespace BrawlLib.Modeling
         //Repeat 
         public UnsafeBuffer _graphicsBuffer;
 
-        internal NewPrimitive _triangles, _lines, _points;
+        internal GLPrimitive _triangles, _lines, _points;
+
+        public bool HasTexMtx
+        {
+            get
+            {
+                for (int i = 0; i < 8; i++)
+                    if (HasTextureMatrix[i])
+                        return true;
+                return false;
+            }
+        }
+        public bool[] HasTextureMatrix = new bool[8];
+        public bool HasPosMatrix = false;
+
+        //Set these in OnCalculateSize!
+        public bool _isImportOrReopimized;
+        public bool _isWeighted;
+        public int _primitiveSize = 0;
+        public List<FacepointAttribute> _descList;
+        public List<VertexAttributeFormat> _fmtList;
+        public XFArrayFlags _arrayFlags;
+        public int _fpStride = 0;
+        public List<PrimitiveGroup> _primGroups = new List<PrimitiveGroup>();
 
         #endregion
 
@@ -93,7 +116,7 @@ namespace BrawlLib.Modeling
         /// <returns></returns>
         public Vector2[] GetUVs(int index, bool force)
         {
-            index.Clamp(0, 7);
+            index = index.Clamp(0, 7);
 
             if (_uvs[index] != null && _uvs[index].Length != 0 && !force) 
                 return _uvs[index];
@@ -120,7 +143,7 @@ namespace BrawlLib.Modeling
         /// <returns></returns>
         public RGBAPixel[] GetColors(int index, bool force)
         {
-            index.Clamp(0, 1);
+            index = index.Clamp(0, 1);
 
             if (_colors[index] != null && _colors[index].Length != 0 && !force) 
                 return _colors[index];
@@ -144,50 +167,67 @@ namespace BrawlLib.Modeling
         #region Reading
 
         public PrimitiveManager() { }
-        public PrimitiveManager(MDL0Object* polygon, AssetStorage assets, IMatrixNode[] nodes, MDL0ObjectNode p)
         {
-            _polygon = p;
 
             byte*[] pAssetList = new byte*[12];
-            byte*[] pOutList = new byte*[12];
+        public PrimitiveManager(
+            MDL0Object* polygon,
+            AssetStorage assets,
+            IMatrixNode[] nodes)
+        {
+            byte*[] pAssetList = new byte*[12];
+            byte*[] pFaceBuffers = new byte*[12];
             int id;
 
             //This relies on the header being accurate!
             _indices = new UnsafeBuffer(2 * (_pointCount = polygon->_numVertices));
             _faceCount = polygon->_numFaces;
 
+            _arrayFlags = polygon->_arrayFlags;
+            HasPosMatrix = _arrayFlags.HasPosMatrix;
+            for (int i = 0; i < 8; i++)
+                HasTextureMatrix[i] = _arrayFlags.GetHasTexMatrix(i);
+
             //Compile decode script by reading the polygon def list
             //This sets how to read the facepoints
-            ElementDescriptor desc = new ElementDescriptor(polygon);
+            ElementDescriptor desc = new ElementDescriptor();
+            desc.SetupMDL0(polygon);
 
             //Grab asset lists in sequential order.
             if ((id = polygon->_vertexId) >= 0 && desc.HasData[0] && assets.Assets[0] != null)
             {
-                pOutList[0] = (byte*)(_faceData[0] = new UnsafeBuffer(12 * _pointCount)).Address;
+                pFaceBuffers[0] = (byte*)(_faceData[0] = new UnsafeBuffer(12 * _pointCount)).Address;
                 pAssetList[0] = (byte*)assets.Assets[0][id].Address;
             }
             if ((id = polygon->_normalId) >= 0 && desc.HasData[1] && assets.Assets[1] != null)
             {
-                pOutList[1] = (byte*)(_faceData[1] = new UnsafeBuffer(12 * _pointCount)).Address;
+                pFaceBuffers[1] = (byte*)(_faceData[1] = new UnsafeBuffer(12 * _pointCount)).Address;
                 pAssetList[1] = (byte*)assets.Assets[1][id].Address;
             }
             for (int i = 0, x = 2; i < 2; i++, x++)
                 if ((id = ((bshort*)polygon->_colorIds)[i]) >= 0 && desc.HasData[x] && assets.Assets[2] != null)
                 {
-                    pOutList[x] = (byte*)(_faceData[x] = new UnsafeBuffer(4 * _pointCount)).Address;
+                    pFaceBuffers[x] = (byte*)(_faceData[x] = new UnsafeBuffer(4 * _pointCount)).Address;
                     pAssetList[x] = (byte*)assets.Assets[2][id].Address;
                 }
             for (int i = 0, x = 4; i < 8; i++, x++)
                 if ((id = ((bshort*)polygon->_uids)[i]) >= 0 && desc.HasData[x] && assets.Assets[3] != null)
                 {
-                    pOutList[x] = (byte*)(_faceData[x] = new UnsafeBuffer(8 * _pointCount)).Address;
+                    pFaceBuffers[x] = (byte*)(_faceData[x] = new UnsafeBuffer(8 * _pointCount)).Address;
                     pAssetList[x] = (byte*)assets.Assets[3][id].Address;
                 }
 
-            //Extract primitives, using our descriptor and asset lists
-            fixed (byte** pOut = pOutList)
+            int triCount = 0, lineCount = 0, pointCount = 0;
+            byte* pData = (byte*)polygon->PrimitiveData;
+
+            fixed (byte** pOut = pFaceBuffers)
             fixed (byte** pAssets = pAssetList)
-                ExtractPrimitives(polygon, ref desc, pOut, pAssets);
+                _primGroups = ReadPrimitives(pData, ref desc, pOut, pAssets, nodes, ref triCount, ref lineCount, ref pointCount);
+
+            CreateGLPrimitives(triCount, lineCount, pointCount);
+
+            uint p3 = 0, p2 = 0, p1 = 0;
+            ExtractIndices(pData, desc.Stride, ref p3, ref p2, ref p1);
 
             //Compile merged vertex list
             _vertices = desc.Finish((Vector3*)pAssetList[0], nodes);
@@ -224,308 +264,449 @@ namespace BrawlLib.Modeling
                 _indices = null;
             }
         }
-        internal void ExtractPrimitives(MDL0Object* header, ref ElementDescriptor desc, byte** pOut, byte** pAssets)
+
+        private int FindPointCount(byte* pData, int stride, uint length = 0)
         {
-            int count;
-            uint index = 0, temp;
-            byte* pData = (byte*)header->PrimitiveData;
-            byte* pTemp = (byte*)pData;
+            int count, pointCount = 0;
+            byte* pEnd = pData + length;
+            while (true)
+            {
+                switch ((GXListCommand)(*pData++))
+                {
+                    case GXListCommand.LoadIndexA:
+                    case GXListCommand.LoadIndexB:
+                    case GXListCommand.LoadIndexC:
+                    case GXListCommand.LoadIndexD:
+                        pData += 4;
+                        continue;
+
+                    case GXListCommand.DrawQuads:
+                    case GXListCommand.DrawTriangles:
+                    case GXListCommand.DrawTriangleFan:
+                    case GXListCommand.DrawTriangleStrip:
+                    case GXListCommand.DrawLines:
+                    case GXListCommand.DrawLineStrip:
+                    case GXListCommand.DrawPoints:
+                        pointCount += (count = *(bushort*)pData);
+                        break;
+
+                    default:
+                        return pointCount;
+                }
+                pData += 2 + count * stride;
+
+                if (length > 0 && pData > pEnd)
+                    return pointCount;
+            }
+        }
+
+        private List<PrimitiveGroup> ReadPrimitives(
+            byte* pStart,
+            ref ElementDescriptor desc,
+            byte** pOut,
+            byte** pAssets,
+            IMatrixNode[] cache,
+            ref int triCount,
+            ref int lineCount,
+            ref int pointCount,
+            uint length = 0)
+        {
+            byte* pData = pStart;
+            byte* pEnd = pStart + length;
             ushort* indices = (ushort*)_indices.Address;
 
-            IMatrixNode[] cache = _polygon.Model._linker.NodeCache;
-
-            //Get element count for each primitive type
-            int d3 = 0, d2 = 0, d1 = 0;
-            uint p3 = 0, p2 = 0, p1 = 0;
-            uint[] p1arr = null, p2arr = null, p3arr = null;
-
-            bool newGroup = true;
+            List<PrimitiveGroup> groups = new List<PrimitiveGroup>();
             PrimitiveGroup group = new PrimitiveGroup();
-            ushort id;
+            bool newGroup = true;
 
-            //Get counts for each primitive type, and assign face points
-        NextPrimitive:
-            byte cmd = *pTemp++;
-            if (cmd <= 0x38 && cmd >= 0x20)
+            while (true)
             {
-                if (newGroup == false)
+                GXListCommand cmd = (GXListCommand)(*pData++);
+                ushort value = *(bushort*)pData;
+
+                if (cmd <= GXListCommand.LoadIndexD && cmd >= GXListCommand.LoadIndexA)
                 {
-                    _polygon._primGroups.Add(group);
-                    group = new PrimitiveGroup() { _offset = (uint)((pTemp - 1) - pData) };
-                    newGroup = true;
+                    if (newGroup == false)
+                    {
+                        _primGroups.Add(group);
+                        group = new PrimitiveGroup() { _offset = (uint)((pData - 1) - pStart) };
+                        newGroup = true;
+                    }
+                    if (!group._nodes.Contains(value) && value != ushort.MaxValue)
+                        group._nodes.Add(value);
+
+                    if (cmd != GXListCommand.LoadIndexD) //How does the light command work? Never seen it used
+                    {
+                        group._nodeOffsets.Add(new NodeOffset((uint)(pData - pStart) - group._offset, cache[value]));
+                        if (cmd == GXListCommand.LoadIndexA)
+                            desc.SetNode(pData); //Set weight
+                    }
+                    else
+                        Console.WriteLine("There are lights in here!");
+
+                    pData += 4;
+                    goto Next;
                 }
-                if (!group._nodes.Contains(id = *(bushort*)pTemp) && id != ushort.MaxValue)
-                    group._nodes.Add(id);
-            }
-            //Switch by primitive type and increment as well so we can read the count.
-            switch ((GXListCommand)cmd)
-            {
-                //Fill weight cache
-                case GXListCommand.LoadIndexA: //Positions
 
-                    group._nodeOffsets.Add(new NodeOffset((uint)(pTemp - pData) - group._offset, cache[*(bushort*)pTemp]));
+                switch (cmd)
+                {
+                    case GXListCommand.DrawQuads:
+                        triCount += value / 2 * 3;
+                        break;
 
-                    //Set weight node for facepoint extraction
-                    desc.SetNode(ref pTemp, (byte*)pData);
+                    case GXListCommand.DrawTriangles:
+                        triCount += value;
+                        break;
 
-                    goto NextPrimitive;
+                    case GXListCommand.DrawTriangleFan:
+                    case GXListCommand.DrawTriangleStrip:
+                        triCount += (value - 2) * 3;
+                        break;
 
-                case GXListCommand.LoadIndexB: //Normals
-                case GXListCommand.LoadIndexC: //UVs
+                    case GXListCommand.DrawLines:
+                        lineCount += value;
+                        break;
 
-                    group._nodeOffsets.Add(new NodeOffset((uint)(pTemp - pData) - group._offset, cache[*(bushort*)pTemp]));
-                    pTemp += 4; //Skip
-                    goto NextPrimitive;
+                    case GXListCommand.DrawLineStrip:
+                        lineCount += (value - 1) * 2;
+                        break;
 
-                case GXListCommand.LoadIndexD: //Lights
+                    case GXListCommand.DrawPoints:
+                        pointCount += value;
+                        break;
 
-                    Console.WriteLine("There are lights in here!");
-                    pTemp += 4; //Skip
-                    goto NextPrimitive;
+                    default:
+                        goto Finish;
+                }
 
-                case GXListCommand.DrawQuads:
+                if (newGroup == true)
+                    newGroup = false;
 
-                    if (newGroup == true) newGroup = false;
-                    d3 += (count = *(bushort*)pTemp) / 2 * 3;
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.Quads, Entries = (ushort)count });
+                group._headers.Add(new PrimitiveHeader() { Type = (WiiPrimitiveType)cmd, Entries = value });
+
+                pData += 2;
+
+                //Extract facepoints here!
+                desc.Run(ref pData, pAssets, pOut, value, group, ref indices, cache);
+
+                Next:
+                if (length > 0 && pData >= pEnd)
                     break;
-
-                case GXListCommand.DrawTriangles:
-
-                    if (newGroup == true) newGroup = false;
-                    d3 += (count = *(bushort*)pTemp);
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.TriangleList, Entries = (ushort)count });
-                    break;
-
-                case GXListCommand.DrawTriangleFan:
-
-                    if (newGroup == true) newGroup = false;
-                    d3 += ((count = *(bushort*)pTemp) - 2) * 3;
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.TriangleFan, Entries = (ushort)count });
-                    break;
-
-                case GXListCommand.DrawTriangleStrip:
-
-                    if (newGroup == true) newGroup = false;
-                    d3 += ((count = *(bushort*)pTemp) - 2) * 3;
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.TriangleStrip, Entries = (ushort)count });
-                    break;
-
-                case GXListCommand.DrawLines:
-
-                    if (newGroup == true) newGroup = false;
-                    d2 += (count = *(bushort*)pTemp);
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.Lines, Entries = (ushort)count });
-                    break;
-
-                case GXListCommand.DrawLineStrip:
-
-                    if (newGroup == true) newGroup = false;
-                    d2 += ((count = *(bushort*)pTemp) - 1) * 2;
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.LineStrip, Entries = (ushort)count });
-                    break;
-
-                case GXListCommand.DrawPoints:
-
-                    if (newGroup == true) newGroup = false;
-                    d1 += (count = *(bushort*)pTemp);
-                    group._headers.Add(new PrimitiveHeader() { Type = WiiPrimitiveType.Points, Entries = (ushort)count });
-                    break;
-
-                default:
-                    _polygon._primGroups.Add(group);
-                    goto Next; //No more primitives.
             }
 
-            pTemp += 2;
+            Finish:
+            groups.Add(group);
+            return groups;
+        }
 
-            //Extract facepoints here!
-            desc.Run(ref pTemp, pAssets, pOut, count, group, ref indices, _polygon.Model._linker.NodeCache);
+        private void CreateGLPrimitives(int triCount, int lineCount, int pointCount)
+        {
+            _triangles = triCount > 0 ? new GLPrimitive(triCount, PrimitiveType.Triangles) : null;
+            _lines = lineCount > 0 ? new GLPrimitive(lineCount, PrimitiveType.Lines) : null;
+            _points = pointCount > 0 ? new GLPrimitive(pointCount, PrimitiveType.Points) : null;
+        }
 
-            goto NextPrimitive;
+        private void ExtractIndices(byte* pData, int stride, ref uint p3, ref uint p2, ref uint p1, uint length = 0)
+        {
+            uint[] p1arr = null, p2arr = null, p3arr = null;
+            ushort count;
+            uint index = 0, temp;
 
-        Next: //Create primitives
-            if (d3 > 0)
-            { _triangles = new NewPrimitive(d3, BeginMode.Triangles); p3arr = _triangles._indices; }
-            else _triangles = null;
+            if (_points != null)
+                p1arr = _points._indices;
+            if (_lines != null)
+                p2arr = _lines._indices;
+            if (_triangles != null)
+                p3arr = _triangles._indices;
 
-            if (d2 > 0)
-            { _lines = new NewPrimitive(d2, BeginMode.Lines); p2arr = _lines._indices; }
-            else _lines = null;
-
-            if (d1 > 0)
-            { _points = new NewPrimitive(d1, BeginMode.Points); p1arr = _points._indices; }
-            else _points = null;
+            byte* pEnd = pData + length;
 
             //Extract indices in reverse order, this way we get CCW winding.
-        Top:
-            switch ((GXListCommand)(*pData++))
+            while (true)
             {
-                case GXListCommand.LoadIndexA:
-                case GXListCommand.LoadIndexB:
-                case GXListCommand.LoadIndexC:
-                case GXListCommand.LoadIndexD:
-                    pData += 4; //Skip
-                    goto Top;
+                switch ((GXListCommand)(*pData++))
+                {
+                    case GXListCommand.LoadIndexA:
+                    case GXListCommand.LoadIndexB:
+                    case GXListCommand.LoadIndexC:
+                    case GXListCommand.LoadIndexD:
+                        pData += 4; //Skip
+                        continue;
 
-                case GXListCommand.DrawQuads:
-                    count = *(bushort*)pData;
-                    for (int i = 0; i < count; i += 4)
-                    {
-                        p3arr[p3++] = index;
-                        p3arr[p3++] = (uint)(index + 2);
-                        p3arr[p3++] = (uint)(index + 1);
-                        p3arr[p3++] = index;
-                        p3arr[p3++] = (uint)(index + 3);
-                        p3arr[p3++] = (uint)(index + 2);
-                        index += 4;
-                    }
-                    break;
-                case GXListCommand.DrawTriangles:
-                    count = *(bushort*)pData;
-                    for (int i = 0; i < count; i += 3)
-                    {
-                        p3arr[p3++] = (uint)(index + 2);
-                        p3arr[p3++] = (uint)(index + 1);
-                        p3arr[p3++] = index;
-                        index += 3;
-                    }
-                    break;
-                case GXListCommand.DrawTriangleFan:
-                    count = *(bushort*)pData;
-                    temp = index++;
-                    for (int i = 2; i < count; i++)
-                    {
-                        p3arr[p3++] = temp;
-                        p3arr[p3++] = (uint)(index + 1);
-                        p3arr[p3++] = index++;
-                    }
-                    index++;
-                    break;
-                case GXListCommand.DrawTriangleStrip:
-                    count = *(bushort*)pData;
-                    index += 2;
-                    for (int i = 2; i < count; i++)
-                    {
-                        p3arr[p3++] = index;
-                        p3arr[p3++] = (uint)(index - 1 - (i & 1));
-                        p3arr[p3++] = (uint)((index++) - 2 + (i & 1));
-                    }
-                    break;
-                case GXListCommand.DrawLines:
-                    count = *(bushort*)pData;
-                    for (int i = 0; i < count; i++)
-                        p2arr[p2++] = index++;
-                    break;
-                case GXListCommand.DrawLineStrip:
-                    count = *(bushort*)pData;
-                    for (int i = 1; i < count; i++)
-                    {
-                        p2arr[p2++] = index++;
-                        p2arr[p2++] = index;
-                    }
-                    index++;
-                    break;
-                case GXListCommand.DrawPoints:
-                    count = *(bushort*)pData;
-                    for (int i = 0; i < count; i++)
-                        p1arr[p1++] = index++;
-                    break;
-                default: return;
+                    case GXListCommand.DrawQuads:
+                        count = *(bushort*)pData;
+                        for (int i = 0; i < count; i += 4)
+                        {
+                            p3arr[p3++] = index;
+                            p3arr[p3++] = (uint)(index + 2);
+                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index;
+                            p3arr[p3++] = (uint)(index + 3);
+                            p3arr[p3++] = (uint)(index + 2);
+                            index += 4;
+                        }
+                        break;
+                    case GXListCommand.DrawTriangles:
+                        count = *(bushort*)pData;
+                        for (int i = 0; i < count; i += 3)
+                        {
+                            p3arr[p3++] = (uint)(index + 2);
+                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index;
+                            index += 3;
+                        }
+                        break;
+                    case GXListCommand.DrawTriangleFan:
+                        count = *(bushort*)pData;
+                        temp = index++;
+                        for (int i = 2; i < count; i++)
+                        {
+                            p3arr[p3++] = temp;
+                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index++;
+                        }
+                        index++;
+                        break;
+                    case GXListCommand.DrawTriangleStrip:
+                        count = *(bushort*)pData;
+                        index += 2;
+                        for (int i = 2; i < count; i++)
+                        {
+                            p3arr[p3++] = index;
+                            p3arr[p3++] = (uint)(index - 1 - (i & 1));
+                            p3arr[p3++] = (uint)((index++) - 2 + (i & 1));
+                        }
+                        break;
+                    case GXListCommand.DrawLines:
+                        count = *(bushort*)pData;
+                        for (int i = 0; i < count; i++)
+                            p2arr[p2++] = index++;
+                        break;
+                    case GXListCommand.DrawLineStrip:
+                        count = *(bushort*)pData;
+                        for (int i = 1; i < count; i++)
+                        {
+                            p2arr[p2++] = index++;
+                            p2arr[p2++] = index;
+                        }
+                        index++;
+                        break;
+                    case GXListCommand.DrawPoints:
+                        count = *(bushort*)pData;
+                        for (int i = 0; i < count; i++)
+                            p1arr[p1++] = index++;
+                        break;
+                    default: return;
+                }
+                pData += 2 + count * stride;
+
+                if (length > 0 && pData >= pEnd)
+                    return;
             }
-            pData += 2 + count * desc.Stride;
-            goto Top;
         }
 
         #endregion
 
         #region Writing
 
-        internal void WritePrimitives(MDL0ObjectNode poly, MDL0Object* header)
+        public int GetDisplayListSize()
         {
-            _polygon = poly;
+            _primitiveSize = 0;
 
+            foreach (PrimitiveGroup g in _primGroups)
+            {
+                if (_isImportOrReopimized)
+                {
+                    if (g._tristrips.Count != 0)
+                        foreach (PointTriangleStrip strip in g._tristrips)
+                            _primitiveSize += 3 + strip._points.Count * _fpStride;
+
+                    if (g._triangles.Count != 0)
+                        _primitiveSize += 3 + g._triangles.Count * 3 * _fpStride;
+
+                    if (g._linestrips.Count != 0)
+                        foreach (PointLineStrip strip in g._linestrips)
+                            _primitiveSize += 3 + strip._points.Count * _fpStride;
+
+                    if (g._lines.Count != 0)
+                        _primitiveSize += 3 + g._lines.Count * 2 * _fpStride;
+                }
+                else
+                {
+                    g.RegroupNodes();
+                    for (int i = 0; i < g._headers.Count; i++)
+                        _primitiveSize += 3 + g._points[i].Count * _fpStride;
+                }
+
+                if (g._nodes.Count == 1 && g._nodes[0] == 0xFFFF)
+                    _isWeighted = false;
+
+                if (_isWeighted)
+                    _primitiveSize += 5 * g._nodes.Count * (HasTexMtx ? 3 : 2); //Add total matrices size
+            }
+
+            return _primitiveSize;
+        }
+
+        /// <summary>
+        /// Currently should only should be called when importing a model with the collada importer
+        /// </summary>
+        public void GroupPrimitives(
+            bool useStrips,
+            uint cacheSize,
+            uint minStripLen,
+            bool pushCacheHits,
+            bool forceCCW,
+            out int newPointCount,
+            out int newFaceCount)
+        {
+            TriangleConverter converter = new TriangleConverter(useStrips, cacheSize, minStripLen, pushCacheHits);
+
+            _primGroups = new List<PrimitiveGroup>();
+            newPointCount = 0;
+            newFaceCount = 0;
+
+            //Merge vertices and assets into facepoints
+            Facepoint[] facepoints = MergeInternalFaceData();
+            if (_triangles != null)
+            {
+                Facepoint[] points = new Facepoint[_triangles._indices.Length];
+                uint[] indices = _triangles._indices;
+
+                //Indices are written in reverse for each triangle, 
+                //so they need to be set to a triangle in reverse if not CCW
+                for (int t = 0; t < _triangles._indices.Length; t++)
+                    points[forceCCW ? t : (t - (t % 3)) + (2 - (t % 3))] = facepoints[indices[t]];
+
+                _primGroups.AddRange(converter.GroupPrimitives(points, out newPointCount, out newFaceCount));
+            }
+            if (_lines != null)
+            {
+                //TODO: combine into linestrips (not as urgent as tristrips was)
+
+                Facepoint[] points = new Facepoint[_lines._indices.Length];
+                uint[] indices = _lines._indices;
+                for (int t = 0; t < _lines._indices.Length; t++)
+                    points[t] = facepoints[indices[t]];
+
+                List<PrimitiveGroup> groups = new List<PrimitiveGroup>();
+
+                for (int i = 0; i < points.Length; i += 2)
+                {
+                    PointLine line = new PointLine(points[i], points[i + 1]);
+
+                    bool added = false;
+                    foreach (PrimitiveGroup g in groups)
+                        if (added = g.TryAdd(line))
+                            break;
+                    if (!added)
+                    {
+                        PrimitiveGroup g = new PrimitiveGroup();
+                        g.TryAdd(line);
+                        groups.Add(g);
+                    }
+                }
+
+                _primGroups.AddRange(groups);
+            }
+        }
+        
+        internal void WritePrimitives(MDL0Object* header, IMatrixNode[] cache)
+        {
             VoidPtr start = header->PrimitiveData;
             VoidPtr address = header->PrimitiveData;
-            FacepointAttribute[] desc = poly._descList;
-            IMatrixNode[] cache = poly.Model._linker.NodeCache;
-
-            foreach (PrimitiveGroup g in poly._primGroups)
+ 
+            foreach (PrimitiveGroup g in _primGroups)
             {
-                if (!poly.Model._isImport && !poly._reOptimized)
-                    g.RegroupNodes();
-
                 g._nodes.Sort();
                 g._offset = (uint)address - (uint)start;
                 g._nodeOffsets.Clear();
 
-                //Write matrix headers for linking weighted influences to points
-                if (poly.Weighted)
+                //Write matrix headers for linking matrix influences to points
+                if (_isWeighted)
                 {
-                    int index = 0;
+                    ushort node;
 
                     //Texture Matrices
-                    if (poly.HasTexMtx)
+                    if (HasTexMtx)
                         for (int i = 0; i < g._nodes.Count; i++)
                         {
+                            node = g._nodes[i];
+
                             *(byte*)address++ = 0x30;
 
-                            g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[g._nodes[i]]));
+                            if (node < cache.Length)
+                                g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[node]));
 
-                            *(bushort*)address = g._nodes[i]; address += 2;
+                            *(bushort*)address = node; address += 2;
                             *(byte*)address++ = 0xB0;
-                            *(byte*)address++ = (byte)(0x78 + (12 * index++));
+                            *(byte*)address++ = (byte)(0x78 + (12 * i));
                         }
-
-                    index = 0;
 
                     //Position Matrices
                     for (int i = 0; i < g._nodes.Count; i++)
                     {
+                        node = g._nodes[i];
+
                         *(byte*)address++ = 0x20;
 
-                        g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[g._nodes[i]]));
+                        if (node < cache.Length)
+                            g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[node]));
 
                         *(bushort*)address = g._nodes[i]; address += 2;
                         *(byte*)address++ = 0xB0;
-                        *(byte*)address++ = (byte)(12 * index++);
+                        *(byte*)address++ = (byte)(12 * i);
                     }
-
-                    index = 0;
 
                     //Normal Matrices
                     for (int i = 0; i < g._nodes.Count; i++)
                     {
+                        node = g._nodes[i];
+
                         *(byte*)address++ = 0x28;
 
-                        g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[g._nodes[i]]));
+                        if (node < cache.Length)
+                            g._nodeOffsets.Add(new NodeOffset((uint)(address - start) - g._offset, cache[node]));
 
                         *(bushort*)address = g._nodes[i]; address += 2;
                         *(byte*)address++ = 0x84;
-                        *(byte*)address++ = (byte)(9 * index++);
+                        *(byte*)address++ = (byte)(9 * i);
                     }
                 }
 
-                if (poly.Model._isImport || poly._reOptimized)
+                if (_isImportOrReopimized)
                 {
-                    //Write strips first
                     if (g._tristrips.Count != 0)
                         foreach (PointTriangleStrip strip in g._tristrips)
                         {
                             *(PrimitiveHeader*)address = strip.Header; address += 3;
                             foreach (Facepoint f in strip._points)
-                                WriteFacepoint(f, g, desc, ref address, poly);
+                                WriteFacepoint(f, g, ref address);
                         }
-                    
-                    //Write remaining triangles under a single list header
                     if (g._triangles.Count != 0)
                     {
                         *(PrimitiveHeader*)address = g.TriangleHeader; address += 3;
                         foreach (PointTriangle tri in g._triangles)
                         {
-                            WriteFacepoint(tri._x, g, desc, ref address, poly);
-                            WriteFacepoint(tri._y, g, desc, ref address, poly);
-                            WriteFacepoint(tri._z, g, desc, ref address, poly);
+                            WriteFacepoint(tri._x, g, ref address);
+                            WriteFacepoint(tri._y, g, ref address);
+                            WriteFacepoint(tri._z, g, ref address);
+                        }
+                    }
+                    if (g._linestrips.Count != 0)
+                        foreach (PointLineStrip strip in g._linestrips)
+                        {
+                            *(PrimitiveHeader*)address = strip.Header; address += 3;
+                            foreach (Facepoint f in strip._points)
+                                WriteFacepoint(f, g, ref address);
+                        }
+                    if (g._lines.Count != 0)
+                    {
+                        *(PrimitiveHeader*)address = g.LineHeader; address += 3;
+                        foreach (PointLine line in g._lines)
+                        {
+                            WriteFacepoint(line._x, g, ref address);
+                            WriteFacepoint(line._y, g, ref address);
                         }
                     }
                 }
@@ -535,13 +716,17 @@ namespace BrawlLib.Modeling
                         *(PrimitiveHeader*)address = g._headers[i];
                         address += 3;
                         foreach (Facepoint point in g._points[i])
-                            WriteFacepoint(point, g, desc, ref address, poly);
+                            WriteFacepoint(point, g, ref address);
                     }
             }
         }
-        internal void WriteFacepoint(Facepoint f, PrimitiveGroup g, FacepointAttribute[] desc, ref VoidPtr address, MDL0ObjectNode node)
+
+        /// <summary>
+        /// Set vertex descriptor list before calling this
+        /// </summary>
+        internal void WriteFacepoint(Facepoint f, PrimitiveGroup g, ref VoidPtr address)
         {
-            foreach (FacepointAttribute d in desc)
+            foreach (FacepointAttribute d in _descList)
                 switch (d._attr)
                 {
                     case GXAttribute.PosNrmMtxId:
@@ -562,11 +747,11 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Position:
                         switch (d._type)
                         {
-                            case XFDataFormat.Direct:
-                                byte* addr = (byte*)address;
-                                node.Model._linker._vertices[node._elementIndices[0]].Write(ref addr, f._vertexIndex);
-                                address = addr;
-                                break;
+                            //case XFDataFormat.Direct:
+                            //    byte* addr = (byte*)address;
+                            //    node.Model._linker._vertices[node._elementIndices[0]].Write(ref addr, f._vertexIndex);
+                            //    address = addr;
+                            //    break;
                             case XFDataFormat.Index8:
                                 *(byte*)address++ = (byte)f._vertexIndex;
                                 break;
@@ -579,11 +764,11 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Normal:
                         switch (d._type)
                         {
-                            case XFDataFormat.Direct:
-                                byte* addr = (byte*)address;
-                                node.Model._linker._normals[node._elementIndices[1]].Write(ref addr, f._normalIndex);
-                                address = addr;
-                                break;
+                            //case XFDataFormat.Direct:
+                            //    byte* addr = (byte*)address;
+                            //    node.Model._linker._normals[node._elementIndices[1]].Write(ref addr, f._normalIndex);
+                            //    address = addr;
+                            //    break;
                             case XFDataFormat.Index8:
                                 *(byte*)address++ = (byte)f._normalIndex;
                                 break;
@@ -597,23 +782,17 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Color1:
                         switch (d._type)
                         {
-                            case XFDataFormat.Direct:
-                                int index = (int)d._attr - 11;
-                                byte* addr = (byte*)address;
-                                node.Model._linker._colors[node._elementIndices[index + 2]].Write(ref addr, f._colorIndices[index]);
-                                address = addr;
-                                break;
+                            //case XFDataFormat.Direct:
+                            //    int index = (int)d._attr - 11;
+                            //    byte* addr = (byte*)address;
+                            //    node.Model._linker._colors[node._elementIndices[index + 2]].Write(ref addr, f._colorIndices[index]);
+                            //    address = addr;
+                            //    break;
                             case XFDataFormat.Index8:
-                                if (_polygon._colorChanged[(int)d._attr - (int)GXAttribute.Color0] && _polygon._colorSet[(int)d._attr - (int)GXAttribute.Color0] != null)
-                                    *(byte*)address++ = 0;
-                                else
-                                    *(byte*)address++ = (byte)f._colorIndices[(int)d._attr - 11];
+                                *(byte*)address++ = (byte)f._colorIndices[(int)d._attr - 11];
                                 break;
                             case XFDataFormat.Index16:
-                                if (_polygon._colorChanged[(int)d._attr - (int)GXAttribute.Color0] && _polygon._colorSet[(int)d._attr - (int)GXAttribute.Color0] != null)
-                                    *(bushort*)address = 0;
-                                else
-                                    *(bushort*)address = (ushort)f._colorIndices[(int)d._attr - 11];
+                                *(bushort*)address = (ushort)f._colorIndices[(int)d._attr - 11];
                                 address += 2;
                                 break;
                         }
@@ -628,12 +807,12 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Tex7:
                         switch (d._type)
                         {
-                            case XFDataFormat.Direct:
-                                int index = (int)d._attr - 13;
-                                byte* addr = (byte*)address;
-                                node.Model._linker._uvs[node._elementIndices[index + 4]].Write(ref addr, f._UVIndices[index]);
-                                address = addr;
-                                break;
+                            //case XFDataFormat.Direct:
+                            //    int index = (int)d._attr - 13;
+                            //    byte* addr = (byte*)address;
+                            //    node.Model._linker._uvs[node._elementIndices[index + 4]].Write(ref addr, f._UVIndices[index]);
+                            //    address = addr;
+                            //    break;
                             case XFDataFormat.Index8:
                                 *(byte*)address++ = (byte)f._UVIndices[(int)d._attr - 13];
                                 break;
@@ -650,80 +829,99 @@ namespace BrawlLib.Modeling
 
         #region Flags
 
-        public FacepointAttribute[] SetVertexDescList(MDL0ObjectNode obj, params bool[] forceDirect)
+        public void SetVertexDescList(
+            short[] indices,
+            List<VertexCodec> vertexCodecs,
+            List<ColorCodec> colorCodecs,
+            params bool[] forceDirect)
         {
             //Everything is set in the order the facepoint is written!
 
-            ModelLinker linker = obj.Model._linker;
-            short[] indices = obj._elementIndices;
-            XFDataFormat fmt;
-
             //Create new command list
-            List<FacepointAttribute> list = new List<FacepointAttribute>();
+            _descList = new List<FacepointAttribute>();
+            _fpStride = 0;
+            XFDataFormat fmt;
+            _arrayFlags = new XFArrayFlags() { _data = 0 };
 
-            obj._arrayFlags._data = 0;
-
-            if (obj.Weighted)
+            if (_isWeighted)
             {
-                list.Add(new FacepointAttribute(GXAttribute.PosNrmMtxId, XFDataFormat.Direct));
-                obj._fpStride++;
-                obj._arrayFlags.HasPosMatrix = true;
+                _descList.Add(new FacepointAttribute(GXAttribute.PosNrmMtxId, XFDataFormat.Direct));
+                _fpStride++;
+                _arrayFlags.HasPosMatrix = true;
 
                 //There are no texture matrices without a position/normal matrix also
                 for (int i = 0; i < 8; i++)
-                    if (obj.HasTextureMatrix[i])
+                    if (HasTextureMatrix[i])
                     {
-                        list.Add(new FacepointAttribute((GXAttribute)(i + 1), XFDataFormat.Direct));
-                        obj._fpStride++;
-                        obj._arrayFlags.SetHasTexMatrix(i, true);
+                        _descList.Add(new FacepointAttribute((GXAttribute)(i + 1), XFDataFormat.Direct));
+                        _fpStride++;
+                        _arrayFlags.SetHasTexMatrix(i, true);
                     }
             }
             if (indices[0] > -1 && _faceData[0] != null) //Positions
             {
-                obj._arrayFlags.HasPositions = true;
+                _arrayFlags.HasPositions = true;
                 fmt = (forceDirect != null && forceDirect.Length > 0 && forceDirect[0] == true) ? XFDataFormat.Direct : (XFDataFormat)(GetVertices(false).Length > byte.MaxValue ? 3 : 2);
+                _descList.Add(new FacepointAttribute(GXAttribute.Position, fmt));
 
-                list.Add(new FacepointAttribute(GXAttribute.Position, fmt));
-                obj._fpStride += fmt == XFDataFormat.Direct ? linker._vertices[obj._elementIndices[0]]._dstStride : (int)fmt - 1;
+                //if (fmt == XFDataFormat.Direct)
+                //{
+                //    _fpStride += linker._vertices[indices[0]]._dstStride;
+                //}
+                //else
+                    _fpStride += (int)fmt - 1;
             }
             if (indices[1] > -1 && _faceData[1] != null) //Normals
             {
-                obj._arrayFlags.HasNormals = true;
-
+                _arrayFlags.HasNormals = true;
                 fmt = (forceDirect != null && forceDirect.Length > 1 && forceDirect[1] == true) ? XFDataFormat.Direct : (XFDataFormat)(GetNormals(false).Length > byte.MaxValue ? 3 : 2);
+                _descList.Add(new FacepointAttribute(GXAttribute.Normal, fmt));
 
-                list.Add(new FacepointAttribute(GXAttribute.Normal, fmt));
-                obj._fpStride += fmt == XFDataFormat.Direct ? linker._normals[obj._elementIndices[1]]._dstStride : (int)fmt - 1;
+                //if (fmt == XFDataFormat.Direct)
+                //{
+                //    _fpStride += linker._normals[indices[1]]._dstStride;
+                //}
+                //else
+                    _fpStride += (int)fmt - 1;
             }
             for (int i = 2; i < 4; i++)
-                if (indices[i] > -1 && (_faceData[i] != null || obj._colorChanged[i - 2])) //Colors
+                if (indices[i] > -1 && _faceData[i] != null) //Colors
                 {
-                    obj._arrayFlags.SetHasColor(i - 2, true);
+                    _arrayFlags.SetHasColor(i - 2, true);
 
-                    if (obj._colorChanged[i - 2])
-                        fmt = XFDataFormat.Index8;
-                    else
-                        fmt = (forceDirect != null && forceDirect.Length > i && forceDirect[i] == true) ? XFDataFormat.Direct : (XFDataFormat)(GetColors(i - 2, false).Length > byte.MaxValue ? 3 : 2);
+                    fmt = (forceDirect != null && forceDirect.Length > i && forceDirect[i] == true) ? XFDataFormat.Direct : (XFDataFormat)(GetColors(i - 2, false).Length > byte.MaxValue ? 3 : 2);
 
-                    list.Add(new FacepointAttribute((GXAttribute)(i + 9), fmt));
-                    obj._fpStride += fmt == XFDataFormat.Direct ? linker._colors[obj._elementIndices[i]]._dstStride : (int)fmt - 1;
+                    _descList.Add(new FacepointAttribute((GXAttribute)(i + 9), fmt));
+
+                    //if (fmt == XFDataFormat.Direct)
+                    //{
+                    //    _fpStride +=  linker._colors[indices[i]]._dstStride;
+                    //}
+                    //else
+                        _fpStride += (int)fmt - 1;
                 }
             for (int i = 4; i < 12; i++)
                 if (indices[i] > -1 && _faceData[i] != null) //UVs
                 {
-                    obj._arrayFlags.SetHasUVs(i - 4, true);
-
+                    _arrayFlags.SetHasUVs(i - 4, true);
                     fmt = (forceDirect != null && forceDirect.Length > i && forceDirect[i] == true) ? XFDataFormat.Direct : (XFDataFormat)(GetUVs(i - 4, false).Length > byte.MaxValue ? 3 : 2);
+                    _descList.Add(new FacepointAttribute((GXAttribute)(i + 9), fmt));
 
-                    list.Add(new FacepointAttribute((GXAttribute)(i + 9), fmt));
-                    obj._fpStride += fmt == XFDataFormat.Direct ? linker._uvs[obj._elementIndices[i]]._dstStride : (int)fmt - 1;
+                    //if (fmt == XFDataFormat.Direct)
+                    //{
+                    //    _fpStride += linker._uvs[indices[i]]._dstStride;
+                    //}
+                    //else
+                        _fpStride += (int)fmt - 1;
                 }
-
-            return list.ToArray();
         }
 
-        //This sets up how to read the facepoints that are going to be written.
-        public void WriteVertexDescriptor(FacepointAttribute[] attributes, MDL0ObjectNode obj)
+        /// <summary>
+        /// This sets up how to read the facepoints that are going to be written.
+        /// </summary>
+        public void WriteVertexDescriptor(
+            out CPVertexFormat vertexFormat,
+            out XFVertexSpecs vertexSpecs)
         {
             XFNormalFormat nrmFmt = XFNormalFormat.None;
             int numColors = 0;
@@ -744,7 +942,7 @@ namespace BrawlLib.Modeling
             uint tex6 = 0;
             uint tex7 = 0;
 
-            foreach (FacepointAttribute attrPtr in attributes)
+            foreach (FacepointAttribute attrPtr in _descList)
                 switch (attrPtr._attr)
                 {
                     case GXAttribute.PosNrmMtxId:
@@ -809,14 +1007,15 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Tex7: tex7 = (uint)attrPtr._type; numUVs += (tex7 != 0 ? 1 : 0); break;
                 }
 
-            obj._vertexFormat._lo = ShiftVtxLo(posNrmMtxId, texMtxIdMask, pos, nrm, col0, col1);
-            obj._vertexFormat._hi = ShiftVtxHi(tex0, tex1, tex2, tex3, tex4, tex5, tex6, tex7);
-            obj._vertexSpecs = new XFVertexSpecs(numColors, numUVs, nrmFmt);
+            vertexSpecs = new XFVertexSpecs(numColors, numUVs, nrmFmt);
+            vertexFormat = new CPVertexFormat(
+                ShiftVtxLo(posNrmMtxId, texMtxIdMask, pos, nrm, col0, col1),
+                ShiftVtxHi(tex0, tex1, tex2, tex3, tex4, tex5, tex6, tex7));
         }
 
-        public VertexAttributeFormat[] SetFormatList(MDL0ObjectNode polygon, ModelLinker linker)
+        public void SetFormatList(MDL0ObjectNode polygon, ModelLinker linker)
         {
-            List<VertexAttributeFormat> list = new List<VertexAttributeFormat>();
+            _fmtList = new List<VertexAttributeFormat>();
             VertexCodec vert = null;
             ColorCodec col = null;
 
@@ -828,7 +1027,7 @@ namespace BrawlLib.Modeling
                         case 0: //Positions
                             if (linker._vertices != null && linker._vertices.Count != 0 && polygon._elementIndices[0] != -1)
                                 if ((vert = linker._vertices[polygon._elementIndices[0]]) != null)
-                                    list.Add(new VertexAttributeFormat(
+                                    _fmtList.Add(new VertexAttributeFormat(
                                         GXAttribute.Position,
                                         (GXCompType)vert._type,
                                         (GXCompCnt)(vert._hasZ ? 1 : 0),
@@ -838,7 +1037,7 @@ namespace BrawlLib.Modeling
                             vert = null;
                             if (linker._normals != null && linker._normals.Count != 0 && polygon._elementIndices[1] != -1)
                                 if ((vert = linker._normals[polygon._elementIndices[1]]) != null)
-                                    list.Add(new VertexAttributeFormat(
+                                    _fmtList.Add(new VertexAttributeFormat(
                                         GXAttribute.Normal,
                                         (GXCompType)vert._type,
                                         GXCompCnt.NrmXYZ,
@@ -848,7 +1047,7 @@ namespace BrawlLib.Modeling
                         case 3: //Color 2
                             col = null;
                             if (linker._colors != null && linker._colors.Count != 0 && polygon._elementIndices[i] != -1 && (col = linker._colors[polygon._elementIndices[i]]) != null)
-                                list.Add(new VertexAttributeFormat(
+                                _fmtList.Add(new VertexAttributeFormat(
                                     (GXAttribute)((int)GXAttribute.Color0 + (i - 2)),
                                     (GXCompType)col._outType,
                                     (GXCompCnt)(col._hasAlpha ? 1 : 0),
@@ -865,7 +1064,7 @@ namespace BrawlLib.Modeling
                             vert = null;
                             if (linker._uvs != null && linker._uvs.Count != 0 && polygon._elementIndices[i] != -1)
                                 if ((vert = linker._uvs[polygon._elementIndices[i]]) != null)
-                                    list.Add(new VertexAttributeFormat(
+                                    _fmtList.Add(new VertexAttributeFormat(
                                         (GXAttribute)((int)GXAttribute.Tex0 + (i - 4)),
                                         (GXCompType)vert._type,
                                         GXCompCnt.TexST,
@@ -873,10 +1072,9 @@ namespace BrawlLib.Modeling
                             break;
                     }
             }
-            return list.ToArray();
         }
 
-        public void WriteVertexFormat(VertexAttributeFormat[] fmtList, MDL0Object* polygon)
+        public void WriteVertexFormat(MDL0Object* polygon)
         {
             //These are default values.
 
@@ -918,7 +1116,7 @@ namespace BrawlLib.Modeling
             uint tx7Type = (int)GXCompType.Float;
             uint tx7Frac = 0;
 
-            foreach (VertexAttributeFormat list in fmtList)
+            foreach (VertexAttributeFormat list in _fmtList)
                 switch (list._attr)
                 {
                     case GXAttribute.Position:
@@ -1088,18 +1286,21 @@ namespace BrawlLib.Modeling
 
         private void CalcStride()
         {
-            _stride = 0;
+            _renderStride = 0;
             for (int i = 0; i < 2; i++)
                 if (_faceData[i] != null)
-                    _stride += 12;
+                    _renderStride += 12;
             for (int i = 2; i < 4; i++)
                 if (_faceData[i] != null)
-                    _stride += 4;
+                    _renderStride += 4;
             for (int i = 4; i < 12; i++)
                 if (_faceData[i] != null)
-                    _stride += 8;
+                    _renderStride += 8;
         }
 
+        /// <summary>
+        /// Merges vertex data into facepoint indices using linked asset nodes.
+        /// </summary>
         internal Facepoint[] MergeExternalFaceData(MDL0ObjectNode poly)
         {
             Facepoint[] _facepoints = new Facepoint[_pointCount];
@@ -1148,7 +1349,11 @@ namespace BrawlLib.Modeling
         }
 
         internal int[] _newClrObj = new int[2];
-        internal Facepoint[] MergeInternalFaceData(MDL0ObjectNode poly)
+
+        /// <summary>
+        /// Merges vertex data into facepoint indices using internal buffers.
+        /// </summary>
+        internal Facepoint[] MergeInternalFaceData()
         {
             Facepoint[] _facepoints = new Facepoint[_pointCount];
 
@@ -1183,7 +1388,7 @@ namespace BrawlLib.Modeling
                                 _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(Collada._importOptions._singleColorNodeEntries, *pIn2++);
                         else
                             for (int i = 0; i < _pointCount; i++)
-                                _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(((MDL0ObjectNode)_polygon.Model._objList[_newClrObj[x - 2]])._manager.GetColors(x - 2, false), *pIn2++);
+                                _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(((MDL0ObjectNode)((MDL0Node)Collada.CurrentModel)._objList[_newClrObj[x - 2]])._manager.GetColors(x - 2, false), *pIn2++).ClampMin(0);
                         break;
                     default:
                         Vector2* pIn3 = (Vector2*)_faceData[x].Address;
@@ -1251,14 +1456,14 @@ namespace BrawlLib.Modeling
             ushort* pIndex = (ushort*)_indices.Address;
             if (index == 0) //Vertices
             {
-                for (int i = 0; i < _pointCount; i++, pOut += _stride)
+                for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     if ((v = *pIndex++) < _vertices.Count && v >= 0)
                         *(Vector3*)pOut = _vertices[v].WeightedPosition;
             }
             else if (index == 1) //Normals
             {
                 Vector3* pIn = (Vector3*)_faceData[index].Address;
-                for (int i = 0; i < _pointCount; i++, pOut += _stride)
+                for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     if ((v = *pIndex++) < _vertices.Count && v >= 0)
                         *(Vector3*)pOut = *pIn++ * _vertices[v].GetMatrix().GetRotationMatrix();
                     else
@@ -1267,13 +1472,13 @@ namespace BrawlLib.Modeling
             else if (index < 4) //Colors
             {
                 RGBAPixel* pIn = (RGBAPixel*)_faceData[index].Address;
-                for (int i = 0; i < _pointCount; i++, pOut += _stride)
+                for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     *(RGBAPixel*)pOut = *pIn++;
             }
             else //UVs
             {
                 Vector2* pIn = (Vector2*)_faceData[index].Address;
-                for (int i = 0; i < _pointCount; i++, pOut += _stride)
+                for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     *(Vector2*)pOut = *pIn++;
             }
         }
@@ -1281,7 +1486,7 @@ namespace BrawlLib.Modeling
         internal unsafe void PrepareStream()
         {
             CalcStride();
-            int bufferSize = _stride * _pointCount;
+            int bufferSize = _renderStride * _pointCount;
 
             //Dispose of buffer if size doesn't match
             if ((_graphicsBuffer != null) && (_graphicsBuffer.Length != bufferSize))
@@ -1310,22 +1515,22 @@ namespace BrawlLib.Modeling
                     {
                         case 0:
                             GL.EnableClientState(ArrayCap.VertexArray);
-                            GL.VertexPointer(3, VertexPointerType.Float, _stride, (IntPtr)pData);
+                            GL.VertexPointer(3, VertexPointerType.Float, _renderStride, (IntPtr)pData);
                             pData += 12;
                             break;
                         case 1:
                             GL.EnableClientState(ArrayCap.NormalArray);
-                            GL.NormalPointer(NormalPointerType.Float, _stride, (IntPtr)pData);
+                            GL.NormalPointer(NormalPointerType.Float, _renderStride, (IntPtr)pData);
                             pData += 12;
                             break;
                         case 2:
                             GL.EnableClientState(ArrayCap.ColorArray);
-                            GL.ColorPointer(4, ColorPointerType.Byte, _stride, (IntPtr)pData);
+                            GL.ColorPointer(4, ColorPointerType.Byte, _renderStride, (IntPtr)pData);
                             pData += 4;
                             break;
                         case 3:
                             GL.EnableClientState(ArrayCap.SecondaryColorArray);
-                            GL.SecondaryColorPointer(4, ColorPointerType.Byte, _stride, (IntPtr)pData);
+                            GL.SecondaryColorPointer(4, ColorPointerType.Byte, _renderStride, (IntPtr)pData);
                             pData += 4;
                             break;
                         default:
@@ -1337,7 +1542,7 @@ namespace BrawlLib.Modeling
         internal unsafe void PrepareStreamNew(int programHandle)
         {
             CalcStride();
-            int bufferSize = _stride * _pointCount;
+            int bufferSize = _renderStride * _pointCount;
 
             //Dispose of buffer if size doesn't match
             if ((_graphicsBuffer != null) && (_graphicsBuffer.Length != bufferSize))
@@ -1378,18 +1583,18 @@ namespace BrawlLib.Modeling
                     {
                         case 0:
                         case 1:
-                            GL.VertexAttribPointer(index, 3, VertexAttribPointerType.Float, false, _stride, offset);
+                            GL.VertexAttribPointer(index, 3, VertexAttribPointerType.Float, false, _renderStride, offset);
                             GL.BindAttribLocation(programHandle, index++, i == 0 ? "Position" : "Normal");
                             offset += 12;
                             break;
                         case 2:
                         case 3:
-                            GL.VertexAttribPointer(index, 4, VertexAttribPointerType.UnsignedByte, false, _stride, offset);
+                            GL.VertexAttribPointer(index, 4, VertexAttribPointerType.UnsignedByte, false, _renderStride, offset);
                             GL.BindAttribLocation(programHandle, index++, String.Format("Color{0}", i - 2));
                             offset += 4;
                             break;
                         default:
-                            GL.VertexAttribPointer(index, 2, VertexAttribPointerType.Float, false, _stride, offset);
+                            GL.VertexAttribPointer(index, 2, VertexAttribPointerType.Float, false, _renderStride, offset);
                             GL.BindAttribLocation(programHandle, index++, String.Format("UV{0}", i - 4));
                             offset += 8;
                             break;
@@ -1422,61 +1627,54 @@ namespace BrawlLib.Modeling
             GL.DisableClientState(ArrayCap.TextureCoordArray);
             GL.Disable(EnableCap.Texture2D);
         }
-
-        internal void ApplyTexture(MDL0MaterialRefNode texgen)
+        
+        public void DisableTextures()
         {
-            if (texgen != null)
-            {
-                int texId = texgen.TextureCoordId;
-                texId = texId < 0 ? 0 : texId;
-                if ((texId >= 0) && (_faceData[texId += 4] != null))
-                {
-                    byte* pData = (byte*)_graphicsBuffer.Address;
-                    //int pData = 0;
-                    for (int i = 0; i < texId; i++)
-                        if (_faceData[i] != null)
-                            if (i < 2)
-                                pData += 12;
-                            else if (i < 4)
-                                pData += 4;
-                            else
-                                pData += 8;
+            GL.DisableClientState(ArrayCap.TextureCoordArray);
+            GL.Disable(EnableCap.Texture2D);
+        }
 
-                    GL.Enable(EnableCap.Texture2D);
-                    GL.EnableClientState(ArrayCap.TextureCoordArray);
-                    GL.TexCoordPointer(2, TexCoordPointerType.Float, _stride, (IntPtr)pData);
-                    //GL.EnableVertexAttribArray(texId);
-                    //GL.VertexAttribPointer(texId, 2, VertexAttribPointerType.Float, true, _stride, pData);
-                    //GL.BindAttribLocation(_polygon.shaderProgramHandle, texId - 4, "tex" + (texId - 4));
-                }
-                else
-                {
-                    if (texId < 0)
-                    {
-                        switch (texId)
-                        {
-                            case -1: //Vertex coords 
-                            case -2: //Normal coords 
-                            case -3: //Color coords 	
-                            case -4: //Binormal B coords 			
-                            case -5: //Binormal T coords 		
-                            default:
-                                GL.DisableClientState(ArrayCap.TextureCoordArray);
-                                GL.Disable(EnableCap.Texture2D);
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        GL.DisableClientState(ArrayCap.TextureCoordArray);
-                        GL.Disable(EnableCap.Texture2D);
-                    }
-                }
+        public void ApplyTexture(TexSourceRow source)
+        {
+            int texId = source >= TexSourceRow.TexCoord0 ? (int)(source - TexSourceRow.TexCoord0) : -1 - (int)source;
+            
+            //Other coordinate types than texture coordinates are not supported yet, so clamp id to only coordinates
+            texId = texId < 0 ? 0 : texId;
+
+            if ((texId >= 0) && (_faceData[texId += 4] != null))
+            {
+                byte* pData = (byte*)_graphicsBuffer.Address;
+                for (int i = 0; i < texId; i++)
+                    if (_faceData[i] != null)
+                        if (i < 2)
+                            pData += 12;
+                        else if (i < 4)
+                            pData += 4;
+                        else
+                            pData += 8;
+
+                GL.Enable(EnableCap.Texture2D);
+                GL.EnableClientState(ArrayCap.TextureCoordArray);
+                GL.TexCoordPointer(2, TexCoordPointerType.Float, _renderStride, (IntPtr)pData);
+                //GL.EnableVertexAttribArray(texId);
+                //GL.VertexAttribPointer(texId, 2, VertexAttribPointerType.Float, true, _stride, pData);
+                //GL.BindAttribLocation(_polygon.shaderProgramHandle, texId - 4, "tex" + (texId - 4));
             }
             else
             {
-                GL.DisableClientState(ArrayCap.TextureCoordArray);
-                GL.Disable(EnableCap.Texture2D);
+                if (texId < 0)
+                {
+                    switch (texId)
+                    {
+                        case -1: //Vertex coords
+                        case -2: //Normal coords
+                        case -3: //Color coords
+                        case -4: //Binormal B coords
+                        case -5: //Binormal T coords
+                        default:
+                            break;
+                    }
+                }
             }
         }
 
@@ -1504,29 +1702,29 @@ namespace BrawlLib.Modeling
         public bool _render = true;
         public bool _renderNormals = true;
         
-        internal unsafe void RenderVerts(TKContext ctx, IMatrixNode _singleBind, MDL0BoneNode selectedBone, Vector3 cam, bool pass2)
+        internal unsafe void RenderVertices(IMatrixNode singleBind, IBoneNode weightTarget, bool depthPass)
         {
             if (!_render)
                 return;
 
             foreach (Vertex3 v in _vertices)
             {
-                Color w = v._highlightColor != Color.Transparent ? v._highlightColor : (_singleBind != null && _singleBind == selectedBone) ? Color.Red : v.GetWeightColor(selectedBone);
+                Color w = v._highlightColor != Color.Transparent ? v._highlightColor : (singleBind != null && singleBind == weightTarget) ? Color.Red : v.GetWeightColor(weightTarget);
                 if (w != Color.Transparent)
                     GL.Color4(w);
                 else
                     GL.Color4(DefaultVertColor);
 
-                float d = cam.DistanceTo(_singleBind == null ? v.WeightedPosition : _singleBind.Matrix * v.WeightedPosition);
+                float d = GLPanel.Current.Camera.GetPoint().DistanceTo(singleBind == null ? v.WeightedPosition : singleBind.Matrix * v.WeightedPosition);
                 if (d == 0) d = 0.000000000001f;
-                GL.PointSize((5000 / d).Clamp(1.0f, !pass2 ? 5.0f : 8.0f));
+                GL.PointSize((5000 / d).Clamp(1.0f, !depthPass ? 5.0f : 8.0f));
 
                 GL.Begin(PrimitiveType.Points);
                 GL.Vertex3(v.WeightedPosition._x, v.WeightedPosition._y, v.WeightedPosition._z);
                 GL.End();
             }
         }
-        internal unsafe void RenderNormals(TKContext ctx, ModelPanel mainWindow)
+        internal unsafe void RenderNormals()
         {
             if (!_render || _faceData[1] == null)
                 return;
@@ -1565,32 +1763,20 @@ namespace BrawlLib.Modeling
         internal unsafe PrimitiveManager Clone() { return MemberwiseClone() as PrimitiveManager; }
     }
 
-    public unsafe class NewPrimitive// : IDisposable
+    public unsafe class GLPrimitive
     {
-        public BeginMode _type;
-        public int _elementCount;
+        public PrimitiveType _type;
         public uint[] _indices;
 
-        public NewPrimitive(int elements, BeginMode type)
+        public GLPrimitive(int elements, PrimitiveType type)
         {
-            _elementCount = elements;
             _type = type;
-            _indices = new uint[_elementCount];
+            _indices = new uint[elements];
         }
-
-        //~NewPrimitive() { Dispose(); }
-        //public void Dispose()
-        //{
-        //    if (_indices != null)
-        //    {
-        //        _indices.Dispose();
-        //        _indices = null;
-        //    }
-        //}
 
         public unsafe void Render()
         {
-            GL.DrawElements(_type, _elementCount, DrawElementsType.UnsignedInt, _indices);
+            GL.DrawElements(_type, _indices.Length, DrawElementsType.UnsignedInt, _indices);
         }
     }
 }

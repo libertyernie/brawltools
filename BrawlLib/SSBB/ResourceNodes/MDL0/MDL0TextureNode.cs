@@ -110,9 +110,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public object Source;
         public bool Rendered = false;
 
-        public TKContext _context;
-
-        internal List<MDL0MaterialRefNode> _references = new List<MDL0MaterialRefNode>();
+        public List<MDL0MaterialRefNode> _references = new List<MDL0MaterialRefNode>();
 
         public MDL0TextureNode() { }
         public MDL0TextureNode(string name) 
@@ -131,7 +129,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             try
             {
                 if (Texture != null)
-                    Texture.Bind(mRef.Index, shaderProgramHandle, _context);
+                    Texture.Bind(mRef.Index, shaderProgramHandle, TKContext.CurrentContext);
                 else
                     Load(mRef.Index, shaderProgramHandle, palette);
             }
@@ -235,17 +233,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Reload()
         {
-            if (_context == null)
+            if (TKContext.CurrentContext == null)
                 return;
 
-            _context.Capture();
+            TKContext.CurrentContext.Capture();
             Load();
         }
 
         private unsafe void Load() { Load(-1, -1, null); }
         private unsafe void Load(int index, int program, PLT0Node palette)
         {
-            if (_context == null)
+            if (TKContext.CurrentContext == null)
                 return;
 
             Source = null;
@@ -253,7 +251,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (Texture != null)
                 Texture.Delete();
             Texture = new GLTexture();
-            Texture.Bind(index, program, _context);
+            Texture.Bind(index, program, TKContext.CurrentContext);
 
             //ctx._states[String.Format("{0}_TexRef", Name)] = Texture;
 
@@ -262,9 +260,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_folderWatcher.EnableRaisingEvents && !String.IsNullOrEmpty(_folderWatcher.Path))
                 bmp = SearchDirectory(_folderWatcher.Path + Name);
 
-            if (bmp == null && _context._states.ContainsKey("_Node_Refs"))
+            if (bmp == null && TKContext.CurrentContext._states.ContainsKey("_Node_Refs"))
             {
-                List<ResourceNode> nodes = _context._states["_Node_Refs"] as List<ResourceNode>;
+                List<ResourceNode> nodes = TKContext.CurrentContext._states["_Node_Refs"] as List<ResourceNode>;
                 List<ResourceNode> searched = new List<ResourceNode>(nodes.Count);
                 TEX0Node tNode = null;
 
@@ -336,14 +334,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             else return 1;
         }
 
-        internal override void Bind(TKContext ctx)
+        internal override void Bind()
         {
-            //Unbind(ctx);
-
             if (Name == "TShadow1")
                 Enabled = false;
-
-            _context = ctx;
 
             Selected = false;
             //Enabled = true;
@@ -355,7 +349,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Texture.Delete();
                 Texture = null;
             }
-            _context = null;
             Rendered = false;
         }
     }

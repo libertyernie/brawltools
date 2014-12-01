@@ -281,7 +281,23 @@ namespace BrawlBox
                         }
                     }
                     else if (dest is TEX0Node || dest is REFTEntryNode || dest is TPLTextureNode)
-                        dest.Replace(file);
+                    {
+                        if (ModifierKeys == Keys.Control)
+                        {
+                            using (TextureConverterDialog dlg = new TextureConverterDialog())
+                            {
+                                dlg.ImageSource = file;
+                                if (dest is TEX0Node)
+                                    dlg.ShowDialog(MainForm.Instance, dest as TEX0Node);
+                                else if (dest is REFTEntryNode)
+                                    dlg.ShowDialog(MainForm.Instance, dest as REFTEntryNode);
+                                else
+                                    dlg.ShowDialog(MainForm.Instance, dest as TPLTextureNode);
+                            }
+                        }
+                        else
+                            dest.Replace(file);
+                    }
                 }
                 catch { }
             }

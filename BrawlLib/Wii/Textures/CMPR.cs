@@ -52,7 +52,7 @@ namespace BrawlLib.Wii.Textures
             try { return base.EncodeREFTTexture(src, mipLevels, WiiPaletteFormat.IA8); }
             finally { _blockBuffer = null; }
         }
-        public FileMap EncodeTextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
+        public FileMap EncodeTEX0TextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
         {
             _blockBuffer = blockBuffer;
             try { return base.EncodeTEX0Texture(src, mipLevels); }

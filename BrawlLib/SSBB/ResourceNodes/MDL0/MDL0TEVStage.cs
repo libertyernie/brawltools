@@ -7,13 +7,21 @@ using System.ComponentModel;
 using BrawlLib.Wii.Graphics;
 using BrawlLib.IO;
 using BrawlLib.Imaging;
+using System.Globalization;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe partial class TEVStage : MDL0EntryNode
+    public unsafe partial class TEVStageNode : MDL0EntryNode
     {
-        public TEVStage() { }
-        public TEVStage(ColorEnv colEnv, AlphaEnv alphaEnv, CMD cmd, TevKColorSel kc, TevKAlphaSel ka, TexMapID id, TexCoordID coord, ColorSelChan col, bool useTex) 
+        public override ResourceType ResourceType { get { return ResourceType.TEVStage; } }
+        public override string Name
+        {
+            get { return String.Format("Stage{0}", Index); }
+            set { base.Name = value; }
+        }
+
+        public TEVStageNode() { Default(false); }
+        public TEVStageNode(ColorEnv colEnv, AlphaEnv alphaEnv, CMD cmd, TevKColorSel kc, TevKAlphaSel ka, TexMapID id, TexCoordID coord, ColorSelChan col, bool useTex) 
         {
             _colorEnv = colEnv;
             _alphaEnv = alphaEnv;
@@ -26,13 +34,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             _texEnabled = useTex;
         }
 
-        public override ResourceType ResourceType { get { return ResourceType.TEVStage; } }
-        public override string Name
-        {
-            get { return String.Format("Stage{0}", Index); }
-            set { base.Name = value; }
-        }
-
         public ColorEnv _colorEnv = new ColorEnv();
         public AlphaEnv _alphaEnv = new AlphaEnv();
         public CMD _cmd = new CMD();
@@ -43,9 +44,47 @@ namespace BrawlLib.SSBB.ResourceNodes
         public ColorSelChan _colorChan;
         public bool _texEnabled;
 
-        //public string ColorEnv { get { return "0x" + ((uint)(int)_colorEnv).ToString("X"); } }
-        //public string AlphaEnv { get { return "0x" + ((uint)(int)_alphaEnv).ToString("X"); } }
-        //public string CMD { get { return "0x" + ((uint)(int)_cmd).ToString("X"); } }
+        //Instead of letting the user copy raw values, there needs to be a way to copy and paste shaders.
+
+        //[Category("f Raw Values")]
+        //public string ColorEnv
+        //{
+        //    get { return "0x" + ((uint)_colorEnv).ToString("X"); }
+        //    set
+        //    {
+        //        if (value.StartsWith("0x"))
+        //            value = value.Substring(2, 8);
+        //        _colorEnv = uint.Parse(value, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture);
+
+        //        UpdateProperties();
+        //    }
+        //}
+        //[Category("f Raw Values")]
+        //public string AlphaEnv
+        //{
+        //    get { return "0x" + ((uint)_alphaEnv).ToString("X"); }
+        //    set
+        //    {
+        //        if (value.StartsWith("0x"))
+        //            value = value.Substring(2, 8);
+        //        _colorEnv = uint.Parse(value, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture);
+
+        //        UpdateProperties();
+        //    }
+        //}
+        //[Category("f Raw Values")]
+        //public string CMD
+        //{
+        //    get { return "0x" + ((uint)_cmd).ToString("X"); }
+        //    set
+        //    {
+        //        if (value.StartsWith("0x"))
+        //            value = value.Substring(2, 8);
+        //        _colorEnv = uint.Parse(value, System.Globalization.NumberStyles.HexNumber, CultureInfo.CurrentCulture);
+
+        //        UpdateProperties();
+        //    }
+        //}
         
         [Category("c TEV Color Env")]
         public string ColorOutput { get { return (ColorClamp ? "clamp(" : "") + "(d " + (ColorSubtract ? "-" : "+") + " ((1 - c) * a + c * b)" + ((int)ColorBias == 1 ? " + 0.5" : (int)ColorBias == 2 ? " - 0.5" : "") + ") * " + ((int)ColorScale == 3 ? "0.5" : (int)ColorScale == 0 ? "1" : ((int)ColorScale * 2).ToString()) + (ColorClamp ? ");" : ";"); } }
@@ -135,25 +174,29 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("e TEV Ind CMD")]
         public bool UnmodifiedLOD { get { return _cmd.UnmodifiedLOD; } set { _cmd.UnmodifiedLOD = value; SignalPropertyChange(); } }
 
-        public void Default()
+        public void Default() { Default(true); }
+        public void Default(bool change)
         {
-            AlphaSelectionA = AlphaArg.Zero;
-            AlphaSelectionB = AlphaArg.Zero;
-            AlphaSelectionC = AlphaArg.Zero;
-            AlphaSelectionD = AlphaArg.Zero;
-            AlphaBias = Wii.Graphics.Bias.Zero;
-            AlphaClamp = true;
+            _alphaEnv.SelA = AlphaArg.Zero;
+            _alphaEnv.SelB = AlphaArg.Zero;
+            _alphaEnv.SelC = AlphaArg.Zero;
+            _alphaEnv.SelD = AlphaArg.Zero;
+            _alphaEnv.Bias = Wii.Graphics.Bias.Zero;
+            _alphaEnv.Clamp = true;
 
-            ColorSelectionA = ColorArg.Zero;
-            ColorSelectionB = ColorArg.Zero;
-            ColorSelectionC = ColorArg.Zero;
-            ColorSelectionD = ColorArg.Zero;
-            ColorBias = Wii.Graphics.Bias.Zero;
-            ColorClamp = true;
+            _colorEnv.SelA = ColorArg.Zero;
+            _colorEnv.SelB = ColorArg.Zero;
+            _colorEnv.SelC = ColorArg.Zero;
+            _colorEnv.SelD = ColorArg.Zero;
+            _colorEnv.Bias = Wii.Graphics.Bias.Zero;
+            _colorEnv.Clamp = true;
 
-            TextureMapID = TexMapID.TexMap7;
-            TextureCoord = TexCoordID.TexCoord7;
-            ColorChannel = ColorSelChan.Zero;
+            _texMapID = TexMapID.TexMap7;
+            _texCoord = TexCoordID.TexCoord7;
+            _colorChan = ColorSelChan.Zero;
+
+            if (change)
+                SignalPropertyChange();
         }
 
         public void DefaultAsMetal(int texIndex)
@@ -204,20 +247,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public override void Remove()
-        {
-            if (_parent == null)
-                return;
-
-            ((MDL0ShaderNode)Parent).STGs = (byte)(Parent.Children.Count - 1);
-            base.Remove();
-        }
-
+        //Don't get any strings from this node!
         internal override void GetStrings(StringTable table) { }
 
         public new void SignalPropertyChange()
         {
-            ((MDL0ShaderNode)Parent)._renderUpdate = true;
+            if (Parent != null)
+                ((MDL0ShaderNode)Parent)._renderUpdate = true;
             base.SignalPropertyChange();
         }
     }

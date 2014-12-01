@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Audio;
 using System.Drawing;
 
 namespace BrawlLib.Imaging
@@ -7,5 +8,15 @@ namespace BrawlLib.Imaging
     {
         int ImageCount { get; }
         Bitmap GetImage(int index);
+    }
+
+    public interface IVideo : IImageSource
+    {
+        uint NumFrames { get; }
+        float FrameRate { get; }
+        int GetImageIndexAtFrame(int frame);
+
+        IAudioStream Audio { get; }
+        uint Frequency { get; }
     }
 }

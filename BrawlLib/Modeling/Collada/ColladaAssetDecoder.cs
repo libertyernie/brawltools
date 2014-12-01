@@ -11,12 +11,19 @@ namespace BrawlLib.Modeling
 {
     public unsafe partial class Collada
     {
-        static PrimitiveManager DecodePrimitivesWeighted(NodeEntry n, GeometryEntry geo, SkinEntry skin, SceneEntry scene, InfluenceManager infManager, ref string Error)
+        static PrimitiveManager DecodePrimitivesWeighted(
+            NodeEntry n,
+            GeometryEntry geo,
+            SkinEntry skin,
+            SceneEntry scene,
+            InfluenceManager infManager,
+            ref string Error,
+            Type boneType)
         {
             PrimitiveManager manager = DecodePrimitives(n._matrix, geo);
 
-            MDL0BoneNode[] boneList;
-            MDL0BoneNode bone = null;
+            IBoneNode[] boneList;
+            IBoneNode bone = null;
             int boneCount;
 
             string[] jointStringArray = null;
@@ -34,7 +41,8 @@ namespace BrawlLib.Modeling
             UnsafeBuffer remap = new UnsafeBuffer(skin._weightCount * 2);
             ushort* pRemap = (ushort*)remap.Address;
 
-            pNorms = (Vector3*)manager._faceData[1].Address;
+            if (manager._faceData[1] != null)
+                pNorms = (Vector3*)manager._faceData[1].Address;
 
             manager._vertices = vertList;
 
@@ -72,12 +80,12 @@ namespace BrawlLib.Modeling
 
             //Populate bone list
             boneCount = jointStringArray.Length;
-            boneList = new MDL0BoneNode[boneCount];
+            boneList = new IBoneNode[boneCount];
             for (int i = 0; i < boneCount; i++)
             {
                 NodeEntry entry =  scene.FindNode(jointStringArray[i]);
                 if (entry != null && entry._node != null)
-                    boneList[i] = entry._node as MDL0BoneNode;
+                    boneList[i] = entry._node as IBoneNode;
                 else
                 {
                     //Search in reverse!
@@ -86,14 +94,14 @@ namespace BrawlLib.Modeling
                         if ((entry = RecursiveTestNode(jointString, node)) != null)
                         {
                             if (entry._node != null)
-                                boneList[i] = entry._node as MDL0BoneNode;
+                                boneList[i] = entry._node as IBoneNode;
                             break;
                         }
                     }
-
+                    
                     //Couldn't find the bone
                     if (boneList[i] == null)
-                        boneList[i] = new MDL0BoneNode();
+                        boneList[i] = Activator.CreateInstance(boneType) as IBoneNode;
                 }
             }
 
@@ -143,7 +151,7 @@ namespace BrawlLib.Modeling
                                 bone = boneList[*iPtr];
                             else if (pCmd[z] == 2)
                                 weight = pWeights[*iPtr];
-                        inf._weights.Add(new BoneWeight(bone, weight));
+                        inf.AddWeight(new BoneWeight(bone, weight));
                     }
                 }
 
@@ -152,7 +160,7 @@ namespace BrawlLib.Modeling
                 Error = "There was a problem creating a vertex from the geometry entry " + geo._name + ".\nMake sure that all the vertices are weighted properly.";
 
                 Vertex3 v;
-                if (inf._weights.Count > 1)
+                if (inf.Weights.Count > 1)
                 {
                     //Match with manager
                     inf = infManager.FindOrCreate(inf, true);
@@ -160,8 +168,8 @@ namespace BrawlLib.Modeling
                 }
                 else
                 {
-                    bone = inf._weights[0].Bone;
-                    v = new Vertex3(n._matrix * bone._inverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
+                    bone = inf.Weights[0].Bone;
+                    v = new Vertex3(n._matrix * bone.InverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
                 }
 
                 ushort index = 0;
@@ -182,14 +190,18 @@ namespace BrawlLib.Modeling
             for (int i = 0; i < manager._pointCount; i++, pVInd++)
             {
                 *pVInd = pRemap[*pVInd];
-                Vertex3 v = null;
-                if (*pVInd < vertList.Count)
-                    v = vertList[*pVInd];
-                if (v != null && v._matrixNode != null)
-                    if (v._matrixNode.Weights.Count > 1)
-                        pNorms[i] = skin._bindMatrix.GetRotationMatrix() * pNorms[i];
-                    else
-                        pNorms[i] = skin._bindMatrix.GetRotationMatrix() * v._matrixNode.Weights[0].Bone._inverseBindMatrix.GetRotationMatrix() * pNorms[i];
+
+                if (pNorms != null)
+                {
+                    Vertex3 v = null;
+                    if (*pVInd < vertList.Count)
+                        v = vertList[*pVInd];
+                    if (v != null && v._matrixNode != null)
+                        if (v._matrixNode.Weights.Count > 1)
+                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * pNorms[i];
+                        else
+                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * v._matrixNode.Weights[0].Bone.InverseBindMatrix.GetRotationMatrix() * pNorms[i];
+                }
             }
 
             remap.Dispose();
@@ -323,12 +335,12 @@ namespace BrawlLib.Modeling
             //Create primitives
             if (faces > 0)
             {
-                manager._triangles = new NewPrimitive(faces * 3, BeginMode.Triangles);
+                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.PrimitiveType.Triangles);
                 pTriarr = manager._triangles._indices;
             }
             if (lines > 0)
             {
-                manager._lines = new NewPrimitive(lines * 2, BeginMode.Lines);
+                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
                 pLinarr = manager._lines._indices;
             }
 
@@ -502,6 +514,5 @@ namespace BrawlLib.Modeling
             public byte Index;
             public byte Pad1, Pad2;
         }
-
     }
 }

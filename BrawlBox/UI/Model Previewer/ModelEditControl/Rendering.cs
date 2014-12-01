@@ -19,11 +19,13 @@ namespace System.Windows.Forms
     public partial class ModelEditControl : UserControl, IMainWindow
     {
         #region Pre Render
-        private unsafe void modelPanel1_PreRender(object sender, TKContext ctx)
+        private unsafe void modelPanel1_PreRender(object sender)
         {
-            if (RenderFloor)
+            ModelPanel panel = sender as ModelPanel;
+
+            if (panel.RenderFloor)
             {
-                GLTexture _bgTex = ctx.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
+                GLTexture _bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
 
                 float s = 10.0f, t = 10.0f;
                 float e = 30.0f;
@@ -61,7 +63,7 @@ namespace System.Windows.Forms
 
         #region Post Render
 
-        Vector3 BoneLoc { get { return SelectedBone == null ? new Vector3() : SelectedBone._frameMatrix.GetPoint(); } }
+        Vector3 BoneLoc { get { return SelectedBone == null ? new Vector3() : SelectedBone.Matrix.GetPoint(); } }
 
         Vector3? _vertexLoc = null;
         Vector3? VertexLoc
@@ -82,7 +84,7 @@ namespace System.Windows.Forms
             }
         }
 
-        Vector3 CamLoc { get { return ModelPanel._camera.GetPoint(); } }
+        Vector3 CamLoc { get { return ModelPanel.Camera.GetPoint(); } }
 
         public float CamDistance(Vector3 v) { return v.TrueDistance(CamLoc) / _orbRadius * 0.1f; }
 
@@ -100,29 +102,28 @@ namespace System.Windows.Forms
             Scale = 2
         }
 
-        public int _hurtBoxType = 0;
-
-        public List<MDL0BoneNode> boneCollisions = new List<MDL0BoneNode>();
-        private unsafe void modelPanel1_PostRender(object sender, TKContext context)
+        private unsafe void modelPanel1_PostRender(object sender)
         {
+            ModelPanel panel = sender as ModelPanel;
+
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Disable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
-            
-            if (RenderVertices)
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m.RenderVertices(context, false);
-                else if (TargetModel != null)
-                    TargetModel.RenderVertices(context, false);
 
-            if (RenderNormals)
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m.RenderNormals(context);
+            if (panel.RenderVertices)
+                if (EditingAll && _targetModels != null)
+                    foreach (IModel m in _targetModels)
+                        m.RenderVertices(false, SelectedBone);
                 else if (TargetModel != null)
-                    TargetModel.RenderNormals(context);
+                    TargetModel.RenderVertices(false, SelectedBone);
+
+            if (panel.RenderNormals)
+                if (EditingAll && _targetModels != null)
+                    foreach (IModel m in _targetModels)
+                        m.RenderNormals();
+                else if (TargetModel != null)
+                    TargetModel.RenderNormals();
 
             #region Light Source Rendering
 
@@ -137,8 +138,8 @@ namespace System.Windows.Forms
 
                 GL.Rotate(90.0f, 1, 0, 0);
 
-                float azimuth = ModelPanel.LightPosition._y.Clamp180Deg();
-                float elevation = ModelPanel.LightPosition._z.Clamp180Deg();
+                float azimuth = ModelPanel.LightPosition._y.RemapToRange(-180.0f, 180.0f);
+                float elevation = ModelPanel.LightPosition._z.RemapToRange(-180.0f, 180.0f);
 
                 if (Math.Abs(azimuth) == Math.Abs(elevation) && azimuth % 180.0f == 0 && elevation % 180.0f == 0)
                 {
@@ -225,8 +226,9 @@ namespace System.Windows.Forms
 
             #region Brawl Stage Data Rendering
 
-            if (RenderCollisions)
-            foreach (CollisionNode node in _collisions) node.Render(context, ModelPanel);
+            if (panel.RenderCollisions)
+            foreach (CollisionNode node in _collisions)
+                node.Render();
             
             #region RenderOverlays
             List<MDL0BoneNode> ItemBones = new List<MDL0BoneNode>();
@@ -237,9 +239,15 @@ namespace System.Windows.Forms
                          DeathBone0 = null, DeathBone1 = null;
 
             //Get bones and render spawns if checked
-            if (_targetModel != null && _targetModel.Name.Contains("osition")) {stgPos = _targetModel; }
-            else if (_targetModels != null) { stgPos = _targetModels.Find(x => x.Name.Contains("osition")); }
-                if(stgPos != null) foreach (MDL0BoneNode bone in stgPos._linker.BoneCache)
+            if (_targetModel != null && 
+                _targetModel is MDL0Node &&
+                ((ResourceNode)_targetModel).Name.Contains("osition"))
+                stgPos = _targetModel as MDL0Node;
+            else if (_targetModels != null)
+                stgPos = _targetModels.Find(x => x is MDL0Node && ((ResourceNode)x).Name.Contains("osition")) as MDL0Node;
+
+            if (stgPos != null) 
+                foreach (MDL0BoneNode bone in stgPos._linker.BoneCache)
                 {
                     if (bone._name == "CamLimit0N") { CamBone0 = bone; }
                     else if (bone.Name == "CamLimit1N") { CamBone1 = bone; }
@@ -248,8 +256,12 @@ namespace System.Windows.Forms
                     else if (bone._name.Contains("Player") && chkSpawns.Checked)
                     {
                         Vector3 position = bone._frameMatrix.GetPoint();
-                        if (PointCollides(position)){ GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);}
-                        else{ GL.Color4(1.0f, 0.0f, 0.0f, 0.5f); }
+
+                        if (PointCollides(position))
+                            GL.Color4(0.0f, 1.0f, 0.0f, 0.5f);
+                        else 
+                            GL.Color4(1.0f, 0.0f, 0.0f, 0.5f);
+
                         TKContext.DrawSphere(position, 5.0f, 32);
                     }
                     else if (bone._name.Contains("Rebirth") && chkSpawns.Checked)
@@ -262,12 +274,13 @@ namespace System.Windows.Forms
                 }
 
             //Render item fields if checked
-            if (ItemBones != null && chkItems.Checked) for (int i = 0; i < ItemBones.Count; i += 2)
+            if (ItemBones != null && chkItems.Checked) 
+                for (int i = 0; i < ItemBones.Count; i += 2)
                 {
                     Vector3 pos1 = new Vector3(ItemBones[i]._frameMatrix.GetPoint()._x, ItemBones[i]._frameMatrix.GetPoint()._y + 3.0f, 1.0f);
                     Vector3 pos2 = new Vector3(ItemBones[i+1]._frameMatrix.GetPoint()._x, ItemBones[i+1]._frameMatrix.GetPoint()._y - 3.0f, 1.0f);
                     GL.Color4(0.5f, 0.0f, 1.0f, 0.4f);
-                    context.DrawBox(pos1,pos2);
+                    TKContext.DrawBox(pos1, pos2);
                 }
 
             //Render boundaries if checked
@@ -334,34 +347,34 @@ namespace System.Windows.Forms
 
             GL.PopAttrib();
 
-            RenderSCN0Controls(context);
-            RenderTransformControl(context);
+            RenderSCN0Controls();
+            RenderTransformControl();
 
             if (!ModelPanel._grabbing && !ModelPanel._scrolling && !_playing)
             {
                 GL.Color4(Color.Black);
                 GL.ColorMask(false, false, false, false);
 
-                if (RenderVertices)
-                    if (_editingAll && _targetModels != null)
+                if (panel.RenderVertices)
+                    if (EditingAll && _targetModels != null)
                         foreach (MDL0Node m in _targetModels)
-                            m.RenderVertices(context, true);
+                            m.RenderVertices(true, SelectedBone);
                     else if (TargetModel != null)
-                        TargetModel.RenderVertices(context, true);
+                        TargetModel.RenderVertices(true, SelectedBone);
 
-                if (RenderBones)
+                if (panel.RenderBones)
                 {
                     //Render invisible depth orbs
-                    GLDisplayList list = context.GetSphereList();
-                    if (_editingAll)
+                    GLDisplayList list = TKContext.GetSphereList();
+                    if (EditingAll)
                     {
-                        foreach (MDL0Node m in _targetModels)
-                            foreach (MDL0BoneNode bone in m._linker.BoneCache)
+                        foreach (IModel m in _targetModels)
+                            foreach (IBoneNode bone in m.BoneCache)
                                 if (bone != SelectedBone)
                                     RenderOrb(bone, list);
                     }
-                    else if (TargetModel != null && TargetModel._linker != null && TargetModel._linker.BoneCache != null)
-                        foreach (MDL0BoneNode bone in _targetModel._linker.BoneCache)
+                    else if (TargetModel != null)
+                        foreach (IBoneNode bone in _targetModel.BoneCache)
                             if (bone != SelectedBone)
                                 RenderOrb(bone, list);
                 }
@@ -476,7 +489,7 @@ namespace System.Windows.Forms
                         GL.PopMatrix();
                     }
 
-                    if (VertexLoc != null && RenderVertices)
+                    if (VertexLoc != null && panel.RenderVertices)
                     {
                         Matrix m = Matrix.TransformMatrix(new Vector3(VertexOrbRadius), new Vector3(), ((Vector3)VertexLoc));
                         GL.PushMatrix();
@@ -518,7 +531,7 @@ namespace System.Windows.Forms
 
         #region SCN0 Controls
         public Point _lightStartPoint, _lightEndPoint, _cameraStartPoint, _cameraEndPoint;
-        public unsafe void RenderSCN0Controls(TKContext context)
+        public unsafe void RenderSCN0Controls()
         {
             if (_scn0 == null)
                 return;
@@ -664,7 +677,7 @@ namespace System.Windows.Forms
         #region Control Rendering
 
         public bool _lightEndSelected = false, _lightStartSelected = false;
-        public unsafe void RenderTransformControl(TKContext context)
+        public unsafe void RenderTransformControl()
         {
             if (_playing)
                 return;
@@ -672,11 +685,11 @@ namespace System.Windows.Forms
             if (SelectedBone != null) //Render drag and drop control
             {
                 if (_editType == TransformType.Rotation)
-                    RenderRotationControl(context, BoneLoc, OrbRadius, SelectedBone._frameMatrix.GetAngles());
+                    RenderRotationControl(BoneLoc, OrbRadius, SelectedBone.Matrix.GetAngles());
                 else if (_editType == TransformType.Translation)
-                    RenderTranslationControl(context, BoneLoc, OrbRadius);
+                    RenderTranslationControl(BoneLoc, OrbRadius);
                 else if (_editType == TransformType.Scale)
-                    RenderScaleControl(context);
+                    RenderScaleControl();
             }
 
             if (VertexLoc != null && RenderVertices)
@@ -684,10 +697,10 @@ namespace System.Windows.Forms
                 //if (_editType == TransformType.Rotation)
                 //    RenderRotationControl(context, ((Vector3)VertexLoc), VertexOrbRadius, _oldAngles);
                 //else
-                RenderTranslationControl(context, ((Vector3)VertexLoc), VertexOrbRadius);
+                RenderTranslationControl(((Vector3)VertexLoc), VertexOrbRadius);
             }
         }
-        public unsafe void RenderTranslationControl(TKContext context, Vector3 position, float radius)
+        public unsafe void RenderTranslationControl(Vector3 position, float radius)
         {
             GLDisplayList axis = GetAxes();
 
@@ -704,7 +717,7 @@ namespace System.Windows.Forms
             ModelPanel.ScreenText["Y"] = ModelPanel.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             ModelPanel.ScreenText["Z"] = ModelPanel.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderScaleControl(TKContext context)
+        public unsafe void RenderScaleControl()
         {
             GLDisplayList axis = GetScaleControl();
 
@@ -721,15 +734,15 @@ namespace System.Windows.Forms
             ModelPanel.ScreenText["Y"] = ModelPanel.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             ModelPanel.ScreenText["Z"] = ModelPanel.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderRotationControl(TKContext context, Vector3 position, float radius, Vector3 rotate)
+        public unsafe void RenderRotationControl(Vector3 position, float radius, Vector3 rotate)
         {
             Matrix m = Matrix.TransformMatrix(new Vector3(radius), position.LookatAngles(CamLoc) * Maths._rad2degf, position);
 
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            GLDisplayList sphere = context.GetCircleList();
-            GLDisplayList circle = context.GetRingList();
+            GLDisplayList sphere = TKContext.GetCircleList();
+            GLDisplayList circle = TKContext.GetRingList();
 
             //Orb
             GL.Color4(0.7f, 0.7f, 0.7f, 0.15f);
@@ -1105,7 +1118,7 @@ namespace System.Windows.Forms
         /// </summary>
         public bool GetOrbPoint(Vector2 mousePoint, out Vector3 point)
         {
-            MDL0BoneNode bone = SelectedBone;
+            IBoneNode bone = SelectedBone;
             if (bone == null)
             {
                 point = new Vector3();
@@ -1114,8 +1127,8 @@ namespace System.Windows.Forms
 
             Vector3 lineStart = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
             Vector3 lineEnd = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
-            Vector3 center = bone._frameMatrix.GetPoint();
-            Vector3 camera = ModelPanel._camera.GetPoint();
+            Vector3 center = bone.Matrix.GetPoint();
+            Vector3 camera = ModelPanel.Camera.GetPoint();
             Vector3 normal = new Vector3();
             float radius = center.TrueDistance(camera) / _orbRadius * 0.1f;
 
@@ -1124,11 +1137,11 @@ namespace System.Windows.Forms
                 case TransformType.Rotation:
 
                     if (_snapX)
-                        normal = (bone._frameMatrix * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
+                        normal = (bone.Matrix * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
                     else if (_snapY)
-                        normal = (bone._frameMatrix * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
+                        normal = (bone.Matrix * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
                     else if (_snapZ)
-                        normal = (bone._frameMatrix * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                        normal = (bone.Matrix * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
                     else if (_snapCirc)
                     {
                         radius *= _circOrbScale;
@@ -1175,7 +1188,7 @@ namespace System.Windows.Forms
         {
             Vector3 lineStart = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
             Vector3 lineEnd = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
-            Vector3 camera = ModelPanel._camera.GetPoint();
+            Vector3 camera = ModelPanel.Camera.GetPoint();
             Vector3 normal = new Vector3();
             float radius = center.TrueDistance(camera) / _orbRadius * 0.1f;
 
@@ -1237,11 +1250,11 @@ namespace System.Windows.Forms
         }
         private bool CompareVertexDistance(Vector3 point, ref Vertex3 match)
         {
-            if (TargetModel._polyIndex != -1)
+            if (TargetModel.SelectedObjectIndex != -1)
             {
-                MDL0ObjectNode o = TargetModel._objList[TargetModel._polyIndex] as MDL0ObjectNode;
-                if (o._render)
-                    foreach (Vertex3 v in o._manager._vertices)
+                IObject o = TargetModel.Objects[TargetModel.SelectedObjectIndex];
+                if (o.IsRendering)
+                    foreach (Vertex3 v in o.PrimitiveManager._vertices)
                     {
                         float t = v.WeightedPosition.TrueDistance(point);
                         if (Math.Abs(t) < 0.025f)
@@ -1251,9 +1264,9 @@ namespace System.Windows.Forms
                         }
                     }
                 else
-                    foreach (MDL0ObjectNode w in TargetModel._objList)
-                        if (w._render)
-                            foreach (Vertex3 v in w._manager._vertices)
+                    foreach (IObject w in TargetModel.Objects)
+                        if (w.IsRendering)
+                            foreach (Vertex3 v in w.PrimitiveManager._vertices)
                             {
                                 float t = v.WeightedPosition.TrueDistance(point);
                                 if (Math.Abs(t) < 0.025f)
@@ -1264,9 +1277,9 @@ namespace System.Windows.Forms
                             }
             }
             else
-                foreach (MDL0ObjectNode o in TargetModel._objList)
-                    if (o._render)
-                        foreach (Vertex3 v in o._manager._vertices)
+                foreach (IObject o in TargetModel.Objects)
+                    if (o.IsRendering)
+                        foreach (Vertex3 v in o.PrimitiveManager._vertices)
                         {
                             float t = v.WeightedPosition.TrueDistance(point);
                             if (Math.Abs(t) < 0.025f)
@@ -1278,9 +1291,9 @@ namespace System.Windows.Forms
 
             return false;
         }
-        private bool CompareDistanceRecursive(MDL0BoneNode bone, Vector3 point, ref MDL0BoneNode match)
+        private bool CompareDistanceRecursive(IBoneNode bone, Vector3 point, ref IBoneNode match)
         {
-            Vector3 center = bone._frameMatrix.GetPoint();
+            Vector3 center = bone.Matrix.GetPoint();
             float dist = center.TrueDistance(point);
 
             if (Math.Abs(dist - MDL0BoneNode._nodeRadius) < 0.01)
@@ -1289,16 +1302,16 @@ namespace System.Windows.Forms
                 return true;
             }
 
-            foreach (MDL0BoneNode b in bone.Children)
+            foreach (IBoneNode b in ((ResourceNode)bone).Children)
                 if (CompareDistanceRecursive(b, point, ref match))
                     return true;
 
             return false;
         }
 
-        private unsafe void RenderOrb(MDL0BoneNode bone, GLDisplayList list)
+        private unsafe void RenderOrb(IBoneNode bone, GLDisplayList list)
         {
-            Matrix m = Matrix.TransformMatrix(new Vector3(MDL0BoneNode._nodeRadius), new Vector3(), bone._frameMatrix.GetPoint());
+            Matrix m = Matrix.TransformMatrix(new Vector3(MDL0BoneNode._nodeRadius), new Vector3(), bone.Matrix.GetPoint());
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 

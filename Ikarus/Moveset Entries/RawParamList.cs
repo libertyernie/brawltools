@@ -6,12 +6,12 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetFile
 {
-    public unsafe class RawParamList : MovesetEntry
+    public unsafe class RawParamList : MovesetEntryNode
     {
         public RawParamList() { }
-        public RawParamList(int size) { _size = size; }
+        public RawParamList(int size) { _initSize = size; }
 
         public List<AttributeInfo> _info;
         public string _nameID;
@@ -31,11 +31,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public UnsafeBuffer AttributeBuffer { get { return attributeBuffer; } }
         private UnsafeBuffer attributeBuffer;
 
-        public override void Parse(VoidPtr address)
+        protected override void OnParse(VoidPtr address)
         {
             _nameID = _name;
 
-            if (_size == 0)
+            if (_initSize == 0)
                 throw new Exception("Nothing to read");
 
             CharacterInfo cInfo = Manager.SelectedInfo;
@@ -50,13 +50,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             else _info = new List<AttributeInfo>();
 
-            if (_size > 0)
+            if (_initSize > 0)
             {
-                attributeBuffer = new UnsafeBuffer(_size);
+                attributeBuffer = new UnsafeBuffer(_initSize);
                 byte* pOut = (byte*)attributeBuffer.Address;
                 byte* pIn = (byte*)address;
 
-                for (int i = 0; i < _size; i++)
+                for (int i = 0; i < _initSize; i++)
                 {
                     if (i % 4 == 0)
                     {
@@ -83,7 +83,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void OnWrite(VoidPtr address)
         {
-            _rebuildAddr = address;
+            RebuildAddress = address;
             byte* pIn = (byte*)attributeBuffer.Address;
             byte* pOut = (byte*)address;
             for (int i = 0; i < attributeBuffer.Length; i++)

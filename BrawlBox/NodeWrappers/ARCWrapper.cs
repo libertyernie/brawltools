@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using BrawlLib;
+using BrawlLib.Modeling;
 
 namespace BrawlBox
 {
@@ -183,7 +184,7 @@ namespace BrawlBox
             }
         }
 
-        private void LoadModels(ResourceNode node, List<MDL0Node> models, List<CollisionNode> collisions)
+        private void LoadModels(ResourceNode node, List<IModel> models, List<CollisionNode> collisions)
         {
             switch (node.ResourceType)
             {
@@ -195,7 +196,7 @@ namespace BrawlBox
                         LoadModels(n, models, collisions);
                     break;
                 case ResourceType.MDL0:
-                    models.Add((MDL0Node)node);
+                    models.Add((IModel)node);
                     break;
                 case ResourceType.CollisionDef:
                     collisions.Add((CollisionNode)node);
@@ -205,13 +206,11 @@ namespace BrawlBox
 
         public void PreviewAll()
         {
-            List<MDL0Node> models = new List<MDL0Node>();
+            List<IModel> models = new List<IModel>();
             List<CollisionNode> collisions = new List<CollisionNode>();
             LoadModels(_resource, models, collisions);
             using (ModelForm form = new ModelForm())
-            {
                 form.ShowDialog(_owner, models, collisions);
-            }
         }
 
         public void ExportAll()

@@ -41,6 +41,7 @@ namespace BrawlBox
 
                 FileAssociation.Get(".tpl"),
             };
+        private CheckBox chkShowPropDesc;
 
         private static FileType[] _typeList = new FileType[]{
             FileType.Get("SSBB.PAC"),
@@ -122,7 +123,8 @@ namespace BrawlBox
                     else
                         i.Tag = i.Checked = false;
                 }
-                catch (System.NullReferenceException ezz) {
+                catch
+                {
 
                 }
                 index++;
@@ -202,6 +204,7 @@ namespace BrawlBox
             this.btnOkay = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.btnApply = new System.Windows.Forms.Button();
+            this.chkShowPropDesc = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -214,7 +217,7 @@ namespace BrawlBox
             this.groupBox1.Controls.Add(this.listView1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(238, 249);
+            this.groupBox1.Size = new System.Drawing.Size(238, 265);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "File Associations";
@@ -316,7 +319,7 @@ namespace BrawlBox
             this.listView1.Location = new System.Drawing.Point(3, 37);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(232, 206);
+            this.listView1.Size = new System.Drawing.Size(232, 222);
             this.listView1.TabIndex = 6;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -330,7 +333,7 @@ namespace BrawlBox
             // btnOkay
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOkay.Location = new System.Drawing.Point(13, 267);
+            this.btnOkay.Location = new System.Drawing.Point(13, 309);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(75, 23);
             this.btnOkay.TabIndex = 1;
@@ -341,7 +344,7 @@ namespace BrawlBox
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(94, 267);
+            this.btnCancel.Location = new System.Drawing.Point(94, 309);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -352,7 +355,7 @@ namespace BrawlBox
             // btnApply
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(175, 267);
+            this.btnApply.Location = new System.Drawing.Point(175, 309);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 3;
@@ -360,9 +363,23 @@ namespace BrawlBox
             this.btnApply.UseVisualStyleBackColor = true;
             this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
+            // chkShowPropDesc
+            // 
+            this.chkShowPropDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkShowPropDesc.AutoSize = true;
+            this.chkShowPropDesc.Location = new System.Drawing.Point(8, 286);
+            this.chkShowPropDesc.Name = "chkShowPropDesc";
+            this.chkShowPropDesc.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
+            this.chkShowPropDesc.Size = new System.Drawing.Size(242, 17);
+            this.chkShowPropDesc.TabIndex = 7;
+            this.chkShowPropDesc.Text = "Show property description box when available";
+            this.chkShowPropDesc.UseVisualStyleBackColor = true;
+            this.chkShowPropDesc.CheckedChanged += new System.EventHandler(this.chkShowPropDesc_CheckedChanged);
+            // 
             // SettingsDialog
             // 
-            this.ClientSize = new System.Drawing.Size(262, 302);
+            this.ClientSize = new System.Drawing.Size(262, 344);
+            this.Controls.Add(this.chkShowPropDesc);
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOkay);
@@ -373,6 +390,7 @@ namespace BrawlBox
             this.Shown += new System.EventHandler(this.SettingsDialog_Shown);
             this.groupBox1.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
         #endregion
@@ -382,6 +400,11 @@ namespace BrawlBox
             bool check = checkBox1.Checked;
             foreach (ListViewItem i in listView1.Items)
                 i.Checked = check;
+        }
+
+        private void chkShowPropDesc_CheckedChanged(object sender, EventArgs e)
+        {
+            MainForm.Instance.DisplayPropertyDescription = chkShowPropDesc.Checked;
         }
     }
 }
