@@ -167,7 +167,7 @@ namespace BrawlLib.Modeling
         #region Reading
 
         public PrimitiveManager() { }
-        {
+        
 
             byte*[] pAssetList = new byte*[12];
         public PrimitiveManager(
