@@ -103,11 +103,10 @@ namespace BrawlBox
             {
                 // to see if github is up, and to check internet connection
                 System.Net.NetworkInformation.Ping s = new System.Net.NetworkInformation.Ping();
-                Console.WriteLine("Checking connection to server.");
-                Console.WriteLine(s.Send("www.github.com").Status);
+                s.Send("www.github.com");
 
             }
-            catch (Exception ex) { Console.WriteLine(ex.Message); }
+            catch (Exception ex) { }
 
             string SHAversion = "0000000000000000000000000000000000000000"; // Replace with latest version commit SHA
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
