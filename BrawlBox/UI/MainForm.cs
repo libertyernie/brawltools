@@ -19,6 +19,7 @@ using BrawlBox.Properties;
 using System.Collections.Specialized;
 using BrawlLib.SSBB;
 using BrawlLib.Modeling;
+using Octokit;
 
 namespace BrawlBox
 {
@@ -58,7 +59,7 @@ namespace BrawlBox
         public MainForm()
         {
             InitializeComponent();
-
+            //CheckUpdates();
             Text = Program.AssemblyTitle;
 //#if _DEBUG
 //            Text += " - DEBUG";
@@ -96,6 +97,30 @@ namespace BrawlBox
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
 
+        private async void CheckUpdates()
+        {
+            try
+            {
+                // to see if github is up, and to check internet connection
+                System.Net.NetworkInformation.Ping s = new System.Net.NetworkInformation.Ping();
+                Console.WriteLine("Checking connection to server.");
+                Console.WriteLine(s.Send("www.github.com").Status);
+
+            }
+            catch (Exception ex) { Console.WriteLine(ex.Message); }
+
+            string SHAversion = "0000000000000000000000000000000000000000"; // Replace with latest version commit SHA
+            var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+            var x = await github.Repository.GetBranch("libertyernie", "brawltools", "master");
+            if (x.Commit.Sha != SHAversion)
+                MessageBox.Show("There is an update avaliable! Update now?", "", MessageBoxButtons.YesNo);
+
+
+            //var repo = await github.Repository.Get("libertyernie", "brawltools");
+
+            //var searchrequest = new SearchCodeRequest("Readme.md") { Repo = repo.FullName, In = new[] { CodeInQualifier.Path } };
+            //SearchCodeResult result = await github.Search.SearchCode(searchrequest);
+        }
         public void Reset()
         {
             _root = null;
