@@ -108,10 +108,12 @@ namespace BrawlBox
             }
             catch (Exception ex) { }
 
-            string SHAversion = "0000000000000000000000000000000000000000"; // Replace with latest version commit SHA
+            string version = "v0.73a"; // Replace with latest release tag
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-            var x = await github.Repository.GetBranch("libertyernie", "brawltools", "master");
-            if (x.Commit.Sha != SHAversion)
+            var repo = await github.Repository.Get("libertyernie", "brawltools");
+            var releases = await github.Release.GetAll(repo.Owner.Login, repo.Name);
+
+            if (releases[0].TagName != version)
                 MessageBox.Show("There is an update avaliable! Update now?", "", MessageBoxButtons.YesNo);
 
 
