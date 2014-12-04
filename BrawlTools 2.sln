@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlLib", "BrawlLib\BrawlL
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Ikarus", "Ikarus\Ikarus.csproj", "{E47B2B3C-B95D-40E9-88EB-639FA4D34CB3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "..\..\Things I do\Programing\WIP\OctokitTest\OctokitTest\Updater.csproj", "{9FAFC886-08B5-4922-BECC-E03D84FF15B0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Updater", "Updater\Updater.csproj", "{9FAFC886-08B5-4922-BECC-E03D84FF15B0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
