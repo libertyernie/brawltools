@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
 using System.Reflection;
@@ -59,7 +60,6 @@ namespace BrawlBox
         public MainForm()
         {
             InitializeComponent();
-            //CheckUpdates();
             Text = Program.AssemblyTitle;
 //#if _DEBUG
 //            Text += " - DEBUG";
@@ -99,28 +99,31 @@ namespace BrawlBox
 
         private async void CheckUpdates()
         {
-            try
-            {
-                // to see if github is up, and to check internet connection
-                System.Net.NetworkInformation.Ping s = new System.Net.NetworkInformation.Ping();
-                s.Send("www.github.com");
 
-            }
-            catch (Exception ex) { }
 
-            string version = "v0.73a"; // Replace with latest release tag
+            const string version = "v0.73a"; // Replace with latest release tag
+
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-            var repo = await github.Repository.Get("libertyernie", "brawltools");
-            var releases = await github.Release.GetAll(repo.Owner.Login, repo.Name);
+            var release = await github.Release.GetAll("libertyernie", "brawltools");
 
-            if (releases[0].TagName != version)
-                MessageBox.Show("There is an update avaliable! Update now?", "", MessageBoxButtons.YesNo);
+            if (release[0].TagName != version)
+            {
+                DialogResult UpdateResult = MessageBox.Show("There is an update avaliable! Update now?", "Update", MessageBoxButtons.YesNo);
 
-
-            //var repo = await github.Repository.Get("libertyernie", "brawltools");
-
-            //var searchrequest = new SearchCodeRequest("Readme.md") { Repo = repo.FullName, In = new[] { CodeInQualifier.Path } };
-            //SearchCodeResult result = await github.Search.SearchCode(searchrequest);
+                if (UpdateResult == DialogResult.Yes)
+                {
+                    
+                    DialogResult OverwriteResult = MessageBox.Show("Ovewrite current installation?","",MessageBoxButtons.YesNoCancel);
+                    if (OverwriteResult == DialogResult.Yes)
+                    {
+                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
+                        this.Close();
+                    }
+                    else if(OverwriteResult == DialogResult.No)
+                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                }
+               
+            }
         }
         public void Reset()
         {
@@ -511,6 +514,11 @@ namespace BrawlBox
         {
             RecentFileHandler.FileMenuItem fmi = (RecentFileHandler.FileMenuItem)e.ClickedItem;
             Program.Open(fmi.FileName);
+        }
+
+        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            CheckUpdates();
         }
     }
 
