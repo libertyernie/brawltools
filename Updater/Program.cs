@@ -77,6 +77,8 @@ namespace Updater
                 Task t = UpdateCheck(true);
                 t.Wait();
             }
+            else if (args.Length > 0 && args[0] != "-r")
+                Console.WriteLine("Usage: -r --------- Overwrite files in directory");
             else
             {
                 Task t = UpdateCheck();

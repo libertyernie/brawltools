@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlBox", "BrawlBox\BrawlBox.csproj", "{0B8588FD-74EE-4A7D-A397-91EA3F6A2C77}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9FAFC886-08B5-4922-BECC-E03D84FF15B0} = {9FAFC886-08B5-4922-BECC-E03D84FF15B0}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlCmd", "BrawlCmd\BrawlCmd.csproj", "{D6F2B214-C2EB-4629-86C5-765457A7BB99}"
 EndProject
