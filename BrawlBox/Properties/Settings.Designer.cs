@@ -127,5 +127,20 @@ namespace BrawlBox.Properties {
                 this["DisplayPropertyDescriptionWhenAvailable"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("true")]
+        public bool CheckUpdatesAtStartup
+        {
+            get
+            {
+                return ((bool)(this["CheckUpdatesAtStartup"]));
+            }
+            set
+            {
+                this["CheckUpdatesAtStartup"] = value;
+            }
+        }
     }
 }

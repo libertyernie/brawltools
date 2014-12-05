@@ -61,6 +61,8 @@ namespace BrawlBox
         {
             InitializeComponent();
             Text = Program.AssemblyTitle;
+            if (CheckUpdatesOnStartup)
+                CheckUpdates();
 //#if _DEBUG
 //            Text += " - DEBUG";
 //#endif
@@ -99,30 +101,28 @@ namespace BrawlBox
 
         private async void CheckUpdates()
         {
-
-
-            const string version = "v0.73a"; // Replace with latest release tag
+            const string version = "v0.73b"; // <---- Replace with latest release tag
 
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
             var release = await github.Release.GetAll("libertyernie", "brawltools");
 
             if (release[0].TagName != version)
             {
-                DialogResult UpdateResult = MessageBox.Show("There is an update avaliable! Update now?", "Update", MessageBoxButtons.YesNo);
+                DialogResult UpdateResult = MessageBox.Show("Brawlbox update " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
 
                 if (UpdateResult == DialogResult.Yes)
                 {
-                    
-                    DialogResult OverwriteResult = MessageBox.Show("Ovewrite current installation?","",MessageBoxButtons.YesNoCancel);
+
+                    DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
                     if (OverwriteResult == DialogResult.Yes)
                     {
                         Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
                         this.Close();
                     }
-                    else if(OverwriteResult == DialogResult.No)
+                    else if (OverwriteResult == DialogResult.No)
                         Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+
                 }
-               
             }
         }
         public void Reset()
@@ -464,6 +464,19 @@ namespace BrawlBox
             }
         }
         bool _displayPropertyDescription;
+
+        public bool CheckUpdatesOnStartup
+        {
+            get { return _updatesOnStartup; }
+            set 
+            {
+                _updatesOnStartup = value;
+
+                BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup = _updatesOnStartup;
+                BrawlBox.Properties.Settings.Default.Save();
+            }
+        }
+        bool _updatesOnStartup;
         
         private void UpdatePropertyDescriptionBox(GridItem item)
         {
