@@ -144,7 +144,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     file.WriteLine();
                     file.WriteLine(n._name);
                     file.Write(n.DisplayLines);
-                    file.WriteLine(n._description);
+                    if (!string.IsNullOrWhiteSpace(n._description))
+                        file.WriteLine(n._description);
                 }
             }
         }
@@ -201,8 +202,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 else
                                     break;
                             }
+
+                            List<string> description = new List<string>();
+                            while (!String.IsNullOrEmpty(lastLine))
+                            {
+                                description.Add(lastLine);
+                                lastLine = sr.ReadLine();
+                            }
+
                             e._lines = g.ToArray();
-                            e._description = lastLine;
+                            e._description = String.Join(Environment.NewLine, description);
                             node.AddChild(e);
                         }
                     }
