@@ -51,7 +51,7 @@ namespace System.Windows.Forms
                 {
                     txtID.Text = _targetNode._name;
                     txtName.Text = _targetNode.GameName;
-                    lstCodes.Items.AddRange(_targetNode.Children.Select(s => new ListViewItem() { Text = s.Name, Checked = true, Tag = s }).ToArray());
+                    lstCodes.Items.AddRange(_targetNode.Children.Select(s => new ListViewItem() { Text = s.Name, Checked = ((GCTCodeEntryNode)s)._enabled, Tag = s }).ToArray());
                     if (_targetNode.Children.Count > 0)
                         lstCodes.Items[0].Selected = true;
                 }
@@ -104,10 +104,8 @@ namespace System.Windows.Forms
                 if (String.IsNullOrEmpty(node._origPath))
                     return SaveAs(node, writeInfo);
 
-                node.Children.Clear();
                 foreach (ListViewItem e in lstCodes.Items)
-                    if (e.Checked)
-                        node.Children.Add(e.Tag as GCTCodeEntryNode);
+                    (e.Tag as GCTCodeEntryNode)._enabled = e.Checked;
 
                 node._writeInfo = writeInfo;
                 node.Merge();
@@ -131,10 +129,8 @@ namespace System.Windows.Forms
             {
                 try
                 {
-                    node.Children.Clear();
                     foreach (ListViewItem e in lstCodes.Items)
-                        if (e.Checked)
-                            node.Children.Add(e.Tag as GCTCodeEntryNode);
+                        (e.Tag as GCTCodeEntryNode)._enabled = e.Checked;
 
                     if (Path.GetExtension(path).ToUpper() == ".TXT")
                         node.ToTXT(path);
@@ -262,7 +258,7 @@ namespace System.Windows.Forms
 
             GCTCodeEntryNode n = new GCTCodeEntryNode() { _name = "New Code" };
             TargetNode.AddChild(n);
-            lstCodes.Items.Add(new ListViewItem() { Text = n.Name, Checked = true, Tag = n });
+            lstCodes.Items.Add(new ListViewItem() { Text = n.Name, Checked = n._enabled, Tag = n });
         }
 
         void txtCode_TextChanged(object sender, EventArgs e)
