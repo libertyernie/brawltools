@@ -157,7 +157,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             GCTNode node = new GCTNode();
 
             if (File.Exists(path))
+            {
+                bool anyEnabled = false;
+
                 using (StreamReader sr = new StreamReader(path))
+                {
                     for (int i = 0; !sr.EndOfStream; i++)
                     {
                         string lastLine;
@@ -191,7 +195,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                                 bool lineEnabled = lastLine.StartsWith("* ");
                                 if (lineEnabled)
+                                {
+                                    anyEnabled = true;
                                     lastLine = lastLine.Substring(2);
+                                }
 
                                 if (codeEnabled == null)
                                     codeEnabled = lineEnabled;
@@ -228,7 +235,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                             node.AddChild(e);
                         }
                     }
-
+                }
+                if (anyEnabled == false)
+                {
+                    // No codes enabled in file - enable all codes
+                    foreach (GCTCodeEntryNode e in node.Children)
+                        e._enabled = true;
+                }
+            }
             return node;
         }
         
@@ -281,7 +295,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     int index = -1;
                     if ((index = s.IndexOf(c._code)) >= 0)
                     {
-                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length) });
+                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length), _enabled = true });
                         s = s.Remove(index, c._code.Length);
                     }
                 }
@@ -295,7 +309,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     MessageBox.Show("This GCT does not contain any recognizable codes.");
 
                 if (s.Length > 0)
-                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s });
+                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s, _enabled = true });
 
                 return g;
             }
