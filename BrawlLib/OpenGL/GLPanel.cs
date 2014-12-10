@@ -92,6 +92,7 @@ namespace BrawlLib.OpenGL
 
         void ContextChanged(bool isCurrent)
         {
+			// TODO: fix error - trying to update after disposal
             OnResize(null);
             OnResized();
 
