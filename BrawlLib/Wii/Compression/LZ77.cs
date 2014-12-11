@@ -211,8 +211,10 @@ namespace BrawlLib.Wii.Compression
                     else
                     {
                         int temp = (*srcPtr >> 4), num = !extFmt ? temp + 3 : temp == 1 ? (((*srcPtr++ & 0x0F) << 12) | ((*srcPtr++) << 4) | (*srcPtr >> 4)) + 0xFF + 0xF + 3 : temp == 0 ? (((*srcPtr++ & 0x0F) << 4) | (*srcPtr >> 4)) + 0xF + 2 : temp + 1, offset = (((*srcPtr++ & 0xF) << 8) | *srcPtr++) + 2;
-                        if (offset > dstLen) MessageBox.Show("LZ77 error: destination buffer not large enough for decompressed data");
-                        for (; dstPtr != ceiling && num-- > 0; *dstPtr++ = dstPtr[-offset]) ;
+						if (dstPtr - offset < dstAddress.address) Console.WriteLine("LZ77 reading: reading from outside of destination buffer");
+                        while (dstPtr != ceiling && num-- > 0) {
+							*dstPtr++ = dstPtr[-offset];
+						}
                     }
         }
     }
