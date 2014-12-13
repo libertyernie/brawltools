@@ -22,9 +22,9 @@ namespace Ikarus
         }
         public static void PostRender()
         {
-            AttributeList list = Manager.GetAttributes();
-            if (list == null)
-                return;
+            //AttributeList list = Manager.GetAttributes();
+            //if (list == null)
+            //    return;
 
 
         }

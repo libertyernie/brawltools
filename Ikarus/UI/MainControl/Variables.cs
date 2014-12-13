@@ -128,29 +128,29 @@ namespace Ikarus.UI
             set { SetSelectedBRRESFile(TargetAnimType, value); }
         }
 
-        public AnimationNode GetAnimation(AnimType type)
+        public AnimationNode GetAnimation(NW4RAnimType type)
         {
             switch (type)
             {
-                case AnimType.CHR: return SelectedCHR0;
-                case AnimType.SRT: return SelectedSRT0;
-                case AnimType.SHP: return SelectedSHP0;
-                case AnimType.PAT: return SelectedPAT0;
-                case AnimType.VIS: return SelectedVIS0;
-                case AnimType.CLR: return SelectedCLR0;
+                case NW4RAnimType.CHR: return SelectedCHR0;
+                case NW4RAnimType.SRT: return SelectedSRT0;
+                case NW4RAnimType.SHP: return SelectedSHP0;
+                case NW4RAnimType.PAT: return SelectedPAT0;
+                case NW4RAnimType.VIS: return SelectedVIS0;
+                case NW4RAnimType.CLR: return SelectedCLR0;
                 default: return null;
             }
         }
-        public void SetSelectedBRRESFile(AnimType type, AnimationNode value)
+        public void SetSelectedBRRESFile(NW4RAnimType type, AnimationNode value)
         {
             switch (type)
             {
-                case AnimType.CHR: SelectedCHR0 = value as CHR0Node; break;
-                case AnimType.SRT: SelectedSRT0 = value as SRT0Node; break;
-                case AnimType.SHP: SelectedSHP0 = value as SHP0Node; break;
-                case AnimType.PAT: SelectedPAT0 = value as PAT0Node; break;
-                case AnimType.VIS: SelectedVIS0 = value as VIS0Node; break;
-                case AnimType.CLR: SelectedCLR0 = value as CLR0Node; break;
+                case NW4RAnimType.CHR: SelectedCHR0 = value as CHR0Node; break;
+                case NW4RAnimType.SRT: SelectedSRT0 = value as SRT0Node; break;
+                case NW4RAnimType.SHP: SelectedSHP0 = value as SHP0Node; break;
+                case NW4RAnimType.PAT: SelectedPAT0 = value as PAT0Node; break;
+                case NW4RAnimType.VIS: SelectedVIS0 = value as VIS0Node; break;
+                case NW4RAnimType.CLR: SelectedCLR0 = value as CLR0Node; break;
             }
         }
 
@@ -212,7 +212,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.CHR);
+                AnimChanged(NW4RAnimType.CHR);
                 UpdatePropDisplay();
             } 
         }
@@ -227,7 +227,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.SRT);
+                AnimChanged(NW4RAnimType.SRT);
                 UpdatePropDisplay();
             } 
         }
@@ -242,7 +242,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.SHP);
+                AnimChanged(NW4RAnimType.SHP);
                 UpdatePropDisplay();
             }
         }
@@ -257,7 +257,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.PAT);
+                AnimChanged(NW4RAnimType.PAT);
                 UpdatePropDisplay();
             }
         }
@@ -272,7 +272,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.VIS);
+                AnimChanged(NW4RAnimType.VIS);
                 UpdatePropDisplay();
             }
         }
@@ -293,7 +293,7 @@ namespace Ikarus.UI
                 if (_updating)
                     return;
 
-                AnimChanged(AnimType.CLR);
+                AnimChanged(NW4RAnimType.CLR);
                 UpdatePropDisplay();
             }
         }

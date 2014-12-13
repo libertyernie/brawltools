@@ -11,38 +11,35 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0AmbientLightNode : SCN0EntryNode, IColorSource
     {
         internal SCN0AmbientLight* Data { get { return (SCN0AmbientLight*)WorkingUncompressed.Address; } }
-        private byte fixedFlags, usageFlags = 3;
-
-        //[Category("Ambient Light")]
-        //public SCN0AmbLightFlags UsageFlags { get { return (SCN0AmbLightFlags)unk4; } set { unk4 = (byte)value; SignalPropertyChange(); } }
+        private byte _fixedFlags, _usageFlags = 3;
 
         [Category("Ambient Light")]
-        public bool ColorEnabled 
+        public bool ColorEnabled
         {
-            get { return (usageFlags & 1) != 0; } 
+            get { return (_usageFlags & 1) != 0; }
             set
             {
                 if (value)
-                    usageFlags |= 1;
+                    _usageFlags |= 1;
                 else
-                    usageFlags &= 2;
+                    _usageFlags &= 2;
                 SignalPropertyChange();
             }
         }
         [Category("Ambient Light")]
         public bool AlphaEnabled
         {
-            get { return (usageFlags & 2) != 0; }
+            get { return (_usageFlags & 2) != 0; }
             set
             {
                 if (value)
-                    usageFlags |= 2;
+                    _usageFlags |= 2;
                 else
-                    usageFlags &= 1;
+                    _usageFlags &= 1;
                 SignalPropertyChange();
             }
         }
-        
+
         public bool _constant = true;
         [Category("Ambient Light")]
         public bool Constant
@@ -54,7 +51,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     _constant = value;
                     if (_constant)
-                        MakeSolid(new ARGBPixel());
+                        MakeSolid(new RGBAPixel());
                     else
                         MakeList();
 
@@ -63,13 +60,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal List<ARGBPixel> _colors = new List<ARGBPixel>();
+        internal List<RGBAPixel> _colors = new List<RGBAPixel>();
         [Browsable(false)]
-        public List<ARGBPixel> Colors { get { return _colors; } set { _colors = value; SignalPropertyChange(); } }
+        public List<RGBAPixel> Colors { get { return _colors; } set { _colors = value; SignalPropertyChange(); } }
 
-        internal ARGBPixel _solidColor = new ARGBPixel();
+        internal RGBAPixel _solidColor = new RGBAPixel();
         [Browsable(false)]
-        public ARGBPixel SolidColor { get { return _solidColor; } set { _solidColor = value; SignalPropertyChange(); } }
+        public RGBAPixel SolidColor { get { return _solidColor; } set { _solidColor = value; SignalPropertyChange(); } }
 
         internal int _numEntries;
         [Browsable(false)]
@@ -83,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 if (value > _numEntries)
                 {
-                    ARGBPixel p = _numEntries > 0 ? _colors[_numEntries - 1] : new ARGBPixel(255, 0, 0, 0);
+                    RGBAPixel p = _numEntries > 0 ? _colors[_numEntries - 1] : new RGBAPixel(0, 0, 0, 255);
                     for (int i = value - _numEntries; i-- > 0; )
                         _colors.Add(p);
                 }
@@ -94,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public void MakeSolid(ARGBPixel color)
+        public void MakeSolid(RGBAPixel color)
         {
             _numEntries = 0;
             _constant = true;
@@ -120,20 +117,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int TypeCount { get { return 1; } }
         [Browsable(false)]
         public int ColorCount(int id) { return (_numEntries == 0) ? 1 : _numEntries; }
-        public ARGBPixel GetColor(int index, int id) { return (_numEntries == 0) ? _solidColor : _colors[index]; }
+        public ARGBPixel GetColor(int index, int id) { return (_numEntries == 0) ? (ARGBPixel)_solidColor : (ARGBPixel)_colors[index]; }
         public void SetColor(int index, int id, ARGBPixel color)
         {
             if (_numEntries == 0)
-                _solidColor = color;
+                _solidColor = (RGBAPixel)color;
             else
-                _colors[index] = color;
+                _colors[index] = (RGBAPixel)color;
             SignalPropertyChange();
         }
-        public bool GetClrConstant(int id)
+        public bool GetColorConstant(int id)
         {
             return Constant;
         }
-        public void SetClrConstant(int id, bool constant)
+        public void SetColorConstant(int id, bool constant)
         {
             Constant = constant;
         }
@@ -157,26 +154,26 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            //Read common header
             base.OnInitialize();
 
-            _colors = new List<ARGBPixel>();
+            //Set defaults
+            _colors = new List<RGBAPixel>();
 
-            fixedFlags = Data->_fixedFlags;
-            usageFlags = Data->_flags;
-            if ((fixedFlags >> 7 & 1) == 1)
-            {
-                _constant = true;
-                _numEntries = 0;
-                _solidColor = (ARGBPixel)Data->_lighting;
-            }
-            else if (Name != "<null>")
-            {
-                _constant = false;
-                _numEntries = FrameCount + 1;
-                RGBAPixel* addr = Data->lightEntries;
-                for (int i = 0; i < _numEntries; i++)
-                    _colors.Add((ARGBPixel)(*addr++));
-            }
+            //Read header values
+            _fixedFlags = Data->_fixedFlags;
+            _usageFlags = Data->_flags;
+
+            //Read ambient light color
+            ReadColors(
+                (uint)_fixedFlags,
+                (uint)(1 << 7),
+                ref _solidColor,
+                ref _colors,
+                FrameCount,
+                Data->_lighting.Address,
+                ref _constant,
+                ref _numEntries);
 
             return false;
         }
@@ -184,39 +181,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         SCN0AmbientLightNode _match;
         public override int OnCalculateSize(bool force)
         {
-            _visLen = 0;
+            for (int i = 0; i < 3; i++)
+                _dataLengths[i] = 0;
+
             _match = null;
-            if (_name != "<null>")
-                if (_numEntries != 0)
-                {
-                    fixedFlags &= 0xFF - 128;
-                    foreach (SCN0AmbientLightNode n in Parent.Children)
-                    {
-                        if (n == this)
-                            break;
 
-                        if (!n._constant)
-                        {
-                            for (int i = 0; i < FrameCount + 1; i++)
-                            {
-                                if (n._colors[i] != _colors[i])
-                                    break;
-                                if (i == FrameCount)
-                                    _match = n;
-                            }
-                        }
+            if (_name == "<null>")
+                return SCN0AmbientLight.Size;
 
-                        if (_match != null)
-                            break;
-                    }
-                    if (_match == null)
-                        _lightLen += 4 * (FrameCount + 1);
-                }
-                else
-                {
-                    fixedFlags |= 128;
-                    _lightLen = 0;
-                }
+            _match = FindColorMatch(_constant, FrameCount, _match, 0) as SCN0AmbientLightNode;
+            if (_match == null && !_constant)
+                _dataLengths[1] += 4 * (FrameCount + 1);
+
+            if (_constant)
+                _fixedFlags |= 0x80;
+            else
+                _fixedFlags &= 0x7F;
+
             return SCN0AmbientLight.Size;
         }
         VoidPtr _matchAddr;
@@ -227,34 +208,30 @@ namespace BrawlLib.SSBB.ResourceNodes
             _matchAddr = null;
 
             SCN0AmbientLight* header = (SCN0AmbientLight*)address;
-            header->_header._length = _length = SCN0AmbientLight.Size;
 
-            if (_name != "<null>")
-            {
-                header->_fixedFlags = 128;
-                header->_pad1 = 0;
-                header->_pad2 = 0;
-                header->_flags = usageFlags;
-                if (_numEntries != 0)
-                {
-                    header->_fixedFlags = 0;
+            header->_pad1 = 0;
+            header->_pad2 = 0;
 
-                    _matchAddr = lightAddr;
-                    if (_match == null)
-                    {
-                        *((bint*)header->_lighting.Address) = (int)lightAddr - (int)header->_lighting.Address;
-                        for (int i = 0; i <= ((SCN0Node)Parent.Parent).FrameCount; i++)
-                            if (i < _colors.Count)
-                                *lightAddr++ = (RGBAPixel)_colors[i];
-                            else
-                                *lightAddr++ = new RGBAPixel();
-                    }
-                    else
-                        *((bint*)header->_lighting.Address) = (int)_match._matchAddr - (int)header->_lighting.Address;
-                }
-                else
-                    header->_lighting = (RGBAPixel)_solidColor;
-            }
+            if (_name == "<null>")
+                return;
+
+            int flags = _fixedFlags;
+            _dataAddrs[1] += WriteColors(
+                ref flags,
+                0x80,
+                _solidColor,
+                _colors,
+                _constant,
+                FrameCount,
+                header->_lighting.Address,
+                ref _matchAddr,
+                _match == null ? null : _match._matchAddr,
+                (RGBAPixel*)_dataAddrs[1]);
+
+            header->_fixedFlags = (byte)flags;
+            header->_flags = _usageFlags;
+
+
         }
     }
 }

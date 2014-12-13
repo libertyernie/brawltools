@@ -31,27 +31,28 @@ namespace System
             }
             return -1;
         }
-        internal static Encoding encoder = Encoding.GetEncoding(932);
+        //internal static Encoding encoder = Encoding.GetEncoding(932);
         public unsafe static void Write(this string s, sbyte* ptr)
         {
-            var b = encoder.GetBytes(s);
-            for (int i = 0; i < b.Length; i++)
-                ptr[i] = (sbyte)b[i];
+            //var b = encoder.GetBytes(s);
+            for (int i = 0; i < s.Length; i++)
+                ptr[i] = (sbyte)s[i];
         }
         public unsafe static void Write(this string s, ref sbyte* ptr)
         {
-            var b = encoder.GetBytes(s);
-            for (int i = 0; i < b.Length; i++)
-                *ptr++ = (sbyte)b[i];
+            //var b = encoder.GetBytes(s);
+            for (int i = 0; i < s.Length; i++)
+                *ptr++ = (sbyte)s[i];
             *ptr++ = 0; //Null terminator
         }
         public unsafe static string Read(this string s, byte* ptr)
         {
-            List<byte> vals = new List<byte>();
-            byte val;
-            while ((val = *ptr++) != 0)
-                vals.Add(val);
-            return encoder.GetString(vals.ToArray());
+            //List<byte> vals = new List<byte>();
+            //byte val;
+            //while ((val = *ptr++) != 0)
+            //    vals.Add(val);
+            //return encoder.GetString(vals.ToArray());
+            return new String((sbyte*)ptr);
         }
         public static string ToBinaryArray(this string s)
         {

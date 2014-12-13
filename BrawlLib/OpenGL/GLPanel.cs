@@ -116,8 +116,12 @@ namespace BrawlLib.OpenGL
 
         protected virtual void OnContextChanged(bool isCurrent)
         {
-            OnResize(null);
-            UpdateProjection();
+            //Don't update anything if this context has just been released
+            if (isCurrent)
+            {
+                OnResize(EventArgs.Empty);
+                UpdateProjection();
+            }
 
             _currentPanel = isCurrent ? this : null;
         }
@@ -369,6 +373,8 @@ namespace BrawlLib.OpenGL
             if (_ctx != null)
                 _ctx.Update();
 
+            _aspect = (float)Width / Height;
+
             Invalidate();
         }
 
@@ -377,11 +383,9 @@ namespace BrawlLib.OpenGL
             if (_ctx == null)
                 return;
 
-            Capture();
-
-            _aspect = (float)Width / Height;
             CalculateProjection();
 
+            Capture();
             GL.Viewport(ClientRectangle);
             GL.MatrixMode(MatrixMode.Projection);
 

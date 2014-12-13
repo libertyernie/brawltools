@@ -18,21 +18,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal REFT* Header { get { return (REFT*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.REFT; } }
 
-        private int _unk1, _unk2, _dataLen, _dataOff;
-        private int _TableLen;
-        private short _TableEntries;
-        private short _TableUnk1;
-
-        //[Category("REFT Data")]
-        //public int DataLength { get { return _dataLen; } }
-        //[Category("REFT Data")]
-        //public int DataOffset { get { return _dataOff; } }
-
-        //[Category("REFT Object Table")]
-        //public int Length { get { return _TableLen; } }
-        //[Category("REFT Object Table")]
-        //public short NumEntries { get { return _TableEntries; } }
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -42,29 +27,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_name == null)
                 _name = header->IdString;
 
-            _dataLen = header->_dataLength;
-            _dataOff = header->_dataOffset;
-            _unk1 = header->_linkPrev;
-            _unk2 = header->_linkNext;
-
-            REFTypeObjectTable* objTable = header->Table;
-            _TableLen = (int)objTable->_length;
-            _TableEntries = (short)objTable->_entries;
-            _TableUnk1 = (short)objTable->_unk1;
-
             return header->Table->_entries > 0;
         }
-        int tableLen = 0;
+
+        int _tableLen = 0;
         public override int OnCalculateSize(bool force)
         {
             int size = 0x60;
-            tableLen = 0x9;
+            _tableLen = 0x8;
             foreach (ResourceNode n in Children)
             {
-                tableLen += n.Name.Length + 11;
+                _tableLen += n.Name.Length + 11;
                 size += n.CalculateSize(force);
             }
-            return size + (tableLen = tableLen.Align(0x20));
+            return size + (_tableLen = _tableLen.Align(0x20));
         }
 
         public override void OnPopulate()
@@ -92,12 +68,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->IdString = Name;
 
             REFTypeObjectTable* table = (REFTypeObjectTable*)((byte*)header + header->_dataOffset + 0x18);
-            table->_entries = (short)Children.Count;
-            table->_unk1 = 0;
-            table->_length = tableLen;
+            table->_entries = (ushort)Children.Count;
+            table->_pad = 0;
+            table->_length = _tableLen;
 
             REFTypeObjectEntry* entry = table->First;
-            int offset = tableLen;
+            int offset = _tableLen;
             foreach (ResourceNode n in Children)
             {
                 entry->Name = n.Name;
@@ -200,11 +176,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int ColorCount(int id) { return Palette != null ? Palette.Entries.Length : 0; }
         public ARGBPixel GetColor(int index, int id) { return Palette != null ? (ARGBPixel)Palette.Entries[index] : new ARGBPixel(); }
         public void SetColor(int index, int id, ARGBPixel color) { if (Palette != null) { Palette.Entries[index] = (Color)color; SignalPropertyChange(); } }
-        public bool GetClrConstant(int id)
+        public bool GetColorConstant(int id)
         {
             return false;
         }
-        public void SetClrConstant(int id, bool constant)
+        public void SetColorConstant(int id, bool constant)
         {
         }
 

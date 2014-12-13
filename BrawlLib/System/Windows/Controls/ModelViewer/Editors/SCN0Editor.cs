@@ -5,6 +5,7 @@ using BrawlLib.Wii.Animations;
 using System.Drawing;
 using BrawlLib.Wii.Graphics;
 using BrawlLib.SSBBTypes;
+using BrawlLib.Modeling;
 
 namespace System.Windows.Forms
 {
@@ -1739,7 +1740,7 @@ namespace System.Windows.Forms
         private CheckBox chkAmbClr;
         private Button button1;
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
         private Panel panel1;
         private Button button3;
         private Button button4;
@@ -1808,7 +1809,7 @@ namespace System.Windows.Forms
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef { get { return _mainWindow.TargetTexRef; } set { _mainWindow.TargetTexRef = value; } }
@@ -1820,7 +1821,7 @@ namespace System.Windows.Forms
             set { _mainWindow.CurrentFrame = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel
+        public IModel TargetModel
         {
             get { return _mainWindow.TargetModel; }
             set { _mainWindow.TargetModel = value; }
@@ -1835,7 +1836,7 @@ namespace System.Windows.Forms
         //    set { grpTransform.Enabled = grpTransAll.Enabled = (_mainWindow.EnableTransformEdit = value) && (TargetBone != null); }
         //}
 
-        private ISCN0KeyframeHolder Entry
+        private ISCN0KeyframeSource Entry
         {
             get
             {
@@ -1859,7 +1860,7 @@ namespace System.Windows.Forms
 
             if (_mainWindow.InterpolationEditor != null && _mainWindow.InterpolationEditor.Visible)
             {
-                ISCN0KeyframeHolder entry = Entry;
+                ISCN0KeyframeSource entry = Entry;
                 if (entry != null)
                     if (entry != null && (SelectedAnimation != null) && (CurrentFrame > 0) && _mainWindow.InterpolationEditor._targetNode != entry)
                         _mainWindow.InterpolationEditor.SetTarget(entry as ResourceNode);
@@ -1869,7 +1870,7 @@ namespace System.Windows.Forms
         public unsafe void ResetBox(int index)
         {
             NumericInputBox box = _transBoxes[tabIndex - 2][index];
-            ISCN0KeyframeHolder entry = null;
+            ISCN0KeyframeSource entry = null;
 
             switch (tabIndex)
             {
@@ -1878,18 +1879,18 @@ namespace System.Windows.Forms
                 case 4: entry = _camera; break;
             }
 
-            if (SelectedAnimation != null && CurrentFrame > 0 && entry != null)
+            if (SelectedAnimation != null && CurrentFrame >= 1 && entry != null)
             {
-                KeyframeArray a = entry.GetKeys(index);
-                KeyframeEntry e = a.GetKeyframe(CurrentFrame - 1);
-                if (e == null)
+                KeyframeArray array = entry.GetKeys(index);
+                KeyframeEntry kf = array.GetKeyframe(CurrentFrame - 1);
+                if (kf == null)
                 {
-                    box.Value = entry.GetKeys(index)[CurrentFrame - 1];
+                    box.Value = array[CurrentFrame - 1];
                     box.BackColor = Color.White;
                 }
                 else
                 {
-                    box.Value = e._value;
+                    box.Value = kf._value;
                     box.BackColor = Color.Yellow;
                 }
             }
@@ -1899,7 +1900,7 @@ namespace System.Windows.Forms
             NumericInputBox box = sender as NumericInputBox;
             int index = (int)box.Tag;
 
-            ISCN0KeyframeHolder entry = null;
+            ISCN0KeyframeSource entry = null;
             KeyframeEntry k = null;
             switch (tabIndex)
             {
@@ -1908,7 +1909,7 @@ namespace System.Windows.Forms
                 case 4: entry = _camera; break;
             }
 
-            if (SelectedAnimation != null && CurrentFrame > 0 && entry != null)
+            if (SelectedAnimation != null && CurrentFrame >= 1 && entry != null)
             {
                 if (float.IsNaN(box.Value))
                     k = entry.GetKeys(index).Remove(CurrentFrame - 1);
@@ -2040,34 +2041,37 @@ namespace System.Windows.Forms
             _mainWindow.KeyframePanel.TargetSequence = nodeList.SelectedItem as ResourceNode;
         }
 
-        public void GetDimensions()
+        public void GetDimensions(out int animEditorHeight, out int animCtrlPnlHeight, out int animCtrlPnlWidth)
         {
+            animEditorHeight = 0;
+            animCtrlPnlHeight = 0;
+            animCtrlPnlWidth = 0;
             switch (tabIndex)
             {
                 case 0:
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 70;
-                    _mainWindow.AnimCtrlPnl.Width = 626;
+                    animEditorHeight =
+                    animCtrlPnlHeight = 70;
+                    animCtrlPnlWidth = 626;
                     break;
                 case 1:
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 72;
-                    _mainWindow.AnimCtrlPnl.Width = 566;
+                    animEditorHeight =
+                    animCtrlPnlHeight = 72;
+                    animCtrlPnlWidth = 566;
                     break;
                 case 2:
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 128;
-                    _mainWindow.AnimCtrlPnl.Width = 634;
+                    animEditorHeight =
+                    animCtrlPnlHeight = 128;
+                    animCtrlPnlWidth = 634;
                     break;
                 case 3:
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 70;
-                    _mainWindow.AnimCtrlPnl.Width = 566;
+                    animEditorHeight =
+                    animCtrlPnlHeight = 70;
+                    animCtrlPnlWidth = 566;
                     break;
                 case 4:
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 120;
-                    _mainWindow.AnimCtrlPnl.Width = 660;
+                    animEditorHeight =
+                    animCtrlPnlHeight = 120;
+                    animCtrlPnlWidth = 660;
                     break;
             }
         }
@@ -2078,7 +2082,7 @@ namespace System.Windows.Forms
             tabIndex = e.TabPageIndex;
             nodeList.Items.Clear();
             _mainWindow.KeyframePanel.listKeyframes.Items.Clear();
-            switch (e.TabPageIndex)
+            switch (tabIndex)
             {
                 case 0:
                     nodeType.Text = "LightSet:";
@@ -2089,9 +2093,9 @@ namespace System.Windows.Forms
                             foreach (SCN0LightSetNode s in g.Children)
                                 nodeList.Items.Add(s);
                     }
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 70;
-                    _mainWindow.AnimCtrlPnl.Width = 626;
+                    //_mainWindow.AnimEditors.Height =
+                    //_mainWindow.AnimCtrlPnl.Height = 70;
+                    //_mainWindow.AnimCtrlPnl.Width = 626;
                     break;
                 case 1:
                     nodeType.Text = "AmbLight:";
@@ -2102,9 +2106,9 @@ namespace System.Windows.Forms
                             foreach (SCN0AmbientLightNode s in g.Children)
                                 nodeList.Items.Add(s);
                     }
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 72;
-                    _mainWindow.AnimCtrlPnl.Width = 566;
+                    //_mainWindow.AnimEditors.Height =
+                    //_mainWindow.AnimCtrlPnl.Height = 72;
+                    //_mainWindow.AnimCtrlPnl.Width = 566;
                     break;
                 case 2:
                     nodeType.Text = "Light:";
@@ -2115,9 +2119,9 @@ namespace System.Windows.Forms
                             foreach (SCN0LightNode s in g.Children)
                                 nodeList.Items.Add(s);
                     }
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 128;
-                    _mainWindow.AnimCtrlPnl.Width = 634;
+                    //_mainWindow.AnimEditors.Height =
+                    //_mainWindow.AnimCtrlPnl.Height = 128;
+                    //_mainWindow.AnimCtrlPnl.Width = 634;
                     break;
                 case 3:
                     nodeType.Text = "Fog:";
@@ -2128,9 +2132,9 @@ namespace System.Windows.Forms
                             foreach (SCN0FogNode s in g.Children)
                                 nodeList.Items.Add(s);
                     }
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 70;
-                    _mainWindow.AnimCtrlPnl.Width = 566;
+                    //_mainWindow.AnimEditors.Height =
+                    //_mainWindow.AnimCtrlPnl.Height = 70;
+                    //_mainWindow.AnimCtrlPnl.Width = 566;
                     break;
                 case 4:
                     nodeType.Text = "Camera:";
@@ -2141,9 +2145,9 @@ namespace System.Windows.Forms
                             foreach (SCN0CameraNode s in g.Children)
                                 nodeList.Items.Add(s);
                     }
-                    _mainWindow.AnimEditors.Height =
-                    _mainWindow.AnimCtrlPnl.Height = 120;
-                    _mainWindow.AnimCtrlPnl.Width = 660;
+                    //_mainWindow.AnimEditors.Height =
+                    //_mainWindow.AnimCtrlPnl.Height = 120;
+                    //_mainWindow.AnimCtrlPnl.Width = 660;
                     break;
             }
             if (nodeList.Items.Count > 0)
@@ -2151,6 +2155,7 @@ namespace System.Windows.Forms
             else
                 btnRename.Enabled = false;
 
+            _mainWindow.UpdateAnimationPanelDimensions();
             UpdatePropDisplay();
         }
 
@@ -2208,14 +2213,14 @@ namespace System.Windows.Forms
         private void button1_Click_1(object sender, EventArgs e)
         {
             //Get the position of the current camera
-            Vector3 pos = _mainWindow.ModelPanel._camera.GetPoint();
+            Vector3 pos = _mainWindow.ModelPanel.Camera.GetPoint();
             numPosX.Value = pos._x;
             BoxChanged(numPosX, null);
             numPosY.Value = pos._y;
             BoxChanged(numPosY, null);
             numPosZ.Value = pos._z;
             BoxChanged(numPosZ, null);
-            Vector3 rot = _mainWindow.ModelPanel._camera._rotation;
+            Vector3 rot = _mainWindow.ModelPanel.Camera._rotation;
             if (_camera.Type == SCN0CameraType.Rotate)
             {
                 //Easy
@@ -2230,7 +2235,7 @@ namespace System.Windows.Forms
             {
                 //TODO: calculate depth
 
-                Vector3 cam = _mainWindow.ModelPanel._camera.GetPoint();
+                Vector3 cam = _mainWindow.ModelPanel.Camera.GetPoint();
                 Vector3 point = _mainWindow.ModelPanel.UnProject(_mainWindow.ModelPanel.Width / 2, _mainWindow.ModelPanel.Height / 2, 100);
 
                 numAimX.Value = point._x;

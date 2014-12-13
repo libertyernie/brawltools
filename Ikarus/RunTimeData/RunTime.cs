@@ -366,7 +366,7 @@ namespace Ikarus.ModelViewer
                         a.SetFrame(frame);
 
             if (MainWindow._capture && _playing)
-                MainWindow.images.Add(MainWindow.ModelPanel.GrabScreenshot(false));
+                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(false));
         }
 
         private static void UpdateScripts(int index)

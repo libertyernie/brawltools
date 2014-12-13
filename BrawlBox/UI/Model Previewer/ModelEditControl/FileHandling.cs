@@ -17,10 +17,8 @@ using BrawlLib.Imaging;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
-        public ResourceNode _externalAnimationsNode;
-        private OpenFileDialog dlgOpen = new OpenFileDialog();
         private bool LoadExternal()
         {
             dlgOpen.Filter = "All Compatible Files (*.pac, *.pcs, *.brres, *.chr0, *.srt0, *.pat0, *.vis0, *.shp0, *.scn0, *.clr0, *.mrg)|*.pac;*.pcs;*.brres;*.chr0;*.srt0;*.pat0;*.vis0;*.shp0;*.scn0;*.clr0;*.mrg";
@@ -39,12 +37,9 @@ namespace System.Windows.Forms
                             MessageBox.Show(this, "No animations could be found in external file.", "Error");
                         else
                         {
-                            _externalAnimationsNode = node;
-                            node = null;
-                            //txtExtPath.Text = Path.GetFileName(dlgOpen.FileName);
-
+                            _animationSearchNodes.Add(_externalAnimationsNode = node);
                             ModelPanel.AddReference(_externalAnimationsNode);
-
+                            node = null;
                             return true;
                         }
                     }
@@ -72,6 +67,8 @@ namespace System.Windows.Forms
                         return false;
                 }
 
+                _animationSearchNodes.Remove(_externalAnimationsNode);
+
                 ModelPanel.RemoveReference(_externalAnimationsNode);
                 leftPanel._closing = true;
                 leftPanel.listAnims.Items.Clear();
@@ -84,7 +81,7 @@ namespace System.Windows.Forms
 
                 leftPanel.UpdateAnimations(TargetAnimType);
                 SetAnimation(TargetAnimType, null);
-                GetFiles(AnimType.None);
+                GetFiles(NW4RAnimType.None);
                 UpdatePropDisplay();
                 UpdateModel();
             }
@@ -132,27 +129,7 @@ namespace System.Windows.Forms
         }
         public void btnSave_Click(object sender, EventArgs e) { SaveExternal(false); }
         private void btnSaveAs_Click(object sender, EventArgs e) { SaveExternal(true); }
-        private void ModelEditControl_DragEnter(object sender, DragEventArgs e)
-        {
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effect = DragDropEffects.Copy;
-            else
-                e.Effect = DragDropEffects.None;
-        }
-
-        private void ModelEditControl_DragDrop(object sender, DragEventArgs e)
-        {
-            Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
-            if (a != null)
-            {
-                string s = null;
-                for (int i = 0; i < a.Length; i++)
-                {
-                    s = a.GetValue(i).ToString();
-                    this.BeginInvoke(m_DelegateOpenFile, new Object[] { s });
-                }
-            }
-        }
+        
         private void OpenFile(string file)
         {
             ResourceNode node = null;
@@ -174,18 +151,6 @@ namespace System.Windows.Forms
                 }
             }
             catch (Exception ex) { MessageBox.Show(this, ex.Message, "Error loading model(s) from file."); }
-        }
-
-        public void AppendTarget(IModel model)
-        {
-            if (!_targetModels.Contains(model))
-                _targetModels.Add(model);
-
-            if (!models.Items.Contains(model))
-                models.Items.Add(model);
-
-            ModelPanel.AddTarget(model);
-            model.ResetToBindState();
         }
 
         public void AppendTarget(CollisionNode collision)

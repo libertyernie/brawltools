@@ -39,16 +39,10 @@ namespace System.Windows.Forms
 
         public ListBox listBox1;
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public VIS0Editor() { InitializeComponent(); }
 
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int CurrentFrame
-        {
-            get { return _mainWindow.CurrentFrame; }
-            set { _mainWindow.CurrentFrame = value; }
-        }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IModel TargetModel
         {
@@ -97,7 +91,7 @@ namespace System.Windows.Forms
 
         public void EntryChanged()
         {
-            _mainWindow.ReadVIS0();
+            _mainWindow.ApplyVIS0ToInterface();
         }
     }
 }

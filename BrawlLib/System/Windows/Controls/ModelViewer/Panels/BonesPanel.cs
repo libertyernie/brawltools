@@ -284,7 +284,7 @@ namespace System.Windows.Forms
 
         public BonesPanel() { InitializeComponent(); }
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IModel TargetModel

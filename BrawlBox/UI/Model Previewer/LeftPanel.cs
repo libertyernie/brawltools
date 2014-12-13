@@ -537,23 +537,21 @@ namespace System.Windows.Forms
         }
 
         private ListViewGroup _AnimGroup = new ListViewGroup("Animations");
-        
         public bool _syncVis0 = false;
         public bool _syncPat0 = false;
-
         private bool _updating = false;
-
+        public string _lastSelected = null;
+        public SRT0Node _srt0Selection = null;
+        public PAT0Node _pat0Selection = null;
         private IObject _selectedObject;
+        private MDL0TextureNode _selectedTexture;
+
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IObject SelectedObject { get { return _selectedObject; } set { lstObjects.SelectedItem = value; } }
-
-        private MDL0TextureNode _selectedTexture;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0TextureNode SelectedTexture { get { return _selectedTexture; } set { lstTextures.SelectedItem = value; } }
-
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
-        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef
         {
@@ -565,7 +563,6 @@ namespace System.Windows.Forms
                     _mainWindow.KeyframePanel.TargetSequence = _mainWindow.SRT0Editor.TexEntry;
             }
         }
-
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int CurrentFrame
         {
@@ -614,15 +611,16 @@ namespace System.Windows.Forms
             get { return _mainWindow.SelectedVIS0; }
             set { _mainWindow.SelectedVIS0 = value; }
         }
-
-        public AnimType TargetAnimType
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public NW4RAnimType TargetAnimType
         {
-            get { return (AnimType)fileType.SelectedIndex; }
-            set { fileType.SelectedIndex = (int)value; }
+            get { return (NW4RAnimType)fileType.SelectedIndex; }
+            set
+            {
+                if (fileType.SelectedIndex != (int)value)
+                    fileType.SelectedIndex = (int)value;
+            }
         }
-
-        //Bone Name - Attached Polygon Indices
-        public Dictionary<string, List<int>> VIS0Indices = new Dictionary<string, List<int>>();
 
         public LeftPanel()
         {
@@ -630,7 +628,7 @@ namespace System.Windows.Forms
             listAnims.Groups.Add(_AnimGroup);
         }
 
-        public bool LoadAnims(ResourceNode node, AnimType type)
+        public bool LoadAnims(ResourceNode node, NW4RAnimType type)
         {
             if (!_mainWindow.chkBRRESAnims.Checked && 
                 TargetModel != null && 
@@ -658,23 +656,21 @@ namespace System.Windows.Forms
                 case ResourceType.MDef:
                     return false;
 
-                case ResourceType.CHR0: found = true; if (type == AnimType.CHR) goto Add; break;
-                case ResourceType.SRT0: found = true; if (type == AnimType.SRT) goto Add; break;
-                case ResourceType.SHP0: found = true; if (type == AnimType.SHP) goto Add; break;
-                case ResourceType.PAT0: found = true; if (type == AnimType.PAT) goto Add; break;
-                case ResourceType.VIS0: found = true; if (type == AnimType.VIS) goto Add; break;
-                case ResourceType.SCN0: found = true; if (type == AnimType.SCN) goto Add; break;
-                case ResourceType.CLR0: found = true; if (type == AnimType.CLR) goto Add; break;
+                case ResourceType.CHR0: found = true; if (type == NW4RAnimType.CHR) goto Add; break;
+                case ResourceType.SRT0: found = true; if (type == NW4RAnimType.SRT) goto Add; break;
+                case ResourceType.SHP0: found = true; if (type == NW4RAnimType.SHP) goto Add; break;
+                case ResourceType.PAT0: found = true; if (type == NW4RAnimType.PAT) goto Add; break;
+                case ResourceType.VIS0: found = true; if (type == NW4RAnimType.VIS) goto Add; break;
+                case ResourceType.SCN0: found = true; if (type == NW4RAnimType.SCN) goto Add; break;
+                case ResourceType.CLR0: found = true; if (type == NW4RAnimType.CLR) goto Add; break;
             }
             return found;
             Add: listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, _AnimGroup) { Tag = node });
             return found;
         }
 
-        public string _lastSelected = null;
-
         public void UpdateAnimations() { UpdateAnimations(TargetAnimType); }
-        public void UpdateAnimations(AnimType type)
+        public void UpdateAnimations(NW4RAnimType type)
         {
             _mainWindow.Updating = true;
 
@@ -708,13 +704,12 @@ namespace System.Windows.Forms
 
             if ((_mainWindow.GetAnimation(TargetAnimType) == null) && (listAnims.SelectedItems.Count == 0))
             {
-                _mainWindow.GetFiles(AnimType.None);
+                _mainWindow.GetFiles(NW4RAnimType.None);
                 _mainWindow.UpdateModel();
                 _mainWindow.ModelPanel.Invalidate();
             }
         }
 
-        public SRT0Node _srt0Selection = null;
         public void UpdateSRT0Selection(SRT0Node selection)
         {
             _srt0Selection = selection;
@@ -727,7 +722,7 @@ namespace System.Windows.Forms
                 overTexPnl.Invalidate();
             }
         }
-        public PAT0Node _pat0Selection = null;
+
         public void UpdatePAT0Selection(PAT0Node selection)
         {
             _pat0Selection = selection;
@@ -894,12 +889,11 @@ namespace System.Windows.Forms
                     TargetTexRef = _selectedTexture != null ? ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             }
 
-            _mainWindow.SelectedPolygonChanged(this, null);
+            _mainWindow.SelectedPolygonChanged();
             overObjPnl.Invalidate();
             overTexPnl.Invalidate();
         }
 
-        public bool _vis0Updating = false; 
         public bool _pat0Updating = false; 
         
         public int _polyIndex = -1;
@@ -917,38 +911,37 @@ namespace System.Windows.Forms
                 if (_syncVis0 && poly._bone != null)
                 {
                     bool temp = false;
-                    if (!_vis0Updating)
+                    if (!_mainWindow.VIS0Updating)
                     {
-                        _vis0Updating = true;
+                        _mainWindow.VIS0Updating = true;
                         temp = true;
                     }
 
-                    if (VIS0Indices.ContainsKey(poly._bone.Name))
-                        foreach (int i in VIS0Indices[poly._bone.Name])
+                    if (_mainWindow.VIS0Indices.ContainsKey(poly._bone.Name))
+                        foreach (int i in _mainWindow.VIS0Indices[poly._bone.Name])
                             if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
                                 lstObjects.SetItemChecked(i, poly._render);
 
                     if (temp)
                     {
-                        _vis0Updating = false;
+                        _mainWindow.VIS0Updating = false;
                         temp = false;
                     }
 
-                    if (!_vis0Updating)
+                    if (!_mainWindow.VIS0Updating)
                     {
                         _polyIndex = e.Index;
-                        _mainWindow.UpdateVis0(this, null);
+                        _mainWindow.UpdateVis0(e);
                     }
                 }
             }
 
             CollisionObject obj = lstObjects.Items[e.Index] as CollisionObject;
             if (obj != null)
-            {
                 obj._render = e.NewValue == CheckState.Checked;
-            }
 
-            if (!_updating) _mainWindow.ModelPanel.Invalidate();
+            if (!_updating)
+                _mainWindow.ModelPanel.Invalidate();
         }
         private void lstTextures_SelectedValueChanged(object sender, EventArgs e)
         {
@@ -1216,8 +1209,8 @@ namespace System.Windows.Forms
             }
             else
             {
-                _mainWindow.AnimChanged(AnimType.None);
-                _mainWindow.GetFiles(AnimType.None);
+                _mainWindow.AnimChanged(NW4RAnimType.None);
+                _mainWindow.GetFiles(NW4RAnimType.None);
             }
 
             _mainWindow.UpdatePropDisplay();
@@ -1231,7 +1224,7 @@ namespace System.Windows.Forms
         private void fileType_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdateAnimations(TargetAnimType);
-            _mainWindow.SetCurrentControl();
+            _mainWindow.TargetAnimType = TargetAnimType;
         }
 
         #region Animation Context Menu
@@ -1254,13 +1247,13 @@ namespace System.Windows.Forms
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
             }
             if (dlgSave.ShowDialog() == DialogResult.OK)
                 node.Export(dlgSave.FileName);
@@ -1274,13 +1267,13 @@ namespace System.Windows.Forms
 
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
             }
 
             if (dlgOpen.ShowDialog() == DialogResult.OK)
@@ -1318,13 +1311,13 @@ namespace System.Windows.Forms
             if ((r = _mainWindow.TargetAnimation) != null)
                 switch (TargetAnimType)
                 {
-                    case AnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
-                    case AnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
-                    case AnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
-                    case AnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
-                    case AnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
-                    case AnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
-                    case AnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
+                    case NW4RAnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
+                    case NW4RAnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
+                    case NW4RAnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
+                    case NW4RAnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
+                    case NW4RAnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
+                    case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
+                    case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
             UpdateAnimations(TargetAnimType);
             listAnims.Items[listAnims.Items.Count - 1].Selected = true;
@@ -1419,11 +1412,11 @@ namespace System.Windows.Forms
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _mainWindow.TargetAnimation.Remove();
-            _mainWindow.GetFiles(AnimType.None);
+            _mainWindow.GetFiles(NW4RAnimType.None);
             UpdateAnimations();
             _mainWindow.UpdatePropDisplay();
             _mainWindow.UpdateModel();
-            _mainWindow.AnimChanged(AnimType.None);
+            _mainWindow.AnimChanged(NW4RAnimType.None);
             _mainWindow.ModelPanel.Invalidate();
         }
 

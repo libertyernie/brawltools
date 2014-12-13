@@ -499,7 +499,7 @@ namespace System.Windows.Forms
         private Label lblScaleX;
         private NumericInputBox numScaleX;
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public event EventHandler CreateUndo;
 
@@ -557,7 +557,7 @@ namespace System.Windows.Forms
                 return;
 
             grpTransAll.Enabled = SelectedAnimation != null;
-            btnInsert.Enabled = btnDelete.Enabled = btnClear.Enabled = CurrentFrame != 0 && SelectedAnimation != null;
+            btnInsert.Enabled = btnDelete.Enabled = btnClear.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
             grpTransform.Enabled = TargetTexRef != null;
 
             for (int i = 0; i < 9; i++)
@@ -565,21 +565,20 @@ namespace System.Windows.Forms
 
             if (_mainWindow.InterpolationEditor != null && 
                 _mainWindow.InterpolationEditor.Visible && 
-                _mainWindow.TargetAnimType == AnimType.SRT && 
-                TargetTexRef != null && (SelectedAnimation != null) && 
-                (CurrentFrame > 0) && 
+                _mainWindow.TargetAnimType == NW4RAnimType.SRT && 
+                TargetTexRef != null && 
+                SelectedAnimation != null && 
+                CurrentFrame >= 1 && 
                 _mainWindow.InterpolationEditor._targetNode != TexEntry)
                     _mainWindow.InterpolationEditor.SetTarget(TexEntry);
         }
         public unsafe void ResetBox(int index)
         {
-            if (index == 2 || index == 4 || index == 5 || index == 8)
+            if (TargetTexRef == null || index == 2 || index == 4 || index == 5 || index == 8)
                 return;
 
             NumericInputBox box = _transBoxes[index];
-            
-            if (TargetTexRef != null)
-            if ((SelectedAnimation != null) && (CurrentFrame > 0) && TexEntry != null)
+            if (SelectedAnimation != null && CurrentFrame >= 1 && TexEntry != null)
             {
                 KeyframeEntry e = TexEntry.Keyframes.GetKeyframe((KeyFrameMode)index + 0x10, CurrentFrame - 1);
                 if (e == null)
@@ -623,7 +622,7 @@ namespace System.Windows.Forms
             if (index == 2 || index == 4 || index == 5 || index == 8)
                 return;
 
-            if ((SelectedAnimation != null) && (CurrentFrame > 0))
+            if ((SelectedAnimation != null) && (CurrentFrame >= 1))
             {
                 if (TexEntry == null)
                 {
@@ -678,7 +677,7 @@ namespace System.Windows.Forms
         {
             _copyAllState.Clear();
 
-            if (CurrentFrame == 0)
+            if (CurrentFrame < 1)
             {
                 if (TargetModel is MDL0Node)
                     foreach (MDL0MaterialNode mat in ((MDL0Node)TargetModel).MaterialList)
@@ -730,7 +729,7 @@ namespace System.Windows.Forms
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            if (CurrentFrame == 0)
+            if (CurrentFrame < 1)
                 return;
 
             foreach (SRT0EntryNode entry in SelectedAnimation.Children)
@@ -1038,19 +1037,19 @@ namespace System.Windows.Forms
 
         private void btnInsert_Click(object sender, EventArgs e)
         {
-            if ((SelectedAnimation == null) || (CurrentFrame == 0))
+            if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
-            SelectedAnimation.InsertKeyframe(CurrentFrame - 1);
+            SelectedAnimation.InsertKeyframe((int)CurrentFrame - 1);
             //_mainWindow.SRT0StateChanged(this, null);
         }
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if ((SelectedAnimation == null) || (CurrentFrame == 0))
+            if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
-            SelectedAnimation.DeleteKeyframe(CurrentFrame - 1);
+            SelectedAnimation.DeleteKeyframe((int)CurrentFrame - 1);
             //_mainWindow.SRT0StateChanged(this, null);
         }
 

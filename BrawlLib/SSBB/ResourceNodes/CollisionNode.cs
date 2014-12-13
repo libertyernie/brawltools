@@ -134,9 +134,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         #region IRenderedObject Members
-
-        public void Attach(TKContext ctx) { }
-        public void Detach() { }
+        private bool _attached = false;
+        public bool Attached { get { return _attached; } }
+        public void Attach() { _attached = true; }
+        public void Detach() { _attached = false; }
         public void Refesh() { }
         public void Render(params object[] args)
         {
@@ -173,17 +174,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return null;
 
             return new CollisionNode();
-        }
-
-
-        public bool Attached
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Attach()
-        {
-            throw new NotImplementedException();
         }
     }
 

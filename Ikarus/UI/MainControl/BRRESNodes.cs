@@ -20,25 +20,25 @@ namespace Ikarus.UI
 {
     public partial class MainControl : UserControl, IMainWindow
     {
-        public void GetFiles(AnimType focusType)
+        public void GetFiles(NW4RAnimType focusType)
         {
             _updating = true;
-            if (focusType == AnimType.None)
+            if (focusType == NW4RAnimType.None)
             {
                 focusType = TargetAnimType;
                 for (int i = 0; i < 6; i++)
                     if ((int)focusType != i)
-                        SetSelectedBRRESFile((AnimType)i, null);
+                        SetSelectedBRRESFile((NW4RAnimType)i, null);
             }
             else
             {
                 for (int i = 0; i < 6; i++)
                     if ((int)focusType != i)
-                        RetrieveAnimation(focusType, (AnimType)i);
+                        RetrieveAnimation(focusType, (NW4RAnimType)i);
             }
             _updating = false;
         }
-        public bool RetrieveAnimation(AnimType focusType, AnimType type)
+        public bool RetrieveAnimation(NW4RAnimType focusType, NW4RAnimType type)
         {
             AnimationNode f = GetAnimation(focusType);
             if (f == null)
@@ -49,7 +49,7 @@ namespace Ikarus.UI
             SetSelectedBRRESFile(type, RetrieveAnimation(f.Name, type));
             return GetAnimation(type) != null;
         }
-        public AnimationNode RetrieveAnimation(string name, AnimType type)
+        public AnimationNode RetrieveAnimation(string name, NW4RAnimType type)
         {
             if (listPanel._animations.ContainsKey(name) && listPanel._animations[name].ContainsKey(type))
                 return listPanel._animations[name][type];

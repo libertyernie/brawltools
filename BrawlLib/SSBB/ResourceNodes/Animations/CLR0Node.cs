@@ -484,11 +484,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _colors[index] = color;
             SignalPropertyChange();
         }
-        public bool GetClrConstant(int id)
+        public bool GetColorConstant(int id)
         {
             return Constant;
         }
-        public void SetClrConstant(int id, bool constant)
+        public void SetColorConstant(int id, bool constant)
         {
             Constant = constant;
         }

@@ -85,8 +85,8 @@ namespace BrawlLib.Wii.Compression
                     CompressionType algorithm = CompressionType.None;
 
                     FileMap map = null;
-                    UnsafeBuffer testBuffer = null;
-
+                    byte* temp = stackalloc byte[CompressBufferLen];
+                    
                     BinTag tag = *(BinTag*)source.Address;
                     int type = tag == YAZ0.Tag ? 0 : tag == YAY0.Tag ? 1 : 2;
                     switch (type)
@@ -100,10 +100,7 @@ namespace BrawlLib.Wii.Compression
                                 Expand((YAZ0*)source.Address, map.Address, map.Length);
                             }
                             else
-                            {
-                                testBuffer = new UnsafeBuffer(CompressBufferLen);
-                                Expand((YAZ0*)source.Address, testBuffer.Address, testBuffer.Length);
-                            }
+                                Expand((YAZ0*)source.Address, temp, CompressBufferLen);
                             break;
                         case 1:
                             algorithm = CompressionType.RunLengthYAY0;
@@ -114,10 +111,7 @@ namespace BrawlLib.Wii.Compression
                                 Expand((YAY0*)source.Address, map.Address, map.Length);
                             }
                             else
-                            {
-                                testBuffer = new UnsafeBuffer(CompressBufferLen);
-                                Expand((YAY0*)source.Address, testBuffer.Address, testBuffer.Length);
-                            }
+                                Expand((YAY0*)source.Address, temp, CompressBufferLen);
                             break;
                         case 2:
                             CompressionHeader* hdr = (CompressionHeader*)source.Address;
@@ -136,10 +130,7 @@ namespace BrawlLib.Wii.Compression
                                 Expand(hdr, map.Address, map.Length);
                             }
                             else
-                            {
-                                testBuffer = new UnsafeBuffer(CompressBufferLen);
-                                Expand(hdr, testBuffer.Address, testBuffer.Length);
-                            }
+                                Expand(hdr, temp, CompressBufferLen);
                             break;
                     }
 
@@ -153,19 +144,19 @@ namespace BrawlLib.Wii.Compression
                     }
                     else
                     {
-                        if ((n = NodeFactory.GetRaw(new DataSource(testBuffer.Address, testBuffer.Length))) != null)
+                        if ((n = NodeFactory.GetRaw(new DataSource(temp, CompressBufferLen))) != null)
                         {
                             map = FileMap.FromTempFile((int)len);
                             switch (type)
                             {
                                 case 0:
-                                    Compressor.Expand((YAZ0*)source.Address, map.Address, map.Length);
+                                    Expand((YAZ0*)source.Address, map.Address, map.Length);
                                     break;
                                 case 1:
-                                    Compressor.Expand((YAY0*)source.Address, map.Address, map.Length);
+                                    Expand((YAY0*)source.Address, map.Address, map.Length);
                                     break;
                                 case 2:
-                                    Compressor.Expand((CompressionHeader*)source.Address, map.Address, map.Length);
+                                    Expand((CompressionHeader*)source.Address, map.Address, map.Length);
                                     break;
                             }
                             n.Initialize(parent, source, new DataSource(map));

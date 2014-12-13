@@ -111,6 +111,28 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe struct NW4FCommonHeader
+    {
+        public const uint Size = 0x10;
+
+        public BinTag _tag;
+        public bushort _endian;
+        public bushort _firstOffset;
+        public bushort _numEntries;
+        public bushort _version;
+        public bint _length;
+        
+        public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+        public DataBlock DataBlock { get { return new DataBlock(Address, Size); } }
+
+        public byte VersionMajor { get { return ((byte*)_version.Address)[0]; } set { ((byte*)_version.Address)[0] = value; } }
+        public byte VersionMinor { get { return ((byte*)_version.Address)[1]; } set { ((byte*)_version.Address)[1] = value; } }
+        public Endian Endian { get { return (Endian)(short)_endian; } set { _endian = (ushort)value; } }
+
+        public DataBlockCollection Entries { get { return new DataBlockCollection(DataBlock); } }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ruint
     {
         public enum RefType

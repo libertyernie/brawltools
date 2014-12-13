@@ -2,6 +2,7 @@
 using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
 using System.Drawing;
+using BrawlLib.SSBB;
 
 namespace System.Windows.Forms
 {
@@ -130,9 +131,9 @@ namespace System.Windows.Forms
         public EventHandler EntryChanged;
         public EventHandler IndexChanged;
 
-        private IBoolArrayNode _targetNode;
+        private IBoolArraySource _targetNode;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IBoolArrayNode TargetNode
+        public IBoolArraySource TargetNode
         {
             get { return _targetNode; }
             set { _targetNode = value; TargetChanged(); }

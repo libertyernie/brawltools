@@ -1,6 +1,7 @@
 ﻿using BrawlLib.Imaging;
 using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
+using BrawlLib.SSBBTypes;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -9,27 +10,72 @@ using System.Text;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
-        private void VISEntryChanged(object sender, EventArgs e)
+        public override void UpdatePropDisplay()
         {
-            UpdateModel();
+            if (vertexEditor.Visible)
+            {
+                vertexEditor.UpdatePropDisplay();
+                return;
+            }
+            base.UpdatePropDisplay();
         }
 
-        private void VISIndexChanged(object sender, EventArgs e)
+        public override void AppendTarget(IModel model)
         {
-            int i = KeyframePanel.visEditor.listBox1.SelectedIndex;
-            if (i >= 0 && i <= MaxFrame && i != CurrentFrame - 1)
-                SetFrame(i + 1);
+            if (!_targetModels.Contains(model))
+                _targetModels.Add(model);
+
+            if (!models.Items.Contains(model))
+                models.Items.Add(model);
+
+            ModelPanel.AddTarget(model);
+            model.ResetToBindState();
         }
 
         private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ModelPanel.BeginUpdate();
-            if (cboToolSelect.SelectedIndex == 0) { translationToolStripMenuItem.PerformClick(); }
-            else if (cboToolSelect.SelectedIndex == 1) { rotationToolStripMenuItem.PerformClick(); }
-            else if (cboToolSelect.SelectedIndex == 2) { scaleToolStripMenuItem.PerformClick(); }
-            ModelPanel.EndUpdate();
+            _updating = true;
+            switch (ControlType)
+            {
+                case TransformType.None:
+                    rotationToolStripMenuItem.Checked = 
+                    translationToolStripMenuItem.Checked = 
+                    scaleToolStripMenuItem.Checked = false;
+                    break;
+                case TransformType.Scale:
+                    rotationToolStripMenuItem.Checked = 
+                    translationToolStripMenuItem.Checked = false;
+                    scaleToolStripMenuItem.Checked = true;
+                    break;
+                case TransformType.Rotation:
+                    translationToolStripMenuItem.Checked = 
+                    scaleToolStripMenuItem.Checked = false;
+                    rotationToolStripMenuItem.Checked = true;
+                    break;
+                case TransformType.Translation:
+                    rotationToolStripMenuItem.Checked =
+                    scaleToolStripMenuItem.Checked = false;
+                    translationToolStripMenuItem.Checked = true;
+                    break;
+            }
+            _updating = false;
+
+            _snapCirc = _snapX = _snapY = _snapZ = false;
+            ModelPanel.Invalidate();
+        }
+
+        protected override void OnModelChanged()
+        {
+            _updating = true;
+            if (_targetModel != null && !EditingAll && TargetCollision == null)
+                models.SelectedItem = _targetModel;
+
+            leftPanel.Reset();
+            rightPanel.Reset();
+
+            _updating = false;
         }
 
         private void models_SelectedIndexChanged(object sender, EventArgs e)
@@ -37,36 +83,18 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
 
-            _resetCamera = false;
+            EditingAll = models.SelectedIndex == 0;
 
-            TargetCollision = null;
-            if ((models.SelectedItem is MDL0Node) && models.SelectedItem.ToString() != "All")
-                TargetModel = (MDL0Node)models.SelectedItem;
-            else if (models.SelectedItem is CollisionNode)
-                TargetCollision = (CollisionNode)models.SelectedItem;
-            else
-                TargetModel = _targetModels != null && _targetModels.Count > 0 ? _targetModels[0] : null;
-
+            //Leave the target model and collision alone if just switching to edit all
+            if (!EditingAll)
+            {
+                _resetCamera = false;
+                TargetModel = models.SelectedItem is IModel ? (IModel)models.SelectedItem : null;
+                TargetCollision = models.SelectedItem is CollisionNode ? (CollisionNode)models.SelectedItem : null;
+            }
             _undoSaves.Clear();
             _redoSaves.Clear();
             _saveIndex = -1;
-        }
-
-        private void _interpolationForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            _interpolationForm = null;
-            interpolationEditorToolStripMenuItem.Checked = false;
-        }
-
-        private void pnlPlayback_Resize(object sender, EventArgs e)
-        {
-            if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
-            {
-                pnlPlayback.Dock = DockStyle.Left;
-                pnlPlayback.Width = pnlPlayback.MinimumSize.Width;
-            }
-            else
-                pnlPlayback.Dock = DockStyle.Fill;
         }
 
         bool addedHeight = false;
@@ -124,11 +152,7 @@ namespace System.Windows.Forms
                 if (!CloseExternal())
                     return false;
 
-                BrawlBox.Properties.Settings.Default.ViewerSettings = CollectSettings();
-                BrawlBox.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
-                BrawlBox.Properties.Settings.Default.LiveTextureFolderPath = LiveTextureFolderPath.Text;
-                BrawlBox.Properties.Settings.Default.ViewerSettingsSet = true;
-                BrawlBox.Properties.Settings.Default.Save();
+                SaveSettings();
 
                 StopAnim();
 
@@ -144,48 +168,321 @@ namespace System.Windows.Forms
             catch { }
             return true;
         }
-        private void ModelChanged(IModel model)
+
+        protected override void OnSelectedBoneChanged()
         {
-            if (model != null && !_targetModels.Contains(model))
-                _targetModels.Add(model);
+            //weightEditor.BoneChanged();
+            chkZoomExtents.Enabled = AllowZoomExtents;
+        }
+        public override void UpdateUndoButtons()
+        {
+            btnUndo.Enabled = CanUndo;
+            btnRedo.Enabled = CanRedo;
+        }
+        protected override void OnSelectedVerticesChanged()
+        {
+            base.OnSelectedVerticesChanged();
 
-            if (model == null)
-                ModelPanel.RemoveTarget(_targetModel);
-
-            if ((_targetModel = model) != null)
-            {
-                ModelPanel.AddTarget(_targetModel);
-
-                if (_targetModel is MDL0Node)
-                    leftPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
-                else
-                    leftPanel.VIS0Indices = new Dictionary<string, List<int>>();
-
-                ResetVertexColors();
-            }
-            else
-                models.SelectedIndex = 0;
-
-            if (_resetCamera)
-            {
-                ModelPanel.ResetCamera();
-                SetFrame(0);
-            }
-            else
-                _resetCamera = true;
-
-            leftPanel.Reset();
-            rightPanel.Reset();
-
-            if (TargetModelChanged != null)
-                TargetModelChanged(this, null);
-
-            _updating = true;
-            if (_targetModel != null && !EditingAll && TargetCollision == null)
-                models.SelectedItem = _targetModel;
-            _updating = false;
+            //weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor._targetVertices = _selectedVertices;
         }
 
+        public override void UpdateAnimationPanelDimensions()
+        {
+            if (_currentControl is SCN0Editor)
+            {
+                int x, y, z;
+                scn0Editor.GetDimensions(out x, out y, out z);
+                animEditors.Height = x;
+                animCtrlPnl.Height = y;
+                animCtrlPnl.Width = z;
+            }
+        }
+
+        public void SetCurrentControl()
+        {
+            Control newControl = null;
+            syncTexObjToolStripMenuItem.Checked = (TargetAnimType == NW4RAnimType.SRT || TargetAnimType == NW4RAnimType.PAT);
+            switch (TargetAnimType)
+            {
+                case NW4RAnimType.CHR: newControl = chr0Editor; break;
+                case NW4RAnimType.SHP: newControl = shp0Editor; break;
+                case NW4RAnimType.VIS: newControl = vis0Editor; break;
+                case NW4RAnimType.SCN: newControl = scn0Editor; break;
+                case NW4RAnimType.CLR: newControl = clr0Editor; break;
+                case NW4RAnimType.SRT: newControl = srt0Editor; break;
+                case NW4RAnimType.PAT: newControl = pat0Editor; break;
+            }
+            if (_currentControl != newControl)
+            {
+                if (_currentControl != null)
+                    _currentControl.Visible = false;
+                _currentControl = newControl;
+
+                if (!(_currentControl is SRT0Editor) && !(_currentControl is PAT0Editor))
+                    syncTexObjToolStripMenuItem.Checked = false;
+
+                if (_currentControl != null)
+                {
+                    _currentControl.Visible = true;
+                    if (_currentControl is CHR0Editor)
+                    {
+                        animEditors.Height = 78;
+                        animCtrlPnl.Width = 582;
+                    }
+                    else if (_currentControl is SRT0Editor)
+                    {
+                        animEditors.Height = 78;
+                        animCtrlPnl.Width = 483;
+                    }
+                    else if (_currentControl is SHP0Editor)
+                    {
+                        animEditors.Height = 106;
+                        animCtrlPnl.Width = 533;
+                    }
+                    else if (_currentControl is PAT0Editor)
+                    {
+                        animEditors.Height = 78;
+                        animCtrlPnl.Width = 402;
+                    }
+                    else if (_currentControl is VIS0Editor)
+                    {
+                        animEditors.Height = 62;
+                        animCtrlPnl.Width = 210;
+                    }
+                    else if (_currentControl is CLR0Editor)
+                    {
+                        animEditors.Height = 62;
+                        animCtrlPnl.Width = 168;
+                    }
+                    else if (_currentControl is SCN0Editor)
+                    {
+                        int x, y, z;
+                        scn0Editor.GetDimensions(out x, out y, out z);
+                        animEditors.Height = x;
+                        animCtrlPnl.Height = y;
+                        animCtrlPnl.Width = z;
+                    }
+                    else
+                        animEditors.Height = animCtrlPnl.Width = 0;
+                }
+                else animEditors.Height = animCtrlPnl.Width = 0;
+                return;
+            }
+            CheckDimensions();
+            UpdatePropDisplay();
+        }
+
+        protected override void UpdateSRT0FocusControls(SRT0Node node) { leftPanel.UpdateSRT0Selection(node); }
+        protected override void UpdatePAT0FocusControls(PAT0Node node) { leftPanel.UpdatePAT0Selection(node); }
+
+        protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (e.Button == Forms.MouseButtons.Left)
+            {
+                ModelPanel.AllowSelection = true;
+
+                if (_rotating || _translating || _scaling)
+                    if (VertexLoc() == null)
+                    {
+                        BoneChange(SelectedBone);
+                        if (chkSnapToColl.Checked)
+                            SnapYIfClose();
+                    }
+                    else
+                        VertexChange(_selectedVertices);
+
+                _snapX = _snapY = _snapZ = _snapCirc = false;
+                _rotating = _translating = _scaling = false;
+
+                //if (weightEditor.TargetVertices != _selectedVertices)
+                //    weightEditor.TargetVertices = _selectedVertices;
+                if (vertexEditor.TargetVertices != _selectedVertices)
+                    vertexEditor.TargetVertices = _selectedVertices;
+            }
+        }
+
+        public override void ApplyVIS0ToInterface()
+        {
+            if (_animFrame == 0 || leftPanel.lstObjects.Items.Count == 0)
+                return;
+
+            VIS0Updating = true;
+            if (_vis0 != null)
+            {
+                //if (TargetAnimation != null && _vis0.FrameCount != TargetAnimation.tFrameCount)
+                //    UpdateVis0(null, null);
+
+                foreach (string n in VIS0Indices.Keys)
+                {
+                    VIS0EntryNode node = null;
+                    List<int> indices = VIS0Indices[n];
+                    for (int i = 0; i < indices.Count; i++)
+                    {
+                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)leftPanel.lstObjects.Items[indices[i]])._bone.Name, true)) != null)
+                        {
+                            if (node._entryCount != 0 && _animFrame > 0)
+                                leftPanel.lstObjects.SetItemChecked(indices[i], node.GetEntry((int)_animFrame - 1));
+                            else
+                                leftPanel.lstObjects.SetItemChecked(indices[i], node._flags.HasFlag(VIS0Flags.Enabled));
+                        }
+                    }
+                }
+            }
+            VIS0Updating = false;
+        }
+
+        #region Hotkeys
+        private bool HotkeySelectAllVertices()
+        {
+            if (!ModelPanel.Focused)
+                return false;
+
+            ResetVertexColors();
+            if (_targetModels != null)
+                foreach (IModel mdl in _targetModels)
+                    if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
+                        foreach (Vertex3 v in ((IObject)mdl.Objects[mdl.SelectedObjectIndex]).PrimitiveManager._vertices)
+                        {
+                            _selectedVertices.Add(v);
+                            v._selected = true;
+                            v._highlightColor = Color.Orange;
+                        }
+                    else
+                        foreach (IObject o in mdl.Objects)
+                            foreach (Vertex3 v in o.PrimitiveManager._vertices)
+                            {
+                                _selectedVertices.Add(v);
+                                v._selected = true;
+                                v._highlightColor = Color.Orange;
+                            }
+
+            OnSelectedVerticesChanged();
+            ModelPanel.Invalidate();
+
+            return true;
+        }
+        private bool HotkeyToggleLeftPanel()
+        {
+            if (ModelPanel.Focused)
+            {
+                btnLeftToggle_Click(this, EventArgs.Empty);
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyToggleTopPanel()
+        {
+            if (ModelPanel.Focused)
+            {
+                btnTopToggle_Click(this, EventArgs.Empty);
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyToggleRightPanel()
+        {
+            if (ModelPanel.Focused)
+            {
+                btnRightToggle_Click(this, EventArgs.Empty);
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyToggleBottomPanel()
+        {
+            if (ModelPanel.Focused)
+            {
+                btnBottomToggle_Click(this, EventArgs.Empty);
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyToggleAllPanels()
+        {
+            if (ModelPanel.Focused)
+            {
+                if (leftPanel.Visible || rightPanel.Visible || animEditors.Visible || controlPanel.Visible)
+                    showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = false;
+                else
+                    showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = true;
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyScaleTool()
+        {
+            if (ModelPanel.Focused)
+            {
+                ControlType = TransformType.Scale;
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyRotateTool()
+        {
+            if (ModelPanel.Focused)
+            {
+                ControlType = TransformType.Rotation;
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyTranslateTool()
+        {
+            if (ModelPanel.Focused)
+            {
+                ControlType = TransformType.Translation;
+                return true;
+            }
+            return false;
+        }
+
+        private bool HotkeyWeightEditor()
+        {
+            if (ModelPanel.Focused)
+            {
+                ToggleWeightEditor();
+                return true;
+            }
+            return false;
+        }
+        private bool HotkeyVertexEditor()
+        {
+            if (ModelPanel.Focused)
+            {
+                ToggleVertexEditor();
+                return true;
+            }
+            return false;
+        }
+
+        public override void InitHotkeyList()
+        {
+            base.InitHotkeyList();
+
+            List<HotKeyInfo> temp = new List<HotKeyInfo>()
+            {
+                new HotKeyInfo(Keys.A, true, false, false, HotkeySelectAllVertices),
+                new HotKeyInfo(Keys.A, false, false, false, HotkeyToggleLeftPanel),
+                new HotKeyInfo(Keys.D, false, false, false, HotkeyToggleRightPanel),
+                new HotKeyInfo(Keys.W, false, false, false, HotkeyToggleTopPanel),
+                new HotKeyInfo(Keys.S, false, false, false, HotkeyToggleBottomPanel),
+                new HotKeyInfo(Keys.D, true, true, false, HotkeyToggleAllPanels),
+                new HotKeyInfo(Keys.E, false, false, false, HotkeyScaleTool),
+                new HotKeyInfo(Keys.R, false, false, false, HotkeyRotateTool),
+                new HotKeyInfo(Keys.T, false, false, false, HotkeyTranslateTool),
+                new HotKeyInfo(Keys.J, false, false, false, HotkeyVertexEditor),
+
+                //Weight editor has been disabled due to the necessity
+                //of re-encoding objects after making influence changes.
+                //new HotKeyInfo(Keys.H, false, false, false, HotkeyWeightEditor),
+            };
+            _hotkeyList.AddRange(temp);
+        }
+        #endregion
+
+        #region Collisions
         private bool PointCollides(Vector3 point) {
             float f;
             return PointCollides(point, out f);
@@ -222,8 +519,17 @@ namespace System.Windows.Forms
                 ApplyTranslation(1, f - chr0Editor._transBoxes[7].Value);
             }
         }
+        #endregion
 
         #region Settings
+        public override void SaveSettings()
+        {
+            BrawlBox.Properties.Settings.Default.ViewerSettings = CollectSettings();
+            BrawlBox.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
+            BrawlBox.Properties.Settings.Default.LiveTextureFolderPath = LiveTextureFolderPath.Text;
+            BrawlBox.Properties.Settings.Default.ViewerSettingsSet = true;
+            BrawlBox.Properties.Settings.Default.Save();
+        }
         public BrawlBoxViewerSettings CollectSettings()
         {
             BrawlBoxViewerSettings settings = new BrawlBoxViewerSettings();
@@ -296,7 +602,7 @@ namespace System.Windows.Forms
 
             return settings;
         }
-        public void SetDefaultSettings() { DistributeSettings(BrawlBoxViewerSettings.Default); }
+        public override void SetDefaultSettings() { DistributeSettings(BrawlBoxViewerSettings.Default); }
         public void DistributeSettings(BrawlBoxViewerSettings settings)
         {
             _updating = true;

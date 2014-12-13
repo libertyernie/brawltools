@@ -731,7 +731,7 @@ namespace System.Windows.Forms
             this._modelPanel.InitialZoomFactor = 5;
             this._modelPanel.Location = new System.Drawing.Point(0, 25);
             this._modelPanel.Name = "_modelPanel";
-            this._modelPanel.RotationScale = 0.1F;
+            this._modelPanel.RotationScale = 0.4F;
             this._modelPanel.Size = new System.Drawing.Size(481, 442);
             this._modelPanel.TabIndex = 0;
             this._modelPanel.TranslationScale = 0.05F;

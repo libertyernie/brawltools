@@ -93,6 +93,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 int newVersion = value.Clamp(8, 11);
                 if (_version != newVersion)
                 {
+                    //TODO: fix conversion! v10 and v11 need better support
+                    //Also, warn user if any information might be lost when converting down to v8 or v9
+
                     //Version 10 and 11 objects are slighly different from 8 and 9
                     if (((_version > 9 && newVersion <= 9) ||
                         (_version <= 9 && newVersion > 9)) &&
@@ -975,7 +978,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         private bool _attached = false;
 
         SHP0Node _currentSHP = null;
-        int _currentSHPIndex = 0;
+        float _currentSHPIndex = 0;
 
         public Dictionary<string, List<int>> VIS0Indices;
 
@@ -1092,6 +1095,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 attrib = _renderAttribs;
 
+#if DEBUG
+            attrib._applyBillboardBones = true;
+#endif
+
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
@@ -1100,6 +1107,21 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.PushMatrix();
                 Matrix m = _matrixOffset;
                 GL.MultMatrix((float*)&m);
+            }
+
+            //Apply billboard bones before rendering meshes
+            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
+            {
+                List<IMatrixNodeUser> affected = new List<IMatrixNodeUser>();
+                foreach (MDL0BoneNode b in _billboardBones)
+                    b.RecalcFrameState();
+                foreach (Influence inf in _influences._influences)
+                    inf.CalcMatrix();
+                if (_objList != null)
+                    foreach (MDL0ObjectNode o in _objList)
+                        o.WeightVertices();
+
+                ApplySHP(_currentSHP, _currentSHPIndex);
             }
 
             if (attrib._renderPolygons || attrib._renderWireframe)
@@ -1163,22 +1185,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_boneList != null)
                     foreach (MDL0BoneNode bone in _boneList)
                         bone.Render();
-            }
-
-            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
-            {
-                List<IMatrixNodeUser> affected = new List<IMatrixNodeUser>();
-                foreach (MDL0BoneNode b in _billboardBones)
-                    b.RecalcFrameState();
-
-                foreach (Influence inf in _influences._influences)
-                    inf.CalcMatrix();
-
-                if (_objList != null)
-                    foreach (MDL0ObjectNode o in _objList)
-                        o.WeightVertices();
-
-                ApplySHP(_currentSHP, _currentSHPIndex);
             }
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
@@ -1269,7 +1275,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.End();
         }
 
-        public void ApplyCHR(CHR0Node node, int index)
+        public void ApplyCHR(CHR0Node node, float index)
         {
             //Transform bones
             if (_boneList != null)
@@ -1290,7 +1296,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     poly.WeightVertices();
         }
 
-        public void ApplySRT(SRT0Node node, int index)
+        public void ApplySRT(SRT0Node node, float index)
         {
             //Transform textures
             if (_matList != null)
@@ -1298,7 +1304,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     m.ApplySRT0(node, index, SRT0TextureNode._linear);
         }
 
-        public void ApplyCLR(CLR0Node node, int index)
+        public void ApplyCLR(CLR0Node node, float index)
         {
             //Apply color changes
             if (_matList != null)
@@ -1306,7 +1312,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     m.ApplyCLR0(node, index);
         }
 
-        public void ApplyPAT(PAT0Node node, int index)
+        public void ApplyPAT(PAT0Node node, float index)
         {
             //Change textures
             if (_matList != null)
@@ -1314,9 +1320,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     m.ApplyPAT0(node, index);
         }
 
-        public void ApplyVIS(VIS0Node node, int index)
+        public void ApplyVIS(VIS0Node node, float index)
         {
-            if (node == null || index <= 0)
+            if (node == null || index < 1)
             {
                 if (_objList != null)
                     foreach (MDL0ObjectNode o in _objList)
@@ -1332,8 +1338,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     List<int> indices = VIS0Indices[n];
                     for (int i = 0; i < indices.Count; i++)
                         if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
-                            if (entry._entryCount != 0 && index != 0)
-                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry(index - 1);
+                            if (entry._entryCount != 0 && index >= 1)
+                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry((int)index - 1);
                             else
                                 ((MDL0ObjectNode)_objList[indices[i]])._render = entry._flags.HasFlag(VIS0Flags.Enabled);
                 }
@@ -1345,7 +1351,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (MDL0MaterialNode mat in _matList)
                     mat.SetSCN0(node);
         }
-        public void SetSCN0Frame(int index)
+        public void SetSCN0Frame(float index)
         {
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
@@ -1354,7 +1360,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //This only modifies vertices after ApplyCHR0 has weighted them.
         //It cannot be used without calling ApplyCHR0 first.
-        public void ApplySHP(SHP0Node node, int index)
+        //TODO: Find a more efficient way to store this data
+        public void ApplySHP(SHP0Node node, float index)
         {
             _currentSHP = node;
             _currentSHPIndex = index;
@@ -1368,7 +1375,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (MDL0ObjectNode poly in _objList)
                     if ((n = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null)
                     {
-                        //Max amount of morphs allowed is 32
+                        //Max amount of morphs allowed is technically 32
                         float[] weights = new float[n.Children.Count];
                         MDL0VertexNode[] nodes = new MDL0VertexNode[n.Children.Count];
 

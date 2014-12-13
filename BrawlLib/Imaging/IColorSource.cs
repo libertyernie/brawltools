@@ -14,7 +14,7 @@ namespace BrawlLib.Imaging
         ARGBPixel GetColor(int index, int id);
         void SetColor(int index, int id, ARGBPixel color);
         
-        bool GetClrConstant(int id);
-        void SetClrConstant(int id, bool constant);
+        bool GetColorConstant(int id);
+        void SetColorConstant(int id, bool constant);
     }
 }

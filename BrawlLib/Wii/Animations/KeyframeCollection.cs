@@ -43,6 +43,7 @@ namespace BrawlLib.Wii.Animations
         void RemoveKeyframeOnlyRot(int index);
         void RemoveKeyframeOnlyScale(int index);
         AnimationFrame GetAnimFrame(int index);
+        AnimationFrame GetAnimFrame(int index, bool linear);
         int FrameCount { get; }
         KeyframeCollection Keyframes { get; }
     }
@@ -171,11 +172,11 @@ namespace BrawlLib.Wii.Animations
                 return entry;
             return null;
         }
-        public float GetFrameValue(KeyFrameMode mode, int index)
+        public float GetFrameValue(KeyFrameMode mode, float index)
         {
             return GetFrameValue(mode, index, false, false);
         }
-        public float GetFrameValue(KeyFrameMode mode, int index, bool linear, bool loop)
+        public float GetFrameValue(KeyFrameMode mode, float index, bool linear, bool loop)
         {
             if (linear || _linearRot)
             {
@@ -330,23 +331,23 @@ namespace BrawlLib.Wii.Animations
             _prev._next = _next;
         }
 
-        public float Interpolate2(float offset, bool linear, int frameCount)
-        {
-            if (offset == 0) return _value;
-            int span = frameCount - _index + _next._index;
-            if (offset == span) return _next._value;
+        //public float Interpolate2(float offset, bool linear, int frameCount)
+        //{
+        //    if (offset == 0) return _value;
+        //    int span = frameCount - _index + _next._index;
+        //    if (offset == span) return _next._value;
 
-            float diff = _next._value - _value;
+        //    float diff = _next._value - _value;
 
-            if (linear) return _value + (diff / span * offset);
+        //    if (linear) return _value + (diff / span * offset);
 
-            float time = (float)offset / span;
-            float inv = time - 1.0f;
+        //    float time = (float)offset / span;
+        //    float inv = time - 1.0f;
 
-            return _value
-                + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
-                + ((time * time) * (3.0f - 2.0f * time) * diff);
-        }
+        //    return _value
+        //        + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
+        //        + ((time * time) * (3.0f - 2.0f * time) * diff);
+        //}
 
         //Note: this func is used for visual animation ipo and ipo editor
         public float Interpolate(float offset, bool linear)
@@ -391,70 +392,6 @@ namespace BrawlLib.Wii.Animations
             return _value
                 + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
                 + ((time * time) * (3.0f - 2.0f * time) * diff);
-        }
-
-        // Arguments:    p1: Value at point 1.
-        //               t1: Slope at point 1.
-        //               p2: Value at point 2.
-        //               t2: Slope at point 2.
-        //               s:  Interpolation target position. (Point 1: 0.0~1.0 :Point 2)
-        float Hermite(float p1, float t1,
-                    float p2, float t2,
-                    float s)
-        {
-            float SS = s * s;
-            float SSmS = s * s - s;
-            float b1 = SSmS * s - SSmS;
-            float b2 = SSmS * s;
-            float a2 = SS - 2.0f * b2;
-            //    f32 a1 = 1.f - a2;
-
-            return p1 - a2 * p1 + a2 * p2 + b1 * t1 + b2 * t2;
-        }
-
-        // Arguments:    p1: Value at point 1.
-        //               p2: Control value at point 1.
-        //               p3: Control value at point 2.
-        //               p4: Value at point 2.
-        //               s:  Interpolation target position. (Point 1: 0.0~1.0 :Point 2)
-        float Bezier(float p1, float p2, float p3, float p4, float s)
-        {
-            float t = 1.0f - s;
-            float tt = t * t;
-            float ss = s * s;
-
-            float a1 = tt * t;
-            float a2 = tt * s * 3.0f;
-            float a3 = ss * t * 3.0f;
-            float a4 = ss * s;
-
-            return a1 * p1 + a2 * p2 + a3 * p3 + a4 * p4;
-        }
-
-        // Arguments:   p0: Control value at point 1.
-        //              p1: Value at point 1.
-        //              p2: Value at point 2.
-        //              p3: Control value at point 2.
-        //              s:  Interpolation target position. (Point 1: 0.0~1.0 :Point 2)
-        public float CatmullRom(float p0, float p1, float p2, float p3, float s)
-        {
-            return Hermite(p1, 0.5f * (p0 + p2),
-                           p2, 0.5f * (p1 + p3),
-                           s);
-        }
-
-        public float Hermite(float t)
-        {
-            float h1 = (float)(2 * (t * t * t) - 3 * (t * t) + 1);
-            float h2 = (float)(-2 * (t * t * t) + 3 * (t * t));
-            float h3 = (float)((t * t * t) - 2 * (t * t) + t);
-            float h4 = (float)((t * t * t) - (t * t));
-
-            return
-                h1 * _value +
-                h2 * _next._value +
-                h3 * _tangent +
-                h4 * _next._tangent;
         }
 
         public float GenerateTangent()
@@ -514,11 +451,10 @@ namespace BrawlLib.Wii.Animations
                     _keyRoot._prev.Remove();
                     _keyCount--;
                 }
-
             }
         }
         
-        internal bool _linear;
+        private bool _linear;
         public bool LinearInterpolation { get { return _linear; } set { _linear = value; } }
 
         public float this[int index]
@@ -579,11 +515,11 @@ namespace BrawlLib.Wii.Animations
             return null;
         }
 
-        public float GetFrameValue(int index)
+        public float GetFrameValue(float index)
         {
             return GetFrameValue(index, false);
         }
-        public float GetFrameValue(int index, bool linear)
+        public float GetFrameValue(float index, bool forceLinear)
         {
             KeyframeEntry entry;
 
@@ -601,7 +537,7 @@ namespace BrawlLib.Wii.Animations
                     return entry._value; //Return the value of the keyframe.
 
             //There was no keyframe... interpolate!
-            return entry._prev.Interpolate(index - entry._prev._index, _linear || linear);
+            return entry._prev.Interpolate(index - entry._prev._index, _linear || forceLinear);
         }
 
         public KeyframeEntry SetFrameValue(int index, float value)

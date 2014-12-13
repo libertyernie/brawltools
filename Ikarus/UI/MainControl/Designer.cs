@@ -1577,7 +1577,7 @@ namespace Ikarus.UI
 
             Application.AddMessageFilter(RunTime.ButtonManager._keyFilter);
 
-            TargetAnimType = AnimType.CHR;
+            TargetAnimType = NW4RAnimType.CHR;
             if (listPanel.SubActionsList.Items.Count > 0)
                 listPanel.SubActionsList_SelectedIndexChanged_1(this, null);
         }

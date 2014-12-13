@@ -51,12 +51,12 @@ namespace BrawlLib.SSBBTypes
 
     public unsafe struct REFTypeObjectTable
     {
-        //Table size is aligned to 4 bytes
+        //REFF table size is aligned to 4 bytes; REFT aligns to 0x20
         //All entry offsets are relative to this offset
 
         public bint _length;
-        public bshort _entries;
-        public bshort _unk1;
+        public bushort _entries;
+        public bushort _pad;
 
         public VoidPtr Address { get { fixed (void* p = &this)return p; } }
 
@@ -72,19 +72,8 @@ namespace BrawlLib.SSBBTypes
             get { return new String((sbyte*)Address + 2); }
             set
             {
-                int len = value.Length + 1;
-                _strLen = (short)len;//.Align(4);
-
-                byte* dPtr = (byte*)Address + 2;
-                fixed (char* sPtr = value)
-                {
-                    for (int i = 0; i < len; i++)
-                        *dPtr++ = (byte)sPtr[i];
-                }
-
-                //Align to 4 bytes
-                //while ((len++ & 3) != 0)
-                //    *dPtr++ = 0;
+                _strLen = (short)(value.Length + 1);
+                value.Write((sbyte*)Address + 2);
             }
         }
 

@@ -462,12 +462,12 @@ namespace BrawlLib.SSBBTypes
     public enum BillboardFlags : uint
     {
         Off = 0,
-        STD,
-        PerspectiveSTD,
+        Standard,
+        StandardPerspective,
         Rotation,
-        PerspectiveRotation,
+        RotationPerspective,
         Y,
-        PerspectiveY,
+        YPerspective,
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
