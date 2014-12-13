@@ -80,8 +80,10 @@ namespace System.Windows.Forms
         private Panel panel3;
         private Button btnPrevFrame;
         private Button btnNextFrame;
-        private ToolStripButton btnHelp;
-		private ToolStripButton toolStripButton1;
+		private ToolStripButton btnHelp;
+		private ToolStripButton btnTranslateAll;
+		private ToolStripButton btnRotateAll;
+		private ToolStripSeparator toolStripSeparator4;
         private CheckedListBox lstObjects;
 
         private void InitializeComponent()
@@ -155,7 +157,9 @@ namespace System.Windows.Forms
 			this.btnHelp = new System.Windows.Forms.ToolStripButton();
 			this.btnResetRot = new System.Windows.Forms.Button();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
-			this.toolStripButton1 = new System.Windows.Forms.ToolStripButton();
+			this.btnRotateAll = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnTranslateAll = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).BeginInit();
 			this.undoToolStrip.Panel1.SuspendLayout();
 			this.undoToolStrip.Panel2.SuspendLayout();
@@ -194,7 +198,7 @@ namespace System.Windows.Forms
 			// 
 			this.undoToolStrip.Panel2.Controls.Add(this._modelPanel);
 			this.undoToolStrip.Panel2.Controls.Add(this.panel1);
-			this.undoToolStrip.Size = new System.Drawing.Size(694, 467);
+			this.undoToolStrip.Size = new System.Drawing.Size(1000, 467);
 			this.undoToolStrip.SplitterDistance = 209;
 			this.undoToolStrip.TabIndex = 1;
 			// 
@@ -734,7 +738,7 @@ namespace System.Windows.Forms
 			this._modelPanel.Location = new System.Drawing.Point(0, 25);
 			this._modelPanel.Name = "_modelPanel";
 			this._modelPanel.RotationScale = 0.1F;
-			this._modelPanel.Size = new System.Drawing.Size(481, 442);
+			this._modelPanel.Size = new System.Drawing.Size(787, 442);
 			this._modelPanel.TabIndex = 0;
 			this._modelPanel.TranslationScale = 0.05F;
 			this._modelPanel.ZoomScale = 2.5F;
@@ -754,7 +758,7 @@ namespace System.Windows.Forms
 			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
 			this.panel1.Location = new System.Drawing.Point(0, 0);
 			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(481, 25);
+			this.panel1.Size = new System.Drawing.Size(787, 25);
 			this.panel1.TabIndex = 2;
 			// 
 			// toolStrip1
@@ -773,13 +777,15 @@ namespace System.Windows.Forms
             this.btnSameX,
             this.btnSameY,
             this.toolStripSeparator1,
+            this.btnTranslateAll,
+            this.btnRotateAll,
+            this.toolStripSeparator4,
             this.btnResetCam,
             this.btnResetSnap,
-            this.btnHelp,
-            this.toolStripButton1});
+            this.btnHelp});
 			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
 			this.toolStrip1.Name = "toolStrip1";
-			this.toolStrip1.Size = new System.Drawing.Size(335, 25);
+			this.toolStrip1.Size = new System.Drawing.Size(641, 25);
 			this.toolStrip1.TabIndex = 1;
 			this.toolStrip1.Text = "toolStrip1";
 			// 
@@ -870,7 +876,7 @@ namespace System.Windows.Forms
 			this.btnResetCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.btnResetCam.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnResetCam.Name = "btnResetCam";
-			this.btnResetCam.Size = new System.Drawing.Size(83, 19);
+			this.btnResetCam.Size = new System.Drawing.Size(83, 22);
 			this.btnResetCam.Text = "Reset Camera";
 			this.btnResetCam.Click += new System.EventHandler(this.btnResetCam_Click);
 			// 
@@ -879,7 +885,7 @@ namespace System.Windows.Forms
 			this.btnResetSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
 			this.btnResetSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnResetSnap.Name = "btnResetSnap";
-			this.btnResetSnap.Size = new System.Drawing.Size(57, 19);
+			this.btnResetSnap.Size = new System.Drawing.Size(57, 22);
 			this.btnResetSnap.Text = "Un-Snap";
 			this.btnResetSnap.Click += new System.EventHandler(this.btnResetSnap_Click);
 			// 
@@ -889,7 +895,7 @@ namespace System.Windows.Forms
 			this.btnHelp.Image = ((System.Drawing.Image)(resources.GetObject("btnHelp.Image")));
 			this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
 			this.btnHelp.Name = "btnHelp";
-			this.btnHelp.Size = new System.Drawing.Size(36, 19);
+			this.btnHelp.Size = new System.Drawing.Size(36, 22);
 			this.btnHelp.Text = "Help";
 			this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
 			// 
@@ -899,7 +905,7 @@ namespace System.Windows.Forms
 			this.btnResetRot.Enabled = false;
 			this.btnResetRot.FlatAppearance.BorderSize = 0;
 			this.btnResetRot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-			this.btnResetRot.Location = new System.Drawing.Point(335, 0);
+			this.btnResetRot.Location = new System.Drawing.Point(641, 0);
 			this.btnResetRot.Name = "btnResetRot";
 			this.btnResetRot.Size = new System.Drawing.Size(16, 25);
 			this.btnResetRot.TabIndex = 4;
@@ -912,7 +918,7 @@ namespace System.Windows.Forms
 			// 
 			this.trackBar1.Dock = System.Windows.Forms.DockStyle.Right;
 			this.trackBar1.Enabled = false;
-			this.trackBar1.Location = new System.Drawing.Point(351, 0);
+			this.trackBar1.Location = new System.Drawing.Point(657, 0);
 			this.trackBar1.Maximum = 180;
 			this.trackBar1.Minimum = -180;
 			this.trackBar1.Name = "trackBar1";
@@ -922,22 +928,35 @@ namespace System.Windows.Forms
 			this.trackBar1.Visible = false;
 			this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
 			// 
-			// toolStripButton1
+			// btnRotateAll
 			// 
-			this.toolStripButton1.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-			this.toolStripButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripButton1.Image")));
-			this.toolStripButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.toolStripButton1.Name = "toolStripButton1";
-			this.toolStripButton1.Size = new System.Drawing.Size(23, 20);
-			this.toolStripButton1.Text = "toolStripButton1";
-			this.toolStripButton1.Click += new System.EventHandler(this.toolStripButton1_Click);
+			this.btnRotateAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnRotateAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnRotateAll.Name = "btnRotateAll";
+			this.btnRotateAll.Size = new System.Drawing.Size(45, 22);
+			this.btnRotateAll.Text = "Rotate";
+			this.btnRotateAll.Click += new System.EventHandler(this.btnRotateAll_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
+			// btnTranslateAll
+			// 
+			this.btnTranslateAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnTranslateAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnTranslateAll.Name = "btnTranslateAll";
+			this.btnTranslateAll.Size = new System.Drawing.Size(41, 22);
+			this.btnTranslateAll.Text = "Move";
+			this.btnTranslateAll.Click += new System.EventHandler(this.btnTranslateAll_Click);
 			// 
 			// CollisionEditor
 			// 
 			this.BackColor = System.Drawing.Color.Lavender;
 			this.Controls.Add(this.undoToolStrip);
 			this.Name = "CollisionEditor";
-			this.Size = new System.Drawing.Size(694, 467);
+			this.Size = new System.Drawing.Size(1000, 467);
 			this.undoToolStrip.Panel1.ResumeLayout(false);
 			this.undoToolStrip.Panel2.ResumeLayout(false);
 			((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).EndInit();
@@ -2202,18 +2221,38 @@ namespace System.Windows.Forms
             new ModelViewerHelp().Show(this, true);
         }
 
-		private void toolStripButton1_Click(object sender, EventArgs e) {
-			foreach (var obj in TargetNode._objects) {
-				foreach (var point in obj._points) {
-					Vector2 orig = point.Value;
-					double rad = (220/180.0)*Math.PI;
-					double x = Math.Cos(rad) * orig._x - Math.Sin(rad) * orig._y;
-					double y = Math.Sin(rad) * orig._x + Math.Cos(rad) * orig._y;
-					point.Value = new Vector2((float)x, (float)y);
-				}
+		private void rotate(double rad) {
+			foreach (var link in _selectedLinks) {
+				Vector2 orig = link.Value;
+				double x = Math.Cos(rad) * orig._x - Math.Sin(rad) * orig._y;
+				double y = Math.Sin(rad) * orig._x + Math.Cos(rad) * orig._y;
+				link.Value = new Vector2((float)x, (float)y);
 			}
 			TargetNode.IsDirty = true;
 			_modelPanel.Invalidate();
+		}
+
+		private void btnTranslateAll_Click(object sender, EventArgs e) {
+			foreach (var link in _selectedLinks) {
+				link.Value = new Vector2(link.Value._x, -1*link.Value._y);
+			}
+			TargetNode.IsDirty = true;
+			_modelPanel.Invalidate();
+		}
+
+		private void btnRotateAll_Click(object sender, EventArgs e) {
+			using (Form f = new Form()) {
+				FlowLayoutPanel flp = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, Dock = DockStyle.Fill };
+				f.Controls.Add(flp);
+				flp.Controls.Add(new Label { Text = "Enter a value (in degrees.)" });
+				TextBox t = new TextBox();
+				flp.Controls.Add(t);
+				flp.Controls.Add(new Button { Text = "OK", DialogResult = DialogResult.OK });
+				if (f.ShowDialog() == DialogResult.OK) {
+					double d = double.Parse(t.Text) * Math.PI / 180.0;
+					rotate(d);
+				}
+			}
 		}
     }
 }
