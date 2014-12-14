@@ -515,6 +515,12 @@
     <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="System\Windows\Controls\TransformAttributesControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\TransformAttributesControl.Designer.cs">
+      <DependentUpon>TransformAttributesControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -879,6 +885,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
+      <DependentUpon>TransformAttributesControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>

@@ -2233,8 +2233,9 @@ namespace System.Windows.Forms
 		}
 
 		private void btnTranslateAll_Click(object sender, EventArgs e) {
+			Matrix m = Matrix.TransformMatrix(new Vector3(2, 2, 2), new Vector3(0, 0, 45), new Vector3(-20, 0, 0));
 			foreach (var link in _selectedLinks) {
-				link.Value = new Vector2(link.Value._x, -1*link.Value._y);
+				link.Value = m * link.Value;
 			}
 			TargetNode.IsDirty = true;
 			_modelPanel.Invalidate();
