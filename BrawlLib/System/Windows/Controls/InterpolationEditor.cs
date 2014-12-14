@@ -310,7 +310,7 @@ namespace System.Windows.Forms
                 if (chkSetFrame.Checked)
                     interpolationViewer1_FrameChanged(this, null);
                 
-                if (_mainWindow != null)
+                if (_mainWindow != null && _mainWindow.KeyframePanel != null)
                     if (indexChanged)
                         _mainWindow.KeyframePanel.UpdateKeyframes();
                     else
@@ -371,7 +371,7 @@ namespace System.Windows.Forms
             interpolationViewer._selKey._index = index;
             interpolationViewer.Invalidate();
             _targetNode.SignalPropertyChange();
-            if (_mainWindow != null)
+            if (_mainWindow != null && _mainWindow.KeyframePanel != null)
             {
                 _mainWindow.KeyframePanel.UpdateKeyframes();
                 _mainWindow.UpdatePropDisplay();

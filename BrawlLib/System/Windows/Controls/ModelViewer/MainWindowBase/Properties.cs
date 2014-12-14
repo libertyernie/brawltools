@@ -352,7 +352,8 @@ namespace System.Windows.Forms
                     TargetModel = _selectedBone.IModel;
                 }
 
-                BonesPanel.SetSelectedBone(_selectedBone);
+                if (BonesPanel != null)
+                    BonesPanel.SetSelectedBone(_selectedBone);
 
                 if (TargetAnimType == NW4RAnimType.CHR)
                     KeyframePanel.TargetSequence =

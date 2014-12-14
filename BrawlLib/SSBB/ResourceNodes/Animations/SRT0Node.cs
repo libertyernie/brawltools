@@ -27,9 +27,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public int _loop, _version = 4, _numFrames = 1, _matrixMode;
 
-        public int ConversionBias = 0;
-        public int startUpVersion = 4;
-
         [Category("Texture Animation Data")]
         public int Version 
         { 
@@ -39,30 +36,31 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_version == value)
                     return;
 
-                if (value == startUpVersion)
-                    ConversionBias = 0;
-                else if (startUpVersion == 4 && value == 5)
-                    ConversionBias = -1;
-                else if (startUpVersion == 5 && value == 4)
-                    ConversionBias = 1;
-
                 _version = value;
                 SignalPropertyChange();
             }
         }
         [Category("Texture Animation Data")]
-        public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
+        public override bool Loop
+        {
+            get { return _loop != 0; }
+            set
+            {
+                _loop = value ? 1 : 0;
+                UpdateProperties();
+                SignalPropertyChange();
+            }
+        }
         [Category("Texture Animation Data")]
         public override int FrameCount
         {
-            get { return _numFrames + (_version == 5 ? 1 : 0); }
+            get { return _numFrames + _loop; }
             set
             {
-                int bias = (_version == 5 ? 1 : 0);
-                if ((_numFrames == value - bias) || (value - bias < (1 - bias)))
+                if (_numFrames + _loop == value)
                     return;
 
-                _numFrames = value - bias;
+                _numFrames = value - _loop;
 
                 foreach (SRT0EntryNode n in Children)
                     foreach (SRT0TextureNode t in n.Children)
@@ -100,13 +98,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            startUpVersion = _version = Header->_version;
+            _version = Header->_version;
 
             if (_version == 5)
             {
                 if ((_name == null) && (Header5->_stringOffset != 0))
                     _name = Header5->ResourceString;
-                _loop = Header5->_loop;
+                _loop = ((int)Header5->_loop).Clamp(0, 1); //Clamp just in case
                 _numFrames = Header5->_numFrames;
                 _matrixMode = Header5->_matrixMode;
 
@@ -114,20 +112,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _originalPath = Header5->OrigPath;
 
                 (_userEntries = new UserDataCollection()).Read(Header5->UserData);
+
+                return Header5->Group->_numEntries > 0;
             }
             else
             {
                 if ((_name == null) && (Header4->_stringOffset != 0))
                     _name = Header4->ResourceString;
-                _loop = Header4->_loop;
+                _loop = ((int)Header4->_loop).Clamp(0, 1); //Clamp just in case
                 _numFrames = Header4->_numFrames;
-                _matrixMode = Header5->_matrixMode;
+                _matrixMode = Header4->_matrixMode;
 
                 if (Header4->_origPathOffset > 0)
                     _originalPath = Header4->OrigPath;
-            }
 
-            return Header4->Group->_numEntries > 0;
+                return Header4->Group->_numEntries > 0;
+            }
         }
 
         public override void OnPopulate()
@@ -197,13 +197,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_version == 5)
             {
                 SRT0v5* header = (SRT0v5*)address;
-                *header = new SRT0v5((ushort)(_numFrames + ConversionBias), _loop, (ushort)Children.Count, _matrixMode);
+                *header = new SRT0v5((ushort)_numFrames, _loop, (ushort)Children.Count, _matrixMode);
                 group = header->Group;
             }
             else
             {
                 SRT0v4* header = (SRT0v4*)address;
-                *header = new SRT0v4((ushort)(_numFrames + ConversionBias), _loop, (ushort)Children.Count, _matrixMode);
+                *header = new SRT0v4((ushort)_numFrames, _loop, (ushort)Children.Count, _matrixMode);
                 group = header->Group;
             }
 

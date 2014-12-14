@@ -1040,7 +1040,7 @@ namespace System.Windows.Forms
             if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
-            SelectedAnimation.InsertKeyframe((int)CurrentFrame - 1);
+            SelectedAnimation.InsertKeyframe(CurrentFrame - 1);
             //_mainWindow.SRT0StateChanged(this, null);
         }
 
@@ -1049,7 +1049,7 @@ namespace System.Windows.Forms
             if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
-            SelectedAnimation.DeleteKeyframe((int)CurrentFrame - 1);
+            SelectedAnimation.DeleteKeyframe(CurrentFrame - 1);
             //_mainWindow.SRT0StateChanged(this, null);
         }
 

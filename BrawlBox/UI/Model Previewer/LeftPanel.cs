@@ -559,7 +559,7 @@ namespace System.Windows.Forms
             set
             {
                 _mainWindow.TargetTexRef = value; 
-                if (_mainWindow.SelectedSRT0 != null && TargetTexRef != null)
+                if (_mainWindow.SelectedSRT0 != null && TargetTexRef != null && _mainWindow.KeyframePanel != null)
                     _mainWindow.KeyframePanel.TargetSequence = _mainWindow.SRT0Editor.TexEntry;
             }
         }

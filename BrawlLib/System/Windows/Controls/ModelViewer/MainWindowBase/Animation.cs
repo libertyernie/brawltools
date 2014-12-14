@@ -125,7 +125,7 @@ namespace System.Windows.Forms
             if (!_playing)
             {
                 if (InterpolationEditor != null && InterpolationEditor.Visible)
-                    InterpolationEditor.Frame = (int)CurrentFrame;
+                    InterpolationEditor.Frame = CurrentFrame;
                 KeyframePanel.numFrame_ValueChanged();
             }
         }
@@ -219,7 +219,7 @@ namespace System.Windows.Forms
                     {
                         KeyframePanel.visEditor._updating = true;
                         KeyframePanel.visEditor.listBox1.SelectedIndices.Clear();
-                        KeyframePanel.visEditor.listBox1.SelectedIndex = (int)CurrentFrame - 1;
+                        KeyframePanel.visEditor.listBox1.SelectedIndex = CurrentFrame - 1;
                         KeyframePanel.visEditor._updating = false;
                     }
                     break;
