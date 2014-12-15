@@ -81,8 +81,7 @@ namespace System.Windows.Forms
         private Button btnPrevFrame;
         private Button btnNextFrame;
 		private ToolStripButton btnHelp;
-		private ToolStripButton btnTranslateAll;
-		private ToolStripButton btnRotateAll;
+		private ToolStripButton btnTransformAll;
 		private ToolStripSeparator toolStripSeparator4;
         private CheckedListBox lstObjects;
 
@@ -152,14 +151,13 @@ namespace System.Windows.Forms
 			this.btnSameX = new System.Windows.Forms.ToolStripButton();
 			this.btnSameY = new System.Windows.Forms.ToolStripButton();
 			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnTransformAll = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
 			this.btnResetCam = new System.Windows.Forms.ToolStripButton();
 			this.btnResetSnap = new System.Windows.Forms.ToolStripButton();
 			this.btnHelp = new System.Windows.Forms.ToolStripButton();
 			this.btnResetRot = new System.Windows.Forms.Button();
 			this.trackBar1 = new System.Windows.Forms.TrackBar();
-			this.btnRotateAll = new System.Windows.Forms.ToolStripButton();
-			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
-			this.btnTranslateAll = new System.Windows.Forms.ToolStripButton();
 			((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).BeginInit();
 			this.undoToolStrip.Panel1.SuspendLayout();
 			this.undoToolStrip.Panel2.SuspendLayout();
@@ -777,8 +775,7 @@ namespace System.Windows.Forms
             this.btnSameX,
             this.btnSameY,
             this.toolStripSeparator1,
-            this.btnTranslateAll,
-            this.btnRotateAll,
+            this.btnTransformAll,
             this.toolStripSeparator4,
             this.btnResetCam,
             this.btnResetSnap,
@@ -871,6 +868,20 @@ namespace System.Windows.Forms
 			this.toolStripSeparator1.Name = "toolStripSeparator1";
 			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
 			// 
+			// btnTransformAll
+			// 
+			this.btnTransformAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnTransformAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnTransformAll.Name = "btnTransformAll";
+			this.btnTransformAll.Size = new System.Drawing.Size(66, 22);
+			this.btnTransformAll.Text = "Transform";
+			this.btnTransformAll.Click += new System.EventHandler(this.btnTranslateAll_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
 			// btnResetCam
 			// 
 			this.btnResetCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -927,29 +938,6 @@ namespace System.Windows.Forms
 			this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.None;
 			this.trackBar1.Visible = false;
 			this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
-			// 
-			// btnRotateAll
-			// 
-			this.btnRotateAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.btnRotateAll.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnRotateAll.Name = "btnRotateAll";
-			this.btnRotateAll.Size = new System.Drawing.Size(45, 22);
-			this.btnRotateAll.Text = "Rotate";
-			this.btnRotateAll.Click += new System.EventHandler(this.btnRotateAll_Click);
-			// 
-			// toolStripSeparator4
-			// 
-			this.toolStripSeparator4.Name = "toolStripSeparator4";
-			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
-			// 
-			// btnTranslateAll
-			// 
-			this.btnTranslateAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-			this.btnTranslateAll.ImageTransparentColor = System.Drawing.Color.Magenta;
-			this.btnTranslateAll.Name = "btnTranslateAll";
-			this.btnTranslateAll.Size = new System.Drawing.Size(41, 22);
-			this.btnTranslateAll.Text = "Move";
-			this.btnTranslateAll.Click += new System.EventHandler(this.btnTranslateAll_Click);
 			// 
 			// CollisionEditor
 			// 
@@ -2221,37 +2209,20 @@ namespace System.Windows.Forms
             new ModelViewerHelp().Show(this, true);
         }
 
-		private void rotate(double rad) {
-			foreach (var link in _selectedLinks) {
-				Vector2 orig = link.Value;
-				double x = Math.Cos(rad) * orig._x - Math.Sin(rad) * orig._y;
-				double y = Math.Sin(rad) * orig._x + Math.Cos(rad) * orig._y;
-				link.Value = new Vector2((float)x, (float)y);
-			}
-			TargetNode.IsDirty = true;
-			_modelPanel.Invalidate();
-		}
-
 		private void btnTranslateAll_Click(object sender, EventArgs e) {
-			Matrix m = Matrix.TransformMatrix(new Vector3(2, 2, 2), new Vector3(0, 0, 45), new Vector3(-20, 0, 0));
-			foreach (var link in _selectedLinks) {
-				link.Value = m * link.Value;
+			if (_selectedLinks.Count == 0) {
+				MessageBox.Show("You must select at least one collision link.");
+				return;
 			}
-			TargetNode.IsDirty = true;
-			_modelPanel.Invalidate();
-		}
-
-		private void btnRotateAll_Click(object sender, EventArgs e) {
-			using (Form f = new Form()) {
-				FlowLayoutPanel flp = new FlowLayoutPanel { FlowDirection = FlowDirection.TopDown, Dock = DockStyle.Fill };
-				f.Controls.Add(flp);
-				flp.Controls.Add(new Label { Text = "Enter a value (in degrees.)" });
-				TextBox t = new TextBox();
-				flp.Controls.Add(t);
-				flp.Controls.Add(new Button { Text = "OK", DialogResult = DialogResult.OK });
+			using (TransformAttributesForm f = new TransformAttributesForm()) {
+				f.TwoDimensional = true;
 				if (f.ShowDialog() == DialogResult.OK) {
-					double d = double.Parse(t.Text) * Math.PI / 180.0;
-					rotate(d);
+					Matrix m = f.GetMatrix();
+					foreach (var link in _selectedLinks) {
+						link.Value = m * link.Value;
+					}
+					TargetNode.IsDirty = true;
+					_modelPanel.Invalidate();
 				}
 			}
 		}
