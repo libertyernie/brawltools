@@ -87,18 +87,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
+            List<GCTCodeEntryNode> enabledChildren = Children.Select(e => ((GCTCodeEntryNode)e)).Where(e => e._enabled).ToList();
+
             GCTCodeLine* line = (GCTCodeLine*)address;
             *line++ = GCTCodeLine.Tag;
-            foreach (GCTCodeEntryNode n in Children)
+            foreach (GCTCodeEntryNode n in enabledChildren)
                 foreach (GCTCodeLine l in n._lines)
                     *line++ = l;
             *line++ = GCTCodeLine.End;
             if (_writeInfo)
             {
                 GCTHeader* hdr = (GCTHeader*)line;
-                hdr->_count = (uint)Children.Count;
+                hdr->_count = (uint)enabledChildren.Count;
 
-                int offset = 12 + Children.Count * 16;
+                int offset = 12 + enabledChildren.Count * 16;
                 _stringTable.WriteTable((VoidPtr)hdr + offset);
 
                 hdr->_idOffset = (uint)_stringTable[_name] - (uint)hdr;
@@ -109,7 +111,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 GCTCodeEntry* entry = (GCTCodeEntry*)(hdr + 1);
                 uint codeOffset = 8;
-                foreach (GCTCodeEntryNode n in Children)
+                foreach (GCTCodeEntryNode n in enabledChildren)
                 {
                     entry->_codeOffset = codeOffset;
                     codeOffset += (uint)n._lines.Length * 8;
@@ -144,7 +146,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     file.WriteLine();
                     file.WriteLine(n._name);
                     file.Write(n.DisplayLines);
-                    file.WriteLine(n._description);
+                    if (!string.IsNullOrWhiteSpace(n._description))
+                        file.WriteLine(n._description);
                 }
             }
         }
@@ -154,7 +157,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             GCTNode node = new GCTNode();
 
             if (File.Exists(path))
+            {
+                bool anyEnabled = false;
+
                 using (StreamReader sr = new StreamReader(path))
+                {
                     for (int i = 0; !sr.EndOfStream; i++)
                     {
                         string lastLine;
@@ -179,10 +186,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                             else
                                 break;
 
+                            bool? codeEnabled = null;
                             while (true)
                             {
                                 lastLine = sr.ReadLine();
                                 if (String.IsNullOrEmpty(lastLine))
+                                    break;
+
+                                bool lineEnabled = lastLine.StartsWith("* ");
+                                if (lineEnabled)
+                                {
+                                    anyEnabled = true;
+                                    lastLine = lastLine.Substring(2);
+                                }
+
+                                if (codeEnabled == null)
+                                    codeEnabled = lineEnabled;
+                                else if (codeEnabled != lineEnabled)
                                     break;
 
                                 string[] lines = lastLine.Split(' ');
@@ -201,16 +221,32 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 else
                                     break;
                             }
+
+                            List<string> description = new List<string>();
+                            while (!String.IsNullOrEmpty(lastLine))
+                            {
+                                description.Add(lastLine);
+                                lastLine = sr.ReadLine();
+                            }
+
+                            e._enabled = codeEnabled ?? false;
                             e._lines = g.ToArray();
-                            e._description = lastLine;
+                            e._description = String.Join(Environment.NewLine, description);
                             node.AddChild(e);
                         }
                     }
-
+                }
+                if (anyEnabled == false)
+                {
+                    // No codes enabled in file - enable all codes
+                    foreach (GCTCodeEntryNode e in node.Children)
+                        e._enabled = true;
+                }
+            }
             return node;
         }
         
-        internal static GCTNode IsParsable(string path) 
+        public static GCTNode IsParsable(string path) 
         {
             FileMap map = FileMap.FromFile(path, FileMapProtect.ReadWrite);
             
@@ -259,7 +295,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     int index = -1;
                     if ((index = s.IndexOf(c._code)) >= 0)
                     {
-                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length) });
+                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length), _enabled = true });
                         s = s.Remove(index, c._code.Length);
                     }
                 }
@@ -273,7 +309,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     MessageBox.Show("This GCT does not contain any recognizable codes.");
 
                 if (s.Length > 0)
-                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s });
+                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s, _enabled = true });
 
                 return g;
             }
@@ -303,7 +339,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 string temp = "";
                 foreach (GCTCodeLine c in _lines)
-                    temp += c.ToString() + Environment.NewLine;
+                    temp += (this._enabled ? "* " : "") + c.ToString() + Environment.NewLine;
                 return temp;
             }
         }
@@ -327,6 +363,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public string _description;
+        public bool _enabled;
 
         public GCTCodeEntryNode() { }
         public GCTCodeEntryNode(GCTCodeEntry* entry)
