@@ -45,7 +45,8 @@ namespace BrawlLib.SSBBTypes
        public bfloat _yOverride;
        public bfloat _zOverride;
 
-       fixed byte _stageID[4];
+       fixed byte _stageID[3];
+       public byte _doorIndex;
 
        // Specifies model index to use, among other unknown things.
        public byte _unk4;
@@ -59,7 +60,10 @@ namespace BrawlLib.SSBBTypes
        
        // Triggers and padding
        fixed byte _trigger0[4];
-       public int _pad3;
+       public byte _unk7;
+       public byte _unk8;
+       public byte _unk9;
+       public byte _unk10;
        public uint _nulls;
        fixed byte _trigger1[4];
        fixed byte _trigger2[4];
@@ -69,13 +73,13 @@ namespace BrawlLib.SSBBTypes
        // however it could have been a debugging failsafe.
        fixed byte _pad4[60];
 
-       public string StageID
+       public string DoorID
        {
            get
            {
-               byte[] bytes = new byte[4];
+               byte[] bytes = new byte[3];
                string s1 = "";
-               for (int i = 0; i < 4; i++)
+               for (int i = 0; i < 3; i++)
                {
                    bytes[i] = *(byte*)((VoidPtr)Address + 0x30 + i);
                    if (bytes[i].ToString("x").Length < 2) { s1 += bytes[i].ToString("x").PadLeft(2, '0'); }
@@ -232,10 +236,12 @@ namespace BrawlLib.SSBBTypes
            _unkInt = 0;
            _xOverride = _yOverride = _zOverride = 
            _unkFloat0 = _unkFloat1 = 0;
-           _pad3 = 0;
+           _unk7 = 1;
+           _unk8 = _unk9 = _unk10 = 0;
            _nulls = 0xffffffff;
            _mdlIndex = (byte)modelIndex;
-           StageID = stageID;
+           _doorIndex = 0;
+           DoorID = stageID;
            Trigger0 = trigger0;
            Trigger1 = trigger1;
            Trigger2 = trigger2;

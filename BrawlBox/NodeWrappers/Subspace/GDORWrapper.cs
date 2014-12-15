@@ -49,7 +49,7 @@ namespace BrawlBox.NodeWrappers
         public void NewEntry()
         {
             GDOREntryNode node = new GDOREntryNode() { Name = "NewEntry", Trigger0 ="00000100",
-                Trigger1 = "00000100", Trigger2 = "00000100", StageID = "00000000" };
+                Trigger1 = "00000100", Trigger2 = "00000100", DoorID = "00000000" };
             _resource.AddChild(node);
         }
 

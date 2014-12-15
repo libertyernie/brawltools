@@ -13,6 +13,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class ModuleSectionNode : ModuleDataNode
     {
+        ObjectParser _parser;
+
         internal VoidPtr Header { get { return WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RELSection; } }
         
@@ -49,16 +51,23 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 _isBSSSection = true;
                 InitBuffer(_dataSize);
+
             }
             else
             {
                 _isBSSSection = false;
                 InitBuffer(_dataSize, Header);
+                if (Index == 5)
+                    _parser = new ObjectParser(this);
             }
 
-            return false;
+            return _parser != null;
         }
-
+        public override void OnPopulate()
+        {
+            _parser.Parse();
+            _parser.Populate();
+        }
         public override int OnCalculateSize(bool force)
         {
             return _dataBuffer.Length;

@@ -70,33 +70,38 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal GDOREntry* Header { get { return (GDOREntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
-        private string _stageID;
+        private string _doorID;
         [Category("Door Info")]
-        [DisplayName("Stage ID")]
-        public string StageID { get { return _stageID; } set { _stageID = value; SignalPropertyChange(); } }
+        [DisplayName("Door ID (File)")]
+        public string DoorID { get { return _doorID; } set { _doorID = value; SignalPropertyChange(); } }
+
+        public int _doorIndex;
+        [Category("Door Info")]
+        [DisplayName("Door Index")]
+        public int DoorIndex { get { return _doorIndex; } set { _doorIndex = value; SignalPropertyChange(); } }
 
         private float _xOverride;
-        [Category("Door Info")]
+        [Category("Position Info")]
         [DisplayName("X Translation override")]
         public float XOverride { get { return _xOverride; } set { _xOverride = value; SignalPropertyChange(); } }
 
         private float _yOverride;
-        [Category("Door Info")]
+        [Category("Position Info")]
         [DisplayName("Y Translation override")]
         public float YOverride { get { return _yOverride; } set { _yOverride = value; SignalPropertyChange(); } }
 
         private float _zOverride;
-        [Category("Door Info")]
+        [Category("Position Info")]
         [DisplayName("Z Translation override")]
         public float ZOverride { get { return _zOverride; } set { _zOverride = value; SignalPropertyChange(); } }
 
         private float _unkFloat0;
-        [Category("Door Info")]
+        [Category("Position Info")]
         [DisplayName("X Rotation override?")]
         public float UnkFloat0 { get { return _unkFloat0; } set { _unkFloat0 = value; SignalPropertyChange(); } }
 
         private float _unkFloat1;
-        [Category("Door Info")]
+        [Category("Position Info")]
         [DisplayName("Y Rotation override?")]
         public float UnkFloat1 { get { return _unkFloat1; } set { _unkFloat1 = value; SignalPropertyChange(); } }
 
@@ -160,19 +165,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         [DisplayName("Trigger 3")]
         public string Trigger2 { get { return _trigger2; } set { _trigger2 = value; SignalPropertyChange(); } }
 
+        private int _unk;
+        public int Unk { get { return _unk; } set { _unk = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
         {
-            if (_name == null)
-                _name = String.Format("Door[{0}]",Index);
 
-            _stageID = Header->StageID;
+
+            _doorID = Header->DoorID;
+            _doorIndex = Header->_doorIndex;
             _xOverride = Header->_xOverride;
             _yOverride = Header->_yOverride;
             _zOverride = Header->_zOverride;
             _unkFloat0 = Header->_unkFloat0;
             _unkFloat1 = Header->_unkFloat1;
             _unkInt = Header->_unkInt;
+            _unk = Header->_unk0;
             _unk0 = Header->_unk0;
             _unk1 = Header->_unk1;
             _unk2 = Header->_unk2;
@@ -184,6 +192,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _trigger0 = Header->Trigger0;
             _trigger1 = Header->Trigger1;
             _trigger2 = Header->Trigger2;
+                        if (_name == null)
+                _name = String.Format("Door[{0}]", _doorIndex);
 
             return false;
         }
@@ -192,13 +202,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             GDOREntry* header = (GDOREntry*)address;
             *header = new GDOREntry();
 
-            header->StageID = _stageID;
+            header->DoorID = _doorID;
+            header->_doorIndex = (byte)_doorIndex;
             header->_xOverride = _xOverride;
             header->_yOverride = _yOverride;
             header->_zOverride = _zOverride;
             header->_unkFloat0 = _unkFloat0;
             header->_unkFloat1 = _unkFloat1;
             header->_unkInt = _unkInt;
+            header->_unk7 = (byte)_unk;
             header->_unk0 = (byte)_unk0;
             header->_unk1 = (byte)_unk1;
             header->_unk2 = (byte)_unk2;
@@ -206,12 +218,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_unk4 = (byte)_unk4;
             header->_unk5 = (byte)_unk5;
             header->_unk6 = (byte)_unk6;
+            header->_unk8 = header->_unk9 = header->_unk10 = 0;
+            header->_nulls = 0xFFFFFFFF;
             header->_mdlIndex = (byte)_mdlIndex;
             header->Trigger0 = _trigger0;
             header->Trigger1 = _trigger1;
             header->Trigger2 = _trigger2;
             header->_pad0 = 1.0f;
-            header->_pad1 = header->_pad3 = header->Pad2 = 0;
+            header->_pad1 = header->Pad2 = 0;
+
             header->Pad4 = 1.0f;
             
         }

@@ -31,7 +31,7 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x2C;
 
-        fixed byte _stageID[4];
+        fixed byte _doorID[4];
         public byte _unk0;
         public byte _unk1;
         public byte _unk2;
@@ -39,7 +39,7 @@ namespace BrawlLib.SSBBTypes
         fixed byte _sendingID[4];
         fixed sbyte _jumpBone[0x20];
 
-        public string StageID
+        public string DoorID
         {
             get
             {
@@ -61,7 +61,7 @@ namespace BrawlLib.SSBBTypes
                 if (value == null)
                     value = "";
 
-                fixed (byte* ptr = _stageID)
+                fixed (byte* ptr = _doorID)
                 {
                     for (int i = 0; i < value.Length; i++)
                     {
@@ -123,7 +123,7 @@ namespace BrawlLib.SSBBTypes
         public ADSJEntry(string Stage, string SendingID, string Bone)
         {         
             _unk0 = _unk1 = _unk2 = _unk3 = 0;
-            StageID = Stage;
+            DoorID = Stage;
             SendStage = SendingID;
             JumpBone = Bone;         
         }
