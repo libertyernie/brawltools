@@ -90,7 +90,7 @@ namespace System.Windows.Forms
 
         #endregion
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         private Label label1;
         private ListBox listBox1;

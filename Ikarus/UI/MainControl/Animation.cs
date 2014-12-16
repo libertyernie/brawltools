@@ -19,7 +19,7 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         //Updates specified angle by applying an offset.
         //Allows pnlAnim to handle the changes so keyframes are updated.
@@ -61,11 +61,11 @@ namespace Ikarus.UI
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public AnimType TargetAnimType
+        public NW4RAnimType TargetAnimType
         {
             get
             {
-                return (AnimType)fileType.SelectedIndex;
+                return (NW4RAnimType)fileType.SelectedIndex;
             }
             set
             {
@@ -80,24 +80,24 @@ namespace Ikarus.UI
             Control newControl = null;
             switch (TargetAnimType)
             {
-                case AnimType.CHR:
+                case NW4RAnimType.CHR:
                     newControl = chr0Editor;
                     break;
-                case AnimType.SRT:
+                case NW4RAnimType.SRT:
                     newControl = srt0Editor;
                     syncTexObjToolStripMenuItem.Checked = true;
                     break;
-                case AnimType.SHP:
+                case NW4RAnimType.SHP:
                     newControl = shp0Editor;
                     break;
-                case AnimType.PAT:
+                case NW4RAnimType.PAT:
                     newControl = pat0Editor;
                     syncTexObjToolStripMenuItem.Checked = true;
                     break;
-                case AnimType.VIS:
+                case NW4RAnimType.VIS:
                     newControl = vis0Editor;
                     break;
-                case AnimType.CLR:
+                case NW4RAnimType.CLR:
                     newControl = clr0Editor;
                     break;
             }
@@ -162,16 +162,16 @@ namespace Ikarus.UI
 
             switch (TargetAnimType)
             {
-                case AnimType.CHR: chr0Editor.UpdatePropDisplay(); break;
-                case AnimType.SRT: srt0Editor.UpdatePropDisplay(); break;
-                case AnimType.SHP: shp0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CHR: chr0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SRT: srt0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SHP: shp0Editor.UpdatePropDisplay(); break;
                 //case AnimType.VIS: vis0Editor.UpdatePropDisplay(); break;
-                case AnimType.PAT: pat0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.PAT: pat0Editor.UpdatePropDisplay(); break;
                 //case AnimType.SCN: scn0Editor.UpdatePropDisplay(); break;
-                case AnimType.CLR: clr0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CLR: clr0Editor.UpdatePropDisplay(); break;
             }
 
-            if (TargetAnimType == AnimType.VIS)
+            if (TargetAnimType == NW4RAnimType.VIS)
             {
                 //if (scriptPanel.pnlKeyframes.visEditor.TargetNode != null && !((VIS0EntryNode)scriptPanel.pnlKeyframes.visEditor.TargetNode).Constant)
                 //{
@@ -211,57 +211,57 @@ namespace Ikarus.UI
         private void UpdateModel(MDL0Node model)
         {
             int frame = CurrentFrame;
-            if (_chr0 != null && !(TargetAnimType != AnimType.CHR && !playCHR0ToolStripMenuItem.Checked))
+            if (_chr0 != null && !(TargetAnimType != NW4RAnimType.CHR && !playCHR0ToolStripMenuItem.Checked))
                 model.ApplyCHR(_chr0, frame);
             else
                 model.ApplyCHR(null, 0);
-            if (_srt0 != null && !(TargetAnimType != AnimType.SRT && !playSRT0ToolStripMenuItem.Checked))
+            if (_srt0 != null && !(TargetAnimType != NW4RAnimType.SRT && !playSRT0ToolStripMenuItem.Checked))
                 model.ApplySRT(_srt0, frame);
             else
                 model.ApplySRT(null, 0);
-            if (_shp0 != null && !(TargetAnimType != AnimType.SHP && !playSHP0ToolStripMenuItem.Checked))
+            if (_shp0 != null && !(TargetAnimType != NW4RAnimType.SHP && !playSHP0ToolStripMenuItem.Checked))
                 model.ApplySHP(_shp0, frame);
             else
                 model.ApplySHP(null, 0);
-            if (_pat0 != null && !(TargetAnimType != AnimType.PAT && !playPAT0ToolStripMenuItem.Checked))
+            if (_pat0 != null && !(TargetAnimType != NW4RAnimType.PAT && !playPAT0ToolStripMenuItem.Checked))
                 model.ApplyPAT(_pat0, frame);
             else
                 model.ApplyPAT(null, 0);
-            if (_vis0 != null && !(TargetAnimType != AnimType.VIS && !playVIS0ToolStripMenuItem.Checked))
+            if (_vis0 != null && !(TargetAnimType != NW4RAnimType.VIS && !playVIS0ToolStripMenuItem.Checked))
                 if (model == TargetModel)
                     ReadVIS0();
                 else
                     model.ApplyVIS(_vis0, frame);
-            if (_clr0 != null && !(TargetAnimType != AnimType.CLR && !playCLR0ToolStripMenuItem.Checked))
+            if (_clr0 != null && !(TargetAnimType != NW4RAnimType.CLR && !playCLR0ToolStripMenuItem.Checked))
                 model.ApplyCLR(_clr0, frame);
             else
                 model.ApplyCLR(null, 0);
         }
         
-        public void AnimChanged(AnimType type)
+        public void AnimChanged(NW4RAnimType type)
         {
             //Update animation editors
-            if (type != AnimType.SRT) modelListsPanel1.UpdateSRT0Selection(null);
-            if (type != AnimType.PAT) modelListsPanel1.UpdatePAT0Selection(null);
+            if (type != NW4RAnimType.SRT) modelListsPanel1.UpdateSRT0Selection(null);
+            if (type != NW4RAnimType.PAT) modelListsPanel1.UpdatePAT0Selection(null);
 
             switch (type)
             {
-                case AnimType.CHR:
+                case NW4RAnimType.CHR:
                     break;
-                case AnimType.SRT:
+                case NW4RAnimType.SRT:
                     modelListsPanel1.UpdateSRT0Selection(SelectedSRT0);
                     break;
-                case AnimType.SHP:
+                case NW4RAnimType.SHP:
                     shp0Editor.UpdateSHP0Indices();
                     break;
-                case AnimType.PAT:
+                case NW4RAnimType.PAT:
                     pat0Editor.UpdateBoxes();
                     modelListsPanel1.UpdatePAT0Selection(SelectedPAT0);
                     break;
-                case AnimType.VIS: 
+                case NW4RAnimType.VIS: 
                     vis0Editor.UpdateAnimation();
                     break;
-                case AnimType.CLR: 
+                case NW4RAnimType.CLR: 
                     clr0Editor.UpdateAnimation();
                     break;
             }

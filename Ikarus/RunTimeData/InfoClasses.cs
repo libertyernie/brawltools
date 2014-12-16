@@ -195,25 +195,25 @@ namespace Ikarus.ModelViewer
 
             MainControl ctrl = MainForm.Instance._mainControl;
 
-            if (_chr0 != null && !(ctrl.TargetAnimType != AnimType.CHR && !ctrl.playCHR0ToolStripMenuItem.Checked) && _subaction >= 0)
+            if (_chr0 != null && !(ctrl.TargetAnimType != NW4RAnimType.CHR && !ctrl.playCHR0ToolStripMenuItem.Checked) && _subaction >= 0)
                 _model.ApplyCHR(_chr0, _animFrame + 1);
             else
                 _model.ApplyCHR(null, 0);
-            if (_srt0 != null && !(ctrl.TargetAnimType != AnimType.SRT && !ctrl.playSRT0ToolStripMenuItem.Checked))
+            if (_srt0 != null && !(ctrl.TargetAnimType != NW4RAnimType.SRT && !ctrl.playSRT0ToolStripMenuItem.Checked))
                 _model.ApplySRT(_srt0, _animFrame + 1);
             else
                 _model.ApplySRT(null, 0);
-            if (_shp0 != null && !(ctrl.TargetAnimType != AnimType.SHP && !ctrl.playSHP0ToolStripMenuItem.Checked))
+            if (_shp0 != null && !(ctrl.TargetAnimType != NW4RAnimType.SHP && !ctrl.playSHP0ToolStripMenuItem.Checked))
                 _model.ApplySHP(_shp0, _animFrame + 1);
             else
                 _model.ApplySHP(null, 0);
-            if (_pat0 != null && !(ctrl.TargetAnimType != AnimType.PAT && !ctrl.playPAT0ToolStripMenuItem.Checked))
+            if (_pat0 != null && !(ctrl.TargetAnimType != NW4RAnimType.PAT && !ctrl.playPAT0ToolStripMenuItem.Checked))
                 _model.ApplyPAT(_pat0, _animFrame + 1);
             else
                 _model.ApplyPAT(null, 0);
-            if (_vis0 != null && !(ctrl.TargetAnimType != AnimType.VIS && !ctrl.playVIS0ToolStripMenuItem.Checked))
+            if (_vis0 != null && !(ctrl.TargetAnimType != NW4RAnimType.VIS && !ctrl.playVIS0ToolStripMenuItem.Checked))
                 _model.ApplyVIS(_vis0, _animFrame + 1);
-            if (_clr0 != null && !(ctrl.TargetAnimType != AnimType.CLR && !ctrl.playCLR0ToolStripMenuItem.Checked))
+            if (_clr0 != null && !(ctrl.TargetAnimType != NW4RAnimType.CLR && !ctrl.playCLR0ToolStripMenuItem.Checked))
                 _model.ApplyCLR(_clr0, _animFrame + 1);
             else
                 _model.ApplyCLR(null, 0);

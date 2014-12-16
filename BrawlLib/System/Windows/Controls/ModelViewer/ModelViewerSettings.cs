@@ -67,7 +67,7 @@ namespace System.Windows.Forms
         private Label label21;
         private Label label19;
         private CheckBox chkOrtho;
-        private IMainWindow _form;
+        private ModelEditorBase _form;
 
         public ModelViewerSettingsDialog() 
         {
@@ -110,7 +110,7 @@ namespace System.Windows.Forms
 
         private Color _origNode, _origBone, _origFloor;
 
-        public void Show(IMainWindow owner)
+        public void Show(ModelEditorBase owner)
         {
             _form = owner;
 
@@ -154,7 +154,7 @@ namespace System.Windows.Forms
 
             _origBone = MDL0BoneNode.DefaultBoneColor;
             _origNode = MDL0BoneNode.DefaultNodeColor;
-            _origFloor = StaticMainWindow._floorHue;
+            _origFloor = ModelEditorBase._floorHue;
 
             UpdateOrb();
             UpdateLine();
@@ -164,7 +164,7 @@ namespace System.Windows.Forms
             UpdateSpe();
             UpdateEmi();
 
-            base.Show(owner as IWin32Window);
+            base.Show(_form as IWin32Window);
         }
 
         private void BoxValueChanged(object sender, EventArgs e)
@@ -252,7 +252,7 @@ namespace System.Windows.Forms
 
             _form.AllowedUndos = (uint)Math.Abs(_origValues[21]);
 
-            StaticMainWindow._floorHue = _origFloor;
+            ModelEditorBase._floorHue = _origFloor;
             MDL0BoneNode.DefaultBoneColor = _origBone;
             MDL0BoneNode.DefaultNodeColor = _origNode;
 
@@ -1134,10 +1134,10 @@ namespace System.Windows.Forms
 
         private void lblCol1Color_Click(object sender, EventArgs e)
         {
-            _dlgColor.Color = StaticMainWindow._floorHue;
+            _dlgColor.Color = ModelEditorBase._floorHue;
             if (_dlgColor.ShowDialog(this) == DialogResult.OK)
             {
-                StaticMainWindow._floorHue = _dlgColor.Color;
+                ModelEditorBase._floorHue = _dlgColor.Color;
                 UpdateCol1();
             }
         }
@@ -1156,8 +1156,8 @@ namespace System.Windows.Forms
         }
         private void UpdateCol1()
         {
-            lblCol1Text.Text = ((ARGBPixel)StaticMainWindow._floorHue).ToString();
-            lblCol1Color.BackColor = Color.FromArgb(StaticMainWindow._floorHue.R, StaticMainWindow._floorHue.G, StaticMainWindow._floorHue.B);
+            lblCol1Text.Text = ((ARGBPixel)ModelEditorBase._floorHue).ToString();
+            lblCol1Color.BackColor = Color.FromArgb(ModelEditorBase._floorHue.R, ModelEditorBase._floorHue.G, ModelEditorBase._floorHue.B);
             _form.ModelPanel.Invalidate();
         }
         private void UpdateAmb()

@@ -17,7 +17,7 @@ using BrawlLib.Imaging;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
         #region Projection
         private void orthographicToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -124,53 +124,26 @@ namespace System.Windows.Forms
 
         private void rotationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (rotationToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                scaleToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
-                _editType = TransformType.Rotation;
-                cboToolSelect.SelectedIndex = 1;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                ModelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = rotationToolStripMenuItem.Checked ?  TransformType.Rotation : TransformType.None;
         }
 
         private void translationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (translationToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                rotationToolStripMenuItem.Checked = scaleToolStripMenuItem.Checked = false;
-                _editType = TransformType.Translation;
-                cboToolSelect.SelectedIndex = 0;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                ModelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = rotationToolStripMenuItem.Checked ? TransformType.Translation : TransformType.None;
         }
 
         private void scaleToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (scaleToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                rotationToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
-                _editType = TransformType.Scale;
-                cboToolSelect.SelectedIndex = 2;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                ModelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = rotationToolStripMenuItem.Checked ? TransformType.Scale : TransformType.None;
         }
 
         #endregion
@@ -188,37 +161,7 @@ namespace System.Windows.Forms
             if (syncAnimationsTogetherToolStripMenuItem.Checked)
                 GetFiles(TargetAnimType);
             else
-                GetFiles(AnimType.None);
-        }
-        #endregion
-
-        #region Playback Panel
-        public void numFrameIndex_ValueChanged(object sender, EventArgs e)
-        {
-            int val = (int)pnlPlayback.numFrameIndex.Value;
-            if (val != _animFrame)
-            {
-                int difference = val - _animFrame;
-                if (TargetAnimation != null)
-                    SetFrame(_animFrame += difference);
-            }
-        }
-        public void numFPS_ValueChanged(object sender, EventArgs e)
-        {
-            _timer.TargetRenderFrequency = (double)pnlPlayback.numFPS.Value;
-        }
-        public void chkLoop_CheckedChanged(object sender, EventArgs e) 
-        {
-            _loop = pnlPlayback.chkLoop.Checked;
-            //if (TargetAnimation != null)
-            //    TargetAnimation.Loop = _loop;
-        }
-        public void numTotalFrames_ValueChanged(object sender, EventArgs e)
-        {
-            if ((TargetAnimation == null) || (_updating))
-                return;
-
-            pnlPlayback.numFrameIndex.Maximum = TargetAnimation.FrameCount = _maxFrame = (int)pnlPlayback.numTotalFrames.Value;
+                GetFiles(NW4RAnimType.None);
         }
         #endregion
 
@@ -256,7 +199,7 @@ namespace System.Windows.Forms
             ModelPanel.RefreshReferences();
         }
 
-        public void SelectedPolygonChanged(object sender, EventArgs e)
+        public void SelectedPolygonChanged()
         {
             //We can't return here if the selected polygon is set to null.
             //If the target model is changed or the selected object is cleared,
@@ -275,7 +218,7 @@ namespace System.Windows.Forms
                 leftPanel.UpdateTextures();
 
             //Update the VIS editor to show the entries for the selected object
-            if (TargetAnimType == AnimType.VIS && 
+            if (TargetAnimType == NW4RAnimType.VIS && 
                 leftPanel.SelectedObject != null && 
                 vis0Editor.listBox1.Items.Count != 0 && 
                 leftPanel.SelectedObject is MDL0ObjectNode)

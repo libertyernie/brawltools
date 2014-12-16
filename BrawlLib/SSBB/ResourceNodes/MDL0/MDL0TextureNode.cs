@@ -13,6 +13,11 @@ using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
+    public interface ITexture
+    {
+
+    }
+
     public unsafe class MDL0TextureNode : MDL0EntryNode, IComparable
     {
         static MDL0TextureNode()

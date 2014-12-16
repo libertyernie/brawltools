@@ -249,7 +249,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 CameraAnimationFrame f = (CameraAnimationFrame)listKeyframes.SelectedItem;
-                numFrame.Value = f.Index + 1;
+                numFrame.Value = (decimal)(f.Index + 1);
             }
         }
 

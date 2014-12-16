@@ -15,14 +15,14 @@ namespace BrawlLib.Modeling
         IBoneNode[] RootBones { get; }
         
         void ResetToBindState();
-        void ApplyCHR(CHR0Node node, int index);
-        void ApplySRT(SRT0Node node, int index);
-        void ApplySHP(SHP0Node node, int index);
-        void ApplyPAT(PAT0Node node, int index);
-        void ApplyVIS(VIS0Node node, int index);
-        void ApplyCLR(CLR0Node node, int index);
+        void ApplyCHR(CHR0Node node, float index);
+        void ApplySRT(SRT0Node node, float index);
+        void ApplySHP(SHP0Node node, float index);
+        void ApplyPAT(PAT0Node node, float index);
+        void ApplyVIS(VIS0Node node, float index);
+        void ApplyCLR(CLR0Node node, float index);
         void SetSCN0(SCN0Node node);
-        void SetSCN0Frame(int index);
+        void SetSCN0Frame(float index);
         
         void RenderVertices(bool depthPass, IBoneNode weightTarget);
         void RenderNormals();

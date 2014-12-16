@@ -441,6 +441,7 @@ namespace System.Windows.Forms
 			// 
 			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
+<<<<<<< HEAD
 			this.groupBox1.Controls.Add(this.chkLeftLedge);
 			this.groupBox1.Controls.Add(this.chkNoWalljump);
 			this.groupBox1.Controls.Add(this.chkRightLedge);
@@ -765,6 +766,168 @@ namespace System.Windows.Forms
 			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
 			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+=======
+            this.groupBox1.Controls.Add(this.chkLeftLedge);
+            this.groupBox1.Controls.Add(this.chkNoWalljump);
+            this.groupBox1.Controls.Add(this.chkRightLedge);
+            this.groupBox1.Controls.Add(this.chkFallThrough);
+            this.groupBox1.Location = new System.Drawing.Point(0, 28);
+            this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
+            this.groupBox1.Name = "groupBox1";
+            this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
+            this.groupBox1.Size = new System.Drawing.Size(104, 86);
+            this.groupBox1.TabIndex = 13;
+            this.groupBox1.TabStop = false;
+            this.groupBox1.Text = "Flags";
+            // 
+            // chkLeftLedge
+            // 
+            this.chkLeftLedge.Location = new System.Drawing.Point(8, 33);
+            this.chkLeftLedge.Margin = new System.Windows.Forms.Padding(0);
+            this.chkLeftLedge.Name = "chkLeftLedge";
+            this.chkLeftLedge.Size = new System.Drawing.Size(86, 18);
+            this.chkLeftLedge.TabIndex = 4;
+            this.chkLeftLedge.Text = "Left Ledge";
+            this.chkLeftLedge.UseVisualStyleBackColor = true;
+            this.chkLeftLedge.CheckedChanged += new System.EventHandler(this.chkLeftLedge_CheckedChanged);
+            // 
+            // chkNoWalljump
+            // 
+            this.chkNoWalljump.Location = new System.Drawing.Point(8, 65);
+            this.chkNoWalljump.Margin = new System.Windows.Forms.Padding(0);
+            this.chkNoWalljump.Name = "chkNoWalljump";
+            this.chkNoWalljump.Size = new System.Drawing.Size(90, 18);
+            this.chkNoWalljump.TabIndex = 2;
+            this.chkNoWalljump.Text = "No Walljump";
+            this.chkNoWalljump.UseVisualStyleBackColor = true;
+            this.chkNoWalljump.CheckedChanged += new System.EventHandler(this.chkNoWalljump_CheckedChanged);
+            // 
+            // chkRightLedge
+            // 
+            this.chkRightLedge.Location = new System.Drawing.Point(8, 49);
+            this.chkRightLedge.Margin = new System.Windows.Forms.Padding(0);
+            this.chkRightLedge.Name = "chkRightLedge";
+            this.chkRightLedge.Size = new System.Drawing.Size(86, 18);
+            this.chkRightLedge.TabIndex = 1;
+            this.chkRightLedge.Text = "Right Ledge";
+            this.chkRightLedge.UseVisualStyleBackColor = true;
+            this.chkRightLedge.CheckedChanged += new System.EventHandler(this.chkRightLedge_CheckedChanged);
+            // 
+            // chkFallThrough
+            // 
+            this.chkFallThrough.Location = new System.Drawing.Point(8, 17);
+            this.chkFallThrough.Margin = new System.Windows.Forms.Padding(0);
+            this.chkFallThrough.Name = "chkFallThrough";
+            this.chkFallThrough.Size = new System.Drawing.Size(90, 18);
+            this.chkFallThrough.TabIndex = 0;
+            this.chkFallThrough.Text = "Fall-Through";
+            this.chkFallThrough.UseVisualStyleBackColor = true;
+            this.chkFallThrough.CheckedChanged += new System.EventHandler(this.chkFallThrough_CheckedChanged);
+            // 
+            // cboMaterial
+            // 
+            this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMaterial.FormattingEnabled = true;
+            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+            this.cboMaterial.Name = "cboMaterial";
+            this.cboMaterial.Size = new System.Drawing.Size(139, 21);
+            this.cboMaterial.TabIndex = 12;
+            this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
+            // 
+            // label5
+            // 
+            this.label5.Location = new System.Drawing.Point(7, 4);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(53, 21);
+            this.label5.TabIndex = 8;
+            this.label5.Text = "Material:";
+            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // panel4
+            // 
+            this.panel4.Controls.Add(this.btnPlayAnims);
+            this.panel4.Controls.Add(this.btnPrevFrame);
+            this.panel4.Controls.Add(this.btnNextFrame);
+            this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.panel4.Enabled = false;
+            this.panel4.Location = new System.Drawing.Point(0, 197);
+            this.panel4.Name = "panel4";
+            this.panel4.Size = new System.Drawing.Size(209, 24);
+            this.panel4.TabIndex = 17;
+            this.panel4.Visible = false;
+            // 
+            // btnPlayAnims
+            // 
+            this.btnPlayAnims.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnPlayAnims.Location = new System.Drawing.Point(35, 0);
+            this.btnPlayAnims.Name = "btnPlayAnims";
+            this.btnPlayAnims.Size = new System.Drawing.Size(139, 24);
+            this.btnPlayAnims.TabIndex = 16;
+            this.btnPlayAnims.Text = "Play Animations";
+            this.btnPlayAnims.UseVisualStyleBackColor = true;
+            this.btnPlayAnims.Click += new System.EventHandler(this.btnPlayAnims_Click);
+            // 
+            // btnPrevFrame
+            // 
+            this.btnPrevFrame.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnPrevFrame.Location = new System.Drawing.Point(0, 0);
+            this.btnPrevFrame.Name = "btnPrevFrame";
+            this.btnPrevFrame.Size = new System.Drawing.Size(35, 24);
+            this.btnPrevFrame.TabIndex = 18;
+            this.btnPrevFrame.Text = "<";
+            this.btnPrevFrame.UseVisualStyleBackColor = true;
+            this.btnPrevFrame.Click += new System.EventHandler(this.btnPrevFrame_Click);
+            // 
+            // btnNextFrame
+            // 
+            this.btnNextFrame.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnNextFrame.Location = new System.Drawing.Point(174, 0);
+            this.btnNextFrame.Name = "btnNextFrame";
+            this.btnNextFrame.Size = new System.Drawing.Size(35, 24);
+            this.btnNextFrame.TabIndex = 17;
+            this.btnNextFrame.Text = ">";
+            this.btnNextFrame.UseVisualStyleBackColor = true;
+            this.btnNextFrame.Click += new System.EventHandler(this.btnNextFrame_Click);
+            // 
+            // _modelPanel
+            // 
+            this._modelPanel.DefaultTranslate = new Vector3(0,0,0);
+            this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._modelPanel.InitialYFactor = 100;
+            this._modelPanel.InitialZoomFactor = 5;
+            this._modelPanel.Location = new System.Drawing.Point(0, 25);
+            this._modelPanel.Name = "_modelPanel";
+            this._modelPanel.RotationScale = 0.4F;
+            this._modelPanel.Size = new System.Drawing.Size(481, 442);
+            this._modelPanel.TabIndex = 0;
+            this._modelPanel.TranslationScale = 0.05F;
+            this._modelPanel.ZoomScale = 2.5F;
+            this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
+            this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
+            this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
+            this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
+            this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);
+            this._modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseUp);
+            // 
+            // panel1
+            // 
+            this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.panel1.Controls.Add(this.toolStrip1);
+            this.panel1.Controls.Add(this.btnResetRot);
+            this.panel1.Controls.Add(this.trackBar1);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 0);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(481, 25);
+            this.panel1.TabIndex = 2;
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.BackColor = System.Drawing.Color.WhiteSmoke;
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
             this.btnUndo,
             this.btnRedo,
             this.toolStripSeparator3,

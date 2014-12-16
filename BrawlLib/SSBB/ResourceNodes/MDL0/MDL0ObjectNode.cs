@@ -555,7 +555,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((_bone = value) != null)
                 {
                     _bone._manPolys.Add(this);
-                    _render = _bone._flags1.HasFlag(BoneFlags.Visible);
+                    _render = _bone._boneFlags.HasFlag(BoneFlags.Visible);
                 }
             }
         }
@@ -1350,7 +1350,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind() 
         {
-            _render = (_bone != null ? _bone._flags1.HasFlag(BoneFlags.Visible) ? true : false : true);
+            _render = (_bone != null ? _bone._boneFlags.HasFlag(BoneFlags.Visible) ? true : false : true);
 
             //if (ctx != null && ctx._shadersEnabled)
             //{

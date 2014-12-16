@@ -180,10 +180,33 @@
   <ItemGroup>
     <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
+    <Compile Include="Modeling\Collada\ColladaImportDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Modeling\Collada\ColladaParser.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Modeling\IBoneNode.cs" />
     <Compile Include="Modeling\IModel.cs" />
     <Compile Include="Modeling\IObject.cs" />
+    <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
+<<<<<<< HEAD
+=======
+    <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDBoneNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDGroupNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDMaterialRefNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDObjectNode.cs" />
+    <None Include="SSBB\ResourceNodes\BMD\BMDMaterialNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFAnimationNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFEmitterNode9.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFEmitterNode7.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFParticleNode.cs" />
+    <None Include="SSBB\ResourceNodes\J3DNode.cs" />
+    <None Include="SSBB\ResourceNodes\Graphics\BTINode.cs" />
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="SSBB\ResourceNodes\ItmFreqNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\ADSJNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\BGMGNode.cs" />
@@ -196,6 +219,12 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\GSNDNode.cs" />
     <Compile Include="SSBB\Stage.cs" />
     <Compile Include="SSBB\SuppertedFilesHandler.cs" />
+<<<<<<< HEAD
+=======
+    <None Include="SSBB\Types\BMD.cs" />
+    <Compile Include="SSBB\Types\LM BIN.cs" />
+    <None Include="SSBB\Types\BTI.cs" />
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="SSBB\Types\ItmFreq.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\BGMG.cs" />
@@ -205,6 +234,10 @@
     <Compile Include="SSBB\Types\Subspace\Animation\GMOV.cs" />
     <Compile Include="SSBB\Types\Subspace\Objects\GMPS.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\GSND.cs" />
+<<<<<<< HEAD
+=======
+    <None Include="SSBB\Types\RARC.cs" />
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
@@ -214,7 +247,7 @@
     <Compile Include="Imaging\GIF\LZWEncoder.cs" />
     <Compile Include="Imaging\GIF\NeuQuant.cs" />
     <Compile Include="Modeling\SaveState.cs" />
-    <Compile Include="Modeling\Collada\Collada.cs">
+    <Compile Include="Modeling\Collada\ColladaExporter.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Imaging\CIE.cs" />
@@ -349,7 +382,7 @@
     <Compile Include="SSBB\ResourceNodes\Archives\MRGNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RawDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RELNode.cs" />
-    <Compile Include="SSBB\ResourceNodes\Graphics\REFFNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\EFLSNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0BoneNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0ColorNode.cs" />
@@ -434,14 +467,41 @@
     <Compile Include="System\Windows\Controls\Hex Editor\MemoryDataBlock.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\NativeMethods.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\Util.cs" />
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Mouse.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Animation.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Hotkeys.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Misc.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Properties.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Variables.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Undo.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ShaderEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\ShaderEditor.Designer.cs">
+      <DependentUpon>ShaderEditor.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Controls\TexCoordRenderer.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\TexCoordRenderer.Designer.cs">
       <DependentUpon>TexCoordRenderer.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\Windows\Controls\ModelViewer\IMainWindow.cs">
-      <SubType>Component</SubType>
+    <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Rendering.cs">
+      <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\EditAllDialog\SRT0.cs">
       <SubType>UserControl</SubType>
@@ -524,11 +584,16 @@
     <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </Compile>
+<<<<<<< HEAD
     <Compile Include="System\Windows\Controls\TransformAttributesControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\TransformAttributesControl.Designer.cs">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
+=======
+    <Compile Include="System\Windows\Controls\TransparentPanel.cs">
+      <SubType>Component</SubType>
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     </Compile>
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
@@ -831,9 +896,6 @@
     <Compile Include="Wii\Textures\TextureConverter.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Modeling\Collada\ColladaImporter.resx">
-      <DependentUpon>ColladaImporter.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="OpenGL\GLPanel.resx">
       <DependentUpon>GLPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -901,8 +963,13 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+<<<<<<< HEAD
     <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
+=======
+    <EmbeddedResource Include="System\Windows\Controls\ShaderEditor.resx">
+      <DependentUpon>ShaderEditor.cs</DependentUpon>
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>

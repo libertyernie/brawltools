@@ -264,7 +264,7 @@ namespace Ikarus.UI
             if (syncAnimationsTogetherToolStripMenuItem.Checked)
                 GetFiles(TargetAnimType);
             else
-                GetFiles(AnimType.None);
+                GetFiles(NW4RAnimType.None);
         }
         public void pnlAnim_ReferenceLoaded(ResourceNode node) { modelPanel.AddReference(node); }
 
@@ -344,7 +344,7 @@ namespace Ikarus.UI
             if (modelListsPanel1._syncObjTex)
                 modelListsPanel1.UpdateTextures();
 
-            if (TargetAnimType == AnimType.VIS)
+            if (TargetAnimType == NW4RAnimType.VIS)
                 if (listPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
                 {
                     int x = 0;

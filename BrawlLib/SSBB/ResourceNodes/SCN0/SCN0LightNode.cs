@@ -11,57 +11,180 @@ using BrawlLib.Wii.Animations;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public interface IBoolArrayNode
-    {
-        bool Constant { get; set; }
-        bool Enabled { get; set; }
-        int EntryCount { get; set; }
-        void SetEntry(int index, bool value);
-        bool GetEntry(int index);
-        void MakeAnimated();
-        void MakeConstant(bool value);
-    }
-
-    public interface ISCN0KeyframeHolder
+    public interface ISCN0KeyframeSource
     {
         int KeyArrayCount { get; }
         KeyframeArray GetKeys(int i);
         void SetKeys(int i, KeyframeArray value);
     }
 
-    public unsafe class SCN0LightNode : SCN0EntryNode, IBoolArrayNode, IColorSource, ISCN0KeyframeHolder
+    public unsafe class SCN0LightNode : SCN0EntryNode, IBoolArraySource, IColorSource, ISCN0KeyframeSource
     {
         internal SCN0Light* Data { get { return (SCN0Light*)WorkingUncompressed.Address; } }
-
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
-        internal int _nonSpecLightId, _part2Offset, _enableOffset, _distFunc, _spotFunc;
-        internal ushort _flags1 = 0xFFF8, _flags2 = 0x35;
+        #region Variables
 
+        //Header variables
+        internal int _nonSpecLightId, _distFunc, _spotFunc;
+        internal FixedFlags _fixedFlags = (FixedFlags)0xFFF8;
+        internal Bin16 _typeUsageFlags = 0x35;
+
+        //Visibility array
         internal byte[] _data = new byte[0];
         internal int _entryCount;
 
-        private List<RGBAPixel> _lightColor = new List<RGBAPixel>(), _specColor = new List<RGBAPixel>();
+        //Color arrays
         public int[] _numEntries = new int[] { 0, 0 };
-        public RGBAPixel[] _solidColors =  new RGBAPixel[2];
-        public List<RGBAPixel> GetColors(int i)
-        {
-            switch (i)
-            {
-                case 0: return _lightColor;
-                case 1: return _specColor;
-            }
-            return null;
-        }
+        public RGBAPixel[] _solidColors = new RGBAPixel[2];
+        private List<RGBAPixel>
+            _lightColor = new List<RGBAPixel>(),
+            _specColor = new List<RGBAPixel>();
+        public bool[] _constants = new bool[] { true, true };
 
-        public void SetColors(int i, List<RGBAPixel> value)
+        //Keyframes
+        public KeyframeArray
+            _startX = new KeyframeArray(0),
+            _startY = new KeyframeArray(0),
+            _startZ = new KeyframeArray(0),
+            _endX = new KeyframeArray(0),
+            _endY = new KeyframeArray(0),
+            _endZ = new KeyframeArray(0),
+            _spotCut = new KeyframeArray(0),
+            _spotBright = new KeyframeArray(0),
+            _refDist = new KeyframeArray(0),
+            _refBright = new KeyframeArray(0);
+
+        #endregion
+
+        #region User Editable Variables
+        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
+        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
+        internal UserDataCollection _userEntries = new UserDataCollection();
+        [Category("SCN0 Entry")]
+        public int NonSpecularLightID
         {
-            switch (i)
+            get
             {
-                case 0: _lightColor = value; break;
-                case 1: _specColor = value; break;
+                if (!SpecularEnabled)
+                    return 0;
+
+                int i = 0;
+                foreach (SCN0LightNode n in Parent.Children)
+                {
+                    if (n.Index == Index)
+                        return Parent.Children.Count + i;
+                    if (n.SpecularEnabled && n.Index != Index)
+                        i++;
+                }
+                return 0;
             }
         }
+        [Category("Light")]
+        public LightType LightType { get { return (LightType)_typeUsageFlags[0, 2]; } set { _typeUsageFlags[0, 2] = (ushort)value; SignalPropertyChange(); } }
+        [Category("Light")]
+        public bool ColorEnabled
+        {
+            get { return UsageFlags.HasFlag(UsageFlags.ColorEnabled); }
+            set
+            {
+                if (value)
+                    UsageFlags |= UsageFlags.ColorEnabled;
+                else
+                    UsageFlags &= ~UsageFlags.ColorEnabled;
+                SignalPropertyChange();
+            }
+        }
+        [Category("Light")]
+        public bool AlphaEnabled
+        {
+            get { return UsageFlags.HasFlag(UsageFlags.AlphaEnabled); }
+            set
+            {
+                if (value)
+                    UsageFlags |= UsageFlags.AlphaEnabled;
+                else
+                    UsageFlags &= ~UsageFlags.AlphaEnabled;
+                SignalPropertyChange();
+            }
+        }
+        [Category("Light")]
+        public bool SpecularEnabled
+        {
+            get { return UsageFlags.HasFlag(UsageFlags.SpecularEnabled); }
+            set
+            {
+                if (value)
+                    UsageFlags |= UsageFlags.SpecularEnabled;
+                else
+                    UsageFlags &= ~UsageFlags.SpecularEnabled;
+                SignalPropertyChange();
+            }
+        }
+        [Category("Source Light")]
+        public DistAttnFn DistanceFunction { get { return (DistAttnFn)_distFunc; } set { _distFunc = (int)value; SignalPropertyChange(); } }
+        [Category("Spotlight")]
+        public SpotFn SpotFunction { get { return (SpotFn)_spotFunc; } set { _spotFunc = (int)value; SignalPropertyChange(); } }
+        [Category("Light Colors")]
+        public bool ConstantColor
+        {
+            get { return _constants[0]; }
+            set
+            {
+                if (_constants[0] != value)
+                {
+                    _constants[0] = value;
+                    if (_constants[0])
+                        MakeSolid(new ARGBPixel(), 0);
+                    else
+                        MakeList(0);
+
+                    UpdateCurrentControl();
+                }
+            }
+        }
+        [Category("Light Colors")]
+        public bool ConstantSpecular
+        {
+            get { return _constants[1]; }
+            set
+            {
+                if (_constants[1] != value)
+                {
+                    _constants[1] = value;
+                    if (_constants[1])
+                        MakeSolid(new ARGBPixel(), 1);
+                    else
+                        MakeList(1);
+
+                    UpdateCurrentControl();
+                }
+            }
+        }
+        [Category("Light Enable")]
+        public bool Constant
+        {
+            get { return ConstantVisibility; }
+            set
+            {
+                if (value != ConstantVisibility)
+                {
+                    if (value)
+                        MakeConstant(true);
+                    else
+                        MakeAnimated();
+
+                    UpdateCurrentControl();
+                }
+            }
+        }
+        [Category("Light Enable")]
+        public bool Enabled
+        {
+            get { return VisibilityEnabled; }
+            set { VisibilityEnabled = value; SignalPropertyChange(); }
+        }
+        #endregion
 
         #region IColorSource Members
 
@@ -83,7 +206,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GetColors(id)[index] = (RGBAPixel)color;
             SignalPropertyChange();
         }
-        public bool GetClrConstant(int id)
+        public bool GetColorConstant(int id)
         {
             switch (id)
             {
@@ -92,7 +215,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             return false;
         }
-        public void SetClrConstant(int id, bool constant)
+        public void SetColorConstant(int id, bool constant)
         {
             switch (id)
             {
@@ -144,18 +267,18 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void MakeConstant(bool value)
         {
-            SetConstant = true;
-            SetEnabled = value;
+            ConstantVisibility = true;
+            VisibilityEnabled = value;
             _entryCount = 0;
 
             SignalPropertyChange();
         }
         public void MakeAnimated()
         {
-            bool enabled = SetEnabled;
+            bool enabled = VisibilityEnabled;
 
-            SetConstant = false;
-            SetEnabled = false;
+            ConstantVisibility = false;
+            VisibilityEnabled = false;
 
             _entryCount = -1;
             EntryCount = FrameCount + 1;
@@ -167,9 +290,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             SignalPropertyChange();
         }
 
-#endregion
+        #endregion
 
         #region ISCN0KeyframeHolder Members
+        [Browsable(false)]
         public int KeyArrayCount { get { return 10; } }
         public KeyframeArray GetKeys(int i)
         {
@@ -206,45 +330,81 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         #endregion
 
+        #region Flags
         [Browsable(false)]
-        public FixedFlags Flags { get { return (FixedFlags)_flags1; } set { _flags1 = (ushort)value; } }
-
-        public bool[] _constants = new bool[] { true, true };
-
-        [Category("Light Colors")]
-        public bool ConstantColor
+        public UsageFlags UsageFlags { get { return (UsageFlags)_typeUsageFlags[2, 4]; } set { _typeUsageFlags[2, 4] = (ushort)value; SignalPropertyChange(); } }
+        [Browsable(false)]
+        public bool ConstantVisibility
         {
-            get { return _constants[0]; }
+            get { return _fixedFlags.HasFlag(FixedFlags.EnabledConstant); }
             set
             {
-                if (_constants[0] != value)
-                {
-                    _constants[0] = value;
-                    if (_constants[0])
-                        MakeSolid(new ARGBPixel(), 0);
-                    else
-                        MakeList(0);
-
-                    UpdateCurrentControl();
-                }
+                if (value)
+                    _fixedFlags |= FixedFlags.EnabledConstant;
+                else
+                    _fixedFlags &= ~FixedFlags.EnabledConstant;
             }
         }
-        [Category("Light Colors")]
-        public bool ConstantSpecular
+        [Browsable(false)]
+        public bool VisibilityEnabled
         {
-            get { return _constants[1]; }
+            get { return UsageFlags.HasFlag(UsageFlags.Enabled); }
             set
             {
-                if (_constants[1] != value)
-                {
-                    _constants[1] = value;
-                    if (_constants[1])
-                        MakeSolid(new ARGBPixel(), 1);
-                    else
-                        MakeList(1);
+                if (value)
+                    UsageFlags |= UsageFlags.Enabled;
+                else
+                    UsageFlags &= ~UsageFlags.Enabled;
+            }
+        }
+        private static readonly FixedFlags[] _ordered = new FixedFlags[] 
+        {
+            FixedFlags.StartXConstant,
+            FixedFlags.StartYConstant,
+            FixedFlags.StartZConstant,
+            FixedFlags.EndXConstant,
+            FixedFlags.EndYConstant,
+            FixedFlags.EndZConstant,
+            FixedFlags.RefDistanceConstant,
+            FixedFlags.RefBrightnessConstant,
+            FixedFlags.CutoffConstant,
+            FixedFlags.ShininessConstant,
+        };
+        [Flags]
+        public enum FixedFlags : ushort
+        {
+            StartXConstant = 0x8,
+            StartYConstant = 0x10,
+            StartZConstant = 0x20,
+            ColorConstant = 0x40,
+            EnabledConstant = 0x80, //Refer to Enabled in UsageFlags if constant
+            EndXConstant = 0x100,
+            EndYConstant = 0x200,
+            EndZConstant = 0x400,
+            CutoffConstant = 0x800,
+            RefDistanceConstant = 0x1000,
+            RefBrightnessConstant = 0x2000,
+            SpecColorConstant = 0x4000,
+            ShininessConstant = 0x8000
+        }
+        #endregion
 
-                    UpdateCurrentControl();
-                }
+        #region Light Color
+        public List<RGBAPixel> GetColors(int i)
+        {
+            switch (i)
+            {
+                case 0: return _lightColor;
+                case 1: return _specColor;
+            }
+            return null;
+        }
+        public void SetColors(int i, List<RGBAPixel> value)
+        {
+            switch (i)
+            {
+                case 0: _lightColor = value; break;
+                case 1: _specColor = value; break;
             }
         }
 
@@ -281,179 +441,307 @@ namespace BrawlLib.SSBB.ResourceNodes
             _numEntries[id] = value;
         }
 
-        [Category("Light Enable")]
-        public bool Constant
-        {
-            get { return SetConstant; }
-            set
-            {
-                if (value != SetConstant)
-                {
-                    if (value)
-                        MakeConstant(true);
-                    else
-                        MakeAnimated();
 
-                    UpdateCurrentControl();
-                }
-            }
-        }
-        [Category("Light Enable")]
-        public bool Enabled
-        {
-            get { return SetEnabled; }
-            set { SetEnabled = value; SignalPropertyChange(); }
-        }
-        
-        [Browsable(false)]
-        public bool SetConstant
-        {
-            get { return Flags.HasFlag(FixedFlags.EnabledConstant); }
-            set
-            {
-                if (value) 
-                    Flags |= FixedFlags.EnabledConstant;
-                else 
-                    Flags &= ~FixedFlags.EnabledConstant;
-            }
-        }
+        #endregion
 
         [Browsable(false)]
-        public bool SetEnabled
-        {
-            get { return ((_flags2 >> 2) & 1) != 0; }
-            set { _flags2 = (ushort)((_flags2 & 0x3B) | ((ushort)((value ? 1 : 0) << 2) & 4)); }
-        }
-
-        public KeyframeArray
-            _startX = new KeyframeArray(0),
-            _startY = new KeyframeArray(0),
-            _startZ = new KeyframeArray(0),
-            _endX = new KeyframeArray(0),
-            _endY = new KeyframeArray(0),
-            _endZ = new KeyframeArray(0),
-            _spotCut = new KeyframeArray(0),
-            _spotBright = new KeyframeArray(0),
-            _refDist = new KeyframeArray(0),
-            _refBright = new KeyframeArray(0);
-
-        private static readonly FixedFlags[] _ordered = new FixedFlags[] 
-        { 
-            FixedFlags.StartXConstant,
-            FixedFlags.StartYConstant,
-            FixedFlags.StartZConstant,
-            FixedFlags.EndXConstant,
-            FixedFlags.EndYConstant,
-            FixedFlags.EndZConstant,
-            FixedFlags.RefDistanceConstant,
-            FixedFlags.RefBrightnessConstant,
-            FixedFlags.CutoffConstant,
-            FixedFlags.ShininessConstant,
-        };
-
-        [Flags]
-        public enum FixedFlags : ushort
-        {
-            StartXConstant = 0x8,
-            StartYConstant = 0x10,
-            StartZConstant = 0x20,
-            ColorConstant = 0x40,
-            EnabledConstant = 0x80, //Refer to Enabled in UsageFlags if constant
-            EndXConstant = 0x100,
-            EndYConstant = 0x200,
-            EndZConstant = 0x400,
-            CutoffConstant = 0x800,
-            RefDistanceConstant = 0x1000,
-            RefBrightnessConstant = 0x2000,
-            SpecColorConstant = 0x4000,
-            ShininessConstant = 0x8000
-        }
-        
-        [Category("SCN0 Entry")]
-        public int NonSpecularLightID 
-        { 
-            get
-            {
-                if (!SpecularEnabled) 
-                    return 0;
-                int i = 0; 
-                foreach (SCN0LightNode n in Parent.Children) 
-                {
-                    if (n.Index == Index)
-                        return Parent.Children.Count + i;
-                    if (n.SpecularEnabled && n.Index != Index)
-                        i++;
-                }
-                return 0;
-            } 
-        }
-
-        [Category("Light")]
-        public LightType LightType { get { return (LightType)(_flags2 & 3); } set { _flags2 = (ushort)((_flags2 & 60) | ((ushort)value & 3)); SignalPropertyChange(); } }
-        
-        [Browsable(false)]
-        public UsageFlags UsageFlags { get { return (UsageFlags)((_flags2 >> 2) & 0xE); } set { _flags2 = (ushort)((_flags2 & 7) | ((ushort)((ushort)value << 2) & 56)); SignalPropertyChange(); } }
-
-        [Category("Light")]
-        public bool ColorEnabled
-        {
-            get { return UsageFlags.HasFlag(UsageFlags.ColorEnabled); }
-            set
-            {
-                if (value)
-                    UsageFlags |= UsageFlags.ColorEnabled;
-                else
-                    UsageFlags &= ~UsageFlags.ColorEnabled;
-                SignalPropertyChange();
-            }
-        }
-        [Category("Light")]
-        public bool AlphaEnabled
-        {
-            get { return UsageFlags.HasFlag(UsageFlags.AlphaEnabled); }
-            set
-            {
-                if (value)
-                    UsageFlags |= UsageFlags.AlphaEnabled;
-                else
-                    UsageFlags &= ~UsageFlags.AlphaEnabled; 
-                SignalPropertyChange();
-            }
-        }
-        [Category("Light")]
-        public bool SpecularEnabled
-        {
-            get { return UsageFlags.HasFlag(UsageFlags.SpecularEnabled); }
-            set
-            {
-                if (value)
-                    UsageFlags |= UsageFlags.SpecularEnabled;
-                else
-                    UsageFlags &= ~UsageFlags.SpecularEnabled;
-                SignalPropertyChange();
-            }
-        }
-
-        [Category("Source Light")]
-        public DistAttnFn DistanceFunction { get { return (DistAttnFn)_distFunc; } set { _distFunc = (int)value; SignalPropertyChange(); } }
-
-        [Category("Spotlight")]
-        public SpotFn SpotFunction { get { return (SpotFn)_spotFunc; } set { _spotFunc = (int)value; SignalPropertyChange(); } }
-
-        [Browsable(false)]
-        internal int FrameCount 
+        internal int FrameCount
         {
             get { return ((SCN0Node)Parent.Parent).FrameCount; }
             set
             {
                 int x = value + 1;
+
                 _numEntries[0] = GetColors(0).Count;
                 _numEntries[1] = GetColors(1).Count;
+
                 SetNumEntries(0, x);
                 SetNumEntries(1, x);
-                if (_constants[0]) _numEntries[0] = 0;
-                if (_constants[1]) _numEntries[1] = 0;
+
+                if (_constants[0])
+                    _numEntries[0] = 0;
+                if (_constants[1])
+                    _numEntries[1] = 0;
+
+                for (int i = 0; i < 10; i++)
+                    GetKeys(i).FrameLimit = value;
+
+                _entryCount = FrameCount + 1;
+                int numBytes = Math.Min(_entryCount.Align(32) / 8, _data.Length);
+                Array.Resize(ref _data, numBytes);
             }
+        }
+
+        public override bool OnInitialize()
+        {
+            //Read common header
+            base.OnInitialize();
+
+            //Initialize defaults
+            _numEntries = new int[] { 0, 0 };
+            _solidColors = new RGBAPixel[2];
+            _constants = new bool[] { true, true };
+            for (int x = 0; x < 10; x++)
+                SetKeys(x, new KeyframeArray(FrameCount));
+
+            //Read header values
+            _nonSpecLightId = Data->_nonSpecLightId;
+            _fixedFlags = (FixedFlags)(ushort)Data->_fixedFlags;
+            _typeUsageFlags = (ushort)Data->_usageFlags;
+            _distFunc = Data->_distFunc;
+            _spotFunc = Data->_spotFunc;
+
+            //Read user data
+            //(_userEntries = new UserDataCollection()).Read(Data->UserData);
+
+            //Don't bother reading data if the entry is null
+            if (Name == "<null>")
+                return false;
+
+            //Read keyframe data
+            int index = 0;
+            for (int i = 0; i < 14; i++)
+                if (!(i == 3 || i == 7 || i == 9 || i == 11))
+                    DecodeKeyframes(
+                        GetKeys(index),
+                        Data->_startPoint._x.Address + i * 4,
+                        (int)_fixedFlags,
+                        (int)_ordered[index++]);
+
+            //Read light visibility array
+            if (!_fixedFlags.HasFlag(FixedFlags.EnabledConstant) && !_replaced)
+            {
+                _entryCount = FrameCount + 1;
+                int numBytes = _entryCount.Align(32) / 8;
+
+                _data = new byte[numBytes];
+                Marshal.Copy((IntPtr)Data->VisBitEntries, _data, 0, numBytes);
+            }
+            else
+            {
+                _entryCount = 0;
+                _data = new byte[0];
+            }
+
+            //Read light color
+            ReadColors(
+                (uint)_fixedFlags,
+                (uint)FixedFlags.ColorConstant,
+                ref _solidColors[0],
+                ref _lightColor,
+                FrameCount,
+                Data->_lightColor.Address,
+                ref _constants[0],
+                ref _numEntries[0]);
+
+            if (!SpecularEnabled)
+                return false;
+
+            //Read light specular color
+            ReadColors(
+                (uint)_fixedFlags,
+                (uint)FixedFlags.SpecColorConstant,
+                ref _solidColors[1],
+                ref _specColor,
+                FrameCount,
+                Data->_specularColor.Address,
+                ref _constants[1],
+                ref _numEntries[1]);
+
+            return false;
+        }
+
+        SCN0LightNode[] _matches = { null, null };
+        public override int OnCalculateSize(bool force)
+        {
+            _matches[0] = null;
+            _matches[1] = null;
+
+            for (int i = 0; i < 3; i++)
+                _dataLengths[i] = 0;
+
+            if (_name == "<null>")
+                return SCN0Light.Size;
+
+            for (int i = 0; i < KeyArrayCount; i++)
+                CalcKeyLen(GetKeys(i));
+
+            for (int i = 0; i < 2; i++)
+            {
+                _matches[i] = FindColorMatch(_constants[i], FrameCount, _matches[i], i) as SCN0LightNode;
+                if (_matches[i] == null && !_constants[i])
+                    _dataLengths[1] += 4 * (FrameCount + 1);
+            }
+
+            if (!ConstantVisibility)
+                _dataLengths[2] += _entryCount.Align(32) / 8;
+
+            //If this light uses specular lighting, 
+            //increment SCN0 specular light count
+            if (UsageFlags.HasFlag(UsageFlags.SpecularEnabled))
+                ((SCN0Node)Parent.Parent)._specLights++;
+
+            return SCN0Light.Size;
+        }
+
+        VoidPtr _lightAddress, _specularAddress;
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            //Build common header
+            base.OnRebuild(address, length, force);
+
+            //Reset addresses
+            _lightAddress = null;
+            _specularAddress = null;
+
+            //Don't write anything if this node is null
+            if (_name == "<null>")
+                return;
+
+            //Write header information
+            SCN0Light* header = (SCN0Light*)address;
+            header->_nonSpecLightId = NonSpecularLightID;
+            header->_userDataOffset = 0;
+            header->_distFunc = _distFunc;
+            header->_spotFunc = _spotFunc;
+
+            int newFlags = 0;
+
+            //Encode keyframe data
+            int index = 0;
+            for (int i = 0; i < 14; i++)
+                if (!(i == 3 || i == 7 || i == 9 || i == 11))
+                    _dataAddrs[0] += EncodeKeyframes(
+                        GetKeys(index),
+                        _dataAddrs[0],
+                        header->_startPoint._x.Address + i * 4,
+                        ref newFlags,
+                        (int)_ordered[index++]);
+
+            _dataAddrs[1] += WriteColors(
+                ref newFlags,
+                (int)FixedFlags.ColorConstant,
+                _solidColors[0],
+                _lightColor,
+                _constants[0],
+                FrameCount,
+                header->_lightColor.Address,
+                ref _lightAddress,
+                _matches[0] == null ? null : _matches[0]._lightAddress,
+                (RGBAPixel*)_dataAddrs[1]);
+
+            if (SpecularEnabled)
+                _dataAddrs[1] += WriteColors(
+                    ref newFlags,
+                    (int)FixedFlags.SpecColorConstant,
+                    _solidColors[1],
+                    _specColor,
+                    _constants[1],
+                    FrameCount,
+                    header->_specularColor.Address,
+                    ref _specularAddress,
+                    _matches[1] == null ? null : _matches[1]._specularAddress,
+                    (RGBAPixel*)_dataAddrs[1]);
+
+            if (!ConstantVisibility && _entryCount != 0)
+            {
+                header->_visOffset = (int)_dataAddrs[2] - (int)header->_visOffset.Address;
+                Marshal.Copy(_data, 0, (IntPtr)_dataAddrs[2], _data.Length);
+                _dataAddrs[2] = ((VoidPtr)_dataAddrs[2] + EntryCount.Align(32) / 8);
+            }
+            else
+                newFlags |= (int)FixedFlags.EnabledConstant;
+
+            //Set newly calculated flags
+            header->_fixedFlags = (ushort)(_fixedFlags = (FixedFlags)newFlags);
+            header->_usageFlags = _typeUsageFlags._data;
+        }
+
+        protected internal override void PostProcess(VoidPtr scn0Address, VoidPtr dataAddress, StringTable stringTable)
+        {
+            base.PostProcess(scn0Address, dataAddress, stringTable);
+        }
+
+        internal LightAnimationFrame GetAnimFrame(int index)
+        {
+            LightAnimationFrame frame;
+            float* dPtr = (float*)&frame;
+            for (int x = 0; x < 10; x++)
+            {
+                KeyframeArray a = GetKeys(x);
+                *dPtr++ = a.GetFrameValue(index);
+                frame.SetBools(x, a.GetKeyframe((int)index) != null);
+                frame.Index = index;
+            }
+
+            //if (((FixedFlags)_flags1).HasFlag(FixedFlags.EnabledConstant))
+            //    frame.Enabled = UsageFlags.HasFlag(UsageFlags.Enabled);
+            //else
+            //    frame.Enabled = index < _enabled.Count ? _enabled[index] : false;
+
+            return frame;
+        }
+        internal LightAnimationFrame GetAnimFrame(int index, bool linear)
+        {
+            LightAnimationFrame frame;
+            float* dPtr = (float*)&frame;
+            for (int x = 0; x < 10; x++)
+            {
+                KeyframeArray a = GetKeys(x);
+                *dPtr++ = a.GetFrameValue(index, linear);
+                frame.SetBools(x, a.GetKeyframe((int)index) != null);
+                frame.Index = index;
+            }
+
+            //if (((FixedFlags)_flags1).HasFlag(FixedFlags.EnabledConstant))
+            //    frame.Enabled = UsageFlags.HasFlag(UsageFlags.Enabled);
+            //else
+            //    frame.Enabled = index < _enabled.Count ? _enabled[index] : false;
+
+            return frame;
+        }
+
+        public static bool _generateTangents = true;
+        public static bool _linear = true;
+
+        public float GetFrameValue(LightKeyframeMode keyFrameMode, float index)
+        {
+            return GetKeys((int)keyFrameMode).GetFrameValue(index);
+        }
+
+        internal KeyframeEntry GetKeyframe(LightKeyframeMode keyFrameMode, int index)
+        {
+            return GetKeys((int)keyFrameMode).GetKeyframe(index);
+        }
+
+        internal void RemoveKeyframe(LightKeyframeMode keyFrameMode, int index)
+        {
+            KeyframeEntry k = GetKeys((int)keyFrameMode).Remove(index);
+            if (k != null && _generateTangents)
+            {
+                k._prev.GenerateTangent();
+                k._next.GenerateTangent();
+                SignalPropertyChange();
+            }
+        }
+
+        internal void SetKeyframe(LightKeyframeMode keyFrameMode, int index, float value)
+        {
+            KeyframeArray keys = GetKeys((int)keyFrameMode);
+            bool exists = keys.GetKeyframe(index) != null;
+            KeyframeEntry k = keys.SetFrameValue(index, value);
+
+            if (!exists && !_generateTangents)
+                k.GenerateTangent();
+
+            if (_generateTangents)
+            {
+                k.GenerateTangent();
+                k._prev.GenerateTangent();
+                k._next.GenerateTangent();
+            }
+
+            SignalPropertyChange();
         }
 
         public Vector3 GetStart(int frame)
@@ -472,11 +760,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _endZ.GetFrameValue(frame));
         }
 
-        //  Description:  Convenience function to set spotlight parameters.
-        //
-        //  Arguments:    light         HW light ID.
-        //                cutoff        Cut off angle.
-        //                spot_func     Spot function characteristics.
         public Vector3 GetLightSpot(int frame)
         {
             float a0, a1, a2, r, d, cr;
@@ -536,12 +819,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             return new Vector3(a0, a1, a2);
         }
 
-        //  Description:  Convenience function for setting distance attenuation.
-        //
-        //  Arguments:    light         HW light ID.
-        //                ref_dist      Reference distance.
-        //                ref_br        Reference brightness.
-        //                dist_func     Attenuation characteristics.
         public Vector3 GetLightDistAttn(int frame)
         {
             float k0, k1, k2;
@@ -579,299 +856,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             return new Vector3(k0, k1, k2);
-        }
-
-        public int LightOffset { get { return !_constants[0] ? (int)*(bint*)&Data->_lightColor + (int)(&Data->_lightColor - Parent.Parent.WorkingUncompressed.Address) : 0; } }
-        public int SpecOffset { get { return !_constants[1] ? (int)*(bint*)&Data->_specularColor + (int)(&Data->_specularColor - Parent.Parent.WorkingUncompressed.Address) : 0; } }
-        
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-
-            _numEntries = new int[] { 0, 0 };
-            _solidColors =  new RGBAPixel[2];
-            _constants = new bool[] { true, true };
-
-            _nonSpecLightId = Data->_nonSpecLightId;
-            _part2Offset = Data->_part2Offset;
-            _flags1 = Data->_fixedFlags;
-            _flags2 = Data->_usageFlags;
-            _enableOffset = Data->_visOffset;
-            _distFunc = Data->_distFunc;
-            _spotFunc = Data->_spotFunc;
-
-            for (int x = 0; x < 10; x++)
-                SetKeys(x, new KeyframeArray(FrameCount + 1));
-
-            FixedFlags flags = (FixedFlags)_flags1;
-
-            if (Name == "<null>")
-                return false;
-
-            if (!flags.HasFlag(FixedFlags.EnabledConstant))
-            {
-                _entryCount = FrameCount + 1;
-                int numBytes = _entryCount.Align(32) / 8;
-
-                _data = new byte[numBytes];
-                Marshal.Copy((IntPtr)Data->visBitEntries, _data, 0, numBytes);
-            }
-            else
-            {
-                _entryCount = 0;
-                _data = new byte[0];
-            }
-
-            if (flags.HasFlag(FixedFlags.ColorConstant))
-                _solidColors[0] = Data->_lightColor;
-            else
-            {
-                _constants[0] = false;
-                _numEntries[0] = FrameCount + 1;
-                RGBAPixel* addr = Data->lightColorEntries;
-                for (int x = 0; x <= FrameCount; x++)
-                    _lightColor.Add(*addr++);
-            }
-
-            if (SpecularEnabled)
-                if (flags.HasFlag(FixedFlags.SpecColorConstant))
-                    _solidColors[1] = Data->_specularColor;
-                else
-                {
-                    _constants[1] = false;
-                    _numEntries[1] = FrameCount + 1;
-                    RGBAPixel* addr = Data->specColorEntries;
-                    for (int x = 0; x <= FrameCount; x++)
-                        _specColor.Add(*addr++);
-                }
-
-            bint* values = (bint*)&Data->_startPoint;
-
-            int index = 0;
-            for (int i = 0; i < 14; i++)
-                if (!(i == 3 || i == 7 || i == 10 || i == 12))
-                    DecodeFrames(GetKeys(index), &values[i], (int)_flags1, (int)_ordered[index++]);
-
-            return false;
-        }
-
-        SCN0LightNode match1 = null, match2 = null;
-        public override int OnCalculateSize(bool force)
-        {
-            match1 = null;
-            match2 = null;
-            _lightLen = 0;
-            _keyLen = 0;
-            _visLen = 0;
-            if (_name != "<null>")
-            {
-                if (!SetConstant)
-                    _visLen += _entryCount.Align(32) / 8;
-                if (!_constants[0])
-                {
-                    foreach (SCN0LightNode n in Parent.Children)
-                    {
-                        if (n == this)
-                            break;
-
-                        if (!n._constants[0])
-                        {
-                            for (int i = 0; i < FrameCount + 1; i++)
-                            {
-                                if (n.GetColors(0)[i] != GetColors(0)[i])
-                                    break;
-                                if (i == FrameCount)
-                                    match1 = n;
-                            }
-                        }
-
-                        if (match1 != null)
-                            break;
-                    }
-                    if (match1 == null)
-                        _lightLen += 4 * (FrameCount + 1);
-                }
-                if (!_constants[1])
-                {
-                    foreach (SCN0LightNode n in Parent.Children)
-                    {
-                        if (n == this)
-                            break;
-
-                        if (!n._constants[1])
-                        {
-                            for (int i = 0; i < FrameCount + 1; i++)
-                            {
-                                if (n.GetColors(1)[i] != GetColors(1)[i])
-                                    break;
-                                if (i == FrameCount)
-                                    match2 = n;
-                            }
-                        }
-
-                        if (match2 != null)
-                            break;
-                    }
-                    if (match2 == null)
-                        _lightLen += 4 * (FrameCount + 1);
-                }
-                for (int i = 0; i < 10; i++)
-                    if (GetKeys(i)._keyCount > 1)
-                        _keyLen += 8 + GetKeys(i)._keyCount * 12;
-
-                if (UsageFlags.HasFlag(UsageFlags.SpecularEnabled))
-                    ((SCN0Node)Parent.Parent)._specLights++;
-            }
-
-            return SCN0Light.Size;
-        }
-
-        VoidPtr lightAddress, specularAddress;
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            base.OnRebuild(address, length, force);
-
-            lightAddress = null;
-            specularAddress = null;
-
-            SCN0Light* header = (SCN0Light*)address;
-
-            if (_name != "<null>")
-            {
-                header->_nonSpecLightId = NonSpecularLightID;
-                header->_part2Offset = _part2Offset;
-                header->_visOffset = _enableOffset;
-                header->_distFunc = _distFunc;
-                header->_spotFunc = _spotFunc;
-
-                int newFlags = 0;
-
-                if (_lightColor.Count > 1)
-                {
-                    lightAddress = lightAddr;
-                    if (match2 == null)
-                    {
-                        *((bint*)header->_lightColor.Address) = (int)lightAddr - (int)header->_lightColor.Address;
-                        for (int x = 0; x <= FrameCount; x++)
-                            if (x < _lightColor.Count)
-                                *lightAddr++ = _lightColor[x];
-                            else
-                                *lightAddr++ = new RGBAPixel();
-                    }
-                    else
-                        *((bint*)header->_lightColor.Address) = (int)match1.lightAddress - (int)header->_lightColor.Address;
-                }
-                else
-                {
-                    newFlags |= (int)FixedFlags.ColorConstant;
-                    header->_lightColor = _solidColors[0];
-                }
-                if (_specColor.Count > 1)
-                {
-                    specularAddress = lightAddr;
-                    if (match2 == null)
-                    {
-                        *((bint*)header->_specularColor.Address) = (int)lightAddr - (int)header->_specularColor.Address;
-                        for (int x = 0; x <= FrameCount; x++)
-                            if (x < _specColor.Count)
-                                *lightAddr++ = _specColor[x];
-                            else
-                                *lightAddr++ = new RGBAPixel();
-                    }
-                    else
-                        *((bint*)header->_specularColor.Address) = (int)match2.specularAddress - (int)header->_specularColor.Address;
-                }
-                else
-                {
-                    newFlags |= (int)FixedFlags.SpecColorConstant;
-                    header->_specularColor = _solidColors[1];
-                }
-                if (!SetConstant && _entryCount != 0)
-                {
-                    header->_visOffset = (int)visAddr - (int)header->_visOffset.Address;
-                    Marshal.Copy(_data, 0, (IntPtr)visAddr, _data.Length);
-                    visAddr = ((VoidPtr)visAddr + EntryCount.Align(32) / 8);
-                }
-                else
-                    newFlags |= (int)FixedFlags.EnabledConstant;
-
-                bint* values = (bint*)&header->_startPoint;
-                int index = 0;
-                for (int i = 0; i < 14; i++)
-                    if (!(i == 3 || i == 7 || i == 10 || i == 12))
-                        EncodeFrames(GetKeys(index), ref keyframeAddr, &values[i], ref newFlags, (int)_ordered[index++]);
-
-                header->_fixedFlags = _flags1 = (ushort)newFlags;
-                header->_usageFlags = _flags2;
-            }
-        }
-
-        protected internal override void PostProcess(VoidPtr scn0Address, VoidPtr dataAddress, StringTable stringTable)
-        {
-            base.PostProcess(scn0Address, dataAddress, stringTable);
-        }
-
-        internal LightAnimationFrame GetAnimFrame(int index)
-        {
-            LightAnimationFrame frame;
-            float* dPtr = (float*)&frame;
-            for (int x = 0; x < 10; x++)
-            {
-                KeyframeArray a = GetKeys(x);
-                *dPtr++ = a.GetFrameValue(index);
-                frame.SetBools(x, a.GetKeyframe(index) != null);
-                frame.Index = index;
-            }
-
-            //if (((FixedFlags)_flags1).HasFlag(FixedFlags.EnabledConstant))
-            //    frame.Enabled = UsageFlags.HasFlag(UsageFlags.Enabled);
-            //else
-            //    frame.Enabled = index < _enabled.Count ? _enabled[index] : false;
-
-            return frame;
-        }
-
-        public static bool _generateTangents = true;
-        public static bool _linear = true;
-
-        public float GetFrameValue(LightKeyframeMode keyFrameMode, int index)
-        {
-            return GetKeys((int)keyFrameMode).GetFrameValue(index);
-        }
-
-        internal KeyframeEntry GetKeyframe(LightKeyframeMode keyFrameMode, int index)
-        {
-            return GetKeys((int)keyFrameMode).GetKeyframe(index);
-        }
-
-        internal void RemoveKeyframe(LightKeyframeMode keyFrameMode, int index)
-        {
-            KeyframeEntry k = GetKeys((int)keyFrameMode).Remove(index);
-            if (k != null && _generateTangents)
-            {
-                k._prev.GenerateTangent();
-                k._next.GenerateTangent();
-                SignalPropertyChange();
-            }
-        }
-        
-        internal void SetKeyframe(LightKeyframeMode keyFrameMode, int index, float value)
-        {
-            KeyframeArray keys = GetKeys((int)keyFrameMode);
-            bool exists = keys.GetKeyframe(index) != null;
-            KeyframeEntry k = keys.SetFrameValue(index, value);
-
-            if (!exists && !_generateTangents)
-                k.GenerateTangent();
-
-            if (_generateTangents)
-            {
-                k.GenerateTangent();
-                k._prev.GenerateTangent();
-                k._next.GenerateTangent();
-            }
-
-            SignalPropertyChange();
         }
     }
 

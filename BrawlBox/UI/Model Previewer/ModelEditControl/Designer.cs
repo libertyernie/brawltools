@@ -18,11 +18,10 @@ using System.Threading;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
         #region Designer
-        private ModelPanel modelPanel;
-        private ColorDialog dlgColor;
+        public ComboBox models;
         private Button btnLeftToggle;
         private Button btnRightToggle;
         private Button btnBottomToggle;
@@ -59,12 +58,9 @@ namespace System.Windows.Forms
         private ToolStripMenuItem showLeft;
         private ToolStripMenuItem showBottom;
         private ToolStripMenuItem showTop;
-        public CHR0Editor chr0Editor;
-        public ComboBox models;
         private Panel controlPanel;
         private Splitter spltRight;
         private Panel panel1;
-        public SRT0Editor srt0Editor;
         private ToolStripMenuItem fileTypesToolStripMenuItem;
         private ToolStripMenuItem playCHR0ToolStripMenuItem;
         private ToolStripMenuItem playSRT0ToolStripMenuItem;
@@ -77,9 +73,6 @@ namespace System.Windows.Forms
         private ToolStripMenuItem btnOpenClose;
         private ToolStripMenuItem saveToolStripMenuItem;
         private ToolStripMenuItem saveAsToolStripMenuItem;
-        public VIS0Editor vis0Editor;
-        public PAT0Editor pat0Editor;
-        public SHP0Editor shp0Editor;
         public Panel animEditors;
         private ToolStrip toolStrip1;
         private Panel panel2;
@@ -89,13 +82,11 @@ namespace System.Windows.Forms
         private ToolStripButton chkFloor;
         private ToolStripButton button1;
         private ToolStripSeparator toolStripSeparator1;
-        public ModelPlaybackPanel pnlPlayback;
         public ToolStripMenuItem chkExternalAnims;
         private Splitter splitter1;
         public Panel animCtrlPnl;
         private ToolStripButton chkCollisions;
         public ToolStripButton btnSaveCam;
-        private SCN0Editor scn0Editor;
         private ToolStripMenuItem showRight;
         public ToolStripMenuItem showCameraCoordinatesToolStripMenuItem;
         private ToolStripMenuItem sCN0ToolStripMenuItem;
@@ -104,13 +95,12 @@ namespace System.Windows.Forms
         private ToolStripMenuItem displayFogToolStripMenuItem;
         private ToolStripMenuItem displayCameraToolStripMenuItem;
         private ToolStripMenuItem displayToolStripMenuItem;
-        private ToolStripMenuItem stPersonToolStripMenuItem;
+        private ToolStripMenuItem firstPersonCameraToolStripMenuItem;
         private ToolStripMenuItem editControlToolStripMenuItem;
         private ToolStripMenuItem rotationToolStripMenuItem;
         private ToolStripMenuItem translationToolStripMenuItem;
         private ToolStripMenuItem scaleToolStripMenuItem;
         private ToolStripMenuItem helpToolStripMenuItem;
-        private CLR0Editor clr0Editor;
         private ToolStripMenuItem playCLR0ToolStripMenuItem;
         private WeightEditor weightEditor;
         private ToolStripMenuItem backgroundToolStripMenuItem;
@@ -144,7 +134,6 @@ namespace System.Windows.Forms
         private ToolStripMenuItem dontHighlightBonesAndVerticesToolStripMenuItem;
         public ToolStripMenuItem enablePointAndLineSmoothingToolStripMenuItem;
         public ToolStripMenuItem enableTextOverlaysToolStripMenuItem;
-        private RightPanel rightPanel;
         private ToolStripMenuItem wireframeToolStripMenuItem;
         private ToolStripMenuItem interpolationEditorToolStripMenuItem;
         private ToolStripMenuItem linearInterpolationToolStripMenuItem;
@@ -198,6 +187,7 @@ namespace System.Windows.Forms
         public ToolStripMenuItem LiveTextureFolderPath;
         public ToolStripMenuItem EnableLiveTextureFolder;
         public LeftPanel leftPanel;
+        private RightPanel rightPanel;
 
         private void InitializeComponent()
         {
@@ -314,7 +304,7 @@ namespace System.Windows.Forms
             this.displayFogToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayCameraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stPersonToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.firstPersonCameraToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.interpolationEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1416,7 +1406,7 @@ namespace System.Windows.Forms
             // 
             this.displayCameraToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.displayToolStripMenuItem,
-            this.stPersonToolStripMenuItem});
+            this.firstPersonCameraToolStripMenuItem});
             this.displayCameraToolStripMenuItem.Name = "displayCameraToolStripMenuItem";
             this.displayCameraToolStripMenuItem.Size = new System.Drawing.Size(169, 22);
             this.displayCameraToolStripMenuItem.Text = "Camera";
@@ -1430,11 +1420,11 @@ namespace System.Windows.Forms
             // 
             // stPersonToolStripMenuItem
             // 
-            this.stPersonToolStripMenuItem.CheckOnClick = true;
-            this.stPersonToolStripMenuItem.Name = "stPersonToolStripMenuItem";
-            this.stPersonToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
-            this.stPersonToolStripMenuItem.Text = "1st Person";
-            this.stPersonToolStripMenuItem.CheckedChanged += new System.EventHandler(this.stPersonToolStripMenuItem_CheckedChanged);
+            this.firstPersonCameraToolStripMenuItem.CheckOnClick = true;
+            this.firstPersonCameraToolStripMenuItem.Name = "stPersonToolStripMenuItem";
+            this.firstPersonCameraToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.firstPersonCameraToolStripMenuItem.Text = "1st Person";
+            this.firstPersonCameraToolStripMenuItem.CheckedChanged += new System.EventHandler(this.stPersonToolStripMenuItem_CheckedChanged);
             // 
             // helpToolStripMenuItem
             // 
@@ -2027,7 +2017,7 @@ namespace System.Windows.Forms
             this.leftPanel.Name = "leftPanel";
             this.leftPanel.Size = new System.Drawing.Size(138, 391);
             this.leftPanel.TabIndex = 4;
-            this.leftPanel.TargetAnimType = System.Windows.Forms.AnimType.None;
+            //this.leftPanel.TargetAnimType = System.Windows.Forms.NW4RAnimType.CHR;
             this.leftPanel.Visible = false;
             // 
             // ModelEditControl
@@ -2047,8 +2037,8 @@ namespace System.Windows.Forms
             this.Name = "ModelEditControl";
             this.Size = new System.Drawing.Size(805, 475);
             this.SizeChanged += new System.EventHandler(this.ModelEditControl_SizeChanged);
-            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.ModelEditControl_DragDrop);
-            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.ModelEditControl_DragEnter);
+            this.DragDrop += new System.Windows.Forms.DragEventHandler(this.OnDragDrop);
+            this.DragEnter += new System.Windows.Forms.DragEventHandler(this.OnDragEnter);
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
             this.controlPanel.ResumeLayout(false);
@@ -2070,54 +2060,29 @@ namespace System.Windows.Forms
         public ModelEditControl()
         {
             InitializeComponent();
+
             leftPanel._mainWindow = this;
             rightPanel.pnlKeyframes._mainWindow =
             rightPanel.pnlBones._mainWindow =
-            srt0Editor._mainWindow =
-            shp0Editor._mainWindow =
-            pat0Editor._mainWindow =
-            vis0Editor._mainWindow =
-            scn0Editor._mainWindow =
-            clr0Editor._mainWindow =
             weightEditor._mainWindow =
-            vertexEditor._mainWindow =
-            pnlPlayback._mainWindow =
-            chr0Editor._mainWindow =
-            this;
+            vertexEditor._mainWindow = this;
+
+            PreConstruct();
+
+            leftPanel.fileType.DataSource = _editableAnimTypes;
+            TargetAnimType = NW4RAnimType.CHR;
 
             animEditors.HorizontalScroll.Enabled = addedHeight = (!(animEditors.Width - animCtrlPnl.Width >= pnlPlayback.MinimumSize.Width));
-            if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
-            {
-                pnlPlayback.Dock = DockStyle.Left;
-                pnlPlayback.Width = pnlPlayback.MinimumSize.Width;
-            }
-            else
-                pnlPlayback.Dock = DockStyle.Fill;
-
-            _interpolationEditor = new Forms.InterpolationEditor(this);
-            
-            m_DelegateOpenFile = new DelegateOpenFile(OpenFile);
 
             string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
-
             ScreenCapBgLocText.Text = applicationFolder + "\\ScreenCaptures";
             LiveTextureFolderPath.Text = applicationFolder;
 
             MDL0TextureNode.TextureOverrideDirectory = LiveTextureFolderPath.Text;
 
-            _timer = new CoolTimer();
-            _timer.RenderFrame += _timer_RenderFrame;
+            _openFileDelegate = new DelegateOpenFile(OpenFile);
 
-            modelPanel.PreRender += (EventPreRender = new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PreRender));
-            modelPanel.PostRender += (EventPostRender = new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PostRender));
-            modelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown));
-            modelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove));
-            modelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp));
-
-            KeyframePanel.visEditor.EntryChanged += new EventHandler(this.VISEntryChanged);
-            KeyframePanel.visEditor.IndexChanged += new EventHandler(this.VISIndexChanged);
-
-            leftPanel.fileType.DataSource = _editableAnimTypes;
+            PostConstruct();
         }
 
         protected override void OnLoad(EventArgs e)

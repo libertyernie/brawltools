@@ -11,7 +11,7 @@ using BrawlLib.Wii.Animations;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SCN0CameraNode : SCN0EntryNode, ISCN0KeyframeHolder
+    public unsafe class SCN0CameraNode : SCN0EntryNode, ISCN0KeyframeSource
     {
         internal SCN0Camera* Data { get { return (SCN0Camera*)WorkingUncompressed.Address; } }
 
@@ -24,25 +24,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         public SCN0CameraFlags _flags1 = (SCN0CameraFlags)0xFFFE;
         public ushort _flags2 = 1;
 
-        public KeyframeArray 
-            _posX = new KeyframeArray(0), 
-            _posY = new KeyframeArray(0), 
-            _posZ = new KeyframeArray(0), 
-            _rotX = new KeyframeArray(0), 
-            _rotY = new KeyframeArray(0), 
-            _rotZ = new KeyframeArray(0), 
-            _aimX = new KeyframeArray(0), 
-            _aimY = new KeyframeArray(0), 
-            _aimZ = new KeyframeArray(0), 
-            _twist = new KeyframeArray(0), 
-            _fovY = new KeyframeArray(0), 
-            _height = new KeyframeArray(0), 
-            _aspect = new KeyframeArray(0), 
-            _nearZ = new KeyframeArray(0), 
+        public KeyframeArray
+            _posX = new KeyframeArray(0),
+            _posY = new KeyframeArray(0),
+            _posZ = new KeyframeArray(0),
+            _rotX = new KeyframeArray(0),
+            _rotY = new KeyframeArray(0),
+            _rotZ = new KeyframeArray(0),
+            _aimX = new KeyframeArray(0),
+            _aimY = new KeyframeArray(0),
+            _aimZ = new KeyframeArray(0),
+            _twist = new KeyframeArray(0),
+            _fovY = new KeyframeArray(0),
+            _height = new KeyframeArray(0),
+            _aspect = new KeyframeArray(0),
+            _nearZ = new KeyframeArray(0),
             _farZ = new KeyframeArray(0);
 
         #region ISCN0KeyframeHolder Members
-
+        [Browsable(false)]
         public int KeyArrayCount { get { return 15; } }
         public KeyframeArray GetKeys(int i)
         {
@@ -116,43 +116,49 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            //Read common header
             base.OnInitialize();
 
-            _flags1 = (SCN0CameraFlags)(ushort)Data->_flags1;
-            _flags2 = Data->_flags2;
-            _type = (SCN0CameraType)((ushort)_flags2 & 1);
-            _projType = (ProjectionType)(int)Data->_projType;
+            //SCN0 cameras are linear.
+            //Some games use jump cuts which look weird with interpolation
+            _posX.LinearInterpolation = true;
+            _posY.LinearInterpolation = true;
+            _posZ.LinearInterpolation = true;
+            _aimX.LinearInterpolation = true;
+            _aimY.LinearInterpolation = true;
+            _aimZ.LinearInterpolation = true;
 
+            //Create new keyframe arrays
             for (int x = 0; x < 15; x++)
                 SetKeys(x, new KeyframeArray(FrameCount + 1));
 
-            bint* values = (bint*)&Data->_position;
+            //Read header data
+            _flags1 = (SCN0CameraFlags)(ushort)Data->_flags1;
+            _flags2 = Data->_flags2;
+            _type = (SCN0CameraType)((ushort)_flags2 & 1);
+            _projType = (ProjectionType)(int)Data->_projectionType;
 
-            if (Name != "<null>")
-                for (int i = 0; i < 15; i++)
-                {
-                    //if (((int)_flags1 & (int)Ordered[i]) == 0)
-                    //    SCN0Node.strings[(int)((&values[i] - Parent.Parent.WorkingUncompressed.Address + values[i]))] = "Camera" + Index + " Keys " + Ordered[i].ToString();
-
-                    DecodeFrames(GetKeys(i), &values[i], (int)_flags1, (int)Ordered[i]);
-                }
-
-            _posX._linear = true;
-            _posY._linear = true;
-            _posZ._linear = true;
-
-            _aimX._linear = true;
-            _aimY._linear = true;
-            _aimZ._linear = true;
-
+            //Read user data
             (_userEntries = new UserDataCollection()).Read(Data->UserData);
+
+            //Don't bother reading data if the entry is null
+            if (Name == "<null>")
+                return false;
+
+            //Decode each value in order
+            for (int i = 0; i < 15; i++)
+                DecodeKeyframes(
+                    GetKeys(i),
+                    Data->_position._x.Address + i * 4,
+                    (int)_flags1,
+                    (int)Ordered[i]);
 
             return false;
         }
 
         internal override void GetStrings(StringTable table)
         {
-            if (Name != "<null>") 
+            if (Name != "<null>")
                 table.Add(Name);
 
             foreach (UserDataClass s in _userEntries)
@@ -165,13 +171,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            _lightLen = 0;
-            _keyLen = 0;
-            _visLen = 0;
+            //Reset data lengths
+            for (int i = 0; i < 3; i++)
+                _dataLengths[i] = 0;
+
+            //Get the total data size of all keyframes
             if (_name != "<null>")
                 for (int i = 0; i < 15; i++)
-                    if (GetKeys(i)._keyCount > 1)
-                        _keyLen += 8 + GetKeys(i)._keyCount * 12;
+                    CalcKeyLen(GetKeys(i));
+
             return SCN0Camera.Size + _userEntries.GetSize();
         }
 
@@ -181,20 +189,24 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             SCN0Camera* header = (SCN0Camera*)address;
 
-            header->_projType = (int)_projType;
+            header->_projectionType = (int)_projType;
             header->_flags2 = (ushort)(2 + (int)_type);
             header->_userDataOffset = 0;
 
             int newFlags1 = 0;
 
-            bint* values = (bint*)&header->_position;
             for (int i = 0; i < 15; i++)
-                EncodeFrames(GetKeys(i), ref keyframeAddr, &values[i], ref newFlags1, (int)Ordered[i]);
+                _dataAddrs[0] += EncodeKeyframes(
+                    GetKeys(i),
+                    _dataAddrs[0],
+                    header->_position._x.Address + i * 4,
+                    ref newFlags1,
+                    (int)Ordered[i]);
+
+            header->_flags1 = (ushort)newFlags1;
 
             if (_userEntries.Count > 0)
                 _userEntries.Write(header->UserData = (VoidPtr)header + SCN0Camera.Size);
-
-            header->_flags1 = (ushort)newFlags1;
         }
 
         protected internal override void PostProcess(VoidPtr scn0Address, VoidPtr dataAddress, StringTable stringTable)
@@ -205,7 +217,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Browsable(false)]
-        public int FrameCount { get { return ((SCN0Node)Parent.Parent).FrameCount; } }
+        public int FrameCount
+        {
+            get { return ((SCN0Node)Parent.Parent).FrameCount; }
+            set
+            {
+                for (int i = 0; i < 15; i++)
+                    GetKeys(i).FrameLimit = value;
+            }
+        }
 
         public static bool _generateTangents = true;
         public static bool _linear = true;
@@ -218,17 +238,31 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 KeyframeArray a = GetKeys(x);
                 *dPtr++ = a.GetFrameValue(index);
-                frame.SetBools(x, a.GetKeyframe(index) != null);
+                frame.SetBools(x, a.GetKeyframe((int)index) != null);
                 frame.Index = index;
             }
             return frame;
         }
+        public CameraAnimationFrame GetAnimFrame(int index, bool linear)
+        {
+            CameraAnimationFrame frame;
+            float* dPtr = (float*)&frame;
+            for (int x = 0; x < 15; x++)
+            {
+                KeyframeArray a = GetKeys(x);
+                *dPtr++ = a.GetFrameValue(index, linear);
+                frame.SetBools(x, a.GetKeyframe((int)index) != null);
+                frame.Index = index;
+            }
+            return frame;
+        }
+
         internal KeyframeEntry GetKeyframe(CameraKeyframeMode keyFrameMode, int index)
         {
             return GetKeys((int)keyFrameMode).GetKeyframe(index);
         }
 
-        public float GetFrameValue(CameraKeyframeMode keyFrameMode, int index)
+        public float GetFrameValue(CameraKeyframeMode keyFrameMode, float index)
         {
             return GetKeys((int)keyFrameMode).GetFrameValue(index);
         }
@@ -243,7 +277,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-        
+
         internal void SetKeyframe(CameraKeyframeMode keyFrameMode, int index, float value)
         {
             KeyframeArray keys = GetKeys((int)keyFrameMode);
@@ -349,7 +383,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             hasRx = hasRy = hasRz =
             hasPx = hasPy = hasPz =
             hasAx = hasAy = hasAz =
-            hasT = hasF = hasH = 
+            hasT = hasF = hasH =
             hasA = hasNz = hasFz = false;
         }
 
@@ -401,7 +435,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public Vector3 GetRotate(int frame, SCN0CameraType type)
+        public Vector3 GetRotate(SCN0CameraType type)
         {
             if (type == SCN0CameraType.Rotate)
                 return Rot;

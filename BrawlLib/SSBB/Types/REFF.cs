@@ -60,17 +60,17 @@ namespace BrawlLib.SSBBTypes
 
         public EmitterDesc _descriptor;
 
-        public ParticleParameterHeader* _params { get { return (ParticleParameterHeader*)(Address + _headerSize + 8); } }
+        public ParticleParameterHeader* Params { get { return (ParticleParameterHeader*)(Address + _headerSize + 8); } }
 
-        public bushort* _ptclTrackCount { get { return (bushort*)((VoidPtr)_params + _params->headersize + 4); } }
-        public bushort* _ptclInitTrackCount { get { return _ptclTrackCount + 1; } }
-        public bushort* _emitTrackCount { get { return (bushort*)((VoidPtr)_ptclTrackCount + 4 + *_ptclTrackCount * 8); } }
-        public bushort* _emitInitTrackCount { get { return _emitTrackCount + 1; } }
+        public bushort* PtclTrackCount { get { return (bushort*)((VoidPtr)Params + Params->headersize + 4); } }
+        public bushort* PtclInitTrackCount { get { return PtclTrackCount + 1; } }
+        public bushort* EmitTrackCount { get { return (bushort*)((VoidPtr)PtclTrackCount + 4 + *PtclTrackCount * 8); } }
+        public bushort* EmitInitTrackCount { get { return EmitTrackCount + 1; } }
 
-        public buint* _ptclTrack { get { return (buint*)((VoidPtr)_ptclTrackCount + 4); } }
-        public buint* _emitTrack { get { return (buint*)((VoidPtr)_emitTrackCount + 4); } }
+        public buint* PtclTrack { get { return (buint*)((VoidPtr)PtclTrackCount + 4); } }
+        public buint* EmitTrack { get { return (buint*)((VoidPtr)EmitTrackCount + 4); } }
 
-        public VoidPtr _animations { get { return (VoidPtr)_emitTrackCount + 4 + *_emitTrackCount * 8; } }
+        public VoidPtr Animations { get { return (VoidPtr)EmitTrackCount + 4 + *EmitTrackCount * 8; } }
         
         private VoidPtr Address { get { fixed (void* p = &this)return p; } }
     }
@@ -106,57 +106,57 @@ namespace BrawlLib.SSBBTypes
             Torus = 10
         }
 
-        public buint commonFlag; // EmitterCommonFlag
-        public buint emitFlag; // EmitFormType - value & 0xFF
-        public bushort emitLife;
-        public bushort ptclLife;
-        public sbyte ptclLifeRandom;
-        public sbyte inheritChildPtclTranslate;
-        public sbyte emitEmitIntervalRandom;
-        public sbyte emitEmitRandom;
+        public buint _commonFlag; // EmitterCommonFlag
+        public buint _emitFlag; // EmitFormType - value & 0xFF
+        public bushort _emitLife;
+        public bushort _ptclLife;
+        public sbyte _ptclLifeRandom;
+        public sbyte _inheritChildPtclTranslate;
+        public sbyte _emitEmitIntervalRandom;
+        public sbyte _emitEmitRandom;
         //0x10
-        public bfloat emitEmit;
-        public bushort emitEmitStart;
-        public bushort emitEmitPast;
-        public bushort emitEmitInterval;
-        public sbyte inheritPtclTranslate;
-        public sbyte inheritChildEmitTranslate;
-        public bfloat commonParam1;
+        public bfloat _emitEmit;
+        public bushort _emitEmitStart;
+        public bushort _emitEmitPast;
+        public bushort _emitEmitInterval;
+        public sbyte _inheritPtclTranslate;
+        public sbyte _inheritChildEmitTranslate;
+        public bfloat _commonParam1;
         //0x20
-        public bfloat commonParam2;
-        public bfloat commonParam3;
-        public bfloat commonParam4;
-        public bfloat commonParam5;
+        public bfloat _commonParam2;
+        public bfloat _commonParam3;
+        public bfloat _commonParam4;
+        public bfloat _commonParam5;
         //0x30
-        public bfloat commonParam6;
-        public bushort emitEmitDiv;
-        public sbyte velInitVelocityRandom;
-        public sbyte velMomentumRandom;
-        public bfloat velPowerRadiationDir;
-        public bfloat velPowerYAxis;
+        public bfloat _commonParam6;
+        public bushort _emitEmitDiv;
+        public sbyte _velInitVelocityRandom;
+        public sbyte _velMomentumRandom;
+        public bfloat _velPowerRadiationDir;
+        public bfloat _velPowerYAxis;
         //0x40
-        public bfloat velPowerRandomDir;
-        public bfloat velPowerNormalDir;
-        public bfloat velDiffusionEmitterNormal;
-        public bfloat velPowerSpecDir;
+        public bfloat _velPowerRandomDir;
+        public bfloat _velPowerNormalDir;
+        public bfloat _velDiffusionEmitterNormal;
+        public bfloat _velPowerSpecDir;
         //0x50
-        public bfloat velDiffusionSpecDir;
-        public BVec3 velSpecDir;
+        public bfloat _velDiffusionSpecDir;
+        public BVec3 _velSpecDir;
         //0x60
-        public BVec3 scale;
-        public BVec3 rotate;
-        public BVec3 translate;
+        public BVec3 _scale;
+        public BVec3 _rotate;
+        public BVec3 _translate;
         //0x84
-        public byte lodNear;
-        public byte lodFar;
-        public byte lodMinEmit;
-        public byte lodAlpha;
+        public byte _lodNear;
+        public byte _lodFar;
+        public byte _lodMinEmit;
+        public byte _lodAlpha;
 
-        public buint randomSeed;
+        public buint _randomSeed;
 
-        public fixed byte userdata[8];
+        public fixed byte _userdata[8];
         //0x94
-        public EmitterDrawSetting9 drawSetting;
+        public EmitterDrawSetting9 _drawSetting;
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
@@ -702,53 +702,21 @@ namespace BrawlLib.SSBBTypes
 
         public bushort textureNames; //align to 4 bytes
     }
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TextureData
-    {
-        public bushort width;
-        public bushort height;
-        public buint dataSize; // If changed, this will be corrupted when relocated. Cannot be changed or referenced.
-        public byte format;
-        public byte pltFormat;
-        public bushort pltEntries;
-        public buint pltSize; // If changed, this will be corrupted when relocated. Cannot be changed or referenced.
-        public byte mipmap;
-        public byte min_filt;
-        public byte mag_filt;
-        public byte reserved1;
-        public bfloat lod_bias;
-    }
 
+    //The value is an offset into the particle param desc
     public enum v9AnimCurveTargetByteFloat //curve flag = 0, 3
     {
         //Updates: ParticleParam
         Color0Primary = 0,
-        Unknown1 = 1,
-        Unknown2 = 2,
         Alpha0Primary = 3,
         Color0Secondary = 4,
-        Unknown5 = 5,
-        Unknown6 = 6,
         Alpha0Secondary = 7,
         Color1Primary = 8,
-        Unknown9 = 9,
-        Unknown10 = 10,
         Alpha1Primary = 11,
         Color1Secondary = 12,
-        Unknown13 = 13,
-        Unknown14 = 14,
         Alpha1Secondary = 15,
         Size = 16,
-        Unknown17 = 17,
-        Unknown18 = 18,
-        Unknown19 = 19,
-        Unknown20 = 20,
-        Unknown21 = 21,
-        Unknown22 = 22,
-        Unknown23 = 23,
         Scale = 24,
-        ACMPref0 = 119,
-        ACMPref1 = 120,
         Tex1Scale = 44,
         Tex1Rot = 68,
         Tex1Trans = 80,
@@ -758,6 +726,8 @@ namespace BrawlLib.SSBBTypes
         TexIndScale = 60,
         TexIndRot = 76,
         TexIndTrans = 96,
+        AlphaCompareRef0 = 119,
+        AlphaCompareRef1 = 120,
     }
 
     public enum v7AnimCurveTargetByteFloat //curve flag = 0, 3
@@ -788,8 +758,8 @@ namespace BrawlLib.SSBBTypes
         Unknown22 = 22,
         Unknown23 = 23,
         Scale = 24,
-        ACMPref0 = 119,
-        ACMPref1 = 120,
+        AlphaCompareRef0 = 119,
+        AlphaCompareRef1 = 120,
         Tex1Scale = 44,
         Tex1Rot = 68,
         Tex1Trans = 80,
@@ -860,10 +830,11 @@ namespace BrawlLib.SSBBTypes
         Emission = 8
     }
 
+    //This is the original enum
     public enum AnimCurveTarget
     {
-        /* Update target: ParticleParam*/
-        // curveFlag = 0(u8) or 3(f32)
+        //Update target: ParticleParam
+        //curveFlag = 0(u8) or 3(f32)
         COLOR0PRI = 0,
         ALPHA0PRI = 3,
         COLOR0SEC = 4,
@@ -886,7 +857,7 @@ namespace BrawlLib.SSBBTypes
         TEXTUREINDROTATE = 76,
         TEXTUREINDTRANSLATE = 96,
 
-        // curveFlag = 6 (3 when baking)
+        //curveFlag = 6 (3 when baking)
         ROTATE = 32,
 
         //curveFlag = 4
@@ -894,11 +865,11 @@ namespace BrawlLib.SSBBTypes
         TEXTURE2 = 108,
         TEXTUREIND = 112,
 
-        /* Update target: child*/
+        //Update target: child
         //curveFlag = 5
         CHILD = 0,
 
-        /* Update target: Field*/
+        //Update target: Field
         //curveFlag = 7
         FIELD_GRAVITY = 0,
         FIELD_SPEED = 1,
@@ -909,13 +880,13 @@ namespace BrawlLib.SSBBTypes
         FIELD_RANDOM = 7,
         FIELD_TAIL = 8,
 
-        /* Update target: PostFieldInfo::AnimatableParams*/
+        //Update target: PostFieldInfo::AnimatableParams
         //curveFlag = 2
         POSTFIELD_SIZE = 0,
         POSTFIELD_ROTATE = 12,
         POSTFIELD_TRANSLATE = 24,
 
-        /* Update target: EmitterParam*/
+        //Update target: EmitterParam
         //curveFlag = 11 (all f32)
         EMIT_COMMONPARAM = 44,
         EMIT_SCALE = 124,
@@ -929,6 +900,76 @@ namespace BrawlLib.SSBBTypes
         EMIT_EMISSION = 8
     }
 
+    public enum AnimCurveTarget7
+    {
+        //Update target: ParticleParam
+        //curveFlag = 0(u8) or 3(f32)
+        COLOR0PRI = 1,
+        ALPHA0PRI = 2,
+        COLOR0SEC = 3,
+        ALPHA0SEC = 4,
+        COLOR1PRI = 5,
+        ALPHA1PRI = 6,
+        COLOR1SEC = 7,
+        ALPHA1SEC = 8,
+        SIZE = 9,
+        SCALE = 10,
+        ACMPREF0 = 11,
+        ACMPREF1 = 12,
+        TEXTURE1SCALE = 13,
+        TEXTURE1ROTATE = 14,
+        TEXTURE1TRANSLATE = 15,
+        TEXTURE2SCALE = 16,
+        TEXTURE2ROTATE = 17,
+        TEXTURE2TRANSLATE = 18,
+        TEXTUREINDSCALE = 19,
+        TEXTUREINDROTATE = 20,
+        TEXTUREINDTRANSLATE = 21,
+
+        //curveFlag = 6 (3 when baking)
+        ROTATE = 22,
+
+        //curveFlag = 4
+        TEXTURE1 = 23,
+        TEXTURE2 = 24,
+        TEXTUREIND = 25,
+
+        //Update target: child
+        //curveFlag = 5
+        CHILD = 26,
+
+        //Update target: Field
+        //curveFlag = 7
+        FIELD_GRAVITY = 27,
+        FIELD_SPEED = 28,
+        FIELD_MAGNET = 29,
+        FIELD_NEWTON = 30,
+        FIELD_VORTEX = 31,
+        FIELD_SPIN = 32,
+        FIELD_RANDOM = 33,
+        FIELD_TAIL = 34,
+
+        //Update target: PostFieldInfo::AnimatableParams
+        //curveFlag = 2
+        POSTFIELD_SIZE = 35,
+        POSTFIELD_ROTATE = 36,
+        POSTFIELD_TRANSLATE = 37,
+
+        //Update target: EmitterParam
+        //curveFlag = 11 (all f32)
+        EMIT_COMMONPARAM = 38,
+        EMIT_SCALE = 39,
+        EMIT_ROTATE = 40,
+        EMIT_TRANSLATE = 41,
+        EMIT_SPEED_ORIG = 42,
+        EMIT_SPEED_YAXIS = 43,
+        EMIT_SPEED_RANDOM = 44,
+        EMIT_SPEED_NORMAL = 45,
+        EMIT_SPEED_SPECDIR = 46,
+        EMIT_EMISSION = 47
+    }
+
+    //This determines the target interpolation mode from one point to another
     public enum AnimCurveType
     {
         ParticleByte = 0,
@@ -950,14 +991,15 @@ namespace BrawlLib.SSBBTypes
         Turn = 0x40,
         Fitting = 0x80
     }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct AnimCurveHeader
     {
-        //Size == 0x20
+        public const int Size = 0x20;
 
-        public byte magic;
+        public byte magic; //0xAC
         public byte kindType;
         public byte curveFlag;
-        public byte kindEnable;
+        public Bin8 kindEnable;
         public byte processFlag;
         public byte loopCount;
         public bushort randomSeed;
@@ -969,10 +1011,28 @@ namespace BrawlLib.SSBBTypes
         public buint nameTable;
         public buint infoTable;
     }
-    public struct AnimCurveTableHeader
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct AnimCurveTableHeader
     {
-        public bushort count;
-        public bushort pad;
+        public bushort _count;
+        public bushort _pad;
+
+        public AnimCurveKeyHeader* First { get { return (AnimCurveKeyHeader*)(Address + 4); } }
+
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct AnimCurveKeyHeader
+    {
+        public bushort _count;
+        public bushort _pad;
+
+        public VoidPtr Data { get { return Address + 8; } }
+        
+        public AnimCurveKeyHeader* Next(int typeCount, int typeSize) { return (AnimCurveKeyHeader*)(Data + typeCount * typeSize + 4); }
+        public uint GetFrameIndex(int typeCount, int typeSize) { return *(buint*)(Data + typeCount * typeSize); }
+
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct PostFieldInfo

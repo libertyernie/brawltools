@@ -594,7 +594,7 @@ namespace System.Windows.Forms
 
         #endregion
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public NumericInputBox[] _transBoxes = new NumericInputBox[9];
         //private AnimationFrame _tempFrame = AnimationFrame.Identity;
@@ -642,14 +642,16 @@ namespace System.Windows.Forms
                 return;
 
             grpTransAll.Enabled = SelectedAnimation != null;
-            btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame != 0 && SelectedAnimation != null;
+            btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
             grpTransform.Enabled = TargetBone != null;
 
             //9 transforms xyz for scale/rot/trans
             for (int i = 0; i < 9; i++)
                 ResetBox(i);
 
-            if (_mainWindow.InterpolationEditor != null && _mainWindow.InterpolationEditor.Visible && _mainWindow.TargetAnimType == AnimType.CHR)
+            if (_mainWindow.InterpolationEditor != null &&
+                _mainWindow.InterpolationEditor.Visible &&
+                _mainWindow.TargetAnimType == NW4RAnimType.CHR)
             {
                 if (_mainWindow.InterpolationEditor._targetNode != Entry)
                     _mainWindow.InterpolationEditor.SetTarget(Entry);
@@ -663,7 +665,7 @@ namespace System.Windows.Forms
             get
             {
                 CHR0EntryNode entry;
-                if (TargetBone != null && SelectedAnimation != null && CurrentFrame > 0 && ((entry = SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode) != null))
+                if (TargetBone != null && SelectedAnimation != null && CurrentFrame >= 1 && ((entry = SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode) != null))
                     return entry;
                 else 
                     return null;
@@ -677,7 +679,7 @@ namespace System.Windows.Forms
             CHR0EntryNode entry;
             if (TargetBone != null)
             {
-                if ((SelectedAnimation != null) && (CurrentFrame > 0) && ((entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode) != null))
+                if ((SelectedAnimation != null) && (CurrentFrame >= 1) && ((entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode) != null))
                 {
                     KeyframeEntry e = entry.Keyframes.GetKeyframe((KeyFrameMode)index + 0x10, CurrentFrame - 1);
                     if (e == null)
@@ -741,7 +743,7 @@ namespace System.Windows.Forms
             AnimationFrame kf; 
             float* pkf = (float*)&kf;
 
-            if ((SelectedAnimation != null) && (CurrentFrame > 0))
+            if ((SelectedAnimation != null) && (CurrentFrame >= 1))
             {
                 CHR0EntryNode entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode;
                 if (entry == null)
@@ -796,7 +798,7 @@ namespace System.Windows.Forms
         {
             _copyAllState.Clear();
 
-            if (CurrentFrame == 0)
+            if (CurrentFrame < 1)
                 foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                 {
                     AnimationFrame frame = (AnimationFrame)bone._bindState;
@@ -830,7 +832,7 @@ namespace System.Windows.Forms
             if (_copyAllState.Count == 0)
                 return;
 
-            if (CurrentFrame == 0)
+            if (CurrentFrame < 1)
             {
                 foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                     if (_copyAllState.ContainsKey(bone._name))
@@ -895,7 +897,7 @@ namespace System.Windows.Forms
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            if (CurrentFrame == 0)
+            if (CurrentFrame < 1)
                 return;
 
             foreach (CHR0EntryNode entry in SelectedAnimation.Children)
@@ -1193,7 +1195,7 @@ namespace System.Windows.Forms
 
         private void btnInsert_Click(object sender, EventArgs e)
         {
-            if ((SelectedAnimation == null) || (CurrentFrame == 0))
+            if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
             SelectedAnimation.InsertKeyframe(CurrentFrame - 1);
@@ -1203,7 +1205,7 @@ namespace System.Windows.Forms
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
-            if ((SelectedAnimation == null) || (CurrentFrame == 0))
+            if ((SelectedAnimation == null) || (CurrentFrame < 1))
                 return;
 
             SelectedAnimation.DeleteKeyframe(CurrentFrame - 1);

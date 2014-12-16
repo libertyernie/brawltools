@@ -166,6 +166,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+<<<<<<< HEAD
+=======
+    <None Include="NodeWrappers\BMDWrapper.cs" />
+    <None Include="NodeWrappers\RARCWrapper.cs" />
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
@@ -247,9 +252,6 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\Animation.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\BRRESNodes.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\ButtonClick.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -265,13 +267,7 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\FileHandling.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\Mouse.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Rendering.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\Undo.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Variables.cs">

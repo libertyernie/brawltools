@@ -13,12 +13,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.EFLS; } }
 
         private int _brresCount, _unk1, _unk2;
-        
-        //[Category("EFLS")]
+
+        //[Category("Effect List")]
         //public int BrresCount { get { return _brresCount; } set { _brresCount = value; SignalPropertyChange(); } }
-        [Category("EFLS")]
+        [Category("Effect List")]
         public int Unknown1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
-        [Category("EFLS")]
+        [Category("Effect List")]
         public int Unknown2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
@@ -131,11 +131,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal int _brresID1, _brresID2, _re3dOffset, _unk;
         
-        [Category("EFLS Entry")]
+        [Category("Effect Entry")]
         public bool UseBrres { get { return _brresID1 != -1; } set { _brresID1 = (value ? _brresID2 : -1); SignalPropertyChange(); } }
-        [Category("EFLS Entry")]
+        [Category("Effect Entry")]
         public uint BrresId { get { return (uint)_brresID2; } set { _brresID2 = (int)value; if (UseBrres) _brresID1 = _brresID2; SignalPropertyChange(); } }
-        [Category("EFLS Entry")]
+        [Category("Effect Entry")]
         public int Unknown { get { return _unk; } set { _unk = value; SignalPropertyChange(); } }
         
         public override bool OnInitialize()

@@ -117,10 +117,12 @@ namespace BrawlLib.SSBBTypes
         public bint _stringId;
         public bint _index;
 
-        public SYMBMaskEntry(short bit, int left, int right) : this(0, bit, left, right, 0, 0) { }
-        public SYMBMaskEntry(ushort flags, short bit, int left, int right, int id, int index)
+        public bool IsLeaf { get { return (_flags & 1) != 0; } set { _flags = (ushort)(value ? 1 : 0); } }
+
+        public SYMBMaskEntry(short bit, int left, int right) : this(false, bit, left, right, 0, 0) { }
+        public SYMBMaskEntry(bool leaf, short bit, int left, int right, int id, int index)
         {
-            _flags = flags; 
+            _flags = (ushort)(leaf ? 1 : 0); 
             _bit = bit;
             _leftId = left;
             _rightId = right; 

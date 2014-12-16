@@ -1,88 +1,39 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.IO;
+using BrawlLib.SSBB;
+using System.Collections.Generic;
 namespace BrawlBox
 {
     class SettingsDialog : Form
     {
-        private static FileAssociation[] _assocList =new FileAssociation[] {
-                FileAssociation.Get(".pac"),
-                FileAssociation.Get(".pcs"),
-                FileAssociation.Get(".arc"),
-                FileAssociation.Get(".szs"),
-                FileAssociation.Get(".brres"),
-                FileAssociation.Get(".brmdl"),
-                FileAssociation.Get(".brtex"),
-                FileAssociation.Get(".msbin"),
-                FileAssociation.Get(".brsar"),
-                FileAssociation.Get(".brstm"),
+        private static List<FileAssociation> _assocList = new List<FileAssociation>();
+        private static List<FileType> _typeList = new List<FileType>();
 
-                FileAssociation.Get(".tex0"),
-                FileAssociation.Get(".plt0"),
-                FileAssociation.Get(".mdl0"),
-                FileAssociation.Get(".chr0"),
-                FileAssociation.Get(".srt0"),
-                FileAssociation.Get(".shp0"),
-                FileAssociation.Get(".pat0"),
-                FileAssociation.Get(".vis0"),
-                FileAssociation.Get(".scn0"),
-                FileAssociation.Get(".clr0"),
-
-                FileAssociation.Get(".efls"),
-                FileAssociation.Get(".breff"),
-                FileAssociation.Get(".breft"),
-
-                FileAssociation.Get(".brwsd"),
-                FileAssociation.Get(".brbnk"),
-                FileAssociation.Get(".brseq"),
-
-                FileAssociation.Get(".dol"),
-                FileAssociation.Get(".rel"),
-
-                FileAssociation.Get(".tpl"),
-            };
-        private CheckBox chkShowPropDesc;
-
-        private static FileType[] _typeList = new FileType[]{
-            FileType.Get("SSBB.PAC"),
-            FileType.Get("SSBB.PCS"),
-            FileType.Get("SSBB.ARC"),
-            FileType.Get("SSBB.SZS"),
-            FileType.Get("SSBB.BRRES"),
-            FileType.Get("SSBB.BRMDL"),
-            FileType.Get("SSBB.BRTEX"),
-            FileType.Get("SSBB.MSBIN"),
-            FileType.Get("SSBB.BRSAR"),
-            FileType.Get("SSBB.BRSTM"),
-
-            FileType.Get("SSBB.TEX0"),
-            FileType.Get("SSBB.PLT0"),
-            FileType.Get("SSBB.MDL0"),
-            FileType.Get("SSBB.CHR0"),
-            FileType.Get("SSBB.SRT0"),
-            FileType.Get("SSBB.SHP0"),
-            FileType.Get("SSBB.PAT0"),
-            FileType.Get("SSBB.VIS0"),
-            FileType.Get("SSBB.SCN0"),
-            FileType.Get("SSBB.CLR0"),
-
-            FileType.Get("SSBB.EFLS"),
-            FileType.Get("SSBB.BREFF"),
-            FileType.Get("SSBB.BREFT"),
-
-            FileType.Get("SSBB.BRWSD"),
-            FileType.Get("SSBB.BRBNK"),
-            FileType.Get("SSBB.BRSEQ"),
-
-            FileType.Get("SSBB.DOL"),
-            FileType.Get("SSBB.REL"),
-
-            FileType.Get("SSBB.TPL"),
-        };
+        static SettingsDialog()
+        {
+            foreach (SupportedFileInfo info in SuppertedFilesHandler.Files)
+            {
+                foreach (string s in info._extensions)
+                {
+                    _assocList.Add(FileAssociation.Get("." + s));
+                    _typeList.Add(FileType.Get("SSBB." + s.ToUpper()));
+                }
+            }
+        }
 
         public SettingsDialog()
         {
             InitializeComponent();
+
+            listView1.Items.Clear();
+            foreach (SupportedFileInfo info in SuppertedFilesHandler.Files)
+            {
+                foreach (string s in info._extensions)
+                {
+                    listView1.Items.Add(new ListViewItem() { Text = String.Format("{0} (*.{1})", info._name, s) });
+                }
+            }
         }
 
         private void Apply()
@@ -111,11 +62,14 @@ namespace BrawlBox
         }
         private void SettingsDialog_Shown(object sender, EventArgs e)
         {
+            _updating = true;
+
             int index = 0;
             string cmd;
             foreach (ListViewItem i in listView1.Items)
             {
-                try {
+                try
+                {
                     if ((_typeList[index] == _assocList[index].FileType) &&
                         (!String.IsNullOrEmpty(cmd = _typeList[index].GetCommand("open"))) &&
                         (cmd.IndexOf(Program.FullPath, StringComparison.OrdinalIgnoreCase) >= 0))
@@ -130,6 +84,10 @@ namespace BrawlBox
                 index++;
             }
             btnApply.Enabled = false;
+            
+            chkShowPropDesc.Checked = MainForm.Instance.DisplayPropertyDescription;
+
+            _updating = false;
         }
 
         private void listView1_ItemChecked(object sender, ItemCheckedEventArgs e)
@@ -153,9 +111,27 @@ namespace BrawlBox
             this.DialogResult = DialogResult.Cancel;
             Close();
         }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            bool check = checkBox1.Checked;
+            foreach (ListViewItem i in listView1.Items)
+                i.Checked = check;
+        }
+
+        bool _updating = false;
         
+        private void chkShowPropDesc_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+
+            MainForm.Instance.DisplayPropertyDescription = chkShowPropDesc.Checked;
+        }
+
         #region Designer
 
+        private CheckBox chkShowPropDesc;
         private GroupBox groupBox1;
         private ListView listView1;
         private CheckBox checkBox1;
@@ -394,17 +370,5 @@ namespace BrawlBox
 
         }
         #endregion
-
-        private void checkBox1_CheckedChanged(object sender, EventArgs e)
-        {
-            bool check = checkBox1.Checked;
-            foreach (ListViewItem i in listView1.Items)
-                i.Checked = check;
-        }
-
-        private void chkShowPropDesc_CheckedChanged(object sender, EventArgs e)
-        {
-            MainForm.Instance.DisplayPropertyDescription = chkShowPropDesc.Checked;
-        }
     }
 }

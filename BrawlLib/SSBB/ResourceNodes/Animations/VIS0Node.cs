@@ -380,7 +380,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
     }
 
-    public unsafe class VIS0EntryNode : ResourceNode, IBoolArrayNode
+    public unsafe class VIS0EntryNode : ResourceNode, IBoolArraySource
     {
         internal VIS0Entry* Header { get { return (VIS0Entry*)WorkingUncompressed.Address; } }
 

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class MDL0ColorNode : MDL0EntryNode
+    public unsafe class MDL0ColorNode : MDL0EntryNode, IColorSource
     {
         internal MDL0ColorData* Header { get { return (MDL0ColorData*)WorkingUncompressed.Address; } }
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
@@ -25,11 +25,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Color Data")]
         public int NumEntries { get { return Header->_numEntries; } }
 
-        private List<RGBAPixel> _colors;
+        private RGBAPixel[] _colors;
+        [Browsable(false)]
         public RGBAPixel[] Colors
         {
-            get { return _colors == null && Header != null ? (_colors = ColorCodec.ExtractColors(Header).Select(n => (RGBAPixel)n).ToList()).ToArray() : _colors.ToArray(); }
-            set { _colors = value.ToList<RGBAPixel>(); SignalPropertyChange(); }
+            get { return _colors == null && Header != null ? _colors = ColorCodec.ExtractColors(Header).Select(n => (RGBAPixel)n).ToArray() : _colors; }
+            set { _colors = value; SignalPropertyChange(); }
         }
 
         public override bool OnInitialize()
@@ -86,5 +87,31 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_stringOffset = (int)stringTable[Name] + 4 - (int)dataAddress;
             header->_index = Index;
         }
+
+        #region IColorSource Interface
+        public bool HasPrimary(int id) { return false; }
+        public ARGBPixel GetPrimaryColor(int id) { return new ARGBPixel(); }
+        public void SetPrimaryColor(int id, ARGBPixel color) { }
+        public string PrimaryColorName(int id) { return null; }
+        [Browsable(false)]
+        public int TypeCount { get { return 1; } }
+        public int ColorCount(int id) { return Colors.Length; }
+        public ARGBPixel GetColor(int index, int id)
+        {
+            if (index >= 0 && index < Colors.Length)
+                return Colors[index];
+            return new ARGBPixel();
+        }
+        public void SetColor(int index, int id, ARGBPixel color)
+        {
+            if (index >= 0 && index < Colors.Length)
+            {
+                Colors[index] = color;
+                SignalPropertyChange();
+            }
+        }
+        public bool GetColorConstant(int id) { return false; }
+        public void SetColorConstant(int id, bool constant) { }
+        #endregion
     }
 }

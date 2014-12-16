@@ -11,7 +11,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0LightSetNode : SCN0EntryNode
     {
         internal SCN0LightSet* Data { get { return (SCN0LightSet*)WorkingUncompressed.Address; } }
-        
+
         public SCN0LightNode[] _lights = new SCN0LightNode[8];
         public SCN0AmbientLightNode _ambient;
         private byte numLights;
@@ -76,61 +76,61 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Ambience))]
         public string Ambience
-        { 
-            get { return _ambient != null ? _ambient.Name : null; } 
+        {
+            get { return _ambient != null ? _ambient.Name : null; }
             set
             {
                 _ambient = ((SCN0Node)Parent.Parent).GetFolder<SCN0AmbientLightNode>().FindChild(value, false) as SCN0AmbientLightNode;
                 SignalPropertyChange();
-            } 
+            }
         }
-        
+
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
-        public string Light0 
+        public string Light0
         {
-            get { return GetLightName(0); } 
+            get { return GetLightName(0); }
             set { SetLight(0, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light1
         {
-            get { return GetLightName(1); } 
+            get { return GetLightName(1); }
             set { SetLight(1, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light2
         {
-            get { return GetLightName(2); } 
+            get { return GetLightName(2); }
             set { SetLight(2, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light3
         {
-            get { return GetLightName(3); } 
+            get { return GetLightName(3); }
             set { SetLight(3, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light4
         {
-            get { return GetLightName(4); } 
+            get { return GetLightName(4); }
             set { SetLight(4, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light5
         {
-            get { return GetLightName(5); } 
+            get { return GetLightName(5); }
             set { SetLight(5, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light6
         {
-            get { return GetLightName(6); } 
+            get { return GetLightName(6); }
             set { SetLight(6, value); }
         }
         [Category("Light Set"), TypeConverter(typeof(DropDownListSCN0Light))]
         public string Light7
         {
-            get { return GetLightName(7); } 
+            get { return GetLightName(7); }
             set { SetLight(7, value); }
         }
 

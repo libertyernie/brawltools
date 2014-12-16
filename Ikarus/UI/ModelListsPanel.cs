@@ -567,7 +567,7 @@ namespace Ikarus.UI
             set { _mainWindow.SelectedCHR0 = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public AnimType TargetAnimType
+        public NW4RAnimType TargetAnimType
         {
             get { return _mainWindow.TargetAnimType; }
             set { _mainWindow.TargetAnimType = value; }
@@ -1076,13 +1076,13 @@ namespace Ikarus.UI
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
             }
             if (dlgSave.ShowDialog() == DialogResult.OK)
                 node.Export(dlgSave.FileName);
@@ -1096,13 +1096,13 @@ namespace Ikarus.UI
 
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
             }
 
             if (dlgOpen.ShowDialog() == DialogResult.OK)

@@ -565,7 +565,7 @@ Those properties can use this color as an argument. This color is referred to as
         [Category("Material"), Description("Determines how the game should calculate texture matrices.")]
         public TexMatrixMode TexMatrixFlags { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
         
-        [Category("Material"), Description("True if this material uses transparency.")]
+        [Category("Material"), Description("True if this material has transparency (alpha function) enabled.")]
         public bool XLUMaterial 
         {
             get { return _usageFlags[31]; }
@@ -615,7 +615,7 @@ For example, if the shader has two stages but this number is 1, the second stage
         public byte IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
         [Category("Material"), Description("This will make one, neither or both sides of the linked objects' mesh invisible.")]
         public CullMode CullMode { get { return _cull; } set { if (!CheckIfMetal()) _cull = value;  } }
-        [Category("Material"), Description("Generally this should be true if using Alpha Compare (transparency).")]
+        [Category("Material"), Description("Generally this should be true if using alpha function (transparency).")]
         public bool ZCompareLoc { get { return _zCompLoc != 1; } set { if (!CheckIfMetal()) _zCompLoc = (byte)(value ? 0 : 1); } }
 
         #endregion
@@ -1294,11 +1294,11 @@ For example, if the shader has two stages but this number is 1, the second stage
                 m.Unbind();
         }
 
-        internal void ApplySRT0(SRT0Node node, int index, bool linear)
+        internal void ApplySRT0(SRT0Node node, float index, bool linear)
         {
             SRT0EntryNode e;
 
-            if (node == null || index == 0)
+            if (node == null || index < 1)
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplySRT0Texture(null, 0, linear);
             else if ((e = node.FindChild(Name, false) as SRT0EntryNode) != null)
@@ -1316,9 +1316,9 @@ For example, if the shader has two stages but this number is 1, the second stage
         public RGBAPixel amb1, amb2, clr1, clr2;
         public GXColorS10 k1, k2, k3, k4, c1, c2, c3;
 
-        internal void ApplyCLR0(CLR0Node node, int index)
+        internal void ApplyCLR0(CLR0Node node, float index)
         {
-            if (node == null || index <= 0)
+            if (node == null || index < 1)
             {
                 clr1 = C1MaterialColor;
                 clr2 = C2MaterialColor;
@@ -1338,7 +1338,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             if (mat != null)
                 foreach (CLR0MaterialEntryNode e in mat.Children)
                 {
-                    ARGBPixel p = e.Colors.Count > index ? e.Colors[index] : new ARGBPixel();
+                    ARGBPixel p = e.Colors.Count > index ? e.Colors[(int)index] : new ARGBPixel();
                     switch (e.Target)
                     {
                         case EntryTarget.Ambient0: amb1 = (RGBAPixel)p; break;
@@ -1356,11 +1356,11 @@ For example, if the shader has two stages but this number is 1, the second stage
                 }
         }
 
-        internal unsafe void ApplyPAT0(PAT0Node node, int index)
+        internal unsafe void ApplyPAT0(PAT0Node node, float index)
         {
             PAT0EntryNode e;
 
-            if (node == null || index == 0)
+            if (node == null || index < 1)
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplyPAT0Texture(null, 0);
             else if ((e = node.FindChild(Name, false) as PAT0EntryNode) != null)
@@ -1373,7 +1373,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplyPAT0Texture(null, 0);
         }
-        public int renderFrame = 0;
+        public float renderFrame = 0;
         internal unsafe void SetSCN0(SCN0Node node)
         {
             if (node == null)
@@ -1390,7 +1390,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             }
         }
 
-        public void SetSCN0Frame(int frame)
+        public void SetSCN0Frame(float frame)
         {
             renderFrame = frame;
         }

@@ -10,6 +10,10 @@ using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
 using BrawlLib.Modeling;
+<<<<<<< HEAD
+=======
+using BrawlLib.SSBB;
+>>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
 
 namespace System.Windows.Forms
 {
@@ -23,7 +27,7 @@ namespace System.Windows.Forms
 
     public partial class KeyframePanel : UserControl
     {
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public KeyframePanel() { InitializeComponent(); }
 
@@ -235,7 +239,7 @@ namespace System.Windows.Forms
             lstTypes.Items.Clear();
             listKeyframes.Items.Clear();
 
-            if (_target is IKeyframeHolder || _target is IKeyframeArrayHolder || _target is ISCN0KeyframeHolder)
+            if (_target is IKeyframeHolder || _target is IKeyframeArrayHolder || _target is ISCN0KeyframeSource)
             {
                 listKeyframes.BeginUpdate();
                 if (_target != null)
@@ -263,9 +267,9 @@ namespace System.Windows.Forms
                     for (int i = 0; i < clrControl.ColorSource.TypeCount; i++)
                         lstTypes.Items.Add(String.Format("ColorSource{0}", i));
             }
-            if (_target is IBoolArrayNode)
+            if (_target is IBoolArraySource)
             {
-                visEditor.TargetNode = _target as IBoolArrayNode;
+                visEditor.TargetNode = _target as IBoolArraySource;
                 lstTypes.Items.Add("Visibility");
             }
             if (lstTypes.Items.Count > 0)
@@ -392,7 +396,7 @@ namespace System.Windows.Forms
             }
             else if (clrControl.Visible && clrControl.ColorSource != null && !_updating)
             {
-                clrControl.ColorSource.SetClrConstant(clrControl.ColorID, chkConstant.Checked);
+                clrControl.ColorSource.SetColorConstant(clrControl.ColorID, chkConstant.Checked);
                 clrControl.ColorID = clrControl.ColorID;
             }
         }
@@ -423,7 +427,7 @@ namespace System.Windows.Forms
                 if (clrControl.ColorSource != null)
                 {
                     _updating = true;
-                    chkConstant.Checked = clrControl.ColorSource.GetClrConstant(z);
+                    chkConstant.Checked = clrControl.ColorSource.GetColorConstant(z);
                     _updating = false;
                 }
             }

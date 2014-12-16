@@ -568,7 +568,7 @@ namespace Ikarus.UI
             set { _mainWindow.SelectedVIS0 = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public AnimType TargetAnimType
+        public NW4RAnimType TargetAnimType
         {
             get { return _mainWindow.TargetAnimType; }
             set { _mainWindow.TargetAnimType = value; }
@@ -581,7 +581,7 @@ namespace Ikarus.UI
         {
             InitializeComponent();
             movesetEditor.SelectedIndex = 2;
-            _animations = new SortedList<string, Dictionary<AnimType, AnimationNode>>();
+            _animations = new SortedList<string, Dictionary<NW4RAnimType, AnimationNode>>();
             foreach (var grid in new AttributeGrid[] { attributeGridSSE, attributeGridMain }) {
                 grid.AttributeArray = Manager.AttributeArray;
                 grid.CellEdited += (o, e) => MainForm.UpdateModelPanel();
@@ -589,12 +589,12 @@ namespace Ikarus.UI
             }
         }
 
-        public SortedList<string, Dictionary<AnimType, AnimationNode>> _animations;
+        public SortedList<string, Dictionary<NW4RAnimType, AnimationNode>> _animations;
 
         public bool LoadAnims(ResourceNode node)
         {
             bool found = false;
-            AnimType type;
+            NW4RAnimType type;
             switch (node.ResourceType)
             {
                 case ResourceType.ARC:
@@ -614,17 +614,17 @@ namespace Ikarus.UI
                 case ResourceType.MDef:
                     return false;
 
-                case ResourceType.CHR0: found = true; type = AnimType.CHR; goto Add;
-                case ResourceType.SRT0: found = true; type = AnimType.SRT; goto Add;
-                case ResourceType.SHP0: found = true; type = AnimType.SHP; goto Add;
-                case ResourceType.PAT0: found = true; type = AnimType.PAT; goto Add;
-                case ResourceType.VIS0: found = true; type = AnimType.VIS; goto Add;
-                case ResourceType.CLR0: found = true; type = AnimType.CLR; goto Add;
+                case ResourceType.CHR0: found = true; type = NW4RAnimType.CHR; goto Add;
+                case ResourceType.SRT0: found = true; type = NW4RAnimType.SRT; goto Add;
+                case ResourceType.SHP0: found = true; type = NW4RAnimType.SHP; goto Add;
+                case ResourceType.PAT0: found = true; type = NW4RAnimType.PAT; goto Add;
+                case ResourceType.VIS0: found = true; type = NW4RAnimType.VIS; goto Add;
+                case ResourceType.CLR0: found = true; type = NW4RAnimType.CLR; goto Add;
             }
             return found;
         Add:
             if (!_animations.ContainsKey(node.Name))
-                _animations.Add(node.Name, new Dictionary<AnimType, AnimationNode>());
+                _animations.Add(node.Name, new Dictionary<NW4RAnimType, AnimationNode>());
             _animations[node.Name].Add(type, node as AnimationNode);
             return found;
         }
@@ -657,7 +657,7 @@ namespace Ikarus.UI
             _mainWindow.Updating = false;
             CurrentFrame = frame;
 
-            if ((_mainWindow.GetAnimation((AnimType)TargetAnimType) == null) && (SubActionsList.SelectedItems.Count == 0))
+            if ((_mainWindow.GetAnimation((NW4RAnimType)TargetAnimType) == null) && (SubActionsList.SelectedItems.Count == 0))
             {
                 _mainWindow.SelectedCHR0 = null;
                 _mainWindow.SelectedSRT0 = null;
@@ -700,13 +700,13 @@ namespace Ikarus.UI
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgSave.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgSave.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgSave.Filter = FileFilters.CLR0; break;
             }
             if (dlgSave.ShowDialog() == DialogResult.OK)
                 node.Export(dlgSave.FileName);
@@ -720,13 +720,13 @@ namespace Ikarus.UI
 
             switch (TargetAnimType)
             {
-                case AnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
-                case AnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
-                case AnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
-                case AnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
-                case AnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
-                case AnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
-                case AnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
+                case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
+                case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
+                case NW4RAnimType.VIS: dlgOpen.Filter = FileFilters.VIS0; break;
+                case NW4RAnimType.SCN: dlgOpen.Filter = FileFilters.SCN0; break;
+                case NW4RAnimType.CLR: dlgOpen.Filter = FileFilters.CLR0; break;
             }
 
             if (dlgOpen.ShowDialog() == DialogResult.OK)
@@ -764,13 +764,13 @@ namespace Ikarus.UI
             if ((r = _mainWindow.GetAnimation(TargetAnimType)) != null)
                 switch (TargetAnimType)
                 {
-                    case AnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
-                    case AnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
-                    case AnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
-                    case AnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
-                    case AnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
-                    case AnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
-                    case AnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
+                    case NW4RAnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
+                    case NW4RAnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
+                    case NW4RAnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
+                    case NW4RAnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
+                    case NW4RAnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
+                    case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
+                    case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
             UpdateAnimations();
             SubActionsList.SetSelected(SubActionsList.Items.Count - 1, true);
@@ -779,11 +779,11 @@ namespace Ikarus.UI
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _mainWindow.GetAnimation(TargetAnimType).Remove();
-            _mainWindow.GetFiles(AnimType.None);
+            _mainWindow.GetFiles(NW4RAnimType.None);
             UpdateAnimations();
             _mainWindow.UpdatePropDisplay();
             _mainWindow.UpdateModel();
-            _mainWindow.AnimChanged(AnimType.None);
+            _mainWindow.AnimChanged(NW4RAnimType.None);
             _mainWindow.ModelPanel.Invalidate();
         }
 
@@ -977,7 +977,7 @@ namespace Ikarus.UI
             RunTime.CurrentAction = ActionsList.SelectedItem as ActionEntry;
 
             _mainWindow.MaxFrame = 1;
-            _mainWindow.GetFiles(AnimType.None);
+            _mainWindow.GetFiles(NW4RAnimType.None);
 
             RunTime.SetFrame(-1);
         }
@@ -1012,15 +1012,15 @@ namespace Ikarus.UI
                 }
                 else
                 {
-                    _mainWindow.GetFiles(AnimType.None);
+                    _mainWindow.GetFiles(NW4RAnimType.None);
                     _mainWindow.SetSelectedBRRESFile(TargetAnimType, null);
                 }
             }
             else
             {
-                _mainWindow.GetFiles(AnimType.None);
+                _mainWindow.GetFiles(NW4RAnimType.None);
                 _mainWindow.UpdateModel();
-                _mainWindow.AnimChanged(AnimType.None);
+                _mainWindow.AnimChanged(NW4RAnimType.None);
             }
 
             _mainWindow.UpdatePropDisplay();
@@ -1055,7 +1055,7 @@ namespace Ikarus.UI
             RunTime.CurrentAction = CommonActionsList.SelectedItem as ActionEntry;
 
             _mainWindow.MaxFrame = 1;
-            _mainWindow.GetFiles(AnimType.None);
+            _mainWindow.GetFiles(NW4RAnimType.None);
 
             RunTime.SetFrame(-1);
         }

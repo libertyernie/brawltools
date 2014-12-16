@@ -77,5 +77,20 @@ namespace BrawlLib.Properties
                 this["SaveGCTWithInfo"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1")]
+        public double? AudioVolumePercent
+        {
+            get
+            {
+                return (double?)(this["AudioVolumePercent"]);
+            }
+            set
+            {
+                this["AudioVolumePercent"] = value;
+            }
+        }
     }
 }

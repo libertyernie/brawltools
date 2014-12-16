@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe abstract class MDL0EntryNode : ResourceNode
     {
-        internal virtual void GetStrings(StringTable table) { table.Add(Name); }
+        internal virtual void GetStrings(StringTable table) { }
 
         internal int _entryIndex;
 
@@ -108,17 +108,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                     linker.BoneCache = _children.ToArray();
 
                     //Make sure the node cache is the correct size
-                    //int highest = 0;
-                    //foreach (MDL0BoneNode b in linker.BoneCache)
-                    //    if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
-                    //        highest = b._nodeIndex;
-                    //if (highest >= linker.NodeCache.Length)
-                    //    linker.NodeCache = new IMatrixNode[highest + 1];
+                    int highest = 0;
+                    foreach (MDL0BoneNode b in linker.BoneCache)
+                        if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
+                            highest = b._nodeIndex;
+                    if (highest >= linker.NodeCache.Length)
+                        linker.NodeCache = new IMatrixNode[highest + 1];
 
                     //Reset children so we can rebuild
                     _children.Clear();
 
-                    //Assign children using each bones' parent offset in case NodeTree is corrupted
+                    //Assign children using each bones' parent offset in case NodeTree is corrupted.
+                    //Bone parents are assigned when they are initialized in a flat array.
                     foreach (MDL0BoneNode b in linker.BoneCache)
                         b._parent._children.Add(b);
 

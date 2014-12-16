@@ -10,7 +10,7 @@ using BrawlLib.Imaging;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class REFFTEVStage : MDL0EntryNode
+    public unsafe class REFFTEVStage : ResourceNode
     {
         public REFFTEVStage(int index) { _name = String.Format("Stage{0}", index); }
         public override ResourceType ResourceType { get { return ResourceType.TEVStage; } }
@@ -137,17 +137,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             //TextureCoord = TexCoordID.TexCoord7;
             //ColorChannel = ColorSelChan.Zero;
         }
-
-        public override void Remove()
-        {
-            //if (_parent == null)
-            //    return;
-
-            //((MDL0ShaderNode)Parent).STGs = (byte)(Parent.Children.Count - 1);
-            base.Remove();
-        }
-
-        internal override void GetStrings(StringTable table) { }
 
         //public void SignalPropertyChange()
         //{
