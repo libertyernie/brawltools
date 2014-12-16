@@ -6,11 +6,15 @@ namespace System.Windows.Forms
 {
     public class NumericInputBox : TextBox
     {
-        public float _value;
+        public float? _value;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float Value
         {
-            get { return _value; }
+            get {
+				if (_value == null)
+					Apply();
+				return _value.Value;
+			}
             set
             {
                 float val = value.Clamp(_minValue, _maxValue);
@@ -193,10 +197,10 @@ namespace System.Windows.Forms
 
         private void Apply()
         {
-            float val = _value;
-            int val2 = (int)_value;
+            float val = _value ?? 0;
+            int val2 = (int)val;
 
-            if (val.ToString() == Text)
+			if (_value.ToString() == Text)
                 return;
 
             if (Text == "")

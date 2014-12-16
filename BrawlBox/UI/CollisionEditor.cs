@@ -80,687 +80,691 @@ namespace System.Windows.Forms
         private Panel panel3;
         private Button btnPrevFrame;
         private Button btnNextFrame;
-        private ToolStripButton btnHelp;
+		private ToolStripButton btnHelp;
+		private ToolStripButton btnTransformAll;
+		private ToolStripSeparator toolStripSeparator4;
         private CheckedListBox lstObjects;
 
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CollisionEditor));
-            this.undoToolStrip = new System.Windows.Forms.SplitContainer();
-            this.redoToolStrip = new System.Windows.Forms.SplitContainer();
-            this.modelTree = new System.Windows.Forms.TreeView();
-            this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.assignToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.snapToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.chkBones = new System.Windows.Forms.CheckBox();
-            this.chkPoly = new System.Windows.Forms.CheckBox();
-            this.chkAllModels = new System.Windows.Forms.CheckBox();
-            this.lstObjects = new System.Windows.Forms.CheckedListBox();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.newObjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
-            this.snapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
-            this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.panel3 = new System.Windows.Forms.Panel();
-            this.pnlObjProps = new System.Windows.Forms.Panel();
-            this.chkObjSSEUnk = new System.Windows.Forms.CheckBox();
-            this.chkObjModule = new System.Windows.Forms.CheckBox();
-            this.chkObjUnk = new System.Windows.Forms.CheckBox();
-            this.btnUnlink = new System.Windows.Forms.Button();
-            this.btnRelink = new System.Windows.Forms.Button();
-            this.txtBone = new System.Windows.Forms.TextBox();
-            this.label4 = new System.Windows.Forms.Label();
-            this.txtModel = new System.Windows.Forms.TextBox();
-            this.label3 = new System.Windows.Forms.Label();
-            this.pnlPointProps = new System.Windows.Forms.Panel();
-            this.label2 = new System.Windows.Forms.Label();
-            this.numY = new System.Windows.Forms.NumericInputBox();
-            this.label1 = new System.Windows.Forms.Label();
-            this.numX = new System.Windows.Forms.NumericInputBox();
-            this.pnlPlaneProps = new System.Windows.Forms.Panel();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.cboType = new System.Windows.Forms.ComboBox();
-            this.chkTypeUnk2 = new System.Windows.Forms.CheckBox();
-            this.chkTypeUnk1 = new System.Windows.Forms.CheckBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.chkLeftLedge = new System.Windows.Forms.CheckBox();
-            this.chkNoWalljump = new System.Windows.Forms.CheckBox();
-            this.chkRightLedge = new System.Windows.Forms.CheckBox();
-            this.chkFallThrough = new System.Windows.Forms.CheckBox();
-            this.cboMaterial = new System.Windows.Forms.ComboBox();
-            this.label5 = new System.Windows.Forms.Label();
-            this.panel4 = new System.Windows.Forms.Panel();
-            this.btnPlayAnims = new System.Windows.Forms.Button();
-            this.btnPrevFrame = new System.Windows.Forms.Button();
-            this.btnNextFrame = new System.Windows.Forms.Button();
-            this._modelPanel = new System.Windows.Forms.ModelPanel();
-            this.panel1 = new System.Windows.Forms.Panel();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.btnUndo = new System.Windows.Forms.ToolStripButton();
-            this.btnRedo = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnSplit = new System.Windows.Forms.ToolStripButton();
-            this.btnMerge = new System.Windows.Forms.ToolStripButton();
-            this.btnDelete = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnSameX = new System.Windows.Forms.ToolStripButton();
-            this.btnSameY = new System.Windows.Forms.ToolStripButton();
-            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
-            this.btnResetCam = new System.Windows.Forms.ToolStripButton();
-            this.btnResetSnap = new System.Windows.Forms.ToolStripButton();
-            this.btnHelp = new System.Windows.Forms.ToolStripButton();
-            this.btnResetRot = new System.Windows.Forms.Button();
-            this.trackBar1 = new System.Windows.Forms.TrackBar();
-            ((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).BeginInit();
-            this.undoToolStrip.Panel1.SuspendLayout();
-            this.undoToolStrip.Panel2.SuspendLayout();
-            this.undoToolStrip.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.redoToolStrip)).BeginInit();
-            this.redoToolStrip.Panel1.SuspendLayout();
-            this.redoToolStrip.Panel2.SuspendLayout();
-            this.redoToolStrip.SuspendLayout();
-            this.contextMenuStrip2.SuspendLayout();
-            this.panel2.SuspendLayout();
-            this.contextMenuStrip1.SuspendLayout();
-            this.panel3.SuspendLayout();
-            this.pnlObjProps.SuspendLayout();
-            this.pnlPointProps.SuspendLayout();
-            this.pnlPlaneProps.SuspendLayout();
-            this.groupBox2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
-            this.panel4.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
-            this.SuspendLayout();
-            // 
-            // undoToolStrip
-            // 
-            this.undoToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.undoToolStrip.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
-            this.undoToolStrip.Location = new System.Drawing.Point(0, 0);
-            this.undoToolStrip.Name = "undoToolStrip";
-            // 
-            // undoToolStrip.Panel1
-            // 
-            this.undoToolStrip.Panel1.Controls.Add(this.redoToolStrip);
-            // 
-            // undoToolStrip.Panel2
-            // 
-            this.undoToolStrip.Panel2.Controls.Add(this._modelPanel);
-            this.undoToolStrip.Panel2.Controls.Add(this.panel1);
-            this.undoToolStrip.Size = new System.Drawing.Size(694, 467);
-            this.undoToolStrip.SplitterDistance = 209;
-            this.undoToolStrip.TabIndex = 1;
-            // 
-            // redoToolStrip
-            // 
-            this.redoToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.redoToolStrip.Location = new System.Drawing.Point(0, 0);
-            this.redoToolStrip.Name = "redoToolStrip";
-            this.redoToolStrip.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // redoToolStrip.Panel1
-            // 
-            this.redoToolStrip.Panel1.Controls.Add(this.modelTree);
-            this.redoToolStrip.Panel1.Controls.Add(this.panel2);
-            // 
-            // redoToolStrip.Panel2
-            // 
-            this.redoToolStrip.Panel2.Controls.Add(this.lstObjects);
-            this.redoToolStrip.Panel2.Controls.Add(this.panel3);
-            this.redoToolStrip.Panel2.Controls.Add(this.panel4);
-            this.redoToolStrip.Size = new System.Drawing.Size(209, 467);
-            this.redoToolStrip.SplitterDistance = 242;
-            this.redoToolStrip.TabIndex = 2;
-            // 
-            // modelTree
-            // 
-            this.modelTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.modelTree.CheckBoxes = true;
-            this.modelTree.ContextMenuStrip = this.contextMenuStrip2;
-            this.modelTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelTree.HideSelection = false;
-            this.modelTree.Location = new System.Drawing.Point(0, 17);
-            this.modelTree.Name = "modelTree";
-            this.modelTree.Size = new System.Drawing.Size(209, 225);
-            this.modelTree.TabIndex = 4;
-            this.modelTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.modelTree_AfterCheck);
-            this.modelTree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.modelTree_BeforeSelect);
-            this.modelTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.modelTree_AfterSelect);
-            // 
-            // contextMenuStrip2
-            // 
-            this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.components = new System.ComponentModel.Container();
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CollisionEditor));
+			this.undoToolStrip = new System.Windows.Forms.SplitContainer();
+			this.redoToolStrip = new System.Windows.Forms.SplitContainer();
+			this.modelTree = new System.Windows.Forms.TreeView();
+			this.contextMenuStrip2 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.assignToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.snapToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+			this.panel2 = new System.Windows.Forms.Panel();
+			this.chkBones = new System.Windows.Forms.CheckBox();
+			this.chkPoly = new System.Windows.Forms.CheckBox();
+			this.chkAllModels = new System.Windows.Forms.CheckBox();
+			this.lstObjects = new System.Windows.Forms.CheckedListBox();
+			this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+			this.newObjectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripSeparator();
+			this.snapToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+			this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+			this.panel3 = new System.Windows.Forms.Panel();
+			this.pnlPlaneProps = new System.Windows.Forms.Panel();
+			this.groupBox2 = new System.Windows.Forms.GroupBox();
+			this.cboType = new System.Windows.Forms.ComboBox();
+			this.chkTypeUnk2 = new System.Windows.Forms.CheckBox();
+			this.chkTypeUnk1 = new System.Windows.Forms.CheckBox();
+			this.groupBox1 = new System.Windows.Forms.GroupBox();
+			this.chkLeftLedge = new System.Windows.Forms.CheckBox();
+			this.chkNoWalljump = new System.Windows.Forms.CheckBox();
+			this.chkRightLedge = new System.Windows.Forms.CheckBox();
+			this.chkFallThrough = new System.Windows.Forms.CheckBox();
+			this.cboMaterial = new System.Windows.Forms.ComboBox();
+			this.label5 = new System.Windows.Forms.Label();
+			this.pnlPointProps = new System.Windows.Forms.Panel();
+			this.label2 = new System.Windows.Forms.Label();
+			this.numY = new System.Windows.Forms.NumericInputBox();
+			this.label1 = new System.Windows.Forms.Label();
+			this.numX = new System.Windows.Forms.NumericInputBox();
+			this.pnlObjProps = new System.Windows.Forms.Panel();
+			this.chkObjSSEUnk = new System.Windows.Forms.CheckBox();
+			this.chkObjModule = new System.Windows.Forms.CheckBox();
+			this.chkObjUnk = new System.Windows.Forms.CheckBox();
+			this.btnUnlink = new System.Windows.Forms.Button();
+			this.btnRelink = new System.Windows.Forms.Button();
+			this.txtBone = new System.Windows.Forms.TextBox();
+			this.label4 = new System.Windows.Forms.Label();
+			this.txtModel = new System.Windows.Forms.TextBox();
+			this.label3 = new System.Windows.Forms.Label();
+			this.panel4 = new System.Windows.Forms.Panel();
+			this.btnPlayAnims = new System.Windows.Forms.Button();
+			this.btnPrevFrame = new System.Windows.Forms.Button();
+			this.btnNextFrame = new System.Windows.Forms.Button();
+			this._modelPanel = new System.Windows.Forms.ModelPanel();
+			this.panel1 = new System.Windows.Forms.Panel();
+			this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+			this.btnUndo = new System.Windows.Forms.ToolStripButton();
+			this.btnRedo = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator3 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnSplit = new System.Windows.Forms.ToolStripButton();
+			this.btnMerge = new System.Windows.Forms.ToolStripButton();
+			this.btnDelete = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator2 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnSameX = new System.Windows.Forms.ToolStripButton();
+			this.btnSameY = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnTransformAll = new System.Windows.Forms.ToolStripButton();
+			this.toolStripSeparator4 = new System.Windows.Forms.ToolStripSeparator();
+			this.btnResetCam = new System.Windows.Forms.ToolStripButton();
+			this.btnResetSnap = new System.Windows.Forms.ToolStripButton();
+			this.btnHelp = new System.Windows.Forms.ToolStripButton();
+			this.btnResetRot = new System.Windows.Forms.Button();
+			this.trackBar1 = new System.Windows.Forms.TrackBar();
+			((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).BeginInit();
+			this.undoToolStrip.Panel1.SuspendLayout();
+			this.undoToolStrip.Panel2.SuspendLayout();
+			this.undoToolStrip.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.redoToolStrip)).BeginInit();
+			this.redoToolStrip.Panel1.SuspendLayout();
+			this.redoToolStrip.Panel2.SuspendLayout();
+			this.redoToolStrip.SuspendLayout();
+			this.contextMenuStrip2.SuspendLayout();
+			this.panel2.SuspendLayout();
+			this.contextMenuStrip1.SuspendLayout();
+			this.panel3.SuspendLayout();
+			this.pnlPlaneProps.SuspendLayout();
+			this.groupBox2.SuspendLayout();
+			this.groupBox1.SuspendLayout();
+			this.pnlPointProps.SuspendLayout();
+			this.pnlObjProps.SuspendLayout();
+			this.panel4.SuspendLayout();
+			this.panel1.SuspendLayout();
+			this.toolStrip1.SuspendLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).BeginInit();
+			this.SuspendLayout();
+			// 
+			// undoToolStrip
+			// 
+			this.undoToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.undoToolStrip.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
+			this.undoToolStrip.Location = new System.Drawing.Point(0, 0);
+			this.undoToolStrip.Name = "undoToolStrip";
+			// 
+			// undoToolStrip.Panel1
+			// 
+			this.undoToolStrip.Panel1.Controls.Add(this.redoToolStrip);
+			// 
+			// undoToolStrip.Panel2
+			// 
+			this.undoToolStrip.Panel2.Controls.Add(this._modelPanel);
+			this.undoToolStrip.Panel2.Controls.Add(this.panel1);
+			this.undoToolStrip.Size = new System.Drawing.Size(1000, 467);
+			this.undoToolStrip.SplitterDistance = 209;
+			this.undoToolStrip.TabIndex = 1;
+			// 
+			// redoToolStrip
+			// 
+			this.redoToolStrip.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.redoToolStrip.Location = new System.Drawing.Point(0, 0);
+			this.redoToolStrip.Name = "redoToolStrip";
+			this.redoToolStrip.Orientation = System.Windows.Forms.Orientation.Horizontal;
+			// 
+			// redoToolStrip.Panel1
+			// 
+			this.redoToolStrip.Panel1.Controls.Add(this.modelTree);
+			this.redoToolStrip.Panel1.Controls.Add(this.panel2);
+			// 
+			// redoToolStrip.Panel2
+			// 
+			this.redoToolStrip.Panel2.Controls.Add(this.lstObjects);
+			this.redoToolStrip.Panel2.Controls.Add(this.panel3);
+			this.redoToolStrip.Panel2.Controls.Add(this.panel4);
+			this.redoToolStrip.Size = new System.Drawing.Size(209, 467);
+			this.redoToolStrip.SplitterDistance = 242;
+			this.redoToolStrip.TabIndex = 2;
+			// 
+			// modelTree
+			// 
+			this.modelTree.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.modelTree.CheckBoxes = true;
+			this.modelTree.ContextMenuStrip = this.contextMenuStrip2;
+			this.modelTree.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.modelTree.HideSelection = false;
+			this.modelTree.Location = new System.Drawing.Point(0, 17);
+			this.modelTree.Name = "modelTree";
+			this.modelTree.Size = new System.Drawing.Size(209, 225);
+			this.modelTree.TabIndex = 4;
+			this.modelTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.modelTree_AfterCheck);
+			this.modelTree.BeforeSelect += new System.Windows.Forms.TreeViewCancelEventHandler(this.modelTree_BeforeSelect);
+			this.modelTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.modelTree_AfterSelect);
+			// 
+			// contextMenuStrip2
+			// 
+			this.contextMenuStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.assignToolStripMenuItem,
             this.snapToolStripMenuItem1});
-            this.contextMenuStrip2.Name = "contextMenuStrip2";
-            this.contextMenuStrip2.Size = new System.Drawing.Size(110, 48);
-            this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
-            // 
-            // assignToolStripMenuItem
-            // 
-            this.assignToolStripMenuItem.Name = "assignToolStripMenuItem";
-            this.assignToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
-            this.assignToolStripMenuItem.Text = "Assign";
-            this.assignToolStripMenuItem.Click += new System.EventHandler(this.btnRelink_Click);
-            // 
-            // snapToolStripMenuItem1
-            // 
-            this.snapToolStripMenuItem1.Name = "snapToolStripMenuItem1";
-            this.snapToolStripMenuItem1.Size = new System.Drawing.Size(109, 22);
-            this.snapToolStripMenuItem1.Text = "Snap";
-            this.snapToolStripMenuItem1.Click += new System.EventHandler(this.snapToolStripMenuItem1_Click);
-            // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.chkBones);
-            this.panel2.Controls.Add(this.chkPoly);
-            this.panel2.Controls.Add(this.chkAllModels);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 0);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(209, 17);
-            this.panel2.TabIndex = 3;
-            // 
-            // chkBones
-            // 
-            this.chkBones.Location = new System.Drawing.Point(100, 0);
-            this.chkBones.Name = "chkBones";
-            this.chkBones.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkBones.Size = new System.Drawing.Size(67, 17);
-            this.chkBones.TabIndex = 4;
-            this.chkBones.Text = "Bones";
-            this.chkBones.UseVisualStyleBackColor = true;
-            this.chkBones.CheckedChanged += new System.EventHandler(this.chkBones_CheckedChanged);
-            // 
-            // chkPoly
-            // 
-            this.chkPoly.Checked = true;
-            this.chkPoly.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkPoly.Location = new System.Drawing.Point(44, 0);
-            this.chkPoly.Name = "chkPoly";
-            this.chkPoly.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkPoly.Size = new System.Drawing.Size(54, 17);
-            this.chkPoly.TabIndex = 3;
-            this.chkPoly.Text = "Poly";
-            this.chkPoly.ThreeState = true;
-            this.chkPoly.UseVisualStyleBackColor = true;
-            this.chkPoly.CheckStateChanged += new System.EventHandler(this.chkPoly_CheckStateChanged);
-            // 
-            // chkAllModels
-            // 
-            this.chkAllModels.Checked = true;
-            this.chkAllModels.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAllModels.Location = new System.Drawing.Point(0, 0);
-            this.chkAllModels.Name = "chkAllModels";
-            this.chkAllModels.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkAllModels.Size = new System.Drawing.Size(41, 17);
-            this.chkAllModels.TabIndex = 2;
-            this.chkAllModels.Text = "All";
-            this.chkAllModels.UseVisualStyleBackColor = true;
-            this.chkAllModels.CheckedChanged += new System.EventHandler(this.chkAllModels_CheckedChanged);
-            // 
-            // lstObjects
-            // 
-            this.lstObjects.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lstObjects.ContextMenuStrip = this.contextMenuStrip1;
-            this.lstObjects.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstObjects.FormattingEnabled = true;
-            this.lstObjects.IntegralHeight = false;
-            this.lstObjects.Location = new System.Drawing.Point(0, 0);
-            this.lstObjects.Name = "lstObjects";
-            this.lstObjects.Size = new System.Drawing.Size(209, 82);
-            this.lstObjects.TabIndex = 1;
-            this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstObjects_ItemCheck);
-            this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstObjects_SelectedValueChanged);
-            this.lstObjects.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstObjects_MouseDown);
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.contextMenuStrip2.Name = "contextMenuStrip2";
+			this.contextMenuStrip2.Size = new System.Drawing.Size(110, 48);
+			this.contextMenuStrip2.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip2_Opening);
+			// 
+			// assignToolStripMenuItem
+			// 
+			this.assignToolStripMenuItem.Name = "assignToolStripMenuItem";
+			this.assignToolStripMenuItem.Size = new System.Drawing.Size(109, 22);
+			this.assignToolStripMenuItem.Text = "Assign";
+			this.assignToolStripMenuItem.Click += new System.EventHandler(this.btnRelink_Click);
+			// 
+			// snapToolStripMenuItem1
+			// 
+			this.snapToolStripMenuItem1.Name = "snapToolStripMenuItem1";
+			this.snapToolStripMenuItem1.Size = new System.Drawing.Size(109, 22);
+			this.snapToolStripMenuItem1.Text = "Snap";
+			this.snapToolStripMenuItem1.Click += new System.EventHandler(this.snapToolStripMenuItem1_Click);
+			// 
+			// panel2
+			// 
+			this.panel2.Controls.Add(this.chkBones);
+			this.panel2.Controls.Add(this.chkPoly);
+			this.panel2.Controls.Add(this.chkAllModels);
+			this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel2.Location = new System.Drawing.Point(0, 0);
+			this.panel2.Name = "panel2";
+			this.panel2.Size = new System.Drawing.Size(209, 17);
+			this.panel2.TabIndex = 3;
+			// 
+			// chkBones
+			// 
+			this.chkBones.Location = new System.Drawing.Point(100, 0);
+			this.chkBones.Name = "chkBones";
+			this.chkBones.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
+			this.chkBones.Size = new System.Drawing.Size(67, 17);
+			this.chkBones.TabIndex = 4;
+			this.chkBones.Text = "Bones";
+			this.chkBones.UseVisualStyleBackColor = true;
+			this.chkBones.CheckedChanged += new System.EventHandler(this.chkBones_CheckedChanged);
+			// 
+			// chkPoly
+			// 
+			this.chkPoly.Checked = true;
+			this.chkPoly.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkPoly.Location = new System.Drawing.Point(44, 0);
+			this.chkPoly.Name = "chkPoly";
+			this.chkPoly.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
+			this.chkPoly.Size = new System.Drawing.Size(54, 17);
+			this.chkPoly.TabIndex = 3;
+			this.chkPoly.Text = "Poly";
+			this.chkPoly.ThreeState = true;
+			this.chkPoly.UseVisualStyleBackColor = true;
+			this.chkPoly.CheckStateChanged += new System.EventHandler(this.chkPoly_CheckStateChanged);
+			// 
+			// chkAllModels
+			// 
+			this.chkAllModels.Checked = true;
+			this.chkAllModels.CheckState = System.Windows.Forms.CheckState.Checked;
+			this.chkAllModels.Location = new System.Drawing.Point(0, 0);
+			this.chkAllModels.Name = "chkAllModels";
+			this.chkAllModels.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
+			this.chkAllModels.Size = new System.Drawing.Size(41, 17);
+			this.chkAllModels.TabIndex = 2;
+			this.chkAllModels.Text = "All";
+			this.chkAllModels.UseVisualStyleBackColor = true;
+			this.chkAllModels.CheckedChanged += new System.EventHandler(this.chkAllModels_CheckedChanged);
+			// 
+			// lstObjects
+			// 
+			this.lstObjects.BorderStyle = System.Windows.Forms.BorderStyle.None;
+			this.lstObjects.ContextMenuStrip = this.contextMenuStrip1;
+			this.lstObjects.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.lstObjects.FormattingEnabled = true;
+			this.lstObjects.IntegralHeight = false;
+			this.lstObjects.Location = new System.Drawing.Point(0, 0);
+			this.lstObjects.Name = "lstObjects";
+			this.lstObjects.Size = new System.Drawing.Size(209, 82);
+			this.lstObjects.TabIndex = 1;
+			this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstObjects_ItemCheck);
+			this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstObjects_SelectedValueChanged);
+			this.lstObjects.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstObjects_MouseDown);
+			// 
+			// contextMenuStrip1
+			// 
+			this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newObjectToolStripMenuItem,
             this.toolStripMenuItem2,
             this.snapToolStripMenuItem,
             this.toolStripMenuItem1,
             this.deleteToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(137, 82);
-            // 
-            // newObjectToolStripMenuItem
-            // 
-            this.newObjectToolStripMenuItem.Name = "newObjectToolStripMenuItem";
-            this.newObjectToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.newObjectToolStripMenuItem.Text = "New Object";
-            this.newObjectToolStripMenuItem.Click += new System.EventHandler(this.newObjectToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem2
-            // 
-            this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(133, 6);
-            // 
-            // snapToolStripMenuItem
-            // 
-            this.snapToolStripMenuItem.Name = "snapToolStripMenuItem";
-            this.snapToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.snapToolStripMenuItem.Text = "Snap";
-            this.snapToolStripMenuItem.Click += new System.EventHandler(this.snapToolStripMenuItem_Click);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(133, 6);
-            // 
-            // deleteToolStripMenuItem
-            // 
-            this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
-            this.deleteToolStripMenuItem.Text = "Delete";
-            this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
-            // 
-            // panel3
-            // 
-            this.panel3.Controls.Add(this.pnlPlaneProps);
-            this.panel3.Controls.Add(this.pnlPointProps);
-            this.panel3.Controls.Add(this.pnlObjProps);
-            this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel3.Location = new System.Drawing.Point(0, 82);
-            this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(209, 115);
-            this.panel3.TabIndex = 16;
-            // 
-            // pnlObjProps
-            // 
-            this.pnlObjProps.Controls.Add(this.chkObjSSEUnk);
-            this.pnlObjProps.Controls.Add(this.chkObjModule);
-            this.pnlObjProps.Controls.Add(this.chkObjUnk);
-            this.pnlObjProps.Controls.Add(this.btnUnlink);
-            this.pnlObjProps.Controls.Add(this.btnRelink);
-            this.pnlObjProps.Controls.Add(this.txtBone);
-            this.pnlObjProps.Controls.Add(this.label4);
-            this.pnlObjProps.Controls.Add(this.txtModel);
-            this.pnlObjProps.Controls.Add(this.label3);
-            this.pnlObjProps.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlObjProps.Location = new System.Drawing.Point(0, -15);
-            this.pnlObjProps.Name = "pnlObjProps";
-            this.pnlObjProps.Size = new System.Drawing.Size(209, 130);
-            this.pnlObjProps.TabIndex = 1;
-            this.pnlObjProps.Visible = false;
-            // 
-            // chkObjSSEUnk
-            // 
-            this.chkObjSSEUnk.AutoSize = true;
-            this.chkObjSSEUnk.Location = new System.Drawing.Point(10, 102);
-            this.chkObjSSEUnk.Name = "chkObjSSEUnk";
-            this.chkObjSSEUnk.Size = new System.Drawing.Size(96, 17);
-            this.chkObjSSEUnk.TabIndex = 15;
-            this.chkObjSSEUnk.Text = "SSE Unknown";
-            this.chkObjSSEUnk.UseVisualStyleBackColor = true;
-            this.chkObjSSEUnk.CheckedChanged += new System.EventHandler(this.chkObjSSEUnk_CheckedChanged);
-            // 
-            // chkObjModule
-            // 
-            this.chkObjModule.AutoSize = true;
-            this.chkObjModule.Location = new System.Drawing.Point(10, 79);
-            this.chkObjModule.Name = "chkObjModule";
-            this.chkObjModule.Size = new System.Drawing.Size(111, 17);
-            this.chkObjModule.TabIndex = 14;
-            this.chkObjModule.Text = "Module Controlled";
-            this.chkObjModule.UseVisualStyleBackColor = true;
-            this.chkObjModule.CheckedChanged += new System.EventHandler(this.chkObjModule_CheckedChanged);
-            // 
-            // chkObjUnk
-            // 
-            this.chkObjUnk.AutoSize = true;
-            this.chkObjUnk.Location = new System.Drawing.Point(10, 56);
-            this.chkObjUnk.Name = "chkObjUnk";
-            this.chkObjUnk.Size = new System.Drawing.Size(72, 17);
-            this.chkObjUnk.TabIndex = 13;
-            this.chkObjUnk.Text = "Unknown";
-            this.chkObjUnk.UseVisualStyleBackColor = true;
-            this.chkObjUnk.CheckedChanged += new System.EventHandler(this.chkObjUnk_CheckedChanged);
-            // 
-            // btnUnlink
-            // 
-            this.btnUnlink.Location = new System.Drawing.Point(177, 22);
-            this.btnUnlink.Name = "btnUnlink";
-            this.btnUnlink.Size = new System.Drawing.Size(28, 21);
-            this.btnUnlink.TabIndex = 12;
-            this.btnUnlink.Text = "-";
-            this.btnUnlink.UseVisualStyleBackColor = true;
-            this.btnUnlink.Click += new System.EventHandler(this.btnUnlink_Click);
-            // 
-            // btnRelink
-            // 
-            this.btnRelink.Location = new System.Drawing.Point(177, 2);
-            this.btnRelink.Name = "btnRelink";
-            this.btnRelink.Size = new System.Drawing.Size(28, 21);
-            this.btnRelink.TabIndex = 4;
-            this.btnRelink.Text = "+";
-            this.btnRelink.UseVisualStyleBackColor = true;
-            this.btnRelink.Click += new System.EventHandler(this.btnRelink_Click);
-            // 
-            // txtBone
-            // 
-            this.txtBone.Location = new System.Drawing.Point(49, 23);
-            this.txtBone.Name = "txtBone";
-            this.txtBone.ReadOnly = true;
-            this.txtBone.Size = new System.Drawing.Size(126, 20);
-            this.txtBone.TabIndex = 3;
-            // 
-            // label4
-            // 
-            this.label4.Location = new System.Drawing.Point(4, 23);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(42, 20);
-            this.label4.TabIndex = 2;
-            this.label4.Text = "Bone:";
-            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // txtModel
-            // 
-            this.txtModel.Location = new System.Drawing.Point(49, 3);
-            this.txtModel.Name = "txtModel";
-            this.txtModel.ReadOnly = true;
-            this.txtModel.Size = new System.Drawing.Size(126, 20);
-            this.txtModel.TabIndex = 1;
-            // 
-            // label3
-            // 
-            this.label3.Location = new System.Drawing.Point(4, 3);
-            this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(42, 20);
-            this.label3.TabIndex = 0;
-            this.label3.Text = "Model:";
-            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // pnlPointProps
-            // 
-            this.pnlPointProps.Controls.Add(this.label2);
-            this.pnlPointProps.Controls.Add(this.numY);
-            this.pnlPointProps.Controls.Add(this.label1);
-            this.pnlPointProps.Controls.Add(this.numX);
-            this.pnlPointProps.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlPointProps.Location = new System.Drawing.Point(0, -85);
-            this.pnlPointProps.Name = "pnlPointProps";
-            this.pnlPointProps.Size = new System.Drawing.Size(209, 70);
-            this.pnlPointProps.TabIndex = 15;
-            this.pnlPointProps.Visible = false;
-            // 
-            // label2
-            // 
-            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(18, 32);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(42, 20);
-            this.label2.TabIndex = 3;
-            this.label2.Text = "Y";
-            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // numY
-            // 
-            this.numY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numY.Integral = false;
-            this.numY.Location = new System.Drawing.Point(59, 32);
-            this.numY.MaximumValue = 3.402823E+38F;
-            this.numY.MinimumValue = -3.402823E+38F;
-            this.numY.Name = "numY";
-            this.numY.Size = new System.Drawing.Size(100, 20);
-            this.numY.TabIndex = 2;
-            this.numY.Text = "0";
-            this.numY.ValueChanged += new System.EventHandler(this.numY_ValueChanged);
-            // 
-            // label1
-            // 
-            this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(18, 13);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(42, 20);
-            this.label1.TabIndex = 1;
-            this.label1.Text = "X";
-            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // numX
-            // 
-            this.numX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numX.Integral = false;
-            this.numX.Location = new System.Drawing.Point(59, 13);
-            this.numX.MaximumValue = 3.402823E+38F;
-            this.numX.MinimumValue = -3.402823E+38F;
-            this.numX.Name = "numX";
-            this.numX.Size = new System.Drawing.Size(100, 20);
-            this.numX.TabIndex = 0;
-            this.numX.Text = "0";
-            this.numX.ValueChanged += new System.EventHandler(this.numX_ValueChanged);
-            // 
-            // pnlPlaneProps
-            // 
-            this.pnlPlaneProps.Controls.Add(this.groupBox2);
-            this.pnlPlaneProps.Controls.Add(this.groupBox1);
-            this.pnlPlaneProps.Controls.Add(this.cboMaterial);
-            this.pnlPlaneProps.Controls.Add(this.label5);
-            this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
-            this.pnlPlaneProps.Name = "pnlPlaneProps";
-            this.pnlPlaneProps.Size = new System.Drawing.Size(209, 114);
-            this.pnlPlaneProps.TabIndex = 0;
-            this.pnlPlaneProps.Visible = false;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.contextMenuStrip1.Name = "contextMenuStrip1";
+			this.contextMenuStrip1.Size = new System.Drawing.Size(137, 82);
+			// 
+			// newObjectToolStripMenuItem
+			// 
+			this.newObjectToolStripMenuItem.Name = "newObjectToolStripMenuItem";
+			this.newObjectToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+			this.newObjectToolStripMenuItem.Text = "New Object";
+			this.newObjectToolStripMenuItem.Click += new System.EventHandler(this.newObjectToolStripMenuItem_Click);
+			// 
+			// toolStripMenuItem2
+			// 
+			this.toolStripMenuItem2.Name = "toolStripMenuItem2";
+			this.toolStripMenuItem2.Size = new System.Drawing.Size(133, 6);
+			// 
+			// snapToolStripMenuItem
+			// 
+			this.snapToolStripMenuItem.Name = "snapToolStripMenuItem";
+			this.snapToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+			this.snapToolStripMenuItem.Text = "Snap";
+			this.snapToolStripMenuItem.Click += new System.EventHandler(this.snapToolStripMenuItem_Click);
+			// 
+			// toolStripMenuItem1
+			// 
+			this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+			this.toolStripMenuItem1.Size = new System.Drawing.Size(133, 6);
+			// 
+			// deleteToolStripMenuItem
+			// 
+			this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
+			this.deleteToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
+			this.deleteToolStripMenuItem.Text = "Delete";
+			this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+			// 
+			// panel3
+			// 
+			this.panel3.Controls.Add(this.pnlPlaneProps);
+			this.panel3.Controls.Add(this.pnlPointProps);
+			this.panel3.Controls.Add(this.pnlObjProps);
+			this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel3.Location = new System.Drawing.Point(0, 82);
+			this.panel3.Name = "panel3";
+			this.panel3.Size = new System.Drawing.Size(209, 115);
+			this.panel3.TabIndex = 16;
+			// 
+			// pnlPlaneProps
+			// 
+			this.pnlPlaneProps.Controls.Add(this.groupBox2);
+			this.pnlPlaneProps.Controls.Add(this.groupBox1);
+			this.pnlPlaneProps.Controls.Add(this.cboMaterial);
+			this.pnlPlaneProps.Controls.Add(this.label5);
+			this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
+			this.pnlPlaneProps.Name = "pnlPlaneProps";
+			this.pnlPlaneProps.Size = new System.Drawing.Size(209, 114);
+			this.pnlPlaneProps.TabIndex = 0;
+			this.pnlPlaneProps.Visible = false;
+			// 
+			// groupBox2
+			// 
+			this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox2.Controls.Add(this.cboType);
-            this.groupBox2.Controls.Add(this.chkTypeUnk2);
-            this.groupBox2.Controls.Add(this.chkTypeUnk1);
-            this.groupBox2.Location = new System.Drawing.Point(104, 28);
-            this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBox2.Size = new System.Drawing.Size(105, 86);
-            this.groupBox2.TabIndex = 14;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Types";
-            // 
-            // cboType
-            // 
-            this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(8, 16);
-            this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(89, 21);
-            this.cboType.TabIndex = 5;
-            this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
-            // 
-            // chkTypeUnk2
-            // 
-            this.chkTypeUnk2.Location = new System.Drawing.Point(8, 58);
-            this.chkTypeUnk2.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk2.Name = "chkTypeUnk2";
-            this.chkTypeUnk2.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk2.TabIndex = 3;
-            this.chkTypeUnk2.Text = "Items";
-            this.chkTypeUnk2.UseVisualStyleBackColor = true;
-            this.chkTypeUnk2.CheckedChanged += new System.EventHandler(this.chkTypeUnk2_CheckedChanged);
-            // 
-            // chkTypeUnk1
-            // 
-            this.chkTypeUnk1.Location = new System.Drawing.Point(8, 40);
-            this.chkTypeUnk1.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk1.Name = "chkTypeUnk1";
-            this.chkTypeUnk1.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk1.TabIndex = 4;
-            this.chkTypeUnk1.Text = "Characters";
-            this.chkTypeUnk1.UseVisualStyleBackColor = true;
-            this.chkTypeUnk1.CheckedChanged += new System.EventHandler(this.chkTypeUnk1_CheckedChanged);
-            // 
-            // groupBox1
-            // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+			this.groupBox2.Controls.Add(this.cboType);
+			this.groupBox2.Controls.Add(this.chkTypeUnk2);
+			this.groupBox2.Controls.Add(this.chkTypeUnk1);
+			this.groupBox2.Location = new System.Drawing.Point(104, 28);
+			this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
+			this.groupBox2.Name = "groupBox2";
+			this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
+			this.groupBox2.Size = new System.Drawing.Size(105, 86);
+			this.groupBox2.TabIndex = 14;
+			this.groupBox2.TabStop = false;
+			this.groupBox2.Text = "Types";
+			// 
+			// cboType
+			// 
+			this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboType.FormattingEnabled = true;
+			this.cboType.Location = new System.Drawing.Point(8, 16);
+			this.cboType.Name = "cboType";
+			this.cboType.Size = new System.Drawing.Size(89, 21);
+			this.cboType.TabIndex = 5;
+			this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
+			// 
+			// chkTypeUnk2
+			// 
+			this.chkTypeUnk2.Location = new System.Drawing.Point(8, 58);
+			this.chkTypeUnk2.Margin = new System.Windows.Forms.Padding(0);
+			this.chkTypeUnk2.Name = "chkTypeUnk2";
+			this.chkTypeUnk2.Size = new System.Drawing.Size(86, 18);
+			this.chkTypeUnk2.TabIndex = 3;
+			this.chkTypeUnk2.Text = "Items";
+			this.chkTypeUnk2.UseVisualStyleBackColor = true;
+			this.chkTypeUnk2.CheckedChanged += new System.EventHandler(this.chkTypeUnk2_CheckedChanged);
+			// 
+			// chkTypeUnk1
+			// 
+			this.chkTypeUnk1.Location = new System.Drawing.Point(8, 40);
+			this.chkTypeUnk1.Margin = new System.Windows.Forms.Padding(0);
+			this.chkTypeUnk1.Name = "chkTypeUnk1";
+			this.chkTypeUnk1.Size = new System.Drawing.Size(86, 18);
+			this.chkTypeUnk1.TabIndex = 4;
+			this.chkTypeUnk1.Text = "Characters";
+			this.chkTypeUnk1.UseVisualStyleBackColor = true;
+			this.chkTypeUnk1.CheckedChanged += new System.EventHandler(this.chkTypeUnk1_CheckedChanged);
+			// 
+			// groupBox1
+			// 
+			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox1.Controls.Add(this.chkLeftLedge);
-            this.groupBox1.Controls.Add(this.chkNoWalljump);
-            this.groupBox1.Controls.Add(this.chkRightLedge);
-            this.groupBox1.Controls.Add(this.chkFallThrough);
-            this.groupBox1.Location = new System.Drawing.Point(0, 28);
-            this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBox1.Size = new System.Drawing.Size(104, 86);
-            this.groupBox1.TabIndex = 13;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Flags";
-            // 
-            // chkLeftLedge
-            // 
-            this.chkLeftLedge.Location = new System.Drawing.Point(8, 33);
-            this.chkLeftLedge.Margin = new System.Windows.Forms.Padding(0);
-            this.chkLeftLedge.Name = "chkLeftLedge";
-            this.chkLeftLedge.Size = new System.Drawing.Size(86, 18);
-            this.chkLeftLedge.TabIndex = 4;
-            this.chkLeftLedge.Text = "Left Ledge";
-            this.chkLeftLedge.UseVisualStyleBackColor = true;
-            this.chkLeftLedge.CheckedChanged += new System.EventHandler(this.chkLeftLedge_CheckedChanged);
-            // 
-            // chkNoWalljump
-            // 
-            this.chkNoWalljump.Location = new System.Drawing.Point(8, 65);
-            this.chkNoWalljump.Margin = new System.Windows.Forms.Padding(0);
-            this.chkNoWalljump.Name = "chkNoWalljump";
-            this.chkNoWalljump.Size = new System.Drawing.Size(90, 18);
-            this.chkNoWalljump.TabIndex = 2;
-            this.chkNoWalljump.Text = "No Walljump";
-            this.chkNoWalljump.UseVisualStyleBackColor = true;
-            this.chkNoWalljump.CheckedChanged += new System.EventHandler(this.chkNoWalljump_CheckedChanged);
-            // 
-            // chkRightLedge
-            // 
-            this.chkRightLedge.Location = new System.Drawing.Point(8, 49);
-            this.chkRightLedge.Margin = new System.Windows.Forms.Padding(0);
-            this.chkRightLedge.Name = "chkRightLedge";
-            this.chkRightLedge.Size = new System.Drawing.Size(86, 18);
-            this.chkRightLedge.TabIndex = 1;
-            this.chkRightLedge.Text = "Right Ledge";
-            this.chkRightLedge.UseVisualStyleBackColor = true;
-            this.chkRightLedge.CheckedChanged += new System.EventHandler(this.chkRightLedge_CheckedChanged);
-            // 
-            // chkFallThrough
-            // 
-            this.chkFallThrough.Location = new System.Drawing.Point(8, 17);
-            this.chkFallThrough.Margin = new System.Windows.Forms.Padding(0);
-            this.chkFallThrough.Name = "chkFallThrough";
-            this.chkFallThrough.Size = new System.Drawing.Size(90, 18);
-            this.chkFallThrough.TabIndex = 0;
-            this.chkFallThrough.Text = "Fall-Through";
-            this.chkFallThrough.UseVisualStyleBackColor = true;
-            this.chkFallThrough.CheckedChanged += new System.EventHandler(this.chkFallThrough_CheckedChanged);
-            // 
-            // cboMaterial
-            // 
-            this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMaterial.FormattingEnabled = true;
-            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
-            this.cboMaterial.Name = "cboMaterial";
-            this.cboMaterial.Size = new System.Drawing.Size(139, 21);
-            this.cboMaterial.TabIndex = 12;
-            this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
-            // 
-            // label5
-            // 
-            this.label5.Location = new System.Drawing.Point(7, 4);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(53, 21);
-            this.label5.TabIndex = 8;
-            this.label5.Text = "Material:";
-            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // panel4
-            // 
-            this.panel4.Controls.Add(this.btnPlayAnims);
-            this.panel4.Controls.Add(this.btnPrevFrame);
-            this.panel4.Controls.Add(this.btnNextFrame);
-            this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel4.Enabled = false;
-            this.panel4.Location = new System.Drawing.Point(0, 197);
-            this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(209, 24);
-            this.panel4.TabIndex = 17;
-            this.panel4.Visible = false;
-            // 
-            // btnPlayAnims
-            // 
-            this.btnPlayAnims.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.btnPlayAnims.Location = new System.Drawing.Point(35, 0);
-            this.btnPlayAnims.Name = "btnPlayAnims";
-            this.btnPlayAnims.Size = new System.Drawing.Size(139, 24);
-            this.btnPlayAnims.TabIndex = 16;
-            this.btnPlayAnims.Text = "Play Animations";
-            this.btnPlayAnims.UseVisualStyleBackColor = true;
-            this.btnPlayAnims.Click += new System.EventHandler(this.btnPlayAnims_Click);
-            // 
-            // btnPrevFrame
-            // 
-            this.btnPrevFrame.Dock = System.Windows.Forms.DockStyle.Left;
-            this.btnPrevFrame.Location = new System.Drawing.Point(0, 0);
-            this.btnPrevFrame.Name = "btnPrevFrame";
-            this.btnPrevFrame.Size = new System.Drawing.Size(35, 24);
-            this.btnPrevFrame.TabIndex = 18;
-            this.btnPrevFrame.Text = "<";
-            this.btnPrevFrame.UseVisualStyleBackColor = true;
-            this.btnPrevFrame.Click += new System.EventHandler(this.btnPrevFrame_Click);
-            // 
-            // btnNextFrame
-            // 
-            this.btnNextFrame.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnNextFrame.Location = new System.Drawing.Point(174, 0);
-            this.btnNextFrame.Name = "btnNextFrame";
-            this.btnNextFrame.Size = new System.Drawing.Size(35, 24);
-            this.btnNextFrame.TabIndex = 17;
-            this.btnNextFrame.Text = ">";
-            this.btnNextFrame.UseVisualStyleBackColor = true;
-            this.btnNextFrame.Click += new System.EventHandler(this.btnNextFrame_Click);
-            // 
-            // _modelPanel
-            // 
-            this._modelPanel.DefaultTranslate = new Vector3(0,0,0);
-            this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._modelPanel.InitialYFactor = 100;
-            this._modelPanel.InitialZoomFactor = 5;
-            this._modelPanel.Location = new System.Drawing.Point(0, 25);
-            this._modelPanel.Name = "_modelPanel";
-            this._modelPanel.RotationScale = 0.1F;
-            this._modelPanel.Size = new System.Drawing.Size(481, 442);
-            this._modelPanel.TabIndex = 0;
-            this._modelPanel.TranslationScale = 0.05F;
-            this._modelPanel.ZoomScale = 2.5F;
-            this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
-            this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
-            this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
-            this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
-            this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);
-            this._modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseUp);
-            // 
-            // panel1
-            // 
-            this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.panel1.Controls.Add(this.toolStrip1);
-            this.panel1.Controls.Add(this.btnResetRot);
-            this.panel1.Controls.Add(this.trackBar1);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 0);
-            this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(481, 25);
-            this.panel1.TabIndex = 2;
-            // 
-            // toolStrip1
-            // 
-            this.toolStrip1.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+			this.groupBox1.Controls.Add(this.chkLeftLedge);
+			this.groupBox1.Controls.Add(this.chkNoWalljump);
+			this.groupBox1.Controls.Add(this.chkRightLedge);
+			this.groupBox1.Controls.Add(this.chkFallThrough);
+			this.groupBox1.Location = new System.Drawing.Point(0, 28);
+			this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
+			this.groupBox1.Name = "groupBox1";
+			this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
+			this.groupBox1.Size = new System.Drawing.Size(104, 86);
+			this.groupBox1.TabIndex = 13;
+			this.groupBox1.TabStop = false;
+			this.groupBox1.Text = "Flags";
+			// 
+			// chkLeftLedge
+			// 
+			this.chkLeftLedge.Location = new System.Drawing.Point(8, 33);
+			this.chkLeftLedge.Margin = new System.Windows.Forms.Padding(0);
+			this.chkLeftLedge.Name = "chkLeftLedge";
+			this.chkLeftLedge.Size = new System.Drawing.Size(86, 18);
+			this.chkLeftLedge.TabIndex = 4;
+			this.chkLeftLedge.Text = "Left Ledge";
+			this.chkLeftLedge.UseVisualStyleBackColor = true;
+			this.chkLeftLedge.CheckedChanged += new System.EventHandler(this.chkLeftLedge_CheckedChanged);
+			// 
+			// chkNoWalljump
+			// 
+			this.chkNoWalljump.Location = new System.Drawing.Point(8, 65);
+			this.chkNoWalljump.Margin = new System.Windows.Forms.Padding(0);
+			this.chkNoWalljump.Name = "chkNoWalljump";
+			this.chkNoWalljump.Size = new System.Drawing.Size(90, 18);
+			this.chkNoWalljump.TabIndex = 2;
+			this.chkNoWalljump.Text = "No Walljump";
+			this.chkNoWalljump.UseVisualStyleBackColor = true;
+			this.chkNoWalljump.CheckedChanged += new System.EventHandler(this.chkNoWalljump_CheckedChanged);
+			// 
+			// chkRightLedge
+			// 
+			this.chkRightLedge.Location = new System.Drawing.Point(8, 49);
+			this.chkRightLedge.Margin = new System.Windows.Forms.Padding(0);
+			this.chkRightLedge.Name = "chkRightLedge";
+			this.chkRightLedge.Size = new System.Drawing.Size(86, 18);
+			this.chkRightLedge.TabIndex = 1;
+			this.chkRightLedge.Text = "Right Ledge";
+			this.chkRightLedge.UseVisualStyleBackColor = true;
+			this.chkRightLedge.CheckedChanged += new System.EventHandler(this.chkRightLedge_CheckedChanged);
+			// 
+			// chkFallThrough
+			// 
+			this.chkFallThrough.Location = new System.Drawing.Point(8, 17);
+			this.chkFallThrough.Margin = new System.Windows.Forms.Padding(0);
+			this.chkFallThrough.Name = "chkFallThrough";
+			this.chkFallThrough.Size = new System.Drawing.Size(90, 18);
+			this.chkFallThrough.TabIndex = 0;
+			this.chkFallThrough.Text = "Fall-Through";
+			this.chkFallThrough.UseVisualStyleBackColor = true;
+			this.chkFallThrough.CheckedChanged += new System.EventHandler(this.chkFallThrough_CheckedChanged);
+			// 
+			// cboMaterial
+			// 
+			this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.cboMaterial.FormattingEnabled = true;
+			this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+			this.cboMaterial.Name = "cboMaterial";
+			this.cboMaterial.Size = new System.Drawing.Size(139, 21);
+			this.cboMaterial.TabIndex = 12;
+			this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
+			// 
+			// label5
+			// 
+			this.label5.Location = new System.Drawing.Point(7, 4);
+			this.label5.Name = "label5";
+			this.label5.Size = new System.Drawing.Size(53, 21);
+			this.label5.TabIndex = 8;
+			this.label5.Text = "Material:";
+			this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// pnlPointProps
+			// 
+			this.pnlPointProps.Controls.Add(this.label2);
+			this.pnlPointProps.Controls.Add(this.numY);
+			this.pnlPointProps.Controls.Add(this.label1);
+			this.pnlPointProps.Controls.Add(this.numX);
+			this.pnlPointProps.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pnlPointProps.Location = new System.Drawing.Point(0, -85);
+			this.pnlPointProps.Name = "pnlPointProps";
+			this.pnlPointProps.Size = new System.Drawing.Size(209, 70);
+			this.pnlPointProps.TabIndex = 15;
+			this.pnlPointProps.Visible = false;
+			// 
+			// label2
+			// 
+			this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.label2.Location = new System.Drawing.Point(18, 32);
+			this.label2.Name = "label2";
+			this.label2.Size = new System.Drawing.Size(42, 20);
+			this.label2.TabIndex = 3;
+			this.label2.Text = "Y";
+			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// numY
+			// 
+			this.numY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.numY.Integral = false;
+			this.numY.Location = new System.Drawing.Point(59, 32);
+			this.numY.MaximumValue = 3.402823E+38F;
+			this.numY.MinimumValue = -3.402823E+38F;
+			this.numY.Name = "numY";
+			this.numY.Size = new System.Drawing.Size(100, 20);
+			this.numY.TabIndex = 2;
+			this.numY.Text = "0";
+			this.numY.ValueChanged += new System.EventHandler(this.numY_ValueChanged);
+			// 
+			// label1
+			// 
+			this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.label1.Location = new System.Drawing.Point(18, 13);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(42, 20);
+			this.label1.TabIndex = 1;
+			this.label1.Text = "X";
+			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// numX
+			// 
+			this.numX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.numX.Integral = false;
+			this.numX.Location = new System.Drawing.Point(59, 13);
+			this.numX.MaximumValue = 3.402823E+38F;
+			this.numX.MinimumValue = -3.402823E+38F;
+			this.numX.Name = "numX";
+			this.numX.Size = new System.Drawing.Size(100, 20);
+			this.numX.TabIndex = 0;
+			this.numX.Text = "0";
+			this.numX.ValueChanged += new System.EventHandler(this.numX_ValueChanged);
+			// 
+			// pnlObjProps
+			// 
+			this.pnlObjProps.Controls.Add(this.chkObjSSEUnk);
+			this.pnlObjProps.Controls.Add(this.chkObjModule);
+			this.pnlObjProps.Controls.Add(this.chkObjUnk);
+			this.pnlObjProps.Controls.Add(this.btnUnlink);
+			this.pnlObjProps.Controls.Add(this.btnRelink);
+			this.pnlObjProps.Controls.Add(this.txtBone);
+			this.pnlObjProps.Controls.Add(this.label4);
+			this.pnlObjProps.Controls.Add(this.txtModel);
+			this.pnlObjProps.Controls.Add(this.label3);
+			this.pnlObjProps.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.pnlObjProps.Location = new System.Drawing.Point(0, -15);
+			this.pnlObjProps.Name = "pnlObjProps";
+			this.pnlObjProps.Size = new System.Drawing.Size(209, 130);
+			this.pnlObjProps.TabIndex = 1;
+			this.pnlObjProps.Visible = false;
+			// 
+			// chkObjSSEUnk
+			// 
+			this.chkObjSSEUnk.AutoSize = true;
+			this.chkObjSSEUnk.Location = new System.Drawing.Point(10, 102);
+			this.chkObjSSEUnk.Name = "chkObjSSEUnk";
+			this.chkObjSSEUnk.Size = new System.Drawing.Size(96, 17);
+			this.chkObjSSEUnk.TabIndex = 15;
+			this.chkObjSSEUnk.Text = "SSE Unknown";
+			this.chkObjSSEUnk.UseVisualStyleBackColor = true;
+			this.chkObjSSEUnk.CheckedChanged += new System.EventHandler(this.chkObjSSEUnk_CheckedChanged);
+			// 
+			// chkObjModule
+			// 
+			this.chkObjModule.AutoSize = true;
+			this.chkObjModule.Location = new System.Drawing.Point(10, 79);
+			this.chkObjModule.Name = "chkObjModule";
+			this.chkObjModule.Size = new System.Drawing.Size(111, 17);
+			this.chkObjModule.TabIndex = 14;
+			this.chkObjModule.Text = "Module Controlled";
+			this.chkObjModule.UseVisualStyleBackColor = true;
+			this.chkObjModule.CheckedChanged += new System.EventHandler(this.chkObjModule_CheckedChanged);
+			// 
+			// chkObjUnk
+			// 
+			this.chkObjUnk.AutoSize = true;
+			this.chkObjUnk.Location = new System.Drawing.Point(10, 56);
+			this.chkObjUnk.Name = "chkObjUnk";
+			this.chkObjUnk.Size = new System.Drawing.Size(72, 17);
+			this.chkObjUnk.TabIndex = 13;
+			this.chkObjUnk.Text = "Unknown";
+			this.chkObjUnk.UseVisualStyleBackColor = true;
+			this.chkObjUnk.CheckedChanged += new System.EventHandler(this.chkObjUnk_CheckedChanged);
+			// 
+			// btnUnlink
+			// 
+			this.btnUnlink.Location = new System.Drawing.Point(177, 22);
+			this.btnUnlink.Name = "btnUnlink";
+			this.btnUnlink.Size = new System.Drawing.Size(28, 21);
+			this.btnUnlink.TabIndex = 12;
+			this.btnUnlink.Text = "-";
+			this.btnUnlink.UseVisualStyleBackColor = true;
+			this.btnUnlink.Click += new System.EventHandler(this.btnUnlink_Click);
+			// 
+			// btnRelink
+			// 
+			this.btnRelink.Location = new System.Drawing.Point(177, 2);
+			this.btnRelink.Name = "btnRelink";
+			this.btnRelink.Size = new System.Drawing.Size(28, 21);
+			this.btnRelink.TabIndex = 4;
+			this.btnRelink.Text = "+";
+			this.btnRelink.UseVisualStyleBackColor = true;
+			this.btnRelink.Click += new System.EventHandler(this.btnRelink_Click);
+			// 
+			// txtBone
+			// 
+			this.txtBone.Location = new System.Drawing.Point(49, 23);
+			this.txtBone.Name = "txtBone";
+			this.txtBone.ReadOnly = true;
+			this.txtBone.Size = new System.Drawing.Size(126, 20);
+			this.txtBone.TabIndex = 3;
+			// 
+			// label4
+			// 
+			this.label4.Location = new System.Drawing.Point(4, 23);
+			this.label4.Name = "label4";
+			this.label4.Size = new System.Drawing.Size(42, 20);
+			this.label4.TabIndex = 2;
+			this.label4.Text = "Bone:";
+			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// txtModel
+			// 
+			this.txtModel.Location = new System.Drawing.Point(49, 3);
+			this.txtModel.Name = "txtModel";
+			this.txtModel.ReadOnly = true;
+			this.txtModel.Size = new System.Drawing.Size(126, 20);
+			this.txtModel.TabIndex = 1;
+			// 
+			// label3
+			// 
+			this.label3.Location = new System.Drawing.Point(4, 3);
+			this.label3.Name = "label3";
+			this.label3.Size = new System.Drawing.Size(42, 20);
+			this.label3.TabIndex = 0;
+			this.label3.Text = "Model:";
+			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+			// 
+			// panel4
+			// 
+			this.panel4.Controls.Add(this.btnPlayAnims);
+			this.panel4.Controls.Add(this.btnPrevFrame);
+			this.panel4.Controls.Add(this.btnNextFrame);
+			this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+			this.panel4.Enabled = false;
+			this.panel4.Location = new System.Drawing.Point(0, 197);
+			this.panel4.Name = "panel4";
+			this.panel4.Size = new System.Drawing.Size(209, 24);
+			this.panel4.TabIndex = 17;
+			this.panel4.Visible = false;
+			// 
+			// btnPlayAnims
+			// 
+			this.btnPlayAnims.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.btnPlayAnims.Location = new System.Drawing.Point(35, 0);
+			this.btnPlayAnims.Name = "btnPlayAnims";
+			this.btnPlayAnims.Size = new System.Drawing.Size(139, 24);
+			this.btnPlayAnims.TabIndex = 16;
+			this.btnPlayAnims.Text = "Play Animations";
+			this.btnPlayAnims.UseVisualStyleBackColor = true;
+			this.btnPlayAnims.Click += new System.EventHandler(this.btnPlayAnims_Click);
+			// 
+			// btnPrevFrame
+			// 
+			this.btnPrevFrame.Dock = System.Windows.Forms.DockStyle.Left;
+			this.btnPrevFrame.Location = new System.Drawing.Point(0, 0);
+			this.btnPrevFrame.Name = "btnPrevFrame";
+			this.btnPrevFrame.Size = new System.Drawing.Size(35, 24);
+			this.btnPrevFrame.TabIndex = 18;
+			this.btnPrevFrame.Text = "<";
+			this.btnPrevFrame.UseVisualStyleBackColor = true;
+			this.btnPrevFrame.Click += new System.EventHandler(this.btnPrevFrame_Click);
+			// 
+			// btnNextFrame
+			// 
+			this.btnNextFrame.Dock = System.Windows.Forms.DockStyle.Right;
+			this.btnNextFrame.Location = new System.Drawing.Point(174, 0);
+			this.btnNextFrame.Name = "btnNextFrame";
+			this.btnNextFrame.Size = new System.Drawing.Size(35, 24);
+			this.btnNextFrame.TabIndex = 17;
+			this.btnNextFrame.Text = ">";
+			this.btnNextFrame.UseVisualStyleBackColor = true;
+			this.btnNextFrame.Click += new System.EventHandler(this.btnNextFrame_Click);
+			// 
+			// _modelPanel
+			// 
+			this._modelPanel.DefaultTranslate = ((System.Vector3)(resources.GetObject("_modelPanel.DefaultTranslate")));
+			this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this._modelPanel.InitialYFactor = 100;
+			this._modelPanel.InitialZoomFactor = 5;
+			this._modelPanel.Location = new System.Drawing.Point(0, 25);
+			this._modelPanel.Name = "_modelPanel";
+			this._modelPanel.RotationScale = 0.1F;
+			this._modelPanel.Size = new System.Drawing.Size(787, 442);
+			this._modelPanel.TabIndex = 0;
+			this._modelPanel.TranslationScale = 0.05F;
+			this._modelPanel.ZoomScale = 2.5F;
+			this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
+			this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
+			this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
+			this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
+			this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);
+			this._modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseUp);
+			// 
+			// panel1
+			// 
+			this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.panel1.Controls.Add(this.toolStrip1);
+			this.panel1.Controls.Add(this.btnResetRot);
+			this.panel1.Controls.Add(this.trackBar1);
+			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+			this.panel1.Location = new System.Drawing.Point(0, 0);
+			this.panel1.Name = "panel1";
+			this.panel1.Size = new System.Drawing.Size(787, 25);
+			this.panel1.TabIndex = 2;
+			// 
+			// toolStrip1
+			// 
+			this.toolStrip1.BackColor = System.Drawing.Color.WhiteSmoke;
+			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.btnUndo,
             this.btnRedo,
             this.toolStripSeparator3,
@@ -771,186 +775,202 @@ namespace System.Windows.Forms
             this.btnSameX,
             this.btnSameY,
             this.toolStripSeparator1,
+            this.btnTransformAll,
+            this.toolStripSeparator4,
             this.btnResetCam,
             this.btnResetSnap,
             this.btnHelp});
-            this.toolStrip1.Location = new System.Drawing.Point(0, 0);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(335, 25);
-            this.toolStrip1.TabIndex = 1;
-            this.toolStrip1.Text = "toolStrip1";
-            // 
-            // btnUndo
-            // 
-            this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnUndo.Enabled = false;
-            this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnUndo.Name = "btnUndo";
-            this.btnUndo.Size = new System.Drawing.Size(40, 22);
-            this.btnUndo.Text = "Undo";
-            this.btnUndo.Click += new System.EventHandler(this.Undo);
-            // 
-            // btnRedo
-            // 
-            this.btnRedo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnRedo.Enabled = false;
-            this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnRedo.Name = "btnRedo";
-            this.btnRedo.Size = new System.Drawing.Size(38, 22);
-            this.btnRedo.Text = "Redo";
-            this.btnRedo.Click += new System.EventHandler(this.Redo);
-            // 
-            // toolStripSeparator3
-            // 
-            this.toolStripSeparator3.Name = "toolStripSeparator3";
-            this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
-            // 
-            // btnSplit
-            // 
-            this.btnSplit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnSplit.Enabled = false;
-            this.btnSplit.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSplit.Name = "btnSplit";
-            this.btnSplit.Size = new System.Drawing.Size(34, 22);
-            this.btnSplit.Text = "Split";
-            this.btnSplit.Click += new System.EventHandler(this.btnSplit_Click);
-            // 
-            // btnMerge
-            // 
-            this.btnMerge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnMerge.Enabled = false;
-            this.btnMerge.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnMerge.Name = "btnMerge";
-            this.btnMerge.Size = new System.Drawing.Size(45, 22);
-            this.btnMerge.Text = "Merge";
-            this.btnMerge.Click += new System.EventHandler(this.btnMerge_Click);
-            // 
-            // btnDelete
-            // 
-            this.btnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnDelete.Enabled = false;
-            this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(44, 22);
-            this.btnDelete.Text = "Delete";
-            // 
-            // toolStripSeparator2
-            // 
-            this.toolStripSeparator2.Name = "toolStripSeparator2";
-            this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
-            // 
-            // btnSameX
-            // 
-            this.btnSameX.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnSameX.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSameX.Name = "btnSameX";
-            this.btnSameX.Size = new System.Drawing.Size(49, 22);
-            this.btnSameX.Text = "Align X";
-            this.btnSameX.Click += new System.EventHandler(this.btnSameX_Click);
-            // 
-            // btnSameY
-            // 
-            this.btnSameY.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnSameY.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnSameY.Name = "btnSameY";
-            this.btnSameY.Size = new System.Drawing.Size(49, 22);
-            this.btnSameY.Text = "Align Y";
-            this.btnSameY.Click += new System.EventHandler(this.btnSameY_Click);
-            // 
-            // toolStripSeparator1
-            // 
-            this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
-            // 
-            // btnResetCam
-            // 
-            this.btnResetCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnResetCam.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnResetCam.Name = "btnResetCam";
-            this.btnResetCam.Size = new System.Drawing.Size(83, 19);
-            this.btnResetCam.Text = "Reset Camera";
-            this.btnResetCam.Click += new System.EventHandler(this.btnResetCam_Click);
-            // 
-            // btnResetSnap
-            // 
-            this.btnResetSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnResetSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnResetSnap.Name = "btnResetSnap";
-            this.btnResetSnap.Size = new System.Drawing.Size(57, 19);
-            this.btnResetSnap.Text = "Un-Snap";
-            this.btnResetSnap.Click += new System.EventHandler(this.btnResetSnap_Click);
-            // 
-            // btnHelp
-            // 
-            this.btnHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.btnHelp.Image = ((System.Drawing.Image)(resources.GetObject("btnHelp.Image")));
-            this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.btnHelp.Name = "btnHelp";
-            this.btnHelp.Size = new System.Drawing.Size(36, 19);
-            this.btnHelp.Text = "Help";
-            this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
-            // 
-            // btnResetRot
-            // 
-            this.btnResetRot.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnResetRot.Enabled = false;
-            this.btnResetRot.FlatAppearance.BorderSize = 0;
-            this.btnResetRot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnResetRot.Location = new System.Drawing.Point(335, 0);
-            this.btnResetRot.Name = "btnResetRot";
-            this.btnResetRot.Size = new System.Drawing.Size(16, 25);
-            this.btnResetRot.TabIndex = 4;
-            this.btnResetRot.Text = "*";
-            this.btnResetRot.UseVisualStyleBackColor = true;
-            this.btnResetRot.Visible = false;
-            this.btnResetRot.Click += new System.EventHandler(this.btnResetRot_Click);
-            // 
-            // trackBar1
-            // 
-            this.trackBar1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.trackBar1.Enabled = false;
-            this.trackBar1.Location = new System.Drawing.Point(351, 0);
-            this.trackBar1.Maximum = 180;
-            this.trackBar1.Minimum = -180;
-            this.trackBar1.Name = "trackBar1";
-            this.trackBar1.Size = new System.Drawing.Size(130, 25);
-            this.trackBar1.TabIndex = 3;
-            this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.None;
-            this.trackBar1.Visible = false;
-            this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
-            // 
-            // CollisionEditor
-            // 
-            this.BackColor = System.Drawing.Color.Lavender;
-            this.Controls.Add(this.undoToolStrip);
-            this.Name = "CollisionEditor";
-            this.Size = new System.Drawing.Size(694, 467);
-            this.undoToolStrip.Panel1.ResumeLayout(false);
-            this.undoToolStrip.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).EndInit();
-            this.undoToolStrip.ResumeLayout(false);
-            this.redoToolStrip.Panel1.ResumeLayout(false);
-            this.redoToolStrip.Panel2.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.redoToolStrip)).EndInit();
-            this.redoToolStrip.ResumeLayout(false);
-            this.contextMenuStrip2.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.contextMenuStrip1.ResumeLayout(false);
-            this.panel3.ResumeLayout(false);
-            this.pnlObjProps.ResumeLayout(false);
-            this.pnlObjProps.PerformLayout();
-            this.pnlPointProps.ResumeLayout(false);
-            this.pnlPointProps.PerformLayout();
-            this.pnlPlaneProps.ResumeLayout(false);
-            this.groupBox2.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.panel4.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.panel1.PerformLayout();
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
-            this.ResumeLayout(false);
+			this.toolStrip1.Location = new System.Drawing.Point(0, 0);
+			this.toolStrip1.Name = "toolStrip1";
+			this.toolStrip1.Size = new System.Drawing.Size(641, 25);
+			this.toolStrip1.TabIndex = 1;
+			this.toolStrip1.Text = "toolStrip1";
+			// 
+			// btnUndo
+			// 
+			this.btnUndo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnUndo.Enabled = false;
+			this.btnUndo.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnUndo.Name = "btnUndo";
+			this.btnUndo.Size = new System.Drawing.Size(40, 22);
+			this.btnUndo.Text = "Undo";
+			this.btnUndo.Click += new System.EventHandler(this.Undo);
+			// 
+			// btnRedo
+			// 
+			this.btnRedo.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnRedo.Enabled = false;
+			this.btnRedo.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnRedo.Name = "btnRedo";
+			this.btnRedo.Size = new System.Drawing.Size(38, 22);
+			this.btnRedo.Text = "Redo";
+			this.btnRedo.Click += new System.EventHandler(this.Redo);
+			// 
+			// toolStripSeparator3
+			// 
+			this.toolStripSeparator3.Name = "toolStripSeparator3";
+			this.toolStripSeparator3.Size = new System.Drawing.Size(6, 25);
+			// 
+			// btnSplit
+			// 
+			this.btnSplit.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnSplit.Enabled = false;
+			this.btnSplit.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnSplit.Name = "btnSplit";
+			this.btnSplit.Size = new System.Drawing.Size(34, 22);
+			this.btnSplit.Text = "Split";
+			this.btnSplit.Click += new System.EventHandler(this.btnSplit_Click);
+			// 
+			// btnMerge
+			// 
+			this.btnMerge.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnMerge.Enabled = false;
+			this.btnMerge.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnMerge.Name = "btnMerge";
+			this.btnMerge.Size = new System.Drawing.Size(45, 22);
+			this.btnMerge.Text = "Merge";
+			this.btnMerge.Click += new System.EventHandler(this.btnMerge_Click);
+			// 
+			// btnDelete
+			// 
+			this.btnDelete.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnDelete.Enabled = false;
+			this.btnDelete.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnDelete.Name = "btnDelete";
+			this.btnDelete.Size = new System.Drawing.Size(44, 22);
+			this.btnDelete.Text = "Delete";
+			// 
+			// toolStripSeparator2
+			// 
+			this.toolStripSeparator2.Name = "toolStripSeparator2";
+			this.toolStripSeparator2.Size = new System.Drawing.Size(6, 25);
+			// 
+			// btnSameX
+			// 
+			this.btnSameX.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnSameX.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnSameX.Name = "btnSameX";
+			this.btnSameX.Size = new System.Drawing.Size(49, 22);
+			this.btnSameX.Text = "Align X";
+			this.btnSameX.Click += new System.EventHandler(this.btnSameX_Click);
+			// 
+			// btnSameY
+			// 
+			this.btnSameY.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnSameY.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnSameY.Name = "btnSameY";
+			this.btnSameY.Size = new System.Drawing.Size(49, 22);
+			this.btnSameY.Text = "Align Y";
+			this.btnSameY.Click += new System.EventHandler(this.btnSameY_Click);
+			// 
+			// toolStripSeparator1
+			// 
+			this.toolStripSeparator1.Name = "toolStripSeparator1";
+			this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+			// 
+			// btnTransformAll
+			// 
+			this.btnTransformAll.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnTransformAll.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnTransformAll.Name = "btnTransformAll";
+			this.btnTransformAll.Size = new System.Drawing.Size(66, 22);
+			this.btnTransformAll.Text = "Transform";
+			this.btnTransformAll.Click += new System.EventHandler(this.btnTranslateAll_Click);
+			// 
+			// toolStripSeparator4
+			// 
+			this.toolStripSeparator4.Name = "toolStripSeparator4";
+			this.toolStripSeparator4.Size = new System.Drawing.Size(6, 25);
+			// 
+			// btnResetCam
+			// 
+			this.btnResetCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnResetCam.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnResetCam.Name = "btnResetCam";
+			this.btnResetCam.Size = new System.Drawing.Size(83, 22);
+			this.btnResetCam.Text = "Reset Camera";
+			this.btnResetCam.Click += new System.EventHandler(this.btnResetCam_Click);
+			// 
+			// btnResetSnap
+			// 
+			this.btnResetSnap.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnResetSnap.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnResetSnap.Name = "btnResetSnap";
+			this.btnResetSnap.Size = new System.Drawing.Size(57, 22);
+			this.btnResetSnap.Text = "Un-Snap";
+			this.btnResetSnap.Click += new System.EventHandler(this.btnResetSnap_Click);
+			// 
+			// btnHelp
+			// 
+			this.btnHelp.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+			this.btnHelp.Image = ((System.Drawing.Image)(resources.GetObject("btnHelp.Image")));
+			this.btnHelp.ImageTransparentColor = System.Drawing.Color.Magenta;
+			this.btnHelp.Name = "btnHelp";
+			this.btnHelp.Size = new System.Drawing.Size(36, 22);
+			this.btnHelp.Text = "Help";
+			this.btnHelp.Click += new System.EventHandler(this.btnHelp_Click);
+			// 
+			// btnResetRot
+			// 
+			this.btnResetRot.Dock = System.Windows.Forms.DockStyle.Right;
+			this.btnResetRot.Enabled = false;
+			this.btnResetRot.FlatAppearance.BorderSize = 0;
+			this.btnResetRot.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.btnResetRot.Location = new System.Drawing.Point(641, 0);
+			this.btnResetRot.Name = "btnResetRot";
+			this.btnResetRot.Size = new System.Drawing.Size(16, 25);
+			this.btnResetRot.TabIndex = 4;
+			this.btnResetRot.Text = "*";
+			this.btnResetRot.UseVisualStyleBackColor = true;
+			this.btnResetRot.Visible = false;
+			this.btnResetRot.Click += new System.EventHandler(this.btnResetRot_Click);
+			// 
+			// trackBar1
+			// 
+			this.trackBar1.Dock = System.Windows.Forms.DockStyle.Right;
+			this.trackBar1.Enabled = false;
+			this.trackBar1.Location = new System.Drawing.Point(657, 0);
+			this.trackBar1.Maximum = 180;
+			this.trackBar1.Minimum = -180;
+			this.trackBar1.Name = "trackBar1";
+			this.trackBar1.Size = new System.Drawing.Size(130, 25);
+			this.trackBar1.TabIndex = 3;
+			this.trackBar1.TickStyle = System.Windows.Forms.TickStyle.None;
+			this.trackBar1.Visible = false;
+			this.trackBar1.Scroll += new System.EventHandler(this.trackBar1_Scroll);
+			// 
+			// CollisionEditor
+			// 
+			this.BackColor = System.Drawing.Color.Lavender;
+			this.Controls.Add(this.undoToolStrip);
+			this.Name = "CollisionEditor";
+			this.Size = new System.Drawing.Size(1000, 467);
+			this.undoToolStrip.Panel1.ResumeLayout(false);
+			this.undoToolStrip.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.undoToolStrip)).EndInit();
+			this.undoToolStrip.ResumeLayout(false);
+			this.redoToolStrip.Panel1.ResumeLayout(false);
+			this.redoToolStrip.Panel2.ResumeLayout(false);
+			((System.ComponentModel.ISupportInitialize)(this.redoToolStrip)).EndInit();
+			this.redoToolStrip.ResumeLayout(false);
+			this.contextMenuStrip2.ResumeLayout(false);
+			this.panel2.ResumeLayout(false);
+			this.contextMenuStrip1.ResumeLayout(false);
+			this.panel3.ResumeLayout(false);
+			this.pnlPlaneProps.ResumeLayout(false);
+			this.groupBox2.ResumeLayout(false);
+			this.groupBox1.ResumeLayout(false);
+			this.pnlPointProps.ResumeLayout(false);
+			this.pnlPointProps.PerformLayout();
+			this.pnlObjProps.ResumeLayout(false);
+			this.pnlObjProps.PerformLayout();
+			this.panel4.ResumeLayout(false);
+			this.panel1.ResumeLayout(false);
+			this.panel1.PerformLayout();
+			this.toolStrip1.ResumeLayout(false);
+			this.toolStrip1.PerformLayout();
+			((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
+			this.ResumeLayout(false);
 
         }
 
@@ -2180,5 +2200,23 @@ namespace System.Windows.Forms
         {
             new ModelViewerHelp().Show(this, true);
         }
+
+		private void btnTranslateAll_Click(object sender, EventArgs e) {
+			if (_selectedLinks.Count == 0) {
+				MessageBox.Show("You must select at least one collision link.");
+				return;
+			}
+			using (TransformAttributesForm f = new TransformAttributesForm()) {
+				f.TwoDimensional = true;
+				if (f.ShowDialog() == DialogResult.OK) {
+					Matrix m = f.GetMatrix();
+					foreach (var link in _selectedLinks) {
+						link.Value = m * link.Value;
+					}
+					TargetNode.IsDirty = true;
+					_modelPanel.Invalidate();
+				}
+			}
+		}
     }
 }

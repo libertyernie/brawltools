@@ -524,6 +524,12 @@
     <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </Compile>
+    <Compile Include="System\Windows\Controls\TransformAttributesControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\TransformAttributesControl.Designer.cs">
+      <DependentUpon>TransformAttributesControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -729,6 +735,12 @@
     </Compile>
     <Compile Include="System\StringConverters.cs" />
     <Compile Include="System\PString.cs" />
+    <Compile Include="System\Windows\Forms\TransformAttributesForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\TransformAttributesForm.Designer.cs">
+      <DependentUpon>TransformAttributesForm.cs</DependentUpon>
+    </Compile>
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
@@ -889,6 +901,9 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
+      <DependentUpon>TransformAttributesControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -997,6 +1012,10 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Forms\TextureConverterDialog.resx">
       <DependentUpon>TextureConverterDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\TransformAttributesForm.resx">
+      <DependentUpon>TransformAttributesForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
