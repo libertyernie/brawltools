@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Reflection;
-using System.IO;
-using System.Threading.Tasks;
+﻿using Octokit;
+using System;
 using System.Diagnostics;
-using System.Net.NetworkInformation;
+using System.IO;
 using System.Net;
-using Octokit;
+using System.Net.NetworkInformation;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Updater
 {
