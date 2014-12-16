@@ -19,49 +19,6 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-<<<<<<< HEAD
-        //Updates specified angle by applying an offset.
-        //Allows pnlAnim to handle the changes so keyframes are updated.
-        private unsafe void ApplyAngle(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index + 3];
-            float newVal = (float)Math.Round(box.Value + offset, 3);
-            if (box.Value != newVal)
-            {
-                box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
-            }
-        }
-        private unsafe void ApplyTranslation(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index + 6];
-            float newVal = (float)Math.Round(box.Value + offset, 3);
-            if (box.Value != newVal)
-            {
-                box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
-            }
-        }
-        private unsafe void ApplyScale(int index, float scale)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index];
-            float newVal = (float)Math.Round(box.Value * scale, 3);
-            if (box.Value != newVal && newVal != 0.0f)
-            {
-                box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
-            }
-        }
-
-        public AnimType TargetAnimType
-        {
-            get { return (AnimType)leftPanel.fileType.SelectedIndex; }
-            set { leftPanel.fileType.SelectedIndex = (int)value; }
-        }
-
-        private Control _currentControl = null;
-=======
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
         public int prevHeight = 0, prevWidth = 0;
         public void ToggleWeightEditor()
         {

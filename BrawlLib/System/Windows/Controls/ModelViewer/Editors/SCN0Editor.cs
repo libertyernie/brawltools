@@ -1807,14 +1807,6 @@ namespace System.Windows.Forms
             get { return _mainWindow.SelectedSCN0; }
             set { _mainWindow.SelectedSCN0 = value; }
         }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-<<<<<<< HEAD
-        public MDL0BoneNode TargetBone { get { return (MDL0BoneNode)_mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
-=======
-        public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
-
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef { get { return _mainWindow.TargetTexRef; } set { _mainWindow.TargetTexRef = value; } }
 

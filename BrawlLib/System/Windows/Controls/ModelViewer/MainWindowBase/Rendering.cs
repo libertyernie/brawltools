@@ -510,7 +510,7 @@ namespace System.Windows.Forms
             if (!panel._grabbing && !panel._scrolling && !_playing)
             {
                 GL.Color4(Color.Black);
-                GL.ColorMask(false, false, false, false);
+                GL.ColorMask(true, false, false, false);
 
                 if (panel.RenderVertices)
                     if (EditingAll && _targetModels != null)

@@ -167,10 +167,6 @@ namespace BrawlLib.Modeling
         #region Reading
 
         public PrimitiveManager() { }
-<<<<<<< HEAD
-        
-=======
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
 
         //public PrimitiveManager(
         //    BMDObjectsHeader* header,

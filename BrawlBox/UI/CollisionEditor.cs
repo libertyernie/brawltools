@@ -441,331 +441,331 @@ namespace System.Windows.Forms
 			// 
 			this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-<<<<<<< HEAD
-			this.groupBox1.Controls.Add(this.chkLeftLedge);
-			this.groupBox1.Controls.Add(this.chkNoWalljump);
-			this.groupBox1.Controls.Add(this.chkRightLedge);
-			this.groupBox1.Controls.Add(this.chkFallThrough);
-			this.groupBox1.Location = new System.Drawing.Point(0, 28);
-			this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
-			this.groupBox1.Name = "groupBox1";
-			this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
-			this.groupBox1.Size = new System.Drawing.Size(104, 86);
-			this.groupBox1.TabIndex = 13;
-			this.groupBox1.TabStop = false;
-			this.groupBox1.Text = "Flags";
-			// 
-			// chkLeftLedge
-			// 
-			this.chkLeftLedge.Location = new System.Drawing.Point(8, 33);
-			this.chkLeftLedge.Margin = new System.Windows.Forms.Padding(0);
-			this.chkLeftLedge.Name = "chkLeftLedge";
-			this.chkLeftLedge.Size = new System.Drawing.Size(86, 18);
-			this.chkLeftLedge.TabIndex = 4;
-			this.chkLeftLedge.Text = "Left Ledge";
-			this.chkLeftLedge.UseVisualStyleBackColor = true;
-			this.chkLeftLedge.CheckedChanged += new System.EventHandler(this.chkLeftLedge_CheckedChanged);
-			// 
-			// chkNoWalljump
-			// 
-			this.chkNoWalljump.Location = new System.Drawing.Point(8, 65);
-			this.chkNoWalljump.Margin = new System.Windows.Forms.Padding(0);
-			this.chkNoWalljump.Name = "chkNoWalljump";
-			this.chkNoWalljump.Size = new System.Drawing.Size(90, 18);
-			this.chkNoWalljump.TabIndex = 2;
-			this.chkNoWalljump.Text = "No Walljump";
-			this.chkNoWalljump.UseVisualStyleBackColor = true;
-			this.chkNoWalljump.CheckedChanged += new System.EventHandler(this.chkNoWalljump_CheckedChanged);
-			// 
-			// chkRightLedge
-			// 
-			this.chkRightLedge.Location = new System.Drawing.Point(8, 49);
-			this.chkRightLedge.Margin = new System.Windows.Forms.Padding(0);
-			this.chkRightLedge.Name = "chkRightLedge";
-			this.chkRightLedge.Size = new System.Drawing.Size(86, 18);
-			this.chkRightLedge.TabIndex = 1;
-			this.chkRightLedge.Text = "Right Ledge";
-			this.chkRightLedge.UseVisualStyleBackColor = true;
-			this.chkRightLedge.CheckedChanged += new System.EventHandler(this.chkRightLedge_CheckedChanged);
-			// 
-			// chkFallThrough
-			// 
-			this.chkFallThrough.Location = new System.Drawing.Point(8, 17);
-			this.chkFallThrough.Margin = new System.Windows.Forms.Padding(0);
-			this.chkFallThrough.Name = "chkFallThrough";
-			this.chkFallThrough.Size = new System.Drawing.Size(90, 18);
-			this.chkFallThrough.TabIndex = 0;
-			this.chkFallThrough.Text = "Fall-Through";
-			this.chkFallThrough.UseVisualStyleBackColor = true;
-			this.chkFallThrough.CheckedChanged += new System.EventHandler(this.chkFallThrough_CheckedChanged);
-			// 
-			// cboMaterial
-			// 
-			this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cboMaterial.FormattingEnabled = true;
-			this.cboMaterial.Location = new System.Drawing.Point(66, 4);
-			this.cboMaterial.Name = "cboMaterial";
-			this.cboMaterial.Size = new System.Drawing.Size(139, 21);
-			this.cboMaterial.TabIndex = 12;
-			this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
-			// 
-			// label5
-			// 
-			this.label5.Location = new System.Drawing.Point(7, 4);
-			this.label5.Name = "label5";
-			this.label5.Size = new System.Drawing.Size(53, 21);
-			this.label5.TabIndex = 8;
-			this.label5.Text = "Material:";
-			this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// pnlPointProps
-			// 
-			this.pnlPointProps.Controls.Add(this.label2);
-			this.pnlPointProps.Controls.Add(this.numY);
-			this.pnlPointProps.Controls.Add(this.label1);
-			this.pnlPointProps.Controls.Add(this.numX);
-			this.pnlPointProps.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pnlPointProps.Location = new System.Drawing.Point(0, -85);
-			this.pnlPointProps.Name = "pnlPointProps";
-			this.pnlPointProps.Size = new System.Drawing.Size(209, 70);
-			this.pnlPointProps.TabIndex = 15;
-			this.pnlPointProps.Visible = false;
-			// 
-			// label2
-			// 
-			this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.label2.Location = new System.Drawing.Point(18, 32);
-			this.label2.Name = "label2";
-			this.label2.Size = new System.Drawing.Size(42, 20);
-			this.label2.TabIndex = 3;
-			this.label2.Text = "Y";
-			this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// numY
-			// 
-			this.numY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.numY.Integral = false;
-			this.numY.Location = new System.Drawing.Point(59, 32);
-			this.numY.MaximumValue = 3.402823E+38F;
-			this.numY.MinimumValue = -3.402823E+38F;
-			this.numY.Name = "numY";
-			this.numY.Size = new System.Drawing.Size(100, 20);
-			this.numY.TabIndex = 2;
-			this.numY.Text = "0";
-			this.numY.ValueChanged += new System.EventHandler(this.numY_ValueChanged);
-			// 
-			// label1
-			// 
-			this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.label1.Location = new System.Drawing.Point(18, 13);
-			this.label1.Name = "label1";
-			this.label1.Size = new System.Drawing.Size(42, 20);
-			this.label1.TabIndex = 1;
-			this.label1.Text = "X";
-			this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// numX
-			// 
-			this.numX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-			this.numX.Integral = false;
-			this.numX.Location = new System.Drawing.Point(59, 13);
-			this.numX.MaximumValue = 3.402823E+38F;
-			this.numX.MinimumValue = -3.402823E+38F;
-			this.numX.Name = "numX";
-			this.numX.Size = new System.Drawing.Size(100, 20);
-			this.numX.TabIndex = 0;
-			this.numX.Text = "0";
-			this.numX.ValueChanged += new System.EventHandler(this.numX_ValueChanged);
-			// 
-			// pnlObjProps
-			// 
-			this.pnlObjProps.Controls.Add(this.chkObjSSEUnk);
-			this.pnlObjProps.Controls.Add(this.chkObjModule);
-			this.pnlObjProps.Controls.Add(this.chkObjUnk);
-			this.pnlObjProps.Controls.Add(this.btnUnlink);
-			this.pnlObjProps.Controls.Add(this.btnRelink);
-			this.pnlObjProps.Controls.Add(this.txtBone);
-			this.pnlObjProps.Controls.Add(this.label4);
-			this.pnlObjProps.Controls.Add(this.txtModel);
-			this.pnlObjProps.Controls.Add(this.label3);
-			this.pnlObjProps.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.pnlObjProps.Location = new System.Drawing.Point(0, -15);
-			this.pnlObjProps.Name = "pnlObjProps";
-			this.pnlObjProps.Size = new System.Drawing.Size(209, 130);
-			this.pnlObjProps.TabIndex = 1;
-			this.pnlObjProps.Visible = false;
-			// 
-			// chkObjSSEUnk
-			// 
-			this.chkObjSSEUnk.AutoSize = true;
-			this.chkObjSSEUnk.Location = new System.Drawing.Point(10, 102);
-			this.chkObjSSEUnk.Name = "chkObjSSEUnk";
-			this.chkObjSSEUnk.Size = new System.Drawing.Size(96, 17);
-			this.chkObjSSEUnk.TabIndex = 15;
-			this.chkObjSSEUnk.Text = "SSE Unknown";
-			this.chkObjSSEUnk.UseVisualStyleBackColor = true;
-			this.chkObjSSEUnk.CheckedChanged += new System.EventHandler(this.chkObjSSEUnk_CheckedChanged);
-			// 
-			// chkObjModule
-			// 
-			this.chkObjModule.AutoSize = true;
-			this.chkObjModule.Location = new System.Drawing.Point(10, 79);
-			this.chkObjModule.Name = "chkObjModule";
-			this.chkObjModule.Size = new System.Drawing.Size(111, 17);
-			this.chkObjModule.TabIndex = 14;
-			this.chkObjModule.Text = "Module Controlled";
-			this.chkObjModule.UseVisualStyleBackColor = true;
-			this.chkObjModule.CheckedChanged += new System.EventHandler(this.chkObjModule_CheckedChanged);
-			// 
-			// chkObjUnk
-			// 
-			this.chkObjUnk.AutoSize = true;
-			this.chkObjUnk.Location = new System.Drawing.Point(10, 56);
-			this.chkObjUnk.Name = "chkObjUnk";
-			this.chkObjUnk.Size = new System.Drawing.Size(72, 17);
-			this.chkObjUnk.TabIndex = 13;
-			this.chkObjUnk.Text = "Unknown";
-			this.chkObjUnk.UseVisualStyleBackColor = true;
-			this.chkObjUnk.CheckedChanged += new System.EventHandler(this.chkObjUnk_CheckedChanged);
-			// 
-			// btnUnlink
-			// 
-			this.btnUnlink.Location = new System.Drawing.Point(177, 22);
-			this.btnUnlink.Name = "btnUnlink";
-			this.btnUnlink.Size = new System.Drawing.Size(28, 21);
-			this.btnUnlink.TabIndex = 12;
-			this.btnUnlink.Text = "-";
-			this.btnUnlink.UseVisualStyleBackColor = true;
-			this.btnUnlink.Click += new System.EventHandler(this.btnUnlink_Click);
-			// 
-			// btnRelink
-			// 
-			this.btnRelink.Location = new System.Drawing.Point(177, 2);
-			this.btnRelink.Name = "btnRelink";
-			this.btnRelink.Size = new System.Drawing.Size(28, 21);
-			this.btnRelink.TabIndex = 4;
-			this.btnRelink.Text = "+";
-			this.btnRelink.UseVisualStyleBackColor = true;
-			this.btnRelink.Click += new System.EventHandler(this.btnRelink_Click);
-			// 
-			// txtBone
-			// 
-			this.txtBone.Location = new System.Drawing.Point(49, 23);
-			this.txtBone.Name = "txtBone";
-			this.txtBone.ReadOnly = true;
-			this.txtBone.Size = new System.Drawing.Size(126, 20);
-			this.txtBone.TabIndex = 3;
-			// 
-			// label4
-			// 
-			this.label4.Location = new System.Drawing.Point(4, 23);
-			this.label4.Name = "label4";
-			this.label4.Size = new System.Drawing.Size(42, 20);
-			this.label4.TabIndex = 2;
-			this.label4.Text = "Bone:";
-			this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// txtModel
-			// 
-			this.txtModel.Location = new System.Drawing.Point(49, 3);
-			this.txtModel.Name = "txtModel";
-			this.txtModel.ReadOnly = true;
-			this.txtModel.Size = new System.Drawing.Size(126, 20);
-			this.txtModel.TabIndex = 1;
-			// 
-			// label3
-			// 
-			this.label3.Location = new System.Drawing.Point(4, 3);
-			this.label3.Name = "label3";
-			this.label3.Size = new System.Drawing.Size(42, 20);
-			this.label3.TabIndex = 0;
-			this.label3.Text = "Model:";
-			this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-			// 
-			// panel4
-			// 
-			this.panel4.Controls.Add(this.btnPlayAnims);
-			this.panel4.Controls.Add(this.btnPrevFrame);
-			this.panel4.Controls.Add(this.btnNextFrame);
-			this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
-			this.panel4.Enabled = false;
-			this.panel4.Location = new System.Drawing.Point(0, 197);
-			this.panel4.Name = "panel4";
-			this.panel4.Size = new System.Drawing.Size(209, 24);
-			this.panel4.TabIndex = 17;
-			this.panel4.Visible = false;
-			// 
-			// btnPlayAnims
-			// 
-			this.btnPlayAnims.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.btnPlayAnims.Location = new System.Drawing.Point(35, 0);
-			this.btnPlayAnims.Name = "btnPlayAnims";
-			this.btnPlayAnims.Size = new System.Drawing.Size(139, 24);
-			this.btnPlayAnims.TabIndex = 16;
-			this.btnPlayAnims.Text = "Play Animations";
-			this.btnPlayAnims.UseVisualStyleBackColor = true;
-			this.btnPlayAnims.Click += new System.EventHandler(this.btnPlayAnims_Click);
-			// 
-			// btnPrevFrame
-			// 
-			this.btnPrevFrame.Dock = System.Windows.Forms.DockStyle.Left;
-			this.btnPrevFrame.Location = new System.Drawing.Point(0, 0);
-			this.btnPrevFrame.Name = "btnPrevFrame";
-			this.btnPrevFrame.Size = new System.Drawing.Size(35, 24);
-			this.btnPrevFrame.TabIndex = 18;
-			this.btnPrevFrame.Text = "<";
-			this.btnPrevFrame.UseVisualStyleBackColor = true;
-			this.btnPrevFrame.Click += new System.EventHandler(this.btnPrevFrame_Click);
-			// 
-			// btnNextFrame
-			// 
-			this.btnNextFrame.Dock = System.Windows.Forms.DockStyle.Right;
-			this.btnNextFrame.Location = new System.Drawing.Point(174, 0);
-			this.btnNextFrame.Name = "btnNextFrame";
-			this.btnNextFrame.Size = new System.Drawing.Size(35, 24);
-			this.btnNextFrame.TabIndex = 17;
-			this.btnNextFrame.Text = ">";
-			this.btnNextFrame.UseVisualStyleBackColor = true;
-			this.btnNextFrame.Click += new System.EventHandler(this.btnNextFrame_Click);
-			// 
-			// _modelPanel
-			// 
-			this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-			this._modelPanel.InitialYFactor = 100;
-			this._modelPanel.InitialZoomFactor = 5;
-			this._modelPanel.Location = new System.Drawing.Point(0, 25);
-			this._modelPanel.Name = "_modelPanel";
-			this._modelPanel.RotationScale = 0.1F;
-			this._modelPanel.Size = new System.Drawing.Size(787, 442);
-			this._modelPanel.TabIndex = 0;
-			this._modelPanel.TranslationScale = 0.05F;
-			this._modelPanel.ZoomScale = 2.5F;
-			this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
-			this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
-			this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
-			this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
-			this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);
-			this._modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseUp);
-			// 
-			// panel1
-			// 
-			this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.panel1.Controls.Add(this.toolStrip1);
-			this.panel1.Controls.Add(this.btnResetRot);
-			this.panel1.Controls.Add(this.trackBar1);
-			this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-			this.panel1.Location = new System.Drawing.Point(0, 0);
-			this.panel1.Name = "panel1";
-			this.panel1.Size = new System.Drawing.Size(787, 25);
-			this.panel1.TabIndex = 2;
-			// 
-			// toolStrip1
-			// 
-			this.toolStrip1.BackColor = System.Drawing.Color.WhiteSmoke;
-			this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
-			this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-=======
+//<<<<<<< HEAD
+//            this.groupBox1.Controls.Add(this.chkLeftLedge);
+//            this.groupBox1.Controls.Add(this.chkNoWalljump);
+//            this.groupBox1.Controls.Add(this.chkRightLedge);
+//            this.groupBox1.Controls.Add(this.chkFallThrough);
+//            this.groupBox1.Location = new System.Drawing.Point(0, 28);
+//            this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
+//            this.groupBox1.Name = "groupBox1";
+//            this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
+//            this.groupBox1.Size = new System.Drawing.Size(104, 86);
+//            this.groupBox1.TabIndex = 13;
+//            this.groupBox1.TabStop = false;
+//            this.groupBox1.Text = "Flags";
+//            // 
+//            // chkLeftLedge
+//            // 
+//            this.chkLeftLedge.Location = new System.Drawing.Point(8, 33);
+//            this.chkLeftLedge.Margin = new System.Windows.Forms.Padding(0);
+//            this.chkLeftLedge.Name = "chkLeftLedge";
+//            this.chkLeftLedge.Size = new System.Drawing.Size(86, 18);
+//            this.chkLeftLedge.TabIndex = 4;
+//            this.chkLeftLedge.Text = "Left Ledge";
+//            this.chkLeftLedge.UseVisualStyleBackColor = true;
+//            this.chkLeftLedge.CheckedChanged += new System.EventHandler(this.chkLeftLedge_CheckedChanged);
+//            // 
+//            // chkNoWalljump
+//            // 
+//            this.chkNoWalljump.Location = new System.Drawing.Point(8, 65);
+//            this.chkNoWalljump.Margin = new System.Windows.Forms.Padding(0);
+//            this.chkNoWalljump.Name = "chkNoWalljump";
+//            this.chkNoWalljump.Size = new System.Drawing.Size(90, 18);
+//            this.chkNoWalljump.TabIndex = 2;
+//            this.chkNoWalljump.Text = "No Walljump";
+//            this.chkNoWalljump.UseVisualStyleBackColor = true;
+//            this.chkNoWalljump.CheckedChanged += new System.EventHandler(this.chkNoWalljump_CheckedChanged);
+//            // 
+//            // chkRightLedge
+//            // 
+//            this.chkRightLedge.Location = new System.Drawing.Point(8, 49);
+//            this.chkRightLedge.Margin = new System.Windows.Forms.Padding(0);
+//            this.chkRightLedge.Name = "chkRightLedge";
+//            this.chkRightLedge.Size = new System.Drawing.Size(86, 18);
+//            this.chkRightLedge.TabIndex = 1;
+//            this.chkRightLedge.Text = "Right Ledge";
+//            this.chkRightLedge.UseVisualStyleBackColor = true;
+//            this.chkRightLedge.CheckedChanged += new System.EventHandler(this.chkRightLedge_CheckedChanged);
+//            // 
+//            // chkFallThrough
+//            // 
+//            this.chkFallThrough.Location = new System.Drawing.Point(8, 17);
+//            this.chkFallThrough.Margin = new System.Windows.Forms.Padding(0);
+//            this.chkFallThrough.Name = "chkFallThrough";
+//            this.chkFallThrough.Size = new System.Drawing.Size(90, 18);
+//            this.chkFallThrough.TabIndex = 0;
+//            this.chkFallThrough.Text = "Fall-Through";
+//            this.chkFallThrough.UseVisualStyleBackColor = true;
+//            this.chkFallThrough.CheckedChanged += new System.EventHandler(this.chkFallThrough_CheckedChanged);
+//            // 
+//            // cboMaterial
+//            // 
+//            this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+//            this.cboMaterial.FormattingEnabled = true;
+//            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+//            this.cboMaterial.Name = "cboMaterial";
+//            this.cboMaterial.Size = new System.Drawing.Size(139, 21);
+//            this.cboMaterial.TabIndex = 12;
+//            this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
+//            // 
+//            // label5
+//            // 
+//            this.label5.Location = new System.Drawing.Point(7, 4);
+//            this.label5.Name = "label5";
+//            this.label5.Size = new System.Drawing.Size(53, 21);
+//            this.label5.TabIndex = 8;
+//            this.label5.Text = "Material:";
+//            this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+//            // 
+//            // pnlPointProps
+//            // 
+//            this.pnlPointProps.Controls.Add(this.label2);
+//            this.pnlPointProps.Controls.Add(this.numY);
+//            this.pnlPointProps.Controls.Add(this.label1);
+//            this.pnlPointProps.Controls.Add(this.numX);
+//            this.pnlPointProps.Dock = System.Windows.Forms.DockStyle.Bottom;
+//            this.pnlPointProps.Location = new System.Drawing.Point(0, -85);
+//            this.pnlPointProps.Name = "pnlPointProps";
+//            this.pnlPointProps.Size = new System.Drawing.Size(209, 70);
+//            this.pnlPointProps.TabIndex = 15;
+//            this.pnlPointProps.Visible = false;
+//            // 
+//            // label2
+//            // 
+//            this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+//            this.label2.Location = new System.Drawing.Point(18, 32);
+//            this.label2.Name = "label2";
+//            this.label2.Size = new System.Drawing.Size(42, 20);
+//            this.label2.TabIndex = 3;
+//            this.label2.Text = "Y";
+//            this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+//            // 
+//            // numY
+//            // 
+//            this.numY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+//            this.numY.Integral = false;
+//            this.numY.Location = new System.Drawing.Point(59, 32);
+//            this.numY.MaximumValue = 3.402823E+38F;
+//            this.numY.MinimumValue = -3.402823E+38F;
+//            this.numY.Name = "numY";
+//            this.numY.Size = new System.Drawing.Size(100, 20);
+//            this.numY.TabIndex = 2;
+//            this.numY.Text = "0";
+//            this.numY.ValueChanged += new System.EventHandler(this.numY_ValueChanged);
+//            // 
+//            // label1
+//            // 
+//            this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+//            this.label1.Location = new System.Drawing.Point(18, 13);
+//            this.label1.Name = "label1";
+//            this.label1.Size = new System.Drawing.Size(42, 20);
+//            this.label1.TabIndex = 1;
+//            this.label1.Text = "X";
+//            this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+//            // 
+//            // numX
+//            // 
+//            this.numX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+//            this.numX.Integral = false;
+//            this.numX.Location = new System.Drawing.Point(59, 13);
+//            this.numX.MaximumValue = 3.402823E+38F;
+//            this.numX.MinimumValue = -3.402823E+38F;
+//            this.numX.Name = "numX";
+//            this.numX.Size = new System.Drawing.Size(100, 20);
+//            this.numX.TabIndex = 0;
+//            this.numX.Text = "0";
+//            this.numX.ValueChanged += new System.EventHandler(this.numX_ValueChanged);
+//            // 
+//            // pnlObjProps
+//            // 
+//            this.pnlObjProps.Controls.Add(this.chkObjSSEUnk);
+//            this.pnlObjProps.Controls.Add(this.chkObjModule);
+//            this.pnlObjProps.Controls.Add(this.chkObjUnk);
+//            this.pnlObjProps.Controls.Add(this.btnUnlink);
+//            this.pnlObjProps.Controls.Add(this.btnRelink);
+//            this.pnlObjProps.Controls.Add(this.txtBone);
+//            this.pnlObjProps.Controls.Add(this.label4);
+//            this.pnlObjProps.Controls.Add(this.txtModel);
+//            this.pnlObjProps.Controls.Add(this.label3);
+//            this.pnlObjProps.Dock = System.Windows.Forms.DockStyle.Bottom;
+//            this.pnlObjProps.Location = new System.Drawing.Point(0, -15);
+//            this.pnlObjProps.Name = "pnlObjProps";
+//            this.pnlObjProps.Size = new System.Drawing.Size(209, 130);
+//            this.pnlObjProps.TabIndex = 1;
+//            this.pnlObjProps.Visible = false;
+//            // 
+//            // chkObjSSEUnk
+//            // 
+//            this.chkObjSSEUnk.AutoSize = true;
+//            this.chkObjSSEUnk.Location = new System.Drawing.Point(10, 102);
+//            this.chkObjSSEUnk.Name = "chkObjSSEUnk";
+//            this.chkObjSSEUnk.Size = new System.Drawing.Size(96, 17);
+//            this.chkObjSSEUnk.TabIndex = 15;
+//            this.chkObjSSEUnk.Text = "SSE Unknown";
+//            this.chkObjSSEUnk.UseVisualStyleBackColor = true;
+//            this.chkObjSSEUnk.CheckedChanged += new System.EventHandler(this.chkObjSSEUnk_CheckedChanged);
+//            // 
+//            // chkObjModule
+//            // 
+//            this.chkObjModule.AutoSize = true;
+//            this.chkObjModule.Location = new System.Drawing.Point(10, 79);
+//            this.chkObjModule.Name = "chkObjModule";
+//            this.chkObjModule.Size = new System.Drawing.Size(111, 17);
+//            this.chkObjModule.TabIndex = 14;
+//            this.chkObjModule.Text = "Module Controlled";
+//            this.chkObjModule.UseVisualStyleBackColor = true;
+//            this.chkObjModule.CheckedChanged += new System.EventHandler(this.chkObjModule_CheckedChanged);
+//            // 
+//            // chkObjUnk
+//            // 
+//            this.chkObjUnk.AutoSize = true;
+//            this.chkObjUnk.Location = new System.Drawing.Point(10, 56);
+//            this.chkObjUnk.Name = "chkObjUnk";
+//            this.chkObjUnk.Size = new System.Drawing.Size(72, 17);
+//            this.chkObjUnk.TabIndex = 13;
+//            this.chkObjUnk.Text = "Unknown";
+//            this.chkObjUnk.UseVisualStyleBackColor = true;
+//            this.chkObjUnk.CheckedChanged += new System.EventHandler(this.chkObjUnk_CheckedChanged);
+//            // 
+//            // btnUnlink
+//            // 
+//            this.btnUnlink.Location = new System.Drawing.Point(177, 22);
+//            this.btnUnlink.Name = "btnUnlink";
+//            this.btnUnlink.Size = new System.Drawing.Size(28, 21);
+//            this.btnUnlink.TabIndex = 12;
+//            this.btnUnlink.Text = "-";
+//            this.btnUnlink.UseVisualStyleBackColor = true;
+//            this.btnUnlink.Click += new System.EventHandler(this.btnUnlink_Click);
+//            // 
+//            // btnRelink
+//            // 
+//            this.btnRelink.Location = new System.Drawing.Point(177, 2);
+//            this.btnRelink.Name = "btnRelink";
+//            this.btnRelink.Size = new System.Drawing.Size(28, 21);
+//            this.btnRelink.TabIndex = 4;
+//            this.btnRelink.Text = "+";
+//            this.btnRelink.UseVisualStyleBackColor = true;
+//            this.btnRelink.Click += new System.EventHandler(this.btnRelink_Click);
+//            // 
+//            // txtBone
+//            // 
+//            this.txtBone.Location = new System.Drawing.Point(49, 23);
+//            this.txtBone.Name = "txtBone";
+//            this.txtBone.ReadOnly = true;
+//            this.txtBone.Size = new System.Drawing.Size(126, 20);
+//            this.txtBone.TabIndex = 3;
+//            // 
+//            // label4
+//            // 
+//            this.label4.Location = new System.Drawing.Point(4, 23);
+//            this.label4.Name = "label4";
+//            this.label4.Size = new System.Drawing.Size(42, 20);
+//            this.label4.TabIndex = 2;
+//            this.label4.Text = "Bone:";
+//            this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+//            // 
+//            // txtModel
+//            // 
+//            this.txtModel.Location = new System.Drawing.Point(49, 3);
+//            this.txtModel.Name = "txtModel";
+//            this.txtModel.ReadOnly = true;
+//            this.txtModel.Size = new System.Drawing.Size(126, 20);
+//            this.txtModel.TabIndex = 1;
+//            // 
+//            // label3
+//            // 
+//            this.label3.Location = new System.Drawing.Point(4, 3);
+//            this.label3.Name = "label3";
+//            this.label3.Size = new System.Drawing.Size(42, 20);
+//            this.label3.TabIndex = 0;
+//            this.label3.Text = "Model:";
+//            this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+//            // 
+//            // panel4
+//            // 
+//            this.panel4.Controls.Add(this.btnPlayAnims);
+//            this.panel4.Controls.Add(this.btnPrevFrame);
+//            this.panel4.Controls.Add(this.btnNextFrame);
+//            this.panel4.Dock = System.Windows.Forms.DockStyle.Bottom;
+//            this.panel4.Enabled = false;
+//            this.panel4.Location = new System.Drawing.Point(0, 197);
+//            this.panel4.Name = "panel4";
+//            this.panel4.Size = new System.Drawing.Size(209, 24);
+//            this.panel4.TabIndex = 17;
+//            this.panel4.Visible = false;
+//            // 
+//            // btnPlayAnims
+//            // 
+//            this.btnPlayAnims.Dock = System.Windows.Forms.DockStyle.Fill;
+//            this.btnPlayAnims.Location = new System.Drawing.Point(35, 0);
+//            this.btnPlayAnims.Name = "btnPlayAnims";
+//            this.btnPlayAnims.Size = new System.Drawing.Size(139, 24);
+//            this.btnPlayAnims.TabIndex = 16;
+//            this.btnPlayAnims.Text = "Play Animations";
+//            this.btnPlayAnims.UseVisualStyleBackColor = true;
+//            this.btnPlayAnims.Click += new System.EventHandler(this.btnPlayAnims_Click);
+//            // 
+//            // btnPrevFrame
+//            // 
+//            this.btnPrevFrame.Dock = System.Windows.Forms.DockStyle.Left;
+//            this.btnPrevFrame.Location = new System.Drawing.Point(0, 0);
+//            this.btnPrevFrame.Name = "btnPrevFrame";
+//            this.btnPrevFrame.Size = new System.Drawing.Size(35, 24);
+//            this.btnPrevFrame.TabIndex = 18;
+//            this.btnPrevFrame.Text = "<";
+//            this.btnPrevFrame.UseVisualStyleBackColor = true;
+//            this.btnPrevFrame.Click += new System.EventHandler(this.btnPrevFrame_Click);
+//            // 
+//            // btnNextFrame
+//            // 
+//            this.btnNextFrame.Dock = System.Windows.Forms.DockStyle.Right;
+//            this.btnNextFrame.Location = new System.Drawing.Point(174, 0);
+//            this.btnNextFrame.Name = "btnNextFrame";
+//            this.btnNextFrame.Size = new System.Drawing.Size(35, 24);
+//            this.btnNextFrame.TabIndex = 17;
+//            this.btnNextFrame.Text = ">";
+//            this.btnNextFrame.UseVisualStyleBackColor = true;
+//            this.btnNextFrame.Click += new System.EventHandler(this.btnNextFrame_Click);
+//            // 
+//            // _modelPanel
+//            // 
+//            this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+//            this._modelPanel.InitialYFactor = 100;
+//            this._modelPanel.InitialZoomFactor = 5;
+//            this._modelPanel.Location = new System.Drawing.Point(0, 25);
+//            this._modelPanel.Name = "_modelPanel";
+//            this._modelPanel.RotationScale = 0.1F;
+//            this._modelPanel.Size = new System.Drawing.Size(787, 442);
+//            this._modelPanel.TabIndex = 0;
+//            this._modelPanel.TranslationScale = 0.05F;
+//            this._modelPanel.ZoomScale = 2.5F;
+//            this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
+//            this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
+//            this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
+//            this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
+//            this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);
+//            this._modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseUp);
+//            // 
+//            // panel1
+//            // 
+//            this.panel1.BackColor = System.Drawing.Color.WhiteSmoke;
+//            this.panel1.Controls.Add(this.toolStrip1);
+//            this.panel1.Controls.Add(this.btnResetRot);
+//            this.panel1.Controls.Add(this.trackBar1);
+//            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+//            this.panel1.Location = new System.Drawing.Point(0, 0);
+//            this.panel1.Name = "panel1";
+//            this.panel1.Size = new System.Drawing.Size(787, 25);
+//            this.panel1.TabIndex = 2;
+//            // 
+//            // toolStrip1
+//            // 
+//            this.toolStrip1.BackColor = System.Drawing.Color.WhiteSmoke;
+//            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
+//            this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
+//            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+//=======
             this.groupBox1.Controls.Add(this.chkLeftLedge);
             this.groupBox1.Controls.Add(this.chkNoWalljump);
             this.groupBox1.Controls.Add(this.chkRightLedge);
@@ -926,7 +926,6 @@ namespace System.Windows.Forms
             this.toolStrip1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.toolStrip1.GripStyle = System.Windows.Forms.ToolStripGripStyle.Hidden;
             this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
             this.btnUndo,
             this.btnRedo,
             this.toolStripSeparator3,

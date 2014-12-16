@@ -72,7 +72,7 @@ namespace System.Windows.Forms
         protected unsafe void ApplyAngle(int index, float offset)
         {
             NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2) + 3];
-            float newVal = (float)Math.Round(box._value + offset, 3);
+            float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
             {
                 box.Value = newVal;
@@ -84,7 +84,7 @@ namespace System.Windows.Forms
         protected unsafe void ApplyTranslation(int index, float offset)
         {
             NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2) + 6];
-            float newVal = (float)Math.Round(box._value + offset, 3);
+            float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
             {
                 box.Value = newVal;
@@ -96,7 +96,7 @@ namespace System.Windows.Forms
         protected unsafe void ApplyScale(int index, float scale)
         {
             NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2)];
-            float newVal = (float)Math.Round(box._value * scale, 3);
+            float newVal = (float)Math.Round(box.Value * scale, 3);
             if (box.Value != newVal && newVal != 0.0f)
             {
                 box.Value = newVal;

@@ -543,7 +543,7 @@ namespace System.Windows.Forms
             //}
             //else
             {
-                if (!(_scaling || _rotating || _translating) && depth < 1.0f && _targetModel != null)
+                if (!(_scaling || _rotating || _translating) && depth < 1.0f)
                 {
                     IBoneNode o = null;
 
@@ -668,21 +668,44 @@ namespace System.Windows.Forms
                     if (NotCtrlAlt)
                         ResetVertexColors();
 
-                    if (TargetModel.SelectedObjectIndex < 0)
-                    {
-                        foreach (IObject o in TargetModel.Objects)
-                            if (o.IsRendering)
-                                SelectVertices(o, panel);
-                    }
-                    else
-                    {
-                        IObject w = TargetModel.Objects[TargetModel.SelectedObjectIndex];
-                        if (w.IsRendering)
-                            SelectVertices(w, panel);
+                    if (TargetModel != null)
+                        if (TargetModel.SelectedObjectIndex < 0)
+                        {
+                            foreach (IObject o in TargetModel.Objects)
+                                if (o.IsRendering)
+                                    SelectVertices(o, panel);
+                        }
                         else
-                            foreach (IObject h in TargetModel.Objects)
-                                if (h.IsRendering)
-                                    SelectVertices(h, panel);
+                        {
+                            IObject w = TargetModel.Objects[TargetModel.SelectedObjectIndex];
+                            if (w.IsRendering)
+                                SelectVertices(w, panel);
+                            else
+                                foreach (IObject h in TargetModel.Objects)
+                                    if (h.IsRendering)
+                                        SelectVertices(h, panel);
+                        }
+                    else if (_targetModels != null)
+                    {
+                        foreach (IModel m in _targetModels)
+                        {
+                            if (m.SelectedObjectIndex < 0)
+                            {
+                                foreach (IObject o in m.Objects)
+                                    if (o.IsRendering)
+                                        SelectVertices(o, panel);
+                            }
+                            else
+                            {
+                                IObject w = m.Objects[m.SelectedObjectIndex];
+                                if (w.IsRendering)
+                                    SelectVertices(w, panel);
+                                else
+                                    foreach (IObject h in m.Objects)
+                                        if (h.IsRendering)
+                                            SelectVertices(h, panel);
+                            }
+                        }
                     }
                 }
                 else

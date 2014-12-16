@@ -191,8 +191,6 @@
     <Compile Include="Modeling\IObject.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
-<<<<<<< HEAD
-=======
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDBoneNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDGroupNode.cs" />
@@ -206,7 +204,6 @@
     <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFParticleNode.cs" />
     <None Include="SSBB\ResourceNodes\J3DNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\BTINode.cs" />
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="SSBB\ResourceNodes\ItmFreqNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\ADSJNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\BGMGNode.cs" />
@@ -219,12 +216,9 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\GSNDNode.cs" />
     <Compile Include="SSBB\Stage.cs" />
     <Compile Include="SSBB\SuppertedFilesHandler.cs" />
-<<<<<<< HEAD
-=======
     <None Include="SSBB\Types\BMD.cs" />
     <Compile Include="SSBB\Types\LM BIN.cs" />
     <None Include="SSBB\Types\BTI.cs" />
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="SSBB\Types\ItmFreq.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\BGMG.cs" />
@@ -234,10 +228,7 @@
     <Compile Include="SSBB\Types\Subspace\Animation\GMOV.cs" />
     <Compile Include="SSBB\Types\Subspace\Objects\GMPS.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\GSND.cs" />
-<<<<<<< HEAD
-=======
     <None Include="SSBB\Types\RARC.cs" />
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
@@ -579,16 +570,14 @@
     <Compile Include="System\Windows\Controls\InterpolationEditor.Designer.cs">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </Compile>
-<<<<<<< HEAD
     <Compile Include="System\Windows\Controls\TransformAttributesControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\TransformAttributesControl.Designer.cs">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
-=======
+    </Compile>
     <Compile Include="System\Windows\Controls\TransparentPanel.cs">
       <SubType>Component</SubType>
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     </Compile>
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
@@ -954,13 +943,11 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
-<<<<<<< HEAD
     <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
-=======
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ShaderEditor.resx">
       <DependentUpon>ShaderEditor.cs</DependentUpon>
->>>>>>> ab25d914bd528e6b35ef0ff2d97bfcccb3d3822b
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
