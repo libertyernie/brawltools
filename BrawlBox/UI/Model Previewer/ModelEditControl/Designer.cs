@@ -2095,6 +2095,7 @@ namespace System.Windows.Forms
             _interpolationEditor.Visible = false;
 
             cboToolSelect.SelectedIndex = 1;
+            chkZoomExtents.Enabled = false;
         }
 
         #endregion

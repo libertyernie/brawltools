@@ -56,10 +56,10 @@ namespace System.Windows.Forms
         }
         private string _imgExt = ".png";
         private int _imgExtIndex = 0;
-        public int ImgExtIndex 
+        public int ImgExtIndex
         {
             get { return _imgExtIndex; }
-            set 
+            set
             {
                 switch (_imgExtIndex = value)
                 {
@@ -88,7 +88,7 @@ namespace System.Windows.Forms
                 }
             }
         }
-        
+
         private void btnExportToImgWithTransparency_Click(object sender, EventArgs e)
         {
             SaveBitmap(ModelPanel.GetScreenshot(true), ScreenCapBgLocText.Text, _imgExt);
@@ -304,14 +304,10 @@ namespace System.Windows.Forms
         private void chkZoomExtents_Click(object sender, EventArgs e)
         {
             //TODO: different handling based on if viewport is perspective, front, side, or top
-            if (SelectedBone != null)
-            {
-                ModelPanel.Camera.Reset();
-                ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
-                ModelPanel.Invalidate();
-            }
-            else
-                MessageBox.Show("Select a bone!");
+            ModelPanel.Camera.Reset();
+            ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
+            ModelPanel.Invalidate();
+
         }
         private void chkBoundaries_Click(object sender, EventArgs e)
         {
@@ -454,9 +450,9 @@ namespace System.Windows.Forms
                 (node as SRT0Node).Append();
             else if (node is SHP0Node)
                 (node as SHP0Node).Append();
-            else if(node is PAT0Node)
+            else if (node is PAT0Node)
                 (node as PAT0Node).Append();
-            else if(node is VIS0Node)
+            else if (node is VIS0Node)
                 (node as VIS0Node).Append();
 
             AnimChanged(TargetAnimType);
