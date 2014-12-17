@@ -548,7 +548,7 @@ namespace System.Windows.Forms
             }
 
             foreach (IRenderedObject o in _settings._renderList)
-                o.Refesh();
+                o.Refresh();
 
             Invalidate();
         }

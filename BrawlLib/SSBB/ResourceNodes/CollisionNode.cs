@@ -138,7 +138,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool Attached { get { return _attached; } }
         public void Attach() { _attached = true; }
         public void Detach() { _attached = false; }
-        public void Refesh() { }
+        public void Refresh() { }
         public void Render(params object[] args)
         {
             GL.Disable(EnableCap.Lighting);

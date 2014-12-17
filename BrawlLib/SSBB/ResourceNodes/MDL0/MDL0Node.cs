@@ -1021,7 +1021,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 g.Unbind();
         }
 
-        public void Refesh()
+        public void Refresh()
         {
             if (_texList != null)
                 foreach (MDL0TextureNode t in _texList)
@@ -1182,9 +1182,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 //GL.LineWidth(2.0f);
 
-                if (_boneList != null)
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render();
+                //if (_boneList != null)
+                //    foreach (MDL0BoneNode bone in _boneList)
+                //        bone.Render();
+                
             }
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())

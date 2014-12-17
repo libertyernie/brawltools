@@ -132,6 +132,160 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        #region Rendering
+
+        public static Color DefaultBoneColor = Color.FromArgb(0, 0, 128);
+        public static Color DefaultNodeColor = Color.FromArgb(0, 128, 0);
+
+        public Color _boneColor = Color.Transparent;
+        public Color _nodeColor = Color.Transparent;
+
+        public const float _nodeRadius = 0.20f;
+
+        public bool _render = true;
+
+        internal void ApplyCHR0(CHR0Node node, float index, bool linear)
+        {
+            CHR0EntryNode e;
+
+            _frameState = _bindState;
+
+            if (node != null && index >= 1 && (e = node.FindChild(Name, false) as CHR0EntryNode) != null) //Set to anim pose
+                fixed (FrameState* v = &_frameState)
+                {
+                    float* f = (float*)v;
+                    for (int i = 0; i < 9; i++)
+                        if (e.Keyframes[(KeyFrameMode)(i + 0x10)] > 0)
+                            f[i] = e.GetFrameValue((KeyFrameMode)(i + 0x10), index - 1, linear, node.Loop);
+
+                    _frameState.CalcTransforms();
+                }
+
+            foreach (MDL0BoneNode b in Children)
+                b.ApplyCHR0(node, index, linear);
+        }
+
+        internal override void Bind()
+        {
+            _render = true;
+            _boneColor = Color.Transparent;
+            _nodeColor = Color.Transparent;
+        }
+
+        public void Attach() { }
+        public bool Attached { get { return _attached; } }
+        private bool _attached = false;
+
+        public void Detach() { }
+
+        public void GetBox(out Vector3 min, out Vector3 max)
+        {
+            min = max = new Vector3(0);
+        }
+
+        public void Refresh() { }
+        public void Render(params object[] args)
+        {
+            bool Strong = (args.Length > 0 ? (bool)args[0] : false);
+
+            if (!_render)
+                return;
+
+            if (args.Length > 0 && (bool)args[0] == true)
+                Strong = true;
+
+
+            if (_boneColor != Color.Transparent)
+                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+            else
+                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+
+            //GL.LineWidth(1.0f);
+
+            //Draw name if selected
+            if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
+            {
+                Vector3 pt = _frameMatrix.GetPoint();
+                Vector3 v2 = GLPanel.Current.Project(pt);
+                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
+            }
+
+            Vector3 v1 = (_parent == null || !(_parent is MDL0BoneNode)) ? new Vector3(0.0f) : ((MDL0BoneNode)_parent)._frameMatrix.GetPoint();
+            Vector3 v = _frameMatrix.GetPoint();
+
+            GL.Begin(PrimitiveType.Lines);
+
+            GL.Vertex3((float*)&v1);
+            GL.Vertex3((float*)&v);
+
+            GL.End();
+
+            GL.PushMatrix();
+            {
+                fixed (Matrix* m = &_frameMatrix)
+                    GL.MultMatrix((float*)m);
+
+                //Render node
+                GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
+                if (_nodeColor != Color.Transparent)
+                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+                else
+                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+
+                ndl.Call();
+
+                DrawNodeOrients(Strong);
+            }
+            GL.PopMatrix();
+
+            //Render children
+            foreach (MDL0BoneNode n in Children)
+                n.Render(Strong);
+        }
+
+        public static GLDisplayList CreateNodeOrb(TKContext ctx)
+        {
+            GLDisplayList circle = TKContext.GetRingList();
+            GLDisplayList orb = new GLDisplayList();
+
+            orb.Begin();
+            GL.PushMatrix();
+
+            GL.Scale(_nodeRadius, _nodeRadius, _nodeRadius);
+            circle.Call();
+            GL.Rotate(90.0f, 0.0f, 1.0f, 0.0f);
+            circle.Call();
+            GL.Rotate(90.0f, 1.0f, 0.0f, 0.0f);
+            circle.Call();
+
+            GL.PopMatrix();
+            orb.End();
+            return orb;
+        }
+
+        public static void DrawNodeOrients(bool Strong)
+        {
+            GL.Begin(PrimitiveType.Lines);
+
+            GL.Color4(1.0f, 0.0f, 0.0f, Strong ? 1.0f : 0.35f);
+            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.Vertex3(_nodeRadius * 2, 0.0f, 0.0f);
+
+            GL.Color4(0.0f, 1.0f, 0.0f, Strong ? 1.0f : 0.35f);
+            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.Vertex3(0.0f, _nodeRadius * 2, 0.0f);
+
+            GL.Color4(0.0f, 0.0f, 1.0f, Strong ? 1.0f : 0.35f);
+            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.Vertex3(0.0f, 0.0f, _nodeRadius * 2);
+
+            GL.End();
+        }
+
+        public bool IsRendering { get { return _render; } set { _render = value; } }
+
+        #endregion
+
         #region Properties
 
         [Category("Bone")]
@@ -733,134 +887,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         #region Rendering
 
-        public static Color DefaultBoneColor = Color.FromArgb(0, 0, 128);
-        public static Color DefaultNodeColor = Color.FromArgb(0, 128, 0);
 
-        public Color _boneColor = Color.Transparent;
-        public Color _nodeColor = Color.Transparent;
-
-        public const float _nodeRadius = 0.20f;
-
-        public bool _render = true;
-        internal unsafe void Render()
-        {
-            if (!_render)
-                return;
-
-            if (_boneColor != Color.Transparent)
-                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, 1.0f);
-            else
-                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, 1.0f);
-
-            //GL.LineWidth(1.0f);
-
-            //Draw name if selected
-            if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
-            {
-                Vector3 pt = _frameMatrix.GetPoint();
-                Vector3 v2 = GLPanel.Current.Project(pt);
-                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
-            }
-
-            Vector3 v1 = (_parent == null || !(_parent is MDL0BoneNode)) ? new Vector3(0.0f) : ((MDL0BoneNode)_parent)._frameMatrix.GetPoint();
-            Vector3 v = _frameMatrix.GetPoint();
-
-            GL.Begin(PrimitiveType.Lines);
-
-            GL.Vertex3((float*)&v1);
-            GL.Vertex3((float*)&v);
-
-            GL.End();
-
-            GL.PushMatrix();
-            {
-                fixed (Matrix* m = &_frameMatrix)
-                    GL.MultMatrix((float*)m);
-
-                //Render node
-                GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
-                if (_nodeColor != Color.Transparent)
-                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, 1.0f);
-                else
-                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, 1.0f);
-
-                ndl.Call();
-
-                DrawNodeOrients();
-            }
-            GL.PopMatrix();
-
-            //Render children
-            foreach (MDL0BoneNode n in Children)
-                n.Render();
-        }
-
-        internal void ApplyCHR0(CHR0Node node, float index, bool linear)
-        {
-            CHR0EntryNode e;
-
-            _frameState = _bindState;
-
-            if (node != null && index >= 1 && (e = node.FindChild(Name, false) as CHR0EntryNode) != null) //Set to anim pose
-                fixed (FrameState* v = &_frameState)
-                {
-                    float* f = (float*)v;
-                    for (int i = 0; i < 9; i++)
-                        if (e.Keyframes[(KeyFrameMode)(i + 0x10)] > 0)
-                            f[i] = e.GetFrameValue((KeyFrameMode)(i + 0x10), index - 1, linear, node.Loop);
-
-                    _frameState.CalcTransforms();
-                }
-
-            foreach (MDL0BoneNode b in Children)
-                b.ApplyCHR0(node, index, linear);
-        }
-
-        public static GLDisplayList CreateNodeOrb(TKContext ctx)
-        {
-            GLDisplayList circle = TKContext.GetRingList();
-            GLDisplayList orb = new GLDisplayList();
-
-            orb.Begin();
-            GL.PushMatrix();
-
-            GL.Scale(_nodeRadius, _nodeRadius, _nodeRadius);
-            circle.Call();
-            GL.Rotate(90.0f, 0.0f, 1.0f, 0.0f);
-            circle.Call();
-            GL.Rotate(90.0f, 1.0f, 0.0f, 0.0f);
-            circle.Call();
-
-            GL.PopMatrix();
-            orb.End();
-            return orb;
-        }
-
-        public static void DrawNodeOrients()
-        {
-            GL.Begin(PrimitiveType.Lines);
-
-            GL.Color4(1.0f, 0.0f, 0.0f, 1.0f);
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
-            GL.Vertex3(_nodeRadius * 2, 0.0f, 0.0f);
-
-            GL.Color4(0.0f, 1.0f, 0.0f, 1.0f);
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
-            GL.Vertex3(0.0f, _nodeRadius * 2, 0.0f);
-
-            GL.Color4(0.0f, 0.0f, 1.0f, 1.0f);
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, _nodeRadius * 2);
-
-            GL.End();
-        }
-
-        internal override void Bind()
-        {
-            _render = true;
-            _boneColor = Color.Transparent;
-            _nodeColor = Color.Transparent;
-        }
 
         #endregion
 

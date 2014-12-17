@@ -38,6 +38,8 @@ namespace System.Windows.Forms
                 OnRenderNormals();
             if (RenderLightDisplay)
                 OnRenderLightDisplay(panel.LightPosition);
+            if (RenderBones)
+                OnRenderBones();
 
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
@@ -61,6 +63,24 @@ namespace System.Windows.Forms
                     m.RenderNormals();
             else if (TargetModel != null)
                 TargetModel.RenderNormals();
+        }
+
+        public virtual void OnRenderBones()
+        {
+            if (_targetModels != null)
+                foreach (IModel m in _targetModels)
+                {
+                    if (m == TargetModel)
+                        foreach (IBoneNode b in m.BoneCache)
+                            b.Render(true);
+                    else
+                        foreach (IBoneNode b in m.BoneCache)
+                            b.Render();
+                }
+
+            else if (TargetModel != null)
+                foreach (IBoneNode b in TargetModel.BoneCache)
+                    b.Render(true);
         }
 
         #region Bone Control Rendering
