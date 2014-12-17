@@ -186,19 +186,21 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void Refresh() { }
         public void Render(params object[] args)
         {
-            bool Strong = (args.Length > 0 ? (bool)args[0] : false);
+            bool Foreground = (args.Length > 0 ? (bool)args[0] : false);
+
+            DefaultBoneColor = Foreground ? Color.FromArgb(0, 0, 128) : Color.FromArgb(128, 0, 0);
 
             if (!_render)
                 return;
 
             if (args.Length > 0 && (bool)args[0] == true)
-                Strong = true;
+                Foreground = true;
 
 
             if (_boneColor != Color.Transparent)
-                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
             else
-                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
 
             //GL.LineWidth(1.0f);
 
@@ -228,19 +230,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Render node
                 GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
                 if (_nodeColor != Color.Transparent)
-                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
                 else
-                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, Strong ? 1.0f : 0.45f);
+                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
 
                 ndl.Call();
 
-                DrawNodeOrients(Strong);
+                DrawNodeOrients(Foreground);
             }
             GL.PopMatrix();
 
             //Render children
             foreach (MDL0BoneNode n in Children)
-                n.Render(Strong);
+                n.Render(Foreground);
         }
 
         public static GLDisplayList CreateNodeOrb(TKContext ctx)
@@ -884,12 +886,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         [Browsable(false)]
         public List<Influence> LinkedInfluences { get { return _linkedInfluences; } }
         List<Influence> _linkedInfluences = new List<Influence>();
-
-        #region Rendering
-
-
-
-        #endregion
 
         public Vector3 _overrideLocalTranslate;
 
