@@ -1,42 +1,9 @@
-﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
+﻿using BrawlLib.Modeling;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
-using System.Collections;
-
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditorBase : UserControl
     {
-        public uint _allowedUndos = 50;
-        public List<SaveState> _undoSaves = new List<SaveState>();
-        public List<SaveState> _redoSaves = new List<SaveState>();
-        public int _saveIndex = -1;
-        bool _undoing = true;
-
-        private void Undo(object sender, EventArgs e)
-        {
-            if (btnUndo.Enabled)
-                btnUndo_Click(null, null);
-        }
-        private void Redo(object sender, EventArgs e)
-        {
-            if (btnRedo.Enabled)
-                btnRedo_Click(null, null);
-        }
-
         private void AddUndo(SaveState save)
         {
             int i = _saveIndex + 1;
@@ -63,7 +30,7 @@ namespace System.Windows.Forms
             UpdateUndoButtons();
         }
 
-        bool before = true;
+        bool _before = true;
 
         /// <summary>
         /// Call twice; before and after changes
@@ -76,12 +43,12 @@ namespace System.Windows.Forms
             state._animation = SelectedCHR0;
             state._frameIndex = CurrentFrame;
 
-            if (before)
+            if (_before)
                 AddUndo(state);
             else
                 AddRedo(state);
 
-            before = !before;
+            _before = !_before;
         }
         /// <summary>
         /// Call twice; before and after changes
@@ -91,26 +58,28 @@ namespace System.Windows.Forms
             SaveState state = new SaveState();
             state._vertices = vertices;
             state._targetModel = TargetModel;
-            state._translation = (Vector3)VertexLoc;
+            state._translation = (Vector3)VertexLoc();
 
-            if (before)
+            if (_before)
                 AddUndo(state);
             else
                 AddRedo(state);
 
-            before = !before;
+            _before = !_before;
         }
 
         public bool CanUndo { get { return _saveIndex > -1; } }
         public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
+        protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
+        protected void btnRedo_Click(object sender, EventArgs e) { Redo(); }
 
-        private void btnUndo_Click(object sender, EventArgs e)
+        public void Undo()
         {
             if (CanUndo)
             {
                 ModelPanel.BeginUpdate();
 
-                if (!_undoing) 
+                if (!_undoing)
                     _saveIndex--;
                 _undoing = true;
 
@@ -122,17 +91,15 @@ namespace System.Windows.Forms
                 UpdateUndoButtons();
 
                 ModelPanel.EndUpdate();
-                ModelPanel.Invalidate();
             }
         }
-
-        private void btnRedo_Click(object sender, EventArgs e)
+        public void Redo()
         {
             if (CanRedo)
             {
                 ModelPanel.BeginUpdate();
 
-                if (_undoing) 
+                if (_undoing)
                     _saveIndex++;
                 _undoing = false;
 
@@ -144,7 +111,6 @@ namespace System.Windows.Forms
                 UpdateUndoButtons();
 
                 ModelPanel.EndUpdate();
-                ModelPanel.Invalidate();
             }
         }
 
@@ -173,10 +139,6 @@ namespace System.Windows.Forms
             }
         }
 
-        public void UpdateUndoButtons()
-        {
-            btnUndo.Enabled = CanUndo;
-            btnRedo.Enabled = CanRedo;
-        }
+        public virtual void UpdateUndoButtons() { }
     }
 }

@@ -777,8 +777,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public static bool _alterAdjTangents_KeyFrame_Set = true;
         public static bool _alterAdjTangents_KeyFrame_Del = true;
 
-        public float GetFrameValue(KeyFrameMode mode, int index) { return Keyframes.GetFrameValue(mode, index); }
-        public float GetFrameValue(KeyFrameMode mode, int index, bool linear, bool loop) { return Keyframes.GetFrameValue(mode, index, linear, loop); }
+        public float GetFrameValue(KeyFrameMode mode, float index) { return Keyframes.GetFrameValue(mode, index); }
+        public float GetFrameValue(KeyFrameMode mode, float index, bool linear, bool loop) { return Keyframes.GetFrameValue(mode, index, linear, loop); }
 
         public KeyframeEntry GetKeyframe(KeyFrameMode mode, int index) { return Keyframes.GetKeyframe(mode, index); }
         public KeyframeEntry SetKeyframe(KeyFrameMode mode, int index, float value)
@@ -840,7 +840,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0x13; i < 0x16; i++)
                 SetKeyframe((KeyFrameMode)i, index, *v++);
         }
-        
+
         public void SetKeyframeOnlyScale(int index, AnimationFrame frame)
         {
             float* v = (float*)&frame.Scale;

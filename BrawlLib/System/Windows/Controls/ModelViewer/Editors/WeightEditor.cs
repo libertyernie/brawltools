@@ -215,7 +215,7 @@ namespace System.Windows.Forms
         public IBoneNode[] Bones { get { return _targetWeights.Select(x => x.Bone).ToArray(); } }
         public float[] Weights { get { return _targetWeights.Select(x => x.Weight).ToArray(); } }
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
         private Button btnSetWeight;
         private NumericInputBox numWeight;
         private Button btnBlend;
@@ -608,8 +608,8 @@ namespace System.Windows.Forms
 
         private void splitter2_SplitterMoving(object sender, SplitterEventArgs e)
         {
-            int diff = e.Y - e.SplitY;
-            _mainWindow.AnimCtrlPnl.Height += diff;
+            //int diff = e.Y - e.SplitY;
+            //_mainWindow.AnimCtrlPnl.Height += diff;
         }
 
         bool _resizing = false;
@@ -622,8 +622,8 @@ namespace System.Windows.Forms
 
         private void splitter2_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_resizing)
-                _mainWindow.AnimEditors.Height += o - e.Y; 
+            //if (_resizing)
+            //    _mainWindow.AnimEditors.Height += o - e.Y; 
         }
 
         private void splitter2_MouseUp(object sender, MouseEventArgs e)
@@ -640,13 +640,13 @@ namespace System.Windows.Forms
         private void splitter1_MouseUp(object sender, MouseEventArgs e)
         {
             _resizing = false;
-            _mainWindow.CheckDimensions();
+            //_mainWindow.CheckDimensions();
         }
 
         private void splitter1_MouseMove(object sender, MouseEventArgs e)
         {
-            if (_resizing)
-                _mainWindow.AnimCtrlPnl.Width += e.X - o;
+            //if (_resizing)
+            //    _mainWindow.AnimCtrlPnl.Width += e.X - o;
         }
     }
 

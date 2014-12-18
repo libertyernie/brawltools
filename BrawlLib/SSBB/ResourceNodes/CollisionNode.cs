@@ -134,10 +134,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         #region IRenderedObject Members
-
-        public void Attach(TKContext ctx) { }
-        public void Detach() { }
-        public void Refesh() { }
+        private bool _attached = false;
+        public bool Attached { get { return _attached; } }
+        public void Attach() { _attached = true; }
+        public void Detach() { _attached = false; }
+        public void Refresh() { }
         public void Render(params object[] args)
         {
             GL.Disable(EnableCap.Lighting);
@@ -173,17 +174,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return null;
 
             return new CollisionNode();
-        }
-
-
-        public bool Attached
-        {
-            get { throw new NotImplementedException(); }
-        }
-
-        public void Attach()
-        {
-            throw new NotImplementedException();
         }
     }
 

@@ -12,8 +12,8 @@ namespace System.Windows.Forms
 {
     public partial class ModelViewerForm : Form
     {
-        public IMainWindow _mainWindow;
-        public ModelViewerForm(IMainWindow mainWindow)
+        public ModelEditorBase _mainWindow;
+        public ModelViewerForm(ModelEditorBase mainWindow)
         {
             InitializeComponent();
             TopMost = true;

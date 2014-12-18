@@ -462,20 +462,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public FrameState _frameState, _bindState;
-        internal void ApplySRT0Texture(SRT0TextureNode node, int index, bool linear)
+        internal void ApplySRT0Texture(SRT0TextureNode node, float index, bool linear)
         {
-            if ((node == null) || (index == 0)) //Reset to identity
+            if ((node == null) || (index < 1)) //Reset to identity
                 _frameState = new FrameState() { _scale = new Vector3(1) };
             else
-                _frameState = new FrameState(node.GetAnimFrame(index - 1, linear));
+                _frameState = new FrameState(node.GetAnimFrame((int)index - 1, linear));
         }
 
         public Dictionary<string, MDL0TextureNode> PAT0Textures = new Dictionary<string, MDL0TextureNode>(); 
         public string PAT0Texture, PAT0Palette;
-        internal void ApplyPAT0Texture(PAT0TextureNode node, int index)
+        internal void ApplyPAT0Texture(PAT0TextureNode node, float index)
         {
             PAT0TextureEntryNode prev = null;
-            if (node != null && index != 0 && node.Children.Count > 0)
+            if (node != null && index >= 1 && node.Children.Count > 0)
             {
                 foreach (PAT0TextureEntryNode next in node.Children)
                 {

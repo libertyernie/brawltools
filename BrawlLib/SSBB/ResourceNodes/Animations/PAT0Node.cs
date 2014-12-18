@@ -703,7 +703,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Gets the last applied texture entry before or at the index.
         /// </summary>
-        public PAT0TextureEntryNode GetPrevious(int index)
+        public PAT0TextureEntryNode GetPrevious(float index)
         {
             PAT0TextureEntryNode prev = null;
             foreach (PAT0TextureEntryNode next in Children)
@@ -723,7 +723,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Gets the texture entry at the index, if there is one.
         /// </summary>
-        public PAT0TextureEntryNode GetEntry(int index)
+        public PAT0TextureEntryNode GetEntry(float index)
         {
             PAT0TextureEntryNode prev = null;
             if (Children.Count == 0)
@@ -748,7 +748,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Gets the applied texture at the index and outputs if the value is a keyframe.
         /// </summary>
-        public string GetTexture(int index, out bool kf)
+        public string GetTexture(float index, out bool kf)
         {
             PAT0TextureEntryNode prev = null;
             if (Children.Count == 0)
@@ -777,7 +777,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         /// <summary>
         /// Gets the applied palette at the index and outputs if the value is a keyframe.
         /// </summary>
-        public string GetPalette(int index, out bool kf)
+        public string GetPalette(float index, out bool kf)
         {
             PAT0TextureEntryNode prev = null;
             if (Children.Count == 0)

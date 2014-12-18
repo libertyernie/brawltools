@@ -13,10 +13,10 @@ namespace System.Windows.Forms
 {
     public partial class InterpolationEditor : UserControl
     {
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public InterpolationEditor() { _mainWindow = null; }
-        public InterpolationEditor(IMainWindow mainWindow)
+        public InterpolationEditor(ModelEditorBase mainWindow)
         {
             InitializeComponent();
             _mainWindow = mainWindow;
@@ -73,7 +73,7 @@ namespace System.Windows.Forms
         public void RootChanged()
         {
             ResourceNode node = _targetNode;
-            if (node is ISCN0KeyframeHolder)
+            if (node is ISCN0KeyframeSource)
             {
                 if (node is SCN0LightNode)
                 {
@@ -137,7 +137,7 @@ namespace System.Windows.Forms
             if ((_targetNode = node) != null)
             {
                 panel1.Enabled = true;
-                if (node is ISCN0KeyframeHolder)
+                if (node is ISCN0KeyframeSource)
                 {
                     if (node is SCN0LightNode)
                     {
@@ -310,7 +310,7 @@ namespace System.Windows.Forms
                 if (chkSetFrame.Checked)
                     interpolationViewer1_FrameChanged(this, null);
                 
-                if (_mainWindow != null)
+                if (_mainWindow != null && _mainWindow.KeyframePanel != null)
                     if (indexChanged)
                         _mainWindow.KeyframePanel.UpdateKeyframes();
                     else
@@ -371,7 +371,7 @@ namespace System.Windows.Forms
             interpolationViewer._selKey._index = index;
             interpolationViewer.Invalidate();
             _targetNode.SignalPropertyChange();
-            if (_mainWindow != null)
+            if (_mainWindow != null && _mainWindow.KeyframePanel != null)
             {
                 _mainWindow.KeyframePanel.UpdateKeyframes();
                 _mainWindow.UpdatePropDisplay();
@@ -443,7 +443,7 @@ namespace System.Windows.Forms
         {
             chkRenderTans.Checked = !(interpolationViewer.Linear = chkLinear.Checked);
 
-            if (_targetNode is ISCN0KeyframeHolder)
+            if (_targetNode is ISCN0KeyframeSource)
             {
                 if (_targetNode is SCN0LightNode)
                     SCN0LightNode._linear = chkLinear.Checked;

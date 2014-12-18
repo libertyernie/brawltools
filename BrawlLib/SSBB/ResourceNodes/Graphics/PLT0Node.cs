@@ -113,11 +113,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int ColorCount(int id) { return Palette.Entries.Length; }
         public ARGBPixel GetColor(int index, int id) { return (ARGBPixel)Palette.Entries[index]; }
         public void SetColor(int index, int id, ARGBPixel color) { Palette.Entries[index] = (Color)color; SignalPropertyChange(); }
-        public bool GetClrConstant(int id)
+        public bool GetColorConstant(int id)
         {
             return false;
         }
-        public void SetClrConstant(int id, bool constant)
+        public void SetColorConstant(int id, bool constant)
         {
 
         }

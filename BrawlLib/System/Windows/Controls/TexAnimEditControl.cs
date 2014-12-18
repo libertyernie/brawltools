@@ -232,7 +232,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 AnimationFrame f = (AnimationFrame)listKeyframes.SelectedItem;
-                numFrame.Value = f.Index + 1;
+                numFrame.Value = (decimal)(f.Index + 1);
             }
         }
 

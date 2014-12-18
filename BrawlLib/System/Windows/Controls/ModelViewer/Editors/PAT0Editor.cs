@@ -133,7 +133,7 @@ namespace System.Windows.Forms
         private Button btnCopy;
         private Button btnCut;
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         StringInputComboBox texture, palette;
 
@@ -277,7 +277,7 @@ namespace System.Windows.Forms
 
         public void UpdateBoxes()
         {
-            if (_mainWindow.ExternalAnimationsNode == null && TargetModel == null)
+            if (TargetModel == null)
                 return;
 
             texBox.Items.Clear();
@@ -290,11 +290,11 @@ namespace System.Windows.Forms
                 foreach (ResourceNode s in ((ResourceNode)TargetModel).RootNode.FindChildrenByType(null, ResourceType.PLT0))
                     pltBox.Items.Add(s.Name);
             }
-            if (_mainWindow.ExternalAnimationsNode != null)
+            foreach (ResourceNode r in _mainWindow._animationSearchNodes)
             {
-                foreach (ResourceNode s in _mainWindow.ExternalAnimationsNode.FindChildrenByType(null, ResourceType.TEX0))
+                foreach (ResourceNode s in r.FindChildrenByType(null, ResourceType.TEX0))
                     texBox.Items.Add(s.Name);
-                foreach (ResourceNode s in _mainWindow.ExternalAnimationsNode.FindChildrenByType(null, ResourceType.PLT0))
+                foreach (ResourceNode s in r.FindChildrenByType(null, ResourceType.PLT0))
                     pltBox.Items.Add(s.Name);
             }
         }

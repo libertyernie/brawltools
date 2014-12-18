@@ -274,7 +274,7 @@ namespace System.Windows.Forms
         private Panel panel2;
         private Button button5;
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         public SHP0Editor()
         {
@@ -412,7 +412,7 @@ namespace System.Windows.Forms
 
             MDL0VertexNode vSet = VertexSet;
 
-            if ((SelectedAnimation != null) && (CurrentFrame > 0))
+            if ((SelectedAnimation != null) && (CurrentFrame >= 1))
             {
                 SHP0EntryNode entry = SelectedAnimation.FindChild(vSet.Name, false) as SHP0EntryNode;
                 SHP0VertexSetNode v;
@@ -444,7 +444,7 @@ namespace System.Windows.Forms
             SHP0VertexSetNode v;
             if (VertexSet == null || SelectedDestination == null)
                 return;
-            if ((SelectedAnimation != null) && (CurrentFrame > 0) && 
+            if ((SelectedAnimation != null) && (CurrentFrame >= 1) && 
                 ((entry = SelectedAnimation.FindChild(vSet.Name, false) as SHP0EntryNode) != null) && 
                 (v = entry.FindChild(SelectedDestination.Name, false) as SHP0VertexSetNode) != null)
             {

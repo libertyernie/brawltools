@@ -12,15 +12,14 @@ namespace BrawlLib.Modeling
     public unsafe partial class Collada
     {
         static PrimitiveManager DecodePrimitivesWeighted(
-            NodeEntry n,
+            Matrix bindMatrix,
             GeometryEntry geo,
             SkinEntry skin,
             SceneEntry scene,
             InfluenceManager infManager,
-            ref string Error,
             Type boneType)
         {
-            PrimitiveManager manager = DecodePrimitives(n._matrix, geo);
+            PrimitiveManager manager = DecodePrimitives(bindMatrix, geo);
 
             IBoneNode[] boneList;
             IBoneNode bone = null;
@@ -164,12 +163,12 @@ namespace BrawlLib.Modeling
                 {
                     //Match with manager
                     inf = infManager.FindOrCreate(inf, true);
-                    v = new Vertex3(n._matrix * skin._bindMatrix * pVert[i], inf); //World position
+                    v = new Vertex3(bindMatrix * skin._bindMatrix * pVert[i], inf); //World position
                 }
                 else
                 {
                     bone = inf.Weights[0].Bone;
-                    v = new Vertex3(n._matrix * bone.InverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
+                    v = new Vertex3(bindMatrix * bone.InverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
                 }
 
                 ushort index = 0;
@@ -224,9 +223,9 @@ namespace BrawlLib.Modeling
             return null;
         }
 
-        static PrimitiveManager DecodePrimitivesUnweighted(NodeEntry n, GeometryEntry geo)
+        static PrimitiveManager DecodePrimitivesUnweighted(Matrix bindMatrix, GeometryEntry geo)
         {
-            PrimitiveManager manager = DecodePrimitives(n._matrix, geo);
+            PrimitiveManager manager = DecodePrimitives(bindMatrix, geo);
 
             Vector3* pVert = null;
             ushort* pVInd = (ushort*)manager._indices.Address;
@@ -252,7 +251,7 @@ namespace BrawlLib.Modeling
             for (int i = 0; i < vCount; i++)
             {
                 //Create vertex and look for match
-                Vertex3 v = new Vertex3(n._matrix * pVert[i]);
+                Vertex3 v = new Vertex3(bindMatrix * pVert[i]);
 
                 int index = 0;
                 while (index < vertList.Count)
@@ -453,7 +452,7 @@ namespace BrawlLib.Modeling
                     case PrimitiveType.lines:
                         foreach (PrimitiveFace f in prim._faces)
                         {
-                            count = f._pointCount * 2;
+                            count = f._pointCount;
                             while (count-- > 0)
                                 pLinarr[pLin++] = lIndex++;
                         }

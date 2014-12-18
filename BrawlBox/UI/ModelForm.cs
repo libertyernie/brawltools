@@ -36,7 +36,7 @@ namespace BrawlBox
             this.modelEditControl1.Size = new System.Drawing.Size(639, 528);
             this.modelEditControl1.TabIndex = 0;
             this.modelEditControl1.TargetAnimation = null;
-            this.modelEditControl1.TargetAnimType = System.Windows.Forms.AnimType.CHR;
+            this.modelEditControl1.TargetAnimType = System.Windows.Forms.NW4RAnimType.CHR;
             this.modelEditControl1.TargetModelChanged += new System.EventHandler(this.TargetModelChanged);
             this.modelEditControl1.ModelViewerChanged += new System.EventHandler(this.ModelViewerChanged);
             // 

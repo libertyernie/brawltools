@@ -18,7 +18,7 @@ namespace System.Windows.Forms
 
     public class ModelPanelSettings
     {
-        public float _rotFactor = 0.1f;
+        public float _rotFactor = 0.4f;
         public float _transFactor = 0.05f;
         public float _zoomFactor = 2.5f;
         public int _zoomInit = 5;
@@ -442,20 +442,34 @@ namespace System.Windows.Forms
 
         public void SetCamWithBox(Vector3 min, Vector3 max)
         {
-            Vector3 average = new Vector3(
-                (max._x + min._x) / 2.0f,
-                (max._y + min._y) / 2.0f,
-                (max._z + min._z) / 2.0f);
+            float a = _aspect;
+            float camAngle = _fovY / 2.0f;
+            float tan = (float)Math.Tan(camAngle * Maths._deg2radf);
 
-            float y = max._y - average._y;
-            float x = max._x - average._x;
+            //Get the position of the midpoint of the bounding box plane closer to the camera
+            Vector3 frontMidPt = new Vector3((max._x + min._x) / 2.0f, (max._y + min._y) / 2.0f, max._z);
+
+            //Figure out which half length is longer
+            float y = max._y - frontMidPt._y;
+            float x = max._x - frontMidPt._x;
+
+            if (y > x)
+            {
+
+            }
+            else
+            {
+
+            }
+
+
             float ratio = y == 0 ? 1 : x / y;
-            float tan = (float)Math.Tan((_fovY / 2.0f) * Maths._deg2radf);
+            
             float distY = tan == 0 ? 1 : y / tan;
             float distX = distY * ratio;
 
             _camera.Reset();
-            _camera.Translate(average._x, average._y, Maths.Max(distX, distY, max._z) + 3.0f);
+            _camera.Translate(frontMidPt._x, frontMidPt._y, Maths.Max(distX, distY, max._z) + 3.0f);
             Invalidate();
         }
 
@@ -534,7 +548,7 @@ namespace System.Windows.Forms
             }
 
             foreach (IRenderedObject o in _settings._renderList)
-                o.Refesh();
+                o.Refresh();
 
             Invalidate();
         }
@@ -935,7 +949,7 @@ namespace System.Windows.Forms
                 PostRender(this);
         }
 
-        public Bitmap GrabScreenshot(bool withTransparency)
+        public Bitmap GetScreenshot(bool withTransparency)
         {
             Bitmap bmp = new Bitmap(ClientSize.Width, ClientSize.Height);
             BitmapData data;

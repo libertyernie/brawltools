@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe abstract class MDL0EntryNode : ResourceNode
     {
-        internal virtual void GetStrings(StringTable table) { table.Add(Name); }
+        internal virtual void GetStrings(StringTable table) { }
 
         internal int _entryIndex;
 
@@ -118,7 +118,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     //Reset children so we can rebuild
                     _children.Clear();
 
-                    //Assign children using each bones' parent offset in case NodeTree is corrupted
+                    //Assign children using each bones' parent offset in case NodeTree is corrupted.
+                    //Bone parents are assigned when they are initialized in a flat array.
                     foreach (MDL0BoneNode b in linker.BoneCache)
                         b._parent._children.Add(b);
 

@@ -21,46 +21,12 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         #region Pre Render
-        private unsafe void modelPanel1_PreRender(object sender, TKContext ctx)
+        protected unsafe override void modelPanel1_PreRender(object sender)
         {
-            if (RenderFloor)
-            {
-                GLTexture _bgTex = ctx.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
-
-                float s = 10.0f, t = 10.0f;
-                float e = 30.0f;
-
-                GL.Disable(EnableCap.CullFace);
-                GL.Disable(EnableCap.Blend);
-                GL.Disable(EnableCap.Lighting);
-                GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
-                GL.PolygonMode(MaterialFace.Back, PolygonMode.Fill);
-
-                GL.Enable(EnableCap.Texture2D);
-
-                GL.Color4(StaticMainWindow._floorHue);
-
-                _bgTex.Bind();
-
-                GL.Begin(PrimitiveType.Quads);
-
-                GL.TexCoord2(0.0f, 0.0f);
-                GL.Vertex3(-e, 0.0f, -e);
-                GL.TexCoord2(s, 0.0f);
-                GL.Vertex3(e, 0.0f, -e);
-                GL.TexCoord2(s, t);
-                GL.Vertex3(e, 0.0f, e);
-                GL.TexCoord2(0, t);
-                GL.Vertex3(-e, 0.0f, e);
-
-                GL.End();
-
-                GL.Disable(EnableCap.Texture2D);
-            }
-
+            base.modelPanel1_PreRender(sender);
             Attributes.PreRender();
         }
 
@@ -68,13 +34,7 @@ namespace Ikarus.UI
 
         #region Post Render
 
-        Vector3 BoneLoc { get { return SelectedBone == null ? new Vector3() : SelectedBone._frameMatrix.GetPoint(); } }
-        Vector3 CamLoc { get { return modelPanel._camera.GetPoint(); } }
-        public float CamDistance(Vector3 v) { return v.TrueDistance(CamLoc) / _orbRadius * 0.1f; }
-        float OrbRadius { get { return BoneLoc.TrueDistance(CamLoc) / _orbRadius * 0.1f; } }
-        Matrix CamFacingMatrix { get { return Matrix.TransformMatrix(new Vector3(OrbRadius), BoneLoc.LookatAngles(CamLoc) * Maths._rad2degf, BoneLoc); } }
 
-        public TransformType _editType = TransformType.Rotation;
         public enum TransformType
         {
             None = -1,
@@ -92,7 +52,7 @@ namespace Ikarus.UI
             GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.DepthTest);
 
-            //Attributes.PostRender();
+            Attributes.PostRender();
 
             //Render hurtboxes
             if (chkHurtboxes.Checked)
@@ -104,11 +64,11 @@ namespace Ikarus.UI
             if (chkHitboxes.Checked && Manager.Moveset != null)
             {
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GLDisplayList c = context.GetRingList();
-                GLDisplayList s = context.GetSphereList();
+                GLDisplayList c = TKContext.GetRingList();
+                GLDisplayList s = TKContext.GetSphereList();
 
                 foreach (HitBox e in RunTime._hitBoxes)
-                    e.Render(context, modelPanel._camera.GetPoint());
+                    e.Render(context, modelPanel.Camera.GetPoint());
             }
 
             GL.Enable(EnableCap.DepthTest);
@@ -116,6 +76,8 @@ namespace Ikarus.UI
             //Show the user where the light source is
             if (_renderLightDisplay)
             {
+                RenderLightDisplay();
+
                 GL.PushAttrib(AttribMask.AllAttribBits);
 
                 GL.Color4(Color.Blue);
@@ -786,7 +748,7 @@ namespace Ikarus.UI
             Vector3 lineStart = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
             Vector3 lineEnd = ModelPanel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
             Vector3 center = bone._frameMatrix.GetPoint();
-            Vector3 camera = ModelPanel._camera.GetPoint();
+            Vector3 camera = ModelPanel.Camera.GetPoint();
             Vector3 normal = new Vector3();
             float radius = center.TrueDistance(camera) / _orbRadius * 0.1f;
 

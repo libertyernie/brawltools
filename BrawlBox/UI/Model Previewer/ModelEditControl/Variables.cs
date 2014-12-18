@@ -17,477 +17,124 @@ using BrawlLib.Imaging;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
-        public event GLRenderEventHandler EventPostRender, EventPreRender;
-        public event MouseEventHandler EventMouseDown, EventMouseMove, EventMouseUp;
-        public event EventHandler TargetModelChanged, ModelViewerChanged;
-
-        private delegate void DelegateOpenFile(String s);
-        private DelegateOpenFile m_DelegateOpenFile;
-
-        private const float _orbRadius = 1.0f;
-        private const float _circRadius = 1.2f;
-        private const float _axisSnapRange = 7.0f;
-        private const float _selectRange = 0.03f; //Selection error range for orb and circ
-        private const float _axisSelectRange = 0.15f; //Selection error range for axes
-        private const float _selectOrbScale = _selectRange / _orbRadius;
-        private const float _circOrbScale = _circRadius / _orbRadius;
-
-        public int _animFrame = 0, _maxFrame;
-        public bool _updating, _loop;
-
-        public bool _resetCamera = true;
-
-        public CHR0Node _chr0;
-        public SRT0Node _srt0;
-        public SHP0Node _shp0;
-        public PAT0Node _pat0;
-        public VIS0Node _vis0;
-        public SCN0Node _scn0;
-        public CLR0Node _clr0;
-
-        public bool _rotating, _translating, _scaling;
-        private Vector3 _lastPointBone, _firstPointBone, _lastPointWorld, _firstPointWorld;
-        private Vector3 _oldAngles, _oldPosition, _oldScale;
-        private bool _snapX, _snapY, _snapZ, _snapCirc;
-        private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
-
-        public List<IModel> _targetModels = new List<IModel>();
-        private IModel _targetModel;
-        private CollisionNode _targetCollision;
-
         public List<CollisionNode> _collisions = new List<CollisionNode>();
-
-        public Color _clearColor;
-        public MDL0MaterialRefNode _targetTexRef = null;
-        public VIS0EntryNode _targetVisEntry;
-        public bool _enableTransform = true;
-
-        public static BindingList<AnimType> _editableAnimTypes = new BindingList<AnimType>()
-        {
-            AnimType.CHR,
-            AnimType.SRT,
-            AnimType.SHP,
-            AnimType.PAT,
-            AnimType.VIS,
-            AnimType.CLR,
-            AnimType.SCN,
-        };
+        private CollisionNode _targetCollision;
+        public ResourceNode _externalAnimationsNode;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int MaxFrame { get { return _maxFrame; } set { _maxFrame = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool Updating { get { return _updating; } set { _updating = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool Loop { get { return _loop; } set { _loop = value; } }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CHR0Editor CHR0Editor { get { return chr0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SRT0Editor SRT0Editor { get { return srt0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SHP0Editor SHP0Editor { get { return shp0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0Editor VIS0Editor { get { return vis0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PAT0Editor PAT0Editor { get { return pat0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SCN0Editor SCN0Editor { get { return scn0Editor; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CLR0Editor CLR0Editor { get { return clr0Editor; } }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ResourceNode ExternalAnimationsNode { get { return _externalAnimationsNode; } set { _externalAnimationsNode = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool SyncVIS0 { get { return syncObjectsListToVIS0ToolStripMenuItem.Checked; } set { syncObjectsListToVIS0ToolStripMenuItem.Checked = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool Playing { get { return _playing; } set { _playing = value; } }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Panel AnimCtrlPnl { get { return animCtrlPnl; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Panel AnimEditors { get { return animEditors; } }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public KeyframePanel KeyframePanel { get { return rightPanel.pnlKeyframes; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BonesPanel BonesPanel { get { return rightPanel.pnlBones; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
-        
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelViewerForm ModelViewerForm { get { return _viewerForm; } }
-        ModelViewerForm _viewerForm = null;
-        
-        public AnimationNode TargetAnimation 
-        {
-            get { return GetAnimation(TargetAnimType); } 
-            set { SetAnimation(TargetAnimType, value); } 
-        }
-
-        public AnimationNode GetAnimation(AnimType type)
-        {
-            switch (type)
-            {
-                case AnimType.CHR: return SelectedCHR0;
-                case AnimType.SRT: return SelectedSRT0;
-                case AnimType.SHP: return SelectedSHP0;
-                case AnimType.PAT: return SelectedPAT0;
-                case AnimType.VIS: return SelectedVIS0;
-                case AnimType.SCN: return SelectedSCN0;
-                case AnimType.CLR: return SelectedCLR0;
-                default: return null;
-            }
-        }
-        public void SetAnimation(AnimType type, AnimationNode value)
-        {
-            switch (type)
-            {
-                case AnimType.CHR: SelectedCHR0 = value as CHR0Node; break;
-                case AnimType.SRT: SelectedSRT0 = value as SRT0Node; break;
-                case AnimType.SHP: SelectedSHP0 = value as SHP0Node; break;
-                case AnimType.PAT: SelectedPAT0 = value as PAT0Node; break;
-                case AnimType.VIS: SelectedVIS0 = value as VIS0Node; break;
-                case AnimType.SCN: SelectedSCN0 = value as SCN0Node; break;
-                case AnimType.CLR: SelectedCLR0 = value as CLR0Node; break;
-            }
-        }
-        public void SetAnimation(AnimationNode value)
-        {
-            if (value is CHR0Node)
-                SelectedCHR0 = value as CHR0Node;
-            else if (value is SRT0Node)
-                SelectedSRT0 = value as SRT0Node;
-            else if (value is SHP0Node)
-                SelectedSHP0 = value as SHP0Node;
-            else if (value is PAT0Node)
-                SelectedPAT0 = value as PAT0Node;
-            else if (value is VIS0Node)
-                SelectedVIS0 = value as VIS0Node;
-            else if (value is SCN0Node)
-                SelectedSCN0 = value as SCN0Node;
-            else if (value is CLR0Node)
-                SelectedCLR0 = value as CLR0Node;
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IModel TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CollisionNode TargetCollision //Should be set only when a collision is chosen in the dropdown.
+        public CollisionNode TargetCollision
         {
             get { return _targetCollision; }
+            set { _targetCollision = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool LinearInterpolation
+        {
+            get { return linearInterpolationToolStripMenuItem.Checked; }
+            set { linearInterpolationToolStripMenuItem.Checked = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override BonesPanel BonesPanel { get { return rightPanel.pnlBones; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override KeyframePanel KeyframePanel { get { return rightPanel.pnlKeyframes; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override int CurrentFrame
+        {
+            get { return base.CurrentFrame; }
             set
             {
-                _targetCollision = value;
-                leftPanel.Reset();
+                base.CurrentFrame = value;
+                HandleFirstPersonCamera();
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CHR0Node SelectedCHR0
-        { 
-            get { return _chr0; } 
-            set 
+        public override bool DisableBonesWhenPlaying
+        {
+            get { return disableBonesWhenPlayingToolStripMenuItem.Checked; }
+            set { disableBonesWhenPlayingToolStripMenuItem.Checked = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool SyncVIS0
+        {
+            get { return syncObjectsListToVIS0ToolStripMenuItem.Checked; }
+            set { syncObjectsListToVIS0ToolStripMenuItem.Checked = value; }
+        }
+        //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        //public override Panel AnimCtrlPnl { get { return animCtrlPnl; } }
+        //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        //public override Panel AnimEditors { get { return animEditors; } }
+        public override bool BackgroundImageLoaded
+        {
+            get { return loadImageToolStripMenuItem.Text == "Load Image"; }
+            set { loadImageToolStripMenuItem.Text = value ? "Clear Image" : "Load Image"; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool DoNotHighlightOnMouseMove 
+        {
+            get { return dontHighlightBonesAndVerticesToolStripMenuItem.Checked; }
+            set { dontHighlightBonesAndVerticesToolStripMenuItem.Checked = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override string ScreenCaptureExtension { get { return _imgExt; } set { _imgExt = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override string ScreenCaptureFolder
+        {
+            get { return ScreenCapBgLocText.Text; }
+            set { ScreenCapBgLocText.Text = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public ResourceNode ExternalAnimationsNode
+        {
+            get { return _externalAnimationsNode; }
+            set { _externalAnimationsNode = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool InterpolationFormOpen
+        {
+            get { return interpolationEditorToolStripMenuItem.Checked; }
+            set { interpolationEditorToolStripMenuItem.Checked = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override TransformType ControlType
+        {
+            get { return (TransformType)cboToolSelect.SelectedIndex; }
+            set
             {
-                _chr0 = value;
-
-                if (_updating)
+                if ((TransformType)cboToolSelect.SelectedIndex == value)
                     return;
 
-                AnimChanged(AnimType.CHR);
-                UpdatePropDisplay();
-            } 
+                cboToolSelect.SelectedIndex = (int)value;
+            }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SRT0Node SelectedSRT0 
+        public override NW4RAnimType TargetAnimType
         {
-            get { return _srt0; } 
-            set 
-            { 
-                _srt0 = value;
-
-                if (_updating)
+            get { return _targetAnimType; }
+            set
+            {
+                if (_targetAnimType == value)
                     return;
 
-                AnimChanged(AnimType.SRT);
-                UpdatePropDisplay();
-            } 
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SHP0Node SelectedSHP0
-        {
-            get { return _shp0; }
-            set
-            {
-                _shp0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(AnimType.SHP);
-                UpdatePropDisplay();
+                _targetAnimType = value;
+                leftPanel.TargetAnimType = TargetAnimType;
+                SetCurrentControl();
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PAT0Node SelectedPAT0
-        {
-            get { return _pat0; }
-            set
-            {
-                _pat0 = value; 
-                
-                if (_updating)
-                    return;
-
-                AnimChanged(AnimType.PAT);
-                UpdatePropDisplay();
-            }
-        }
+        public override bool PlayCHR0 { get { return playCHR0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0Node SelectedVIS0
-        {
-            get { return _vis0; }
-            set
-            {
-                _vis0 = value; 
-                
-                if (_updating)
-                    return;
-
-                AnimChanged(AnimType.VIS);
-                UpdatePropDisplay();
-            }
-        }
+        public override bool PlaySRT0 { get { return playSRT0ToolStripMenuItem.Checked; } set { playSRT0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SCN0Node SelectedSCN0
-        {
-            get { return _scn0; }
-            set
-            {
-                _scn0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(AnimType.SCN);
-                UpdatePropDisplay();
-            }
-        }
+        public override bool PlayPAT0 { get { return playPAT0ToolStripMenuItem.Checked; } set { playPAT0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CLR0Node SelectedCLR0
-        {
-            get { return _clr0; }
-            set
-            {
-                _clr0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(AnimType.CLR);
-                UpdatePropDisplay();
-            }
-        }
+        public override bool PlayVIS0 { get { return playVIS0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color ClearColor { get { return _clearColor; } set { _clearColor = value; } }
+        public override bool PlayCLR0 { get { return playCLR0ToolStripMenuItem.Checked; } set { playCLR0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
+        public override bool PlaySCN0 { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Image BGImage { get { return ModelPanel.BackgroundImage; } set { ModelPanel.BackgroundImage = value; } }
-
-        IBoneNode _selectedBone = null;
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public IBoneNode SelectedBone 
-        {
-            get { return _selectedBone; } 
-            set 
-            {
-                if (_selectedBone != null)
-                    _selectedBone.BoneColor = _selectedBone.NodeColor = Color.Transparent;
-                
-                bool boneSelected = (_selectedBone = value) != null;
-                if (boneSelected)
-                {
-                    _selectedBone.BoneColor = Color.FromArgb(0, 128, 255);
-                    _selectedBone.NodeColor = Color.FromArgb(255, 128, 0);
-                }
-
-                chkZoomExtents.Enabled = boneSelected;
-
-                if (models.SelectedItem != null
-                    && !(models.SelectedItem is MDL0Node)
-                    && models.SelectedItem.ToString() == "All"
-                    && boneSelected
-                    && TargetModel != _selectedBone.IModel)
-                {
-                    _resetCamera = false;
-
-                    //The user selected a bone from another model.
-                    TargetModel = _selectedBone.IModel;
-                }
-
-                rightPanel.pnlBones.SetSelectedBone(_selectedBone);
-                //weightEditor.BoneChanged();
-
-                if (TargetAnimType == AnimType.CHR)
-                    rightPanel.pnlKeyframes.TargetSequence =
-                        _chr0 != null && _selectedBone != null ?
-                        _chr0.FindChild(_selectedBone.Name, false) :
-                        null;
-
-                UpdatePropDisplay();
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0MaterialRefNode TargetTexRef { get { return _targetTexRef; } set { _targetTexRef = value; UpdatePropDisplay(); } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0EntryNode TargetVisEntry 
-        { 
-            get { return _targetVisEntry; } 
-            set 
-            {
-                _targetVisEntry = value; 
-                UpdatePropDisplay();
-                rightPanel.pnlKeyframes.TargetSequence = _targetVisEntry as ResourceNode;
-                rightPanel.pnlKeyframes.chkConstant.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Constant);
-                rightPanel.pnlKeyframes.chkEnabled.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Enabled);
-            } 
-        }
-        
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int CurrentFrame 
-        { 
-            get { return _animFrame; } 
-            set 
-            {
-                _animFrame = value;
-                UpdateModel(); 
-
-                //The more frames there are in the animation, the more the viewer lags
-                //if (InterpolationEditor != null)
-                //    InterpolationEditor.Frame = CurrentFrame;
-            } 
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool EnableTransformEdit
-        {
-            get { return _enableTransform; }
-            set 
-            {
-                if (_enableTransform == value)
-                    return;
-
-                _enableTransform = value;
-                chr0Editor.Enabled =
-                srt0Editor.Enabled =
-                shp0Editor.Enabled =
-                vis0Editor.Enabled =
-                pat0Editor.Enabled =
-                scn0Editor.Enabled =
-                clr0Editor.Enabled = 
-                KeyframePanel.Enabled = value;
-                if (InterpolationEditor != null && InterpolationEditor.Visible)
-                    InterpolationEditor.Enabled = value;
-
-                if (value)
-                    UpdatePropDisplay();
-            }
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderFloor
-        {
-            get { return ModelPanel.RenderFloor; }
-            set
-            {
-                ModelPanel.RenderFloor = value;
-            }
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderBones
-        {
-            get { return ModelPanel.RenderBones; }
-            set
-            {
-                ModelPanel.RenderBones = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderVertices
-        {
-            get { return ModelPanel.RenderVertices; }
-            set
-            {
-                ModelPanel.RenderVertices = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderNormals
-        {
-            get { return ModelPanel.RenderNormals; }
-            set
-            {
-                ModelPanel.RenderNormals = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderPolygons
-        {
-            get { return ModelPanel.RenderPolygons; }
-            set
-            {
-                ModelPanel.RenderPolygons = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderCollisions
-        {
-            get { return ModelPanel.RenderCollisions; }
-            set
-            {
-                ModelPanel.RenderCollisions = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderWireframe
-        {
-            get { return ModelPanel.RenderWireframe; }
-            set
-            {
-                ModelPanel.RenderWireframe = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderBox
-        {
-            get { return ModelPanel.RenderBox; }
-            set
-            {
-                ModelPanel.RenderBox = value;
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool DontRenderOffscreen
-        {
-            get { return ModelPanel.DontRenderOffscreen; }
-            set
-            {
-                ModelPanel.DontRenderOffscreen = value;
-            }
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderLightDisplay { get { return _renderLightDisplay; } set { _renderLightDisplay = value; ModelPanel.Invalidate(); } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public uint AllowedUndos { get { return _allowedUndos; } set { _allowedUndos = value; } }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public InterpolationEditor InterpolationEditor { get { return _interpolationEditor.Visible ? _interpolationEditor : _interpolationForm != null ? _interpolationForm._interpolationEditor : null; } }
-        private InterpolationEditor _interpolationEditor;
-        public InterpolationForm _interpolationForm = null;
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool LinearInterpolation { get { return linearInterpolationToolStripMenuItem.Checked; } set { linearInterpolationToolStripMenuItem.Checked = value; } }
+        public override bool PlaySHP0 { get { return playSHP0ToolStripMenuItem.Checked; } set { playSHP0ToolStripMenuItem.Checked = value; } }
     }
 }

@@ -19,7 +19,7 @@ using System.Threading;
 
 namespace System.Windows.Forms
 {
-    public partial class ModelEditControl : UserControl, IMainWindow
+    public partial class ModelEditControl : ModelEditorBase
     {
         private void chkBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
         private void toggleBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
@@ -56,10 +56,10 @@ namespace System.Windows.Forms
         }
         private string _imgExt = ".png";
         private int _imgExtIndex = 0;
-        public int ImgExtIndex 
+        public int ImgExtIndex
         {
             get { return _imgExtIndex; }
-            set 
+            set
             {
                 switch (_imgExtIndex = value)
                 {
@@ -88,69 +88,16 @@ namespace System.Windows.Forms
                 }
             }
         }
-        private void SaveBitmap(Bitmap bmp)
-        {
-            Begin:
-            if (!String.IsNullOrEmpty(ScreenCapBgLocText.Text) && !String.IsNullOrEmpty(_imgExt))
-            {
-                try
-                {
-                    string outPath = ScreenCapBgLocText.Text;
-                    if (!Directory.Exists(outPath))
-                        Directory.CreateDirectory(outPath);
 
-                    DirectoryInfo dir = new DirectoryInfo(outPath);
-                    FileInfo[] files = dir.GetFiles();
-                    int i = 0;
-                    string name = "BrawlboxScreencap";
-                Top:
-                    foreach (FileInfo f in files)
-                        if (f.Name == name + i + _imgExt)
-                        {
-                            i++;
-                            goto Top;
-                        }
-                    outPath += "\\" + name + i + _imgExt;
-                    bool okay = true;
-                    if (_imgExt.Equals(".png"))
-                        bmp.Save(outPath, ImageFormat.Png);
-                    else if (_imgExt.Equals(".tga"))
-                        bmp.SaveTGA(outPath);
-                    else if (_imgExt.Equals(".tiff") || _imgExt.Equals(".tif"))
-                        bmp.Save(outPath, ImageFormat.Tiff);
-                    else if (_imgExt.Equals(".bmp"))
-                        bmp.Save(outPath, ImageFormat.Bmp);
-                    else if (_imgExt.Equals(".jpg") || outPath.EndsWith(".jpeg"))
-                        bmp.Save(outPath, ImageFormat.Jpeg);
-                    else if (_imgExt.Equals(".gif"))
-                        bmp.Save(outPath, ImageFormat.Gif);
-                    else { okay = false; }
-                    if (okay)
-                        MessageBox.Show("Screenshot successfully saved to " + outPath.Replace("\\", "/"));
-                }
-                catch { }
-            }
-            else
-            {
-                if (String.IsNullOrEmpty(ScreenCapBgLocText.Text))
-                    ScreenCapBgLocText.Text = Application.StartupPath + "\\ScreenCaptures";
-                if (String.IsNullOrEmpty(_imgExt))
-                    _imgExt = ".png";
-                goto Begin;
-            }
-            bmp.Dispose();
-        }
         private void btnExportToImgWithTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GrabScreenshot(true));
+            SaveBitmap(ModelPanel.GetScreenshot(true), ScreenCapBgLocText.Text, _imgExt);
         }
         private void btnExportToImgNoTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GrabScreenshot(false));
+            SaveBitmap(ModelPanel.GetScreenshot(false), ScreenCapBgLocText.Text, _imgExt);
         }
 
-        bool _capture = false;
-        List<Image> images = new List<Image>();
         private void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
             SetFrame(1);
@@ -168,68 +115,6 @@ namespace System.Windows.Forms
                 RenderBones = false;
             }
             btnPlay_Click(null, null);
-        }
-
-        private void RenderToGIF(Image[] images)
-        {
-            string outPath = "";
-        Start:
-            if (!String.IsNullOrEmpty(ScreenCapBgLocText.Text))
-            {
-                try
-                {
-                    outPath = ScreenCapBgLocText.Text;
-                    if (!Directory.Exists(outPath))
-                        Directory.CreateDirectory(outPath);
-
-                    DirectoryInfo dir = new DirectoryInfo(outPath);
-                    FileInfo[] files = dir.GetFiles();
-                    int i = 0;
-                    string name = "BrawlboxAnimation";
-                Top:
-                    foreach (FileInfo f in files)
-                        if (f.Name == name + i + ".gif")
-                        {
-                            i++;
-                            goto Top;
-                        }
-                    outPath += "\\" + name + i + ".gif";
-                }
-                catch { }
-            }
-            else
-            {
-                ScreenCapBgLocText.Text = Application.StartupPath + "\\ScreenCaptures";
-                goto Start;
-            }
-
-            AnimatedGifEncoder e = new AnimatedGifEncoder();
-            e.Start(outPath);
-            e.SetDelay(1000 / (int)pnlPlayback.numFPS.Value);
-            e.SetRepeat(0);
-            e.SetQuality(1);
-            using (ProgressWindow progress = new ProgressWindow(this, "GIF Encoder", "Encoding, please wait...", true))
-            {
-                progress.TopMost = true;
-                progress.Begin(0, images.Length, 0);
-                for (int i = 0, count = images.Length; i < count; i++)
-                {
-                    if (progress.Cancelled)
-                        break;
-
-                    e.AddFrame(images[i]);
-                    progress.Update(progress.CurrentValue + 1);
-                }
-                progress.Finish();
-                e.Finish();
-            }
-
-            if (InterpolationEditor != null)
-                InterpolationEditor.Enabled = true;
-            ModelPanel.Enabled = true;
-            Enabled = true;
-
-            MessageBox.Show("GIF successfully saved to " + outPath.Replace("\\", "/"));
         }
 
         #endregion
@@ -254,27 +139,27 @@ namespace System.Windows.Forms
 
                 _viewerForm.FormClosed += _viewerForm_FormClosed;
 
-                modelPanel.PreRender -= EventPreRender;
-                modelPanel.PostRender -= EventPostRender;
-                modelPanel.MouseDown -= EventMouseDown;
-                modelPanel.MouseMove -= EventMouseMove;
-                modelPanel.MouseUp -= EventMouseUp;
+                //modelPanel.PreRender -= EventPreRender;
+                //modelPanel.PostRender -= EventPostRender;
+                //modelPanel.MouseDown -= EventMouseDown;
+                //modelPanel.MouseMove -= EventMouseMove;
+                //modelPanel.MouseUp -= EventMouseUp;
 
-                _viewerForm.modelPanel1.PreRender += EventPreRender;
-                _viewerForm.modelPanel1.PostRender += EventPostRender;
-                _viewerForm.modelPanel1.MouseDown += EventMouseDown;
-                _viewerForm.modelPanel1.MouseMove += EventMouseMove;
-                _viewerForm.modelPanel1.MouseUp += EventMouseUp;
-                _viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
+                //_viewerForm.modelPanel1.PreRender += EventPreRender;
+                //_viewerForm.modelPanel1.PostRender += EventPostRender;
+                //_viewerForm.modelPanel1.MouseDown += EventMouseDown;
+                //_viewerForm.modelPanel1.MouseMove += EventMouseMove;
+                //_viewerForm.modelPanel1.MouseUp += EventMouseUp;
+                //_viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
 
-                if (ModelViewerChanged != null)
-                    ModelViewerChanged(this, null);
+                //if (ModelViewerChanged != null)
+                //    ModelViewerChanged(this, null);
 
                 _viewerForm.Show();
                 _viewerForm.modelPanel1.Invalidate();
 
                 _interpolationEditor.Visible = true;
-                interpolationEditorToolStripMenuItem.Checked = false;
+                InterpolationFormOpen = false;
                 interpolationEditorToolStripMenuItem.Enabled = false;
 
                 if (_interpolationForm != null)
@@ -290,25 +175,25 @@ namespace System.Windows.Forms
             modelPanel.Enabled = true;
             detachViewerToolStripMenuItem.Text = "Detach";
 
-            _viewerForm.modelPanel1.PreRender -= EventPreRender;
-            _viewerForm.modelPanel1.PostRender -= EventPostRender;
-            _viewerForm.modelPanel1.MouseDown -= EventMouseDown;
-            _viewerForm.modelPanel1.MouseMove -= EventMouseMove;
-            _viewerForm.modelPanel1.MouseUp -= EventMouseUp;
-            _viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
+            //_viewerForm.modelPanel1.PreRender -= EventPreRender;
+            //_viewerForm.modelPanel1.PostRender -= EventPostRender;
+            //_viewerForm.modelPanel1.MouseDown -= EventMouseDown;
+            //_viewerForm.modelPanel1.MouseMove -= EventMouseMove;
+            //_viewerForm.modelPanel1.MouseUp -= EventMouseUp;
+            //_viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
 
-            modelPanel.PreRender += EventPreRender;
-            modelPanel.PostRender += EventPostRender;
-            modelPanel.MouseDown += EventMouseDown;
-            modelPanel.MouseMove += EventMouseMove;
-            modelPanel.MouseUp += EventMouseUp;
+            //modelPanel.PreRender += EventPreRender;
+            //modelPanel.PostRender += EventPostRender;
+            //modelPanel.MouseDown += EventMouseDown;
+            //modelPanel.MouseMove += EventMouseMove;
+            //modelPanel.MouseUp += EventMouseUp;
 
-            _viewerForm = null;
-            _interpolationEditor.Visible = false;
-            interpolationEditorToolStripMenuItem.Enabled = true;
+            //_viewerForm = null;
+            //_interpolationEditor.Visible = false;
+            //interpolationEditorToolStripMenuItem.Enabled = true;
 
-            if (ModelViewerChanged != null)
-                ModelViewerChanged(this, null);
+            //if (ModelViewerChanged != null)
+            //    ModelViewerChanged(this, null);
         }
 
         #endregion
@@ -392,426 +277,12 @@ namespace System.Windows.Forms
 
         #endregion
 
-        #region Viewer Background
-
-        private void setColorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (dlgColor.ShowDialog(this) == DialogResult.OK)
-                ModelPanel.BackColor = ClearColor = dlgColor.Color;
-        }
-
-        private void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (loadImageToolStripMenuItem.Text == "Load Image")
-            {
-                OpenFileDialog d = new OpenFileDialog();
-                d.Filter = "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +
-                "Portable Network Graphics (*.png)|*.png|" +
-                "Truevision TARGA (*.tga)|*.tga|" +
-                "Tagged Image File Format (*.tif, *.tiff)|*.tif;*.tiff|" +
-                "Bitmap (*.bmp)|*.bmp|" +
-                "Jpeg (*.jpg,*.jpeg)|*.jpg;*.jpeg|" +
-                "Gif (*.gif)|*.gif";
-                d.Title = "Select an image to load";
-
-                if (d.ShowDialog() == DialogResult.OK)
-                    BGImage = Image.FromFile(d.FileName);
-
-                loadImageToolStripMenuItem.Text = "Clear Image";
-            }
-            else
-            {
-                BGImage = null;
-                loadImageToolStripMenuItem.Text = "Load Image";
-            }
-        }
-
-        #endregion
-
         #region Panel Toggles
 
         private void btnLeftToggle_Click(object sender, EventArgs e) { showLeft.Checked = !showLeft.Checked; }
         private void btnTopToggle_Click(object sender, EventArgs e) { showTop.Checked = !showTop.Checked; }
         private void btnBottomToggle_Click(object sender, EventArgs e) { showBottom.Checked = !showBottom.Checked; CheckDimensions(); }
         private void btnRightToggle_Click(object sender, EventArgs e) { showRight.Checked = !showRight.Checked; }
-
-        #endregion
-
-        #region Animation Buttons
-
-        public void btnPrevFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value--; }
-        public void btnNextFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value++; }
-        public void btnPlay_Click(object sender, EventArgs e)
-        {
-            if (_timer.IsRunning)
-                StopAnim();
-            else
-                PlayAnim();
-        }
-
-        #endregion
-
-        #region Shortcut Keys
-
-        protected override bool ProcessKeyPreview(ref Message m)
-        {
-            if (m.Msg == 0x100)
-            {
-                bool focused = ModelPanel.ContainsFocus;
-
-                Keys key = (Keys)m.WParam;
-                if (key == Keys.PageUp)
-                {
-                    if (Ctrl)
-                        pnlPlayback.btnLast_Click(this, null);
-                    else
-                        pnlPlayback.btnNextFrame_Click(this, null);
-                    return true;
-                }
-                else if (key == Keys.PageDown)
-                {
-                    if (Ctrl)
-                        pnlPlayback.btnFirst_Click(this, null);
-                    else
-                        pnlPlayback.btnPrevFrame_Click(this, null);
-                    return true;
-                }
-                else if (key == Keys.U)
-                {
-                    if (Ctrl)
-                    {
-                        ModelPanel.ResetCamera();
-                        return true;
-                    }
-                }
-                else if (key == Keys.A)
-                {
-                    if (Ctrl)
-                    {
-                        ResetVertexColors();
-                        if (_targetModels != null)
-                            foreach (IModel mdl in _targetModels)
-                                if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
-                                    foreach (Vertex3 v in ((IObject)mdl.Objects[mdl.SelectedObjectIndex]).PrimitiveManager._vertices)
-                                    {
-                                        _selectedVertices.Add(v);
-                                        v._selected = true;
-                                        v._highlightColor = Color.Orange;
-                                    }
-                                else
-                                    foreach (IObject o in mdl.Objects)
-                                        foreach (Vertex3 v in o.PrimitiveManager._vertices)
-                                        {
-                                            _selectedVertices.Add(v);
-                                            v._selected = true;
-                                            v._highlightColor = Color.Orange;
-                                        }
-
-                        //weightEditor.TargetVertices = _selectedVertices;
-                        vertexEditor.TargetVertices = _selectedVertices;
-                        ModelPanel.Invalidate();
-                    }
-                    else if (focused)
-                    {
-                        btnLeftToggle_Click(null, null);
-                        return true;
-                    }
-                }
-                else if (key == Keys.D)
-                {
-                    if (focused)
-                    {
-                        if (Control.ModifierKeys == (Keys.Control | Keys.Alt))
-                            if (leftPanel.Visible || rightPanel.Visible || animEditors.Visible || controlPanel.Visible)
-                                showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = false;
-                            else
-                                showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = true;
-                        else
-                            btnRightToggle_Click(null, null);
-                        return true;
-                    }
-                }
-                else if (key == Keys.W)
-                {
-                    if (focused)
-                    {
-                        btnTopToggle_Click(null, null);
-                        return true;
-                    }
-                }
-                else if (key == Keys.S)
-                {
-                    btnBottomToggle_Click(null, null);
-                    return true;
-                }
-                else if (key == Keys.E)
-                {
-                    if (focused)
-                    {
-                        scaleToolStripMenuItem.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.R)
-                {
-                    if (focused)
-                    {
-                        rotationToolStripMenuItem.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.G)
-                {
-                    if (focused)
-                    {
-                        ModelPanel.RefreshReferences();
-                        return true;
-                    }
-                }
-                else if (key == Keys.T)
-                {
-                    if (focused)
-                    {
-                        translationToolStripMenuItem.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.C)
-                {
-                    if (focused)
-                    {
-                        //Copy frame
-                        if (Ctrl)
-                            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
-                            {
-                                //We're copying the whole frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor.btnCopyAll.PerformClick();
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                //We're copying the entry frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor.btnCopy.PerformClick();
-                                    return true;
-                                }
-                            }
-                    }
-                }
-                else if (key == Keys.V)
-                {
-                    if (focused)
-                    {
-                        //Paste frame
-                        if (Ctrl)
-                            if (Shift)
-                                if (Alt)
-                                {
-                                    //We're pasting only keyframes of the whole frame
-                                    if (_currentControl is CHR0Editor)
-                                    {
-                                        chr0Editor._onlyKeys = true;
-                                        chr0Editor.btnPasteAll.PerformClick();
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    //We're pasting the whole frame
-                                    if (_currentControl is CHR0Editor)
-                                    {
-                                        chr0Editor._onlyKeys = false;
-                                        chr0Editor.btnPasteAll.PerformClick();
-                                        return true;
-                                    }
-                                }
-                            else
-                                if (Alt)
-                                {
-                                    //We're pasting only keyframes of the entry frame
-                                    if (_currentControl is CHR0Editor)
-                                    {
-                                        chr0Editor._onlyKeys = true;
-                                        chr0Editor.btnPaste.PerformClick();
-                                        return true;
-                                    }
-                                }
-                                else
-                                {
-                                    //We're pasting the entry frame
-                                    if (_currentControl is CHR0Editor)
-                                    {
-                                        chr0Editor._onlyKeys = false;
-                                        chr0Editor.btnPaste.PerformClick();
-                                        return true;
-                                    }
-                                }
-                        else
-                        {
-                            chkVertices.PerformClick();
-                            return true;
-                        }
-                    }
-                }
-                else if (key == Keys.Back)
-                {
-                    if (focused)
-                    {
-                        if (Ctrl)
-                        {
-                            //Clear all keyframes from frame
-                            if ((ModifierKeys & Keys.Shift) == Keys.Shift)
-                            {
-                                //We're removing the whole frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor.btnClearAll.PerformClick();
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                //We're removing the entry frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor.ClearEntry();
-                                    return true;
-                                }
-                            }
-                        }
-                        else if (ModifierKeys == Keys.Shift)
-                        {
-                            //Delete frame
-                            if (_currentControl is CHR0Editor)
-                            {
-                                chr0Editor.btnDelete.PerformClick();
-                                return true;
-                            }
-                        }
-                    }
-                }
-                else if (key == Keys.P)
-                {
-                    if (focused)
-                    {
-                        chkPolygons.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.B)
-                {
-                    if (focused)
-                    {
-                        chkBones.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.F)
-                {
-                    if (focused)
-                    {
-                        chkFloor.PerformClick();
-                        return true;
-                    }
-                }
-                else if (key == Keys.I)
-                {
-                    if ((ModifierKeys & (Keys.Alt | Keys.Control)) == (Keys.Alt | Keys.Control))
-                    {
-                        btnExportToImgWithTransparency_Click(null, null);
-                        return true;
-                    }
-                    else if ((ModifierKeys & (Keys.Shift | Keys.Control)) == (Keys.Shift | Keys.Control))
-                    {
-                        btnExportToImgNoTransparency_Click(null, null);
-                        return true;
-                    }
-                }
-                if (key == Keys.Z)
-                {
-                    if (Ctrl)
-                    {
-                        if (btnUndo.Enabled)
-                            btnUndo_Click(null, null);
-
-                        return true;
-                    }
-                }
-                else if (key == Keys.Y)
-                {
-                    if (Ctrl)
-                    {
-                        if (btnRedo.Enabled)
-                            btnRedo_Click(null, null);
-
-                        return true;
-                    }
-                }
-                else if (key == Keys.Escape)
-                {
-                    //Undo transformations, make sure to reset keyframes
-                    if (_rotating)
-                    {
-                        _rotating = false;
-                        chr0Editor.numRotX.Value = _oldAngles._x;
-                        chr0Editor.numRotY.Value = _oldAngles._y;
-                        chr0Editor.numRotZ.Value = _oldAngles._z;
-                        chr0Editor.BoxChanged(chr0Editor.numRotX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numRotY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
-                    }
-                    if (_translating)
-                    {
-                        _translating = false;
-                        chr0Editor.numTransX.Value = _oldPosition._x;
-                        chr0Editor.numTransY.Value = _oldPosition._y;
-                        chr0Editor.numTransZ.Value = _oldPosition._z;
-                        chr0Editor.BoxChanged(chr0Editor.numTransX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numTransY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
-                    }
-                    if (_scaling)
-                    {
-                        _scaling = false;
-                        chr0Editor.numScaleX.Value = _oldScale._x;
-                        chr0Editor.numScaleY.Value = _oldScale._y;
-                        chr0Editor.numScaleZ.Value = _oldScale._z;
-                        chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
-                    }
-                    ModelPanel.AllowSelection = true;
-                }
-                else if (key == Keys.Space)
-                {
-                    if (focused)
-                    {
-                        btnPlay_Click(null, null);
-                        return true;
-                    }
-                }
-                //Weight editor has been disabled due to the necessity 
-                //of re-encoding objects after making influence changes.
-                //else if (key == Keys.H)
-                //{
-                //    ToggleWeightEditor();
-                //    return true;
-                //}
-                else if (key == Keys.J)
-                {
-                    if (focused)
-                    {
-                        ToggleVertexEditor();
-                        return true;
-                    }
-                }
-            }
-            return base.ProcessKeyPreview(ref m);
-        }
 
         #endregion
 
@@ -833,14 +304,10 @@ namespace System.Windows.Forms
         private void chkZoomExtents_Click(object sender, EventArgs e)
         {
             //TODO: different handling based on if viewport is perspective, front, side, or top
-            if (SelectedBone != null)
-            {
-                ModelPanel.Camera.Reset();
-                ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
-                ModelPanel.Invalidate();
-            }
-            else
-                MessageBox.Show("Select a bone!");
+            ModelPanel.Camera.Reset();
+            ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
+            ModelPanel.Invalidate();
+
         }
         private void chkBoundaries_Click(object sender, EventArgs e)
         {
@@ -940,7 +407,7 @@ namespace System.Windows.Forms
                 _interpolationForm = new InterpolationForm(this);
                 _interpolationForm.FormClosed += _interpolationForm_FormClosed;
                 _interpolationForm.Show();
-                interpolationEditorToolStripMenuItem.Checked = true;
+                InterpolationFormOpen = true;
                 UpdatePropDisplay();
             }
             else
@@ -983,9 +450,9 @@ namespace System.Windows.Forms
                 (node as SRT0Node).Append();
             else if (node is SHP0Node)
                 (node as SHP0Node).Append();
-            else if(node is PAT0Node)
+            else if (node is PAT0Node)
                 (node as PAT0Node).Append();
-            else if(node is VIS0Node)
+            else if (node is VIS0Node)
                 (node as VIS0Node).Append();
 
             AnimChanged(TargetAnimType);

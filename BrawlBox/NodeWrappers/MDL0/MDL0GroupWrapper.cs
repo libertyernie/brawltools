@@ -39,7 +39,7 @@ namespace BrawlBox.NodeWrappers
                 case "Bones":
                     MDL0BoneNode bone = new MDL0BoneNode() { Name = "NewBone" };
                     model._boneGroup.InsertChild(bone, false, 0);
-                    bone._flags1 = (BoneFlags)284;
+                    bone._boneFlags = (BoneFlags)284;
                     bone.Scale = new Vector3(1, 1, 1);
                     bone._bindMatrix = Matrix.Identity;
                     bone._inverseBindMatrix = Matrix.Identity;

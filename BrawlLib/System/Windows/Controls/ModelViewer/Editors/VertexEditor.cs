@@ -260,7 +260,7 @@ namespace System.Windows.Forms
             _dlgColor = new GoodColorDialog();
         }
 
-        public IMainWindow _mainWindow;
+        public ModelEditorBase _mainWindow;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int CurrentFrame

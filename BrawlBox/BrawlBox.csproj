@@ -173,12 +173,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="NodeWrappers\BMDWrapper.cs" />
+    <None Include="NodeWrappers\RARCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
     <Compile Include="NodeWrappers\STDTWrapper.cs" />
-    <!--<Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />-->
     <Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />
     <Compile Include="NodeWrappers\TPLWrapper.cs" />
     <Compile Include="NodeWrappers\RWSDSoundGroupWrapper.cs" />
@@ -255,9 +256,6 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\Animation.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\BRRESNodes.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\ButtonClick.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -273,13 +271,7 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\FileHandling.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\Mouse.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Rendering.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\Undo.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Variables.cs">

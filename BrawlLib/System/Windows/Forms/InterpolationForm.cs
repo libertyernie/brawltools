@@ -14,7 +14,7 @@ namespace System.Windows.Forms
     public partial class InterpolationForm : Form
     {
         public InterpolationEditor _interpolationEditor;
-        public InterpolationForm(IMainWindow mainWindow)
+        public InterpolationForm(ModelEditorBase mainWindow)
         {
             InitializeComponent();
             _interpolationEditor = new InterpolationEditor(mainWindow);

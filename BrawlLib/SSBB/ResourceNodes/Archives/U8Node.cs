@@ -63,8 +63,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     e._name = new String(table + (int)entry->_stringOffset);
                     e._u8Index = i;
-                    e._u8Parent = (int)entry->_dataOffset;
-                    e._u8FirstNotChild = (int)entry->_dataLength;
+                    e._u8Parent = -1;
+                    e._u8FirstNotChild = -1;
                     e._u8Type = (int)entry->_type;
 
                     e.Initialize(this, source);

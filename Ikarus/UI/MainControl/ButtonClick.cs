@@ -119,14 +119,14 @@ namespace Ikarus.UI
             //    BackgroundImage = null;
             //}
             //Invalidate();
-            SaveBitmap(modelPanel.GrabScreenshot(true));
+            SaveBitmap(modelPanel.GetScreenshot(true));
             //GL.ClearColor(BackColor);
             //if (i != null)
             //    BackgroundImage = i;
         }
         private void btnExportToImgNoTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(modelPanel.GrabScreenshot(false));
+            SaveBitmap(modelPanel.GetScreenshot(false));
         }
 
         private void showMoveset_Click_1(object sender, EventArgs e)
