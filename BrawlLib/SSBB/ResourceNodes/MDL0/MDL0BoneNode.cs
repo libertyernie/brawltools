@@ -193,10 +193,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!_render)
                 return;
 
-            if (args.Length > 0 && (bool)args[0] == true)
-                Foreground = true;
-
-
             if (_boneColor != Color.Transparent)
                 GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
             else

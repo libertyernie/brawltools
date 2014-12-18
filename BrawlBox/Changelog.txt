@@ -14,25 +14,36 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
  - v0.7??- (??/??/2014) - BrawlLib v0.2??
+	. BrawlBox now displays redirected nodes with their own icon
+	. Fixed setting redirect index.
+	. Fixed embedded module files (common2 and common3) not parsing.
+	. Fixed BBox crashing when no vertices exist in Target model.
+	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor.
+	. Fixed shader0's tex ref not being set when importing .dae files.
+	. Fixed always asking to save after opening the collision editor, regardless if things were changed.
+	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
+	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
+	. Model editor now displays bones that are not part of the Target model at half opacity, and in a red color.
+	. Section editor now displays number of selected bytes, rather than length of the full section. (bottom status bar)
+	. GCT editor saves unchecked codes as disabled in .txt (pads the left side with an asterisk). Saving as GCT will not save disabled codes
+	. GCT editor now allows multiline descriptions in .txt files.
+	. Improved pixel format conversion, furthering it's acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
 	. Support adding new collision nodes to ARC via right click.
+	. Support for item frequency nodes.
 	. Support adding new BLOC to ARC via right click.
 	. Support adding and editing the following nodes in / to BLOC archives.
 		- GSND sound files
 		- ADSJ StepJump files, required to link rooms and levels.
 		- GDOR Adventure door files, requires rooms linked via ADSJ.
-	. Support for item frequency nodes.
-	. BrawlBox now displays redirected nodes with their own icon
-	. Fixed setting redirect index.
-	. Fixed embedded module files (common2 and common3) not parsing.
-	. Fixed BBox crashing when no vertices exist in Target model.
-	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
-	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
-	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor.
-	. Fixed shader0's tex ref not being set when importing .dae files.
 	. Added a live texture folder to the model previewer.
-	. Fixed always asking to save after opening the collision editor, regardless if things were changed.
-
+	. Added a small dialog in the collision editor to rotate/translate planes by specific values.
+	. Object / Method editor has been added to the module editor pending a better UI for it.
+		- Right click on methods allows you to open the Method's Assembly in section editor.
+		- Right click on inheritance items will open the section editor to THAT INSTANCE'S decleration, before the object's vTable.
+		- PPC disassembler now stops at branch commands in addition to blr.
+		- Added a button to the disassembler that is only visible when a branch command is selected, allowing you to jump to that location.
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
