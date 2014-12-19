@@ -38,7 +38,7 @@ they be held accountable for the manner in which it is used.
 		- ADSJ StepJump files, required to link rooms and levels.
 		- GDOR Adventure door files, requires rooms linked via ADSJ.
 	. Added a live texture folder to the model previewer.
-	. Added a small dialog in the collision editor to rotate/translate planes by specific values.
+	. Added a small dialog in the collision editor to rotate/translate/scale selected planes by specific values.
 	. Object / Method editor has been added to the module editor pending a better UI for it.
 		- Right click on methods allows you to open the Method's Assembly in section editor.
 		- Right click on inheritance items will open the section editor to THAT INSTANCE'S decleration, before the object's vTable.
