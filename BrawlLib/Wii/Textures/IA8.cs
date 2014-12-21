@@ -38,9 +38,9 @@ namespace BrawlLib.Wii.Textures
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct IA8Pixel
     {
-        public byte intensity;
         public byte alpha;
-
+        public byte intensity;
+        
         public static implicit operator ARGBPixel(IA8Pixel p)
         {
             return new ARGBPixel() { A = p.alpha, R = p.intensity, G = p.intensity, B = p.intensity };
