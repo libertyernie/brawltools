@@ -101,7 +101,7 @@ namespace BrawlBox
 
         private async void CheckUpdates()
         {
-            const string version = "v0.73b"; // <---- Replace with latest release tag
+            const string version = "v0.74"; // <---- Replace with latest release tag
 
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
             var release = await github.Release.GetAll("libertyernie", "brawltools");
@@ -529,7 +529,7 @@ namespace BrawlBox
             Program.Open(fmi.FileName);
         }
 
-        private void checkForUpdatesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void checkForUpdatesToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             CheckUpdates();
         }

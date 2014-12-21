@@ -255,8 +255,7 @@ namespace BrawlBox
             // 
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.settingsToolStripMenuItem,
-            this.gCTEditorToolStripMenuItem,
-            this.checkForUpdatesToolStripMenuItem});
+            this.gCTEditorToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
@@ -264,21 +263,22 @@ namespace BrawlBox
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.settingsToolStripMenuItem.Text = "&Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click_1);
             // 
             // gCTEditorToolStripMenuItem
             // 
             this.gCTEditorToolStripMenuItem.Name = "gCTEditorToolStripMenuItem";
-            this.gCTEditorToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
+            this.gCTEditorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.gCTEditorToolStripMenuItem.Text = "Code Manager";
             this.gCTEditorToolStripMenuItem.Click += new System.EventHandler(this.gCTEditorToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.checkForUpdatesToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -286,7 +286,7 @@ namespace BrawlBox
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
@@ -340,7 +340,7 @@ namespace BrawlBox
             this.texCoordRenderer1.IsOrthographic = false;
             this.texCoordRenderer1.Location = new System.Drawing.Point(0, 0);
             this.texCoordRenderer1.Name = "texCoordRenderer1";
-            this.texCoordRenderer1.ProjectionChanged = true;
+            this.texCoordRenderer1.ProjectionChanged = false;
             this.texCoordRenderer1.Size = new System.Drawing.Size(399, 202);
             this.texCoordRenderer1.TabIndex = 19;
             this.texCoordRenderer1.Visible = false;
@@ -493,7 +493,7 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
             this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(173, 22);
             this.checkForUpdatesToolStripMenuItem.Text = "Check for updates.";
-            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click);
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click_1);
             // 
             // MainForm
             // 
