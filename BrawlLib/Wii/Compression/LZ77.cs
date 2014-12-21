@@ -205,17 +205,36 @@ namespace BrawlLib.Wii.Compression
         public static void Expand(VoidPtr data, VoidPtr dstAddress, int dstLen, bool extFmt)
         {
             for (byte* srcPtr = (byte*)data, dstPtr = (byte*)dstAddress, ceiling = dstPtr + dstLen; dstPtr < ceiling; )
+            {
+                int srcOffset = (int)srcPtr - (int)data;
+
                 for (byte control = *srcPtr++, bit = 8; (bit-- != 0) && (dstPtr != ceiling); )
                     if ((control & (1 << bit)) == 0)
                         *dstPtr++ = *srcPtr++;
                     else
                     {
-                        int temp = (*srcPtr >> 4), num = !extFmt ? temp + 3 : temp == 1 ? (((*srcPtr++ & 0x0F) << 12) | ((*srcPtr++) << 4) | (*srcPtr >> 4)) + 0xFF + 0xF + 3 : temp == 0 ? (((*srcPtr++ & 0x0F) << 4) | (*srcPtr >> 4)) + 0xF + 2 : temp + 1, offset = (((*srcPtr++ & 0xF) << 8) | *srcPtr++) + 2;
-						if (dstPtr - offset < dstAddress.address) Console.WriteLine("LZ77 reading: reading from outside of destination buffer");
-                        while (dstPtr != ceiling && num-- > 0) {
-							*dstPtr++ = dstPtr[-offset];
-						}
+                        int
+                            temp = (*srcPtr >> 4),
+                            num = !extFmt ? temp + 3 : temp == 1 ? (((*srcPtr++ & 0xF) << 12) | ((*srcPtr++) << 4) | (*srcPtr >> 4)) + 0xFF + 0xF + 3 : temp == 0 ? (((*srcPtr++ & 0xF) << 4) | (*srcPtr >> 4)) + 0xF + 2 : temp + 1,
+                            offset = (((*srcPtr++ & 0xF) << 8) | *srcPtr++) + 2;
+
+                        if (dstPtr - offset < dstAddress)
+                        {
+                            //I researched why this happens, and there seems to be a 0xFF00 value 
+                            //at the end of compressed data for small amounts of uncompressed data.
+                            //It returns an offset of 0x0F02, which has proven very incorrect for data I've tested.
+                            //I don't know why that's there, 
+                            //but it usually just signifies the end of the compression data with some padding at the end.
+                            //The only other reason this would happen would be if the compression was invalid anyway,
+                            //so end decompression here. If there are new problems that arise from this, I'm sure we'll find out.
+                            //- BlackJax -
+                            return;
+                        }
+
+                        while (dstPtr != ceiling && num-- > 0)
+                            *dstPtr++ = dstPtr[-offset];
                     }
+            }
         }
     }
 }
