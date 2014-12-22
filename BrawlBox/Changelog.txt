@@ -14,7 +14,7 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
- - v0.7??- (??/??/2014) - BrawlLib v0.2??
+ - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Support adding new collision nodes to ARC via right click.
 	. Support adding new BLOC to ARC via right click.
 	. Support adding and editing the following nodes in / to BLOC archives.
@@ -32,7 +32,14 @@ they be held accountable for the manner in which it is used.
 	. Fixed shader0's tex ref not being set when importing .dae files.
 	. Added a live texture folder to the model previewer.
 	. Fixed always asking to save after opening the collision editor, regardless if things were changed.
-
+	. Fixed IA8 texture bug where alpha and intensity were swapped
+	. Fixed frame counts on looped animations with keyframes (CHR0, SRT0, SHP0, SCN0): there is an extra loop frame at the end
+	. Added proper texture matrix support that uses the Texture Matrix Mode included in SRT0, MDL0 and MDL0 material properties.
+	. Fixed bug where if two keyframes were on the same frame, the second overwrote the first. Now, for example, Game&Watch's animations now display properly.
+	. Fixed several SCN0 rebuilding bugs including when changing the frame count or using animated color arrays would cause the file to save improperly
+	. Fixed Collada importer bug that occured when mesh nodes were nested inside another. Their bind matrices were not multiplied with the previous node, causing the imported object's mesh to be out of place.
+	. Fixed Collada importer bug that occured when the imported model had no normals.
+	. Fixed Collada importer bug that occured when the imported model had some rigged and some unrigged objects. Unrigged objects are now rigged to the first bone.
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
