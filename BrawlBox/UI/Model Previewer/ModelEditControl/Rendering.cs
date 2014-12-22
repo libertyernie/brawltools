@@ -36,6 +36,8 @@ namespace System.Windows.Forms
                 OnRenderNormals();
             if (RenderLightDisplay)
                 OnRenderLightDisplay(panel.LightPosition);
+            if (RenderBones)
+                OnRenderBones();
 
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
@@ -48,7 +50,7 @@ namespace System.Windows.Forms
             RenderTransformControl(panel);
             RenderDepth(panel);
         }
-        
+
         #endregion
 
         #region SCN0 Controls
@@ -220,12 +222,15 @@ namespace System.Windows.Forms
                          DeathBone0 = null, DeathBone1 = null;
 
             //Get bones and render spawns if checked
-            if (_targetModel != null && 
+            if (_targetModel != null &&
                 _targetModel is MDL0Node &&
-                ((ResourceNode)_targetModel).Name.Contains("osition"))
+                ((((ResourceNode)_targetModel).Name.Contains("StgPosition")) ||
+                ((ResourceNode)_targetModel).Name.Contains("stagePosition")))
                 stgPos = _targetModel as MDL0Node;
             else if (_targetModels != null)
-                stgPos = _targetModels.Find(x => x is MDL0Node && ((ResourceNode)x).Name.Contains("osition")) as MDL0Node;
+                stgPos = _targetModels.Find(x => x is MDL0Node &&
+                    ((ResourceNode)x).Name.Contains("StgPosition") ||
+                    ((ResourceNode)x).Name.Contains("stagePosition")) as MDL0Node;
 
             if (stgPos != null) 
                 foreach (MDL0BoneNode bone in stgPos._linker.BoneCache)

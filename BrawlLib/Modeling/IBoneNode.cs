@@ -1,4 +1,5 @@
 ﻿using BrawlLib.Wii.Models;
+using BrawlLib.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -7,7 +8,7 @@ using System.Text;
 
 namespace BrawlLib.Modeling
 {
-    public interface IBoneNode : IMatrixNode
+    public interface IBoneNode : IMatrixNode, IRenderedObject
     {
         string Name { get; set; }
         bool Locked { get; set; }

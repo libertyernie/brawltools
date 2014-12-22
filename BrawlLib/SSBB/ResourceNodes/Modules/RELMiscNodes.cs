@@ -11,11 +11,16 @@ using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
+    public class RELGroupNode : RELEntryNode
+    {
+        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+    }
+
     public unsafe class RELEntryNode : ResourceNode
     {
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         internal VoidPtr Data { get { return WorkingUncompressed.Address; } }
-        
+
         [Browsable(false)]
         public uint RootOffset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
         public string FileOffset { get { return "0x" + RootOffset.ToString("X"); } }
@@ -35,17 +40,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        //[Browsable(false)]
-        //public ModuleSectionNode Location
-        //{
-        //    get
-        //    {
-        //        if (Root is RELNode)
-        //            foreach (ModuleSectionNode s in (Root as RELNode)._sections)
-        //                if (s.RootOffset <= RootOffset && s.RootOffset + s.Size > RootOffset)
-        //                    return s;
-        //        return null;
-        //    }
-        //}
+        [Browsable(false)]
+        public ModuleSectionNode Location
+        {
+            get
+            {
+                if (Root is RELNode)
+                    foreach (ModuleSectionNode s in (Root as RELNode)._sections)
+                        if (s.RootOffset <= RootOffset && s.RootOffset + s._dataSize > RootOffset)
+                            return s;
+                return null;
+            }
+        }
     }
 }

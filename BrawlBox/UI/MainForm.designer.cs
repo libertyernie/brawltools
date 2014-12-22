@@ -32,7 +32,6 @@ namespace BrawlBox
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.resourceTree = new BrawlBox.ResourceTree();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -54,8 +53,11 @@ namespace BrawlBox
             this.gCTEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.resourceTree = new BrawlBox.ResourceTree();
+            this.texCoordRenderer1 = new System.Windows.Forms.TexCoordRenderer();
             this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
             this.modelPanel1 = new System.Windows.Forms.ModelPanel();
@@ -71,7 +73,6 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
-            this.texCoordRenderer1 = new System.Windows.Forms.TexCoordRenderer();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -101,21 +102,6 @@ namespace BrawlBox
             this.splitContainer1.SplitterDistance = 214;
             this.splitContainer1.TabIndex = 1;
             this.splitContainer1.TabStop = false;
-            // 
-            // resourceTree
-            // 
-            this.resourceTree.AllowDrop = true;
-            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resourceTree.HideSelection = false;
-            this.resourceTree.ImageIndex = 0;
-            this.resourceTree.Indent = 20;
-            this.resourceTree.Location = new System.Drawing.Point(0, 24);
-            this.resourceTree.Name = "resourceTree";
-            this.resourceTree.SelectedImageIndex = 0;
-            this.resourceTree.ShowIcons = true;
-            this.resourceTree.Size = new System.Drawing.Size(214, 387);
-            this.resourceTree.TabIndex = 0;
-            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
             // 
             // menuStrip1
             // 
@@ -276,7 +262,8 @@ namespace BrawlBox
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aboutToolStripMenuItem});
+            this.aboutToolStripMenuItem,
+            this.checkForUpdatesToolStripMenuItem});
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
             this.helpToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.helpToolStripMenuItem.Text = "&Help";
@@ -284,9 +271,16 @@ namespace BrawlBox
             // aboutToolStripMenuItem
             // 
             this.aboutToolStripMenuItem.Name = "aboutToolStripMenuItem";
-            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(107, 22);
+            this.aboutToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
             this.aboutToolStripMenuItem.Text = "&About";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
+            // 
+            // checkForUpdatesToolStripMenuItem
+            // 
+            this.checkForUpdatesToolStripMenuItem.Name = "checkForUpdatesToolStripMenuItem";
+            this.checkForUpdatesToolStripMenuItem.Size = new System.Drawing.Size(170, 22);
+            this.checkForUpdatesToolStripMenuItem.Text = "Check for updates";
+            this.checkForUpdatesToolStripMenuItem.Click += new System.EventHandler(this.checkForUpdatesToolStripMenuItem_Click_1);
             // 
             // splitContainer2
             // 
@@ -332,6 +326,31 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(399, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
+            // 
+            // resourceTree
+            // 
+            this.resourceTree.AllowDrop = true;
+            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resourceTree.HideSelection = false;
+            this.resourceTree.ImageIndex = 0;
+            this.resourceTree.Indent = 20;
+            this.resourceTree.Location = new System.Drawing.Point(0, 24);
+            this.resourceTree.Name = "resourceTree";
+            this.resourceTree.SelectedImageIndex = 0;
+            this.resourceTree.ShowIcons = true;
+            this.resourceTree.Size = new System.Drawing.Size(214, 387);
+            this.resourceTree.TabIndex = 0;
+            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
+            // 
+            // texCoordRenderer1
+            // 
+            this.texCoordRenderer1.IsOrthographic = false;
+            this.texCoordRenderer1.Location = new System.Drawing.Point(0, 0);
+            this.texCoordRenderer1.Name = "texCoordRenderer1";
+            this.texCoordRenderer1.ProjectionChanged = false;
+            this.texCoordRenderer1.Size = new System.Drawing.Size(399, 202);
+            this.texCoordRenderer1.TabIndex = 19;
+            this.texCoordRenderer1.Visible = false;
             // 
             // attributeGrid1
             // 
@@ -476,16 +495,6 @@ namespace BrawlBox
             this.msBinEditor1.TabIndex = 2;
             this.msBinEditor1.Visible = false;
             // 
-            // texCoordRenderer1
-            // 
-            this.texCoordRenderer1.IsOrthographic = false;
-            this.texCoordRenderer1.Location = new System.Drawing.Point(0, 0);
-            this.texCoordRenderer1.Name = "texCoordRenderer1";
-            this.texCoordRenderer1.ProjectionChanged = true;
-            this.texCoordRenderer1.Size = new System.Drawing.Size(399, 202);
-            this.texCoordRenderer1.TabIndex = 19;
-            this.texCoordRenderer1.Visible = false;
-            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -561,6 +570,7 @@ namespace BrawlBox
         private ToolStripMenuItem recentFilesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
         private TexCoordRenderer texCoordRenderer1;
+        private ToolStripMenuItem checkForUpdatesToolStripMenuItem;
     }
 }
 

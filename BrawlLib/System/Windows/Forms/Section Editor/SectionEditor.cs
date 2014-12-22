@@ -33,8 +33,7 @@ namespace System.Windows.Forms
                 _section._linkedEditor = this;
 
                 Relocation[] temp = new Relocation[_section._relocations.Count];
-                _section._relocations.CopyTo(temp);
-                _relocations = temp.ToList();
+                _relocations = new List<Relocation>(_section._relocations);
                 _firstCommand = _section._firstCommand;
             }
             _openedSections.Add(this);
@@ -76,7 +75,7 @@ namespace System.Windows.Forms
 
             TargetRelocation = null;
 
- 	        base.OnClosed(e);
+            base.OnClosed(e);
         }
 
         void ByteProvider_LengthChanged(object sender, EventArgs e)
@@ -117,7 +116,7 @@ namespace System.Windows.Forms
             if (hexBox1.ByteProvider == null)
                 selectedBytesToolStripStatusLabel.Text = String.Empty;
             else
-                selectedBytesToolStripStatusLabel.Text = "Selected: 0x"+hexBox1.SelectionLength.ToString("X");
+                selectedBytesToolStripStatusLabel.Text = "Selected: 0x" + hexBox1.SelectionLength.ToString("X");
         }
 
         string GetDisplayBytes(long size)
@@ -273,7 +272,7 @@ namespace System.Windows.Forms
             _updating = false;
         }
 
-        public long Position 
+        public long Position
         {
             get { return hexBox1.SelectionStart; }
             set
@@ -289,7 +288,7 @@ namespace System.Windows.Forms
         PPCBranch _targetBranch;
         public Relocation TargetBranchOffsetRelocation { get { return _targetBranchOffsetRelocation; } }
         Relocation _targetBranchOffsetRelocation;
-        
+
         Relocation _targetRelocation;
         int _prev, _next;
         public Relocation TargetRelocation
@@ -312,15 +311,25 @@ namespace System.Windows.Forms
                     {
                         //Get the method that the cursor lies in and display it
                         int startIndex = value._index, endIndex = value._index;
-                       
+
                         Relocation r = value;
-                        while (r.Previous != null && !(r.Previous.Code is PPCBranch))
+
+                        // A method almost certainly will never return to execute instructions
+                        // at this location if the branch is not linked, so should be treated
+                        // as the end of the method.
+                        while (r.Previous != null && !(r.Previous.Code is PPCblr ||
+                            (r.Previous.Code is PPCbx && ((PPCbx)r.Previous.Code).Link == false)))
                             r = r.Previous;
+
                         startIndex = r._index;
 
                         r = value;
-                        while (!(r.Code is PPCBranch) && r.Next != null)
+
+                        // See above.
+                        while (!(r.Code is PPCblr ||
+                            (r.Code is PPCbx && ((PPCbx)r.Code).Link == false)) && r.Next != null)
                             r = r.Next;
+
                         endIndex = r._index;
 
                         if (startIndex != _prev || endIndex != _next)
@@ -342,7 +351,7 @@ namespace System.Windows.Forms
                         _updating = u;
 
                         //Set the target branch code
-                        if (_targetRelocation != null && 
+                        if (_targetRelocation != null &&
                             _targetRelocation.Code is PPCBranch &&
                             !(_targetRelocation.Code is PPCblr || _targetRelocation.Code is PPCbctr))
                         {
@@ -443,7 +452,7 @@ namespace System.Windows.Forms
             }
             else
                 _formFind.Focus();
-            
+
             return _formFind;
         }
 
@@ -574,7 +583,7 @@ namespace System.Windows.Forms
             else
                 foreach (Relocation r in ppcDisassembler1._relocations)
                     r.Color = Color.Transparent;
-            
+
             hexBox1.Invalidate();
         }
 
@@ -1023,7 +1032,7 @@ namespace System.Windows.Forms
 
         public void SetRelocationAtOffset(int offset, Relocation value) { SetRelocationAtOffset(offset.RoundDown(4) / 4, value); }
         public void SetRelocationAtIndex(int index, Relocation value) { if (index >= 0 && index < _relocations.Count) _relocations[index] = value; }
-        
+
         public Color GetStatusColorFromOffset(int offset) { return GetStatusColorFromIndex(offset.RoundDown(4) / 4); }
         public Color GetStatusColorFromIndex(int index) { if (index >= 0 && index < _relocations.Count) return GetStatusColor(_relocations[index]); return ModuleDataNode.clrNotRelocated; }
         public Color GetStatusColor(Relocation c)
@@ -1118,7 +1127,7 @@ namespace System.Windows.Forms
                 }
             }
         }
-        
+
         public Relocation GetBranchOffsetRelocation()
         {
             if (TargetBranch != null && !(TargetBranch is PPCblr) && !(TargetBranch is PPCbctr))
@@ -1149,7 +1158,7 @@ namespace System.Windows.Forms
                     }
                 }
             }
-            
+
         }
     }
 }

@@ -1400,7 +1400,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Model.Detach();
         }
 
-        public void Refesh() { if (Model != null) Model.Refesh(); }
+        public void Refresh() { if (Model != null) Model.Refresh(); }
 
         public void Render(params object[] args)
         {

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
 using System.Reflection;
@@ -19,6 +20,7 @@ using BrawlBox.Properties;
 using System.Collections.Specialized;
 using BrawlLib.SSBB;
 using BrawlLib.Modeling;
+using Octokit;
 
 namespace BrawlBox
 {
@@ -58,8 +60,9 @@ namespace BrawlBox
         public MainForm()
         {
             InitializeComponent();
-
             Text = Program.AssemblyTitle;
+            if (CheckUpdatesOnStartup)
+                CheckUpdates();
 //#if _DEBUG
 //            Text += " - DEBUG";
 //#endif
@@ -91,10 +94,79 @@ namespace BrawlBox
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
 
             _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
+            _updatesOnStartup = BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup;
         }
 
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
+
+        private async void CheckUpdates()
+        {
+            const string version = "v0.74"; // <---- Replace with latest release tag
+
+            var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+            var release = await github.Release.GetAll("libertyernie", "brawltools");
+
+            if (release[0].TagName != version)
+            {
+                DialogResult UpdateResult = MessageBox.Show("Brawlbox update " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                if (UpdateResult == DialogResult.Yes)
+                {
+                    DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
+                    if (OverwriteResult == DialogResult.Yes)
+                    {
+                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
+                        this.Close();
+                    }
+                    else if (OverwriteResult == DialogResult.No)
+                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                }
+            }
+        }
+
+        public bool DisplayPropertyDescriptionsWhenAvailable
+        {
+            get { return _displayPropertyDescription; }
+            set
+            {
+                _displayPropertyDescription = value;
+
+                BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable = _displayPropertyDescription;
+                BrawlBox.Properties.Settings.Default.Save();
+                UpdatePropertyDescriptionBox(propertyGrid1.SelectedGridItem);
+            }
+        }
+        bool _displayPropertyDescription;
+
+        public bool CheckUpdatesOnStartup
+        {
+            get { return _updatesOnStartup; }
+            set
+            {
+                _updatesOnStartup = value;
+
+                BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup = _updatesOnStartup;
+                BrawlBox.Properties.Settings.Default.Save();
+            }
+        }
+        bool _updatesOnStartup;
+
+        private void UpdatePropertyDescriptionBox(GridItem item)
+        {
+            if (!DisplayPropertyDescriptionsWhenAvailable)
+            {
+                if (propertyGrid1.HelpVisible != false)
+                    propertyGrid1.HelpVisible = false;
+            }
+            else
+                propertyGrid1.HelpVisible = item != null && item.PropertyDescriptor != null && !String.IsNullOrEmpty(item.PropertyDescriptor.Description);
+        }
+
+        private void propertyGrid1_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
+        {
+            if (DisplayPropertyDescriptionsWhenAvailable)
+                UpdatePropertyDescriptionBox(e.NewSelection);
+        }
 
         public void Reset()
         {
@@ -422,37 +494,6 @@ namespace BrawlBox
             }
         }
 
-        public bool DisplayPropertyDescription 
-        {
-            get { return _displayPropertyDescription; }
-            set
-            {
-                _displayPropertyDescription = value;
-
-                BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable = _displayPropertyDescription;
-                BrawlBox.Properties.Settings.Default.Save();
-                UpdatePropertyDescriptionBox(propertyGrid1.SelectedGridItem);
-            }
-        }
-        bool _displayPropertyDescription;
-        
-        private void UpdatePropertyDescriptionBox(GridItem item)
-        {
-            if (!DisplayPropertyDescription)
-            {
-                if (propertyGrid1.HelpVisible != false)
-                    propertyGrid1.HelpVisible = false;
-            }
-            else
-                propertyGrid1.HelpVisible = item != null && item.PropertyDescriptor != null && !String.IsNullOrEmpty(item.PropertyDescriptor.Description);
-        }
-
-        private void propertyGrid1_SelectedGridItemChanged(object sender, SelectedGridItemChangedEventArgs e)
-        {
-            if (DisplayPropertyDescription)
-                UpdatePropertyDescriptionBox(e.NewSelection);
-        }
-
         private void MainForm_DragDrop(object sender, DragEventArgs e)
         {
             Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
@@ -485,6 +526,11 @@ namespace BrawlBox
         {
             RecentFileHandler.FileMenuItem fmi = (RecentFileHandler.FileMenuItem)e.ClickedItem;
             Program.Open(fmi.FileName);
+        }
+
+        private void checkForUpdatesToolStripMenuItem_Click_1(object sender, EventArgs e)
+        {
+            CheckUpdates();
         }
     }
 

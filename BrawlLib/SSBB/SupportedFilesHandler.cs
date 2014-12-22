@@ -73,14 +73,18 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "Static Module", "dol"),
             new SupportedFileInfo(true, "Relocatable Module", "rel"),
 
-            //Misc
-            new SupportedFileInfo(true, "Message Pack", "msbin"),
-            new SupportedFileInfo(true, "Texture Archive", "tpl"),
+            //Revolution files
+            new SupportedFileInfo(true, "RVL Texture Archive", "tpl"),
+            new SupportedFileInfo(true, "RVL Audio/Video", "thp"),
+
+            //Brawl-specific files
+            new SupportedFileInfo(true, "Brawl Message Pack", "msbin"),
+            new SupportedFileInfo(false, "Brawl Stage Collision File", "coll"),
+
+            //Gamecube
             //new SupportedFileInfo(true, "J3D v3 Model", "bmd"),
             //new SupportedFileInfo(true, "J3D v4 Model", "bdl"),
             //new SupportedFileInfo(true, "Luigi's Mansion GC model", "bin"),
-            new SupportedFileInfo(true, "Audio/Video", "thp"),
-            new SupportedFileInfo(false, "Brawl Stage Collision File", "coll"),
 
             //The following files are not for direct editing
 

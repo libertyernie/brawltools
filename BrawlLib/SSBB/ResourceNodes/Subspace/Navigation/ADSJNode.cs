@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class ADSJNode : ResourceNode
+    public unsafe class ADSJNode : ARCEntryNode
     {
         internal ADSJ* Header { get { return (ADSJ*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.ADSJ; } }
@@ -30,11 +30,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override bool OnInitialize()
         {
-            base.OnInitialize();
+            ARCFileHeader* header = (ARCFileHeader*)(WorkingUncompressed.Address - 0x20);
+            int index = header->_index;
+
             _count = Header->_count;
 
             if (_name == null)
-                _name = "Stepjumps";
+                _name = String.Format("Stepjumps[{0}]", index);
             return Header->_count > 0;
         }
         public override int OnCalculateSize(bool force)
@@ -65,14 +67,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal ADSJEntry* Header { get { return (ADSJEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
-        private string _stageID;
+        private string _doorID;
         [Category("Jump Info")]
-        [DisplayName("Hexadecimal ID")]
-        public string StageID { get { return _stageID; } set { _stageID = value; SignalPropertyChange(); } }
+        [DisplayName("Corrosponding GDOR")]
+        public string DoorID { get { return _doorID; } set { _doorID = value; SignalPropertyChange(); } }
 
         private string _sendingID;
         [Category("Jump Info")]
-        [DisplayName("Decimal ID")]
+        [DisplayName("File ID (hex)")]
         public string SendingID { get { return _sendingID; } set { _sendingID = value; SignalPropertyChange(); } }
 
         private string _jumpBone;
@@ -99,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-            _stageID = Header->StageID;
+            _doorID = Header->DoorID;
             _sendingID = Header->SendStage;
             _jumpBone = Header->JumpBone;
             _flag0 = Header->_unk0;
@@ -124,7 +126,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_unk2 = _flag2;
             header->_unk3 = _flag3;
             header->JumpBone = _jumpBone;
-            header->StageID = _stageID;
+            header->DoorID = _doorID;
             header->SendStage = _sendingID;
         }
     }

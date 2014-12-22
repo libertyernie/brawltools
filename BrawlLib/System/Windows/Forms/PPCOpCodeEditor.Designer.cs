@@ -38,7 +38,6 @@
             this.panel3 = new System.Windows.Forms.Panel();
             this.button2 = new System.Windows.Forms.Button();
             this.button1 = new System.Windows.Forms.Button();
-            this.btnBranch = new System.Windows.Forms.Button();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
@@ -124,7 +123,6 @@
             // 
             // panel3
             // 
-            this.panel3.Controls.Add(this.btnBranch);
             this.panel3.Controls.Add(this.button2);
             this.panel3.Controls.Add(this.button1);
             this.panel3.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -153,18 +151,6 @@
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // btnBranch
-            // 
-            this.btnBranch.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBranch.Location = new System.Drawing.Point(4, 2);
-            this.btnBranch.Name = "btnBranch";
-            this.btnBranch.Size = new System.Drawing.Size(78, 23);
-            this.btnBranch.TabIndex = 5;
-            this.btnBranch.Text = "Open Branch";
-            this.btnBranch.UseVisualStyleBackColor = true;
-            this.btnBranch.Visible = false;
-            this.btnBranch.Click += new System.EventHandler(this.btnBranch_Click);
-            // 
             // PPCOpCodeEditor
             // 
             this.ClientSize = new System.Drawing.Size(285, 223);
@@ -190,6 +176,5 @@
         private Forms.Panel panel3;
         private Forms.Button button2;
         private Forms.Button button1;
-        private Forms.Button btnBranch;
     }
 }

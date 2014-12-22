@@ -29,8 +29,6 @@ namespace System.Windows.Controls
             oldValue = _targetRelocation.RawValue;
             propertyGrid1.SelectedObject = _code = _targetRelocation.Code;
             label3.Text = "0x" + (_targetRelocation._index * 4).ToString("X");
-            if (_code is PPCbx)
-                btnBranch.Visible = true;
 
             return base.ShowDialog();
         }

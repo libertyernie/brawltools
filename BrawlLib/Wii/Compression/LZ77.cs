@@ -205,9 +205,6 @@ namespace BrawlLib.Wii.Compression
         public static void Expand(VoidPtr data, VoidPtr dstAddress, int dstLen, bool extFmt)
         {
             for (byte* srcPtr = (byte*)data, dstPtr = (byte*)dstAddress, ceiling = dstPtr + dstLen; dstPtr < ceiling; )
-            {
-                int srcOffset = (int)srcPtr - (int)data;
-
                 for (byte control = *srcPtr++, bit = 8; (bit-- != 0) && (dstPtr != ceiling); )
                     if ((control & (1 << bit)) == 0)
                         *dstPtr++ = *srcPtr++;
@@ -234,7 +231,6 @@ namespace BrawlLib.Wii.Compression
                         while (dstPtr != ceiling && num-- > 0)
                             *dstPtr++ = dstPtr[-offset];
                     }
-            }
         }
     }
 }

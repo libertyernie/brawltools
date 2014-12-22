@@ -2026,6 +2026,7 @@ namespace System.Windows.Forms
                     link._rawValue._y += amount;
                 UpdatePropPanels();
                 _modelPanel.Invalidate();
+                TargetNode.SignalPropertyChange();
             }
             else if (e.KeyCode == Keys.S)
             {
@@ -2035,6 +2036,7 @@ namespace System.Windows.Forms
                     link._rawValue._y -= amount;
                 UpdatePropPanels();
                 _modelPanel.Invalidate();
+                TargetNode.SignalPropertyChange();
             }
             else if (e.KeyCode == Keys.A)
             {
@@ -2044,6 +2046,7 @@ namespace System.Windows.Forms
                     link._rawValue._x -= amount;
                 UpdatePropPanels();
                 _modelPanel.Invalidate();
+                TargetNode.SignalPropertyChange();
             }
             else if (e.KeyCode == Keys.D)
             {
@@ -2053,6 +2056,7 @@ namespace System.Windows.Forms
                     link._rawValue._x += amount;
                 UpdatePropPanels();
                 _modelPanel.Invalidate();
+                TargetNode.SignalPropertyChange();
             }
         }
 
@@ -2060,24 +2064,26 @@ namespace System.Windows.Forms
 
         private void cboMaterial_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (!_updating)
-                foreach (CollisionPlane plane in _selectedPlanes)
-                    plane._material = (CollisionPlaneMaterial)cboMaterial.SelectedItem;
+            if (_updating) return;
+            foreach (CollisionPlane plane in _selectedPlanes)
+                plane._material = (CollisionPlaneMaterial)cboMaterial.SelectedItem;
+            TargetNode.SignalPropertyChange();
         }
         private void cboType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if(!_updating)
-                foreach(CollisionPlane plane in _selectedPlanes)
-                    plane.Type = (CollisionPlaneType)cboType.SelectedItem;
+            if (_updating) return;
+            foreach (CollisionPlane plane in _selectedPlanes)
+                plane.Type = (CollisionPlaneType)cboType.SelectedItem;
+            TargetNode.SignalPropertyChange();
         }
 
-        private void chkTypeUnk1_CheckedChanged(object sender, EventArgs e) { if (!_updating)foreach (CollisionPlane p in _selectedPlanes) p.IsType1 = chkTypeUnk1.Checked; }
-        private void chkTypeUnk2_CheckedChanged(object sender, EventArgs e) { if (!_updating) foreach (CollisionPlane p in _selectedPlanes) p.IsType2 = chkTypeUnk2.Checked; }
+        private void chkTypeUnk1_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType1 = chkTypeUnk1.Checked; }
+        private void chkTypeUnk2_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType2 = chkTypeUnk2.Checked; }
 
-        private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (!_updating) foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
-        private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (!_updating) foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
-        private void chkRightLedge_CheckedChanged(object sender, EventArgs e) { if (!_updating) foreach (CollisionPlane p in _selectedPlanes) p.IsRightLedge = chkRightLedge.Checked; }
-        private void chkNoWalljump_CheckedChanged(object sender, EventArgs e) { if (!_updating) foreach (CollisionPlane p in _selectedPlanes) p.IsNoWalljump = chkNoWalljump.Checked; }
+        private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
+        private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
+        private void chkRightLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsRightLedge = chkRightLedge.Checked; }
+        private void chkNoWalljump_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsNoWalljump = chkNoWalljump.Checked; }
 
         #endregion
 
@@ -2090,6 +2096,7 @@ namespace System.Windows.Forms
             foreach (CollisionLink link in _selectedLinks)
                 link._rawValue._x = numX.Value;
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         private void numY_ValueChanged(object sender, EventArgs e)
@@ -2099,6 +2106,7 @@ namespace System.Windows.Forms
             foreach (CollisionLink link in _selectedLinks)
                 link._rawValue._y = numY.Value;
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         #endregion
@@ -2110,6 +2118,7 @@ namespace System.Windows.Forms
             for (int i = 1; i < _selectedLinks.Count; i++)
                 _selectedLinks[i]._rawValue._x = _selectedLinks[0]._rawValue._x;
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         private void btnSameY_Click(object sender, EventArgs e)
@@ -2119,6 +2128,7 @@ namespace System.Windows.Forms
             for (int i = 1; i < _selectedLinks.Count; i++)
                 _selectedLinks[i]._rawValue._y = _selectedLinks[0]._rawValue._y;
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         private void chkPoly_CheckStateChanged(object sender, EventArgs e)
@@ -2320,6 +2330,7 @@ namespace System.Windows.Forms
         {
             if (_selectedObject == null || _updating) return;
             _selectedObject._flags[0] = chkObjUnk.Checked;
+            TargetNode.SignalPropertyChange();
         }
 
         private void chkObjIndep_CheckedChanged(object sender, EventArgs e)
@@ -2331,12 +2342,14 @@ namespace System.Windows.Forms
         {
             if (_selectedObject == null || _updating) return;
             _selectedObject._flags[2] = chkObjModule.Checked;
+            TargetNode.SignalPropertyChange();
         }
 
         private void chkObjSSEUnk_CheckedChanged(object sender, EventArgs e)
         {
             if (_selectedObject == null || _updating) return;
             _selectedObject._flags[3] = chkObjSSEUnk.Checked;
+            TargetNode.SignalPropertyChange();
         }
 
         private void btnPlayAnims_Click(object sender, EventArgs e)
@@ -2359,22 +2372,22 @@ namespace System.Windows.Forms
             new ModelViewerHelp().Show(this, true);
         }
 
-		private void btnTranslateAll_Click(object sender, EventArgs e) {
-			if (_selectedLinks.Count == 0) {
-				MessageBox.Show("You must select at least one collision link.");
-				return;
-			}
-			using (TransformAttributesForm f = new TransformAttributesForm()) {
-				f.TwoDimensional = true;
-				if (f.ShowDialog() == DialogResult.OK) {
-					Matrix m = f.GetMatrix();
-					foreach (var link in _selectedLinks) {
-						link.Value = m * link.Value;
-					}
-					TargetNode.IsDirty = true;
-					_modelPanel.Invalidate();
-				}
-			}
-		}
+        private void btnTranslateAll_Click(object sender, EventArgs e) {
+            if (_selectedLinks.Count == 0) {
+                MessageBox.Show("You must select at least one collision link.");
+                return;
+            }
+            using (TransformAttributesForm f = new TransformAttributesForm()) {
+                f.TwoDimensional = true;
+                if (f.ShowDialog() == DialogResult.OK) {
+                    Matrix m = f.GetMatrix();
+                    foreach (var link in _selectedLinks) {
+                        link.Value = m * link.Value;
+                    }
+                    TargetNode.SignalPropertyChange();
+                    _modelPanel.Invalidate();
+                }
+            }
+        }
     }
 }

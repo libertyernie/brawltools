@@ -61,7 +61,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (inheritance != null)
                     {
                         InheritanceItemNode TypeNode = new InheritanceItemNode(inheritance, r.Next.RawValue);
-                        TypeNode.Initialize(null, (r.Address - r._section._offset), 0);
+                        TypeNode.Initialize(null, (r.Address - r._section.RootOffset), 0);
                         type.Inheritance.Add(TypeNode);
                         inheritance.Inherited = true;
                     }
@@ -121,7 +121,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     new RELExternalMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex), _rel = rel }.Initialize(obj.Children[1], 0, 0);
                     methodIndex++;
                     rel = rel.Next;
-                    goto End;
+                    continue;
                 }
 
                 else if (rel.SectionOffset != baseRel.SectionOffset)
@@ -138,8 +138,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     methodIndex = 0;
                     rel = rel.Next;
                 }
-
-            End:
                 rel = rel.Next;
             }
 

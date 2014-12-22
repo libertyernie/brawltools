@@ -14,6 +14,7 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
  - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Support adding new collision nodes to ARC via right click.
 	. Support adding new BLOC to ARC via right click.
@@ -26,11 +27,8 @@ they be held accountable for the manner in which it is used.
 	. Fixed setting redirect index.
 	. Fixed embedded module files (common2 and common3) not parsing.
 	. Fixed BBox crashing when no vertices exist in Target model.
-	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
-	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
 	. Fixed alignment of the frame indicator with the mouse when dragging it in the interpolation editor.
 	. Fixed shader0's tex ref not being set when importing .dae files.
-	. Added a live texture folder to the model previewer.
 	. Fixed always asking to save after opening the collision editor, regardless if things were changed.
 	. Fixed IA8 texture bug where alpha and intensity were swapped
 	. Fixed frame counts on looped animations with keyframes (CHR0, SRT0, SHP0, SCN0): there is an extra loop frame at the end
@@ -40,6 +38,27 @@ they be held accountable for the manner in which it is used.
 	. Fixed Collada importer bug that occured when mesh nodes were nested inside another. Their bind matrices were not multiplied with the previous node, causing the imported object's mesh to be out of place.
 	. Fixed Collada importer bug that occured when the imported model had no normals.
 	. Fixed Collada importer bug that occured when the imported model had some rigged and some unrigged objects. Unrigged objects are now rigged to the first bone.
+	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
+	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
+	. Model editor now displays bones that are not part of the Target model at half opacity, and in a red color.
+	. Section editor now displays number of selected bytes, rather than length of the full section. (bottom status bar)
+	. GCT editor saves unchecked codes as disabled in .txt (pads the left side with an asterisk). Saving as GCT will not save disabled codes
+	. GCT editor now allows multiline descriptions in .txt files.
+	. Improved pixel format conversion, furthering it's acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
+	. Support adding new collision nodes to ARC via right click.
+	. Support for item frequency nodes.
+	. Support adding new BLOC to ARC via right click.
+	. Support adding and editing the following nodes in / to BLOC archives.
+		- GSND sound files
+		- ADSJ StepJump files, required to link rooms and levels.
+		- GDOR Adventure door files, requires rooms linked via ADSJ.
+	. Added a live texture folder to the model previewer. Select a folder and any textures with names that match the model's textures will be auto-loaded on the model when modified.
+	. Added a small dialog in the collision editor to rotate/translate/scale selected planes by specific values.
+	. Object / Method editor has been added to the module editor pending a better UI for it.
+		- Right click on methods allows you to open the Method's Assembly in section editor.
+		- Right click on inheritance items will open the section editor to THAT INSTANCE'S decleration, before the object's vTable.
+		- PPC disassembler now stops at branch commands in addition to blr.
+		- Added a button to the disassembler that is only visible when a branch command is selected, allowing you to jump to that location.
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas

@@ -759,15 +759,60 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         public const float _nodeRadius = 0.20f;
 
         public bool _render = true;
-        internal unsafe void Render()
+        internal void ApplyCHR0(CHR0Node node, float index)
         {
+            CHR0EntryNode e;
+
+            _frameState = _bindState;
+
+            if (node != null && index >= 1 && (e = node.FindChild(Name, false) as CHR0EntryNode) != null) //Set to anim pose
+                fixed (FrameState* v = &_frameState)
+                {
+                    float* f = (float*)v;
+                    for (int i = 0; i < 9; i++)
+                        if (e.Keyframes[i]._keyCount > 0)
+                            f[i] = e.GetFrameValue(i, index - 1);
+
+                    _frameState.CalcTransforms();
+                }
+
+            foreach (MDL0BoneNode b in Children)
+                b.ApplyCHR0(node, index);
+        }
+
+
+        internal override void Bind()
+        {
+            _render = true;
+            _boneColor = Color.Transparent;
+            _nodeColor = Color.Transparent;
+        }
+
+        public void Attach() { }
+        public bool Attached { get { return _attached; } }
+        private bool _attached = false;
+
+        public void Detach() { }
+
+        public void GetBox(out Vector3 min, out Vector3 max)
+        {
+            min = max = new Vector3(0);
+        }
+
+        public void Refresh() { }
+        public void Render(params object[] args)
+        {
+            bool Foreground = (args.Length > 0 ? (bool)args[0] : false);
+
+            DefaultBoneColor = Foreground ? Color.FromArgb(0, 0, 128) : Color.FromArgb(128, 0, 0);
+
             if (!_render)
                 return;
 
             if (_boneColor != Color.Transparent)
-                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, 1.0f);
+                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
             else
-                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, 1.0f);
+                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
 
             //GL.LineWidth(1.0f);
 
@@ -797,40 +842,19 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 //Render node
                 GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
                 if (_nodeColor != Color.Transparent)
-                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, 1.0f);
+                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
                 else
-                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, 1.0f);
+                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
 
                 ndl.Call();
 
-                DrawNodeOrients();
+                DrawNodeOrients(Foreground);
             }
             GL.PopMatrix();
 
             //Render children
             foreach (MDL0BoneNode n in Children)
-                n.Render();
-        }
-
-        internal void ApplyCHR0(CHR0Node node, float index)
-        {
-            CHR0EntryNode e;
-
-            _frameState = _bindState;
-
-            if (node != null && index >= 1 && (e = node.FindChild(Name, false) as CHR0EntryNode) != null) //Set to anim pose
-                fixed (FrameState* v = &_frameState)
-                {
-                    float* f = (float*)v;
-                    for (int i = 0; i < 9; i++)
-                        if (e.Keyframes[i]._keyCount > 0)
-                            f[i] = e.GetFrameValue(i, index - 1);
-
-                    _frameState.CalcTransforms();
-                }
-
-            foreach (MDL0BoneNode b in Children)
-                b.ApplyCHR0(node, index);
+                n.Render(Foreground);
         }
 
         public static GLDisplayList CreateNodeOrb(TKContext ctx)
@@ -853,31 +877,26 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             return orb;
         }
 
-        public static void DrawNodeOrients()
+        public static void DrawNodeOrients(bool Strong)
         {
             GL.Begin(PrimitiveType.Lines);
 
-            GL.Color4(1.0f, 0.0f, 0.0f, 1.0f);
+            GL.Color4(1.0f, 0.0f, 0.0f, Strong ? 1.0f : 0.35f);
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(_nodeRadius * 2, 0.0f, 0.0f);
 
-            GL.Color4(0.0f, 1.0f, 0.0f, 1.0f);
+            GL.Color4(0.0f, 1.0f, 0.0f, Strong ? 1.0f : 0.35f);
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(0.0f, _nodeRadius * 2, 0.0f);
 
-            GL.Color4(0.0f, 0.0f, 1.0f, 1.0f);
+            GL.Color4(0.0f, 0.0f, 1.0f, Strong ? 1.0f : 0.35f);
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(0.0f, 0.0f, _nodeRadius * 2);
 
             GL.End();
         }
 
-        internal override void Bind()
-        {
-            _render = true;
-            _boneColor = Color.Transparent;
-            _nodeColor = Color.Transparent;
-        }
+        public bool IsRendering { get { return _render; } set { _render = value; } }
 
         #endregion
 

@@ -149,6 +149,9 @@ namespace System.Windows.Forms
         {
             GL.Color4(Color.White);
 
+            if (_currentTextureNode == null || _attached.Count < 1)
+                return;
+
             _currentTextureNode.Prepare(_attached[0] as MDL0MaterialRefNode, -1);
             GLTexture texture = _currentTextureNode.Texture;
 
