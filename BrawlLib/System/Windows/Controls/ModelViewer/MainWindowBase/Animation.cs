@@ -696,6 +696,10 @@ namespace System.Windows.Forms
             int max = (int)pnlPlayback.numTotalFrames.Value;
             _maxFrame = max;
             pnlPlayback.numFrameIndex.Maximum = max;
+
+            if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
+                max--;
+
             TargetAnimation.FrameCount = max;
         }
         public void btnPrevFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value--; }

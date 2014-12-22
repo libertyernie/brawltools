@@ -1421,7 +1421,17 @@ namespace System.Windows.Forms
         {
             AnimationNode n = _mainWindow.TargetAnimation;
             if (n != null)
-                n.Loop = chkLoop.Checked;
+            {
+                bool loopPrev = n.Loop;
+                if ((n.Loop = chkLoop.Checked) != loopPrev)
+                {
+                    int b = -1;
+                    if (n.Loop)
+                        b = 1;
+
+                    _mainWindow.PlaybackPanel.numTotalFrames.Value += b;
+                }
+            }
         }
     }
 }
