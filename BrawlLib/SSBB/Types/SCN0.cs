@@ -23,8 +23,8 @@ namespace BrawlLib.SSBBTypes
         public bint _cameraOffset;
         public bint _stringOffset;
         public bint _origPathOffset;
-        public bshort _frameCount;
-        public bshort _specLightCount;
+        public bushort _frameCount;
+        public bushort _specLightCount;
         public bint _loop;
         public bshort _lightSetCount;
         public bshort _ambientCount;
@@ -71,6 +71,13 @@ namespace BrawlLib.SSBBTypes
             get { return (VoidPtr)this.Address + _stringOffset; }
             set { _stringOffset = (int)value - (int)Address; }
         }
+
+        public string OrigPath { get { return new String((sbyte*)OrigPathAddress); } }
+        public VoidPtr OrigPathAddress
+        {
+            get { return Address + _origPathOffset; }
+            set { _origPathOffset = (int)value - (int)Address; }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -89,8 +96,8 @@ namespace BrawlLib.SSBBTypes
         public bint _userDataOffset;
         public bint _stringOffset;
         public bint _origPathOffset;
-        public bshort _frameCount;
-        public bshort _specLightCount;
+        public bushort _frameCount;
+        public bushort _specLightCount;
         public bint _loop;
         public bshort _lightSetCount;
         public bshort _ambientCount;
@@ -142,6 +149,13 @@ namespace BrawlLib.SSBBTypes
         {
             get { return (VoidPtr)this.Address + _stringOffset; }
             set { _stringOffset = (int)value - (int)Address; }
+        }
+
+        public string OrigPath { get { return new String((sbyte*)OrigPathAddress); } }
+        public VoidPtr OrigPathAddress
+        {
+            get { return Address + _origPathOffset; }
+            set { _origPathOffset = (int)value - (int)Address; }
         }
     }
 

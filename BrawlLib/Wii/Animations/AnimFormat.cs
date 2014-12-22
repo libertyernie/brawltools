@@ -28,9 +28,9 @@ namespace BrawlLib.Wii.Animations
                     KeyframeCollection c = e.Keyframes;
                     for (int index = 0; index < 9; index++)
                     {
-                        KeyFrameMode m = (KeyFrameMode)(index + 0x10);
+                        KeyframeArray array = c._keyArrays[index];
 
-                        if (c[m] <= 0)
+                        if (array._keyCount <= 0)
                             continue;
                         
                         file.WriteLine(String.Format("anim {0}.{0}{1} {0}{1} {2} {3} {4} {5}", types[index / 3], axes[index % 3], e.Name, e.Index, index / 3, index % 3));
@@ -41,7 +41,7 @@ namespace BrawlLib.Wii.Animations
                         file.WriteLine(" preInfinity constant;");
                         file.WriteLine(" postInfinity constant;");
                         file.WriteLine(" keys {");
-                        for (KeyframeEntry entry = c._keyRoots[index]._next; (entry != c._keyRoots[index]); entry = entry._next)
+                        for (KeyframeEntry entry = array._keyRoot._next; (entry != array._keyRoot); entry = entry._next)
                         {
                             float angle = (float)Math.Atan(entry._tangent) * Maths._rad2degf;
                             file.WriteLine(String.Format(" {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10};", 
@@ -120,36 +120,36 @@ namespace BrawlLib.Wii.Animations
                     }
                     string t = anim[2];
                     string bone = anim[3];
-                    KeyFrameMode mode = KeyFrameMode.All;
+                    int mode = -1;
                     if (t.StartsWith("scale"))
                     {
                         if (t.EndsWith("X"))
-                            mode = KeyFrameMode.ScaleX;
+                            mode = 0;
                         else if (t.EndsWith("Y"))
-                            mode = KeyFrameMode.ScaleY;
+                            mode = 1;
                         else if (t.EndsWith("Z"))
-                            mode = KeyFrameMode.ScaleZ;
+                            mode = 2;
                     }
                     else if (t.StartsWith("rotate"))
                     {
                         if (t.EndsWith("X"))
-                            mode = KeyFrameMode.RotX;
+                            mode = 3;
                         else if (t.EndsWith("Y"))
-                            mode = KeyFrameMode.RotY;
+                            mode = 4;
                         else if (t.EndsWith("Z"))
-                            mode = KeyFrameMode.RotZ;
+                            mode = 5;
                     }
                     else if (t.StartsWith("translate"))
                     {
                         if (t.EndsWith("X"))
-                            mode = KeyFrameMode.TransX;
+                            mode = 6;
                         else if (t.EndsWith("Y"))
-                            mode = KeyFrameMode.TransY;
+                            mode = 7;
                         else if (t.EndsWith("Z"))
-                            mode = KeyFrameMode.TransZ;
+                            mode = 8;
                     }
 
-                    if (mode == KeyFrameMode.All)
+                    if (mode == -1)
                     {
                         while ((line = file.ReadLine()) != null && !line.StartsWith("anim ")) ;
                         continue;
@@ -163,7 +163,7 @@ namespace BrawlLib.Wii.Animations
 
                         if ((e = node.FindChild(bone, false) as CHR0EntryNode) == null)
                         {
-                            e = new CHR0EntryNode() { _name = bone, _numFrames = frameCount };
+                            e = new CHR0EntryNode() { _name = bone };
                             node.AddChild(e);
                         }
 

@@ -120,10 +120,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Rebuild texture
                 values[0] = (uint)(texHdrs - address);
                 TPLTextureHeader* tex = (TPLTextureHeader*)texHdrs;
-                tex->_wrapS = t._uWrap;
-                tex->_wrapT = t._vWrap;
-                tex->_minFilter = t._minFltr;
-                tex->_magFilter = t._magFltr;
+                tex->_wrapS = (uint)t._uWrap;
+                tex->_wrapT = (uint)t._vWrap;
+                tex->_minFilter = (uint)t._minFltr;
+                tex->_magFilter = (uint)t._magFltr;
                 tex->PixelFormat = t.Format;
                 tex->_width = (ushort)t.Width;
                 tex->_height = (ushort)t.Height;
@@ -167,10 +167,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         int _width, _height;
         WiiPixelFormat _format;
-        internal uint _uWrap;
-        internal uint _vWrap;
-        internal uint _minFltr;
-        internal uint _magFltr;
+        internal MatWrapMode _uWrap;
+        internal MatWrapMode _vWrap;
+        internal MatTextureMinFilter _minFltr;
+        internal MatTextureMagFilter _magFltr;
         internal float _lodBias;
         internal int _lod;
         internal int _enableEdgeLod;
@@ -182,13 +182,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Texture")]
         public WiiPixelFormat Format { get { return _format; } }
         [Category("Texture")]
-        public MDL0MaterialRefNode.WrapMode UWrapMode { get { return (MDL0MaterialRefNode.WrapMode)_uWrap; } set { _uWrap = (uint)value; SignalPropertyChange(); } }
+        public MatWrapMode UWrapMode { get { return _uWrap; } set { _uWrap = value; SignalPropertyChange(); } }
         [Category("Texture")]
-        public MDL0MaterialRefNode.WrapMode VWrapMode { get { return (MDL0MaterialRefNode.WrapMode)_vWrap; } set { _vWrap = (uint)value; SignalPropertyChange(); } }
+        public MatWrapMode VWrapMode { get { return _vWrap; } set { _vWrap = value; SignalPropertyChange(); } }
         [Category("Texture")]
-        public MDL0MaterialRefNode.TextureMinFilter MinFilter { get { return (MDL0MaterialRefNode.TextureMinFilter)_minFltr; } set { _minFltr = (uint)value; SignalPropertyChange(); } }
+        public MatTextureMinFilter MinFilter { get { return _minFltr; } set { _minFltr = value; SignalPropertyChange(); } }
         [Category("Texture")]
-        public MDL0MaterialRefNode.TextureMagFilter MagFilter { get { return (MDL0MaterialRefNode.TextureMagFilter)_magFltr; } set { _magFltr = (uint)value; SignalPropertyChange(); } }
+        public MatTextureMagFilter MagFilter { get { return _magFltr; } set { _magFltr = value; SignalPropertyChange(); } }
         [Category("Texture")]
         public float LODBias { get { return _lodBias; } set { _lodBias = value; SignalPropertyChange(); } }
         [Category("Texture")]
@@ -207,10 +207,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             _width = Header->_width;
             _height = Header->_height;
             _format = Header->PixelFormat;
-            _uWrap = Header->_wrapS;
-            _vWrap = Header->_wrapT;
-            _minFltr = Header->_minFilter;
-            _magFltr = Header->_magFilter;
+            _uWrap = (MatWrapMode)(uint)Header->_wrapS;
+            _vWrap = (MatWrapMode)(uint)Header->_wrapT;
+            _minFltr = (MatTextureMinFilter)(uint)Header->_minFilter;
+            _magFltr = (MatTextureMagFilter)(uint)Header->_magFilter;
             _lod = Header->_maxLOD + 1;
             _enableEdgeLod = Header->_edgeLODEnable;
 
@@ -302,10 +302,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     using (FileMap map = FileMap.FromStream(stream))
                     {
                         TPLTextureHeader* tex = (TPLTextureHeader*)map.Address;
-                        tex->_wrapS = _uWrap;
-                        tex->_wrapT = _vWrap;
-                        tex->_minFilter = _minFltr;
-                        tex->_magFilter = _magFltr;
+                        tex->_wrapS = (uint)_uWrap;
+                        tex->_wrapT = (uint)_vWrap;
+                        tex->_minFilter = (uint)_minFltr;
+                        tex->_magFilter = (uint)_magFltr;
                         tex->PixelFormat = Format;
                         tex->_width = (ushort)Width;
                         tex->_height = (ushort)Height;

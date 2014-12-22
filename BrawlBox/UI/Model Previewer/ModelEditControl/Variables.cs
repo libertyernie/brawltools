@@ -30,12 +30,6 @@ namespace System.Windows.Forms
             set { _targetCollision = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public override bool LinearInterpolation
-        {
-            get { return linearInterpolationToolStripMenuItem.Checked; }
-            set { linearInterpolationToolStripMenuItem.Checked = value; }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override BonesPanel BonesPanel { get { return rightPanel.pnlBones; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override KeyframePanel KeyframePanel { get { return rightPanel.pnlKeyframes; } }
@@ -114,9 +108,6 @@ namespace System.Windows.Forms
             get { return _targetAnimType; }
             set
             {
-                if (_targetAnimType == value)
-                    return;
-
                 _targetAnimType = value;
                 leftPanel.TargetAnimType = TargetAnimType;
                 SetCurrentControl();

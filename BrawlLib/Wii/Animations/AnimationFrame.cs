@@ -1,21 +1,19 @@
-﻿using System;
+﻿using BrawlLib.SSBBTypes;
+using System;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.Wii.Animations
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct AnimationFrame
+    public struct CHRAnimationFrame
     {
-        public static readonly AnimationFrame Identity = new AnimationFrame(new Vector3(1.0f), new Vector3(), new Vector3());
-        public static readonly AnimationFrame Empty = new AnimationFrame();
+        public static readonly CHRAnimationFrame Identity = new CHRAnimationFrame(new Vector3(1.0f), new Vector3(), new Vector3());
+        public static readonly CHRAnimationFrame Empty = new CHRAnimationFrame();
         
         public Vector3 Scale;
         public Vector3 Rotation;
         public Vector3 Translation;
-
-        public bool forKeyframeCHR;
-        public bool forKeyframeSRT;
 
         public bool hasSx;
         public bool hasSy;
@@ -62,23 +60,23 @@ namespace BrawlLib.Wii.Animations
         {
             switch (index)
             {
-                case 0x10:
+                case 0:
                     return hasSx; 
-                case 0x11:
+                case 1:
                     return hasSy; 
-                case 0x12:
+                case 2:
                     return hasSz; 
-                case 0x13:
+                case 3:
                     return hasRx; 
-                case 0x14:
+                case 4:
                     return hasRy; 
-                case 0x15:
+                case 5:
                     return hasRz; 
-                case 0x16:
+                case 6:
                     return hasTx; 
-                case 0x17:
+                case 7:
                     return hasTy; 
-                case 0x18:
+                case 8:
                     return hasTz; 
             }
             return false;
@@ -126,42 +124,130 @@ namespace BrawlLib.Wii.Animations
             }
         }
 
-        public AnimationFrame(Vector3 scale, Vector3 rotation, Vector3 translation)
+        public CHRAnimationFrame(Vector3 scale, Vector3 rotation, Vector3 translation)
         {
             Scale = scale; Rotation = rotation; Translation = translation; Index = 0;
             hasSx = hasSy = hasSz = hasRx = hasRy = hasRz = hasTx = hasTy = hasTz = false;
-            forKeyframeSRT = forKeyframeCHR = false;
         }
         public int Index;
         const int len = 6;
         static string empty = new String('_', len);
         public override string ToString()
         {
-            if (forKeyframeCHR)
+            return String.Format("[{0}]({1},{2},{3})({4},{5},{6})({7},{8},{9})", (Index + 1).ToString().PadLeft(5),
+            !hasSx ? empty : Scale._x.ToString().TruncateAndFill(len, ' '),
+            !hasSy ? empty : Scale._y.ToString().TruncateAndFill(len, ' '),
+            !hasSz ? empty : Scale._z.ToString().TruncateAndFill(len, ' '),
+            !hasRx ? empty : Rotation._x.ToString().TruncateAndFill(len, ' '),
+            !hasRy ? empty : Rotation._y.ToString().TruncateAndFill(len, ' '),
+            !hasRz ? empty : Rotation._z.ToString().TruncateAndFill(len, ' '),
+            !hasTx ? empty : Translation._x.ToString().TruncateAndFill(len, ' '),
+            !hasTy ? empty : Translation._y.ToString().TruncateAndFill(len, ' '),
+            !hasTz ? empty : Translation._z.ToString().TruncateAndFill(len, ' '));
+        }
+        //public override string ToString()
+        //{
+        //    return String.Format("{0}\r\n{1}\r\n{2}", Scale, Rotation, Translation);
+        //}
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct SRTAnimationFrame
+    {
+        public static readonly SRTAnimationFrame Identity = new SRTAnimationFrame(new Vector2(1.0f), 0, new Vector2());
+        public static readonly SRTAnimationFrame Empty = new SRTAnimationFrame();
+
+        public Vector2 Scale;
+        public float Rotation;
+        public Vector2 Translation;
+
+        public bool hasSx;
+        public bool hasSy;
+        public bool hasRx;
+        public bool hasTx;
+        public bool hasTy;
+
+        public bool HasKeys
+        {
+            get { return hasSx || hasSy || hasRx|| hasTx || hasTy; }
+        }
+
+        public void SetBool(int index, bool val)
+        {
+            switch (index)
             {
-                return String.Format("[{0}]({1},{2},{3})({4},{5},{6})({7},{8},{9})", (Index + 1).ToString().PadLeft(5),
-                !hasSx ? empty : Scale._x.ToString().TruncateAndFill(len, ' '),
-                !hasSy ? empty : Scale._y.ToString().TruncateAndFill(len, ' '),
-                !hasSz ? empty : Scale._z.ToString().TruncateAndFill(len, ' '),
-                !hasRx ? empty : Rotation._x.ToString().TruncateAndFill(len, ' '),
-                !hasRy ? empty : Rotation._y.ToString().TruncateAndFill(len, ' '),
-                !hasRz ? empty : Rotation._z.ToString().TruncateAndFill(len, ' '),
-                !hasTx ? empty : Translation._x.ToString().TruncateAndFill(len, ' '),
-                !hasTy ? empty : Translation._y.ToString().TruncateAndFill(len, ' '),
-                !hasTz ? empty : Translation._z.ToString().TruncateAndFill(len, ' '));
+                case 0: hasSx = val; break;
+                case 1: hasSy = val; break;
+                case 2: hasRx = val; break;
+                case 3: hasTx = val; break;
+                case 4: hasTy = val; break;
             }
-            else if (forKeyframeSRT)
+        }
+        public bool GetBool(int index)
+        {
+            switch (index)
             {
-                return String.Format("[{0}]({1},{2})({3})({4},{5})", (Index + 1).ToString().PadLeft(5),
-                !hasSx ? empty : Scale._x.ToString().TruncateAndFill(len, ' '),
-                !hasSy ? empty : Scale._y.ToString().TruncateAndFill(len, ' '),
-                !hasRx ? empty : Rotation._x.ToString().TruncateAndFill(len, ' '),
-                !hasTx ? empty : Translation._x.ToString().TruncateAndFill(len, ' '),
-                !hasTy ? empty : Translation._y.ToString().TruncateAndFill(len, ' ')
-                );
+                case 0: return hasSx;
+                case 1: return hasSy;
+                case 2: return hasRx;
+                case 3: return hasTx;
+                case 4: return hasTy;
             }
-            else
-                return String.Format("{0}\r\n{1}\r\n{2}", Scale, Rotation, Translation);
+            return false;
+        }
+
+        public void ResetBools()
+        {
+            hasRx = hasSx = hasSy = hasTx = hasTy = false;
+        }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0: return Scale._x;
+                    case 1: return Scale._y;
+                    case 2: return Rotation;
+                    case 3: return Translation._x;
+                    case 4: return Translation._y;
+                    default: return float.NaN;
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: Scale._x = value; break;
+                    case 1: Scale._y = value; break;
+                    case 2: Rotation = value; break;
+                    case 3: Translation._x = value; break;
+                    case 4: Translation._y = value; break;
+                }
+            }
+        }
+
+        public SRTAnimationFrame(Vector2 scale, float rotation, Vector2 translation)
+        {
+            Scale = scale;
+            Rotation = rotation;
+            Translation = translation;
+            Index = 0;
+            hasSx = hasSy = hasRx = hasTx = hasTy = false;
+        }
+        public int Index;
+        const int len = 6;
+        static string empty = new String('_', len);
+        public override string ToString()
+        {
+            return String.Format("[{0}]({1},{2})({3})({4},{5})", (Index + 1).ToString().PadLeft(5),
+            !hasSx ? empty : Scale._x.ToString().TruncateAndFill(len, ' '),
+            !hasSy ? empty : Scale._y.ToString().TruncateAndFill(len, ' '),
+            !hasRx ? empty : Rotation.ToString().TruncateAndFill(len, ' '),
+            !hasTx ? empty : Translation._x.ToString().TruncateAndFill(len, ' '),
+            !hasTy ? empty : Translation._y.ToString().TruncateAndFill(len, ' '));
         }
         //public override string ToString()
         //{
@@ -170,39 +256,367 @@ namespace BrawlLib.Wii.Animations
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct AnimationKeyframe
+    public struct FogAnimationFrame
     {
-        public static readonly AnimationKeyframe Empty = new AnimationKeyframe(0);
-        public static readonly AnimationKeyframe Neutral = new AnimationKeyframe() { Scale = new Vector3(1.0f) };
+        public static readonly FogAnimationFrame Empty = new FogAnimationFrame();
 
-        public int Index;
+        public float Start;
+        public float End;
 
-        public Vector3 Scale;
-        public Vector3 Rotation;
-        public Vector3 Translation;
+        public bool hasS;
+        public bool hasE;
 
-        public AnimationKeyframe(int index)
+        public bool HasKeys { get { return hasS || hasE; } }
+
+        public void SetBools(int index, bool val)
         {
-            Index = index;
-            Scale = new Vector3(float.NaN);
-            Rotation = new Vector3(float.NaN);
-            Translation = new Vector3(float.NaN);
+            switch (index)
+            {
+                case 0:
+                    hasS = val; break;
+                case 1:
+                    hasE = val; break;
+            }
         }
 
+        public void ResetBools()
+        {
+            hasS = hasE = false;
+        }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0: return Start;
+                    case 1: return End;
+                    default: return float.NaN;
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: Start = value; break;
+                    case 1: End = value; break;
+                }
+            }
+        }
+
+        public FogAnimationFrame(float start, float end)
+        {
+            Start = start;
+            End = end;
+            Index = 0;
+            hasS = hasE = false;
+        }
+
+        public int Index;
         const int len = 6;
         static string empty = new String('_', len);
         public override string ToString()
         {
-            return String.Format("[{0}]({1},{2},{3})({4},{5},{6})({7},{8},{9})", Index + 1,
-                float.IsNaN(Scale._x) ? empty : Scale._x.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Scale._y) ? empty : Scale._y.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Scale._z) ? empty : Scale._z.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Rotation._x) ? empty : Rotation._x.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Rotation._y) ? empty : Rotation._y.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Rotation._z) ? empty : Rotation._z.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Translation._x) ? empty : Translation._x.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Translation._y) ? empty : Translation._y.ToString().TruncateAndFill(len, ' '),
-                float.IsNaN(Translation._z) ? empty : Translation._z.ToString().TruncateAndFill(len, ' '));
+            return String.Format("[{0}] StartZ={1}, EndZ={2}", (Index + 1).ToString().PadLeft(5),
+            !hasS ? empty : Start.ToString().TruncateAndFill(len, ' '),
+            !hasE ? empty : End.ToString().TruncateAndFill(len, ' '));
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct LightAnimationFrame
+    {
+        public static readonly LightAnimationFrame Empty = new LightAnimationFrame();
+
+        public Vector3 Start;
+        public Vector3 End;
+        public float RefDist;
+        public float RefBright;
+        public float SpotCutoff;
+        public float SpotBright;
+
+        public bool Enabled;
+
+        public bool hasSx;
+        public bool hasSy;
+        public bool hasSz;
+
+        public bool hasEx;
+        public bool hasEy;
+        public bool hasEz;
+
+        public bool hasSC;
+        public bool hasSB;
+        public bool hasRD;
+        public bool hasRB;
+
+        public bool HasKeys
+        {
+            get { return hasSx || hasSy || hasSz || hasEx || hasEy || hasEz || hasSC || hasSB || hasRD || hasRB; }
+        }
+
+        public void SetBools(int index, bool val)
+        {
+            switch (index)
+            {
+                case 0: hasSx = val; break;
+                case 1: hasSy = val; break;
+                case 2: hasSz = val; break;
+                case 3: hasEx = val; break;
+                case 4: hasEy = val; break;
+                case 5: hasEz = val; break;
+                case 6: hasRD = val; break;
+                case 7: hasRB = val; break;
+                case 8: hasSC = val; break;
+                case 9: hasSB = val; break;
+            }
+        }
+
+        public void ResetBools()
+        {
+            hasEx = hasEy = hasEz =
+            hasSx = hasSy = hasSz =
+            hasSC = hasSB = hasRD = hasRB = false;
+        }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0: return Start._x;
+                    case 1: return Start._y;
+                    case 2: return Start._z;
+                    case 3: return End._x;
+                    case 4: return End._y;
+                    case 5: return End._z;
+                    case 6: return RefDist;
+                    case 7: return RefBright;
+                    case 8: return SpotCutoff;
+                    case 9: return SpotBright;
+                    default: return float.NaN;
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: Start._x = value; break;
+                    case 1: Start._y = value; break;
+                    case 2: Start._z = value; break;
+                    case 3: End._x = value; break;
+                    case 4: End._y = value; break;
+                    case 5: End._z = value; break;
+                    case 6: RefDist = value; break;
+                    case 7: RefBright = value; break;
+                    case 8: SpotCutoff = value; break;
+                    case 9: SpotBright = value; break;
+                }
+            }
+        }
+
+        public LightAnimationFrame(Vector3 start, Vector3 end, float sc, float sb, float rd, float rb, bool enabled)
+        {
+            Start = start;
+            End = end;
+            SpotCutoff = sc;
+            SpotBright = sb;
+            RefDist = rd;
+            RefBright = rb;
+            Enabled = enabled;
+            Index = 0;
+            hasSx = hasSy = hasSz = hasEx = hasEy = hasEz = hasSC = hasSB = hasRD = hasRB = false;
+        }
+        public int Index;
+        const int len = 6;
+        static string empty = new String('_', len);
+        public override string ToString()
+        {
+            return String.Format("[{0}] Start=({1},{2},{3}), End=({4},{5},{6}), SC={7}, SB={8} RD={9}, RB={10}", (Index + 1).ToString().PadLeft(5),
+            !hasSx ? empty : Start._x.ToString().TruncateAndFill(len, ' '),
+            !hasSy ? empty : Start._y.ToString().TruncateAndFill(len, ' '),
+            !hasSz ? empty : Start._z.ToString().TruncateAndFill(len, ' '),
+            !hasEx ? empty : End._x.ToString().TruncateAndFill(len, ' '),
+            !hasEy ? empty : End._y.ToString().TruncateAndFill(len, ' '),
+            !hasEz ? empty : End._z.ToString().TruncateAndFill(len, ' '),
+            !hasSC ? empty : SpotCutoff.ToString().TruncateAndFill(len, ' '),
+            !hasSB ? empty : SpotBright.ToString().TruncateAndFill(len, ' '),
+            !hasRD ? empty : RefDist.ToString().TruncateAndFill(len, ' '),
+            !hasRB ? empty : RefBright.ToString().TruncateAndFill(len, ' '));
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct CameraAnimationFrame
+    {
+        public static readonly CameraAnimationFrame Empty = new CameraAnimationFrame();
+
+        public Vector3 Pos;
+        public float Aspect;
+        public float NearZ;
+        public float FarZ;
+        public Vector3 Rot;
+        public Vector3 Aim;
+        public float Twist;
+        public float FovY;
+        public float Height;
+
+        public bool hasPx;
+        public bool hasPy;
+        public bool hasPz;
+
+        public bool hasRx;
+        public bool hasRy;
+        public bool hasRz;
+
+        public bool hasAx;
+        public bool hasAy;
+        public bool hasAz;
+
+        public bool hasT;
+        public bool hasF;
+        public bool hasH;
+        public bool hasA;
+        public bool hasNz;
+        public bool hasFz;
+
+        public bool HasKeys
+        {
+            get { return hasPx || hasPy || hasPz || hasRx || hasRy || hasRz || hasAx || hasAy || hasAz || hasT || hasF || hasH || hasA || hasNz || hasFz; }
+        }
+
+        public void SetBools(int index, bool val)
+        {
+            switch (index)
+            {
+                case 0: hasPx = val; break;
+                case 1: hasPy = val; break;
+                case 2: hasPz = val; break;
+                case 3: hasA = val; break;
+                case 4: hasNz = val; break;
+                case 5: hasFz = val; break;
+                case 6: hasRx = val; break;
+                case 7: hasRy = val; break;
+                case 8: hasRz = val; break;
+                case 9: hasAx = val; break;
+                case 10: hasAy = val; break;
+                case 11: hasAz = val; break;
+                case 12: hasT = val; break;
+                case 13: hasF = val; break;
+                case 14: hasH = val; break;
+            }
+        }
+
+        public void ResetBools()
+        {
+            hasRx = hasRy = hasRz =
+            hasPx = hasPy = hasPz =
+            hasAx = hasAy = hasAz =
+            hasT = hasF = hasH =
+            hasA = hasNz = hasFz = false;
+        }
+
+        public float this[int index]
+        {
+            get
+            {
+                switch (index)
+                {
+                    case 0: return Pos._x;
+                    case 1: return Pos._y;
+                    case 2: return Pos._z;
+                    case 3: return Aspect;
+                    case 4: return NearZ;
+                    case 5: return FarZ;
+                    case 6: return Rot._x;
+                    case 7: return Rot._y;
+                    case 8: return Rot._z;
+                    case 9: return Aim._x;
+                    case 10: return Aim._y;
+                    case 11: return Aim._z;
+                    case 12: return Twist;
+                    case 13: return FovY;
+                    case 14: return Height;
+
+                    default: return float.NaN;
+                }
+            }
+            set
+            {
+                switch (index)
+                {
+                    case 0: Pos._x = value; break;
+                    case 1: Pos._y = value; break;
+                    case 2: Pos._z = value; break;
+                    case 3: Aspect = value; break;
+                    case 4: NearZ = value; break;
+                    case 5: FarZ = value; break;
+                    case 6: Rot._x = value; break;
+                    case 7: Rot._y = value; break;
+                    case 8: Rot._z = value; break;
+                    case 9: Aim._x = value; break;
+                    case 10: Aim._y = value; break;
+                    case 11: Aim._z = value; break;
+                    case 12: Twist = value; break;
+                    case 13: FovY = value; break;
+                    case 14: Height = value; break;
+                }
+            }
+        }
+
+        public Vector3 GetRotate(SCN0CameraType type)
+        {
+            if (type == SCN0CameraType.Rotate)
+                return Rot;
+            else //Aim - calculate rotation facing the position
+            {
+                Matrix m = Matrix.ReverseLookat(Aim, Pos, Twist);
+                Vector3 a = m.GetAngles();
+                return new Vector3(-a._x, -a._y, -a._z);
+            }
+        }
+
+        public CameraAnimationFrame(Vector3 pos, Vector3 rot, Vector3 aim, float t, float f, float h, float a, float nz, float fz)
+        {
+            Pos = pos;
+            Rot = rot;
+            Aim = aim;
+            Twist = t;
+            FovY = f;
+            Height = h;
+            Aspect = a;
+            NearZ = nz;
+            FarZ = fz;
+            Index = 0;
+            hasRx = hasRy = hasRz =
+            hasPx = hasPy = hasPz =
+            hasAx = hasAy = hasAz =
+            hasT = hasF = hasH =
+            hasA = hasNz = hasFz = false;
+        }
+        public int Index;
+        const int len = 6;
+        static string empty = new String('_', len);
+        public override string ToString()
+        {
+            return String.Format("[{0}] Pos=({1},{2},{3}), Rot=({4},{5},{6}), Aim=({7},{8},{9}), Twist={10}, FovY={11}, Height={12}, Aspect={13}, NearZ={14}, FarZ={15}", (Index + 1).ToString().PadLeft(5),
+            !hasPx ? empty : Pos._x.ToString().TruncateAndFill(len, ' '),
+            !hasPy ? empty : Pos._y.ToString().TruncateAndFill(len, ' '),
+            !hasPz ? empty : Pos._z.ToString().TruncateAndFill(len, ' '),
+            !hasRx ? empty : Rot._x.ToString().TruncateAndFill(len, ' '),
+            !hasRy ? empty : Rot._y.ToString().TruncateAndFill(len, ' '),
+            !hasRz ? empty : Rot._z.ToString().TruncateAndFill(len, ' '),
+            !hasAx ? empty : Aim._x.ToString().TruncateAndFill(len, ' '),
+            !hasAy ? empty : Aim._y.ToString().TruncateAndFill(len, ' '),
+            !hasAz ? empty : Aim._z.ToString().TruncateAndFill(len, ' '),
+            !hasT ? empty : Twist.ToString().TruncateAndFill(len, ' '),
+            !hasF ? empty : FovY.ToString().TruncateAndFill(len, ' '),
+            !hasH ? empty : Height.ToString().TruncateAndFill(len, ' '),
+            !hasA ? empty : Aspect.ToString().TruncateAndFill(len, ' '),
+            !hasNz ? empty : NearZ.ToString().TruncateAndFill(len, ' '),
+            !hasFz ? empty : FarZ.ToString().TruncateAndFill(len, ' '));
         }
     }
 }

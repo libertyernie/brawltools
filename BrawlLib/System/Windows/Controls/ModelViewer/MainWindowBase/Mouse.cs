@@ -373,7 +373,6 @@ namespace System.Windows.Forms
                     //}
 
                     UpdateModel();
-                    UpdatePropDisplay();
                     _lastPointWorld = point;
                 }
             }

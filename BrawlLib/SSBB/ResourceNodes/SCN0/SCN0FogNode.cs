@@ -11,14 +11,14 @@ using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SCN0FogNode : SCN0EntryNode, IColorSource, ISCN0KeyframeSource
+    public unsafe class SCN0FogNode : SCN0EntryNode, IColorSource, IKeyframeSource
     {
         internal SCN0Fog* Data { get { return (SCN0Fog*)WorkingUncompressed.Address; } }
 
         private FogType _type = FogType.PerspectiveLinear;
         public SCN0FogFlags _flags = (SCN0FogFlags)0xE0;
         public bool _constantColor = true;
-        public KeyframeArray _startKeys = new KeyframeArray(0), _endKeys = new KeyframeArray(0);
+        public KeyframeCollection _keyframes;
         internal List<RGBAPixel> _colors = new List<RGBAPixel>();
         internal RGBAPixel _solidColor;
 
@@ -53,28 +53,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
-        #region ISCN0KeyframeHolder Members
-        [Browsable(false)]
-        public int KeyArrayCount { get { return 2; } }
-        public KeyframeArray GetKeys(int i)
-        {
-            switch (i)
-            {
-                case 0: return _startKeys;
-                case 1: return _endKeys;
-            }
-            return null;
-        }
-        public void SetKeys(int i, KeyframeArray value)
-        {
-            switch (i)
-            {
-                case 0: _startKeys = value; break;
-                case 1: _endKeys = value; break;
-            }
-        }
-        #endregion
-
         [Category("Fog")]
         public bool ConstantColor
         {
@@ -97,19 +75,30 @@ namespace BrawlLib.SSBB.ResourceNodes
         public FogType Type { get { return _type; } set { _type = value; SignalPropertyChange(); } }
 
         [Browsable(false)]
-        public int FrameCount
+        public int FrameCount { get { return Keyframes.FrameLimit; } }
+
+        [Browsable(false)]
+        public KeyframeCollection Keyframes
         {
-            get { return ((SCN0Node)Parent.Parent).FrameCount; }
-            set
+            get
             {
-                _numEntries = _colors.Count;
-                NumEntries = value + 1;
-                if (_constantColor)
-                    _numEntries = 0;
-                _startKeys.FrameLimit = value;
-                _endKeys.FrameLimit = value;
+                if (_keyframes == null)
+                {
+                    _keyframes = new KeyframeCollection(2, Scene.FrameCount);
+                    if (Data != null && _name != "<null>")
+                        for (int i = 0; i < 2; i++)
+                            DecodeKeyframes(
+                                KeyArrays[i],
+                                Data->_start.Address + i * 4,
+                                (int)_flags,
+                                (int)SCN0FogFlags.FixedStart + i * 0x20);
+                }
+                return _keyframes;
             }
         }
+
+        [Browsable(false)]
+        public KeyframeArray[] KeyArrays { get { return Keyframes._keyArrays; } }
 
         [Browsable(false)]
         public List<RGBAPixel> Colors { get { return _colors; } set { _colors = value; SignalPropertyChange(); } }
@@ -162,24 +151,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Set defaults
             _colors = new List<RGBAPixel>();
-            _startKeys = new KeyframeArray(FrameCount);
-            _endKeys = new KeyframeArray(FrameCount);
 
             //Read header values
             _flags = (SCN0FogFlags)Data->_flags;
             _type = (FogType)(int)Data->_type;
 
             //Don't bother reading data if the entry is null
-            if (Name == "<null>")
+            if (_name == "<null>")
                 return false;
-
-            //Read start and end keyframe arrays
-            for (int i = 0; i < 2; i++)
-                DecodeKeyframes(
-                    GetKeys(i),
-                    Data->_start.Address + i * 4,
-                    (int)_flags,
-                    (int)SCN0FogFlags.FixedStart + i * 0x20);
 
             //Read fog color
             ReadColors(
@@ -212,9 +191,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Add keyframe array sizes
             for (int i = 0; i < 2; i++)
-                CalcKeyLen(GetKeys(i));
+                CalcKeyLen(KeyArrays[i]);
 
-            _match = FindColorMatch(_constantColor, FrameCount, _match, 0) as SCN0FogNode;
+            _match = FindColorMatch(_constantColor, FrameCount, 0) as SCN0FogNode;
             if (_match == null && !_constantColor)
                 _dataLengths[1] += 4 * (FrameCount + 1);
 
@@ -228,13 +207,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             _matchAddr = null;
 
+            if (_name == "<null>")
+                return;
+
             SCN0Fog* header = (SCN0Fog*)address;
 
             int flags = 0;
 
             for (int i = 0; i < 2; i++)
                 _dataAddrs[0] += EncodeKeyframes(
-                    GetKeys(i),
+                    KeyArrays[i],
                     _dataAddrs[0],
                     header->_start.Address + i * 4,
                     ref flags,
@@ -263,43 +245,26 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public static bool _generateTangents = true;
-        public static bool _linear = true;
-
-        internal FogAnimationFrame GetAnimFrame(int index)
+        public FogAnimationFrame GetAnimFrame(int index)
         {
             FogAnimationFrame frame;
             float* dPtr = (float*)&frame;
             for (int x = 0; x < 2; x++)
             {
-                KeyframeArray a = GetKeys(x);
+                KeyframeArray a = KeyArrays[x];
                 *dPtr++ = a.GetFrameValue(index);
                 frame.SetBools(x, a.GetKeyframe((int)index) != null);
                 frame.Index = index;
             }
             return frame;
         }
-        internal FogAnimationFrame GetAnimFrame(int index, bool linear)
+        public KeyframeEntry GetKeyframe(int keyFrameMode, int index)
         {
-            FogAnimationFrame frame;
-            float* dPtr = (float*)&frame;
-            for (int x = 0; x < 2; x++)
-            {
-                KeyframeArray a = GetKeys(x);
-                *dPtr++ = a.GetFrameValue(index, linear);
-                frame.SetBools(x, a.GetKeyframe((int)index) != null);
-                frame.Index = index;
-            }
-            return frame;
+            return KeyArrays[keyFrameMode].GetKeyframe(index);
         }
-
-        internal KeyframeEntry GetKeyframe(int keyFrameMode, int index)
+        public void RemoveKeyframe(int keyFrameMode, int index)
         {
-            return GetKeys(keyFrameMode).GetKeyframe(index);
-        }
-
-        internal void RemoveKeyframe(int keyFrameMode, int index)
-        {
-            KeyframeEntry k = GetKeys(keyFrameMode).Remove(index);
+            KeyframeEntry k = KeyArrays[keyFrameMode].Remove(index);
             if (k != null && _generateTangents)
             {
                 k._prev.GenerateTangent();
@@ -307,10 +272,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-
-        internal void SetKeyframe(int keyFrameMode, int index, float value)
+        public void SetKeyframe(int keyFrameMode, int index, float value)
         {
-            KeyframeArray keys = GetKeys(keyFrameMode);
+            KeyframeArray keys = KeyArrays[keyFrameMode];
             bool exists = keys.GetKeyframe(index) != null;
             KeyframeEntry k = keys.SetFrameValue(index, value);
 
@@ -326,74 +290,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             SignalPropertyChange();
         }
-    }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct FogAnimationFrame
-    {
-        public static readonly FogAnimationFrame Empty = new FogAnimationFrame();
-
-        public float Start;
-        public float End;
-
-        public bool hasS;
-        public bool hasE;
-
-        public bool HasKeys { get { return hasS || hasE; } }
-
-        public void SetBools(int index, bool val)
+        internal void SetSize(int numFrames, bool looped)
         {
-            switch (index)
-            {
-                case 0:
-                    hasS = val; break;
-                case 1:
-                    hasE = val; break;
-            }
-        }
-
-        public void ResetBools()
-        {
-            hasS = hasE = false;
-        }
-
-        public float this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case 0: return Start;
-                    case 1: return End;
-                    default: return float.NaN;
-                }
-            }
-            set
-            {
-                switch (index)
-                {
-                    case 0: Start = value; break;
-                    case 1: End = value; break;
-                }
-            }
-        }
-
-        public FogAnimationFrame(float start, float end)
-        {
-            Start = start;
-            End = end;
-            Index = 0;
-            hasS = hasE = false;
-        }
-
-        public int Index;
-        const int len = 6;
-        static string empty = new String('_', len);
-        public override string ToString()
-        {
-            return String.Format("[{0}] StartZ={1}, EndZ={2}", (Index + 1).ToString().PadLeft(5),
-            !hasS ? empty : Start.ToString().TruncateAndFill(len, ' '),
-            !hasE ? empty : End.ToString().TruncateAndFill(len, ' '));
+            _numEntries = _colors.Count;
+            NumEntries = numFrames;
+            if (_constantColor)
+                _numEntries = 0;
+            Keyframes.FrameLimit = numFrames + (looped ? 1 : 0);
         }
     }
 }

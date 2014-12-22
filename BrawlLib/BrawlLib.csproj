@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -27,7 +27,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -130,6 +130,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|AnyCPU'">
     <OutputPath>bin\_DEBUG\</OutputPath>
@@ -137,6 +138,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -149,6 +151,7 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|Itanium'">
     <DebugSymbols>true</DebugSymbols>
@@ -157,6 +160,7 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <PlatformTarget>Itanium</PlatformTarget>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -189,6 +193,7 @@
     <Compile Include="Modeling\IBoneNode.cs" />
     <Compile Include="Modeling\IModel.cs" />
     <Compile Include="Modeling\IObject.cs" />
+    <None Include="Modeling\XMLExporter.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
@@ -215,7 +220,7 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Objects\GMPSNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\GSNDNode.cs" />
     <Compile Include="SSBB\Stage.cs" />
-    <Compile Include="SSBB\SuppertedFilesHandler.cs" />
+    <Compile Include="SSBB\SupportedFilesHandler.cs" />
     <None Include="SSBB\Types\BMD.cs" />
     <Compile Include="SSBB\Types\LM BIN.cs" />
     <None Include="SSBB\Types\BTI.cs" />
@@ -260,7 +265,6 @@
     <Compile Include="Modeling\FrameState.cs" />
     <Compile Include="Modeling\IMatrixNode.cs" />
     <Compile Include="Modeling\PrimitiveManager.cs" />
-    <None Include="Modeling\TextureManager.cs" />
     <Compile Include="Modeling\Triangle Converter\Deque\Deque.cs" />
     <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.cs" />
     <Compile Include="Modeling\Triangle Converter\Deque\GenericDeque.Enumerator.cs" />
@@ -313,7 +317,7 @@
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurPosNode.cs" />
     <Compile Include="SSBB\ResourceNodes\NW4RNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\TPLNode.cs" />
-    <Compile Include="SSBB\ResourceNodes\Graphics\REFFTEVStage.cs" />
+    <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFTEVStage.cs" />
     <None Include="SSBB\ResourceNodes\Modules\RELMethodNode.cs" />
     <None Include="SSBB\ResourceNodes\Modules\RELObjectParser.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\ModuleDataNode.cs" />

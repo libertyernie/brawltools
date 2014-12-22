@@ -42,8 +42,6 @@
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.displayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkViewAll = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinear = new System.Windows.Forms.ToolStripMenuItem();
-            this.mItem_display_showEditValsAsLinear = new System.Windows.Forms.ToolStripMenuItem();
             this.chkRenderTans = new System.Windows.Forms.ToolStripMenuItem();
             this.optionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkSetFrame = new System.Windows.Forms.ToolStripMenuItem();
@@ -219,7 +217,6 @@
             // 
             this.displayToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.chkViewAll,
-            this.chkLinear,
             this.chkRenderTans});
             this.displayToolStripMenuItem.Name = "displayToolStripMenuItem";
             this.displayToolStripMenuItem.Size = new System.Drawing.Size(57, 20);
@@ -232,26 +229,6 @@
             this.chkViewAll.Size = new System.Drawing.Size(177, 22);
             this.chkViewAll.Text = "View keyframe only";
             this.chkViewAll.CheckedChanged += new System.EventHandler(this.chkAllKeys_CheckedChanged);
-            // 
-            // chkLinear
-            // 
-            this.chkLinear.CheckOnClick = true;
-            this.chkLinear.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.mItem_display_showEditValsAsLinear});
-            this.chkLinear.Name = "chkLinear";
-            this.chkLinear.Size = new System.Drawing.Size(177, 22);
-            this.chkLinear.Text = "Linear";
-            this.chkLinear.CheckedChanged += new System.EventHandler(this.chkLinear_CheckedChanged);
-            // 
-            // mItem_display_showEditValsAsLinear
-            // 
-            this.mItem_display_showEditValsAsLinear.Checked = true;
-            this.mItem_display_showEditValsAsLinear.CheckOnClick = true;
-            this.mItem_display_showEditValsAsLinear.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.mItem_display_showEditValsAsLinear.Name = "mItem_display_showEditValsAsLinear";
-            this.mItem_display_showEditValsAsLinear.Size = new System.Drawing.Size(216, 22);
-            this.mItem_display_showEditValsAsLinear.Text = "Show/Edit Values As Linear";
-            this.mItem_display_showEditValsAsLinear.CheckedChanged += new System.EventHandler(this.mItem_display_showEditValsAsLinear_CheckedChanged);
             // 
             // chkRenderTans
             // 
@@ -374,11 +351,13 @@
             this.interpolationViewer.FrameIndex = 0;
             this.interpolationViewer.FrameLimit = 0;
             this.interpolationViewer.GenerateTangents = false;
+            this.interpolationViewer.IsOrthographic = false;
             this.interpolationViewer.KeyDraggingAllowed = false;
             this.interpolationViewer.Linear = false;
             this.interpolationViewer.Location = new System.Drawing.Point(0, 66);
             this.interpolationViewer.Name = "interpolationViewer";
             this.interpolationViewer.Precision = 3.75F;
+            this.interpolationViewer.ProjectionChanged = false;
             this.interpolationViewer.Size = new System.Drawing.Size(360, 180);
             this.interpolationViewer.SyncStartEnd = false;
             this.interpolationViewer.TabIndex = 3;
@@ -415,7 +394,6 @@
         private MenuStrip menuStrip1;
         private ToolStripMenuItem displayToolStripMenuItem;
         private ToolStripMenuItem chkViewAll;
-        private ToolStripMenuItem chkLinear;
         private ToolStripMenuItem chkRenderTans;
         private ToolStripMenuItem optionsToolStripMenuItem;
         private ToolStripMenuItem chkSetFrame;
@@ -424,7 +402,6 @@
         private ToolStripMenuItem chkGenTans;
         private Label label4;
         private NumericInputBox nibTanLen;
-        private ToolStripMenuItem mItem_display_showEditValsAsLinear;
         private ToolStripMenuItem mItem_genTan_alterSelTanOnDrag;
         private ToolStripMenuItem mItem_genTan_alterAdjTan;
         private ToolStripMenuItem mItem_genTan_alterAdjTan_OnSet;

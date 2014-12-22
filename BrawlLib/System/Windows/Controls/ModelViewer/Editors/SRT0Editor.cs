@@ -503,7 +503,7 @@ namespace System.Windows.Forms
 
         public event EventHandler CreateUndo;
 
-        internal NumericInputBox[] _transBoxes = new NumericInputBox[9];
+        internal NumericInputBox[] _transBoxes = new NumericInputBox[5];
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public IBoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
@@ -546,10 +546,9 @@ namespace System.Windows.Forms
             InitializeComponent();
             _transBoxes[0] = numScaleX; numScaleX.Tag = 0;
             _transBoxes[1] = numScaleY; numScaleY.Tag = 1;
-            _transBoxes[3] = numRot; numRot.Tag = 3;
-            _transBoxes[6] = numTransX; numTransX.Tag = 6;
-            _transBoxes[7] = numTransY; numTransY.Tag = 7;
-            
+            _transBoxes[2] = numRot; numRot.Tag = 2;
+            _transBoxes[3] = numTransX; numTransX.Tag = 3;
+            _transBoxes[4] = numTransY; numTransY.Tag = 4;
         }
         public void UpdatePropDisplay()
         {
@@ -560,7 +559,7 @@ namespace System.Windows.Forms
             btnInsert.Enabled = btnDelete.Enabled = btnClear.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
             grpTransform.Enabled = TargetTexRef != null;
 
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 5; i++)
                 ResetBox(i);
 
             if (_mainWindow.InterpolationEditor != null && 
@@ -574,16 +573,16 @@ namespace System.Windows.Forms
         }
         public unsafe void ResetBox(int index)
         {
-            if (TargetTexRef == null || index == 2 || index == 4 || index == 5 || index == 8)
+            if (TargetTexRef == null)
                 return;
 
             NumericInputBox box = _transBoxes[index];
             if (SelectedAnimation != null && CurrentFrame >= 1 && TexEntry != null)
             {
-                KeyframeEntry e = TexEntry.Keyframes.GetKeyframe((KeyFrameMode)index + 0x10, CurrentFrame - 1);
+                KeyframeEntry e = TexEntry.Keyframes.GetKeyframe(index, CurrentFrame - 1);
                 if (e == null)
                 {
-                    box.Value = TexEntry.Keyframes[KeyFrameMode.ScaleX + index, CurrentFrame - 1];
+                    box.Value = TexEntry.Keyframes[CurrentFrame - 1, index];
                     box.BackColor = Color.White;
                 }
                 else
@@ -594,7 +593,7 @@ namespace System.Windows.Forms
             }
             else
             {
-                FrameState state = TargetTexRef._bindState;
+                TextureFrameState state = TargetTexRef._bindState;
                 box.Value = ((float*)&state)[index];
                 box.BackColor = Color.White;
             }
@@ -608,6 +607,7 @@ namespace System.Windows.Forms
             if (sender.GetType() == typeof(NumericInputBox))
                 BoxChanged(sender, null);
         }
+
         internal unsafe void BoxChanged(object sender, EventArgs e)
         {
             if (TargetTexRef == null || sender == null)
@@ -616,11 +616,8 @@ namespace System.Windows.Forms
             NumericInputBox box = sender as NumericInputBox;
             int index = (int)box.Tag;
 
-            AnimationFrame kf;
+            SRTAnimationFrame kf;
             float* pkf = (float*)&kf;
-
-            if (index == 2 || index == 4 || index == 5 || index == 8)
-                return;
 
             if ((SelectedAnimation != null) && (CurrentFrame >= 1))
             {
@@ -631,32 +628,30 @@ namespace System.Windows.Forms
                         SRT0TextureNode newEntry = SelectedAnimation.FindOrCreateEntry(TargetTexRef.Parent.Name, TargetTexRef.Index, false);
 
                         //Set initial values
-                        FrameState state = TargetTexRef._bindState;
+                        TextureFrameState state = TargetTexRef._bindState;
                         float* p = (float*)&state;
-                        for (int i = 0; i < 3; i++)
+                        for (int i = 0; i < 2; i++)
                             if (p[i] != 1.0f)
-                                newEntry.SetKeyframe(KeyFrameMode.ScaleX + i, 0, p[i]);
-                        for (int i = 3; i < 9; i++)
+                                newEntry.SetKeyframe(i, 0, p[i]);
+                        for (int i = 2; i < 5; i++)
                             if (p[i] != 0.0f)
-                                newEntry.SetKeyframe(KeyFrameMode.ScaleX + i, 0, p[i]);
-                        if (p[10] != 0.0f)
-                            newEntry.SetKeyframe(KeyFrameMode.ScaleX + 10, 0, p[10]);
+                                newEntry.SetKeyframe(i, 0, p[i]);
 
-                        newEntry.SetKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1, box.Value);
+                        newEntry.SetKeyframe(index, CurrentFrame - 1, box.Value);
                     }
                 }
                 else
                     if (float.IsNaN(box.Value))
-                        TexEntry.RemoveKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1);
+                        TexEntry.RemoveKeyframe(index, CurrentFrame - 1);
                     else
-                        TexEntry.SetKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1, box.Value);
+                        TexEntry.SetKeyframe(index, CurrentFrame - 1, box.Value);
             }
             else
             {
                 //Change base transform
-                FrameState state = TargetTexRef._bindState;
+                TextureFrameState state = TargetTexRef._bindState;
                 float* p = (float*)&state;
-                p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
+                p[index] = float.IsNaN(box.Value) ? (index > 1 ? 0.0f : 1.0f) : box.Value;
                 TargetTexRef._bindState = state;
                 //mr.RecalcBindState();
                 TargetTexRef.SignalPropertyChange();
@@ -671,7 +666,7 @@ namespace System.Windows.Forms
             _mainWindow.KeyframePanel._updating = false;
         }
 
-        private static Dictionary<string, AnimationFrame> _copyAllState = new Dictionary<string, AnimationFrame>();
+        private static Dictionary<string, SRTAnimationFrame> _copyAllState = new Dictionary<string, SRTAnimationFrame>();
 
         private void btnCopyAll_Click(object sender, EventArgs e)
         {
@@ -682,7 +677,7 @@ namespace System.Windows.Forms
                 if (TargetModel is MDL0Node)
                     foreach (MDL0MaterialNode mat in ((MDL0Node)TargetModel).MaterialList)
                         foreach (MDL0MaterialRefNode mr in mat.Children)
-                            _copyAllState[mr.Parent.Name + mr.Index] = (AnimationFrame)mr._bindState;
+                            _copyAllState[mr.Parent.Name + mr.Index] = (SRTAnimationFrame)mr._bindState;
             }
             else
                 foreach (SRT0EntryNode entry in SelectedAnimation.Children)
@@ -703,11 +698,11 @@ namespace System.Windows.Forms
                             if (_copyAllState.ContainsKey(mr.Parent.Name + mr.Index))
                             {
                                 if (AllTrans.Checked)
-                                    mr._bindState._translate = _copyAllState[mr.Parent.Name + mr.Index].Translation;
+                                    mr._bindState.Translate = _copyAllState[mr.Parent.Name + mr.Index].Translation;
                                 if (AllRot.Checked)
-                                    mr._bindState._rotate = _copyAllState[mr.Parent.Name + mr.Index].Rotation;
+                                    mr._bindState.Rotate = _copyAllState[mr.Parent.Name + mr.Index].Rotation;
                                 if (AllScale.Checked)
-                                    mr._bindState._scale = _copyAllState[mr.Parent.Name + mr.Index].Scale;
+                                    mr._bindState.Scale = _copyAllState[mr.Parent.Name + mr.Index].Scale;
                                 mr.SignalPropertyChange();
                             }
             }
@@ -808,7 +803,7 @@ namespace System.Windows.Forms
 
             if (box.BackColor == Color.Yellow)
             {
-                KeyframeEntry kfe = TexEntry.GetKeyframe((KeyFrameMode)(type + 0x10), CurrentFrame - 1);
+                KeyframeEntry kfe = TexEntry.GetKeyframe(type, CurrentFrame - 1);
                 if (kfe != null)
                     _mainWindow.InterpolationEditor.SelectedKeyframe = kfe;
             }
@@ -822,12 +817,6 @@ namespace System.Windows.Forms
             NumericInputBox box = sender as NumericInputBox;
 
             type = (int)box.Tag;
-
-            if (type >= 3)
-                if (type == 3)
-                    type = 2;
-                else
-                    type -= 3;
 
             if (_mainWindow.InterpolationEditor != null && _mainWindow.InterpolationEditor.Visible)
             {
@@ -854,7 +843,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             CHR0EntryNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name, false) as CHR0EntryNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value += 180;
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -868,7 +857,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value += 90;
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -882,7 +871,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value -= 180;
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -896,7 +885,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value -= 90;
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -910,7 +899,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value += 45; 
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -924,7 +913,7 @@ namespace System.Windows.Forms
             KeyframeEntry kfe;
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     kfe._value -= 45;
             ResetBox(type);
             _mainWindow.UpdateModel();
@@ -938,8 +927,8 @@ namespace System.Windows.Forms
             SRT0TextureNode _target = SelectedAnimation.FindChild(TargetTexRef.Parent.Name + "/Texture" + TargetTexRef.Index, true) as SRT0TextureNode;
             if (_target != null)
             {
-                _target.Keyframes._keyRoots[type] = new KeyframeEntry(-1, type >= 0 && type <= 2 ? 1 : 0);
-                _target.Keyframes._keyCounts[type] = 0;
+                _target.Keyframes._keyArrays[type]._keyRoot = new KeyframeEntry(-1, type < 2 ? 1 : 0);
+                _target.Keyframes._keyArrays[type]._keyCount = 0;
                 _target.SignalPropertyChange();
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -952,42 +941,39 @@ namespace System.Windows.Forms
                 return;
 
             EditAllKeyframesDialog ed = new EditAllKeyframesDialog();
-            ed.ShowDialog(null, (KeyFrameMode)(type + 0x10), SelectedAnimation.FindChild(TargetTexRef.Name, false) as CHR0EntryNode);
+            //ed.ShowDialog(null, type, SelectedAnimation.FindChild(TargetTexRef.Name, false) as IKeyframeSource);
             ResetBox(type);
             _mainWindow.UpdateModel();
         }
 
         private unsafe void btnCut_Click(object sender, EventArgs e)
         {
-            AnimationFrame frame;
+            SRTAnimationFrame frame;
             float* p = (float*)&frame;
 
             BoxChangedCreateUndo(this, null);
 
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 5; i++)
             {
-                if (i == 2 || i == 4 || i == 5 || i == 8)
-                    continue;
-
-                if ((!FrameScale.Checked && i < 3))
+                if ((!FrameScale.Checked && i < 2))
                     p[i] = 1;
                 else if (
-                    (FrameScale.Checked && i < 3) ||
-                    (FrameRot.Checked && i >= 3 && i < 6) ||
-                    (FrameTrans.Checked && i >= 6))
+                    (FrameScale.Checked && i < 2) ||
+                    (FrameRot.Checked && i == 2) ||
+                    (FrameTrans.Checked && i > 2))
                     p[i] = _transBoxes[i].Value;
                 _transBoxes[i].Value = float.NaN;
                 BoxChanged(_transBoxes[i], null);
             }
 
             DataObject da = new DataObject();
-            da.SetData("AnimationFrame", frame);
+            da.SetData("SRTAnimationFrame", frame);
             Clipboard.SetDataObject(da, true);
         }
 
         private unsafe void btnCopy_Click(object sender, EventArgs e)
         {
-            AnimationFrame frame;
+            SRTAnimationFrame frame;
             float* p = (float*)&frame;
 
             for (int i = 0; i < 9; i++)
@@ -1005,29 +991,26 @@ namespace System.Windows.Forms
             }
 
             DataObject da = new DataObject();
-            da.SetData("AnimationFrame", frame);
+            da.SetData("SRTAnimationFrame", frame);
             Clipboard.SetDataObject(da, true);
         }
 
         private unsafe void btnPaste_Click(object sender, EventArgs e)
         {
             IDataObject da = Clipboard.GetDataObject();
-            if (da.GetDataPresent("AnimationFrame"))
+            if (da.GetDataPresent("SRTAnimationFrame"))
             {
-                AnimationFrame frame = (AnimationFrame)da.GetData("AnimationFrame");
+                SRTAnimationFrame frame = (SRTAnimationFrame)da.GetData("SRTAnimationFrame");
 
                 float* p = (float*)&frame;
 
                 BoxChangedCreateUndo(this, null);
 
-                for (int i = 0; i < 9; i++)
+                for (int i = 0; i < 5; i++)
                 {
-                    if (i == 2 || i == 4 || i == 5 || i == 8)
-                        continue;
-
-                    if ((FrameScale.Checked && i < 3) ||
-                        (FrameRot.Checked && i >= 3 && i < 6) ||
-                        (FrameTrans.Checked && i >= 6))
+                    if ((FrameScale.Checked && i < 2) ||
+                        (FrameRot.Checked && i == 2) ||
+                        (FrameTrans.Checked && i > 2))
                         _transBoxes[i].Value = p[i];
                     //_transBoxes[i].Value = p[i];
                     BoxChanged(_transBoxes[i], null);
@@ -1073,7 +1056,7 @@ namespace System.Windows.Forms
                 return;
 
             EditAllKeyframesDialog ed = new EditAllKeyframesDialog();
-            ed.ShowDialog(null, (KeyFrameMode)(type + 0x10), TexEntry);
+            //ed.ShowDialog(null, type, TexEntry);
             ResetBox(type);
             _mainWindow.UpdateModel();
         }

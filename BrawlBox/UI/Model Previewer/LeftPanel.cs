@@ -706,7 +706,6 @@ namespace System.Windows.Forms
             {
                 _mainWindow.GetFiles(NW4RAnimType.None);
                 _mainWindow.UpdateModel();
-                _mainWindow.ModelPanel.Invalidate();
             }
         }
 
@@ -1215,7 +1214,6 @@ namespace System.Windows.Forms
 
             _mainWindow.UpdatePropDisplay();
             _mainWindow.UpdateModel();
-            _mainWindow.ModelPanel.Invalidate();
 
             //if (_selectedAnim != null)
             //    portToolStripMenuItem.Enabled = !_selectedAnim.IsPorted;
@@ -1288,7 +1286,6 @@ namespace System.Windows.Forms
             SelectedCHR0.Port(TargetModel as MDL0Node);
 
             _mainWindow.UpdateModel();
-            _mainWindow.ModelPanel.Invalidate();
         }
         #endregion
 

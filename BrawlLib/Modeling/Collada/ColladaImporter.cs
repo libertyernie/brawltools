@@ -616,7 +616,29 @@ namespace BrawlLib.Modeling
             if (model != null)
             {
                 model.CleanGroups();
-                model.BuildFromScratch(this);
+
+                model._isImport = true;
+
+                model._influences.Clean();
+                model._influences.Sort();
+
+                model.CleanTextures();
+
+                model._linker = ModelLinker.Prepare(model);
+                int size = ModelEncoder.CalcSize(this, model._linker);
+
+                FileMap uncompMap = FileMap.FromTempFile(size);
+
+                ModelEncoder.Build(this, model._linker, (MDL0Header*)uncompMap.Address, size, true);
+
+                model._replSrc.Close();
+                model._replUncompSrc.Close();
+                model._replSrc = model._replUncompSrc = new DataSource(uncompMap.Address, size);
+                model._replSrc.Map = model._replUncompSrc.Map = uncompMap;
+
+                model.IsDirty = false;
+                model._reopen = true;
+                model._isImport = false;
             }
         }
 
@@ -641,7 +663,7 @@ namespace BrawlLib.Modeling
             public int ModelVersion { get { return _modelVersion; } set { _modelVersion = value.Clamp(8, 11); } }
 
             [Category("Materials"), Description("The default texture wrap for material texture references.")]
-            public MDL0MaterialRefNode.WrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
+            public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
             [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
             [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
@@ -698,7 +720,7 @@ namespace BrawlLib.Modeling
             public float _weightPrecision = 0.0001f;
             public int _modelVersion = 9;
             public bool _useOneNode = true;
-            public MDL0MaterialRefNode.WrapMode _wrap = MDL0MaterialRefNode.WrapMode.Repeat;
+            public MatWrapMode _wrap = MatWrapMode.Repeat;
 
             //This doesn't work, but it's optional and not efficient with the cache on anyway
             public bool _backwardSearch = false;

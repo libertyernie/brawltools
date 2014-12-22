@@ -1,124 +1,76 @@
-﻿using System;
+﻿using BrawlLib.SSBB;
+using System;
 
 namespace BrawlLib
 {
     public static class FileFilters
     {
-        public static string ImageList =
-            "Portable Network Graphics (*.png)|*.png|" +
-            "Truevision TARGA (*.tga)|*.tga|" +
-            "Tagged Image File Format (*.tif, *.tiff)|*.tif;*.tiff|" +
-            "Bitmap (*.bmp)|*.bmp|" +
-            "Jpeg (*.jpg,*.jpeg)|*.jpg;*.jpeg|" +
-            "Gif (*.gif)|*.gif";
-
+        public static string BRES =
+            SupportedFilesHandler.GetCompleteFilter("brres", "branm", "brmdl", "brtex", "brplt", "brcha", "brtsa", "brsha", "brvia", "brtpa", "brcla", "brsca");
+        public static string MDL0Import = 
+            SupportedFilesHandler.GetCompleteFilter("mdl0", "pmd", "dae");
+        public static string MDL0Export = 
+            SupportedFilesHandler.GetCompleteFilter("mdl0", "dae");
         public static string TEX0 =
-            "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif,*.tex0)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif;*.tex0|" +
-            ImageList + "|" +
-            "TEX0 Texture (*.tex0)|*.tex0";
-
-        public static string MDL0Import =
-            "All Model Formats (*.mdl0, *.pmd, *.dae)|*.mdl0;*.pmd;*.dae|" +
-            "Collada Scene (*.dae)|*.dae|" +
-            "MMD Model (*.pmd)|*.pmd|" +
-            "MDL0 Model (*.mdl0)|*.mdl0";
-        
-        public static string MDL0Export =
-            "All Model Formats (*.mdl0, *.dae)|*.mdl0;*.dae|" +
-            "Collada Scene (*.dae)|*.dae|" +
-            "MDL0 Model (*.mdl0)|*.mdl0";
-
-        public static string CHR0 =
-            "All Formats (*.chr0, *.anim)|*.chr0;*.anim|" +
-            "CHR0 Animation (*.chr0)|*.chr0|" +
-            "Maya Animation (*.anim)|*.anim";
-
+            SupportedFilesHandler.GetCompleteFilter("png", "tga", "tif", "bmp", "jpg", "gif", "tex0");
         public static string PLT0 =
-            "PLT0 Palette (*.plt0)|*.plt0";
-
-        public static string PAT0 =
-            "PAT0 Texture Pattern (*.pat0)|*.pat0";
-
-        public static string MSBin =
-            "MSBin Message List (*.msbin)|*.msbin|" +
-            "Plain text (*.txt)|*.txt";
-
+            SupportedFilesHandler.GetCompleteFilter("plt0");
+        public static string CHR0 = 
+            SupportedFilesHandler.GetCompleteFilter("chr0", "anim");
+        public static string CLR0 =
+            SupportedFilesHandler.GetCompleteFilter("clr0");
+        public static string PAT0 = 
+            SupportedFilesHandler.GetCompleteFilter("pat0");
+        public static string VIS0 =
+            SupportedFilesHandler.GetCompleteFilter("vis0");
+        public static string SRT0 =
+            SupportedFilesHandler.GetCompleteFilter("srt0");
+        public static string SCN0 =
+            SupportedFilesHandler.GetCompleteFilter("scn0");
+        public static string SHP0 =
+            SupportedFilesHandler.GetCompleteFilter("shp0");
+        public static string MSBin = 
+            SupportedFilesHandler.GetCompleteFilter("msbin", "txt");
+        public static string RSTM = 
+            SupportedFilesHandler.GetCompleteFilter("brstm", "wav");
+        public static string RWSD =
+            SupportedFilesHandler.GetCompleteFilter("brwsd");
+        public static string RBNK =
+            SupportedFilesHandler.GetCompleteFilter("brbnk");
+        public static string RSEQ =
+            SupportedFilesHandler.GetCompleteFilter("brseq");
+        public static string REFF =
+            SupportedFilesHandler.GetCompleteFilter("breff");
+        public static string REFT =
+            SupportedFilesHandler.GetCompleteFilter("breft");
+        public static string Images =
+            SupportedFilesHandler.GetCompleteFilter("png", "tga", "tif", "bmp", "jpg", "gif");
+        public static string EFLS =
+            SupportedFilesHandler.GetCompleteFilter("efls");
+        public static string CollisionDef =
+            SupportedFilesHandler.GetCompleteFilter("coll");
+        public static string REL =
+            SupportedFilesHandler.GetCompleteFilter("rel");
+        public static string DOL =
+            SupportedFilesHandler.GetCompleteFilter("dol");
+        public static string RSAR =
+            SupportedFilesHandler.GetCompleteFilter("brsar");
+        public static string TPL =
+            SupportedFilesHandler.GetCompleteFilter("tpl");
+        public static string Object =
+            SupportedFilesHandler.GetCompleteFilter("obj", "*");
+        public static string WAV =
+            SupportedFilesHandler.GetCompleteFilter("wav");
         public static string BLOC =
             "BLOC Adventure Archive (*.BLOC)|*.bloc";
 
-        public static string BRES =
-            "BRResource Pack (*.brres, *.brtex, *.brmdl, *.branm)|*.brres;*.brtex*.brmdl*.branm";
-
-        public static string RSTM =
-            "All Audio Formats (*.brstm, *.wav)|*.brstm;*.wav|" +
-            "BRSTM Audio (*.brstm)|*.brstm|" + 
-            "Uncompressed PCM (*.wav)|*.wav";
-
-        public static string RWSD =
-            "Raw Sound Pack (*.brwsd)|*.brwsd";
-
-        public static string RBNK =
-            "Raw Sound Bank (*.brbnk)|*.brbnk";
-
-        public static string RSEQ =
-            "Raw Sound Requence (*.brseq)|*.brseq";
-
-        public static string CLR0 =
-            "Color Sequence (*.clr0)|*.clr0";
-
-        public static string VIS0 =
-            "Visibility Sequence (*.vis0)|*.vis0";
-
-        public static string SRT0 =
-            "Texture Animation (*.srt0)|*.srt0";
-
-        public static string SCN0 =
-            "Scene Settings (*.scn0)|*.scn0";
-
-        public static string SHP0 =
-            "Vertex Set Morph (*.shp0)|*.shp0";
-
-        public static string REFF =
-            "REFF (*.breff)|*.breff";
-
-        public static string REFT =
-            "REFT (*.breft)|*.breft";
-
-        public static string Images =
-            "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +
-            ImageList;
-
-        public static string EFLS =
-            "Effect List (*.efls)|*.efls";
-
-        public static string CollisionDef =
-            "Collision Definition (*.coll)|*.coll";
-
-        public static string REL =
-            "Relocatable Module (*.rel)|*.rel";
-
-        public static string DOL =
-            "Static Module (*.dol)|*.dol";
-
-        public static string Object =
-            "Object (*.obj)|*.obj|" +
-            "Raw Data File (*.*)|*.*";
-
         public static string Raw =
+            SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,
             //or sometimes the user will want to add the extension themselves.
             //Not only that, but '.dat' might be assigned to something else on their computer.
             //It's possible to assign a program (like a hex editor) to open files without extensions.
-            "Raw Data File (*.*)|*.*|" +
-            "Raw with extension (*.dat)|*.dat";
 
-        public static string WAV =
-            "Uncompressed PCM (*.wav)|*.wav";
 
-        public static string RSAR = 
-            "Sound File Archive (*.brsar)|*.brsar";
-
-        public static string TPL =
-            "Texture Archive (*.tpl)|*.tpl";
     }
 }

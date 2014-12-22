@@ -11,7 +11,7 @@ namespace System.Windows.Forms
         private int _numFrames;
 
         private int _currentPage = 1;
-        private AnimationFrame _currentFrame = AnimationFrame.Identity;
+        private CHRAnimationFrame _currentFrame = CHRAnimationFrame.Identity;
         private NumericInputBox[] _boxes = new NumericInputBox[9];
         private Panel panel1;
 
@@ -55,7 +55,7 @@ namespace System.Windows.Forms
             {
                 if (_target.FrameCount > 0)
                 {
-                    AnimationFrame a;
+                    CHRAnimationFrame a;
                     for (int x = 0; x < _target.FrameCount; x++)
                         if ((a = _target.GetAnimFrame(x)).HasKeys)
                             listKeyframes.Items.Add(a);
@@ -119,14 +119,14 @@ namespace System.Windows.Forms
         {
             int count = listKeyframes.Items.Count;
             for (int i = 0; i < count; i++)
-                if (((AnimationFrame)listKeyframes.Items[i]).Index == index)
+                if (((CHRAnimationFrame)listKeyframes.Items[i]).Index == index)
                     return i;
             return -1;
         }
 
         private void UpdateBox(int index)
         {
-            if (_target.GetKeyframe((KeyFrameMode)index + 0x10, _currentPage) != null)
+            if (_target.GetKeyframe(index, _currentPage) != null)
                 _boxes[index].BackColor = Color.Yellow;
             else
                 _boxes[index].BackColor = Color.White;
@@ -135,7 +135,7 @@ namespace System.Windows.Forms
         private unsafe void BoxChanged(object sender, EventArgs e)
         {
             NumericInputBox box = sender as NumericInputBox;
-            AnimationFrame kf;
+            CHRAnimationFrame kf;
             float* pkf = (float*)&kf;
             float val = box.Value;
             int index = (int)box.Tag;
@@ -150,8 +150,7 @@ namespace System.Windows.Forms
                     //Value removed find keyframe and zero it out
                     if (kfIndex >= 0)
                     {
-                        kf = (AnimationFrame)listKeyframes.Items[kfIndex];
-                        kf.forKeyframeCHR = true;
+                        kf = (CHRAnimationFrame)listKeyframes.Items[kfIndex];
                         kf.SetBool(index, false);
                         pkf[index] = val;
                         for (x = 0; (x < 9) && float.IsNaN(pkf[x]); x++) ;
@@ -164,7 +163,7 @@ namespace System.Windows.Forms
                             listKeyframes.Items[kfIndex] = kf;
                     }
 
-                    _target.RemoveKeyframe(KeyFrameMode.ScaleX + index, _currentPage);
+                    _target.RemoveKeyframe(index, _currentPage);
                     val = _target.GetAnimFrame(_currentPage)[index];
                     box.Value = val;
                 }
@@ -172,28 +171,26 @@ namespace System.Windows.Forms
                 {
                     if (kfIndex >= 0)
                     {
-                        kf = (AnimationFrame)listKeyframes.Items[kfIndex];
-                        kf.forKeyframeCHR = true;
+                        kf = (CHRAnimationFrame)listKeyframes.Items[kfIndex];
                         kf.SetBool(index, true);
                         pkf[index] = val;
                         listKeyframes.Items[kfIndex] = kf;
                     }
                     else
                     {
-                        kf = AnimationFrame.Empty;
-                        kf.forKeyframeCHR = true;
+                        kf = CHRAnimationFrame.Empty;
                         kf.SetBool(index, true);
                         kf.Index = _currentPage;
                         pkf[index] = val;
 
                         int count = listKeyframes.Items.Count;
-                        for (x = 0; (x < count) && (((AnimationFrame)listKeyframes.Items[x]).Index < _currentPage); x++) ;
+                        for (x = 0; (x < count) && (((CHRAnimationFrame)listKeyframes.Items[x]).Index < _currentPage); x++) ;
 
                         listKeyframes.Items.Insert(x, kf);
                         listKeyframes.SelectedIndex = x;
                     }
 
-                    _target.SetKeyframe(KeyFrameMode.ScaleX + index, _currentPage, val);
+                    _target.SetKeyframe(index, _currentPage, val);
                 }
 
                 _currentFrame[index] = val;
@@ -206,7 +203,7 @@ namespace System.Windows.Forms
             int index = listKeyframes.SelectedIndex;
             if (index >= 0)
             {
-                AnimationFrame f = (AnimationFrame)listKeyframes.SelectedItem;
+                CHRAnimationFrame f = (CHRAnimationFrame)listKeyframes.SelectedItem;
                 numFrame.Value = f.Index + 1;
             }
         }

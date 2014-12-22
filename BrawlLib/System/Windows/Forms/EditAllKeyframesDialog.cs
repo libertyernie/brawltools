@@ -7,12 +7,12 @@ namespace System.Windows.Forms
 {
     public class EditAllKeyframesDialog : Form
     {
-        private KeyFrameMode _type;
-        private IKeyframeHolder _target;
+        private int _type;
+        private IKeyframeSource _target;
 
         public EditAllKeyframesDialog() { InitializeComponent(); }
 
-        public DialogResult ShowDialog(IWin32Window owner, KeyFrameMode type, IKeyframeHolder target)
+        public DialogResult ShowDialog(IWin32Window owner, int type, IKeyframeSource target)
         {
             _target = target;
             _type = type;
@@ -29,12 +29,12 @@ namespace System.Windows.Forms
             {
                 if (comboBox1.SelectedIndex == 0)
                     for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                        if ((kfe = _target.GetKeyframe(_type, x)) != null) //Check for a keyframe
-                        { kfe._value += Convert.ToSingle(amount.Text); }
+                        if ((kfe = _target.KeyArrays[_type].GetKeyframe(x)) != null) //Check for a keyframe
+                            kfe._value += Convert.ToSingle(amount.Text);
                 if (comboBox1.SelectedIndex == 1)
                     for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                        if ((kfe = _target.GetKeyframe(_type, x)) != null) //Check for a keyframe
-                        { kfe._value -= Convert.ToSingle(amount.Text); }
+                        if ((kfe = _target.KeyArrays[_type].GetKeyframe(x)) != null) //Check for a keyframe
+                            kfe._value -= Convert.ToSingle(amount.Text);
             }
             DialogResult = DialogResult.OK;
             Close();

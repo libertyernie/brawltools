@@ -1173,8 +1173,8 @@ namespace BrawlLib.Modeling
 
                                 for (int index = 0; index < 9; index++)
                                 {
-                                    KeyFrameMode mode = (KeyFrameMode)(index + 0x10);
-                                    int keyFrameCount = keyframes[mode];
+                                    int keyFrameCount = keyframes._keyArrays[index]._keyCount;
+                                    KeyframeEntry root = keyframes._keyArrays[index]._keyRoot;
 
                                     if (keyFrameCount <= 0)
                                         continue;
@@ -1196,7 +1196,7 @@ namespace BrawlLib.Modeling
                                             writer.WriteAttributeString("count", keyFrameCount.ToString());
                                             {
                                                 first = true;
-                                                for (KeyframeEntry entry = keyframes._keyRoots[index]._next; (entry != keyframes._keyRoots[index]); entry = entry._next)
+                                                for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
                                                 {
                                                     if (first)
                                                         first = false;
@@ -1248,7 +1248,7 @@ namespace BrawlLib.Modeling
                                             writer.WriteAttributeString("count", keyFrameCount.ToString());
                                             {
                                                 first = true;
-                                                for (KeyframeEntry entry = keyframes._keyRoots[index]._next; (entry != keyframes._keyRoots[index]); entry = entry._next)
+                                                for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
                                                 {
                                                     if (first)
                                                         first = false;
@@ -1287,7 +1287,7 @@ namespace BrawlLib.Modeling
                                             writer.WriteAttributeString("count", keyFrameCount.ToString());
                                             {
                                                 first = true;
-                                                for (KeyframeEntry entry = keyframes._keyRoots[index]._next; (entry != keyframes._keyRoots[index]); entry = entry._next)
+                                                for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
                                                 {
                                                     if (first)
                                                         first = false;
@@ -1326,7 +1326,7 @@ namespace BrawlLib.Modeling
                                             writer.WriteAttributeString("count", keyFrameCount.ToString());
                                             {
                                                 first = true;
-                                                for (KeyframeEntry entry = keyframes._keyRoots[index]._next; (entry != keyframes._keyRoots[index]); entry = entry._next)
+                                                for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
                                                 {
                                                     if (first)
                                                         first = false;
@@ -1365,7 +1365,7 @@ namespace BrawlLib.Modeling
                                             writer.WriteAttributeString("count", keyFrameCount.ToString());
                                             {
                                                 first = true;
-                                                for (KeyframeEntry entry = keyframes._keyRoots[index]._next; (entry != keyframes._keyRoots[index]); entry = entry._next)
+                                                for (KeyframeEntry entry = root._next; entry != root; entry = entry._next)
                                                 {
                                                     if (first)
                                                         first = false;

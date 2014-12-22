@@ -681,10 +681,10 @@ namespace System.Windows.Forms
             {
                 if ((SelectedAnimation != null) && (CurrentFrame >= 1) && ((entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode) != null))
                 {
-                    KeyframeEntry e = entry.Keyframes.GetKeyframe((KeyFrameMode)index + 0x10, CurrentFrame - 1);
+                    KeyframeEntry e = entry.Keyframes.GetKeyframe(index, CurrentFrame - 1);
                     if (e == null)
                     {
-                        box.Value = entry.Keyframes.GetFrameValue(KeyFrameMode.ScaleX + index, CurrentFrame - 1, CHR0EntryNode._linear && CHR0EntryNode._editValsAsLinear, SelectedAnimation.Loop);//TODO: entry.Keyframes[KeyFrameMode.ScaleX + index, CurrentFrame - 1];
+                        box.Value = entry.Keyframes.GetFrameValue(index, CurrentFrame - 1);
                         box.BackColor = Color.White;
                     }
                     else
@@ -740,7 +740,7 @@ namespace System.Windows.Forms
             int index = (int)box.Tag;
 
             IBoneNode bone = TargetBone;
-            AnimationFrame kf; 
+            CHRAnimationFrame kf; 
             float* pkf = (float*)&kf;
 
             if ((SelectedAnimation != null) && (CurrentFrame >= 1))
@@ -757,19 +757,19 @@ namespace System.Windows.Forms
                         float* p = (float*)&state;
                         for (int i = 0; i < 3; i++)
                             if (p[i] != 1.0f)
-                                entry.SetKeyframe(KeyFrameMode.ScaleX + i, 0, p[i]);
+                                entry.SetKeyframe(i, 0, p[i]);
                         for (int i = 3; i < 9; i++)
                             if (p[i] != 0.0f)
-                                entry.SetKeyframe(KeyFrameMode.ScaleX + i, 0, p[i]);
+                                entry.SetKeyframe(i, 0, p[i]);
 
-                        entry.SetKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1, box.Value);
+                        entry.SetKeyframe(index, CurrentFrame - 1, box.Value);
                     }
                 }
                 else
                     if (float.IsNaN(box.Value))
-                        entry.RemoveKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1);
+                        entry.RemoveKeyframe(index, CurrentFrame - 1);
                     else
-                        entry.SetKeyframe(KeyFrameMode.ScaleX + index, CurrentFrame - 1, box.Value);
+                        entry.SetKeyframe(index, CurrentFrame - 1, box.Value);
             }
             else
             {
@@ -792,7 +792,7 @@ namespace System.Windows.Forms
                 _mainWindow.InterpolationEditor.KeyframeChanged();
         }
 
-        private static Dictionary<string, AnimationFrame> _copyAllState = new Dictionary<string, AnimationFrame>();
+        private static Dictionary<string, CHRAnimationFrame> _copyAllState = new Dictionary<string, CHRAnimationFrame>();
         
         private void btnCopyAll_Click(object sender, EventArgs e)
         {
@@ -801,21 +801,21 @@ namespace System.Windows.Forms
             if (CurrentFrame < 1)
                 foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                 {
-                    AnimationFrame frame = (AnimationFrame)bone._bindState;
+                    CHRAnimationFrame frame = (CHRAnimationFrame)bone._bindState;
                     if (!AllTrans.Checked)
                         frame.Translation = new Vector3();
                     if (!AllRot.Checked)
                         frame.Rotation = new Vector3();
                     if (!AllScale.Checked)
                         frame.Scale = new Vector3(1);
-                    for (int i = 0x10; i < 0x19; i++)
-                        frame.SetBool(i - 0x10, true);
+                    for (int i = 0; i < 9; i++)
+                        frame.SetBool(i, true);
                     _copyAllState[bone._name] = frame;
                 }
             else
                 foreach (CHR0EntryNode entry in SelectedAnimation.Children)
                 {
-                    AnimationFrame frame = entry.GetAnimFrame(CurrentFrame - 1,CHR0EntryNode._linear && CHR0EntryNode._editValsAsLinear);
+                    CHRAnimationFrame frame = entry.GetAnimFrame(CurrentFrame - 1);
                     if (!AllTrans.Checked)
                         frame.Translation = new Vector3();
                     if (!AllRot.Checked)
@@ -837,7 +837,7 @@ namespace System.Windows.Forms
                 foreach (MDL0BoneNode bone in TargetModel.BoneCache)
                     if (_copyAllState.ContainsKey(bone._name))
                     {
-                        AnimationFrame f = _copyAllState[bone._name];
+                        CHRAnimationFrame f = _copyAllState[bone._name];
                         if (!_onlyKeys)
                         {
                             if (AllTrans.Checked)
@@ -853,7 +853,7 @@ namespace System.Windows.Forms
                             float* sPtr = (float*)&f;
                             float* dPtr = (float*)&s;
                             for (int x = 0; x < 9; x++)
-                                if (f.GetBool(x + 0x10))
+                                if (f.GetBool(x))
                                     dPtr[x] = sPtr[x];
                             bone._frameState = s;
                         }
@@ -870,11 +870,11 @@ namespace System.Windows.Forms
                     if ((entry = SelectedAnimation.FindChild(name, false) as CHR0EntryNode) == null)
                     {
                         entry = new CHR0EntryNode() { Name = name };
-                        entry._numFrames = SelectedAnimation.FrameCount;
+                        entry.SetSize(SelectedAnimation.FrameCount, SelectedAnimation.Loop);
                         SelectedAnimation.AddChild(entry);
                     }
 
-                    AnimationFrame f = _copyAllState[entry._name];
+                    CHRAnimationFrame f = _copyAllState[entry._name];
                     int i = CurrentFrame - 1;
                     float* ptr = (float*)&f;
                     if (!_onlyKeys)
@@ -887,9 +887,9 @@ namespace System.Windows.Forms
                             entry.SetKeyframeOnlyScale(i, f);
                     }
                     else
-                        for (int x = 0x10; x < 0x19; x++)
+                        for (int x = 0; x < 9; x++)
                             if (f.GetBool(x))
-                                entry.SetKeyframe((KeyFrameMode)x, x, ptr[x - 0x10]);
+                                entry.SetKeyframe(x, i, ptr[x]);
                 }
             }
             _mainWindow.UpdateModel();
@@ -956,7 +956,7 @@ namespace System.Windows.Forms
             if (box.BackColor == Color.Yellow)
             {
                 CHR0EntryNode entry = SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode;
-                KeyframeEntry kfe = entry.GetKeyframe((KeyFrameMode)(0x10 + (int)box.Tag), CurrentFrame - 1);
+                KeyframeEntry kfe = entry.GetKeyframe((int)box.Tag, CurrentFrame - 1);
                 _mainWindow.InterpolationEditor.SelectedKeyframe = kfe;
             }
             else
@@ -998,7 +998,7 @@ namespace System.Windows.Forms
             if (_target != null)
             {
                 for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                    if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                    if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     { kfe._value += 180; }
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1015,7 +1015,7 @@ namespace System.Windows.Forms
             if (_target != null)
             {
                 for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                    if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                    if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     { kfe._value += 90; }
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1037,7 +1037,7 @@ namespace System.Windows.Forms
             if (_target != null)
             {
                 for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                    if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                    if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     { kfe._value -= 90; }
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1054,7 +1054,7 @@ namespace System.Windows.Forms
             if (_target != null)
             {
                 for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                    if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                    if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     { kfe._value += 45; }
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1071,7 +1071,7 @@ namespace System.Windows.Forms
             if (_target != null)
             {
                 for (int x = 0; x < _target.FrameCount; x++) //Loop thru each frame
-                    if ((kfe = _target.GetKeyframe((KeyFrameMode)(type + 0x10), x)) != null) //Check for a keyframe
+                    if ((kfe = _target.GetKeyframe(type, x)) != null) //Check for a keyframe
                     { kfe._value -= 45; }
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1086,8 +1086,8 @@ namespace System.Windows.Forms
             CHR0EntryNode _target = SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode;
             if (_target != null)
             {
-                _target.Keyframes._keyRoots[type] = new KeyframeEntry(-1, type >= 0 && type <= 2 ? 1 : 0);
-                _target.Keyframes._keyCounts[type] = 0;
+                _target.Keyframes._keyArrays[type]._keyRoot = new KeyframeEntry(-1, type <= 2 ? 1 : 0);
+                _target.Keyframes._keyArrays[type]._keyCount = 0;
                 _target.SignalPropertyChange();
                 ResetBox(type);
                 _mainWindow.UpdateModel();
@@ -1100,14 +1100,14 @@ namespace System.Windows.Forms
                 return;
 
             EditAllKeyframesDialog ed = new EditAllKeyframesDialog();
-            ed.ShowDialog(null, (KeyFrameMode)(type + 0x10), SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
+            //ed.ShowDialog(null, type, SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
             ResetBox(type);
             _mainWindow.UpdateModel();
         }
 
         private unsafe void btnCut_Click(object sender, EventArgs e)
         {
-            AnimationFrame frame = new AnimationFrame();
+            CHRAnimationFrame frame = new CHRAnimationFrame();
             float* p = (float*)&frame;
             //copy transform from boxes instead of the actual animation.
             BoxChangedCreateUndo(this, null);
@@ -1148,7 +1148,7 @@ namespace System.Windows.Forms
         private unsafe void btnCopy_Click(object sender, EventArgs e)
         {
             //copy the transform from the number boxes
-            AnimationFrame frame = new AnimationFrame();
+            CHRAnimationFrame frame = new CHRAnimationFrame();
             float* p = (float*)&frame;
 
             for (int i = 0; i < 9; i++)
@@ -1175,7 +1175,7 @@ namespace System.Windows.Forms
             IDataObject da = Clipboard.GetDataObject();
             if (da.GetDataPresent("AnimationFrame"))
             {
-                AnimationFrame frame = (AnimationFrame)da.GetData("AnimationFrame");
+                CHRAnimationFrame frame = (CHRAnimationFrame)da.GetData("AnimationFrame");
 
                 float* p = (float*)&frame;
 

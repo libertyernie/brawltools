@@ -27,10 +27,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public MDL0MaterialRefNode()
         {
-            _uWrap = (int)WrapMode.Repeat;
-            _vWrap = (int)WrapMode.Repeat;
-            _texFlags = TextureSRT.Default;
-            _texMatrix = TexMtxEffect.Default;
+            _uWrap = (int)MatWrapMode.Repeat;
+            _vWrap = (int)MatWrapMode.Repeat;
+            _bindState = TextureFrameState.Neutral;
+            _texMatrixEffect = TexMtxEffect.Default;
             _minFltr = 1;
             _magFltr = 1;
         }
@@ -41,48 +41,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { if (_texture != null) Texture = value; base.Name = value; }
         }
 
-        #region Enums
-        public enum Anisotropy
-        {
-            One, //No anisotropic filter.
-            Two, //Filters a maximum of two samples.
-            Four //Filters a maximum of four samples.
-        }
-        public enum WrapMode
-        {
-            Clamp,
-            Repeat,
-            Mirror
-        }
-        public enum TextureMinFilter : uint
-        {
-            Nearest = 0,
-            Linear,
-            Nearest_Mipmap_Nearest,
-            Linear_Mipmap_Nearest,
-            Nearest_Mipmap_Linear,
-            Linear_Mipmap_Linear
-        }
-        public enum TextureMagFilter : uint
-        {
-            Nearest = 0,
-            Linear,
-        }
-        public enum MappingMethod
-        {
-            TexCoord = 0x00,
-            EnvCamera = 0x01,
-            Projection = 0x02,
-            EnvLight = 0x03,
-            EnvSpec = 0x04
-        }
-        #endregion
-
         #region Variables
 
-        public TextureSRT _texFlags;
-        public TexMtxEffect _texMatrix;
-        public TexFlags _flags;
+        public TexMtxEffect _texMatrixEffect;
         public XFDualTex _dualTexFlags;
         public XFTexMtxInfo _texMtxFlags;
 
@@ -148,22 +109,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Scale { get { return _texFlags.TexScale; } set { if (!CheckIfMetal()) { _texFlags.TexScale = value; _bindState._scale = new Vector3(value._x, value._y, 1); } } }
+        public Vector2 Scale { get { return _bindState.Scale; } set { if (!CheckIfMetal()) { _bindState.Scale = value; } } }
         [Category("Texture Coordinates")]
-        public float Rotation { get { return _texFlags.TexRotation; } set { if (!CheckIfMetal()) { _texFlags.TexRotation = value; _bindState._rotate = new Vector3(value, 0, 0); } } }
+        public float Rotation { get { return _bindState.Rotate; } set { if (!CheckIfMetal()) { _bindState.Rotate = value; } } }
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Translation { get { return _texFlags.TexTranslation; } set { if (!CheckIfMetal()) { _texFlags.TexTranslation = value; _bindState._translate = new Vector3(value._x, value._y, 0); } } }
+        public Vector2 Translation { get { return _bindState.Translate; } set { if (!CheckIfMetal()) { _bindState.Translate = value; } } }
 
         [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefCamera { get { return _texMatrix.SCNCamera; } set { if (!CheckIfMetal()) _texMatrix.SCNCamera = value; } }
+        public sbyte SCN0RefCamera { get { return _texMatrixEffect.SCNCamera; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNCamera = value; } }
         [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefLight { get { return _texMatrix.SCNLight; } set { if (!CheckIfMetal()) _texMatrix.SCNLight = value; } }
+        public sbyte SCN0RefLight { get { return _texMatrixEffect.SCNLight; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNLight = value; } }
         [Category("Texture Matrix Effect")]
-        public MappingMethod MapMode { get { return (MappingMethod)_texMatrix.MapMode; } set { if (!CheckIfMetal()) _texMatrix.MapMode = (byte)value; } }
-        [Category("Texture Matrix Effect")]
-        public bool IdentityMatrix { get { return _texMatrix.Identity != 0; } set { if (!CheckIfMetal()) _texMatrix.Identity = (byte)(value ? 1 : 0); } }
+        public MappingMethod MapMode { get { return _texMatrixEffect.MapMode; } set { if (!CheckIfMetal()) _texMatrixEffect.MapMode = value; } }
         [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter))]
-        public Matrix43 EffectMatrix { get { return _texMatrix.TexMtx; } set { if (!CheckIfMetal()) _texMatrix.TexMtx = value; } }
+        public Matrix43 EffectMatrix { get { return _texMatrixEffect.TextureMatrix; } set { if (!CheckIfMetal()) { _texMatrixEffect.TextureMatrix = value; } } }
         
         [Category("XF TexGen Flags")]
         public TexProjection Projection { get { return (TexProjection)_projection; } set { if (!CheckIfMetal()) { _projection = (int)value; SetTextMtxData(); } } }
@@ -181,17 +140,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool Normalize { get { return _dualTexFlags._normalEnable != 0; } set { if (!CheckIfMetal()) { _dualTexFlags._normalEnable = (byte)(value ? 1 : 0); } } }
 
         [Category("Texture Reference")]
-        public WrapMode UWrapMode { get { return (WrapMode)_uWrap; } set { if (!CheckIfMetal()) _uWrap = (int)value; } }
+        public MatWrapMode UWrapMode { get { return (MatWrapMode)_uWrap; } set { if (!CheckIfMetal()) _uWrap = (int)value; } }
         [Category("Texture Reference")]
-        public WrapMode VWrapMode { get { return (WrapMode)_vWrap; } set { if (!CheckIfMetal()) _vWrap = (int)value; } }
+        public MatWrapMode VWrapMode { get { return (MatWrapMode)_vWrap; } set { if (!CheckIfMetal()) _vWrap = (int)value; } }
         [Category("Texture Reference")]
-        public TextureMinFilter MinFilter { get { return (TextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) _minFltr = (int)value; } }
+        public MatTextureMinFilter MinFilter { get { return (MatTextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) _minFltr = (int)value; } }
         [Category("Texture Reference")]
-        public TextureMagFilter MagFilter { get { return (TextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) _magFltr = (int)value; } }
+        public MatTextureMagFilter MagFilter { get { return (MatTextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) _magFltr = (int)value; } }
         [Category("Texture Reference")]
         public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) _lodBias = value; } }
         [Category("Texture Reference")]
-        public Anisotropy MaxAnisotropy { get { return (Anisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
+        public MatAnisotropy MaxAnisotropy { get { return (MatAnisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
         [Category("Texture Reference")]
         public bool ClampBias { get { return _clampBias; } set { if (!CheckIfMetal()) _clampBias = value; } }
         [Category("Texture Reference")]
@@ -352,7 +311,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             int len = Material.XFCmds.Count;
-            if (len != 0 && Index * 2 < len)
+            if (len != 0 && Index * 2 + 1 < len)
             {
                 _texMtxFlags = new XFTexMtxInfo(Material.XFCmds[Index * 2]._values[0]);
                 _dualTexFlags = new XFDualTex(Material.XFCmds[Index * 2 + 1]._values[0]);
@@ -373,17 +332,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             //    }
             //}
 
-            MDL0TexSRTData* TexSettings = ((MDL0MaterialNode)Parent).Header->TexMatrices(((MDL0MaterialNode)Parent)._initVersion);
-            
-            _texFlags = TexSettings->GetTexFlags(Index);
-            _texMatrix = TexSettings->GetTexMatrices(Index);
+            MDL0TexSRTData* TexSettings = Material.Header->TexMatrices(Material._initVersion);
 
-            _flags = (TexFlags)((((MDL0MaterialNode)Parent)._layerFlags >> (4 * Index)) & 0xF);
-
-            _bindState = new FrameState(
-                new Vector3(_texFlags.TexScale._x, _texFlags.TexScale._y, 1),
-                new Vector3(_texFlags.TexRotation, 0, 0),
-                new Vector3(_texFlags.TexTranslation._x, _texFlags.TexTranslation._y, 0));
+            _texMatrixEffect = TexSettings->GetTexMatrices(Index);
+            _bindState = TexSettings->GetTexSRT(Index);
+            _bindState.MatrixMode = Material.TextureMatrixMode;
 
             return false;
         }
@@ -461,13 +414,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                 t.Unbind();
         }
 
-        public FrameState _frameState, _bindState;
-        internal void ApplySRT0Texture(SRT0TextureNode node, float index, bool linear)
+        public TextureFrameState _frameState, _bindState;
+        internal void ApplySRT0Texture(SRT0TextureNode node, float index = 0, TexMatrixMode matrixMode = TexMatrixMode.MatrixMaya)
         {
-            if ((node == null) || (index < 1)) //Reset to identity
-                _frameState = new FrameState() { _scale = new Vector3(1) };
-            else
-                _frameState = new FrameState(node.GetAnimFrame((int)index - 1, linear));
+            _frameState = _bindState;
+
+            if (node != null && index >= 1)
+            {
+                fixed (TextureFrameState* v = &_frameState)
+                {
+                    float* f = (float*)v;
+                    for (int i = 0; i < 5; i++)
+                        if (node.Keyframes[i]._keyCount > 0)
+                            f[i] = node.GetFrameValue(i, index - 1);
+                    _frameState.MatrixMode = matrixMode;
+                    _frameState.CalcTransforms();
+                }
+            }
         }
 
         public Dictionary<string, MDL0TextureNode> PAT0Textures = new Dictionary<string, MDL0TextureNode>(); 
@@ -507,16 +470,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             Name = "NewRef";
             _minFltr = 1;
             _magFltr = 1;
-            UWrapMode = WrapMode.Repeat;
-            VWrapMode = WrapMode.Repeat;
+            UWrapMode = MatWrapMode.Repeat;
+            VWrapMode = MatWrapMode.Repeat;
 
-            _flags = (TexFlags)0xF;
-            _texFlags.TexScale = new Vector2(1);
-            _bindState._scale = new Vector3(1);
-            _texMatrix.TexMtx = Matrix43.Identity;
-            _texMatrix.SCNCamera = -1;
-            _texMatrix.SCNLight = -1;
-            _texMatrix.Identity = 1;
+            _bindState = TextureFrameState.Neutral;
+            _texMatrixEffect.TextureMatrix = Matrix43.Identity;
+            _texMatrixEffect.SCNCamera = -1;
+            _texMatrixEffect.SCNLight = -1;
+            _texMatrixEffect.MapMode = MappingMethod.TexCoord;
 
             _projection = (int)TexProjection.ST;
             _inputForm = (int)TexInputForm.AB11;
@@ -608,5 +569,40 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
+    }
+
+    public enum MatAnisotropy
+    {
+        One, //No anisotropic filter.
+        Two, //Filters a maximum of two samples.
+        Four //Filters a maximum of four samples.
+    }
+    public enum MatWrapMode
+    {
+        Clamp,
+        Repeat,
+        Mirror
+    }
+    public enum MatTextureMinFilter : uint
+    {
+        Nearest = 0,
+        Linear,
+        Nearest_Mipmap_Nearest,
+        Linear_Mipmap_Nearest,
+        Nearest_Mipmap_Linear,
+        Linear_Mipmap_Linear
+    }
+    public enum MatTextureMagFilter : uint
+    {
+        Nearest = 0,
+        Linear,
+    }
+    public enum MappingMethod
+    {
+        TexCoord = 0x00,
+        EnvCamera = 0x01,
+        Projection = 0x02,
+        EnvLight = 0x03,
+        EnvSpec = 0x04
     }
 }

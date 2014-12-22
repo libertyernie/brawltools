@@ -15,52 +15,31 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal VIS0v3* Header3 { get { return (VIS0v3*)WorkingUncompressed.Address; } }
         internal VIS0v4* Header4 { get { return (VIS0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.VIS0; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(VIS0EntryNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(VIS0EntryNode) }; } }
 
+        const string _category = "Bone Visibility Animation";
         internal int _numFrames = 1, _version = 3, _loop;
 
-        public int ConversionBias = 0;
-        public int startUpVersion = 3;
-
-        [Category("Bone Visibility Data")]
+        [Category(_category)]
         public int Version 
         { 
             get { return _version; } 
             set 
             {
-                if (_version == value)
-                    return;
-
-                if (value == startUpVersion)
-                    ConversionBias = 0;
-                else if (startUpVersion == 4 && value == 3)
-                    ConversionBias = 1;
-                else if (startUpVersion == 3 && value == 4)
-                    ConversionBias = -1;
-
                 _version = value; 
-                
                 SignalPropertyChange(); 
             } 
         }
-        [Category("Bone Visibility Data")]
+        [Category(_category)]
         public override int FrameCount 
         { 
-            get { return _numFrames + (startUpVersion == 3 ? 1 : 0); }
+            get { return _numFrames; }
             set
             {
-                int bias = (startUpVersion == 3 ? 1 : 0);
-
-                if ((_numFrames == value - bias) || (value - bias < (1 - bias)))
+                if ((_numFrames == value) || (value < 1))
                     return;
 
-                _numFrames = value - bias;
+                _numFrames = value;
 
                 foreach (VIS0EntryNode e in Children)
                     e.EntryCount = FrameCount;
@@ -68,17 +47,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-        
-        [Category("Bone Visibility Data")]
+
+        [Category(_category)]
         public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
+
+        [Category(_category)]
+        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
+        public string _originalPath;
 
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
-
-        [Category("Bone Visibility Data")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
 
         public unsafe VIS0EntryNode CreateEntry()
         {
@@ -104,10 +83,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                if (Header4->_origPathOffset > 0)
-                    _originalPath = Header4->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                (_userEntries = new UserDataCollection()).Read(Header4->UserData);
+                (_userEntries = new UserDataCollection()).Read(header->UserData);
+
+                return header->Group->_numEntries > 0;
             }
             else
             {
@@ -118,11 +99,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                if (Header3->_origPathOffset > 0)
-                    _originalPath = Header3->OrigPath;
-            }
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-            return Header3->Group->_numEntries > 0;
+                return header->Group->_numEntries > 0;
+            }
         }
 
         public override int OnCalculateSize(bool force)
@@ -130,8 +111,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             int size = VIS0v3.Size + 0x18 + Children.Count * 0x10;
             foreach (ResourceNode e in Children)
                 size += e.CalculateSize(force);
+
             if (_version == 4)
-            size += _userEntries.GetSize();
+                size += _userEntries.GetSize();
+
             return size;
         }
 
@@ -143,13 +126,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_version == 4)
             {
                 VIS0v4* header = (VIS0v4*)address;
-                *header = new VIS0v4(length, (ushort)(_numFrames - ConversionBias), (ushort)count, _loop);
+                *header = new VIS0v4(length, (ushort)_numFrames, (ushort)count, _loop);
                 group = header->Group;
             }
             else
             {
                 VIS0v3* header = (VIS0v3*)address;
-                *header = new VIS0v3(length, (ushort)(_numFrames - ConversionBias), (ushort)count, _loop);
+                *header = new VIS0v3(length, (ushort)_numFrames, (ushort)count, _loop);
                 group = header->Group;
             }
 
@@ -167,11 +150,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if (_userEntries.Count > 0 && _version == 4)
-            {
-                VIS0v4* header = (VIS0v4*)address;
-                header->UserData = dataAddress;
-                _userEntries.Write(dataAddress);
-            }
+                _userEntries.Write(((VIS0v4*)address)->UserData = dataAddress);
         }
 
         public override void OnPopulate()
@@ -231,7 +210,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.PostProcess(dataAddress, stringTable);
             }
 
-            if (_version == 4) _userEntries.PostProcess(((VIS0v4*)dataAddress)->UserData, stringTable);
+            if (_version == 4)
+                _userEntries.PostProcess(((VIS0v4*)dataAddress)->UserData, stringTable);
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((VIS0v3*)source.Address)->_header._tag == VIS0v3.Tag ? new VIS0Node() : null; }

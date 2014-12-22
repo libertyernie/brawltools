@@ -26,6 +26,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _parsers.Add(del as ResourceParser);
         }
 
+        private static readonly Dictionary<string, Type> Forced = new Dictionary<string, Type>()
+        {
+            { "MRG", typeof(MRGNode) },
+            { "MRGC", typeof(MRGNode) }, //Compressed MRG
+            { "DOL", typeof(DOLNode) },
+            { "REL", typeof(RELNode) },
+        };
+
         //Parser commands must initialize the node before returning.
         public unsafe static ResourceNode FromFile(ResourceNode parent, string path)
         {
@@ -34,60 +42,45 @@ namespace BrawlLib.SSBB.ResourceNodes
             try
             {
                 DataSource source = new DataSource(map);
-                if (String.Equals(Path.GetExtension(path), ".mrg", StringComparison.OrdinalIgnoreCase) || String.Equals(Path.GetExtension(path), ".mrgc", StringComparison.OrdinalIgnoreCase))
+                if ((node = FromSource(parent, source)) == null)
                 {
-                    node = new MRGNode();
-                    if (Compressor.IsDataCompressed(source.Address, source.Length))
+                    string ext = path.Substring(path.LastIndexOf('.') + 1).ToUpper();
+                    if (Forced.ContainsKey(ext))
                     {
-                        CompressionHeader* cmpr = (CompressionHeader*)source.Address;
-                        source.Compression = cmpr->Algorithm;
-                        if (Compressor.Supports(cmpr->Algorithm))
-                        {
-                            try
-                            {
-                                //Expand the whole resource and initialize
-                                FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
-                                Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
-                                node.Initialize(parent, source, new DataSource(uncompMap));
-                            }
-                            catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
-                        }
+                        node = Activator.CreateInstance(Forced[ext]) as ResourceNode;
+                        FileMap uncomp = Compressor.TryExpand(source);
+                        if (uncomp != null)
+                            node.Initialize(parent, source, new DataSource(uncomp));
                         else
                             node.Initialize(parent, source);
                     }
-                    else
-                        node.Initialize(parent, source);
+                    else if (UseRawDataNode)
+                        (node = new RawDataNode(Path.GetFileNameWithoutExtension(path))).Initialize(parent, source);
                 }
-                else if (String.Equals(Path.GetExtension(path), ".rel", StringComparison.OrdinalIgnoreCase))
-                {
-                    node = new RELNode();
-                    node.Initialize(parent, map);
-                }
-                else if (String.Equals(Path.GetExtension(path), ".dol", StringComparison.OrdinalIgnoreCase))
-                {
-                    node = new DOLNode();
-                    node.Initialize(parent, map);
-                }
-                else if ((node = FromSource(parent, source, UseRawDataNode)) is RawDataNode)
-                    node._name = Path.GetFileNameWithoutExtension(path);
             }
-            finally { if (node == null) map.Dispose(); }
+            finally
+            {
+                if (node == null)
+                    map.Dispose();
+            }
             return node;
         }
         public static ResourceNode FromAddress(ResourceNode parent, VoidPtr address, int length)
         {
             return FromSource(parent, new DataSource(address, length));
         }
-
-        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source) { return FromSource(parent, source, false); }
-        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source, bool returnRaw)
+        public static unsafe ResourceNode FromSource(ResourceNode parent, DataSource source)
         {
             ResourceNode n = null;
             if ((n = GetRaw(source)) != null)
                 n.Initialize(parent, source);
             else
-                n = Compressor.TryExpand(source, parent, returnRaw);
-
+            {
+                FileMap uncomp = Compressor.TryExpand(source);
+                DataSource d;
+                if (uncomp != null && (n = NodeFactory.GetRaw(d = new DataSource(uncomp))) != null)
+                    n.Initialize(parent, source, d);
+            }
             return n;
         }
         public static ResourceNode GetRaw(VoidPtr address, int length)

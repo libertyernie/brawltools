@@ -109,10 +109,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            if (((REFFNode)Parent).VersionMinor == 7)
-                new REFFEmitterNode7().Initialize(this, (VoidPtr)Header + 8, (int)Header->_headerSize);
-            else
-                new REFFEmitterNode9().Initialize(this, (VoidPtr)Header + 8, (int)Header->_headerSize);
+            switch (((REFFNode)Parent).VersionMinor)
+            {
+                case 7:
+                    new REFFEmitterNode7().Initialize(this, (VoidPtr)Header + 8, (int)Header->_headerSize);
+                    break;
+                case 9:
+                case 11: //Uuuuh...
+                    new REFFEmitterNode9().Initialize(this, (VoidPtr)Header + 8, (int)Header->_headerSize);
+                    break;
+            }
+                
             new REFFParticleNode().Initialize(this, (VoidPtr)Header->Params, (int)Header->Params->headersize);
             new REFFAnimationListNode()
             {

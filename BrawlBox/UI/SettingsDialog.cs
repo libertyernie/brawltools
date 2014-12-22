@@ -12,7 +12,7 @@ namespace BrawlBox
 
         static SettingsDialog()
         {
-            foreach (SupportedFileInfo info in SuppertedFilesHandler.Files)
+            foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
             {
                 foreach (string s in info._extensions)
                 {
@@ -27,7 +27,7 @@ namespace BrawlBox
             InitializeComponent();
 
             listView1.Items.Clear();
-            foreach (SupportedFileInfo info in SuppertedFilesHandler.Files)
+            foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
             {
                 foreach (string s in info._extensions)
                 {
@@ -38,27 +38,37 @@ namespace BrawlBox
 
         private void Apply()
         {
-            bool check;
-            int index = 0;
-            foreach (ListViewItem i in listView1.Items)
+            try
             {
-                if ((check = i.Checked) != (bool)i.Tag)
+                bool check;
+                int index = 0;
+                foreach (ListViewItem i in listView1.Items)
                 {
-                    if (check)
+                    if ((check = i.Checked) != (bool)i.Tag)
                     {
-                        _assocList[index].FileType = _typeList[index];
-                        _typeList[index].SetCommand("open", String.Format("\"{0}\" \"%1\"", Program.FullPath));
+                        if (check)
+                        {
+                            _assocList[index].FileType = _typeList[index];
+                            _typeList[index].SetCommand("open", String.Format("\"{0}\" \"%1\"", Program.FullPath));
+                        }
+                        else
+                        {
+                            _typeList[index].Delete();
+                            _assocList[index].Delete();
+                        }
+                        i.Tag = check;
                     }
-                    else 
-                    {
-                        _typeList[index].Delete();
-                        _assocList[index].Delete();
-                    }
-                    i.Tag = check;
+                    index++;
                 }
-                index++;
             }
-            btnApply.Enabled = false;
+            catch (UnauthorizedAccessException e)
+            {
+                MessageBox.Show(null, "Unable to access the registry to set file associations.\nRun the program as administrator and try again.", "Insufficient Privileges", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            finally
+            {
+                btnApply.Enabled = false;
+            }
         }
         private void SettingsDialog_Shown(object sender, EventArgs e)
         {

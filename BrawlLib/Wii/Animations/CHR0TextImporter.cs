@@ -66,7 +66,7 @@ namespace BrawlLib.Wii.Animations
                             {
                                 CHR0EntryNode node = new CHR0EntryNode();
                                 node.Name = reader.ReadLine();
-                                node._numFrames = keyFrameCount;
+                                node.SetSize(keyFrameCount, chr0.Loop);
 
                                 Coords translation = new Coords();
                                 Coords rotation = new Coords();
@@ -103,29 +103,29 @@ namespace BrawlLib.Wii.Animations
                                     if (translation.highestCount > frameCount)
                                     {
                                         if (translation.x.Count != 0 && frameCount < translation.x.Count)
-                                            node.SetKeyframe(KeyFrameMode.TransX, frameCount, translation.x[frameCount]);
+                                            node.SetKeyframe(0, frameCount, translation.x[frameCount]);
                                         if (translation.y.Count != 0 && frameCount < translation.y.Count)
-                                            node.SetKeyframe(KeyFrameMode.TransY, frameCount, translation.y[frameCount]);
+                                            node.SetKeyframe(1, frameCount, translation.y[frameCount]);
                                         if (translation.z.Count != 0 && frameCount < translation.z.Count)
-                                            node.SetKeyframe(KeyFrameMode.TransZ, frameCount, translation.z[frameCount]);
+                                            node.SetKeyframe(2, frameCount, translation.z[frameCount]);
                                     }
                                     if (rotation.highestCount > frameCount)
                                     {
                                         if (rotation.x.Count != 0 && frameCount < rotation.x.Count)
-                                            node.SetKeyframe(KeyFrameMode.RotX, frameCount, rotation.x[frameCount]);
+                                            node.SetKeyframe(3, frameCount, rotation.x[frameCount]);
                                         if (rotation.y.Count != 0 && frameCount < rotation.y.Count)
-                                            node.SetKeyframe(KeyFrameMode.RotY, frameCount, rotation.y[frameCount]);
+                                            node.SetKeyframe(4, frameCount, rotation.y[frameCount]);
                                         if (rotation.z.Count != 0 && frameCount < rotation.z.Count)
-                                            node.SetKeyframe(KeyFrameMode.RotZ, frameCount, rotation.z[frameCount]);
+                                            node.SetKeyframe(5, frameCount, rotation.z[frameCount]);
                                     }
                                     if (scale.highestCount > frameCount)
                                     {
                                         if (scale.x.Count != 0 && frameCount < scale.x.Count)
-                                            node.SetKeyframe(KeyFrameMode.ScaleX, frameCount, scale.x[frameCount]);
+                                            node.SetKeyframe(6, frameCount, scale.x[frameCount]);
                                         if (scale.y.Count != 0 && frameCount < scale.y.Count)
-                                            node.SetKeyframe(KeyFrameMode.ScaleY, frameCount, scale.y[frameCount]);
+                                            node.SetKeyframe(7, frameCount, scale.y[frameCount]);
                                         if (scale.z.Count != 0 && frameCount < scale.z.Count)
-                                            node.SetKeyframe(KeyFrameMode.ScaleZ, frameCount, scale.z[frameCount]);
+                                            node.SetKeyframe(8, frameCount, scale.z[frameCount]);
                                     }
                                 }
                                 chr0.AddChild(node);

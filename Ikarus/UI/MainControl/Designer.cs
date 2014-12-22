@@ -1551,7 +1551,7 @@ namespace Ikarus.UI
 
             modelPanel.BackColor = Color.FromArgb(0, 45, 45, 65);
             modelPanel.Ambient = new Vector4(65.0f / 255.0f, 78.0f / 255.0f, 94.0f / 255.0f, 255.0f / 255.0f);
-            StaticMainWindow._floorHue = Color.FromArgb(255, 99, 101, 107);
+            _floorHue = Color.FromArgb(255, 99, 101, 107);
             modelPanel.InitialYFactor = 50;
 
             modelPanel.DefaultTranslate = new Vector3(-25.0f, 15.0f, 50.0f);

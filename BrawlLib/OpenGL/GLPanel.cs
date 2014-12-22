@@ -114,16 +114,16 @@ namespace BrawlLib.OpenGL
             UpdateProjection();
         }
 
-        protected virtual void OnContextChanged(bool isCurrent)
+        protected virtual void OnContextChanged(bool isNowCurrent)
         {
             //Don't update anything if this context has just been released
-            if (isCurrent)
+            if (isNowCurrent)
             {
                 OnResize(EventArgs.Empty);
                 UpdateProjection();
             }
 
-            _currentPanel = isCurrent ? this : null;
+            _currentPanel = isNowCurrent ? this : null;
         }
 
         protected override void DestroyHandle()

@@ -1157,6 +1157,7 @@ namespace System
         }
 
         //From OpenTK
+        public Matrix Invert() { return Invert(this); }
         public static Matrix Invert(Matrix mat)
         {
             int[] colIdx = { 0, 0, 0, 0 };

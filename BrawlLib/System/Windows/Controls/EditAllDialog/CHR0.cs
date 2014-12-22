@@ -850,14 +850,14 @@ namespace System.Windows.Forms
                         if (!String.IsNullOrEmpty(_name))
                         {
                             CHR0EntryNode c = new CHR0EntryNode();
-                            c._numFrames = n.FrameCount;
+                            c.SetSize(n.FrameCount, n.Loop);
                             c.Name = _name;
 
                             if (_copyNode != null)
-                                for (int x = 0; x < _copyNode._numFrames; x++)
-                                    for (int i = 0x10; i < 0x19; i++)
-                                        if ((kfe = _copyNode.GetKeyframe((KeyFrameMode)i, x)) != null)
-                                            c.SetKeyframe((KeyFrameMode)i, x, kfe._value);
+                                for (int x = 0; x < _copyNode.FrameCount; x++)
+                                    for (int i = 0; i < 9; i++)
+                                        if ((kfe = _copyNode.GetKeyframe(i, x)) != null)
+                                            c.SetKeyframe(i, x, kfe._value);
 
                             n.AddChild(c);
                         }
@@ -870,16 +870,16 @@ namespace System.Windows.Forms
                     entry = new CHR0EntryNode() { _name = _name };
                     n.AddChild(entry);
                 }
-                AnimationFrame anim;
+                CHRAnimationFrame anim;
                 bool hasKeyframe = false;
                 int numFrames = entry.FrameCount;
-                int low = 0x10, high = 0x13;
+                int low = 0, high = 3;
                 if (ScaleReplace.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                         
                     entry.SetKeyframeOnlyScale(0, scale);
                 }
@@ -887,14 +887,14 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
                 else if (ScaleAdd.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value += scale._x;
@@ -918,7 +918,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value -= scale._x;
@@ -942,7 +942,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value *= scale._x;
@@ -966,7 +966,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low && scale._x != 0)
                                     kfe._value /= scale._x;
@@ -990,13 +990,13 @@ namespace System.Windows.Forms
                     }
                 }
 
-                low = 0x13; high = 0x16;
+                low = 3; high = 6;
                 if (RotateReplace.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                         
                     entry.SetKeyframeOnlyRot(0, rot);
                 }
@@ -1004,14 +1004,14 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
                 else if (RotateAdd.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value += rot._x;
@@ -1035,7 +1035,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value -= rot._x;
@@ -1059,7 +1059,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value *= rot._x;
@@ -1083,7 +1083,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low && rot._x != 0)
                                     kfe._value /= rot._x;
@@ -1107,13 +1107,13 @@ namespace System.Windows.Forms
                     }
                 }
 
-                low = 0x16; high = 0x19;
+                low = 6; high = 9;
                 if (TranslateReplace.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = 0x10; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
 
                     entry.SetKeyframeOnlyTrans(0, trans);
                 }
@@ -1121,14 +1121,14 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if (entry.GetKeyframe((KeyFrameMode)i, x) != null)
-                                entry.RemoveKeyframe((KeyFrameMode)i, x);
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
                 else if (TranslateAdd.Checked)
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value += trans._x;
@@ -1152,7 +1152,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value -= trans._x;
@@ -1176,7 +1176,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low)
                                     kfe._value *= trans._x;
@@ -1200,7 +1200,7 @@ namespace System.Windows.Forms
                 {
                     for (int x = 0; x < numFrames; x++)
                         for (int i = low; i < high; i++)
-                            if ((kfe = entry.GetKeyframe((KeyFrameMode)i, x)) != null)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
                             {
                                 if (i == low && trans._x != 0)
                                     kfe._value /= trans._x;

@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using BrawlLib.IO;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
+using BrawlLib.Modeling;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -79,12 +80,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             _normMapRefLight2,
             _normMapRefLight3,
             _normMapRefLight4,
-            _lightSetIndex,
-            _fogIndex;
+            _lightSetIndex = -1,
+            _fogIndex = -1;
         private Bin32 _usageFlags = new Bin32();
-        public CullMode _cull;
-
-        public uint _layerFlags; //Usage flags. Each set of 4 bits represents one texture layer.
+        public CullMode _cull = CullMode.Cull_None;
         public uint _texMtxFlags;
 
         public LightChannel 
@@ -563,7 +562,7 @@ Those properties can use this color as an argument. This color is referred to as
         #region General Material
 
         [Category("Material"), Description("Determines how the game should calculate texture matrices.")]
-        public TexMatrixMode TexMatrixFlags { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
+        public TexMatrixMode TextureMatrixMode { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
         
         [Category("Material"), Description("True if this material has transparency (alpha function) enabled.")]
         public bool XLUMaterial 
@@ -716,12 +715,10 @@ For example, if the shader has two stages but this number is 1, the second stage
                         mr.Texture = "metal00";
                         mr._index1 = mr._index2 = i;
 
-                        mr._texFlags.TexScale = new Vector2(1);
-                        mr._bindState._scale = new Vector3(1);
-                        mr._texMatrix.TexMtx = Matrix43.Identity;
-                        mr._texMatrix.SCNCamera = -1;
-                        mr._texMatrix.SCNLight = -1;
-                        mr._texMatrix.Identity = 1;
+                        mr._bindState = TextureFrameState.Neutral;
+                        mr._texMatrixEffect.TextureMatrix = Matrix43.Identity;
+                        mr._texMatrixEffect.SCNCamera = -1;
+                        mr._texMatrixEffect.SCNLight = -1;
 
                         if (i == MetalMaterial.Children.Count)
                         {
@@ -733,7 +730,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                             mr._inputForm = (int)TexInputForm.ABC1;
                             mr._sourceRow = (int)TexSourceRow.Normals;
                             mr.Normalize = true;
-                            mr.MapMode = (MDL0MaterialRefNode.MappingMethod)1;
+                            mr.MapMode = MappingMethod.EnvCamera;
                         }
                         else
                         {
@@ -741,7 +738,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                             mr._inputForm = (int)TexInputForm.AB11;
                             mr._sourceRow = (int)TexSourceRow.TexCoord0 + i;
                             mr.Normalize = false;
-                            mr.MapMode = (MDL0MaterialRefNode.MappingMethod)0;
+                            mr.MapMode = MappingMethod.TexCoord;
                         }
 
                         mr._texGenType = (int)TexTexgenType.Regular;
@@ -839,7 +836,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             XFCmds = XFData.Parse((byte*)header->DisplayLists(_initVersion) + 0xE0);
 
             _numLights = header->_numLightChans;
-            _usageFlags = new Bin32(header->_usageFlags);
+            _usageFlags = header->_usageFlags;
 
             _indirectMethod1 = header->_indirectMethod1;
             _indirectMethod2 = header->_indirectMethod2;
@@ -877,8 +874,6 @@ For example, if the shader has two stages but this number is 1, the second stage
             _indMtx = *header->IndMtxBlock(_initVersion);
 
             MDL0TexSRTData* TexMatrices = header->TexMatrices(_initVersion);
-
-            _layerFlags = TexMatrices->_layerFlags;
             _texMtxFlags = TexMatrices->_mtxFlags;
 
             MDL0MaterialLighting* Light = header->Light(_initVersion);
@@ -1031,13 +1026,11 @@ For example, if the shader has two stages but this number is 1, the second stage
                     XFCmds.Add(dat);
                     node._dualTexFlags = dtex;
                     node.GetTexMtxValues();
-                    node._texFlags.TexScale = new Vector2(1);
-                    node._bindState._scale = new Vector3(1);
-                    node._texMatrix.TexMtx = Matrix43.Identity;
-                    node._texMatrix.SCNCamera = -1;
-                    node._texMatrix.SCNLight = -1;
-                    node._texMatrix.MapMode = 0;
-                    node._texMatrix.Identity = 1;
+                    node._bindState = TextureFrameState.Neutral;
+                    node._texMatrixEffect.TextureMatrix = Matrix43.Identity;
+                    node._texMatrixEffect.SCNCamera = -1;
+                    node._texMatrixEffect.SCNLight = -1;
+                    node._texMatrixEffect.MapMode = MappingMethod.TexCoord;
                 }
             }
 
@@ -1055,7 +1048,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             header->_pad = 0;
 
             header->_cull = (int)_cull;
-            header->_usageFlags = _usageFlags._data;
+            header->_usageFlags = _usageFlags;
 
             header->_indirectMethod1 = _indirectMethod1;
             header->_indirectMethod2 = _indirectMethod2;
@@ -1071,40 +1064,31 @@ For example, if the shader has two stages but this number is 1, the second stage
             MDL0TexSRTData* TexSettings = header->TexMatrices(model._version);
             *TexSettings = MDL0TexSRTData.Default;
 
-            _layerFlags = 0;
+            //Usage flags. Each set of 4 bits represents one texture layer.
+            uint layerFlags = 0; 
+
+            //Loop through references in reverse so that layerflags is set in the right order
             for (int i = Children.Count - 1; i >= 0; i--)
             {
                 MDL0MaterialRefNode node = (MDL0MaterialRefNode)Children[i];
 
-                node._flags |= TexFlags.Enabled;
-
-                node._texFlags.TexScale = new Vector2(node._bindState._scale._x, node._bindState._scale._y);
-                node._texFlags.TexRotation = node._bindState._rotate._x;
-                node._texFlags.TexTranslation = new Vector2(node._bindState._translate._x, node._bindState._translate._y);
+                TexFlags flags = TexFlags.Enabled;
 
                 //Check for non-default values
-                if (node._texFlags.TexScale != new Vector2(1))
-                    node._flags &= 0xF - TexFlags.FixedScale;
-                else
-                    node._flags |= TexFlags.FixedScale;
+                if (node._bindState.Scale == new Vector2(1))
+                    flags |= TexFlags.FixedScale;
+                if (node._bindState.Rotate == 0)
+                    flags |= TexFlags.FixedRot;
+                if (node._bindState.Translate == new Vector2(0))
+                    flags |= TexFlags.FixedTrans;
 
-                if (node._texFlags.TexRotation != 0)
-                    node._flags &= 0xF - TexFlags.FixedRot;
-                else
-                    node._flags |= TexFlags.FixedRot;
+                TexSettings->SetTexSRT(node._bindState, node.Index);
+                TexSettings->SetTexMatrices(node._texMatrixEffect, node.Index);
 
-                if (node._texFlags.TexTranslation != new Vector2(0))
-                    node._flags &= 0xF - TexFlags.FixedTrans;
-                else
-                    node._flags |= TexFlags.FixedTrans;
-
-                TexSettings->SetTexFlags(node._texFlags, node.Index);
-                TexSettings->SetTexMatrices(node._texMatrix, node.Index);
-
-                _layerFlags = ((_layerFlags << 4) | (byte)node._flags);
+                layerFlags = ((layerFlags << 4) | (byte)flags);
             }
 
-            TexSettings->_layerFlags = _layerFlags;
+            TexSettings->_layerFlags = layerFlags;
             TexSettings->_mtxFlags = _texMtxFlags;
 
             //Write lighting flags
@@ -1118,7 +1102,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             //Rebuild references
             MDL0TextureRef* mRefs = header->First;
             foreach (MDL0MaterialRefNode n in Children)
-                n.Rebuild(mRefs++, 0x34, force);
+                n.Rebuild(mRefs++, MDL0TextureRef.Size, true);
             
             //Set Display Lists
             *header->TevKonstBlock(model._version) = _tevKonstBlock;
@@ -1294,22 +1278,44 @@ For example, if the shader has two stages but this number is 1, the second stage
                 m.Unbind();
         }
 
-        internal void ApplySRT0(SRT0Node node, float index, bool linear)
+        public TextureFrameState[] _indirectFrameStates = new TextureFrameState[3];
+
+        internal void ApplySRT0(SRT0Node node, float index)
         {
             SRT0EntryNode e;
 
             if (node == null || index < 1)
                 foreach (MDL0MaterialRefNode r in Children)
-                    r.ApplySRT0Texture(null, 0, linear);
+                    r.ApplySRT0Texture(null);
             else if ((e = node.FindChild(Name, false) as SRT0EntryNode) != null)
-            {
                 foreach (SRT0TextureNode t in e.Children)
-                    if (t._textureIndex < Children.Count)
-                        ((MDL0MaterialRefNode)Children[t._textureIndex]).ApplySRT0Texture(t, index, linear);
-            }
+                {
+                    if (!t.Indirect)
+                    {
+                        if (t._textureIndex < Children.Count)
+                            ((MDL0MaterialRefNode)Children[t._textureIndex]).ApplySRT0Texture(t, index, node.MatrixMode);
+                    }
+                    else if (t._textureIndex < _indirectFrameStates.Length)
+                    {
+                        if (node != null && index >= 1)
+                        {
+                            fixed (TextureFrameState* state = &_indirectFrameStates[t._textureIndex])
+                            {
+                                float* f = (float*)state;
+                                for (int i = 0; i < 5; i++)
+                                    if (t.Keyframes[i]._keyCount > 0)
+                                        f[i] = t.GetFrameValue(i, index - 1);
+                                state->MatrixMode = node.MatrixMode;
+                                state->CalcTransforms();
+                            }
+                        }
+                        else
+                            _indirectFrameStates[t._textureIndex] = TextureFrameState.Neutral;
+                    }
+                }
             else
                 foreach (MDL0MaterialRefNode r in Children)
-                    r.ApplySRT0Texture(null, 0, linear);
+                    r.ApplySRT0Texture(null);
         }
 
         //Use these for streaming values into the shader

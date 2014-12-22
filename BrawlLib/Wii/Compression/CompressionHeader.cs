@@ -21,7 +21,6 @@ namespace BrawlLib.Wii.Compression
         LZ77Huffman = 0x4,
         LZ77RangeCoder = 0x5,
         Differential = 0x8,
-        
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

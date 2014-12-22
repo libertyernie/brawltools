@@ -227,6 +227,10 @@ namespace System.Windows.Forms
             OnAnimationChanged();
         }
 
+        /// <summary>
+        /// Applies animations to all models and invalidates the viewport.
+        /// Also updates animation controls if not playing.
+        /// </summary>
         public void UpdateModel()
         {
             if (_updating)
@@ -393,7 +397,7 @@ namespace System.Windows.Forms
         protected static readonly Type[] Mergeable = new Type[] { typeof(CHR0Node) };
         protected static readonly Type[] Appendable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
         protected static readonly Type[] Resizable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
-        protected static readonly Type[] Interpolated = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node) };
+        protected static readonly Type[] Interpolated = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(SCN0Node) };
 
         #endregion
 

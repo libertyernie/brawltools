@@ -11,7 +11,7 @@ using BrawlLib.Wii.Animations;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SCN0CameraNode : SCN0EntryNode, ISCN0KeyframeSource
+    public unsafe class SCN0CameraNode : SCN0EntryNode, IKeyframeSource
     {
         internal SCN0Camera* Data { get { return (SCN0Camera*)WorkingUncompressed.Address; } }
 
@@ -24,76 +24,105 @@ namespace BrawlLib.SSBB.ResourceNodes
         public SCN0CameraFlags _flags1 = (SCN0CameraFlags)0xFFFE;
         public ushort _flags2 = 1;
 
-        public KeyframeArray
-            _posX = new KeyframeArray(0),
-            _posY = new KeyframeArray(0),
-            _posZ = new KeyframeArray(0),
-            _rotX = new KeyframeArray(0),
-            _rotY = new KeyframeArray(0),
-            _rotZ = new KeyframeArray(0),
-            _aimX = new KeyframeArray(0),
-            _aimY = new KeyframeArray(0),
-            _aimZ = new KeyframeArray(0),
-            _twist = new KeyframeArray(0),
-            _fovY = new KeyframeArray(0),
-            _height = new KeyframeArray(0),
-            _aspect = new KeyframeArray(0),
-            _nearZ = new KeyframeArray(0),
-            _farZ = new KeyframeArray(0);
-
-        #region ISCN0KeyframeHolder Members
         [Browsable(false)]
-        public int KeyArrayCount { get { return 15; } }
-        public KeyframeArray GetKeys(int i)
-        {
-            switch (i)
-            {
-                case 0: return _posX;
-                case 1: return _posY;
-                case 2: return _posZ;
-                case 3: return _aspect;
-                case 4: return _nearZ;
-                case 5: return _farZ;
-                case 6: return _rotX;
-                case 7: return _rotY;
-                case 8: return _rotZ;
-                case 9: return _aimX;
-                case 10: return _aimY;
-                case 11: return _aimZ;
-                case 12: return _twist;
-                case 13: return _fovY;
-                case 14: return _height;
-            }
-            return null;
-        }
-
-        public void SetKeys(int i, KeyframeArray value)
-        {
-            switch (i)
-            {
-                case 0: _posX = value; break;
-                case 1: _posY = value; break;
-                case 2: _posZ = value; break;
-                case 3: _aspect = value; break;
-                case 4: _nearZ = value; break;
-                case 5: _farZ = value; break;
-                case 6: _rotX = value; break;
-                case 7: _rotY = value; break;
-                case 8: _rotZ = value; break;
-                case 9: _aimX = value; break;
-                case 10: _aimY = value; break;
-                case 11: _aimZ = value; break;
-                case 12: _twist = value; break;
-                case 13: _fovY = value; break;
-                case 14: _height = value; break;
-            }
-        }
-        #endregion
+        public int FrameCount { get { return Keyframes.FrameLimit; } }
 
         [Category("Camera")]
         public SCN0CameraType Type { get { return _type; } set { _type = value; SignalPropertyChange(); } }
         [Category("Camera")]
         public ProjectionType ProjectionType { get { return _projType; } set { _projType = value; SignalPropertyChange(); } }
+
+        public override bool OnInitialize()
+        {
+            //Read common header
+            base.OnInitialize();
+
+            if (_name == "<null>")
+                return false;
+
+            //Read header data
+            _flags1 = (SCN0CameraFlags)(ushort)Data->_flags1;
+            _flags2 = Data->_flags2;
+            _type = (SCN0CameraType)((ushort)_flags2 & 1);
+            _projType = (ProjectionType)(int)Data->_projectionType;
+
+            //Read user data
+            (_userEntries = new UserDataCollection()).Read(Data->UserData);
+
+            return false;
+        }
+
+        internal override void GetStrings(StringTable table)
+        {
+            if (Name == "<null>")
+                return;
+
+            table.Add(Name);
+            foreach (UserDataClass s in _userEntries)
+            {
+                table.Add(s._name);
+                if (s._type == UserValueType.String && s._entries.Count > 0)
+                    table.Add(s._entries[0]);
+            }
+        }
+
+        public override int OnCalculateSize(bool force)
+        {
+            //Reset data lengths
+            for (int i = 0; i < 3; i++)
+                _dataLengths[i] = 0;
+
+            int size = SCN0Camera.Size;
+
+            if (_name != "<null>")
+            {
+                //Get the total data size of all keyframes
+                for (int i = 0; i < 15; i++)
+                    CalcKeyLen(Keyframes[i]);
+
+                //Add the size of the user entries
+                size += _userEntries.GetSize();
+            }
+
+            return size;
+        }
+
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            base.OnRebuild(address, length, force);
+
+            if (_name == "<null>")
+                return;
+
+            SCN0Camera* header = (SCN0Camera*)address;
+
+            header->_projectionType = (int)_projType;
+            header->_flags2 = (ushort)(2 + (int)_type);
+            header->_userDataOffset = 0;
+
+            int newFlags1 = 0;
+
+            for (int i = 0; i < 15; i++)
+                _dataAddrs[0] += EncodeKeyframes(
+                    Keyframes[i],
+                    _dataAddrs[0],
+                    header->_position._x.Address + i * 4,
+                    ref newFlags1,
+                    (int)Ordered[i]);
+
+            header->_flags1 = (ushort)newFlags1;
+
+            if (_userEntries.Count > 0)
+                _userEntries.Write(header->UserData = (VoidPtr)header + SCN0Camera.Size);
+        }
+
+        protected internal override void PostProcess(VoidPtr scn0Address, VoidPtr dataAddress, StringTable stringTable)
+        {
+            base.PostProcess(scn0Address, dataAddress, stringTable);
+
+            if (_name != "<null>")
+                _userEntries.PostProcess(((SCN0Camera*)dataAddress)->UserData, stringTable);
+        }
 
         public SCN0CameraFlags[] Ordered = new SCN0CameraFlags[] 
         {
@@ -114,121 +143,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             SCN0CameraFlags.OrthoHeightConstant,
         };
 
-        public override bool OnInitialize()
-        {
-            //Read common header
-            base.OnInitialize();
-
-            //SCN0 cameras are linear.
-            //Some games use jump cuts which look weird with interpolation
-            _posX.LinearInterpolation = true;
-            _posY.LinearInterpolation = true;
-            _posZ.LinearInterpolation = true;
-            _aimX.LinearInterpolation = true;
-            _aimY.LinearInterpolation = true;
-            _aimZ.LinearInterpolation = true;
-
-            //Create new keyframe arrays
-            for (int x = 0; x < 15; x++)
-                SetKeys(x, new KeyframeArray(FrameCount + 1));
-
-            //Read header data
-            _flags1 = (SCN0CameraFlags)(ushort)Data->_flags1;
-            _flags2 = Data->_flags2;
-            _type = (SCN0CameraType)((ushort)_flags2 & 1);
-            _projType = (ProjectionType)(int)Data->_projectionType;
-
-            //Read user data
-            (_userEntries = new UserDataCollection()).Read(Data->UserData);
-
-            //Don't bother reading data if the entry is null
-            if (Name == "<null>")
-                return false;
-
-            //Decode each value in order
-            for (int i = 0; i < 15; i++)
-                DecodeKeyframes(
-                    GetKeys(i),
-                    Data->_position._x.Address + i * 4,
-                    (int)_flags1,
-                    (int)Ordered[i]);
-
-            return false;
-        }
-
-        internal override void GetStrings(StringTable table)
-        {
-            if (Name != "<null>")
-                table.Add(Name);
-
-            foreach (UserDataClass s in _userEntries)
-            {
-                table.Add(s._name);
-                if (s._type == UserValueType.String && s._entries.Count > 0)
-                    table.Add(s._entries[0]);
-            }
-        }
-
-        public override int OnCalculateSize(bool force)
-        {
-            //Reset data lengths
-            for (int i = 0; i < 3; i++)
-                _dataLengths[i] = 0;
-
-            //Get the total data size of all keyframes
-            if (_name != "<null>")
-                for (int i = 0; i < 15; i++)
-                    CalcKeyLen(GetKeys(i));
-
-            return SCN0Camera.Size + _userEntries.GetSize();
-        }
-
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            base.OnRebuild(address, length, force);
-
-            SCN0Camera* header = (SCN0Camera*)address;
-
-            header->_projectionType = (int)_projType;
-            header->_flags2 = (ushort)(2 + (int)_type);
-            header->_userDataOffset = 0;
-
-            int newFlags1 = 0;
-
-            for (int i = 0; i < 15; i++)
-                _dataAddrs[0] += EncodeKeyframes(
-                    GetKeys(i),
-                    _dataAddrs[0],
-                    header->_position._x.Address + i * 4,
-                    ref newFlags1,
-                    (int)Ordered[i]);
-
-            header->_flags1 = (ushort)newFlags1;
-
-            if (_userEntries.Count > 0)
-                _userEntries.Write(header->UserData = (VoidPtr)header + SCN0Camera.Size);
-        }
-
-        protected internal override void PostProcess(VoidPtr scn0Address, VoidPtr dataAddress, StringTable stringTable)
-        {
-            base.PostProcess(scn0Address, dataAddress, stringTable);
-
-            _userEntries.PostProcess(((SCN0Camera*)dataAddress)->UserData, stringTable);
-        }
-
-        [Browsable(false)]
-        public int FrameCount
-        {
-            get { return ((SCN0Node)Parent.Parent).FrameCount; }
-            set
-            {
-                for (int i = 0; i < 15; i++)
-                    GetKeys(i).FrameLimit = value;
-            }
-        }
-
         public static bool _generateTangents = true;
-        public static bool _linear = true;
 
         public CameraAnimationFrame GetAnimFrame(int index)
         {
@@ -236,21 +151,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             float* dPtr = (float*)&frame;
             for (int x = 0; x < 15; x++)
             {
-                KeyframeArray a = GetKeys(x);
+                KeyframeArray a = Keyframes[x];
                 *dPtr++ = a.GetFrameValue(index);
-                frame.SetBools(x, a.GetKeyframe((int)index) != null);
-                frame.Index = index;
-            }
-            return frame;
-        }
-        public CameraAnimationFrame GetAnimFrame(int index, bool linear)
-        {
-            CameraAnimationFrame frame;
-            float* dPtr = (float*)&frame;
-            for (int x = 0; x < 15; x++)
-            {
-                KeyframeArray a = GetKeys(x);
-                *dPtr++ = a.GetFrameValue(index, linear);
                 frame.SetBools(x, a.GetKeyframe((int)index) != null);
                 frame.Index = index;
             }
@@ -259,17 +161,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal KeyframeEntry GetKeyframe(CameraKeyframeMode keyFrameMode, int index)
         {
-            return GetKeys((int)keyFrameMode).GetKeyframe(index);
+            return Keyframes[(int)keyFrameMode].GetKeyframe(index);
         }
 
         public float GetFrameValue(CameraKeyframeMode keyFrameMode, float index)
         {
-            return GetKeys((int)keyFrameMode).GetFrameValue(index);
+            return Keyframes[(int)keyFrameMode].GetFrameValue(index);
         }
 
         internal void RemoveKeyframe(CameraKeyframeMode keyFrameMode, int index)
         {
-            KeyframeEntry k = GetKeys((int)keyFrameMode).Remove(index);
+            KeyframeEntry k = Keyframes[(int)keyFrameMode].Remove(index);
             if (k != null && _generateTangents)
             {
                 k._prev.GenerateTangent();
@@ -280,7 +182,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal void SetKeyframe(CameraKeyframeMode keyFrameMode, int index, float value)
         {
-            KeyframeArray keys = GetKeys((int)keyFrameMode);
+            KeyframeArray keys = Keyframes[(int)keyFrameMode];
             bool exists = keys.GetKeyframe(index) != null;
             KeyframeEntry k = keys.SetFrameValue(index, value);
 
@@ -295,6 +197,66 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             SignalPropertyChange();
+        }
+
+        [Browsable(false)]
+        public KeyframeArray Posx { get { return Keyframes[0]; } }
+        [Browsable(false)]
+        public KeyframeArray PosY { get { return Keyframes[1]; } }
+        [Browsable(false)]
+        public KeyframeArray PosZ { get { return Keyframes[2]; } }
+        [Browsable(false)]
+        public KeyframeArray RotX { get { return Keyframes[3]; } }
+        [Browsable(false)]
+        public KeyframeArray RotY { get { return Keyframes[4]; } }
+        [Browsable(false)]
+        public KeyframeArray RotZ { get { return Keyframes[5]; } }
+        [Browsable(false)]
+        public KeyframeArray AimX { get { return Keyframes[6]; } }
+        [Browsable(false)]
+        public KeyframeArray AimY { get { return Keyframes[7]; } }
+        [Browsable(false)]
+        public KeyframeArray AimZ { get { return Keyframes[8]; } }
+        [Browsable(false)]
+        public KeyframeArray Twist { get { return Keyframes[9]; } }
+        [Browsable(false)]
+        public KeyframeArray FovY { get { return Keyframes[10]; } }
+        [Browsable(false)]
+        public KeyframeArray Height { get { return Keyframes[11]; } }
+        [Browsable(false)]
+        public KeyframeArray Aspect { get { return Keyframes[12]; } }
+        [Browsable(false)]
+        public KeyframeArray NearZ { get { return Keyframes[13]; } }
+        [Browsable(false)]
+        public KeyframeArray FarZ { get { return Keyframes[14]; } }
+
+        private KeyframeCollection _keyframes = null;
+        [Browsable(false)]
+        public KeyframeCollection Keyframes
+        {
+            get
+            {
+                if (_keyframes == null)
+                {
+                    _keyframes = new KeyframeCollection(15, Scene.FrameCount);
+                    if (Data != null && Name != "<null>")
+                        for (int i = 0; i < 15; i++)
+                            DecodeKeyframes(
+                                Keyframes[i],
+                                Data->_position._x.Address + i * 4,
+                                (int)_flags1,
+                                (int)Ordered[i]);
+                }
+                return _keyframes;
+            }
+        }
+
+        [Browsable(false)]
+        public KeyframeArray[] KeyArrays { get { return Keyframes._keyArrays; } }
+
+        internal void SetSize(int numFrames, bool looped)
+        {
+            Keyframes.FrameLimit = numFrames + (looped ? 1 : 0);
         }
     }
 
@@ -315,177 +277,5 @@ namespace BrawlLib.SSBB.ResourceNodes
         Twist,
         FovY,
         Height,
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct CameraAnimationFrame
-    {
-        public static readonly CameraAnimationFrame Empty = new CameraAnimationFrame();
-
-        public Vector3 Pos;
-        public float Aspect;
-        public float NearZ;
-        public float FarZ;
-        public Vector3 Rot;
-        public Vector3 Aim;
-        public float Twist;
-        public float FovY;
-        public float Height;
-
-        public bool hasPx;
-        public bool hasPy;
-        public bool hasPz;
-
-        public bool hasRx;
-        public bool hasRy;
-        public bool hasRz;
-
-        public bool hasAx;
-        public bool hasAy;
-        public bool hasAz;
-
-        public bool hasT;
-        public bool hasF;
-        public bool hasH;
-        public bool hasA;
-        public bool hasNz;
-        public bool hasFz;
-
-        public bool HasKeys
-        {
-            get { return hasPx || hasPy || hasPz || hasRx || hasRy || hasRz || hasAx || hasAy || hasAz || hasT || hasF || hasH || hasA || hasNz || hasFz; }
-        }
-
-        public void SetBools(int index, bool val)
-        {
-            switch (index)
-            {
-                case 0: hasPx = val; break;
-                case 1: hasPy = val; break;
-                case 2: hasPz = val; break;
-                case 3: hasA = val; break;
-                case 4: hasNz = val; break;
-                case 5: hasFz = val; break;
-                case 6: hasRx = val; break;
-                case 7: hasRy = val; break;
-                case 8: hasRz = val; break;
-                case 9: hasAx = val; break;
-                case 10: hasAy = val; break;
-                case 11: hasAz = val; break;
-                case 12: hasT = val; break;
-                case 13: hasF = val; break;
-                case 14: hasH = val; break;
-            }
-        }
-
-        public void ResetBools()
-        {
-            hasRx = hasRy = hasRz =
-            hasPx = hasPy = hasPz =
-            hasAx = hasAy = hasAz =
-            hasT = hasF = hasH =
-            hasA = hasNz = hasFz = false;
-        }
-
-        public float this[int index]
-        {
-            get
-            {
-                switch (index)
-                {
-                    case 0: return Pos._x;
-                    case 1: return Pos._y;
-                    case 2: return Pos._z;
-                    case 3: return Aspect;
-                    case 4: return NearZ;
-                    case 5: return FarZ;
-                    case 6: return Rot._x;
-                    case 7: return Rot._y;
-                    case 8: return Rot._z;
-                    case 9: return Aim._x;
-                    case 10: return Aim._y;
-                    case 11: return Aim._z;
-                    case 12: return Twist;
-                    case 13: return FovY;
-                    case 14: return Height;
-
-                    default: return float.NaN;
-                }
-            }
-            set
-            {
-                switch (index)
-                {
-                    case 0: Pos._x = value; break;
-                    case 1: Pos._y = value; break;
-                    case 2: Pos._z = value; break;
-                    case 3: Aspect = value; break;
-                    case 4: NearZ = value; break;
-                    case 5: FarZ = value; break;
-                    case 6: Rot._x = value; break;
-                    case 7: Rot._y = value; break;
-                    case 8: Rot._z = value; break;
-                    case 9: Aim._x = value; break;
-                    case 10: Aim._y = value; break;
-                    case 11: Aim._z = value; break;
-                    case 12: Twist = value; break;
-                    case 13: FovY = value; break;
-                    case 14: Height = value; break;
-                }
-            }
-        }
-
-        public Vector3 GetRotate(SCN0CameraType type)
-        {
-            if (type == SCN0CameraType.Rotate)
-                return Rot;
-            else //Aim - calculate rotation facing the position
-            {
-                Matrix m = Matrix.ReverseLookat(Aim, Pos, Twist);
-                Vector3 a = m.GetAngles();
-                return new Vector3(-a._x, -a._y, -a._z);
-            }
-        }
-
-        public CameraAnimationFrame(Vector3 pos, Vector3 rot, Vector3 aim, float t, float f, float h, float a, float nz, float fz)
-        {
-            Pos = pos;
-            Rot = rot;
-            Aim = aim;
-            Twist = t;
-            FovY = f;
-            Height = h;
-            Aspect = a;
-            NearZ = nz;
-            FarZ = fz;
-            Index = 0;
-            hasRx = hasRy = hasRz =
-            hasPx = hasPy = hasPz =
-            hasAx = hasAy = hasAz =
-            hasT = hasF = hasH =
-            hasA = hasNz = hasFz = false;
-        }
-        public int Index;
-        const int len = 6;
-        static string empty = new String('_', len);
-        public override string ToString()
-        {
-            return String.Format("[{0}] Pos=({1},{2},{3}), Rot=({4},{5},{6}), Aim=({7},{8},{9}), Twist={10}, FovY={11}, Height={12}, Aspect={13}, NearZ={14}, FarZ={15}", (Index + 1).ToString().PadLeft(5),
-            !hasPx ? empty : Pos._x.ToString().TruncateAndFill(len, ' '),
-            !hasPy ? empty : Pos._y.ToString().TruncateAndFill(len, ' '),
-            !hasPz ? empty : Pos._z.ToString().TruncateAndFill(len, ' '),
-            !hasRx ? empty : Rot._x.ToString().TruncateAndFill(len, ' '),
-            !hasRy ? empty : Rot._y.ToString().TruncateAndFill(len, ' '),
-            !hasRz ? empty : Rot._z.ToString().TruncateAndFill(len, ' '),
-            !hasAx ? empty : Aim._x.ToString().TruncateAndFill(len, ' '),
-            !hasAy ? empty : Aim._y.ToString().TruncateAndFill(len, ' '),
-            !hasAz ? empty : Aim._z.ToString().TruncateAndFill(len, ' '),
-            !hasT ? empty : Twist.ToString().TruncateAndFill(len, ' '),
-            !hasF ? empty : FovY.ToString().TruncateAndFill(len, ' '),
-            !hasH ? empty : Height.ToString().TruncateAndFill(len, ' '),
-            !hasA ? empty : Aspect.ToString().TruncateAndFill(len, ' '),
-            !hasNz ? empty : NearZ.ToString().TruncateAndFill(len, ' '),
-            !hasFz ? empty : FarZ.ToString().TruncateAndFill(len, ' '));
-        }
     }
 }

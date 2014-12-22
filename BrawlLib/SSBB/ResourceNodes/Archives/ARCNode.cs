@@ -32,24 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 DataSource source = new DataSource(entry->Data, entry->Length);
                 if ((entry->Length == 0) || (NodeFactory.FromSource(this, source) == null))
-                {
-                    //CompressionHeader* cmpr = (CompressionHeader*)source.Address;
-                    //if (Compressor.IsDataCompressed(source))
-                    //{
-                    //    source.Compression = cmpr->Algorithm;
-                    //    if (cmpr->ExpandedSize >= entry->Length && Compressor.Supports(cmpr->Algorithm))
-                    //    {
-                    //        //Expand the whole resource and initialize
-                    //        FileMap uncompMap = FileMap.FromTempFile(cmpr->ExpandedSize);
-                    //        Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
-                    //        new ARCEntryNode().Initialize(this, source, new DataSource(uncompMap));
-                    //    }
-                    //    else
-                    //        new ARCEntryNode().Initialize(this, source);
-                    //}
-                    //else
-                        new ARCEntryNode().Initialize(this, source);
-                }
+                    new ARCEntryNode().Initialize(this, source);
             }
         }
 

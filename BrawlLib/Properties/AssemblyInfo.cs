@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrawlLib")]
-[assembly: AssemblyCopyright("Copyright © 2009 - 2014 Bryan Moulton, BlackJax96, libertyernie && Sammi Husky")]
+[assembly: AssemblyCopyright("Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie && Sammi Husky")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

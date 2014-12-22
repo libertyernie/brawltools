@@ -136,7 +136,6 @@ namespace System.Windows.Forms
         public ToolStripMenuItem enableTextOverlaysToolStripMenuItem;
         private ToolStripMenuItem wireframeToolStripMenuItem;
         private ToolStripMenuItem interpolationEditorToolStripMenuItem;
-        private ToolStripMenuItem linearInterpolationToolStripMenuItem;
         private ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripMenuItem selectedAnimationToolStripMenuItem;
         private ToolStripMenuItem portToolStripMenuItem;
@@ -144,9 +143,6 @@ namespace System.Windows.Forms
         private ToolStripMenuItem appendToolStripMenuItem;
         private ToolStripMenuItem resizeToolStripMenuItem;
         private ToolStripMenuItem playToolStripMenuItem;
-        private ToolStripMenuItem chkLinearCHR;
-        private ToolStripMenuItem chkLinearSRT;
-        private ToolStripMenuItem chkLinearSHP;
         private ToolStripMenuItem interpolationToolStripMenuItem;
         private ToolStripMenuItem averageAllStartEndTangentsToolStripMenuItem;
         private ToolStripMenuItem averageboneStartendTangentsToolStripMenuItem;
@@ -171,9 +167,6 @@ namespace System.Windows.Forms
         private ToolStripMenuItem chkGenTansLight;
         private ToolStripMenuItem chkGenTansFog;
         private ToolStripMenuItem chkGenTansCamera;
-        private ToolStripMenuItem chkLinearLight;
-        private ToolStripMenuItem chkLinearFog;
-        private ToolStripMenuItem chkLinearCamera;
         public ToolStripMenuItem chkBRRESAnims;
         private ToolStripMenuItem detachViewerToolStripMenuItem;
         private ToolStripButton chkZoomExtents;
@@ -291,13 +284,6 @@ namespace System.Windows.Forms
             this.playPAT0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playVIS0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playCLR0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.linearInterpolationToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearCHR = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearSRT = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearSHP = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearLight = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearFog = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLinearCamera = new System.Windows.Forms.ToolStripMenuItem();
             this.sCN0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayAmbienceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayLightsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1239,7 +1225,6 @@ namespace System.Windows.Forms
             // 
             this.fileTypesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.playToolStripMenuItem,
-            this.linearInterpolationToolStripMenuItem,
             this.sCN0ToolStripMenuItem});
             this.fileTypesToolStripMenuItem.Name = "fileTypesToolStripMenuItem";
             this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
@@ -1310,65 +1295,6 @@ namespace System.Windows.Forms
             this.playCLR0ToolStripMenuItem.Name = "playCLR0ToolStripMenuItem";
             this.playCLR0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playCLR0ToolStripMenuItem.Text = "CLR0";
-            // 
-            // linearInterpolationToolStripMenuItem
-            // 
-            this.linearInterpolationToolStripMenuItem.CheckOnClick = true;
-            this.linearInterpolationToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.chkLinearCHR,
-            this.chkLinearSRT,
-            this.chkLinearSHP,
-            this.chkLinearLight,
-            this.chkLinearFog,
-            this.chkLinearCamera});
-            this.linearInterpolationToolStripMenuItem.Name = "linearInterpolationToolStripMenuItem";
-            this.linearInterpolationToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
-            this.linearInterpolationToolStripMenuItem.Text = "Linear Interpolation";
-            // 
-            // chkLinearCHR
-            // 
-            this.chkLinearCHR.CheckOnClick = true;
-            this.chkLinearCHR.Name = "chkLinearCHR";
-            this.chkLinearCHR.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearCHR.Text = "CHR0";
-            this.chkLinearCHR.CheckedChanged += new System.EventHandler(this.cHR0ToolStripMenuItem_CheckedChanged);
-            // 
-            // chkLinearSRT
-            // 
-            this.chkLinearSRT.CheckOnClick = true;
-            this.chkLinearSRT.Name = "chkLinearSRT";
-            this.chkLinearSRT.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearSRT.Text = "SRT0";
-            this.chkLinearSRT.CheckedChanged += new System.EventHandler(this.sRT0ToolStripMenuItem_CheckedChanged);
-            // 
-            // chkLinearSHP
-            // 
-            this.chkLinearSHP.CheckOnClick = true;
-            this.chkLinearSHP.Name = "chkLinearSHP";
-            this.chkLinearSHP.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearSHP.Text = "SHP0";
-            this.chkLinearSHP.CheckedChanged += new System.EventHandler(this.sHP0ToolStripMenuItem_CheckedChanged);
-            // 
-            // chkLinearLight
-            // 
-            this.chkLinearLight.Name = "chkLinearLight";
-            this.chkLinearLight.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearLight.Text = "SCN0 Light";
-            this.chkLinearLight.CheckedChanged += new System.EventHandler(this.sCN0LightsToolStripMenuItem_CheckedChanged);
-            // 
-            // chkLinearFog
-            // 
-            this.chkLinearFog.Name = "chkLinearFog";
-            this.chkLinearFog.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearFog.Text = "SCN0 Fog";
-            this.chkLinearFog.CheckedChanged += new System.EventHandler(this.sCN0FogToolStripMenuItem1_CheckedChanged);
-            // 
-            // chkLinearCamera
-            // 
-            this.chkLinearCamera.Name = "chkLinearCamera";
-            this.chkLinearCamera.Size = new System.Drawing.Size(147, 22);
-            this.chkLinearCamera.Text = "SCN0 Camera";
-            this.chkLinearCamera.CheckedChanged += new System.EventHandler(this.sCN0CameraToolStripMenuItem1_CheckedChanged);
             // 
             // sCN0ToolStripMenuItem
             // 

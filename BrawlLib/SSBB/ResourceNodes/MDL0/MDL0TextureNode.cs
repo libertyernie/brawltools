@@ -143,25 +143,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             int filter = 0;
             switch (mRef.MagFilter)
             {
-                case MDL0MaterialRefNode.TextureMagFilter.Nearest:
+                case MatTextureMagFilter.Nearest:
                     filter = (int)TextureMagFilter.Nearest; break;
-                case MDL0MaterialRefNode.TextureMagFilter.Linear:
+                case MatTextureMagFilter.Linear:
                     filter = (int)TextureMagFilter.Linear; break;
             }
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, filter);
             switch (mRef.MinFilter)
             {
-                case MDL0MaterialRefNode.TextureMinFilter.Nearest:
+                case MatTextureMinFilter.Nearest:
                     filter = (int)TextureMinFilter.Nearest; break;
-                case MDL0MaterialRefNode.TextureMinFilter.Linear:
+                case MatTextureMinFilter.Linear:
                     filter = (int)TextureMinFilter.Linear; break;
-                case MDL0MaterialRefNode.TextureMinFilter.Nearest_Mipmap_Nearest:
+                case MatTextureMinFilter.Nearest_Mipmap_Nearest:
                     filter = (int)TextureMinFilter.NearestMipmapNearest; break;
-                case MDL0MaterialRefNode.TextureMinFilter.Nearest_Mipmap_Linear:
+                case MatTextureMinFilter.Nearest_Mipmap_Linear:
                     filter = (int)TextureMinFilter.NearestMipmapLinear; break;
-                case MDL0MaterialRefNode.TextureMinFilter.Linear_Mipmap_Nearest:
+                case MatTextureMinFilter.Linear_Mipmap_Nearest:
                     filter = (int)TextureMinFilter.LinearMipmapNearest; break;
-                case MDL0MaterialRefNode.TextureMinFilter.Linear_Mipmap_Linear:
+                case MatTextureMinFilter.Linear_Mipmap_Linear:
                     filter = (int)TextureMinFilter.LinearMipmapLinear; break;
             }
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, filter);

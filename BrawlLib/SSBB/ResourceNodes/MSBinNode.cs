@@ -64,6 +64,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (index = 0, last = 0; last != length; index++)
             {
+                if (index * 4 > source.Length)
+                    return null;
+
                 current = offsets[index];
                 if ((current < last) || (current > length))
                     return null;

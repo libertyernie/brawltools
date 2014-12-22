@@ -14,19 +14,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal PAT0v3* Header3 { get { return (PAT0v3*)WorkingUncompressed.Address; } }
         internal PAT0v4* Header4 { get { return (PAT0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.PAT0; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(PAT0EntryNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(PAT0EntryNode) }; } }
 
         internal List<string> _textureFiles = new List<string>();
         internal List<string> _paletteFiles = new List<string>();
 
-        internal int _loop, _version = 3;
-        internal int _frameCount = 1;
+        const string _category = "Texture Pattern Animation";
+        internal int _loop, _version = 3, _frameCount = 1;
 
         public void RegenerateTextureList()
         {
@@ -61,25 +55,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             _paletteFiles.Sort();
         }
 
-        [Category("Texture Pattern Data")]
+        [Category(_category)]
         public int Version { get { return _version; } set { _version = value; SignalPropertyChange(); } }
-        [Category("Texture Pattern Data")]
-        public string[] Textures
-        {
-            get
-            {
-                return _textureFiles.ToArray();
-            }
-        }
-        [Category("Texture Pattern Data")]
-        public string[] Palettes
-        {
-            get
-            {
-                return _paletteFiles.ToArray();
-            }
-        }
-        [Category("Texture Pattern Data")]
+        [Category(_category)]
+        public string[] Textures { get { return _textureFiles.ToArray(); } }
+        [Category(_category)]
+        public string[] Palettes { get { return _paletteFiles.ToArray(); } }
+        [Category(_category)]
         public override int FrameCount
         {
             get { return _frameCount; }
@@ -92,16 +74,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SignalPropertyChange();
             }
         }
-        [Category("Texture Pattern Data")]
+        [Category(_category)]
         public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
+
+        [Category(_category)]
+        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
+        public string _originalPath;
 
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
-
-        [Category("Texture Pattern Data")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
 
         public override bool OnInitialize()
         {
@@ -293,11 +275,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if (_userEntries.Count > 0 && _version == 4)
-            {
-                PAT0v4* header = (PAT0v4*)address;
-                header->UserData = dataAddress;
-                _userEntries.Write(dataAddress);
-            }
+                _userEntries.Write(((PAT0v4*)address)->UserData = dataAddress);
         }
 
         protected internal override void PostProcess(VoidPtr bresAddress, VoidPtr dataAddress, int dataLength, StringTable stringTable)

@@ -305,7 +305,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                         mr._embossLight = 2;
                                         mr.Normalize = true;
 
-                                        mr.MapMode = (MDL0MaterialRefNode.MappingMethod)1;
+                                        mr.MapMode = MappingMethod.EnvCamera;
 
                                         mr.SetTextMtxData();
 
@@ -833,36 +833,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Collada.Serialize(this, outPath);
             //else if (outPath.ToUpper().EndsWith(".PMD"))
             //    PMDModel.Export(this, outPath);
+            //else if (outPath.ToUpper().EndsWith(".RMDL"))
+            //    XMLExporter.ExportRMDL(this, outPath);
             else
                 base.Export(outPath);
         }
         public bool _reopen = false;
-        public void BuildFromScratch(Collada form)
-        {
-            _isImport = true;
-
-            _influences.Clean();
-            _influences.Sort();
-
-            CleanTextures();
-
-            _linker = ModelLinker.Prepare(this);
-            int size = ModelEncoder.CalcSize(form, _linker);
-
-            FileMap uncompMap = FileMap.FromTempFile(size);
-
-            ModelEncoder.Build(form, _linker, (MDL0Header*)uncompMap.Address, size, true);
-
-            _replSrc.Close();
-            _replUncompSrc.Close();
-            _replSrc = _replUncompSrc = new DataSource(uncompMap.Address, size);
-            _replSrc.Map = _replUncompSrc.Map = uncompMap;
-
-            IsDirty = false;
-            _reopen = true;
-            _isImport = false;
-        }
-
         public override int OnCalculateSize(bool force)
         {
             //Clean and sort influence list
@@ -1097,6 +1073,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
 #if DEBUG
             attrib._applyBillboardBones = true;
+            //attrib._renderBox = true;
 #endif
 
             GL.Enable(EnableCap.Blend);
@@ -1281,7 +1258,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_boneList != null)
             {
                 foreach (MDL0BoneNode b in _boneList)
-                    b.ApplyCHR0(node, index, CHR0EntryNode._linear);
+                    b.ApplyCHR0(node, index);
                 foreach (MDL0BoneNode b in _boneList)
                     b.RecalcFrameState();
             }
@@ -1301,7 +1278,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Transform textures
             if (_matList != null)
                 foreach (MDL0MaterialNode m in _matList)
-                    m.ApplySRT0(node, index, SRT0TextureNode._linear);
+                    m.ApplySRT0(node, index);
         }
 
         public void ApplyCLR(CLR0Node node, float index)
@@ -1331,18 +1308,20 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return;
             }
 
-            if (VIS0Indices != null)
-                foreach (string n in VIS0Indices.Keys)
-                {
-                    VIS0EntryNode entry = null;
-                    List<int> indices = VIS0Indices[n];
-                    for (int i = 0; i < indices.Count; i++)
-                        if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
-                            if (entry._entryCount != 0 && index >= 1)
-                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry((int)index - 1);
-                            else
-                                ((MDL0ObjectNode)_objList[indices[i]])._render = entry._flags.HasFlag(VIS0Flags.Enabled);
-                }
+            if (VIS0Indices == null)
+                RegenerateVIS0Indices();
+
+            foreach (string n in VIS0Indices.Keys)
+            {
+                VIS0EntryNode entry = null;
+                List<int> indices = VIS0Indices[n];
+                for (int i = 0; i < indices.Count; i++)
+                    if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
+                        if (entry._entryCount != 0 && index >= 1)
+                            ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry((int)index - 1);
+                        else
+                            ((MDL0ObjectNode)_objList[indices[i]])._render = entry._flags.HasFlag(VIS0Flags.Enabled);
+            }
         }
 
         public void SetSCN0(SCN0Node node)
@@ -1383,7 +1362,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
 
-                            weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1, SHP0VertexSetNode._linear) : 0;
+                            weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1) : 0;
                             nodes[shpSet.Index] = vNode;
                         }
 

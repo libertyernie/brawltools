@@ -25,8 +25,6 @@ namespace BrawlLib.Wii.Compression
     public static unsafe class Compressor
     {
         private const int CompressBufferLen = 0x60;
-        private const string RawDataName = "UnknownData";
-
         internal static CompressionType[] _supportedCompressionTypes = 
         {
             CompressionType.None,
@@ -37,141 +35,101 @@ namespace BrawlLib.Wii.Compression
             CompressionType.RunLengthYAY0,
         };
 
-        public static bool Supports(VoidPtr addr) { return Supports(((CompressionHeader*)addr)->Algorithm); }
-        public static bool Supports(CompressionType type)
-        {
-            return Array.IndexOf(_supportedCompressionTypes, type) != -1;
-        }
-        const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        public static bool IsDataCompressed(DataSource source) { return IsDataCompressed(source.Address, source.Length); }
-        public static bool IsDataCompressed(VoidPtr addr, int length)
+        public static bool Supports(CompressionType type) { return _supportedCompressionTypes.Contains(type); }
+        
+        const string _characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        public static CompressionType GetAlgorithm(DataSource source) { return GetAlgorithm(source.Address, source.Length); }
+        public static CompressionType GetAlgorithm(VoidPtr addr, int length)
         {
             BinTag compTag = *(BinTag*)addr;
-            if (compTag == YAZ0.Tag || compTag == YAY0.Tag)
-                return true;
+            if (compTag == YAZ0.Tag)
+                return CompressionType.RunLengthYAZ0;
+            else if (compTag == YAY0.Tag)
+                return CompressionType.RunLengthYAY0;
             else
             {
                 CompressionHeader* cmpr = (CompressionHeader*)addr;
 
                 if (cmpr->ExpandedSize < length)
-                    return false;
+                    return CompressionType.None;
 
                 if (!cmpr->HasLegitCompression())
-                    return false;
-
-                char[] chars = characters.ToCharArray();
+                    return CompressionType.None;
 
                 //Check to make sure we're not reading a tag
-                byte* c = (byte*)addr;
-                byte[] tag = { c[0], c[1], c[2], c[3] };
-                if ((Array.IndexOf(chars, (char)tag[0]) >= 0) &&
-                    (Array.IndexOf(chars, (char)tag[1]) >= 0) &&
-                    (Array.IndexOf(chars, (char)tag[2]) >= 0) &&
-                    (Array.IndexOf(chars, (char)tag[3]) >= 0))
-                    return false;
+                if (IsTag((byte*)addr))
+                    return CompressionType.None;
 
-                return true;
+                return cmpr->Algorithm;
             }
         }
 
-        public static ResourceNode TryExpand(DataSource source, ResourceNode parent, bool returnRaw)
+        private static bool IsTag(byte* c)
         {
-            ResourceNode n = null;
-            if (IsDataCompressed(source))
+            char[] chars = _characters.ToCharArray();
+            byte[] tag = { c[0], c[1], c[2], c[3] };
+            if ((Array.IndexOf(chars, (char)tag[0]) >= 0) &&
+                (Array.IndexOf(chars, (char)tag[1]) >= 0) &&
+                (Array.IndexOf(chars, (char)tag[2]) >= 0) &&
+                (Array.IndexOf(chars, (char)tag[3]) >= 0))
+                return true;
+            return false;
+        }
+
+        private static bool Test(CompressionType alg, VoidPtr src)
+        {
+            byte* buffer = stackalloc byte[CompressBufferLen];
+            if (alg == CompressionType.RunLengthYAZ0)
+                Expand((YAZ0*)src, buffer, CompressBufferLen);
+            else if (alg == CompressionType.RunLengthYAY0)
+                Expand((YAY0*)src, buffer, CompressBufferLen);
+            else
+                Expand((CompressionHeader*)src, buffer, CompressBufferLen);
+
+            if (NodeFactory.GetRaw(buffer, CompressBufferLen) != null)
+                return true;
+
+            return false;
+        }
+
+        public static FileMap TryExpand(DataSource source)
+        {
+            FileMap decompressedMap = null;
+            CompressionType algorithm = GetAlgorithm(source);
+            if (algorithm != CompressionType.None && Supports(algorithm))
             {
                 try
                 {
-                    uint len = 0;
-                    CompressionType algorithm = CompressionType.None;
-
-                    FileMap map = null;
-                    byte* temp = stackalloc byte[CompressBufferLen];
-                    
-                    BinTag tag = *(BinTag*)source.Address;
-                    int type = tag == YAZ0.Tag ? 0 : tag == YAY0.Tag ? 1 : 2;
-                    switch (type)
-                    {
-                        case 0:
-                            algorithm = CompressionType.RunLengthYAZ0;
-                            len = *(buint*)(source.Address + 4);
-                            if (returnRaw)
-                            {
-                                map = FileMap.FromTempFile((int)len);
-                                Expand((YAZ0*)source.Address, map.Address, map.Length);
-                            }
-                            else
-                                Expand((YAZ0*)source.Address, temp, CompressBufferLen);
-                            break;
-                        case 1:
-                            algorithm = CompressionType.RunLengthYAY0;
-                            len = *(buint*)(source.Address + 4);
-                            if (returnRaw)
-                            {
-                                map = FileMap.FromTempFile((int)len);
-                                Expand((YAY0*)source.Address, map.Address, map.Length);
-                            }
-                            else
-                                Expand((YAY0*)source.Address, temp, CompressBufferLen);
-                            break;
-                        case 2:
-                            CompressionHeader* hdr = (CompressionHeader*)source.Address;
-                            algorithm = hdr->Algorithm;
-                            len = hdr->ExpandedSize;
-
-                            if (!Supports(algorithm))
-                            {
-                                source.Compression = algorithm;
-                                goto NotDecompressable;
-                            }
-
-                            if (returnRaw)
-                            {
-                                map = FileMap.FromTempFile((int)len);
-                                Expand(hdr, map.Address, map.Length);
-                            }
-                            else
-                                Expand(hdr, temp, CompressBufferLen);
-                            break;
-                    }
+                    if (!Test(algorithm, source.Address))
+                        return null;
 
                     source.Compression = algorithm;
 
-                    if (returnRaw)
+                    uint len = 0;
+                    if (algorithm == CompressionType.RunLengthYAZ0)
                     {
-                        if ((n = NodeFactory.GetRaw(map.Address, map.Length)) == null)
-                            n = new RawDataNode(RawDataName);
-                        n.Initialize(parent, source, new DataSource(map));
+                        len = *(buint*)(source.Address + 4);
+                        decompressedMap = FileMap.FromTempFile((int)len);
+                        Expand((YAZ0*)source.Address, decompressedMap.Address, decompressedMap.Length);
+                    }
+                    else if (algorithm == CompressionType.RunLengthYAY0)
+                    {
+                        len = *(buint*)(source.Address + 4);
+                        decompressedMap = FileMap.FromTempFile((int)len);
+                        Expand((YAY0*)source.Address, decompressedMap.Address, decompressedMap.Length);
                     }
                     else
                     {
-                        if ((n = NodeFactory.GetRaw(new DataSource(temp, CompressBufferLen))) != null)
-                        {
-                            map = FileMap.FromTempFile((int)len);
-                            switch (type)
-                            {
-                                case 0:
-                                    Expand((YAZ0*)source.Address, map.Address, map.Length);
-                                    break;
-                                case 1:
-                                    Expand((YAY0*)source.Address, map.Address, map.Length);
-                                    break;
-                                case 2:
-                                    Expand((CompressionHeader*)source.Address, map.Address, map.Length);
-                                    break;
-                            }
-                            n.Initialize(parent, source, new DataSource(map));
-                        }
+                        CompressionHeader* hdr = (CompressionHeader*)source.Address;
+                        len = hdr->ExpandedSize;
+
+                        decompressedMap = FileMap.FromTempFile((int)len);
+                        Expand(hdr, decompressedMap.Address, decompressedMap.Length);
                     }
-                    return n;
                 }
                 catch (InvalidCompressionException e) { MessageBox.Show(e.ToString()); }
             }
-
-            NotDecompressable:
-            if (returnRaw)
-                (n = new RawDataNode(RawDataName)).Initialize(parent, source);
-
-            return n;
+            return decompressedMap;
         }
 
         public static void Expand(CompressionHeader* header, VoidPtr dstAddr, int dstLen)

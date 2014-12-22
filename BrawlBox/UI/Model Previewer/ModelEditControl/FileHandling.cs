@@ -46,7 +46,9 @@ namespace System.Windows.Forms
                     else
                         MessageBox.Show(this, "Unable to recognize input file.");
                 }
+                #if !DEBUG
                 catch (Exception x) { MessageBox.Show(this, x.ToString()); }
+                #endif
                 finally
                 {
                     if (node != null)

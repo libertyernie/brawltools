@@ -138,19 +138,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         [Browsable(false)]
-        public int FrameCount
-        {
-            get { return ((SCN0Node)Parent.Parent).FrameCount; }
-            set
-            {
-                _numEntries = _colors.Count;
-                NumEntries = value + 1;
-                if (_constant)
-                    _numEntries = 0;
-            }
-        }
+        public int FrameCount { get { return Scene.FrameCount; } }
 
-        public int DataOffset { get { return !_constant ? (int)*(bint*)&Data->_lighting + (int)(&Data->_lighting - Parent.Parent.WorkingUncompressed.Address) : 0; } }
+        internal void SetSize(int numFrames)
+        {
+            _numEntries = _colors.Count;
+            NumEntries = numFrames;
+            if (_constant)
+                _numEntries = 0;
+        }
 
         public override bool OnInitialize()
         {
@@ -163,6 +159,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Read header values
             _fixedFlags = Data->_fixedFlags;
             _usageFlags = Data->_flags;
+
+            if (_name == "<null>")
+                return false;
 
             //Read ambient light color
             ReadColors(
@@ -189,7 +188,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_name == "<null>")
                 return SCN0AmbientLight.Size;
 
-            _match = FindColorMatch(_constant, FrameCount, _match, 0) as SCN0AmbientLightNode;
+            _match = FindColorMatch(_constant, FrameCount, 0) as SCN0AmbientLightNode;
             if (_match == null && !_constant)
                 _dataLengths[1] += 4 * (FrameCount + 1);
 
@@ -230,8 +229,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             header->_fixedFlags = (byte)flags;
             header->_flags = _usageFlags;
-
-
         }
     }
 }

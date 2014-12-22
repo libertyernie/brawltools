@@ -542,10 +542,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             _replUncompSrc.Close();
             _replSrc.Close();
 
-            if (Compressor.IsDataCompressed(map.Address, map.Length))
+            _compression = Compressor.GetAlgorithm(map.Address, map.Length);
+            if (_compression != CompressionType.None)
             {
+                //TODO: YAZ0 and YAY0?
+
                 CompressionHeader* cmpr = (CompressionHeader*)map.Address;
-                _compression = cmpr->Algorithm;
                 if (Compressor.Supports(cmpr->Algorithm))
                 {
                     FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
@@ -557,10 +559,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _replSrc = _replUncompSrc = new DataSource(map);
             }
             else
-            {
-                _compression = CompressionType.None;
                 _replSrc = _replUncompSrc = new DataSource(map);
-            }
 
             _replaced = true;
             if (!OnInitialize())

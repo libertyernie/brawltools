@@ -381,41 +381,5 @@ namespace System.Windows.Forms
         {
             SCN0CameraNode._generateTangents = chkGenTansCamera.Checked;
         }
-
-        private void sHP0ToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            SHP0VertexSetNode._linear = chkLinearSHP.Checked;
-            UpdateModel();
-        }
-
-        private void sRT0ToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            SRT0TextureNode._linear = chkLinearSRT.Checked;
-            UpdateModel();
-        }
-
-        private void cHR0ToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            CHR0EntryNode._linear = chkGenTansCHR.Checked;
-            UpdateModel();
-        }
-
-        private void sCN0LightsToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
-        {
-            SCN0LightNode._linear = chkLinearLight.Checked;
-            ModelPanel.Invalidate();
-        }
-
-        private void sCN0FogToolStripMenuItem1_CheckedChanged(object sender, EventArgs e)
-        {
-            SCN0FogNode._linear = chkLinearFog.Checked;
-            ModelPanel.Invalidate();
-        }
-
-        private void sCN0CameraToolStripMenuItem1_CheckedChanged(object sender, EventArgs e)
-        {
-            SCN0CameraNode._linear = chkLinearCamera.Checked;
-            ModelPanel.Invalidate();
-        }
     }
 }

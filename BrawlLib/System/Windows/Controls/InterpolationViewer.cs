@@ -492,40 +492,76 @@ namespace System.Windows.Forms
         }
 
         /// <summary>
-        /// 
+        /// Returns true if two has a value
         /// </summary>
         /// <param name="index">Float value of current frame. Not normalized [0,1]</param>
         /// <returns></returns>
-        private float GetFrameValue(float index)
+        private bool GetFrameValue(float index, out float one, out float two)
         {
             KeyframeEntry entry, root = _keyRoot;
 
+            one = 0;
+            two = 0;
+
             if (_keyRoot == null)
-                return 0;
-
-            float prevIndex = root._prev._index;
-
+                return false;
+            
             //check if index past last frame
             //clamp to last frame if index past last frame
-            if (index >= prevIndex)
-                return root._prev._value;
-
-            float nextIndex = root._next._index;
+            if (index >= root._prev._index)
+            {
+                KeyframeEntry e = root._prev;
+                if (e._prev._index == e._index)
+                {
+                    one = e._prev._value;
+                    two = e._value;
+                    return true;
+                }
+                else
+                {
+                    one = e._value;
+                    return false;
+                }
+            }
 
             //clamp to first frame if index < 0 (root._next == first frame)
-            if (index <= nextIndex)
-                return root._next._value;
+            if (index <= root._next._index)
+            {
+                KeyframeEntry e = root._next;
+                if (e._next._index == e._index)
+                {
+                    one = e._value;
+                    two = e._next._value;
+                    return true;
+                }
+                else
+                {
+                    one = e._value;
+                    return false;
+                }
+            }
 
             //get keyframe entry  before float index
             //if the input key frame index exists as a keyframe entry,
             //return it's value instead.
             for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next)
                 if (entry._index == index)
-                    return entry._value;
+                {
+                    if (entry._next._index == entry._index)
+                    {
+                        one = entry._value;
+                        two = entry._next._value;
+                    }
+                    else
+                    {
+                        one = entry._value;
+                        return false;
+                    }
+                }
             
-
             //otherwise, return the interpolated value of the entry prior to the input index.
-            return entry._prev.Interpolate(index - (float)entry._prev._index, _linear);
+            one = entry._prev.Interpolate(index - (float)entry._prev._index, _linear);
+            return false;
         }
 
         public void FindMaxMin()
@@ -542,12 +578,23 @@ namespace System.Windows.Forms
             for (float i = start; i <= end; i += (1 / _precision))
                 if (i >= 0 && i < _frameLimit)
                 {
-                    float v = GetFrameValue(i);
+                    float one, two;
+                    bool has2nd = GetFrameValue(i, out one, out two);
+                    float v = one;
 
                     if (v < _minVal)
                         _minVal = v;
                     if (v > _maxVal)
                         _maxVal = v;
+
+                    if (has2nd)
+                    {
+                        v = two;
+                        if (v < _minVal)
+                            _minVal = v;
+                        if (v > _maxVal)
+                            _maxVal = v;
+                    }
                 }
         }
 
@@ -639,6 +686,9 @@ namespace System.Windows.Forms
 
             CalcXY();
 
+            float one, two;
+            bool has2nd;
+
             if (_allKeys)
             {
                 //Draw lines
@@ -666,12 +716,24 @@ namespace System.Windows.Forms
                 //Draw interpolation
                 GL.Color4(Color.Red);
                 GL.Begin(PrimitiveType.LineStrip);
+
                 if (!_linear)
                     for (float i = 0; i < (float)_frameLimit; i += (1 / _precision))
-                        GL.Vertex2(i * _xScale, (GetFrameValue(i) - _minVal) * _yScale);
-                else
-                    for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
-                        GL.Vertex2(entry._index * _xScale, (GetFrameValue(entry._index) - _minVal) * _yScale);
+                    {
+                        has2nd = GetFrameValue(i, out one, out two);
+                        GL.Vertex2(i * _xScale, (one - _minVal) * _yScale);
+                        if (has2nd)
+                        {
+                            GL.End();
+                            GL.Begin(PrimitiveType.LineStrip);
+                            GL.Vertex2(i * _xScale, (two - _minVal) * _yScale);
+                        }
+                    }
+                //else
+                //    for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
+                //    {
+                //        GL.Vertex2(entry._index * _xScale, (GetFrameValue(entry._index) - _minVal) * _yScale);
+                //    }
                 GL.End();
                 
                 //Draw frame indicator
@@ -698,7 +760,11 @@ namespace System.Windows.Forms
                         GL.PointSize(_pointWidth * 4.0f);
                         GL.Color4(Color.Orange);
                     }
-                    GL.Vertex2(entry._index * _xScale, (GetFrameValue(entry._index) - _minVal) * _yScale);
+
+                    has2nd = GetFrameValue(entry._index, out one, out two);
+                    GL.Vertex2(entry._index * _xScale, (one - _minVal) * _yScale);
+                    if (has2nd)
+                        GL.Vertex2(entry._index * _xScale, (two - _minVal) * _yScale);
 
                     if (t)
                     {
@@ -721,18 +787,18 @@ namespace System.Windows.Forms
                 GL.Vertex2(xv, 0.0f);
                 GL.Vertex2(xv, Height);
 
-                float yv = (GetFrameValue(SelectedKeyframe._index) - _minVal) * _yScale;
-                GL.Vertex2(0.0f, yv);
-                GL.Vertex2(Width, yv);
+                //float yv = (GetFrameValue(SelectedKeyframe._index) - _minVal) * _yScale;
+                //GL.Vertex2(0.0f, yv);
+                //GL.Vertex2(Width, yv);
 
                 GL.End();
 
                 //Draw interpolation
                 GL.Color4(Color.Red);
-                GL.Begin(PrimitiveType.LineStrip);
-                for (float i = 0; i <= (float)(max - min); i += (1 / _precision))
-                    GL.Vertex2(i * _xScale, (GetFrameValue(i + min) - _minVal) * _yScale);
-                GL.End();
+                //GL.Begin(PrimitiveType.LineStrip);
+                //for (float i = 0; i <= (float)(max - min); i += (1 / _precision))
+                //    GL.Vertex2(i * _xScale, (GetFrameValue(i + min) - _minVal) * _yScale);
+                //GL.End();
                 
                 //Draw tangent
                 DrawTangent(SelectedKeyframe, min);
@@ -749,10 +815,26 @@ namespace System.Windows.Forms
                 GL.Begin(PrimitiveType.Points);
 
                 if (SelectedKeyframe._prev._index != -1)
-                    GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (GetFrameValue(SelectedKeyframe._prev._index) - _minVal) * _yScale);
-                GL.Vertex2((SelectedKeyframe._index - min) * _xScale, (GetFrameValue(SelectedKeyframe._index) - _minVal) * _yScale);
+                {
+                    has2nd = GetFrameValue(SelectedKeyframe._prev._index, out one, out two);
+                    GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (one - _minVal) * _yScale);
+                    if (has2nd)
+                        GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (two - _minVal) * _yScale);
+                }
+                if (SelectedKeyframe._index != -1)
+                {
+                    has2nd = GetFrameValue(SelectedKeyframe._index, out one, out two);
+                    GL.Vertex2((SelectedKeyframe._index - min) * _xScale, (one - _minVal) * _yScale);
+                    if (has2nd)
+                        GL.Vertex2((SelectedKeyframe._index - min) * _xScale, (two - _minVal) * _yScale);
+                }
                 if (SelectedKeyframe._next._index != -1)
-                    GL.Vertex2((SelectedKeyframe._next._index - min) * _xScale, (GetFrameValue(SelectedKeyframe._next._index) - _minVal) * _yScale);
+                {
+                    has2nd = GetFrameValue(SelectedKeyframe._next._index, out one, out two);
+                    GL.Vertex2((SelectedKeyframe._next._index - min) * _xScale, (one - _minVal) * _yScale);
+                    if (has2nd)
+                        GL.Vertex2((SelectedKeyframe._next._index - min) * _xScale, (two - _minVal) * _yScale);
+                }
 
                 GL.End();
             }

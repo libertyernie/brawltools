@@ -671,51 +671,68 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             //        b.RecalcFrameState();
 
             if (BillboardSetting != BillboardFlags.Off)
-                MuliplyRotation();
+                ApplyBillboard();
 
             foreach (MDL0BoneNode bone in Children)
                 bone.RecalcFrameState();
         }
 
-        public void MuliplyRotation()
+        public void ApplyBillboard()
         {
-            if (GLPanel.Current == null)
+            if (BillboardSetting == BillboardFlags.Off || GLPanel.Current == null)
                 return;
 
             Vector3 camPoint = GLPanel.Current.Camera.GetPoint();
             Vector3 camRot = GLPanel.Current.Camera._rotation;
 
-            Vector3 scale = _frameMatrix.GetScale();
-            Vector3 point = _frameMatrix.GetPoint();
-            //Vector3 oldRot = _frameMatrix.GetAngles();
-            Vector3 rot = ((int)BillboardSetting % 2) == 0 ? //If perspective
-                point.LookatAngles(camPoint) * Maths._rad2degf : //Point at camera position
+            FrameState worldState = _frameMatrix.Derive();
+
+            Matrix m = Matrix.Identity, mInv = Matrix.Identity;
+
+            Vector3 rot = ((int)BillboardSetting & 1) == 0 ? //If perspective
+                worldState.Translate.LookatAngles(camPoint) * Maths._rad2degf : //Point at camera position
                 camRot; //Set parallel to the camera
 
-            //TODO: Apply restrictions for Rotation and Y to the frame matrix
             switch (BillboardSetting)
             {
                 case BillboardFlags.Standard:
                 case BillboardFlags.StandardPerspective:
+
+                    //Is affected by parent rotation
+                    m = Matrix.RotationMatrix(worldState.Rotate);
+                    mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
+
                     //No restrictions to apply
                     break;
 
                 case BillboardFlags.Rotation:
                 case BillboardFlags.RotationPerspective:
                     
+                    //Is not affected by parent rotation
+                    m = Matrix.RotationMatrix(_frameState.Rotate);
+                    mInv = Matrix.ReverseRotationMatrix(_frameState.Rotate);
+
+                    //TODO: apply restrictions
                     break;
 
                 case BillboardFlags.Y:
                 case BillboardFlags.YPerspective:
-                    
+
+                    //Is affected by parent rotation
+                    m = Matrix.RotationMatrix(worldState.Rotate);
+                    mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
+
+                    //TODO: apply restrictions
                     break;
 
                 default: //Not a valid billboard type
                     return;
             }
 
-            _frameMatrix = Matrix.TransformMatrix(scale, rot, point);
-            _inverseFrameMatrix = Matrix.ReverseTransformMatrix(scale, rot, point);
+            worldState.Rotate = rot;
+
+            _frameMatrix = worldState._transform * m;
+            _inverseFrameMatrix = worldState._iTransform * mInv;
         }
 
         public unsafe List<MDL0BoneNode> ChildTree(List<MDL0BoneNode> list)
@@ -795,7 +812,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 n.Render();
         }
 
-        internal void ApplyCHR0(CHR0Node node, float index, bool linear)
+        internal void ApplyCHR0(CHR0Node node, float index)
         {
             CHR0EntryNode e;
 
@@ -806,14 +823,14 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 {
                     float* f = (float*)v;
                     for (int i = 0; i < 9; i++)
-                        if (e.Keyframes[(KeyFrameMode)(i + 0x10)] > 0)
-                            f[i] = e.GetFrameValue((KeyFrameMode)(i + 0x10), index - 1, linear, node.Loop);
+                        if (e.Keyframes[i]._keyCount > 0)
+                            f[i] = e.GetFrameValue(i, index - 1);
 
                     _frameState.CalcTransforms();
                 }
 
             foreach (MDL0BoneNode b in Children)
-                b.ApplyCHR0(node, index, linear);
+                b.ApplyCHR0(node, index);
         }
 
         public static GLDisplayList CreateNodeOrb(TKContext ctx)

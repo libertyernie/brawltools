@@ -205,7 +205,7 @@ namespace BrawlLib.SSBBTypes
         
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public VoidPtr Data { get { return Address + 4; } }
-        public SRT0Code Code { get { return new SRT0Code() { data = (uint)_code }; } set { _code = (uint)value.data; } }
+        public SRT0Code Code { get { return new SRT0Code() { _data = (uint)_code }; } set { _code = (uint)value._data; } }
 
         //Uses same header as CHR0 animations
         public I12Header* Entry(int index) { return (I12Header*)(Address + 4 + 4 * index + GetOffset(index)); }
@@ -219,7 +219,7 @@ namespace BrawlLib.SSBBTypes
 
     public struct SRT0Code
     {
-        public static SRT0Code Default = new SRT0Code() { data = 0x3FF };
+        public static SRT0Code Default = new SRT0Code() { _data = 0x3FF };
 
         //0000 0000 0000 0000 0000 0000 0000 0001       Always set
 
@@ -234,24 +234,24 @@ namespace BrawlLib.SSBBTypes
         //0000 0000 0000 0000 0000 0001 0000 0000		Fixed X Translation
         //0000 0000 0000 0000 0000 0010 0000 0000		Fixed Y Translation
 
-        public Bin32 data;
+        public Bin32 _data;
 
-        public bool AlwaysOn { get { return data[0]; } set { data[0] = value; } }
-        public bool NoScale { get { return data[1]; } set { data[1] = value; } }
-        public bool NoRotation { get { return data[2]; } set { data[2] = value; } }
-        public bool NoTranslation { get { return data[3]; } set { data[3] = value; } }
-        public bool ScaleIsotropic { get { return data[4]; } set { data[4] = value; } }
-        public bool FixedScaleX { get { return data[5]; } set { data[5] = value; } }
-        public bool FixedScaleY { get { return data[6]; } set { data[6] = value; } }
-        public bool FixedRotation { get { return data[7]; } set { data[7] = value; } }
-        public bool FixedX { get { return data[8]; } set { data[8] = value; } }
-        public bool FixedY { get { return data[9]; } set { data[9] = value; } }
+        public bool AlwaysOn { get { return _data[0]; } set { _data[0] = value; } }
+        public bool NoScale { get { return _data[1]; } set { _data[1] = value; } }
+        public bool NoRotation { get { return _data[2]; } set { _data[2] = value; } }
+        public bool NoTranslation { get { return _data[3]; } set { _data[3] = value; } }
+        public bool ScaleIsotropic { get { return _data[4]; } set { _data[4] = value; } }
+        public bool FixedScaleX { get { return _data[5]; } set { _data[5] = value; } }
+        public bool FixedScaleY { get { return _data[6]; } set { _data[6] = value; } }
+        public bool FixedRotation { get { return _data[7]; } set { _data[7] = value; } }
+        public bool FixedX { get { return _data[8]; } set { _data[8] = value; } }
+        public bool FixedY { get { return _data[9]; } set { _data[9] = value; } }
 
-        public bool GetHas(int i) { return data[i + 1] != true; }
-        public void SetHas(int index, bool p) { data[index + 1] = !p; }
+        public bool GetHas(int i) { return _data[i + 1] != true; }
+        public void SetHas(int index, bool p) { _data[index + 1] = !p; }
 
-        public bool GetFixed(int i) { return data[i + 5] != false; }
-        public void SetFixed(int index, bool p) { data[index + 5] = p; }
+        public bool GetFixed(int i) { return _data[i + 5] != false; }
+        public void SetFixed(int index, bool p) { _data[index + 5] = p; }
         
         public int DataSize()
         {

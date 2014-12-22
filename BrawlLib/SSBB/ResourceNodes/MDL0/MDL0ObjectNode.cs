@@ -953,8 +953,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     header->_nodeTableOffset = 0x64;
                 else
                 {
-                    *(bshort*)((byte*)header + 0x60) = _elementIndices[12];
-                    *(bshort*)((byte*)header + 0x62) = _elementIndices[13];
+                    header->_furVectorId = _elementIndices[12];
+                    header->_furLayerCoordId = _elementIndices[13];
                     *(byte*)((byte*)header + 0x67) = 0x68;
                 }
 
@@ -1253,10 +1253,21 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     //if (material.EnableBlend)
                     //{
+                    //    GL.Disable(EnableCap.AlphaTest);
                     //    GL.Enable(EnableCap.Blend);
+                    //    int src = (int)material._blendMode.SrcFactor, dst = (int)material._blendMode.DstFactor;
+                    //    if (src > 1)
+                    //        src += (int)BlendingFactorSrc.SrcColor;
+                    //    if (dst > 1)
+                    //        dst += (int)BlendingFactorDest.SrcColor;
+                    //    GL.BlendFunc((BlendingFactorSrc)src, (BlendingFactorDest)dst);
                     //}
                     //else
+                    //{
                     //    GL.Disable(EnableCap.Blend);
+                    //    GL.Enable(EnableCap.AlphaTest);
+                    //    GL.AlphaFunc(AlphaFunction.Never + (int)material._alphaFunc.Comp0, (float)material._alphaFunc._ref0 / 255.0f);
+                    //}
 
                     if (material.Children.Count == 0)
                     {
@@ -1271,18 +1282,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 continue;
 
                             GL.MatrixMode(MatrixMode.Texture);
-
                             GL.PushMatrix();
 
-                            //Add bind transform
-                            GL.Scale(mr.Scale._x, mr.Scale._y, 0);
-                            GL.Rotate(mr.Rotation, 1, 0, 0);
-                            GL.Translate(-mr.Translation._x, mr.Translation._y - ((mr.Scale._y - 1) / 2), 0);
-
-                            //Now add frame transform
-                            GL.Scale(mr._frameState._scale._x, mr._frameState._scale._y, 1);
-                            GL.Rotate(mr._frameState._rotate._x, 1, 0, 0);
-                            GL.Translate(-mr._frameState._translate._x, mr._frameState._translate._y - ((mr._frameState._scale._y - 1) / 2), 0);
+                            fixed (Matrix* m = &mr._frameState._transform)
+                                GL.MultMatrix((float*)m);
 
                             GL.MatrixMode(MatrixMode.Modelview);
 

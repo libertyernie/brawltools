@@ -134,6 +134,18 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal SCN0CommonHeader* Header { get { return (SCN0CommonHeader*)WorkingUncompressed.Address; } }
         public override bool AllowNullNames { get { return true; } }
 
+        [Browsable(false)]
+        public SCN0Node Scene
+        {
+            get
+            {
+                ResourceNode n = _parent;
+                while (!(n is SCN0Node) && (n != null))
+                    n = n._parent;
+                return n as SCN0Node;
+            }
+        }
+
         //Key, Color, Vis
         public int[] _dataLengths = { 0, 0, 0 };
         public VoidPtr[] _dataAddrs = new VoidPtr[3];
@@ -176,8 +188,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 header->_stringOffset = 0;
         }
-        public IColorSource FindColorMatch(bool constant, int frameCount, IColorSource match, int id)
+        public IColorSource FindColorMatch(bool constant, int frameCount, int id)
         {
+            IColorSource match = null;
             IColorSource s = this as IColorSource;
             if (!constant && s != null)
             {

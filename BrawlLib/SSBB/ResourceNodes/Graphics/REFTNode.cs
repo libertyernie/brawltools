@@ -127,9 +127,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("REFT Image")]
         public int LevelOfDetail { get { return _lod; } }
         [Category("REFT Image")]
-        public MDL0MaterialRefNode.TextureMinFilter MinFilter { get { return (MDL0MaterialRefNode.TextureMinFilter)_minFltr; } set { _minFltr = (uint)value; SignalPropertyChange(); } }
+        public MatTextureMinFilter MinFilter { get { return (MatTextureMinFilter)_minFltr; } set { _minFltr = (uint)value; SignalPropertyChange(); } }
         [Category("REFT Image")]
-        public MDL0MaterialRefNode.TextureMagFilter MagFilter { get { return (MDL0MaterialRefNode.TextureMagFilter)_magFltr; } set { _magFltr = (uint)value; SignalPropertyChange(); } }
+        public MatTextureMagFilter MagFilter { get { return (MatTextureMagFilter)_magFltr; } set { _magFltr = (uint)value; SignalPropertyChange(); } }
         [Category("REFT Image")]
         public float LODBias { get { return _lodBias; } set { _lodBias = value; SignalPropertyChange(); } }
 

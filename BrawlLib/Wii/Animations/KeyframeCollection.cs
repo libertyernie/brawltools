@@ -9,291 +9,126 @@ using BrawlLib.Modeling;
 
 namespace BrawlLib.Wii.Animations
 {
-    public enum KeyFrameMode
+    public interface IKeyframeSource
     {
-        ScaleX = 0x10,
-        ScaleY = 0x11,
-        ScaleZ = 0x12,
-        RotX = 0x13,
-        RotY = 0x14,
-        RotZ = 0x15,
-        TransX = 0x16,
-        TransY = 0x17,
-        TransZ = 0x18,
-        ScaleXYZ = 0x30,
-        RotXYZ = 0x33,
-        TransXYZ = 0x36,
-        All = 0x90
-    }
-
-    public interface IKeyframeHolder
-    {
-        KeyframeEntry GetKeyframe(KeyFrameMode mode, int index);
-        KeyframeEntry SetKeyframe(KeyFrameMode mode, int index, float value);
-        void SetKeyframe(int index, AnimationFrame frame);
-        void SetKeyframeOnlyTrans(int index, AnimationFrame frame);
-        void SetKeyframeOnlyRot(int index, AnimationFrame frame);
-        void SetKeyframeOnlyScale(int index, AnimationFrame frame);
-        void SetKeyframeOnlyTrans(int index, Vector3 trans);
-        void SetKeyframeOnlyRot(int index, Vector3 rot);
-        void SetKeyframeOnlyScale(int index, Vector3 scale);
-        void RemoveKeyframe(KeyFrameMode mode, int index);
-        void RemoveKeyframe(int index);
-        void RemoveKeyframeOnlyTrans(int index);
-        void RemoveKeyframeOnlyRot(int index);
-        void RemoveKeyframeOnlyScale(int index);
-        AnimationFrame GetAnimFrame(int index);
-        AnimationFrame GetAnimFrame(int index, bool linear);
+        //KeyframeEntry GetKeyframe(int index, int arrayIndex);
+        //KeyframeEntry SetKeyframe(int index, float value, params int[] arrays);
+        //void RemoveKeyframe(int index, params int[] arrays);
         int FrameCount { get; }
-        KeyframeCollection Keyframes { get; }
+        KeyframeArray[] KeyArrays { get; }
     }
 
-    public interface IKeyframeArrayHolder
+    public class KeyframeCollection
     {
-        KeyframeEntry GetKeyframe(int index);
-        void SetKeyframe(int index, float value);
-        void RemoveKeyframe(int index);
-        int FrameCount { get; }
-        KeyframeArray Keyframes { get; }
-    }
+        public KeyframeArray[] _keyArrays;
 
-    public interface KeyframeArrayGroup
-    {
-        KeyframeEntry[] KeyRoots { get; set; }
-        int[] KeyCounts { get; set; }
-        int FrameLimit { get; set; }
-        bool LinearRotation { get; set; }
-
-    }
-
-    public unsafe class KeyframeCollection
-    {
-        public KeyframeEntry[] _keyRoots = new KeyframeEntry[9]{
-        //Scale
-        new KeyframeEntry(-1, 1.0f),
-        new KeyframeEntry(-1, 1.0f),
-        new KeyframeEntry(-1, 1.0f),
-        //Rotation
-        new KeyframeEntry(-1, 0.0f),
-        new KeyframeEntry(-1, 0.0f),
-        new KeyframeEntry(-1, 0.0f),
-        //Translation
-        new KeyframeEntry(-1, 0.0f),
-        new KeyframeEntry(-1, 0.0f),
-        new KeyframeEntry(-1, 0.0f)};
-
-        public int[] _keyCounts = new int[9];
-
-        internal AnimationCode _evalCode;
-        internal SRT0Code _texEvalCode;
-
-        public int this[KeyFrameMode mode] { get { return _keyCounts[(int)mode - 0x10]; } }
-
-        internal int _frameCount;
-        public int FrameCount
+        public KeyframeArray this[int index]
         {
-            get { return _frameCount; }
+            get { return _keyArrays[index.Clamp(0, _keyArrays.Length - 1)]; }
+        }
+
+        private int _frameLimit;
+        public int FrameLimit
+        {
+            get { return _frameLimit; }
             set
             {
-                _frameCount = value;
-                for (int i = 0; i < 9; i++)
-                {
-                    KeyframeEntry root = _keyRoots[i];
-                    while (root._prev._index >= value)
-                    {
-                        root._prev.Remove();
-                        _keyCounts[i]--;
-                    }
-                }
+                _frameLimit = value;
+                foreach (KeyframeArray r in _keyArrays)
+                    r.FrameLimit = _frameLimit;
             }
         }
-        
-        internal bool _linearRot;
+
         public bool LinearRotation { get { return _linearRot; } set { _linearRot = value; } }
+        internal bool _linearRot;
 
-        internal bool _loop;
-        public bool Loop { get { return _loop; } set { _loop = value; } }
-
-        public float this[KeyFrameMode mode, int index]
+        public KeyframeCollection(int arrayCount, int numFrames, params float[] defaultValues)
         {
-            get { return GetFrameValue(mode, index); }
-            set { SetFrameValue(mode, index, value); }
+            _frameLimit = numFrames;
+            _keyArrays = new KeyframeArray[arrayCount];
+            for (int i = 0; i < arrayCount; i++)
+                _keyArrays[i] = new KeyframeArray(numFrames, i < defaultValues.Length ? defaultValues[i] : 0);
         }
 
-        public KeyframeCollection(int limit) { _frameCount = limit; }
-
-        private const float _cleanDistance = 0.00001f;
-        public int Clean()
+        public float this[int index, params int[] arrays]
         {
-            int flag, res, removed = 0;
-            KeyframeEntry entry, root;
-            for (int i = 0; i < 9; i++)
-            {
-                root = _keyRoots[i];
-
-                //Eliminate redundant values
-                for (entry = root._next._next; entry != root; entry = entry._next)
-                {
-                    flag = res = 0;
-
-                    if (entry._prev == root)
-                    {
-                        if (entry._next != root)
-                            flag = 1;
-                    }
-                    else if (entry._next == root)
-                        flag = 2;
-                    else
-                        flag = 3;
-
-                    if((flag & 1) != 0)
-                        res |= (Math.Abs(entry._next._value - entry._value) <= _cleanDistance) ? 1 : 0;
-                    
-                    if((flag & 2) != 0)
-                        res |= (Math.Abs(entry._prev._value - entry._value) <= _cleanDistance) ? 2 : 0;
-
-                    if ((flag == res) && (res != 0))
-                    {
-                        entry = entry._prev;
-                        entry._next.Remove();
-                        _keyCounts[i]--;
-                        removed++;
-                    }
-                }
-            }
-            return removed;
+            get { return GetFrameValue(arrays[0], index); }
+            set { foreach (int i in arrays) _keyArrays[i].SetFrameValue(index, value); }
         }
 
-        public KeyframeEntry GetKeyframe(KeyFrameMode mode, int index)
+        public KeyframeEntry SetFrameValue(int arrayIndex, int frameIndex, float value, bool parsing = false)
         {
-            KeyframeEntry entry, root = _keyRoots[(int)mode & 0xF];
+            return _keyArrays[arrayIndex].SetFrameValue(frameIndex, value, parsing);
+        }
+
+        public KeyframeEntry GetKeyframe(int arrayIndex, int index)
+        {
+            return _keyArrays[arrayIndex].GetKeyframe(index);
+        }
+
+        public float GetFrameValue(int arrayIndex, float index)
+        {
+            return _keyArrays[arrayIndex].GetFrameValue(index);
+        }
+
+        internal KeyframeEntry Remove(int arrayIndex, int index)
+        {
+            KeyframeEntry entry = null, root = _keyArrays[arrayIndex]._keyRoot;
+
             for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next) ;
+
             if (entry._index == index)
-                return entry;
-            return null;
-        }
-        public float GetFrameValue(KeyFrameMode mode, float index)
-        {
-            return GetFrameValue(mode, index, false, false);
-        }
-        public float GetFrameValue(KeyFrameMode mode, float index, bool linear, bool loop)
-        {
-            if (linear || _linearRot)
             {
+                entry.Remove();
+                _keyArrays[arrayIndex]._keyCount--;
             }
-            KeyframeEntry entry, root = _keyRoots[(int)mode & 0xF];
-
-            if (index >= root._prev._index)
-                //if (!loop || root._prev == root._next)
-                    return root._prev._value;
-                //else
-                //    return root._prev.Interpolate2(_frameCount - index + root._next._index, _linearRot || linear, _frameCount);
-            if (index <= root._next._index)
-                //if (!loop || root._prev == root._next)
-                    return root._next._value;
-                //else
-                //    return root._prev.Interpolate2(_frameCount - root._prev._index + index, _linearRot || linear, _frameCount);
-
-            for (entry = root._next;
-                (entry != root) &&
-                (entry._index < index); 
-                entry = entry._next)
-                if (entry._index == index)
-                    return entry._value;
+            else
+                entry = null;
             
-            return entry._prev.Interpolate(index - entry._prev._index, _linearRot || linear);
-        }
-        public KeyframeEntry SetFrameValue(KeyFrameMode mode, int index, float value)
-        {
-            KeyframeEntry entry = null, root;
-            for (int x = (int)mode & 0xF, y = x + ((int)mode >> 4); x < y; x++)
-            {
-                root = _keyRoots[x];
-
-                if ((root._prev == root) || (root._prev._index < index))
-                    entry = root;
-                else
-                    for (entry = root._next; (entry != root) && (entry._index <= index); entry = entry._next) ;
-
-                entry = entry._prev;
-                if (entry._index != index)
-                {
-                    _keyCounts[x]++;
-                    entry.InsertAfter(entry = new KeyframeEntry(index, value));
-                }
-                else
-                    entry._value = value;
-            }
             return entry;
         }
 
-        public AnimationFrame GetFullFrame(int index)
-        {
-            return GetFullFrame(index, false);
-        }
-        public AnimationFrame GetFullFrame(int index, bool linear)
-        {
-            AnimationFrame frame = new AnimationFrame() { Index = index };
-            float* dPtr = (float*)&frame;
-            for (int x = 0x10; x < 0x19; x++)
-            {
-                frame.SetBool(x - 0x10, GetKeyframe((KeyFrameMode)x, index) != null);
-                *dPtr++ = GetFrameValue((KeyFrameMode)x, index, linear, false);
-            }
-            return frame;
-        }
-
-        public KeyframeEntry Remove(KeyFrameMode mode, int index)
+        public void Insert(int index, params int[] arrays)
         {
             KeyframeEntry entry = null, root;
-            for (int x = (int)mode & 0xF, y = x + ((int)mode >> 4); x < y; x++)
+            foreach (int x in arrays)
             {
-                root = _keyRoots[x];
-
-                for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next) ;
-
-                if (entry._index == index)
-                {
-                    entry.Remove();
-                    _keyCounts[x]--;
-                }
-                else
-                    entry = null;
-            }
-            return entry;
-        }
-
-        public void Insert(KeyFrameMode mode, int index)
-        {
-            KeyframeEntry entry = null, root;
-            for (int x = (int)mode & 0xF, y = x + ((int)mode >> 4); x < y; x++)
-            {
-                root = _keyRoots[x];
+                root = _keyArrays[x]._keyRoot;
                 for (entry = root._prev; (entry != root) && (entry._index >= index); entry = entry._prev)
-                    if (++entry._index >= _frameCount)
+                    if (++entry._index >= _frameLimit)
                     {
                         entry = entry._next;
                         entry._prev.Remove();
-                        _keyCounts[x]--;
+                        _keyArrays[x]._keyCount--;
                     }
             }
         }
 
-        public void Delete(KeyFrameMode mode, int index)
+        public void Delete(int index, params int[] arrays)
         {
             KeyframeEntry entry = null, root;
-            for (int x = (int)mode & 0xF, y = x + ((int)mode >> 4); x < y; x++)
+            foreach (int x in arrays)
             {
-                root = _keyRoots[x];
+                root = _keyArrays[x]._keyRoot;
                 for (entry = root._prev; (entry != root) && (entry._index >= index); entry = entry._prev)
                     if ((entry._index == index) || (--entry._index < 0))
                     {
                         entry = entry._next;
                         entry._prev.Remove();
-                        _keyCounts[x]--;
+                        _keyArrays[x]._keyCount--;
                     }
             }
         }
+
+        public int Clean()
+        {
+            int removed = 0;
+            foreach (KeyframeArray arr in _keyArrays)
+                removed += arr.Clean();
+            return removed;
+        }
+
+        public int ArrayCount { get { return _keyArrays.Length; } }
     }
 
     public class KeyframeEntry
@@ -303,6 +138,9 @@ namespace BrawlLib.Wii.Animations
 
         public float _value;
         public float _tangent;
+
+        //A second keyframe on the same frame is used for jump cutting values/tangents
+        public KeyframeEntry _out;
 
         public KeyframeEntry(int index, float value)
         {
@@ -331,86 +169,61 @@ namespace BrawlLib.Wii.Animations
             _prev._next = _next;
         }
 
-        //public float Interpolate2(float offset, bool linear, int frameCount)
-        //{
-        //    if (offset == 0) return _value;
-        //    int span = frameCount - _index + _next._index;
-        //    if (offset == span) return _next._value;
-
-        //    float diff = _next._value - _value;
-
-        //    if (linear) return _value + (diff / span * offset);
-
-        //    float time = (float)offset / span;
-        //    float inv = time - 1.0f;
-
-        //    return _value
-        //        + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
-        //        + ((time * time) * (3.0f - 2.0f * time) * diff);
-        //}
-
-        //Note: this func is used for visual animation ipo and ipo editor
-        public float Interpolate(float offset, bool linear)
+        /// <summary>
+        /// Returns an interpolated value between this keyframe and the next. 
+        /// You can force linear calculation, but the Wii itself doesn't have anything like that.
+        /// The Wii emulates linear interpolation using two keyframes across a range with the same tangent
+        /// and then two keyframes on the same frame but with different tangents.
+        /// </summary>
+        public float Interpolate(float offset, bool forceLinear = false)
         {
-            //return current/next values if offset is 0,next (span)
-            if (offset == 0) return _value;
-            int span = _next._index - _index;
-            if (offset == span) return _next._value;
+            //Return this value if no offset from this keyframe
+            if (offset == 0)
+                return _value;
 
+            //Get the difference in frames
+            int span = _next._index - _index;
+
+            //Return next value if offset is to the next keyframe
+            if (offset == span)
+                return _next._value;
+
+            //Get the difference in values
             float diff = _next._value - _value;
 
-            float normalizedOffset = offset / span;
+            //Calculate a percentage from this keyframe to the next
+            float time = offset / span; //Normalized, 0 to 1
 
-            if (linear) return _value + diff * normalizedOffset;
-
-            //normalized
-            float time = normalizedOffset;
-            float inv = time - 1.0f;
-
+            if (forceLinear)
+                return _value + diff * time;
+            
+            //Interpolate using a hermite curve
+            float inv = time - 1.0f; //-1 to 0
             return _value
                 + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
                 + ((time * time) * (3.0f - 2.0f * time) * diff);
         }
-        //Note: this func is used for visual animation ipo and ipo editor
-        public float Interpolate(float offset, bool linear,KeyframeEntry _next)
-        {
-            //return current/next values if offset is 0,next (span)
-            if (offset == 0) return _value;
-            int span = _next._index - _index;
-            if (offset == span) return _next._value;
 
-            float diff = _next._value - _value;
-
-            float normalizedOffset = offset / span;
-
-            if (linear) return _value + diff * normalizedOffset;
-
-            //normalized
-            float time = normalizedOffset;
-            float inv = time - 1.0f;
-
-            return _value
-                + (offset * inv * ((inv * _tangent) + (time * _next._tangent)))
-                + ((time * time) * (3.0f - 2.0f * time) * diff);
-        }
+        const bool RoundTangent = true;
+        const int TangetDecimalPlaces = 3;
 
         public float GenerateTangent()
         {
-            float tan = 0.0f;
+            _tangent = 0.0f;
 
             float weightCount = 0;
 
             //add the slope (dy/dx) tangent from the prev to current value to tan
             if (_prev._index != -1)
             {
-                tan += (_value - _prev._value) / (_index - _prev._index);
+                _tangent += (_value - _prev._value) / (_index - _prev._index);
                 weightCount++;
             }
 
             //add the slope tangent from the current to next value
             if (_next._index != -1)
             {
-                tan += (_next._value - _value) / (_next._index - _index);
+                _tangent += (_next._value - _value) / (_next._index - _index);
                 weightCount++;
             }
 
@@ -422,10 +235,12 @@ namespace BrawlLib.Wii.Animations
            // weightCount++;
 
             if (weightCount > 0)
-                tan /= weightCount;
+                _tangent /= weightCount;
 
-            tan = (float)Math.Round(tan, 5);
-            return _tangent = tan;
+            if (RoundTangent)
+                _tangent = (float)Math.Round(_tangent, TangetDecimalPlaces);
+
+            return _tangent;
         }
 
         public override string ToString()
@@ -436,7 +251,7 @@ namespace BrawlLib.Wii.Animations
 
     public unsafe class KeyframeArray
     {
-        internal KeyframeEntry _keyRoot = new KeyframeEntry(-1, 0.0f);
+        internal KeyframeEntry _keyRoot;
         internal int _keyCount = 0;
 
         internal int _frameLimit;
@@ -454,21 +269,22 @@ namespace BrawlLib.Wii.Animations
             }
         }
         
-        private bool _linear;
-        public bool LinearInterpolation { get { return _linear; } set { _linear = value; } }
-
         public float this[int index]
         {
             get { return GetFrameValue(index); }
             set { SetFrameValue(index, value); }
         }
 
-        public KeyframeArray(int limit) { _frameLimit = limit; }
+        public KeyframeArray(int limit, float defaultValue = 0)
+        {
+            _frameLimit = limit;
+            _keyRoot = new KeyframeEntry(-1, defaultValue);
+        }
 
         private const float _cleanDistance = 0.00001f;
-        public void Clean()
+        public int Clean()
         {
-            int flag, res;
+            int flag, res, removed = 0;
             KeyframeEntry entry;
 
             //Eliminate redundant values
@@ -502,8 +318,11 @@ namespace BrawlLib.Wii.Animations
                     entry._prev.GenerateTangent();
 
                     _keyCount--;
+                    removed++;
                 }
             }
+
+            return removed;
         }
 
         public KeyframeEntry GetKeyframe(int index)
@@ -516,10 +335,6 @@ namespace BrawlLib.Wii.Animations
         }
 
         public float GetFrameValue(float index)
-        {
-            return GetFrameValue(index, false);
-        }
-        public float GetFrameValue(float index, bool forceLinear)
         {
             KeyframeEntry entry;
 
@@ -537,10 +352,10 @@ namespace BrawlLib.Wii.Animations
                     return entry._value; //Return the value of the keyframe.
 
             //There was no keyframe... interpolate!
-            return entry._prev.Interpolate(index - entry._prev._index, _linear || forceLinear);
+            return entry._prev.Interpolate(index - entry._prev._index);
         }
 
-        public KeyframeEntry SetFrameValue(int index, float value)
+        public KeyframeEntry SetFrameValue(int index, float value, bool parsing = false)
         {
             KeyframeEntry entry = null;
             if ((_keyRoot._prev == _keyRoot) || (_keyRoot._prev._index < index))
@@ -555,7 +370,17 @@ namespace BrawlLib.Wii.Animations
                 entry.InsertAfter(entry = new KeyframeEntry(index, value));
             }
             else
-                entry._value = value;
+            {
+                //There can be up to two keyframes with the same index.
+                if (!parsing)
+                    entry._value = value; //Do this when editing
+                else
+                {
+                    //And this when parsing
+                    _keyCount++;
+                    entry.InsertAfter(entry = new KeyframeEntry(index, value));
+                }
+            }
 
             return entry;
         }

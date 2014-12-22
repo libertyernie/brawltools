@@ -26,21 +26,21 @@ namespace Ikarus.UI
         private unsafe void ApplyAngle(int index, float offset)
         {
             NumericInputBox box = chr0Editor._transBoxes[index + 3];
-            box.Value = (float)Math.Round(box._value + offset, 3);
+            box.Value = (float)Math.Round(box.Value + offset, 3);
             chr0Editor.BoxChanged(box, null);
         }
         //Updates translation with offset.
         private unsafe void ApplyTranslation(int index, float offset)
         {
             NumericInputBox box = chr0Editor._transBoxes[index + 6];
-            box.Value = (float)Math.Round(box._value + offset, 3);
+            box.Value = (float)Math.Round(box.Value + offset, 3);
             chr0Editor.BoxChanged(box, null);
         }
         //Updates scale with offset.
         private unsafe void ApplyScale(int index, float offset)
         {
             NumericInputBox box = chr0Editor._transBoxes[index];
-            float value = (float)Math.Round(box._value * offset, 3);
+            float value = (float)Math.Round(box.Value * offset, 3);
             if (value == 0) return;
             box.Value = value;
             chr0Editor.BoxChanged(box, null);
@@ -52,9 +52,9 @@ namespace Ikarus.UI
             if (box._value == 0)
                 return;
 
-            float scale = (box._value + offset) / box._value;
-            
-            float value = (float)Math.Round(box._value * scale, 3);
+            float scale = (box.Value + offset) / box.Value;
+
+            float value = (float)Math.Round(box.Value * scale, 3);
             if (value == 0) return;
             box.Value = value;
             chr0Editor.BoxChanged(box, null);
@@ -63,14 +63,8 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public NW4RAnimType TargetAnimType
         {
-            get
-            {
-                return (NW4RAnimType)fileType.SelectedIndex;
-            }
-            set
-            {
-                fileType.SelectedIndex = (int)value;
-            }
+            get { return (NW4RAnimType)fileType.SelectedIndex; }
+            set { fileType.SelectedIndex = (int)value; }
         }
 
         private Control _currentControl = null;
@@ -266,7 +260,8 @@ namespace Ikarus.UI
                     break;
             }
 
-            if (GetAnimation(type) == null)
+            AnimationNode anim = GetAnimation(type);
+            if (anim == null)
             {
                 pnlPlayback.numFrameIndex.Maximum = MaxFrame = 0;
                 pnlPlayback.numTotalFrames.Minimum = 0;
@@ -285,7 +280,9 @@ namespace Ikarus.UI
             {
                 int oldMax = MaxFrame;
 
-                MaxFrame = GetAnimation(type).FrameCount;
+                MaxFrame = anim.FrameCount;
+                if (Array.IndexOf(Interpolated, anim.GetType()) >= 0)
+                    MaxFrame += (anim.Loop ? 1 : 0);
 
                 _updating = true;
                 pnlPlayback.btnPlay.Enabled =

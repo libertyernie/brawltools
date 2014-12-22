@@ -126,7 +126,7 @@ namespace System.Windows.Forms
 
         public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (BGImage != null)
+            if (BGImage == null)
             {
                 OpenFileDialog d = new OpenFileDialog();
                 d.Filter = "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +

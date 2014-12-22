@@ -23,8 +23,6 @@ namespace System.Windows.Forms
 
             nibKeyFrame._integral = true;
             cbTransform.DataSource = _modes;
-            if (_mainWindow != null)
-                chkLinear.Checked = _mainWindow.LinearInterpolation;
 
             interpolationViewer.SelectedKeyframeChanged += interpolationViewer1_SelectedKeyframeChanged;
             interpolationViewer.FrameChanged += interpolationViewer1_FrameChanged;
@@ -35,7 +33,7 @@ namespace System.Windows.Forms
 
         void interpolationViewer_SignalChange(object sender, EventArgs e)
         {
-            _targetNode.SignalPropertyChange();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
         }
 
         void interpolationViewer1_UpdateProps(object sender, EventArgs e)
@@ -63,7 +61,19 @@ namespace System.Windows.Forms
         }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public int SelectedMode { get { if (cbTransform.SelectedIndex == -1 || _modes.Count == 0) return -1; return cbTransform.SelectedIndex; } set { cbTransform.SelectedIndex = value.Clamp(cbTransform.Items.Count == 0 ? -1 : 0, cbTransform.Items.Count - 1); } }
+        public int SelectedMode
+        {
+            get
+            {
+                if (cbTransform.SelectedIndex == -1 || _modes.Count == 0)
+                    return -1;
+                return cbTransform.SelectedIndex;
+            }
+            set
+            {
+                cbTransform.SelectedIndex = value.Clamp(cbTransform.Items.Count == 0 ? -1 : 0, cbTransform.Items.Count - 1);
+            }
+        }
 
         public void KeyframeChanged()
         {
@@ -72,77 +82,26 @@ namespace System.Windows.Forms
 
         public void RootChanged()
         {
-            ResourceNode node = _targetNode;
-            if (node is ISCN0KeyframeSource)
+            KeyframeArray array = _targetNode.KeyArrays[SelectedMode];
+            if (array != null)
             {
-                if (node is SCN0LightNode)
-                {
-                    SCN0LightNode n = node as SCN0LightNode;
-
-                    interpolationViewer.FrameLimit = n.FrameCount;
-                    interpolationViewer.KeyRoot = n.GetKeys(SelectedMode)._keyRoot;
-                }
-                else if (node is SCN0FogNode)
-                {
-                    SCN0FogNode n = node as SCN0FogNode;
-
-                    interpolationViewer.FrameLimit = n.FrameCount;
-                    interpolationViewer.KeyRoot = n.GetKeys(SelectedMode)._keyRoot;
-                }
-                else if (node is SCN0CameraNode)
-                {
-                    SCN0CameraNode n = node as SCN0CameraNode;
-
-                    interpolationViewer.FrameLimit = n.FrameCount;
-                    interpolationViewer.KeyRoot = n.GetKeys(SelectedMode)._keyRoot;
-                }
-            }
-            else if (node is IKeyframeHolder)
-            {
-                if (node is CHR0EntryNode)
-                {
-                    CHR0EntryNode n = node as CHR0EntryNode;
-
-                    interpolationViewer.FrameLimit = n._keyframes._frameCount;
-                    interpolationViewer.KeyRoot = n._keyframes._keyRoots[SelectedMode];
-                }
-                else if (node is SRT0TextureNode)
-                {
-                    SRT0TextureNode n = node as SRT0TextureNode;
-
-                    interpolationViewer.FrameLimit = n._keyframes._frameCount;
-                    int i = SelectedMode;
-                    if (i == 2) i = 3;
-                    else if (i > 2) i += 3;
-                    interpolationViewer.KeyRoot = n._keyframes._keyRoots[i];
-                }
-            }
-            else if (node is IKeyframeArrayHolder)
-            {
-                cbTransform.Enabled = false;
-
-                if (node is SHP0VertexSetNode)
-                {
-                    SHP0VertexSetNode n = node as SHP0VertexSetNode;
-
-                    interpolationViewer.FrameLimit = n._keyframes._frameLimit;
-                    interpolationViewer.KeyRoot = n._keyframes._keyRoot;
-                }
+                interpolationViewer.FrameLimit = array.FrameLimit;
+                interpolationViewer.KeyRoot = array._keyRoot;
             }
         }
 
-        public ResourceNode _targetNode;
-        public void SetTarget(ResourceNode node)
+        public IKeyframeSource _targetNode;
+        public void SetTarget(IKeyframeSource node)
         {
             if ((_targetNode = node) != null)
             {
                 panel1.Enabled = true;
-                if (node is ISCN0KeyframeSource)
+                cbTransform.Enabled = true;
+                if (node is SCN0EntryNode)
                 {
                     if (node is SCN0LightNode)
                     {
                         //chkGenTans.Checked = SCN0LightNode._generateTangents;
-                        chkLinear.Checked = SCN0LightNode._linear;
 
                         if (_modes.Count != 10)
                         {
@@ -166,7 +125,6 @@ namespace System.Windows.Forms
                     else if (node is SCN0FogNode)
                     {
                         //chkGenTans.Checked = SCN0FogNode._generateTangents;
-                        chkLinear.Checked = SCN0FogNode._linear;
 
                         if (_modes.Count != 2)
                         {
@@ -182,7 +140,6 @@ namespace System.Windows.Forms
                     else if (node is SCN0CameraNode)
                     {
                         //chkGenTans.Checked = SCN0CameraNode._generateTangents;   
-                        chkLinear.Checked = SCN0CameraNode._linear;
 
                         if (_modes.Count != 15)
                         {
@@ -209,12 +166,11 @@ namespace System.Windows.Forms
                         }
                     }
                 }
-                else if (node is IKeyframeHolder)
+                else if (node is IKeyframeSource)
                 {
                     if (node is CHR0EntryNode)
                     {
                         //chkGenTans.Checked = CHR0EntryNode._generateTangents;
-                        chkLinear.Checked = CHR0EntryNode._linear;
 
                         if (_modes.Count != 9)
                         {
@@ -237,7 +193,6 @@ namespace System.Windows.Forms
                     else if (node is SRT0TextureNode)
                     {
                         //chkGenTans.Checked = SRT0TextureNode._generateTangents;
-                        chkLinear.Checked = SRT0TextureNode._linear;
 
                         if (_modes.Count != 5)
                         {
@@ -254,23 +209,27 @@ namespace System.Windows.Forms
                         }
                     }
                 }
-                else if (node is IKeyframeArrayHolder)
+                else if (node is SHP0VertexSetNode)
                 {
                     //chkGenTans.Checked = SHP0VertexSetNode._generateTangents;
-                    chkLinear.Checked = SHP0VertexSetNode._linear;
 
-                    cbTransform.Enabled = false;
                     if (_modes.Count != 1)
                     {
                         _updating = true;
 
                         _modes.Clear();
                         _modes.Add("Percentage");
-
+                        
                         cbTransform.SelectedIndex = 0;
+                        
                         _updating = false;
                     }
                 }
+                if (cbTransform.Items.Count > 0)
+                    cbTransform.SelectedIndex = 0;
+                else
+                    cbTransform.SelectedIndex = -1;
+                cbTransform.Enabled = cbTransform.Items.Count > 1;
                 RootChanged();
             }
             else
@@ -336,7 +295,7 @@ namespace System.Windows.Forms
 
             interpolationViewer._selKey._tangent = nibTangent.Value;
             interpolationViewer.Invalidate();
-            _targetNode.SignalPropertyChange();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
 
             if (chkSyncStartEnd.Checked)
             {
@@ -370,7 +329,7 @@ namespace System.Windows.Forms
 
             interpolationViewer._selKey._index = index;
             interpolationViewer.Invalidate();
-            _targetNode.SignalPropertyChange();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
             if (_mainWindow != null && _mainWindow.KeyframePanel != null)
             {
                 _mainWindow.KeyframePanel.UpdateKeyframes();
@@ -389,7 +348,7 @@ namespace System.Windows.Forms
 
             interpolationViewer._selKey._value = nibKeyValue.Value;
             interpolationViewer.Invalidate();
-            _targetNode.SignalPropertyChange();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
             if (_mainWindow != null)
                 _mainWindow.KeyframePanel.UpdateKeyframe(interpolationViewer._selKey._index);
 
@@ -439,29 +398,6 @@ namespace System.Windows.Forms
         {
             interpolationViewer.AllKeyframes = !chkViewAll.Checked;
         }
-        private void chkLinear_CheckedChanged(object sender, EventArgs e)
-        {
-            chkRenderTans.Checked = !(interpolationViewer.Linear = chkLinear.Checked);
-
-            if (_targetNode is ISCN0KeyframeSource)
-            {
-                if (_targetNode is SCN0LightNode)
-                    SCN0LightNode._linear = chkLinear.Checked;
-                else if (_targetNode is SCN0FogNode)
-                    SCN0FogNode._linear = chkLinear.Checked;
-                else if (_targetNode is SCN0CameraNode)
-                    SCN0CameraNode._linear = chkLinear.Checked;
-            }
-            else if (_targetNode is IKeyframeHolder)
-            {
-                if (_targetNode is CHR0EntryNode)
-                    CHR0EntryNode._linear = chkLinear.Checked;
-                else if (_targetNode is SRT0TextureNode)
-                    SRT0TextureNode._linear = chkLinear.Checked;
-            }
-            else if (_targetNode is IKeyframeArrayHolder)
-                 SHP0VertexSetNode._linear = chkLinear.Checked;
-        }
         private void chkGenTans_CheckedChanged(object sender, EventArgs e)
         {
             interpolationViewer.GenerateTangents = chkGenTans.Checked;
@@ -494,11 +430,6 @@ namespace System.Windows.Forms
         private void numTanLen_ValueChanged(object sender, EventArgs e)
         {
             interpolationViewer.TangentLength = nibTanLen.Value;
-        }
-
-        private void mItem_display_showEditValsAsLinear_CheckedChanged(object sender, EventArgs e)
-        {
-            CHR0EntryNode._editValsAsLinear = mItem_display_showEditValsAsLinear.Checked;
         }
 
         private void mItem_genTan_alterSelTanOnDrag_CheckedChanged(object sender, EventArgs e)

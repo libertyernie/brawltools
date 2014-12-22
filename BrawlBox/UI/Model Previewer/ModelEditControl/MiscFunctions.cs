@@ -105,6 +105,52 @@ namespace System.Windows.Forms
 
         public void CheckDimensions()
         {
+            if (_currentControl != null && _currentControl.Visible)
+            {
+                if (_currentControl is CHR0Editor)
+                {
+                    animEditors.Height = 78;
+                    animCtrlPnl.Width = 582;
+                }
+                else if (_currentControl is SRT0Editor)
+                {
+                    animEditors.Height = 78;
+                    animCtrlPnl.Width = 483;
+                }
+                else if (_currentControl is SHP0Editor)
+                {
+                    animEditors.Height = 106;
+                    animCtrlPnl.Width = 533;
+                }
+                else if (_currentControl is PAT0Editor)
+                {
+                    animEditors.Height = 78;
+                    animCtrlPnl.Width = 402;
+                }
+                else if (_currentControl is VIS0Editor)
+                {
+                    animEditors.Height = 62;
+                    animCtrlPnl.Width = 210;
+                }
+                else if (_currentControl is CLR0Editor)
+                {
+                    animEditors.Height = 62;
+                    animCtrlPnl.Width = 168;
+                }
+                else if (_currentControl is SCN0Editor)
+                {
+                    int x, y, z;
+                    scn0Editor.GetDimensions(out x, out y, out z);
+                    animEditors.Height = x;
+                    animCtrlPnl.Height = y;
+                    animCtrlPnl.Width = z;
+                }
+                else
+                    animEditors.Height = animCtrlPnl.Width = 0;
+            }
+            else
+                animEditors.Height = animCtrlPnl.Width = 0;
+
             if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
             {
                 pnlPlayback.Dock = DockStyle.Left;
@@ -152,16 +198,14 @@ namespace System.Windows.Forms
                 if (!CloseExternal())
                     return false;
 
-                SaveSettings();
-
                 StopAnim();
+                ResetBoneColors();
+                SaveSettings();
 
                 if (_viewerForm != null)
                     _viewerForm.Close();
                 if (_interpolationForm != null)
                     _interpolationForm.Close();
-
-                ResetBoneColors();
 
                 MDL0TextureNode._folderWatcher.SynchronizingObject = null;
             }
@@ -223,50 +267,8 @@ namespace System.Windows.Forms
                     syncTexObjToolStripMenuItem.Checked = false;
 
                 if (_currentControl != null)
-                {
                     _currentControl.Visible = true;
-                    if (_currentControl is CHR0Editor)
-                    {
-                        animEditors.Height = 78;
-                        animCtrlPnl.Width = 582;
-                    }
-                    else if (_currentControl is SRT0Editor)
-                    {
-                        animEditors.Height = 78;
-                        animCtrlPnl.Width = 483;
-                    }
-                    else if (_currentControl is SHP0Editor)
-                    {
-                        animEditors.Height = 106;
-                        animCtrlPnl.Width = 533;
-                    }
-                    else if (_currentControl is PAT0Editor)
-                    {
-                        animEditors.Height = 78;
-                        animCtrlPnl.Width = 402;
-                    }
-                    else if (_currentControl is VIS0Editor)
-                    {
-                        animEditors.Height = 62;
-                        animCtrlPnl.Width = 210;
-                    }
-                    else if (_currentControl is CLR0Editor)
-                    {
-                        animEditors.Height = 62;
-                        animCtrlPnl.Width = 168;
-                    }
-                    else if (_currentControl is SCN0Editor)
-                    {
-                        int x, y, z;
-                        scn0Editor.GetDimensions(out x, out y, out z);
-                        animEditors.Height = x;
-                        animCtrlPnl.Height = y;
-                        animCtrlPnl.Width = z;
-                    }
-                    else
-                        animEditors.Height = animCtrlPnl.Width = 0;
-                }
-                else animEditors.Height = animCtrlPnl.Width = 0;
+
                 return;
             }
             CheckDimensions();
@@ -501,7 +503,7 @@ namespace System.Windows.Forms
                                         / (plane.PointLeft._x - plane.PointRight._x);
                                     float b = plane.PointRight._y - m * plane.PointRight._x;
                                     float y_target = m * x + b;
-                                    Console.WriteLine(y_target);
+                                    //Console.WriteLine(y_target);
                                     if (Math.Abs(y_target - v2._y) <= Math.Abs(y_result - v2._y)) {
                                         y_result = y_target;
                                     }
@@ -586,13 +588,6 @@ namespace System.Windows.Forms
             //settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
             //settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
 
-            settings.LinearCHR = chkLinearCHR.Checked;
-            settings.LinearSRT = chkLinearSRT.Checked;
-            settings.LinearSHP = chkLinearSHP.Checked;
-            settings.LinearLight = chkLinearLight.Checked;
-            settings.LinearFog = chkLinearFog.Checked;
-            settings.LinearCam = chkLinearCamera.Checked;
-
             settings.GenTansCHR = chkGenTansCHR.Checked;
             settings.GenTansSRT = chkGenTansSRT.Checked;
             settings.GenTansSHP = chkGenTansSHP.Checked;
@@ -669,13 +664,6 @@ namespace System.Windows.Forms
             //showCameraCoordinatesToolStripMenuItem.Checked = settings.ShowCamCoords;
             //enablePointAndLineSmoothingToolStripMenuItem.Checked = settings.EnableSmoothing;
             //enableTextOverlaysToolStripMenuItem.Checked = settings.EnableText;
-
-            chkLinearCHR.Checked = settings.LinearCHR;
-            chkLinearSRT.Checked = settings.LinearSRT;
-            chkLinearSHP.Checked = settings.LinearSHP;
-            chkLinearLight.Checked = settings.LinearLight;
-            chkLinearFog.Checked = settings.LinearFog;
-            chkLinearCamera.Checked = settings.LinearCam;
 
             chkGenTansCHR.Checked = settings.GenTansCHR;
             chkGenTansSRT.Checked = settings.GenTansSRT;

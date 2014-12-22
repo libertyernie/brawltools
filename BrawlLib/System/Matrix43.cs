@@ -1,4 +1,6 @@
-﻿using System;
+﻿using BrawlLib.Modeling;
+using BrawlLib.SSBBTypes;
+using System;
 using System.Runtime.InteropServices;
 
 namespace System
@@ -311,6 +313,300 @@ namespace System
             return m;
         }
 
+        unsafe delegate void MtxFunc(float* d, TextureFrameState state);
+        static MtxFunc[] MtxArray = 
+        {
+            BasicMtx,
+            MayaMtxSRT,
+            MayaMtxRT,
+            MayaMtxST,
+            MayaMtxT,
+            MayaMtxSR,
+            MayaMtxR,
+            MayaMtxS,
+            XSIMtxSRT,
+            XSIMtxRT,
+            XSIMtxST,
+            XSIMtxT,
+            XSIMtxSR,
+            XSIMtxR,
+            XSIMtxS,
+            MaxMtxSRT,
+            MaxMtxRT,
+            MaxMtxST,
+            MaxMtxT,
+            MaxMtxSR,
+            MaxMtxR,
+            MaxMtxS,
+        };
+
+        public static Matrix43 TextureMatrix(TextureFrameState state)
+        {
+            Matrix43 m = Identity;
+            if (state.Flags != 7)
+                MtxArray[state.Indirect ? 0 : 1 + (int)state.MatrixMode * 7 + state.Flags]((float*)&m, state);
+            return m;
+        }
+
+        private static void BasicMtx(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            d[0] = state.Scale._x * cosR;
+            d[1] = -state.Scale._y * sinR;
+            d[3] = state.Translate._x;
+            d[4] = state.Scale._x * sinR;
+            d[5] = state.Scale._y * cosR;
+            d[7] = state.Translate._y;
+        }
+
+        #region Maya Matrices
+        private static void MayaMtxS(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[5] = state.Scale._y;
+            d[7] = 1.0f - state.Scale._y;
+        }
+        private static void MayaMtxR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sin = 0.5f * sinR;
+            float cos = 0.5f - 0.5f * cosR;
+
+            d[0] = cosR;
+            d[1] = sinR;
+            d[3] = cos - sin;
+            d[4] = -sinR;
+            d[5] = cosR;
+            d[6] = cos + sin;
+        }
+        private static void MayaMtxT(float* d, TextureFrameState state)
+        {
+            d[3] = -state.Translate._x;
+            d[7] = state.Translate._y;
+        }
+        private static void MayaMtxSR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sxcr = state.Scale._x * cosR;
+            float sxsr = state.Scale._x * sinR;
+            float sycr = state.Scale._y * cosR;
+            float sysr = state.Scale._y * sinR;
+
+            d[0] = sxcr;
+            d[1] = sxsr;
+            d[3] = -0.5f * (sxsr + sxcr - state.Scale._x);
+            d[4] = -sysr;
+            d[5] = sycr;
+            d[7] = 0.5f * (sysr - sycr - state.Scale._y) + 1.0f;
+        }
+
+        private static void MayaMtxRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sin = 0.5f * sinR;
+            float cos = 0.5f - 0.5f * cosR;
+
+            d[0] = cosR;
+            d[1] = sinR;
+            d[3] = cos - sin - state.Translate._x;
+            d[4] = -sinR;
+            d[5] = cosR;
+            d[7] = cos + sin + state.Translate._y;
+        }
+
+        private static void MayaMtxST(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[3] = -state.Scale._x * state.Translate._x;
+            d[5] = state.Scale._y;
+            d[7] = state.Scale._y * (state.Translate._y - 1.0f) + 1.0f;
+        }
+
+        private static void MayaMtxSRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sin = 0.5f * sinR - 0.5f;
+            float cos = - 0.5f * cosR;
+
+            d[0] = state.Scale._x * cosR;
+            d[1] = state.Scale._x * sinR;
+            d[3] = state.Scale._x * (cos - sin - state.Translate._x);
+            d[4] = -state.Scale._y * sinR;
+            d[5] = state.Scale._y * cosR;
+            d[7] = state.Scale._y * (cos + sin + state.Translate._y) + 1.0f;
+        }
+        #endregion
+
+        #region XSI Matrices
+        private static void XSIMtxS(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[5] = state.Scale._y;
+            d[7] = 1.0f - state.Scale._y;
+        }
+        private static void XSIMtxR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            d[0] = cosR;
+            d[1] = -sinR;
+            d[3] = sinR;
+            d[4] = sinR;
+            d[5] = cosR;
+            d[7] = 1.0f - cosR;
+        }
+        private static void XSIMtxT(float* d, TextureFrameState state)
+        {
+            d[3] = -state.Translate._x;
+            d[7] = state.Translate._y;
+        }
+        private static void XSIMtxSR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sxcr = state.Scale._x * cosR;
+            float sxsr = state.Scale._x * sinR;
+            float sycr = state.Scale._y * cosR;
+            float sysr = state.Scale._y * sinR;
+
+            d[0] = sxcr;
+            d[1] = -sxsr;
+            d[3] = sxsr;
+            d[4] = sysr;
+            d[5] = sycr;
+            d[7] = -sycr + 1.0f;
+        }
+        private static void XSIMtxRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            d[0] = cosR;
+            d[1] = -sinR;
+            d[3] = sinR - cosR * state.Translate._x - sinR * state.Translate._y;
+            d[4] = sinR;
+            d[5] = cosR;
+            d[7] = -cosR - sinR * state.Translate._x + cosR * state.Translate._y + 1.0f;
+        }
+        private static void XSIMtxST(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[3] = -state.Scale._x * (state.Translate._x);
+            d[5] = state.Scale._y;
+            d[7] = state.Scale._y * (state.Translate._y - 1.0f) + 1.0f;
+        }
+        private static void XSIMtxSRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf); float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sxcr = state.Scale._x * cosR;
+            float sxsr = state.Scale._x * sinR;
+            float sycr = state.Scale._y * cosR;
+            float sysr = state.Scale._y * sinR;
+
+            d[0] = sxcr;
+            d[1] = -sxsr;
+            d[3] = sxsr - sxcr * state.Translate._x - sxsr * state.Translate._y;
+            d[4] = sysr;
+            d[5] = sycr;
+            d[7] = -sycr - sysr * state.Translate._x + sycr * state.Translate._y + 1.0f;
+        }
+        #endregion
+
+        #region Max Matrices
+        private static void MaxMtxS(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[3] = 0.5f * (1.0f - state.Scale._x);
+            d[5] = state.Scale._y;
+            d[7] = 0.5f * (1.0f - state.Scale._y);
+        }
+        private static void MaxMtxR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            d[0] = cosR;
+            d[1] = sinR;
+            d[3] = -0.5f * (cosR + sinR - 1.0f);
+            d[4] = -sinR;
+            d[5] = cosR;
+            d[7] = -0.5f * (-sinR + cosR - 1.0f);
+        }
+        private static void MaxMtxT(float* d, TextureFrameState state)
+        {
+            d[3] = -state.Translate._x;
+            d[7] = state.Translate._y;
+        }
+        private static void MaxMtxSR(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sxcr = state.Scale._x * cosR;
+            float sxsr = state.Scale._x * sinR;
+            float sycr = state.Scale._y * cosR;
+            float sysr = state.Scale._y * sinR;
+
+            d[0] = sxcr;
+            d[1] = sxsr;
+            d[3] = -0.5f * (sxcr + sxsr - 1.0f);
+            d[4] = -sysr;
+            d[5] = sycr;
+            d[7] = -0.5f * (-sysr + sycr - 1.0f);
+        }
+        private static void MaxMtxRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            d[0] = cosR;
+            d[1] = sinR;
+            d[3] = -cosR * (state.Translate._x + 0.5f) + sinR * (state.Translate._y - 0.5f) + 0.5f;
+            d[4] = -sinR;
+            d[5] = cosR;
+            d[7] = sinR * (state.Translate._x + 0.5f) + cosR * (state.Translate._y - 0.5f) + 0.5f;
+        }
+        private static void MaxMtxST(float* d, TextureFrameState state)
+        {
+            d[0] = state.Scale._x;
+            d[3] = -state.Scale._x * (state.Translate._x + 0.5f) + 0.5f;
+            d[5] = state.Scale._y;
+            d[7] = state.Scale._y * (state.Translate._y - 0.5f) + 0.5f;
+        }
+        private static void MaxMtxSRT(float* d, TextureFrameState state)
+        {
+            float sinR = (float)Math.Sin(state.Rotate * Maths._deg2radf);
+            float cosR = (float)Math.Cos(state.Rotate * Maths._deg2radf);
+
+            float sxcr = state.Scale._x * cosR;
+            float sxsr = state.Scale._x * sinR;
+            float sycr = state.Scale._y * cosR;
+            float sysr = state.Scale._y * sinR;
+
+            d[0] = sxcr;
+            d[1] = sxsr;
+            d[2] = 0.0f;
+            d[3] = -sxcr * (state.Translate._x + 0.5f) + sxsr * (state.Translate._y - 0.5f) + 0.5f;
+
+            d[4] = -sysr;
+            d[5] = sycr;
+            d[6] = 0.0f;
+            d[7] = sysr * (state.Translate._x + 0.5f) + sycr * (state.Translate._y - 0.5f) + 0.5f;
+        }
+        #endregion
 
         public void Multiply(Matrix43* m)
         {

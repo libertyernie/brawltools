@@ -16,42 +16,42 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal CLR0v4* Header4 { get { return (CLR0v4*)WorkingUncompressed.Address; } }
 
         public override ResourceType ResourceType { get { return ResourceType.CLR0; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(CLR0MaterialNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(CLR0MaterialNode) }; } }
 
-        internal int _numFrames = 1, _origPathOffset, _loop, _version = 3;
+        const string _category = "Material Color Animation";
+        internal int _numFrames = 1, _loop, _version = 3;
 
-        [Category("Color Animation Data")]
+        [Category(_category)]
         public int Version { get { return _version; } set { _version = value; SignalPropertyChange(); } }
-        [Category("Color Animation Data")]
+        [Category(_category)]
         public override int FrameCount
         {
             get { return _numFrames; }
             set
             {
+                if ((_numFrames == value) || (value < 1))
+                    return;
+
                 _numFrames = value;
+
                 foreach (CLR0MaterialNode n in Children)
                     foreach (CLR0MaterialEntryNode e in n.Children)
-                        e.NumEntries = _numFrames + 1;
+                        e.NumEntries = _numFrames;
+
                 SignalPropertyChange();
             }
         }
 
-        [Category("Color Animation Data")]
+        [Category(_category)]
         public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
+
+        [Category(_category)]
+        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
+        public string _originalPath;
 
         [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
         internal UserDataCollection _userEntries = new UserDataCollection();
-
-        [Category("Color Animation Data")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
 
         public override bool OnInitialize()
         {
@@ -60,33 +60,35 @@ namespace BrawlLib.SSBB.ResourceNodes
             _version = Header->_version;
             if (_version == 4)
             {
-                _numFrames = Header4->_frames;
-                _origPathOffset = Header4->_origPathOffset;
-                _loop = Header4->_loop;
+                CLR0v4* header = Header4;
 
-                if ((_name == null) && (Header4->_stringOffset != 0))
-                    _name = Header4->ResourceString;
+                _numFrames = header->_frames;
+                _loop = header->_loop;
 
-                if (Header4->_origPathOffset > 0)
-                    _originalPath = Header4->OrigPath;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
 
-                (_userEntries = new UserDataCollection()).Read(Header4->UserData);
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                return Header4->Group->_numEntries > 0;
+                (_userEntries = new UserDataCollection()).Read(header->UserData);
+
+                return header->Group->_numEntries > 0;
             }
             else
             {
-                _numFrames = Header3->_frames;
-                _origPathOffset = Header3->_origPathOffset;
-                _loop = Header3->_loop;
+                CLR0v3* header = Header3;
 
-                if ((_name == null) && (Header3->_stringOffset != 0))
-                    _name = Header3->ResourceString;
+                _numFrames = header->_frames;
+                _loop = header->_loop;
 
-                if (Header3->_origPathOffset > 0)
-                    _originalPath = Header3->OrigPath;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
 
-                return Header3->Group->_numEntries > 0;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
+
+                return header->Group->_numEntries > 0;
             }
         }
 

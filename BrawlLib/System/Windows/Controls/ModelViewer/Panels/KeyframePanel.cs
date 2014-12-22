@@ -51,12 +51,22 @@ namespace System.Windows.Forms
             _updating = true;
             if (_target is CHR0EntryNode || _target is SRT0TextureNode)
             {
-                AnimationFrame a;
-                IKeyframeHolder entry = _target as IKeyframeHolder;
+                IKeyframeSource entry = _target as IKeyframeSource;
                 if (entry.FrameCount > 0)
-                    for (int x = 0; x < entry.FrameCount; x++)
-                        if ((a = entry.GetAnimFrame(x)).HasKeys)
-                            listKeyframes.Items.Add(a);
+                    if (_target is CHR0EntryNode)
+                    {
+                        CHRAnimationFrame a;
+                        for (int x = 0; x < entry.FrameCount; x++)
+                            if ((a = ((CHR0EntryNode)entry).GetAnimFrame(x)).HasKeys)
+                                listKeyframes.Items.Add(a);
+                    }
+                    else if (_target is SRT0TextureNode)
+                    {
+                        SRTAnimationFrame a;
+                        for (int x = 0; x < entry.FrameCount; x++)
+                            if ((a = ((SRT0TextureNode)entry).GetAnimFrame(x)).HasKeys)
+                                listKeyframes.Items.Add(a);
+                    }
             }
             else if (_target is SHP0VertexSetNode)
             {
@@ -113,21 +123,40 @@ namespace System.Windows.Forms
             _updating = true;
             if (_target is CHR0EntryNode || _target is SRT0TextureNode)
             {
-                IKeyframeHolder entry = _target as IKeyframeHolder;
+                IKeyframeSource entry = _target as IKeyframeSource;
                 for (int w = 0; w < listKeyframes.Items.Count; w++)
                 {
-                    AnimationFrame a = (AnimationFrame)listKeyframes.Items[w];
-                    if (a.Index == x)
+                    if (_target is CHR0EntryNode)
                     {
-                        AnimationFrame r = entry.GetAnimFrame(x);
+                        CHRAnimationFrame a = (CHRAnimationFrame)listKeyframes.Items[w];
+                        if (a.Index == x)
+                        {
+                            CHRAnimationFrame r = ((CHR0EntryNode)entry).GetAnimFrame(x);
 
-                        if (r.HasKeys)
-                            listKeyframes.Items[w] = r;
-                        else
-                            listKeyframes.Items.RemoveAt(w);
+                            if (r.HasKeys)
+                                listKeyframes.Items[w] = r;
+                            else
+                                listKeyframes.Items.RemoveAt(w);
 
-                        _updating = false;
-                        return;
+                            _updating = false;
+                            return;
+                        }
+                    }
+                    else if (_target is SRT0TextureNode)
+                    {
+                        SRTAnimationFrame a = (SRTAnimationFrame)listKeyframes.Items[w];
+                        if (a.Index == x)
+                        {
+                            SRTAnimationFrame r = ((SRT0TextureNode)entry).GetAnimFrame(x);
+
+                            if (r.HasKeys)
+                                listKeyframes.Items[w] = r;
+                            else
+                                listKeyframes.Items.RemoveAt(w);
+
+                            _updating = false;
+                            return;
+                        }
                     }
                 }
 
@@ -236,7 +265,7 @@ namespace System.Windows.Forms
             lstTypes.Items.Clear();
             listKeyframes.Items.Clear();
 
-            if (_target is IKeyframeHolder || _target is IKeyframeArrayHolder || _target is ISCN0KeyframeSource)
+            if (_target is IKeyframeSource)
             {
                 listKeyframes.BeginUpdate();
                 if (_target != null)
@@ -252,7 +281,7 @@ namespace System.Windows.Forms
                 }
                 listKeyframes.EndUpdate();
             }
-            if (_target is IColorSource)
+            if (_target is IColorSource) //NOT else if
             {
                 clrControl.ColorSource = _target as IColorSource;
                 if (_target is SCN0LightNode)
@@ -264,7 +293,7 @@ namespace System.Windows.Forms
                     for (int i = 0; i < clrControl.ColorSource.TypeCount; i++)
                         lstTypes.Items.Add(String.Format("ColorSource{0}", i));
             }
-            if (_target is IBoolArraySource)
+            if (_target is IBoolArraySource) //NOT else if
             {
                 visEditor.TargetNode = _target as IBoolArraySource;
                 lstTypes.Items.Add("Visibility");
@@ -308,9 +337,9 @@ namespace System.Windows.Forms
             for (int i = 0; i < count; i++)
             {
                 object x = listKeyframes.Items[i];
-                if (x is AnimationFrame)
+                if (x is CHRAnimationFrame)
                 {
-                    if (((AnimationFrame)x).Index == index)
+                    if (((CHRAnimationFrame)x).Index == index)
                         return i;
                 }
                 else if (x is FloatKeyframe)
@@ -348,8 +377,8 @@ namespace System.Windows.Forms
             {
                 object x = listKeyframes.SelectedItem;
                 int i = 0;
-                if (x is AnimationFrame)
-                    i = ((AnimationFrame)listKeyframes.SelectedItem).Index + 1;
+                if (x is CHRAnimationFrame)
+                    i = ((CHRAnimationFrame)listKeyframes.SelectedItem).Index + 1;
                 else if (x is FloatKeyframe)
                     i = ((FloatKeyframe)listKeyframes.SelectedItem).Index + 1;
                 else if (x is CameraAnimationFrame)

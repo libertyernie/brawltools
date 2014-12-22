@@ -11,8 +11,8 @@ namespace System.Windows.Forms
         private int _numFrames;
 
         private int _currentPage = 1;
-        private AnimationFrame _currentFrame = AnimationFrame.Identity;
-        private NumericInputBox[] _boxes = new NumericInputBox[10];
+        private SRTAnimationFrame _currentFrame = SRTAnimationFrame.Identity;
+        private NumericInputBox[] _boxes = new NumericInputBox[5];
         private Panel panel1;
         private Label label6;
         private Label label5;
@@ -39,13 +39,12 @@ namespace System.Windows.Forms
             InitializeComponent();
             _boxes[0] = numScaleX;
             _boxes[1] = numScaleY;
-            _boxes[3] = numRot;
-            _boxes[6] = numTransX;
-            _boxes[7] = numTransY;
+            _boxes[2] = numRot;
+            _boxes[3] = numTransX;
+            _boxes[4] = numTransY;
             
-            for (int i = 0; i < 9; i++)
-                if (i % 3 == 0 || i == 7 || i == 1)
-                    _boxes[i].Tag = i;
+            for (int i = 0; i < 5; i++)
+                _boxes[i].Tag = i;
         }
 
         private void UpdateTarget()
@@ -56,23 +55,22 @@ namespace System.Windows.Forms
             {
                 if (_target.FrameCount > 0)
                 {
-                    AnimationFrame a = new AnimationFrame();
+                    SRTAnimationFrame a = new SRTAnimationFrame();
                     bool check = false;
                     for (int x = 0; x < _target.FrameCount; x++)
                     {
                         a = _target.GetAnimFrame(x);
                         a.Index = x;
-                        for (int i = 0x10; i < 0x19; i++)
+                        for (int i = 0; i < 5; i++)
                         {
-                            if (_target.GetKeyframe((KeyFrameMode)i, x) != null)
+                            if (_target.GetKeyframe(i, x) != null)
                             {
                                 check = true;
-                                a.SetBool(i - 0x10, true);
+                                a.SetBool(i, true);
                             }
                         }
                         if (check == true)
                         {
-                            a.forKeyframeSRT = true;
                             listKeyframes.Items.Add(a);
                             check = false;
                         }
@@ -113,21 +111,13 @@ namespace System.Windows.Forms
 
                 _currentFrame = _target.GetAnimFrame(_currentPage);
 
+                numScaleX.Value = _currentFrame.Scale._x;
                 numScaleY.Value = _currentFrame.Scale._y;
-                //numScaleY.Value = _currentFrame.Scale._y;
-                //numScaleZ.Value = _currentFrame.Scale._z;
-
-                numRot.Value = _currentFrame.Rotation._x;
-                //numRotY.Value = _currentFrame.Rotation._y;
-                //numRotZ.Value = _currentFrame.Rotation._z;
-
+                numRot.Value = _currentFrame.Rotation;
                 numTransX.Value = _currentFrame.Translation._x;
                 numTransY.Value = _currentFrame.Translation._y;
-                //numTransZ.Value = _currentFrame.Translation._z;
 
-                numScaleX.Value = _currentFrame.Scale._x;
-
-                for (int i = 0; i < 9; i++)
+                for (int i = 0; i < 5; i++)
                     UpdateBox(i);
 
                 btnPrev.Enabled = _currentPage > 0;
@@ -141,17 +131,14 @@ namespace System.Windows.Forms
         {
             int count = listKeyframes.Items.Count;
             for (int i = 0; i < count; i++)
-                if (((AnimationFrame)listKeyframes.Items[i]).Index == index)
+                if (((SRTAnimationFrame)listKeyframes.Items[i]).Index == index)
                     return i;
             return -1;
         }
 
         private void UpdateBox(int index)
         {
-            if (!(index % 3 == 0 || index == 7 || index == 1))
-                return;
-
-            if (_target.GetKeyframe((KeyFrameMode)index + 0x10, _currentPage) != null)
+            if (_target.GetKeyframe(index, _currentPage) != null)
                 _boxes[index].BackColor = Color.Yellow;
             else
                 _boxes[index].BackColor = Color.White;
@@ -160,7 +147,7 @@ namespace System.Windows.Forms
         private unsafe void BoxChanged(object sender, EventArgs e)
         {
             NumericInputBox box = sender as NumericInputBox;
-            AnimationFrame kf;
+            SRTAnimationFrame kf;
             float* pkf = (float*)&kf;
             float val = box.Value;
             int index = (int)box.Tag;
@@ -175,12 +162,11 @@ namespace System.Windows.Forms
                     //Value removed find keyframe and zero it out
                     if (kfIndex >= 0)
                     {
-                        kf = (AnimationFrame)listKeyframes.Items[kfIndex];
-                        kf.forKeyframeSRT = true;
+                        kf = (SRTAnimationFrame)listKeyframes.Items[kfIndex];
                         kf.SetBool(index, false);
                         pkf[index] = val;
-                        for (x = 0; (x < 10) && float.IsNaN(pkf[x]); x++) ;
-                        if (x == 10)
+                        for (x = 0; (x < 5) && float.IsNaN(pkf[x]); x++) ;
+                        if (x == 5)
                         {
                             listKeyframes.Items.RemoveAt(kfIndex);
                             listKeyframes.SelectedIndex = -1;
@@ -189,7 +175,7 @@ namespace System.Windows.Forms
                             listKeyframes.Items[kfIndex] = kf;
                     }
 
-                    _target.RemoveKeyframe(KeyFrameMode.ScaleX + index, _currentPage);
+                    _target.RemoveKeyframe(index, _currentPage);
                     val = _target.GetAnimFrame(_currentPage)[index];
                     box.Value = val;
                 }
@@ -197,28 +183,26 @@ namespace System.Windows.Forms
                 {
                     if (kfIndex >= 0)
                     {
-                        kf = (AnimationFrame)listKeyframes.Items[kfIndex];
+                        kf = (SRTAnimationFrame)listKeyframes.Items[kfIndex];
                         kf.SetBool(index, true);
                         pkf[index] = val;
-                        kf.forKeyframeSRT = true;
                         listKeyframes.Items[kfIndex] = kf;
                     }
                     else
                     {
-                        kf = AnimationFrame.Empty;
-                        kf.forKeyframeSRT = true;
+                        kf = SRTAnimationFrame.Empty;
                         kf.Index = _currentPage;
                         kf.SetBool(index, true);
                         pkf[index] = val;
 
                         int count = listKeyframes.Items.Count;
-                        for (x = 0; (x < count) && (((AnimationFrame)listKeyframes.Items[x]).Index < _currentPage); x++) ;
+                        for (x = 0; (x < count) && (((SRTAnimationFrame)listKeyframes.Items[x]).Index < _currentPage); x++) ;
 
                         listKeyframes.Items.Insert(x, kf);
                         listKeyframes.SelectedIndex = x;
                     }
 
-                    _target.SetKeyframe(KeyFrameMode.ScaleX + index, _currentPage, val);
+                    _target.SetKeyframe(index, _currentPage, val);
                 }
 
                 _currentFrame[index] = val;
@@ -231,7 +215,7 @@ namespace System.Windows.Forms
             int index = listKeyframes.SelectedIndex;
             if (index >= 0)
             {
-                AnimationFrame f = (AnimationFrame)listKeyframes.SelectedItem;
+                SRTAnimationFrame f = (SRTAnimationFrame)listKeyframes.SelectedItem;
                 numFrame.Value = (decimal)(f.Index + 1);
             }
         }

@@ -6,6 +6,7 @@ using BrawlLib.Wii.Models;
 using BrawlLib.Wii.Graphics;
 using BrawlLib.Imaging;
 using BrawlLib.SSBB.ResourceNodes;
+using BrawlLib.Modeling;
 
 namespace BrawlLib.SSBBTypes
 {
@@ -706,6 +707,8 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TextureSRT
     {
+        public const int Size = 0x20;
+
         public BVec2 TexScale;
         public bfloat TexRotation;
         public BVec2 TexTranslation;
@@ -716,6 +719,9 @@ namespace BrawlLib.SSBBTypes
             TexRotation = 0,
             TexTranslation = new Vector2(0)
         };
+
+        public static implicit operator TextureFrameState(TextureSRT val) { return new TextureFrameState(val.TexScale, val.TexRotation, val.TexTranslation, TexMatrixMode.MatrixMaya, false); }
+        public static implicit operator TextureSRT(TextureFrameState val) { return new TextureSRT { TexScale = val.Scale, TexRotation = val.Rotate, TexTranslation = val.Translate }; }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -723,17 +729,29 @@ namespace BrawlLib.SSBBTypes
     {
         public sbyte SCNCamera;
         public sbyte SCNLight;
-        public byte MapMode;
-        public byte Identity;
-        public bMatrix43 TexMtx;
+        private byte _mapMode;
+        private byte _identity;
+        private bMatrix43 _texMtx;
+
+        public MappingMethod MapMode { get { return (MappingMethod)_mapMode; } set { _mapMode = (byte)value; } }
+        private bool IdentityMatrix { get { return _identity == 0 ? false : true; } set { _identity = (byte)(value ? 1 : 0); } }
+        public Matrix43 TextureMatrix
+        {
+            get { return _texMtx; }
+            set
+            {
+                _texMtx = value;
+                IdentityMatrix = value == Matrix43.Identity;
+            }
+        }
 
         public static readonly TexMtxEffect Default = new TexMtxEffect()
         {
             SCNCamera = -1,
             SCNLight = -1,
-            MapMode = 0,
-            Identity = 1,
-            TexMtx = Matrix43.Identity
+            _mapMode = 0, //TexCoord
+            _identity = 1,
+            _texMtx = Matrix43.Identity
         };
     }
 
@@ -794,8 +812,8 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
-        public TextureSRT GetTexFlags(int Index) { return *(TextureSRT*)((byte*)Address + 8 + (Index * 20)); }
-        public void SetTexFlags(TextureSRT value, int Index) { *(TextureSRT*)((byte*)Address + 8 + (Index * 20)) = value; }
+        public TextureSRT GetTexSRT(int Index) { return *(TextureSRT*)((byte*)Address + 8 + (Index * 20)); }
+        public void SetTexSRT(TextureSRT value, int Index) { *(TextureSRT*)((byte*)Address + 8 + (Index * 20)) = value; }
         
         public TexMtxEffect GetTexMatrices(int Index) { return *(TexMtxEffect*)((byte*)Address + 168 + (Index * 52)); }
         public void SetTexMatrices(TexMtxEffect value, int Index) { *(TexMtxEffect*)((byte*)Address + 168 + (Index * 52)) = value; }
@@ -849,7 +867,7 @@ namespace BrawlLib.SSBBTypes
         public bint _mdl0Offset;
         public bint _stringOffset;
         public bint _index;
-        public buint _usageFlags;
+        public Bin32 _usageFlags;
 
         //DO_NOT_SEND_XXX is not set as long as it is not set at runtime.
         //Specifying it will forcibly omit sending the display list(s) held by this material (even if this material is animated).
@@ -1366,7 +1384,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0TextureRef
     {
-        public const int Size = 52;
+        public const int Size = 0x34;
 
         public bint _texOffset;
         public bint _pltOffset;
@@ -1473,8 +1491,8 @@ namespace BrawlLib.SSBBTypes
         public fixed short _uids[8];
 
         //ids used in v10+ only
-        public short _furVectorId { get { return *(bshort*)(Address + 0x60); } }
-        public short _furLayerCoordId { get { return *(bshort*)(Address + 0x62); } }
+        public short _furVectorId { get { return *(bshort*)(Address + 0x60); } set { *(bshort*)(Address + 0x60) = value; } }
+        public short _furLayerCoordId { get { return *(bshort*)(Address + 0x62); } set { *(bshort*)(Address + 0x62) = value; } }
 
         public bint _nodeTableOffset;
 

@@ -356,8 +356,8 @@ namespace System.Windows.Forms
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MatTextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MatTextureMagFilter.Nearest);
 
             GL.Disable(EnableCap.Texture2D);
             GL.Enable(EnableCap.DepthTest);
@@ -425,11 +425,11 @@ namespace System.Windows.Forms
             _camera.Rotate(_settings._defaultRotate._x, _settings._defaultRotate._y);
         }
 
-        protected override void OnContextChanged(bool isCurrent)
+        protected override void OnContextChanged(bool isNowCurrent)
         {
-            base.OnContextChanged(isCurrent);
+            base.OnContextChanged(isNowCurrent);
 
-            MDL0TextureNode._folderWatcher.SynchronizingObject = isCurrent ? this : null;
+            MDL0TextureNode._folderWatcher.SynchronizingObject = isNowCurrent ? this : null;
         }
 
         public void ResetCamera()
@@ -442,34 +442,39 @@ namespace System.Windows.Forms
 
         public void SetCamWithBox(Vector3 min, Vector3 max)
         {
-            float a = _aspect;
-            float camAngle = _fovY / 2.0f;
-            float tan = (float)Math.Tan(camAngle * Maths._deg2radf);
-
             //Get the position of the midpoint of the bounding box plane closer to the camera
             Vector3 frontMidPt = new Vector3((max._x + min._x) / 2.0f, (max._y + min._y) / 2.0f, max._z);
+            float tan = (float)Math.Tan(_fovY / 2.0f * Maths._deg2radf);
 
-            //Figure out which half length is longer
-            float y = max._y - frontMidPt._y;
+            if (tan == 0) 
+            {
+                //This would only happen if the FOV was 0
+                //meaning nothing would be visible anyway
+                _camera.Reset();
+                _camera.Translate(frontMidPt._x, frontMidPt._y, 0);
+                Invalidate();
+                return;
+            }
+
+            //Calculate lengths
             float x = max._x - frontMidPt._x;
+            float y = max._y - frontMidPt._y;
+            float z = y / tan;
 
-            if (y > x)
-            {
+            //Apply a ratio if the bounding box's half X is greater
+            //than the half Y value used to initially calculate the distance
+            if (x > y && y != 0)
+                z *= (x / y);
 
-            }
-            else
-            {
+            //Add the calculated distance to the front plane's distance
+            //and add two units for the edges
+            float totalZ = frontMidPt._z + z + 2.0f;
 
-            }
-
-
-            float ratio = y == 0 ? 1 : x / y;
-            
-            float distY = tan == 0 ? 1 : y / tan;
-            float distX = distY * ratio;
+            //Temporary solution to bring models closer
+            totalZ *= (3.0f / 4.0f);
 
             _camera.Reset();
-            _camera.Translate(frontMidPt._x, frontMidPt._y, Maths.Max(distX, distY, max._z) + 3.0f);
+            _camera.Translate(frontMidPt._x, frontMidPt._y, totalZ);
             Invalidate();
         }
 

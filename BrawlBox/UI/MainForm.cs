@@ -351,7 +351,7 @@ namespace BrawlBox
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string inFile;
-            int i = Program.OpenFile(SuppertedFilesHandler.CompleteFilter, out inFile);
+            int i = Program.OpenFile(SupportedFilesHandler.CompleteFilter, out inFile);
             if (i != 0)
             {
                 //if (i >= SupportedFilesHandler.Files.Length)
