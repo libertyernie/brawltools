@@ -65,10 +65,10 @@ namespace BrawlBox
             _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
             _updatesOnStartup = BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup;
 
+#if !DEBUG //Don't need to see this every time a debug build is compiled
             if (CheckUpdatesOnStartup)
                 CheckUpdates();
-
-#if DEBUG
+#else
             Text += " DEBUG";
 #endif
             soundPackControl1._grid = propertyGrid1;
