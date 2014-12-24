@@ -1641,12 +1641,12 @@ For example, if the shader has two stages but this number is 1, the second stage
         [Category("Lighting Control")]
         public MatChanLights Lights
         {
-            get { return (MatChanLights)(_binary[2, 4] | (_binary[11, 4] << 4)); }
+            get { return (MatChanLights)(_binary[11, 4] | (_binary[2, 4] << 4)); }
             set
             {
                 uint val = (uint)value;
-                _binary[2, 4] = (val & 0xF);
-                _binary[11, 4] = ((val >> 4) & 0xF);
+                _binary[11, 4] = (val & 0xF);
+                _binary[2, 4] = ((val >> 4) & 0xF);
 
                 if (_parent != null)
                     _parent._parent.SignalPropertyChange();
