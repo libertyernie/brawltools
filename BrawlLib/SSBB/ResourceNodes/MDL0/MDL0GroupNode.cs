@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe abstract class MDL0EntryNode : ResourceNode
     {
-        internal virtual void GetStrings(StringTable table) { }
+        internal virtual void GetStrings(StringTable table) { table.Add(_name); }
 
         internal int _entryIndex;
 
