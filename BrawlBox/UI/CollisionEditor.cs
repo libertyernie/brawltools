@@ -892,8 +892,6 @@ namespace System.Windows.Forms
             // 
             this._modelPanel.DefaultTranslate = new Vector3(0,0,0);
             this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this._modelPanel.InitialYFactor = 100;
-            this._modelPanel.InitialZoomFactor = 5;
             this._modelPanel.Location = new System.Drawing.Point(0, 25);
             this._modelPanel.Name = "_modelPanel";
             this._modelPanel.RotationScale = 0.4F;
@@ -901,8 +899,8 @@ namespace System.Windows.Forms
             this._modelPanel.TabIndex = 0;
             this._modelPanel.TranslationScale = 0.05F;
             this._modelPanel.ZoomScale = 2.5F;
-            this._modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PreRender);
-            this._modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this._modelPanel_PostRender);
+            this._modelPanel.PreRender += new GLRenderEventHandler(this._modelPanel_PreRender);
+            this._modelPanel.PostRender += new GLRenderEventHandler(this._modelPanel_PostRender);
             this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
             this._modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseDown);
             this._modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this._modelPanel_MouseMove);

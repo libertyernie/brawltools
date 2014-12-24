@@ -9,6 +9,7 @@
 //------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 namespace BrawlBox.Properties {
     
     
@@ -27,15 +28,30 @@ namespace BrawlBox.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public BrawlBoxViewerSettings? ViewerSettings
+        public ModelEditorSettings ViewerSettings
         {
             get
             {
-                return ((BrawlBoxViewerSettings?)(this["ViewerSettings"]));
+                return ((ModelEditorSettings)(this["ViewerSettings"]));
             }
             set
             {
                 this["ViewerSettings"] = value;
+            }
+        }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public List<ModelEditorViewportEntry> ViewportSettings
+        {
+            get
+            {
+                return ((List<ModelEditorViewportEntry>)(this["ViewportSettings"]));
+            }
+            set
+            {
+                this["ViewportSettings"] = value;
             }
         }
 
@@ -51,36 +67,6 @@ namespace BrawlBox.Properties {
             set
             {
                 this["ViewerSettingsSet"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string ScreenCapBgLocText
-        {
-            get
-            {
-                return ((string)(this["ScreenCapBgLocText"]));
-            }
-            set
-            {
-                this["ScreenCapBgLocText"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string LiveTextureFolderPath
-        {
-            get
-            {
-                return ((string)(this["LiveTextureFolderPath"]));
-            }
-            set
-            {
-                this["LiveTextureFolderPath"] = value;
             }
         }
 

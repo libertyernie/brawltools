@@ -1,15 +1,24 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 
 namespace System
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vector4
+    public unsafe struct Vector4 : ISerializable
     {
         public float _x, _y, _z, _w;
 
         public Vector4(float x, float y, float z, float w) { this._x = x; this._y = y; this._z = z; this._w = w; }
         public Vector4(float s) { _x = s; _y = s; _z = s; _w = 1; }
+        public Vector4(SerializationInfo info, StreamingContext context)
+        {
+            _x = info.GetSingle("_x");
+            _z = info.GetSingle("_y");
+            _y = info.GetSingle("_z");
+            _w = info.GetSingle("_w");
+        }
 
         //public static explicit operator Vector3(Vector4 v) { return new Vector3(v._x / v._w, v._y / v._w, v._z / v._w); }
         public static explicit operator Vector4(Vector3 v) { return new Vector4(v._x, v._y, v._z, 1.0f); }
@@ -149,6 +158,14 @@ namespace System
                 (float)Math.Atan2(2 * (_x * _y + _z * _w), 1 - 2 * (_y * _y + _z * _z)),
                 (float)Math.Asin(2 * (_x * _z - _w * _y)),
                 (float)Math.Atan2(2 * (_x * _w + _y * _z), 1 - 2 * (_z * _z + _w * _w)));
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_x", _x);
+            info.AddValue("_y", _y);
+            info.AddValue("_z", _z);
+            info.AddValue("_w", _w);
         }
     }
 }

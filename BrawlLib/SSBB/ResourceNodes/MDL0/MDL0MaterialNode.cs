@@ -572,27 +572,31 @@ Those properties can use this color as an argument. This color is referred to as
             {
                 if (!CheckIfMetal())
                 {
-                    bool prev = _usageFlags[31];
+                    //Forget all these checks.
+                    //We'll let the user have complete freedom, as I've seen objects use materials
+                    //as XLU when this bool wasn't on anyway.
+
+                    //bool prev = _usageFlags[31];
                     _usageFlags[31] = value;
 
-                    string message = "";
-                    for (int i = 0; i < _objects.Count; i++)
-                        _objects[i].EvalMaterials(ref message);
+                    //string message = "";
+                    //for (int i = 0; i < _objects.Count; i++)
+                    //    _objects[i].EvalMaterials(ref message);
 
-                    if (message.Length != 0)
-                        if (MessageBox.Show(null, "Are you sure you want to continue?\nThe following objects will no longer use this material:\n" + message, "Continue?", MessageBoxButtons.YesNo) == DialogResult.No)
-                        {
-                            _changed = false;
-                            _usageFlags[31] = prev;
-                            return;
-                        }
+                    //if (message.Length != 0)
+                    //    if (MessageBox.Show(null, "Are you sure you want to continue?\nThe following objects will no longer use this material:\n" + message, "Continue?", MessageBoxButtons.YesNo) == DialogResult.No)
+                    //    {
+                    //        _changed = false;
+                    //        _usageFlags[31] = prev;
+                    //        return;
+                    //    }
 
-                    message = "";
-                    for (int i = 0; i < _objects.Count; i++)
-                        _objects[i].FixMaterials(ref message);
+                    //message = "";
+                    //for (int i = 0; i < _objects.Count; i++)
+                    //    _objects[i].FixMaterials(ref message);
 
-                    if (message.Length != 0)
-                        MessageBox.Show("The following objects no longer use this material:\n" + message);
+                    //if (message.Length != 0)
+                    //    MessageBox.Show("The following objects no longer use this material:\n" + message);
                 }
             }
         }
@@ -881,21 +885,6 @@ For example, if the shader has two stages but this number is 1, the second stage
             (_chan1 = Light->Channel1)._parent = this;
             (_chan2 = Light->Channel2)._parent = this;
 
-            c1 = CReg2Color;
-            c2 = CReg2Color;
-            c3 = CReg2Color;
-
-            k1 = KReg0Color;
-            k2 = KReg1Color;
-            k3 = KReg2Color;
-            k3 = KReg3Color;
-
-            clr1 = C1MaterialColor;
-            clr2 = C2MaterialColor;
-
-            amb1 = C1AmbientColor;
-            amb2 = C2AmbientColor;
-
             (_userEntries = new UserDataCollection()).Read(header->UserData(_initVersion));
             
             return true;
@@ -962,30 +951,24 @@ For example, if the shader has two stages but this number is 1, the second stage
             //Set offsets
             header->_dataLen = length;
 
-            int addr = 0;
+            int addr = 0x414, displayListOffset = length - 0x180;
             if (model._version >= 10)
             {
+                addr += 4;
+
                 header->_dataOffset2 = 0; //Fur Data not supported
-                header->_dataOffset3 = length - 0x180;
-                if (Children.Count > 0)
-                    header->_matRefOffset = addr = 1048;
-                else
-                    header->_matRefOffset = 0;
+                header->_dataOffset3 = displayListOffset;
             }
             else
-            {
-                header->_dataOffset2 = length - 0x180;
-                if (Children.Count > 0)
-                    header->_matRefOffset = addr = 1044;
-                else
-                    header->_matRefOffset = 0;
-            }
+                header->_dataOffset2 = displayListOffset;
+
+            header->_matRefOffset = Children.Count > 0 ? addr : 0;
 
             //Check for user entries
             if (_userEntries.Count > 0)
             {
                 addr += Children.Count * 0x34;
-                if (model._version == 11 || model._version == 10)
+                if (model._version >= 10)
                     header->_dataOffset2 = addr;
                 else
                     header->_dataOffset1 = addr;
@@ -993,7 +976,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 _userEntries.Write(header->UserData(model._version));
             }
             else
-                addr = header->_dataOffset1 = 0;
+                header->_dataOffset1 = 0;
 
             ushort i1 = 0x1040, i2 = 0x1050, mtx = 0;
             if (Model._isImport)

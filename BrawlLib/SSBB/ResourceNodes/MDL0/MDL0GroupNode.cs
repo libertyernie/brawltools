@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe abstract class MDL0EntryNode : ResourceNode
     {
-        internal virtual void GetStrings(StringTable table) { }
+        internal virtual void GetStrings(StringTable table) { table.Add(_name); }
 
         internal int _entryIndex;
 
@@ -322,7 +322,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 //Get bone from index and assign
                                 int boneIndex = *(bushort*)(pData + 4);
                                 if (linker.BoneCache != null && boneIndex >= 0 && boneIndex < linker.BoneCache.Length)
-                                    poly.BoneNode = linker.BoneCache[boneIndex] as MDL0BoneNode;
+                                    poly.VisibilityBoneNode = linker.BoneCache[boneIndex] as MDL0BoneNode;
                                 //Assign material to polygon
                                 if (opa)
                                     poly.OpaMaterialNode = mat;
@@ -430,10 +430,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             (*rEntry++) = new ResourceEntry(0xFFFF, 0, 0, 0, 0);
 
             if (_name == "Bones")
-                foreach (MDL0EntryNode n in _children)
+                foreach (MDL0EntryNode n in Children)
                     PostProcessBone(mdlAddress, n, pGroup, ref index, stringTable);
             else if (_name != "Definitions")
-                foreach (MDL0EntryNode n in _children)
+                foreach (MDL0EntryNode n in Children)
                 {
                     dataAddress = (VoidPtr)pGroup + (rEntry++)->_dataOffset;
                     ResourceEntry.Build(pGroup, index++, dataAddress, (BRESString*)stringTable[n.Name]);

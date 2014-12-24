@@ -16,9 +16,10 @@ they be held accountable for the manner in which it is used.
  ====================================
 
  - v0.74- (12/25/2014) - BrawlLib v0.21
-	. Support adding new collision nodes to ARC via right click.
-	. Support adding new BLOC to ARC via right click.
-	. Support adding and editing the following nodes in / to BLOC archives.
+	. Brawlbox can now check for updates on startup (can be enabled via Tools->Settings) or when you go to Help->"Check for updates" and automatically install that update for you, in another folder or in place of the current version.
+	. Support for adding new collision nodes to ARC via right click.
+	. Support for adding new BLOC to ARC via right click.
+	. Support for editing and adding the following nodes found in BLOC archives:
 		- GSND sound files
 		- ADSJ StepJump files, required to link rooms and levels.
 		- GDOR Adventure door files, requires rooms linked via ADSJ.
@@ -40,25 +41,23 @@ they be held accountable for the manner in which it is used.
 	. Fixed Collada importer bug that occured when the imported model had some rigged and some unrigged objects. Unrigged objects are now rigged to the first bone.
 	. Fixed bug where opening environment settings would radically enlarge various rendered items. (bone controls, overlays, etc.)
 	. Changing tool via options->viewer->bone control or shortcuts E,R, and T now updates Tool dropdown and vice versa.
-	. Model editor now displays bones that are not part of the Target model at half opacity, and in a red color.
+	. Model editor now displays bones that are not part of the currently selected model at half opacity, and in a red color.
 	. Section editor now displays number of selected bytes, rather than length of the full section. (bottom status bar)
 	. GCT editor saves unchecked codes as disabled in .txt (pads the left side with an asterisk). Saving as GCT will not save disabled codes
 	. GCT editor now allows multiline descriptions in .txt files.
 	. Improved pixel format conversion, furthering it's acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
-	. Support adding new collision nodes to ARC via right click.
-	. Support for item frequency nodes.
-	. Support adding new BLOC to ARC via right click.
-	. Support adding and editing the following nodes in / to BLOC archives.
-		- GSND sound files
-		- ADSJ StepJump files, required to link rooms and levels.
-		- GDOR Adventure door files, requires rooms linked via ADSJ.
-	. Added a live texture folder to the model previewer. Select a folder and any textures with names that match the model's textures will be auto-loaded on the model when modified.
+	. Fixed scaling of bone control in the model previewer when changing the "Y Field Of View" in the environment settings window under Menu->Options
+	. Added experimental support for orthographic projection in the viewport. Toggleable under Menu->Options->Environment Settings->Orthographic. 
+		Note: there are problems with this, such as billboard bones and the scaling of the bone edit control. Orthographic cameras look AT their origin, while perspective cameras look OUT from their origin.
+	. Added a live texture folder to the model previewer. Select a folder under Menu->Tools->"Live Texture Folder" and any textures with names that match the model's textures will be auto-loaded on the model when modified.
 	. Added a small dialog in the collision editor to rotate/translate/scale selected planes by specific values.
 	. Object / Method editor has been added to the module editor pending a better UI for it.
 		- Right click on methods allows you to open the Method's Assembly in section editor.
-		- Right click on inheritance items will open the section editor to THAT INSTANCE'S decleration, before the object's vTable.
+		- Right click on inheritance items will open the section editor to THAT INSTANCE'S declaration, before the object's vTable.
 		- PPC disassembler now stops at branch commands in addition to blr.
 		- Added a button to the disassembler that is only visible when a branch command is selected, allowing you to jump to that location.
+	. Better support for MDL0 billboard bones. Can now render properly in the viewer and be properly set in the bone's properties.
+	. Added the option to view property descriptions if they are available (Can be enabled in Tools->Settings). Most currently available descriptions are located in the properties of nodes found in MDL0 (materials, shaders, bones, etc).
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas

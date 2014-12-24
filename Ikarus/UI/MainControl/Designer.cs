@@ -1275,8 +1275,6 @@ namespace Ikarus.UI
             // modelPanel
             // 
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelPanel.InitialYFactor = 100;
-            this.modelPanel.InitialZoomFactor = 5;
             this.modelPanel.Location = new System.Drawing.Point(0, 0);
             this.modelPanel.Name = "modelPanel";
             this.modelPanel.RotationScale = 0.4F;

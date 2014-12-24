@@ -208,7 +208,7 @@ namespace System.Windows.Forms
             }
 
             newNode.RecalcIndices();
-            newNode._bone = (MDL0BoneNode)_internalModel.BoneGroup.Children[0];
+            newNode._visBoneNode = (MDL0BoneNode)_internalModel.BoneGroup.Children[0];
             newNode.Name = "polygon" + (_internalModel._objList.Count);
             newNode._rebuild = true;
             newNode.SignalPropertyChange();
@@ -497,10 +497,7 @@ namespace System.Windows.Forms
             // 
             // modelPanel1
             // 
-            //this.modelPanel1.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel1.DefaultTranslate")));
             this.modelPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelPanel1.InitialYFactor = 100;
-            this.modelPanel1.InitialZoomFactor = 5;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
             this.modelPanel1.RotationScale = 0.4F;

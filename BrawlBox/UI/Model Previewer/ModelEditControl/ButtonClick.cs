@@ -21,24 +21,24 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-        private void chkBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
-        private void toggleBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
+        private void chkBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
+        private void toggleBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
 
-        private void chkPolygons_Click(object sender, EventArgs e) { RenderPolygons = !RenderPolygons; }
-        private void togglePolygons_Click(object sender, EventArgs e) { RenderPolygons = !RenderPolygons; }
+        private void chkPolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
+        private void togglePolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
 
-        private void chkVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
-        private void toggleVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
+        private void chkVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
+        private void toggleVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
 
-        private void chkCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
-        private void toggleCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
+        private void chkCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
+        private void toggleCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
 
-        private void chkFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
-        private void toggleFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
+        private void chkFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
+        private void toggleFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
 
-        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { RenderWireframe = !RenderWireframe; }
-        private void toggleNormals_Click(object sender, EventArgs e) { RenderNormals = !RenderNormals; }
-        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { RenderBox = !RenderBox; }
+        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderWireframe = !RenderWireframe; }
+        private void toggleNormals_Click(object sender, EventArgs e) { if (!_updating) RenderNormals = !RenderNormals; }
+        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderBox = !RenderBox; }
 
         #region Screen Capture
 
@@ -203,33 +203,23 @@ namespace System.Windows.Forms
         private void clearSavedSettingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             BrawlBox.Properties.Settings.Default.ViewerSettings = null;
-            BrawlBox.Properties.Settings.Default.ScreenCapBgLocText = null;
             BrawlBox.Properties.Settings.Default.ViewerSettingsSet = false;
             SetDefaultSettings();
         }
 
         private unsafe void exportToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            BrawlBoxViewerSettings settings = CollectSettings();
-
             SaveFileDialog sd = new SaveFileDialog();
             sd.Filter = "Brawlbox Settings (*.settings)|*.settings";
             sd.FileName = Application.StartupPath;
             if (sd.ShowDialog() == DialogResult.OK)
             {
                 string path = sd.FileName;
-                using (FileStream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
-                {
-                    CompactStringTable s = new CompactStringTable();
-                    s.Add(ScreenCapBgLocText.Text);
-                    stream.SetLength((long)BrawlBoxViewerSettings.Size + s.TotalSize);
-                    using (FileMap map = FileMap.FromStream(stream))
-                    {
-                        *(BrawlBoxViewerSettings*)map.Address = settings;
-                        s.WriteTable(map.Address + BrawlBoxViewerSettings.Size);
-                        ((BrawlBoxViewerSettings*)map.Address)->_screenCapPathOffset = (uint)s[ScreenCapBgLocText.Text] - (uint)map.Address;
-                    }
-                }
+                ModelEditorSettings settings = CollectSettings();
+
+                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
+                s.SerializeObject(path, settings);
+
                 MessageBox.Show("Settings successfully saved to " + path);
             }
         }
@@ -242,15 +232,9 @@ namespace System.Windows.Forms
             if (od.ShowDialog() == DialogResult.OK)
             {
                 string path = od.FileName;
-                using (FileMap map = FileMap.FromFile(path, FileMapProtect.Read))
-                {
-                    if (*(uint*)map.Address == BrawlBoxViewerSettings.Tag)
-                    {
-                        BrawlBoxViewerSettings* settings = (BrawlBoxViewerSettings*)map.Address;
-                        DistributeSettings(*settings);
-                        ScreenCapBgLocText.Text = new String((sbyte*)map.Address + settings->_screenCapPathOffset);
-                    }
-                }
+                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
+                ModelEditorSettings settings = s.DeserializeObject(path);
+                DistributeSettings(settings);
             }
         }
 
@@ -261,14 +245,14 @@ namespace System.Windows.Forms
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                ModelPanel._settings._defaultRotate = new Vector2(ModelPanel.Camera._rotation._x, ModelPanel.Camera._rotation._y);
+                ModelPanel._settings._defaultRotate = ModelPanel.Camera._rotation;
                 ModelPanel._settings._defaultTranslate = ModelPanel.Camera._matrixInverse.Multiply(new Vector3());
 
                 btnSaveCam.Text = "Clear Camera";
             }
             else
             {
-                ModelPanel._settings._defaultRotate = new Vector2();
+                ModelPanel._settings._defaultRotate = new Vector3();
                 ModelPanel._settings._defaultTranslate = new Vector3();
 
                 btnSaveCam.Text = "Save Camera";

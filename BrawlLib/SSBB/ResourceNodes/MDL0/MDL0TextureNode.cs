@@ -113,7 +113,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool ObjOnly;
         public bool Enabled = true;
         public object Source;
-        public bool Rendered = false;
 
         public List<MDL0MaterialRefNode> _references = new List<MDL0MaterialRefNode>();
 
@@ -354,7 +353,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Texture.Delete();
                 Texture = null;
             }
-            Rendered = false;
         }
     }
 }

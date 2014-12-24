@@ -63,9 +63,9 @@ namespace BrawlBox
             Text = Program.AssemblyTitle;
             if (CheckUpdatesOnStartup)
                 CheckUpdates();
-//#if _DEBUG
-//            Text += " - DEBUG";
-//#endif
+#if DEBUG
+            Text += " DEBUG";
+#endif
             soundPackControl1._grid = propertyGrid1;
             soundPackControl1.lstSets.SmallImageList = ResourceTree.Images;
             msBinEditor1.Dock =
@@ -102,14 +102,14 @@ namespace BrawlBox
 
         private async void CheckUpdates()
         {
-            const string version = "v0.74"; // <---- Replace with latest release tag
+            string version = Program.AssemblyTitle.Substring(Program.AssemblyTitle.LastIndexOf('.') - 2).TrimEnd(' ');
 
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
             var release = await github.Release.GetAll("libertyernie", "brawltools");
 
             if (release[0].TagName != version)
             {
-                DialogResult UpdateResult = MessageBox.Show("Brawlbox update " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                 if (UpdateResult == DialogResult.Yes)
                 {
                     DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
@@ -206,9 +206,9 @@ namespace BrawlBox
             else
                 Text = Program.AssemblyTitle;
 
-//#if DEBUG
-//            Text += " - DEBUG";
-//#endif
+#if DEBUG
+            Text += " DEBUG";
+#endif
         }
 
         public void TargetResource(ResourceNode n)
@@ -423,29 +423,9 @@ namespace BrawlBox
         private void openToolStripMenuItem_Click(object sender, EventArgs e)
         {
             string inFile;
-            int i = Program.OpenFile(SupportedFilesHandler.CompleteFilter, out inFile);
-            if (i != 0)
-            {
-                //if (i >= SupportedFilesHandler.Files.Length)
-                //{
-                //    FileMap map = FileMap.FromFile(inFile, FileMapProtect.Read);
-                //    FileScanNode node = new FileScanNode();
-                //    Program.Scan(map, node);
-                //    if (node.Children.Count == 0)
-                //        MessageBox.Show("No formats recognized.");
-                //    else
-                //    {
-                //        Program._rootNode = node;
-                //        Program._rootPath = inFile;
-                //        node._list = node._children;
-                //        node.Initialize(null, new DataSource(map));
-                //        Reset();
-                //    }
-                //}
-                //else 
-                    if (Program.Open(inFile))
-                        RecentFileHandler.AddFile(inFile);
-            }
+            int i = Program.OpenFile(SupportedFilesHandler.CompleteFilterEditableOnly, out inFile);
+            if (i != 0 && Program.Open(inFile))
+                RecentFileHandler.AddFile(inFile);
         }
 
         #region File Menu

@@ -36,8 +36,6 @@
             // 
             this.modelPanel1.Cursor = System.Windows.Forms.Cursors.Default;
             this.modelPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelPanel1.InitialYFactor = 100;
-            this.modelPanel1.InitialZoomFactor = 5;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
             this.modelPanel1.RotationScale = 0.4F;

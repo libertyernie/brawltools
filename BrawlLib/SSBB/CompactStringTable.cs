@@ -10,10 +10,11 @@ namespace BrawlLib
     {
         public SortedList<string, VoidPtr> _table = new SortedList<string, VoidPtr>(StringComparer.Ordinal);
 
-        public void Add(string s)
+        public void Add(params string[] r)
         {
-            if ((!String.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))
-                _table.Add(s, 0);
+            foreach (string s in r) 
+                if ((!String.IsNullOrEmpty(s)) && (!_table.ContainsKey(s)))
+                    _table.Add(s, 0);
         }
 
         public int TotalSize

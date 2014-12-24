@@ -38,9 +38,8 @@ namespace System.Windows.Forms
                 OnRenderNormals();
             if (RenderLightDisplay)
                 OnRenderLightDisplay(panel.LightPosition);
-            if (RenderBones)
-                OnRenderBones();
 
+            GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
             RenderTransformControl(panel);
@@ -63,24 +62,6 @@ namespace System.Windows.Forms
                     m.RenderNormals();
             else if (TargetModel != null)
                 TargetModel.RenderNormals();
-        }
-
-        public virtual void OnRenderBones()
-        {
-            if (_targetModels != null)
-                foreach (IModel m in _targetModels)
-                {
-                    if (m == TargetModel)
-                        foreach (IBoneNode b in m.BoneCache)
-                            b.Render(true);
-                    else
-                        foreach (IBoneNode b in m.BoneCache)
-                            b.Render();
-                }
-
-            else if (TargetModel != null)
-                foreach (IBoneNode b in TargetModel.BoneCache)
-                    b.Render(true);
         }
 
         #region Bone Control Rendering
@@ -530,7 +511,11 @@ namespace System.Windows.Forms
             if (!panel._grabbing && !panel._scrolling && !_playing)
             {
                 GL.Color4(Color.Black);
+#if DEBUG
                 GL.ColorMask(true, false, false, false);
+#else
+                GL.ColorMask(false, false, false, false);
+#endif
 
                 if (panel.RenderVertices)
                     if (EditingAll && _targetModels != null)
@@ -912,6 +897,10 @@ namespace System.Windows.Forms
 
         public static void OnRenderLightDisplay(Vector4 lightPos)
         {
+            GL.PushAttrib(AttribMask.AllAttribBits);
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.PushMatrix();
+
             GL.Color4(Color.Blue);
             GL.Disable(EnableCap.Lighting);
             GL.Disable(EnableCap.DepthTest);
@@ -995,12 +984,13 @@ namespace System.Windows.Forms
             GL.Scale(0.01f, 0.01f, 0.01f);
             GL.Rotate(azimuth, 0, 1, 0);
             GL.Enable(EnableCap.DepthTest);
+
+            GL.PopAttrib();
+            GL.PopMatrix();
         }
 
         public static void OnRenderFloor()
         {
-            GLTexture _bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
-
             float s = 10.0f, t = 10.0f;
             float e = 30.0f;
 
@@ -1012,7 +1002,13 @@ namespace System.Windows.Forms
 
             GL.Enable(EnableCap.Texture2D);
 
-            _bgTex.Bind();
+            GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
+            bgTex.Bind();
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             GL.Color4(_floorHue);
 

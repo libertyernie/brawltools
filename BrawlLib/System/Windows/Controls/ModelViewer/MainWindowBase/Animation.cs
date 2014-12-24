@@ -580,7 +580,7 @@ namespace System.Windows.Forms
                 if (index == -1)
                     return;
 
-                MDL0BoneNode bone = ((MDL0ObjectNode)TargetModel.Objects[index])._bone;
+                MDL0BoneNode bone = ((MDL0ObjectNode)TargetModel.Objects[index])._visBoneNode;
 
                 VIS0EntryNode node = null;
                 if ((node = (VIS0EntryNode)_vis0.FindChild(bone.Name, true)) == null && bone.BoneIndex != 0 && bone.Name != "EyeYellowM")

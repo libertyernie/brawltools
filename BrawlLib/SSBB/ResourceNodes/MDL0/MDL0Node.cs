@@ -803,12 +803,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             _hasOpa = _hasXlu = false;
 
-            if (_matList != null)
-                foreach (MDL0MaterialNode n in _matList)
-                    if (n.XLUMaterial)
+            //Can't use XLUMaterial bool in materials
+            //because it's not guaranteed on when an object uses the material as XLU
+            if (_objList != null)
+                foreach (MDL0ObjectNode n in _objList)
+                {
+                    if (n.XluMaterialNode != null)
                         _hasXlu = true;
-                    else
+                    if (n.OpaMaterialNode != null)
                         _hasOpa = true;
+                }
 
             //Add def names
             if (_hasTree) table.Add("NodeTree");
@@ -944,6 +948,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool IsRendering { get { return _render; } set { _render = value; } }
         bool _render = true;
 
+        [Browsable(false)]
+        public bool IsTargetModel { get { return _isTargetModel; } set { _isTargetModel = value; } }
+        bool _isTargetModel = false;
+
         public ModelRenderAttributes _renderAttribs = new ModelRenderAttributes();
         public bool _ignoreModelViewerAttribs = false;
 
@@ -980,11 +988,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_objList != null)
                 foreach (MDL0ObjectNode p in _objList)
                 {
-                    if (p._bone != null && p._bone.BoneIndex != 0)
-                        if (!VIS0Indices.ContainsKey(p._bone.Name))
-                            VIS0Indices.Add(p._bone.Name, new List<int> { i });
-                        else if (!VIS0Indices[p._bone.Name].Contains(i))
-                            VIS0Indices[p._bone.Name].Add(i);
+                    if (p._visBoneNode != null && p._visBoneNode.BoneIndex != 0)
+                        if (!VIS0Indices.ContainsKey(p._visBoneNode.Name))
+                            VIS0Indices.Add(p._visBoneNode.Name, new List<int> { i });
+                        else if (!VIS0Indices[p._visBoneNode.Name].Contains(i))
+                            VIS0Indices[p._visBoneNode.Name].Add(i);
                     i++;
                 }
         }
@@ -992,6 +1000,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void Detach()
         {
             _attached = false;
+            _isTargetModel = false;
             ResetToBindState();
             foreach (MDL0GroupNode g in Children)
                 g.Unbind();
@@ -1064,7 +1073,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (!_render || TKContext.CurrentContext == null)
                 return;
-
+            
             ModelRenderAttributes attrib;
             if (!_ignoreModelViewerAttribs && args.Length > 0 && args[0] is ModelRenderAttributes)
                 attrib = args[0] as ModelRenderAttributes;
@@ -1157,12 +1166,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.Disable(EnableCap.Lighting);
                 GL.Disable(EnableCap.DepthTest);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                //GL.LineWidth(2.0f);
+                GL.LineWidth(2.0f);
 
-                //if (_boneList != null)
-                //    foreach (MDL0BoneNode bone in _boneList)
-                //        bone.Render();
-                
+                if (_boneList != null)
+                    foreach (MDL0BoneNode bone in _boneList)
+                        bone.Render(_isTargetModel);
             }
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
@@ -1304,8 +1312,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_objList != null)
                     foreach (MDL0ObjectNode o in _objList)
-                        if (o._bone != null)
-                            o._render = o._bone.Flags.HasFlag(BoneFlags.Visible);
+                        if (o._visBoneNode != null)
+                            o._render = o._visBoneNode.Flags.HasFlag(BoneFlags.Visible);
                 return;
             }
 
@@ -1317,7 +1325,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 VIS0EntryNode entry = null;
                 List<int> indices = VIS0Indices[n];
                 for (int i = 0; i < indices.Count; i++)
-                    if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._bone.Name, true)) != null)
+                    if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._visBoneNode.Name, true)) != null)
                         if (entry._entryCount != 0 && index >= 1)
                             ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry((int)index - 1);
                         else

@@ -23,6 +23,14 @@ namespace System.Windows.Forms
         private CollisionNode _targetCollision;
         public ResourceNode _externalAnimationsNode;
 
+        private bool _renderCollisions;
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderCollisions
+        {
+            get { return _renderCollisions; }
+            set { _renderCollisions = value; OnRenderCollisionsChanged(); }
+        }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CollisionNode TargetCollision
         {

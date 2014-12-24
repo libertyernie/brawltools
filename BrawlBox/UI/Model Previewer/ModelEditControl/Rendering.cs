@@ -22,33 +22,17 @@ namespace System.Windows.Forms
 
         public unsafe override void modelPanel1_PostRender(object sender)
         {
-            //This function may be called from a model panel that is not necessarily the currently focused one
+            base.modelPanel1_PostRender(sender);
+
             ModelPanel panel = sender as ModelPanel;
 
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Disable(EnableCap.Lighting);
-            GL.Enable(EnableCap.DepthTest);
-
-            if (panel.RenderVertices)
-                OnRenderVertices();
-            if (panel.RenderNormals)
-                OnRenderNormals();
-            if (RenderLightDisplay)
-                OnRenderLightDisplay(panel.LightPosition);
-            if (RenderBones)
-                OnRenderBones();
-
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Disable(EnableCap.DepthTest);
 
             RenderBrawlStageData(panel);
 
             //This should probably be moved to BrawlLib in case a 3rd party wants to use it in their program
             //Ikarus doesn't need it though
             RenderSCN0Controls();
-
-            RenderTransformControl(panel);
-            RenderDepth(panel);
         }
 
         #endregion
@@ -209,7 +193,7 @@ namespace System.Windows.Forms
             //This will make sure the GL state is back to how it was before you changed it.
             GL.PushAttrib(AttribMask.AllAttribBits);
 
-            if (panel.RenderCollisions)
+            if (RenderCollisions)
                 foreach (CollisionNode node in _collisions)
                     node.Render();
             

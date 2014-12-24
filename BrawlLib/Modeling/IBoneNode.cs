@@ -8,7 +8,7 @@ using System.Text;
 
 namespace BrawlLib.Modeling
 {
-    public interface IBoneNode : IMatrixNode, IRenderedObject
+    public interface IBoneNode : IMatrixNode
     {
         string Name { get; set; }
         bool Locked { get; set; }

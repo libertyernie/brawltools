@@ -438,34 +438,34 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         #region Material linkage
-        public void EvalMaterials(ref string message)
-        {
-            if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-                if (OpaMaterialNode != null)
-                    message += Name + "\n";
-            if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-                if (XluMaterialNode != null)
-                    message += Name + "\n";
-        }
-        public void FixMaterials(ref string message)
-        {
-            if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-            {
-                if (OpaMaterialNode == null)
-                    OpaMaterialNode = XluMaterialNode;
-                else
-                    message += Name + "\n";
-                XluMaterialNode = null;
-            }
-            if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-            {
-                if (XluMaterialNode == null)
-                    XluMaterialNode = OpaMaterialNode;
-                else
-                    message += Name + "\n";
-                OpaMaterialNode = null;
-            }
-        }
+        //public void EvalMaterials(ref string message)
+        //{
+        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
+        //        if (OpaMaterialNode != null)
+        //            message += Name + "\n";
+        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
+        //        if (XluMaterialNode != null)
+        //            message += Name + "\n";
+        //}
+        //public void FixMaterials(ref string message)
+        //{
+        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
+        //    {
+        //        if (OpaMaterialNode == null)
+        //            OpaMaterialNode = XluMaterialNode;
+        //        else
+        //            message += Name + "\n";
+        //        XluMaterialNode = null;
+        //    }
+        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
+        //    {
+        //        if (XluMaterialNode == null)
+        //            XluMaterialNode = OpaMaterialNode;
+        //        else
+        //            message += Name + "\n";
+        //        OpaMaterialNode = null;
+        //    }
+        //}
 
         /// <summary>
         /// Does not signal a property change!
@@ -541,29 +541,29 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         #region Bone linkage
-        public MDL0BoneNode _bone;
+        public MDL0BoneNode _visBoneNode;
         [Browsable(false)]
-        public MDL0BoneNode BoneNode
+        public MDL0BoneNode VisibilityBoneNode
         {
-            get { return _bone; }
+            get { return _visBoneNode; }
             set
             {
-                if (_bone == value)
+                if (_visBoneNode == value)
                     return;
-                if (_bone != null)
-                    _bone._manPolys.Remove(this);
-                if ((_bone = value) != null)
+                if (_visBoneNode != null)
+                    _visBoneNode._manPolys.Remove(this);
+                if ((_visBoneNode = value) != null)
                 {
-                    _bone._manPolys.Add(this);
-                    _render = _bone._boneFlags.HasFlag(BoneFlags.Visible);
+                    _visBoneNode._manPolys.Add(this);
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
                 }
             }
         }
         [Browsable(true), TypeConverter(typeof(DropDownListBones))]
         public string VisibilityBone //This attaches the object to a bone controlled by a VIS0
         {
-            get { return _bone == null ? null : _bone._name; }
-            set { BoneNode = String.IsNullOrEmpty(value) ? null : Model.FindBone(value); Model.SignalPropertyChange(); }
+            get { return _visBoneNode == null ? null : _visBoneNode._name; }
+            set { VisibilityBoneNode = String.IsNullOrEmpty(value) ? null : Model.FindBone(value); Model.SignalPropertyChange(); }
         }
         #endregion
 
@@ -1278,9 +1278,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         foreach (MDL0MaterialRefNode mr in material.Children)
                         {
-                            if (mr._texture != null && (!mr._texture.Enabled || mr._texture.Rendered))
-                                continue;
-
                             GL.MatrixMode(MatrixMode.Texture);
                             GL.PushMatrix();
 
@@ -1291,7 +1288,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                             mr.Bind(-1);
 
-                            _manager.ApplyTexture(mr.Coordinates);
+                            if (mr._texture != null && mr._texture.Enabled)
+                                _manager.ApplyTexture(mr.Coordinates);
+                            else
+                                _manager.DisableTextures();
+
                             _manager.RenderMesh();
 
                             GL.MatrixMode(MatrixMode.Texture);
@@ -1353,7 +1354,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind() 
         {
-            _render = (_bone != null ? _bone._boneFlags.HasFlag(BoneFlags.Visible) ? true : false : true);
+            if (_visBoneNode == null)
+                _render = true;
+            else
+                if (_visBoneNode._name == "EyeYellowM")
+                    _render = false;
+                else
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
 
             //if (ctx != null && ctx._shadersEnabled)
             //{
@@ -1498,7 +1505,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             o._xluMaterial = _xluMaterial;
             o._furVecNode = _furVecNode;
             o._furPosNode = _furPosNode;
-            o._bone = _bone;
+            o._visBoneNode = _visBoneNode;
             o._manager._primGroups = _manager._primGroups;
             o._matrixNode = _matrixNode;
             o._elementIndices = _elementIndices;
@@ -1546,7 +1553,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     else _uvSet[i]._objects.Remove(this);
 
             MatrixNode = null;
-            BoneNode = null;
+            VisibilityBoneNode = null;
             OpaMaterialNode = null;
             XluMaterialNode = null;
 

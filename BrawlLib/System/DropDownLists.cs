@@ -18,7 +18,7 @@ namespace System
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
             List<ResourceNode> opaMats = new List<ResourceNode>();
-            foreach (MDL0MaterialNode n in model._matList) if (!n.XLUMaterial) opaMats.Add(n);
+            foreach (MDL0MaterialNode n in model._matList) /*if (!n.XLUMaterial)*/ opaMats.Add(n);
             return new StandardValuesCollection(opaMats.Select(n => n.ToString()).ToList());
         } 
     }
@@ -29,7 +29,7 @@ namespace System
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
             List<ResourceNode> xluMats = new List<ResourceNode>();
-            foreach (MDL0MaterialNode n in model._matList) if (n.XLUMaterial) xluMats.Add(n);
+            foreach (MDL0MaterialNode n in model._matList) /*if (n.XLUMaterial)*/ xluMats.Add(n);
             return new StandardValuesCollection(xluMats.Select(n => n.ToString()).ToList());
         }
     }

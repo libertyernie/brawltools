@@ -722,7 +722,10 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     m = Matrix.RotationMatrix(worldState.Rotate);
                     mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
 
-                    //TODO: apply restrictions
+                    //TODO: test this
+                    rot._x = 0;
+                    rot._z = 0;
+                    
                     break;
 
                 default: //Not a valid billboard type
@@ -750,7 +753,8 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         #region Rendering
 
-        public static Color DefaultBoneColor = Color.FromArgb(0, 0, 128);
+        public static Color DefaultLineColor = Color.FromArgb(0, 0, 128);
+        public static Color DefaultLineDeselectedColor = Color.FromArgb(128, 0, 0);
         public static Color DefaultNodeColor = Color.FromArgb(0, 128, 0);
 
         public Color _boneColor = Color.Transparent;
@@ -758,7 +762,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         public const float _nodeRadius = 0.20f;
 
-        public bool _render = true;
         internal void ApplyCHR0(CHR0Node node, float index)
         {
             CHR0EntryNode e;
@@ -780,7 +783,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 b.ApplyCHR0(node, index);
         }
 
-
         internal override void Bind()
         {
             _render = true;
@@ -788,23 +790,30 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             _nodeColor = Color.Transparent;
         }
 
-        public void Attach() { }
-        public bool Attached { get { return _attached; } }
-        private bool _attached = false;
+        //public void Attach() { }
 
-        public void Detach() { }
+        //[Browsable(false)]
+        //public bool Attached { get { return _attached; } }
+        //private bool _attached = false;
 
-        public void GetBox(out Vector3 min, out Vector3 max)
-        {
-            min = max = new Vector3(0);
-        }
+        //[Browsable(false)]
+        //public bool IsRendering { get { return _render; } set { _render = value; } }
+        public bool _render = true;
 
-        public void Refresh() { }
+        //public void Detach() { }
+
+        //public void GetBox(out Vector3 min, out Vector3 max)
+        //{
+        //    min = max = new Vector3(0);
+        //}
+
+        //public void Refresh() { }
+
         public void Render(params object[] args)
         {
-            bool Foreground = (args.Length > 0 ? (bool)args[0] : false);
+            bool Foreground = (args.Length > 0 && args[0] is bool ? (bool)args[0] : false);
 
-            DefaultBoneColor = Foreground ? Color.FromArgb(0, 0, 128) : Color.FromArgb(128, 0, 0);
+            Color c = Foreground ? DefaultLineColor : DefaultLineDeselectedColor;
 
             if (!_render)
                 return;
@@ -812,7 +821,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             if (_boneColor != Color.Transparent)
                 GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
             else
-                GL.Color4(DefaultBoneColor.R / 255.0f, DefaultBoneColor.G / 255.0f, DefaultBoneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
+                GL.Color4(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, Foreground ? 1.0f : 0.45f);
 
             //GL.LineWidth(1.0f);
 
@@ -895,8 +904,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             GL.End();
         }
-
-        public bool IsRendering { get { return _render; } set { _render = value; } }
 
         #endregion
 
