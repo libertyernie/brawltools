@@ -156,7 +156,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Octokit">
-      <HintPath>..\packages\Octokit.0.5.2\lib\net45\Octokit.dll</HintPath>
+      <HintPath>..\packages\Octokit.0.6.1\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -495,7 +495,8 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' == 'Unix' ">cp "$(SolutionDir)/Updater/bin/$(ConfigurationName)/Updater.exe" "$(TargetDir)/Updater.exe"</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' " >%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
