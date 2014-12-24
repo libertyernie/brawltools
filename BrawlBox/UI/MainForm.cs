@@ -61,8 +61,13 @@ namespace BrawlBox
         {
             InitializeComponent();
             Text = Program.AssemblyTitle;
+
+            _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
+            _updatesOnStartup = BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup;
+
             if (CheckUpdatesOnStartup)
                 CheckUpdates();
+
 #if DEBUG
             Text += " DEBUG";
 #endif
@@ -92,9 +97,6 @@ namespace BrawlBox
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
-
-            _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
-            _updatesOnStartup = BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup;
         }
 
         private delegate bool DelegateOpenFile(String s);
