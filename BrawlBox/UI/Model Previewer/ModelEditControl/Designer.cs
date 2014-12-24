@@ -2008,7 +2008,126 @@ namespace System.Windows.Forms
 
             _openFileDelegate = new DelegateOpenFile(OpenFile);
 
+            ModelPanel.RenderBonesChanged += modelPanel_RenderBonesChanged;
+            ModelPanel.RenderBoxChanged += modelPanel_RenderBoxChanged;
+            ModelPanel.RenderFloorChanged += modelPanel_RenderFloorChanged;
+            ModelPanel.RenderNormalsChanged += modelPanel_RenderNormalsChanged;
+            ModelPanel.RenderOffscreenChanged += modelPanel_RenderOffscreenChanged;
+            ModelPanel.RenderPolygonsChanged += ModelPanel_RenderPolygonsChanged;
+            ModelPanel.RenderVerticesChanged += ModelPanel_RenderVerticesChanged;
+            ModelPanel.RenderWireframeChanged += ModelPanel_RenderWireframeChanged;
+
             PostConstruct();
+        }
+
+        void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel) 
+            {
+                _updating = true;
+                chkPolygons.Checked = togglePolygons.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void ModelPanel_RenderVerticesChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkVertices.Checked = toggleVertices.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void ModelPanel_RenderPolygonsChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkPolygons.Checked = togglePolygons.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void modelPanel_RenderOffscreenChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkDontRenderOffscreen.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void modelPanel_RenderNormalsChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                toggleNormals.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void modelPanel_RenderFloorChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkFloor.Checked = toggleFloor.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void modelPanel_RenderBoxChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                boundingBoxToolStripMenuItem.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void modelPanel_RenderBonesChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                toggleBones.Checked = chkBones.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void OnRenderCollisionsChanged()
+        {
+            if (_updating)
+                return;
+
+            _updating = true;
+            toggleCollisions.Checked = chkCollisions.Checked = _renderCollisions;
+            if (EditingAll)
+                foreach (CollisionNode m in _collisions)
+                    foreach (CollisionObject o in m._objects)
+                        o._render = RenderCollisions;
+            else
+                if (TargetCollision != null)
+                {
+                    foreach (CollisionObject o in TargetCollision._objects)
+                        o._render = RenderCollisions;
+                    for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
+                        leftPanel.lstObjects.SetItemChecked(i, RenderCollisions);
+                }
+            _updating = false;
         }
 
         protected override void OnLoad(EventArgs e)
