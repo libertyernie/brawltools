@@ -438,34 +438,34 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         #region Material linkage
-        public void EvalMaterials(ref string message)
-        {
-            if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-                if (OpaMaterialNode != null)
-                    message += Name + "\n";
-            if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-                if (XluMaterialNode != null)
-                    message += Name + "\n";
-        }
-        public void FixMaterials(ref string message)
-        {
-            if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-            {
-                if (OpaMaterialNode == null)
-                    OpaMaterialNode = XluMaterialNode;
-                else
-                    message += Name + "\n";
-                XluMaterialNode = null;
-            }
-            if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-            {
-                if (XluMaterialNode == null)
-                    XluMaterialNode = OpaMaterialNode;
-                else
-                    message += Name + "\n";
-                OpaMaterialNode = null;
-            }
-        }
+        //public void EvalMaterials(ref string message)
+        //{
+        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
+        //        if (OpaMaterialNode != null)
+        //            message += Name + "\n";
+        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
+        //        if (XluMaterialNode != null)
+        //            message += Name + "\n";
+        //}
+        //public void FixMaterials(ref string message)
+        //{
+        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
+        //    {
+        //        if (OpaMaterialNode == null)
+        //            OpaMaterialNode = XluMaterialNode;
+        //        else
+        //            message += Name + "\n";
+        //        XluMaterialNode = null;
+        //    }
+        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
+        //    {
+        //        if (XluMaterialNode == null)
+        //            XluMaterialNode = OpaMaterialNode;
+        //        else
+        //            message += Name + "\n";
+        //        OpaMaterialNode = null;
+        //    }
+        //}
 
         /// <summary>
         /// Does not signal a property change!
