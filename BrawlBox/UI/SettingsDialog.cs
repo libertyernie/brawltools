@@ -12,13 +12,12 @@ namespace BrawlBox
         static SettingsDialog()
         {
             foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
-            {
-                foreach (string s in info._extensions)
-                {
-                    _assocList.Add(FileAssociation.Get("." + s));
-                    _typeList.Add(FileType.Get("SSBB." + s.ToUpper()));
-                }
-            }
+                if (info._forEditing)
+                    foreach (string s in info._extensions)
+                    {
+                        _assocList.Add(FileAssociation.Get("." + s));
+                        _typeList.Add(FileType.Get("SSBB." + s.ToUpper()));
+                    }
         }
 
         private static List<FileAssociation> _assocList = new List<FileAssociation>();
