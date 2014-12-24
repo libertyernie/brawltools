@@ -250,34 +250,33 @@ namespace System.Windows.Forms
         {
             //Get the position of the midpoint of the bounding box plane closer to the camera
             Vector3 frontMidPt = new Vector3((max._x + min._x) / 2.0f, (max._y + min._y) / 2.0f, max._z);
-            float tan = (float)Math.Tan(_fovY / 2.0f * Maths._deg2radf);
+            float tan = (float)Math.Tan(_fovY / 2.0f * Maths._deg2radf), z = 0;
 
-            if (tan == 0) 
+            //The tangent value would only be 0 if the FOV was 0,
+            //meaning nothing would be visible anyway
+            if (tan != 0)
             {
-                //This would only happen if the FOV was 0
-                //meaning nothing would be visible anyway
-                _camera.Reset();
-                _camera.Translate(frontMidPt._x, frontMidPt._y, 0);
-                Invalidate();
-                return;
+                //Calculate lengths
+                float x = max._x - frontMidPt._x; //Distance from model midpoint to the top
+                float y = max._y - frontMidPt._y; //Distance from model midpoint to the camera's right
+                z = y / tan; //The camera's distance from the model's midpoint in respect to Y
+
+                //If the model's X distance is greater than the Y distance, use different ratio calculations
+                if (x > y && y != 0)
+                {
+                    //Apply X/Y ratio to distance to convert it to relate to X
+                    z *= (x / y);
+
+                    if (_aspect > 1.0f)
+                        z /= _aspect; //Apply aspect ratio in relation to X
+                }
+                else
+                    if (_aspect < 1.0f && _aspect != 0.0f)
+                        z /= _aspect; //Apply aspect ratio in relation to Y
             }
 
-            //Calculate lengths
-            float x = max._x - frontMidPt._x;
-            float y = max._y - frontMidPt._y;
-            float z = y / tan;
-
-            //Apply a ratio if the bounding box's half X is greater
-            //than the half Y value used to initially calculate the distance
-            if (x > y && y != 0)
-                z *= (x / y);
-
-            //Add the calculated distance to the front plane's distance
-            //and add two units for the edges
-            float totalZ = /*frontMidPt._z + */z + 2.0f; //This works better when that's commented out
-
             _camera.Reset();
-            _camera.Translate(frontMidPt._x, frontMidPt._y, totalZ);
+            _camera.Translate(frontMidPt._x, frontMidPt._y, z + 2.0f);
             Invalidate();
         }
 
