@@ -13,6 +13,7 @@ namespace BrawlLib.Modeling
         InfluenceManager Influences { get; }
         IBoneNode[] BoneCache { get; }
         IBoneNode[] RootBones { get; }
+        bool IsTargetModel { get; set; }
         
         void ResetToBindState();
         void ApplyCHR(CHR0Node node, float index);

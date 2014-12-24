@@ -435,16 +435,12 @@ namespace BrawlLib.Wii.Models
                     if (form != null)
                         form.Say("Calculating the size of the Materials - " + e.Name);
 
-                    e._entryIndex = index++;
-
-                    if (index == 1)
-                    {
-                        if ((temp = (e._mdlOffset = headerLen + tableLen + groupLen + texLen + defLen + boneLen).Align(0x10)) != e._mdlOffset)
-                            e._dataAlign = temp - e._mdlOffset;
-                    }
-                    else
+                    if (index != 0)
                         e._mdlOffset = (prev = ((MDL0MaterialNode)model._matList[index - 1]))._mdlOffset + prev._calcSize;
+                    else if ((temp = (e._mdlOffset = headerLen + tableLen + groupLen + texLen + defLen + boneLen).Align(0x10)) != e._mdlOffset)
+                        e._dataAlign = temp - e._mdlOffset;
 
+                    e._entryIndex = index++;
                     dataLen += e.CalculateSize(true);
                 }
             }
@@ -647,7 +643,7 @@ namespace BrawlLib.Wii.Models
                         *pData = 4; //Tag
                         *(bushort*)(pData + 1) = (ushort)poly.OpaMaterialNode._entryIndex;
                         *(bushort*)(pData + 3) = (ushort)poly._entryIndex;
-                        *(bushort*)(pData + 5) = (ushort)(poly.BoneNode != null ? poly.BoneNode.BoneIndex : 0);
+                        *(bushort*)(pData + 5) = (ushort)(poly.VisibilityBoneNode != null ? poly.VisibilityBoneNode.BoneIndex : 0);
                         pData[7] = poly.DrawPriority;
                         pData += 8; //Advance
                     }
@@ -672,7 +668,7 @@ namespace BrawlLib.Wii.Models
                         *pData = 4; //Tag
                         *(bushort*)(pData + 1) = (ushort)poly.XluMaterialNode._entryIndex;
                         *(bushort*)(pData + 3) = (ushort)poly._entryIndex;
-                        *(bushort*)(pData + 5) = (ushort)(poly.BoneNode != null ? poly.BoneNode.BoneIndex : 0);
+                        *(bushort*)(pData + 5) = (ushort)(poly.VisibilityBoneNode != null ? poly.VisibilityBoneNode.BoneIndex : 0);
                         pData[7] = poly.DrawPriority;
                         pData += 8; //Advance
                     }

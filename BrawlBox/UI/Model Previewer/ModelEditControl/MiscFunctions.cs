@@ -321,7 +321,7 @@ namespace System.Windows.Forms
                     List<int> indices = VIS0Indices[n];
                     for (int i = 0; i < indices.Count; i++)
                     {
-                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)leftPanel.lstObjects.Items[indices[i]])._bone.Name, true)) != null)
+                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)leftPanel.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
                         {
                             if (node._entryCount != 0 && _animFrame > 0)
                                 leftPanel.lstObjects.SetItemChecked(indices[i], node.GetEntry((int)_animFrame - 1));
@@ -527,78 +527,85 @@ namespace System.Windows.Forms
         public override void SaveSettings()
         {
             BrawlBox.Properties.Settings.Default.ViewerSettings = CollectSettings();
-            BrawlBox.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
-            BrawlBox.Properties.Settings.Default.LiveTextureFolderPath = LiveTextureFolderPath.Text;
             BrawlBox.Properties.Settings.Default.ViewerSettingsSet = true;
             BrawlBox.Properties.Settings.Default.Save();
         }
-        public BrawlBoxViewerSettings CollectSettings()
+        public ModelEditorSettings CollectSettings()
         {
-            BrawlBoxViewerSettings settings = new BrawlBoxViewerSettings();
-            settings._tag = BrawlBoxViewerSettings.Tag;
-            settings._version = 5;
+            ModelEditorSettings settings = new ModelEditorSettings()
+            {
+                RetrieveCorrAnims = syncAnimationsTogetherToolStripMenuItem.Checked,
+                DisplayExternalAnims = chkExternalAnims.Checked,
+                DisplayBRRESAnims = chkBRRESAnims.Checked,
+                DisplayNonBRRESAnims = chkNonBRRESAnims.Checked,
+                SyncTexToObj = syncTexObjToolStripMenuItem.Checked,
+                SyncObjToVIS0 = syncObjectsListToVIS0ToolStripMenuItem.Checked,
+                DisableBonesOnPlay = disableBonesWhenPlayingToolStripMenuItem.Checked,
+                GenTansCHR = chkGenTansCHR.Checked,
+                GenTansSRT = chkGenTansSRT.Checked,
+                GenTansSHP = chkGenTansSHP.Checked,
+                GenTansLight = chkGenTansLight.Checked,
+                GenTansFog = chkGenTansFog.Checked,
+                GenTansCam = chkGenTansCamera.Checked,
+                FlatBoneList = rightPanel.pnlBones.chkFlat.Checked,
+                BoneListContains = rightPanel.pnlBones.chkContains.Checked,
+                SnapToColl = chkSnapToColl.Checked,
+                Maximize = chkMaximize.Checked,
 
-            settings.RetrieveCorrAnims = syncAnimationsTogetherToolStripMenuItem.Checked;
-            settings.DisplayExternalAnims = chkExternalAnims.Checked;
-            settings.DisplayBRRESAnims = chkBRRESAnims.Checked;
-            settings.DisplayNonBRRESAnims = chkNonBRRESAnims.Checked;
-            settings.SyncTexToObj = syncTexObjToolStripMenuItem.Checked;
-            settings.SyncObjToVIS0 = syncObjectsListToVIS0ToolStripMenuItem.Checked;
-            settings.DisableBonesOnPlay = disableBonesWhenPlayingToolStripMenuItem.Checked;
+                _orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor,
+                _lineColor = (ARGBPixel)MDL0BoneNode.DefaultLineColor,
+                _lineDeselectedColor = (ARGBPixel)MDL0BoneNode.DefaultLineDeselectedColor,
+                _floorColor = (ARGBPixel)_floorHue,
 
-            settings.RightPanelWidth = (uint)rightPanel.Width;
-            //settings._defaultCam = ModelPanel.DefaultTranslate;
-            //settings._defaultRot = ModelPanel.DefaultRotate;
-            //settings._amb = ModelPanel.Ambient;
-            //settings._pos = ModelPanel.LightPosition;
-            //settings._diff = ModelPanel.Diffuse;
-            //settings._spec = ModelPanel.Specular;
-            //settings._yFov = ModelPanel._fovY;
-            //settings._nearZ = ModelPanel._nearZ;
-            //settings._farz = ModelPanel._farZ;
-            //settings._tScale = ModelPanel.TranslationScale;
-            //settings._rScale = ModelPanel.RotationScale;
-            //settings._zScale = ModelPanel.ZoomScale;
-            //settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
-            //settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultBoneColor;
-            //settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
-            settings._undoCount = (uint)_allowedUndos;
-            settings._shaderCount = 0;
-            settings._matCount = 0;
-            //settings._emis = ModelPanel.Emission;
+                _undoCount = (uint)_allowedUndos,
+                _imageCapFmt = _imgExtIndex,
+                _rightPanelWidth = (uint)rightPanel.Width,
 
-            settings.FlatBoneList = rightPanel.pnlBones.chkFlat.Checked;
-            settings.BoneListContains = rightPanel.pnlBones.chkContains.Checked;
-            settings.SnapToColl = chkSnapToColl.Checked;
-            settings.Maximize = chkMaximize.Checked;
-            //settings.CameraSet = btnSaveCam.Text == "Clear Camera";
-            settings.ImageCapFmt = _imgExtIndex;
+                _screenCapPath = ScreenCapBgLocText.Text,
+                _liveTexFolderPath = LiveTextureFolderPath.Text,
 
-            //settings.Bones = _renderBones;
-            //settings.Polys = _renderPolygons;
-            //settings.Wireframe = _renderWireframe;
-            //settings.Vertices = _renderVertices;
-            //settings.Normals = _renderNormals;
-            //settings.HideOffscreen = _dontRenderOffscreen;
-            //settings.BoundingBox = _renderBox;
-            //settings.Floor = _renderFloor;
+                _viewports = new List<ModelEditorViewportEntry>(),
+            };
+            //foreach (ModelPanel panel in panels)
+            {
+                ModelPanel panel = this.ModelPanel;
+                ModelEditorViewportEntry e = new ModelEditorViewportEntry();
 
-            //settings.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
-            //settings.OrthoCam = orthographicToolStripMenuItem.Checked;
-            //settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
-            //settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
+                e.CameraSet = btnSaveCam.Text == "Clear Camera";
 
-            settings.GenTansCHR = chkGenTansCHR.Checked;
-            settings.GenTansSRT = chkGenTansSRT.Checked;
-            settings.GenTansSHP = chkGenTansSHP.Checked;
-            settings.GenTansLight = chkGenTansLight.Checked;
-            settings.GenTansFog = chkGenTansFog.Checked;
-            settings.GenTansCam = chkGenTansCamera.Checked;
+                e._defaultCam = ModelPanel.DefaultTranslate;
+                e._defaultRot = ModelPanel.DefaultRotate;
+                e._amb = ModelPanel.Ambient;
+                e._pos = ModelPanel.LightPosition;
+                e._diff = ModelPanel.Diffuse;
+                e._spec = ModelPanel.Specular;
+                e._emis = ModelPanel.Emission;
+                e._yFov = ModelPanel._fovY;
+                e._nearZ = ModelPanel._nearZ;
+                e._farz = ModelPanel._farZ;
+                e._tScale = ModelPanel.TranslationScale;
+                e._rScale = ModelPanel.RotationScale;
+                e._zScale = ModelPanel.ZoomScale;
+
+                e.Bones = panel.RenderBones;
+                e.Polys = panel.RenderPolygons;
+                e.Wireframe = panel.RenderWireframe;
+                e.Vertices = panel.RenderVertices;
+                e.Normals = panel.RenderNormals;
+                e.HideOffscreen = panel.DontRenderOffscreen;
+                e.BoundingBox = panel.RenderBox;
+                e.Floor = panel.RenderFloor;
+
+                e.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
+                //e.OrthoCam = orthographicToolStripMenuItem.Checked;
+                e.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+                e.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
+            }
 
             return settings;
         }
-        public override void SetDefaultSettings() { DistributeSettings(BrawlBoxViewerSettings.Default); }
-        public void DistributeSettings(BrawlBoxViewerSettings settings)
+        public override void SetDefaultSettings() { DistributeSettings(ModelEditorSettings.Default); }
+        public void DistributeSettings(ModelEditorSettings settings)
         {
             _updating = true;
             ModelPanel.BeginUpdate();
@@ -615,55 +622,17 @@ namespace System.Windows.Forms
             rightPanel.pnlBones.chkFlat.Checked = settings.FlatBoneList;
             rightPanel.pnlBones.chkContains.Checked = settings.BoneListContains;
 
-            int w = (int)settings.RightPanelWidth;
+            MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
+            MDL0BoneNode.DefaultLineColor = (Color)settings._lineColor;
+            MDL0BoneNode.DefaultLineDeselectedColor = (Color)settings._lineDeselectedColor;
+            _floorHue = (Color)settings._floorColor;
+
+            int w = (int)settings._rightPanelWidth;
             if (w >= 50)
                 rightPanel.Width = w;
 
-            //ModelPanel.Ambient = settings._amb;
-            //ModelPanel.LightPosition = settings._pos;
-            //ModelPanel.Diffuse = settings._diff;
-            //ModelPanel.Specular = settings._spec;
-            //ModelPanel.Emission = settings._emis;
-
-            //ModelPanel._fovY = settings._yFov;
-            //ModelPanel._nearZ = settings._nearZ;
-            //ModelPanel._farZ = settings._farz;
-
-            //ModelPanel.ZoomScale = settings._zScale;
-            //ModelPanel.TranslationScale = settings._tScale;
-            //ModelPanel.RotationScale = settings._rScale;
-
-            //MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
-            //MDL0BoneNode.DefaultBoneColor = (Color)settings._lineColor;
-            //StaticMainWindow._floorHue = (Color)settings._floorColor;
-            //if (settings.CameraSet)
-            //{
-            //    btnSaveCam.Text = "Clear Camera";
-            //    ModelPanel.DefaultTranslate = settings._defaultCam;
-            //    ModelPanel.DefaultRotate = settings._defaultRot;
-            //}
-            //else
-            //{
-            //    btnSaveCam.Text = "Save Camera";
-            //    ModelPanel.DefaultTranslate = new Vector3();
-            //    ModelPanel.DefaultRotate = new Vector2();
-            //}
-
             _allowedUndos = settings._undoCount;
-            ImgExtIndex = settings.ImageCapFmt;
-
-            //RenderBones = settings.Bones;
-            //RenderWireframe = settings.Wireframe;
-            //RenderPolygons = settings.Polys;
-            //RenderVertices = settings.Vertices;
-            //RenderBox = settings.BoundingBox;
-            //RenderNormals = settings.Normals;
-            //DontRenderOffscreen = settings.HideOffscreen;
-            //RenderFloor = settings.Floor;
-
-            //showCameraCoordinatesToolStripMenuItem.Checked = settings.ShowCamCoords;
-            //enablePointAndLineSmoothingToolStripMenuItem.Checked = settings.EnableSmoothing;
-            //enableTextOverlaysToolStripMenuItem.Checked = settings.EnableText;
+            ImgExtIndex = settings._imageCapFmt;
 
             chkGenTansCHR.Checked = settings.GenTansCHR;
             chkGenTansSRT.Checked = settings.GenTansSRT;
@@ -672,6 +641,66 @@ namespace System.Windows.Forms
             chkGenTansFog.Checked = settings.GenTansFog;
             chkGenTansCamera.Checked = settings.GenTansCam;
 
+            string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+
+            string t = settings._screenCapPath;
+            ScreenCapBgLocText.Text = !String.IsNullOrEmpty(t) ? t : applicationFolder + "\\ScreenCaptures";
+
+            t = settings._liveTexFolderPath;
+            LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = !String.IsNullOrEmpty(t) ? t : applicationFolder;
+           
+            EnableLiveTextureFolder.Checked = MDL0TextureNode._folderWatcher.EnableRaisingEvents;
+
+            foreach (ModelEditorViewportEntry s in settings._viewports)
+            {
+                //Set to each model panel in the future
+                ModelPanel panel = this.ModelPanel;
+
+                panel.Ambient = s._amb;
+                panel.LightPosition = s._pos;
+                panel.Diffuse = s._diff;
+                panel.Specular = s._spec;
+                panel.Emission = s._emis;
+
+                panel._fovY = s._yFov;
+                panel._nearZ = s._nearZ;
+                panel._farZ = s._farz;
+
+                panel.ZoomScale = s._zScale;
+                panel.TranslationScale = s._tScale;
+                panel.RotationScale = s._rScale;
+
+                if (s.CameraSet)
+                {
+                    btnSaveCam.Text = "Clear Camera";
+                    panel.DefaultTranslate = s._defaultCam;
+                    panel.DefaultRotate = s._defaultRot;
+                }
+                else
+                {
+                    btnSaveCam.Text = "Save Camera";
+                    ModelPanel.DefaultTranslate = new Vector3();
+                    ModelPanel.DefaultRotate = new Vector3();
+                }
+
+                panel.RenderBones = s.Bones;
+                panel.RenderWireframe = s.Wireframe;
+                panel.RenderPolygons = s.Polys;
+                panel.RenderVertices = s.Vertices;
+                panel.RenderBox = s.BoundingBox;
+                panel.RenderNormals = s.Normals;
+                panel.DontRenderOffscreen = s.HideOffscreen;
+                panel.RenderFloor = s.Floor;
+
+                //Render collisions?
+
+                //This won't work like this when multiple viewports are implemented
+                showCameraCoordinatesToolStripMenuItem.Checked = s.ShowCamCoords;
+                enablePointAndLineSmoothingToolStripMenuItem.Checked = s.EnableSmoothing;
+                enableTextOverlaysToolStripMenuItem.Checked = s.EnableText;
+
+                break; //Remove later
+            }
             ModelPanel.EndUpdate();
             _updating = false;
         }

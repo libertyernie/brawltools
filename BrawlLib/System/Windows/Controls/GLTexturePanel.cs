@@ -63,6 +63,11 @@ namespace System.Windows.Forms
             GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", CreateBG);
             bgTex.Bind();
 
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
             //Draw BG
             float s = (float)width / (float)bgTex.Width, t = (float)height / (float)bgTex.Height;
 

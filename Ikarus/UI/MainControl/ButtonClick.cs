@@ -218,14 +218,14 @@ namespace Ikarus.UI
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                modelPanel.DefaultRotate = new Vector2(modelPanel.Camera.Rotation._x, modelPanel.Camera.Rotation._y);
+                modelPanel.DefaultRotate = modelPanel.Camera._rotation;
                 modelPanel.DefaultTranslate = modelPanel.Camera._matrixInverse.Multiply(new Vector3());
 
                 btnSaveCam.Text = "Clear Camera";
             }
             else
             {
-                modelPanel.DefaultRotate = new Vector2();
+                modelPanel.DefaultRotate = new Vector3();
                 modelPanel.DefaultTranslate = new Vector3();
 
                 btnSaveCam.Text = "Save Camera";
@@ -275,8 +275,8 @@ namespace Ikarus.UI
         {            
             try
             {
-                BrawlBoxViewerSettings settings = new BrawlBoxViewerSettings();
-                settings._tag = BrawlBoxViewerSettings.Tag;
+                ModelEditorSettings settings = new ModelEditorSettings();
+                settings._tag = ModelEditorSettings.Tag;
                 settings._version = 2;
                 settings._defaultCam = modelPanel.DefaultTranslate;
                 settings._defaultRot = modelPanel.DefaultRotate;
@@ -291,7 +291,7 @@ namespace Ikarus.UI
                 settings._rScale = modelPanel.RotationScale;
                 settings._zScale = modelPanel.ZoomScale;
                 settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
-                settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultBoneColor;
+                settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultLineColor;
                 settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
                 //settings.SetFlags1(
                 //    syncAnimationsTogetherToolStripMenuItem.Checked,
@@ -306,7 +306,7 @@ namespace Ikarus.UI
                 settings._shaderCount = 0;
                 settings._matCount = 0;
                 settings._emis = modelPanel.Emission;
-                settings.ImageCapFmt = _imgExtIndex;
+                settings._imageCapFmt = _imgExtIndex;
                 settings.Bones = _renderBones;
                 settings.Polys = _renderPolygons;
                 settings.Wireframe = _renderWireframe;

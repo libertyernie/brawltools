@@ -92,28 +92,11 @@ namespace BrawlBox
         {
             BrawlBox.Properties.Settings settings = BrawlBox.Properties.Settings.Default;
 
-            string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            ModelEditorSettings viewerSettings = settings.ViewerSettingsSet ? settings.ViewerSettings : ModelEditorSettings.Default;
 
-            string t = settings.ScreenCapBgLocText;
-            if (!String.IsNullOrEmpty(t))
-                modelEditControl1.ScreenCapBgLocText.Text = t;
-            else
-                modelEditControl1.ScreenCapBgLocText.Text = applicationFolder + "\\ScreenCaptures";
-
-            t = settings.LiveTextureFolderPath;
-            if (!String.IsNullOrEmpty(t))
-                modelEditControl1.LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = t;
-            else
-                modelEditControl1.LiveTextureFolderPath.Text = MDL0TextureNode.TextureOverrideDirectory = applicationFolder;
-
-            modelEditControl1.EnableLiveTextureFolder.Checked = MDL0TextureNode._folderWatcher.EnableRaisingEvents;
-
-            BrawlBoxViewerSettings? s = settings.ViewerSettingsSet ? settings.ViewerSettings : BrawlBoxViewerSettings.Default;
-
-            if (s == null)
+            if (viewerSettings == null)
                 return;
 
-            BrawlBoxViewerSettings viewerSettings = (BrawlBoxViewerSettings)s;
             modelEditControl1.DistributeSettings(viewerSettings);
             modelEditControl1.ModelPanel.ResetCamera();
 

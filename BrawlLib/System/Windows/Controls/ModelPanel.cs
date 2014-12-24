@@ -14,21 +14,17 @@ using System.IO;
 
 namespace System.Windows.Forms
 {
-    public delegate void GLRenderEventHandler(GLPanel sender);
-
     public class ModelPanelSettings
     {
         public float _rotFactor = 0.4f;
         public float _transFactor = 0.05f;
         public float _zoomFactor = 2.5f;
-        public int _zoomInit = 5;
-        public int _yInit = 100;
         public float _viewDistance = 5.0f;
         public float _spotCutoff = 180.0f;
         public float _spotExponent = 100.0f;
 
         public Vector3 _defaultTranslate;
-        public Vector2 _defaultRotate;
+        public Vector3 _defaultRotate;
         
         public List<ResourceNode> _resourceList = new List<ResourceNode>();
         public List<IRenderedObject> _renderList = new List<IRenderedObject>();
@@ -42,11 +38,12 @@ namespace System.Windows.Forms
 
         public ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
         public bool _renderFloor;
-        public bool _renderCollisions;
     }
 
     public unsafe class ModelPanel : GLPanel
     {
+        public List<ModelPanelSettings> _viewports = new List<ModelPanelSettings>();
+
         public ModelPanelSettings _settings = new ModelPanelSettings();
 
         public bool _grabbing = false;
@@ -59,13 +56,11 @@ namespace System.Windows.Forms
         public float RotationScale { get { return _settings._rotFactor; } set { _settings._rotFactor = value; } }
         public float TranslationScale { get { return _settings._transFactor; } set { _settings._transFactor = value; } }
         public float ZoomScale { get { return _settings._zoomFactor; } set { _settings._zoomFactor = value; } }
-        public int InitialZoomFactor { get { return _settings._zoomInit; } set { _settings._zoomInit = value; } }
-        public int InitialYFactor { get { return _settings._yInit; } set { _settings._yInit = value; } }
 
         [TypeConverter(typeof(Vector3StringConverter))]
         public Vector3 DefaultTranslate { get { return _settings._defaultTranslate; } set { _settings._defaultTranslate = value; } }
         [TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 DefaultRotate { get { return _settings._defaultRotate; } set { _settings._defaultRotate = value; } }
+        public Vector3 DefaultRotate { get { return _settings._defaultRotate; } set { _settings._defaultRotate = value; } }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool Selecting { get { return _selecting; } }
@@ -177,195 +172,6 @@ namespace System.Windows.Forms
             MDL0TextureNode._folderWatcher.Deleted -= _folderWatcher_Changed;
             MDL0TextureNode._folderWatcher.Renamed -= _folderWatcher_Renamed;
             MDL0TextureNode._folderWatcher.Error -= _folderWatcher_Error;
-        }
-
-        protected override void AfterRender()
-        {
-            //Render selection overlay and/or text overlays
-            if ((_selecting && _allowSelection) || _text.Count != 0)
-            {
-                GL.Color4(Color.White);
-
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Disable(EnableCap.DepthTest);
-                GL.Disable(EnableCap.Lighting);
-                GL.Disable(EnableCap.CullFace);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                GL.MatrixMode(MatrixMode.Projection);
-                GL.PushMatrix();
-                GL.LoadIdentity();
-                Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
-                GL.LoadMatrix((float*)&p);
-
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.PushMatrix();
-                GL.LoadIdentity();
-
-                if (_text.Count != 0 && _textEnabled)
-                    _text.Draw();
-
-                if (_selecting && _allowSelection)
-                    RenderSelection();
-
-                GL.PopAttrib();
-
-                GL.PopMatrix();
-                GL.MatrixMode(MatrixMode.Projection);
-                GL.PopMatrix();
-
-                //Clear text values
-                //This will be filled until the next render
-                _text.Clear();
-            }
-        }
-
-        protected override void BeforeRender()
-        {
-            //Render background image
-            if (BackgroundImage != null)
-                RenderBackground();
-            else if (_updateImage && _bgImage != null)
-            {
-                _bgImage.Delete();
-                _bgImage = null;
-                _updateImage = false;
-            }
-
-            if (_bgColorChanged)
-            {
-                Vector3 v = (Vector3)BackColor;
-                GL.ClearColor(v._x, v._y, v._z, 0.0f);
-                _bgColorChanged = false;
-            }
-        }
-
-        private void RenderBackground()
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            GL.Disable(EnableCap.DepthTest);
-            GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.CullFace);
-
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PushMatrix();
-            GL.LoadIdentity();
-            Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
-            GL.LoadMatrix((float*)&p);
-
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.PushMatrix();
-            GL.LoadIdentity();
-
-            GL.Color4(Color.White);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-            GL.Enable(EnableCap.Texture2D);
-
-            if (_updateImage)
-            {
-                if (_bgImage != null)
-                {
-                    _bgImage.Delete();
-                    _bgImage = null;
-                }
-
-                GL.ClearColor(Color.Black);
-
-                Bitmap bmp = BackgroundImage as Bitmap;
-
-                _bgImage = new GLTexture(bmp);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, 1);
-                _bgImage.Bind();
-
-                _updateImage = false;
-            }
-            else
-                GL.BindTexture(TextureTarget.Texture2D, _bgImage._texId);
-
-            float* points = stackalloc float[8];
-            float tAspect = (float)_bgImage.Width / _bgImage.Height;
-            float wAspect = (float)Width / Height;
-
-            switch (_bgType)
-            {
-                case BGImageType.Stretch:
-
-                    points[0] = points[1] = points[3] = points[6] = 0.0f;
-                    points[2] = points[4] = Width;
-                    points[5] = points[7] = Height;
-
-                    break;
-
-                case BGImageType.Center:
-
-                    if (tAspect > wAspect)
-                    {
-                        points[1] = points[3] = 0.0f;
-                        points[5] = points[7] = Height;
-
-                        points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
-                        points[2] = points[4] = Width - points[0];
-                    }
-                    else
-                    {
-                        points[0] = points[6] = 0.0f;
-                        points[2] = points[4] = Width;
-
-                        points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
-                        points[5] = points[7] = Height - points[1];
-                    }
-                    break;
-
-                case BGImageType.ResizeWithBars:
-
-                    if (tAspect > wAspect)
-                    {
-                        points[0] = points[6] = 0.0f;
-                        points[2] = points[4] = Width;
-
-                        points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
-                        points[5] = points[7] = Height - points[1];
-                    }
-                    else
-                    {
-                        points[1] = points[3] = 0.0f;
-                        points[5] = points[7] = Height;
-
-                        points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
-                        points[2] = points[4] = Width - points[0];
-                    }
-
-                    break;
-            }
-
-            GL.Begin(PrimitiveType.Quads);
-
-            GL.TexCoord2(0.0f, 0.0f);
-            GL.Vertex2(&points[0]);
-            GL.TexCoord2(1.0f, 0.0f);
-            GL.Vertex2(&points[2]);
-            GL.TexCoord2(1.0f, 1.0f);
-            GL.Vertex2(&points[4]);
-            GL.TexCoord2(0.0f, 1.0f);
-            GL.Vertex2(&points[6]);
-
-            GL.End();
-
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MatTextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MatTextureMagFilter.Nearest);
-
-            GL.Disable(EnableCap.Texture2D);
-            GL.Enable(EnableCap.DepthTest);
-            GL.Enable(EnableCap.Lighting);
-
-            GL.PopMatrix();
-            GL.MatrixMode(MatrixMode.Projection);
-            GL.PopMatrix();
         }
 
         public override Image BackgroundImage
@@ -848,9 +654,15 @@ namespace System.Windows.Forms
             float r = _settings._position._x;
             float azimuth = _settings._position._y * Maths._deg2radf;
             float elevation = 360.0f - (_settings._position._z * Maths._deg2radf);
-            
-            Vector4 PositionLight = new Vector4(r * (float)Math.Cos(azimuth) * (float)Math.Sin(elevation), r * (float)Math.Cos(elevation), r * (float)Math.Sin(azimuth) * (float)Math.Sin(elevation), 1);
-            Vector4 SpotDirectionLight = new Vector4(-(float)Math.Cos(azimuth) * (float)Math.Sin(elevation), -(float)Math.Cos(elevation), -(float)Math.Sin(azimuth) * (float)Math.Sin(elevation), 1);
+
+            float
+                cosElev = (float)Math.Cos(elevation),
+                sinElev = (float)Math.Sin(elevation),
+                cosAzi = (float)Math.Cos(azimuth),
+                sinAzi = (float)Math.Sin(azimuth);
+
+            Vector4 PositionLight = new Vector4(r * cosAzi * sinElev, r * cosElev, r * sinAzi * sinElev, 1);
+            Vector4 SpotDirectionLight = new Vector4(-cosAzi * sinElev, -cosElev, -sinAzi * sinElev, 1);
             
             GL.Light(LightName.Light0, LightParameter.Position, (float*)&PositionLight);
             GL.Light(LightName.Light0, LightParameter.SpotDirection, (float*)&SpotDirectionLight);
@@ -932,6 +744,8 @@ namespace System.Windows.Forms
         }
         protected internal override void OnRender(PaintEventArgs e)
         {
+            BeforeRender();
+
             if (_showCamCoords)
             {
                 Vector3 v = _camera.GetPoint().Round(3);
@@ -941,7 +755,7 @@ namespace System.Windows.Forms
 
             if (_bgImage == null)
                 GL.Clear(ClearBufferMask.DepthBufferBit | ClearBufferMask.ColorBufferBit);
-            
+
             RecalcLight();
 
             if (PreRender != null)
@@ -952,6 +766,203 @@ namespace System.Windows.Forms
 
             if (PostRender != null)
                 PostRender(this);
+
+            AfterRender();
+        }
+
+        protected void AfterRender()
+        {
+            //Render selection overlay and/or text overlays
+            if ((_selecting && _allowSelection) || _text.Count != 0)
+            {
+                GL.Color4(Color.White);
+
+                GL.PushAttrib(AttribMask.AllAttribBits);
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                    GL.Disable(EnableCap.Lighting);
+                    GL.Disable(EnableCap.CullFace);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                    GL.MatrixMode(MatrixMode.Projection);
+                    GL.PushMatrix();
+                    {
+                        GL.LoadIdentity();
+                        Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
+                        GL.LoadMatrix((float*)&p);
+
+                        GL.MatrixMode(MatrixMode.Modelview);
+                        GL.PushMatrix();
+                        {
+                            GL.LoadIdentity();
+
+                            if (_text.Count != 0 && _textEnabled)
+                                _text.Draw();
+
+                            if (_selecting && _allowSelection)
+                                RenderSelection();
+                        }
+                        GL.PopMatrix();
+                    }
+                    GL.MatrixMode(MatrixMode.Projection);
+                    GL.PopMatrix();
+                }
+                GL.PopAttrib();
+
+                //Clear text values
+                //This will be filled until the next render
+                _text.Clear();
+            }
+        }
+
+        protected void BeforeRender()
+        {
+            //Render background image
+            if (BackgroundImage != null)
+                RenderBackground();
+            else if (_updateImage && _bgImage != null)
+            {
+                _bgImage.Delete();
+                _bgImage = null;
+                _updateImage = false;
+            }
+
+            if (_bgColorChanged)
+            {
+                Vector3 v = (Vector3)BackColor;
+                GL.ClearColor(v._x, v._y, v._z, 0.0f);
+                _bgColorChanged = false;
+            }
+        }
+
+        private void RenderBackground()
+        {
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            GL.Disable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.CullFace);
+
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PushMatrix();
+            {
+                GL.LoadIdentity();
+                Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
+                GL.LoadMatrix((float*)&p);
+
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.PushMatrix();
+                {
+                    GL.LoadIdentity();
+
+                    GL.Color4(Color.White);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                    GL.Enable(EnableCap.Texture2D);
+
+                    if (_updateImage)
+                    {
+                        if (_bgImage != null)
+                        {
+                            _bgImage.Delete();
+                            _bgImage = null;
+                        }
+
+                        GL.ClearColor(Color.Black);
+
+                        Bitmap bmp = BackgroundImage as Bitmap;
+
+                        _bgImage = new GLTexture(bmp);
+                        GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.GenerateMipmap, 1);
+                        _bgImage.Bind();
+
+                        _updateImage = false;
+                    }
+                    else
+                        GL.BindTexture(TextureTarget.Texture2D, _bgImage._texId);
+
+                    float* points = stackalloc float[8];
+                    float tAspect = (float)_bgImage.Width / _bgImage.Height;
+                    float wAspect = (float)Width / Height;
+
+                    switch (_bgType)
+                    {
+                        case BGImageType.Stretch:
+
+                            points[0] = points[1] = points[3] = points[6] = 0.0f;
+                            points[2] = points[4] = Width;
+                            points[5] = points[7] = Height;
+
+                            break;
+
+                        case BGImageType.Center:
+
+                            if (tAspect > wAspect)
+                            {
+                                points[1] = points[3] = 0.0f;
+                                points[5] = points[7] = Height;
+
+                                points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
+                                points[2] = points[4] = Width - points[0];
+                            }
+                            else
+                            {
+                                points[0] = points[6] = 0.0f;
+                                points[2] = points[4] = Width;
+
+                                points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
+                                points[5] = points[7] = Height - points[1];
+                            }
+                            break;
+
+                        case BGImageType.ResizeWithBars:
+
+                            if (tAspect > wAspect)
+                            {
+                                points[0] = points[6] = 0.0f;
+                                points[2] = points[4] = Width;
+
+                                points[1] = points[3] = Height * (((Height - ((float)Width / _bgImage.Width * _bgImage.Height))) / Height / 2.0f);
+                                points[5] = points[7] = Height - points[1];
+                            }
+                            else
+                            {
+                                points[1] = points[3] = 0.0f;
+                                points[5] = points[7] = Height;
+
+                                points[0] = points[6] = Width * ((Width - ((float)Height / _bgImage.Height * _bgImage.Width)) / Width / 2.0f);
+                                points[2] = points[4] = Width - points[0];
+                            }
+
+                            break;
+                    }
+
+                    GL.Begin(PrimitiveType.Quads);
+
+                    GL.TexCoord2(0.0f, 0.0f);
+                    GL.Vertex2(&points[0]);
+                    GL.TexCoord2(1.0f, 0.0f);
+                    GL.Vertex2(&points[2]);
+                    GL.TexCoord2(1.0f, 1.0f);
+                    GL.Vertex2(&points[4]);
+                    GL.TexCoord2(0.0f, 1.0f);
+                    GL.Vertex2(&points[6]);
+
+                    GL.End();
+
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)MatTextureMinFilter.Nearest);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)MatTextureMagFilter.Nearest);
+
+                    GL.Disable(EnableCap.Texture2D);
+                    GL.Enable(EnableCap.DepthTest);
+                    GL.Enable(EnableCap.Lighting);
+                }
+                GL.PopMatrix();
+            }
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.PopMatrix();
         }
 
         public Bitmap GetScreenshot(bool withTransparency)
@@ -973,7 +984,8 @@ namespace System.Windows.Forms
             return bmp;
         }
 
-        public event EventHandler
+        public delegate void RenderStateEvent(ModelPanel panel, bool value);
+        public event RenderStateEvent
             RenderFloorChanged,
             RenderBonesChanged,
             RenderBoxChanged,
@@ -981,7 +993,6 @@ namespace System.Windows.Forms
             RenderVerticesChanged,
             RenderNormalsChanged,
             RenderPolygonsChanged,
-            RenderCollisionsChanged,
             RenderWireframeChanged;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -990,14 +1001,12 @@ namespace System.Windows.Forms
             get { return _settings._renderFloor; }
             set
             {
-                //chkFloor.Checked = toggleFloor.Checked = false;
-
                 _settings._renderFloor = value;
 
                 Invalidate();
 
                 if (RenderFloorChanged != null)
-                    RenderFloorChanged(this, EventArgs.Empty);
+                    RenderFloorChanged(this, value);
             }
         }
 
@@ -1007,19 +1016,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderBones; }
             set
             {
-                //chkBones.Checked = toggleBones.Checked = false;
                 _settings._renderAttrib._renderBones = value;
-
-                //if (_editingAll)
-                //    foreach (MDL0Node m in _targetModels)
-                //        m._renderBones = _renderBones;
-                //else if (TargetModel != null)
-                //    TargetModel._renderBones = _renderBones;
 
                 Invalidate();
 
                 if (RenderBonesChanged != null)
-                    RenderBonesChanged(this, EventArgs.Empty);
+                    RenderBonesChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1028,20 +1030,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderVertices; }
             set
             {
-                //chkVertices.Checked = toggleVertices.Checked = false;
                 _settings._renderAttrib._renderVertices = value;
-
-                //if (_editingAll)
-                //    foreach (MDL0Node m in _targetModels)
-                //        m._renderVertices = _renderVertices;
-                //else
-                //    if (TargetModel != null)
-                //        TargetModel._renderVertices = _renderVertices;
 
                 Invalidate();
 
                 if (RenderVerticesChanged != null)
-                    RenderVerticesChanged(this, EventArgs.Empty);
+                    RenderVerticesChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1050,20 +1044,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderNormals; }
             set
             {
-                //toggleNormals.Checked = false;
                 _settings._renderAttrib._renderNormals = value;
-
-                //if (_editingAll)
-                //    foreach (MDL0Node m in _targetModels)
-                //        m._renderNormals = _renderNormals;
-                //else
-                //    if (TargetModel != null)
-                //        TargetModel._renderNormals = _renderNormals;
 
                 Invalidate();
 
                 if (RenderNormalsChanged != null)
-                    RenderNormalsChanged(this, EventArgs.Empty);
+                    RenderNormalsChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1072,47 +1058,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderPolygons; }
             set
             {
-                //chkPolygons.Checked = togglePolygons.Checked = false;
                 _settings._renderAttrib._renderPolygons = value;
-
-                //if (_editingAll)
-                //    foreach (MDL0Node m in _targetModels)
-                //        m._renderPolygons = _renderPolygons;
-                //else if (TargetModel != null)
-                //    TargetModel._renderPolygons = _renderPolygons;
 
                 Invalidate();
 
                 if (RenderPolygonsChanged != null)
-                    RenderPolygonsChanged(this, EventArgs.Empty);
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderCollisions
-        {
-            get { return _settings._renderCollisions; }
-            set
-            {
-                //chkCollisions.Checked = toggleCollisions.Checked = false;
-                _settings._renderCollisions = value;
-
-                //if (_editingAll)
-                //    foreach (CollisionNode m in _collisions)
-                //        foreach (CollisionObject o in m._objects)
-                //            o._render = _renderCollisions;
-                //else
-                //    if (TargetCollision != null)
-                //    {
-                //        foreach (CollisionObject o in TargetCollision._objects)
-                //            o._render = _renderCollisions;
-                //        for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
-                //            leftPanel.lstObjects.SetItemChecked(i, _renderCollisions);
-                //    }
-
-                Invalidate();
-
-                if (RenderCollisionsChanged != null)
-                    RenderCollisionsChanged(this, EventArgs.Empty);
+                    RenderPolygonsChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1121,13 +1072,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderWireframe; }
             set
             {
-                //wireframeToolStripMenuItem.Checked = false;
                 _settings._renderAttrib._renderWireframe = value;
 
                 Invalidate();
 
                 if (RenderWireframeChanged != null)
-                    RenderWireframeChanged(this, EventArgs.Empty);
+                    RenderWireframeChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1136,13 +1086,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._renderBox; }
             set
             {
-                //boundingBoxToolStripMenuItem.Checked = false;
                 _settings._renderAttrib._renderBox = value;
 
                 Invalidate();
 
                 if (RenderBoxChanged != null)
-                    RenderBoxChanged(this, EventArgs.Empty);
+                    RenderBoxChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1151,13 +1100,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._dontRenderOffscreen; }
             set
             {
-                //chkDontRenderOffscreen.Checked = false;
                 _settings._renderAttrib._dontRenderOffscreen = value;
 
                 Invalidate();
 
                 if (RenderOffscreenChanged != null)
-                    RenderOffscreenChanged(this, EventArgs.Empty);
+                    RenderOffscreenChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1166,13 +1114,12 @@ namespace System.Windows.Forms
             get { return _settings._renderAttrib._applyBillboardBones; }
             set
             {
-                //boundingBoxToolStripMenuItem.Checked = false;
                 _settings._renderAttrib._applyBillboardBones = value;
 
                 Invalidate();
 
                 if (RenderBoxChanged != null)
-                    RenderBoxChanged(this, EventArgs.Empty);
+                    RenderBoxChanged(this, value);
             }
         }
 

@@ -38,6 +38,10 @@ namespace System.Windows.Forms
                 m.Unbind();
 
             _attached.Clear();
+
+            if (_currentTextureNode == null)
+                return;
+
             _attached.AddRange(_currentTextureNode._references);
 
             foreach (MDL0MaterialRefNode m in _attached)
@@ -91,54 +95,57 @@ namespace System.Windows.Forms
             _projectionInverse = Matrix.ReverseOrthographicMatrix(-0.5f, 0.5f, -0.5f, 0.5f, -0.1f, 1.0f);
         }
 
-        protected override void BeforeRender()
+        protected void BeforeRender()
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             GL.MatrixMode(MatrixMode.Projection);
             GL.PushMatrix();
-            GL.LoadIdentity();
-            Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
-            GL.LoadMatrix((float*)&p);
+            {
+                GL.LoadIdentity();
+                Matrix p = Matrix.OrthographicMatrix(0, Width, 0, Height, -1, 1);
+                GL.LoadMatrix((float*)&p);
 
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.PushMatrix();
-            GL.LoadIdentity();
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.PushMatrix();
+                {
+                    GL.LoadIdentity();
 
-            GL.Color4(Color.White);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                    GL.Color4(Color.White);
+                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            GL.Enable(EnableCap.Texture2D);
+                    GL.Enable(EnableCap.Texture2D);
 
-            GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
-            bgTex.Bind();
+                    GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
+                    bgTex.Bind();
 
-            float* points = stackalloc float[8];
-            points[0] = points[1] = points[3] = points[6] = 0.0f;
-            points[2] = points[4] = Width;
-            points[5] = points[7] = Height;
+                    float* points = stackalloc float[8];
+                    points[0] = points[1] = points[3] = points[6] = 0.0f;
+                    points[2] = points[4] = Width;
+                    points[5] = points[7] = Height;
 
-            float s = (float)Width / (float)bgTex.Width, t = (float)Height / (float)bgTex.Height;
+                    float s = (float)Width / (float)bgTex.Width, t = (float)Height / (float)bgTex.Height;
 
-            GL.Begin(PrimitiveType.Quads);
+                    GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(0.0f, 0.0f);
-            GL.Vertex2(&points[0]);
-            GL.TexCoord2(s, 0.0f);
-            GL.Vertex2(&points[2]);
-            GL.TexCoord2(s, t);
-            GL.Vertex2(&points[4]);
-            GL.TexCoord2(0.0f, t);
-            GL.Vertex2(&points[6]);
+                    GL.TexCoord2(0.0f, 0.0f);
+                    GL.Vertex2(&points[0]);
+                    GL.TexCoord2(s, 0.0f);
+                    GL.Vertex2(&points[2]);
+                    GL.TexCoord2(s, t);
+                    GL.Vertex2(&points[4]);
+                    GL.TexCoord2(0.0f, t);
+                    GL.Vertex2(&points[6]);
 
-            GL.End();
+                    GL.End();
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
-
-            GL.PopMatrix();
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+                }
+                GL.PopMatrix();
+            }
             GL.MatrixMode(MatrixMode.Projection);
             GL.PopMatrix();
         }
@@ -147,6 +154,8 @@ namespace System.Windows.Forms
 
         protected internal unsafe override void OnRender(PaintEventArgs e)
         {
+            BeforeRender();
+
             GL.Color4(Color.White);
 
             if (_currentTextureNode == null || _attached.Count < 1)

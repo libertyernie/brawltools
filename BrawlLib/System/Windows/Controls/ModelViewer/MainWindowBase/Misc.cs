@@ -46,8 +46,8 @@ namespace System.Windows.Forms
             _timer = new CoolTimer();
             _timer.RenderFrame += _timer_RenderFrame;
 
-            modelPanel.PreRender += (EventPreRender = new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PreRender));
-            modelPanel.PostRender += (EventPostRender = new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PostRender));
+            modelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(this.modelPanel1_PreRender));
+            modelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(this.modelPanel1_PostRender));
             modelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown));
             modelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove));
             modelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp));
@@ -74,21 +74,22 @@ namespace System.Windows.Forms
             model.ResetToBindState();
         }
 
-        protected virtual void ModelChanged(IModel model)
+        protected virtual void ModelChanged(IModel newModel)
         {
-            if (model != null && !_targetModels.Contains(model))
-                _targetModels.Add(model);
+            if (newModel != null && !_targetModels.Contains(newModel))
+                _targetModels.Add(newModel);
 
-            if (model == null)
-                ModelPanel.RemoveTarget(_targetModel);
+            if (_targetModel != null)
+                _targetModel.IsTargetModel = false;
 
-            if ((_targetModel = model) != null)
+            if ((_targetModel = newModel) != null)
             {
                 ModelPanel.AddTarget(_targetModel);
+                _targetModel.IsTargetModel = true;
                 ResetVertexColors();
             }
             else
-                EditingAll = true;
+                EditingAll = true; //No target model so all is the only option
 
             if (_resetCamera)
             {

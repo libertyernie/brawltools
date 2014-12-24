@@ -90,7 +90,7 @@ namespace Ikarus.UI
                 if (index == -1)
                     return;
 
-                MDL0BoneNode bone = ((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[index])._bone;
+                MDL0BoneNode bone = ((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[index])._visBoneNode;
 
                 VIS0EntryNode node = null;
                 if ((node = (VIS0EntryNode)_vis0.FindChild(bone.Name, true)) == null && bone.BoneIndex != 0 && bone.Name != "EyeYellowM")
@@ -166,7 +166,7 @@ namespace Ikarus.UI
                     VIS0EntryNode node = null;
                     List<int> indices = listPanel.VIS0Indices[n];
                     for (int i = 0; i < indices.Count; i++)
-                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[indices[i]])._bone.Name, true)) != null)
+                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
                             if (node._entryCount != 0 && CurrentFrame > 0)
                                 modelListsPanel1.lstObjects.SetItemChecked(indices[i], node.GetEntry(CurrentFrame - 1));
                             else

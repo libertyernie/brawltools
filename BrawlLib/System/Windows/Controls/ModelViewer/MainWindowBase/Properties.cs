@@ -40,12 +40,6 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderPolygons = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderCollisions
-        {
-            get { return ModelPanel.RenderCollisions; }
-            set { ModelPanel.RenderCollisions = value; }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderWireframe
         {
             get { return ModelPanel.RenderWireframe; }

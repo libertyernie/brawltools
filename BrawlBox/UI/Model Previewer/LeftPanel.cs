@@ -907,7 +907,7 @@ namespace System.Windows.Forms
             {
                 poly._render = e.NewValue == CheckState.Checked;
 
-                if (_syncVis0 && poly._bone != null)
+                if (_syncVis0 && poly._visBoneNode != null)
                 {
                     bool temp = false;
                     if (!_mainWindow.VIS0Updating)
@@ -916,8 +916,8 @@ namespace System.Windows.Forms
                         temp = true;
                     }
 
-                    if (_mainWindow.VIS0Indices.ContainsKey(poly._bone.Name))
-                        foreach (int i in _mainWindow.VIS0Indices[poly._bone.Name])
+                    if (_mainWindow.VIS0Indices.ContainsKey(poly._visBoneNode.Name))
+                        foreach (int i in _mainWindow.VIS0Indices[poly._visBoneNode.Name])
                             if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
                                 lstObjects.SetItemChecked(i, poly._render);
 

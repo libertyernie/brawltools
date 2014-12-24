@@ -775,7 +775,7 @@ namespace Ikarus.UI
 
             poly._render = e.NewValue == CheckState.Checked;
 
-            if (_syncVis0 && poly._bone != null)
+            if (_syncVis0 && poly._visBoneNode != null)
             {
                 bool temp = false;
                 if (!_vis0Updating)
@@ -784,8 +784,8 @@ namespace Ikarus.UI
                     temp = true;
                 }
 
-                if (VIS0Indices.ContainsKey(poly._bone.Name))
-                    foreach (int i in VIS0Indices[poly._bone.Name])
+                if (VIS0Indices.ContainsKey(poly._visBoneNode.Name))
+                    foreach (int i in VIS0Indices[poly._visBoneNode.Name])
                         if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
                             lstObjects.SetItemChecked(i, poly._render);
 

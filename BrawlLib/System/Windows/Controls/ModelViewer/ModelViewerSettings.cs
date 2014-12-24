@@ -152,7 +152,7 @@ namespace System.Windows.Forms
                 _boxes[i].Tag = i;
             }
 
-            _origBone = MDL0BoneNode.DefaultBoneColor;
+            _origBone = MDL0BoneNode.DefaultLineColor;
             _origNode = MDL0BoneNode.DefaultNodeColor;
             _origFloor = ModelEditorBase._floorHue;
 
@@ -253,7 +253,7 @@ namespace System.Windows.Forms
             _form.AllowedUndos = (uint)Math.Abs(_origValues[21]);
 
             ModelEditorBase._floorHue = _origFloor;
-            MDL0BoneNode.DefaultBoneColor = _origBone;
+            MDL0BoneNode.DefaultLineColor = _origBone;
             MDL0BoneNode.DefaultNodeColor = _origNode;
 
             DialogResult = DialogResult.Cancel; 
@@ -1124,10 +1124,10 @@ namespace System.Windows.Forms
 
         private void lblLineColor_Click(object sender, EventArgs e)
         {
-            _dlgColor.Color = MDL0BoneNode.DefaultBoneColor;
+            _dlgColor.Color = MDL0BoneNode.DefaultLineColor;
             if (_dlgColor.ShowDialog(this) == DialogResult.OK)
             {
-                MDL0BoneNode.DefaultBoneColor = _dlgColor.Color;
+                MDL0BoneNode.DefaultLineColor = _dlgColor.Color;
                 UpdateLine();
             }
         }
@@ -1150,8 +1150,8 @@ namespace System.Windows.Forms
         }
         private void UpdateLine()
         {
-            lblLineText.Text = ((ARGBPixel)MDL0BoneNode.DefaultBoneColor).ToString();
-            lblLineColor.BackColor = Color.FromArgb(MDL0BoneNode.DefaultBoneColor.R, MDL0BoneNode.DefaultBoneColor.G, MDL0BoneNode.DefaultBoneColor.B);
+            lblLineText.Text = ((ARGBPixel)MDL0BoneNode.DefaultLineColor).ToString();
+            lblLineColor.BackColor = Color.FromArgb(MDL0BoneNode.DefaultLineColor.R, MDL0BoneNode.DefaultLineColor.G, MDL0BoneNode.DefaultLineColor.B);
             _form.ModelPanel.Invalidate();
         }
         private void UpdateCol1()

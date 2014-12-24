@@ -23,6 +23,8 @@ namespace BrawlLib.OpenGL
             c, new object[] { 0x400000, false });
         }
     }
+
+    public delegate void GLRenderEventHandler(GLPanel sender);
     public abstract unsafe class GLPanel : UserControl
     {
         public static GLPanel Current { get { if (_currentPanel == null) TKContext.CurrentContext.Capture(true); return _currentPanel; } }
@@ -36,14 +38,14 @@ namespace BrawlLib.OpenGL
         public Matrix _projectionInverse;
 
         public bool ProjectionChanged { get { return _projectionChanged; } set { _projectionChanged = value; } }
-
-        protected int _updateCounter;
         protected bool _projectionChanged = true;
-        protected TKContext _ctx;
-        public GLCamera _camera;
 
         public bool IsOrthographic { get { return _orthographic; } set { _orthographic = value; _projectionChanged = true; Invalidate(); } }
         protected bool _orthographic = false;
+
+        protected int _updateCounter;
+        protected TKContext _ctx;
+        public GLCamera _camera;
 
         public enum BGImageType { Stretch, Center, ResizeWithBars }
         
@@ -161,8 +163,6 @@ namespace BrawlLib.OpenGL
                     //Direct OpenGL calls to this panel
                     Capture();
 
-                    BeforeRender();
-
                     //Set projection
                     if (_projectionChanged)
                     {
@@ -181,8 +181,6 @@ namespace BrawlLib.OpenGL
                     //Render 3D scene
                     OnRender(e);
 
-                    AfterRender();
-
                     GL.Finish();
                     _ctx.Swap();
                     
@@ -193,16 +191,6 @@ namespace BrawlLib.OpenGL
                 finally { Monitor.Exit(_ctx); }
             }
         }
-
-        /// <summary>
-        /// This is for rendering things in the background.
-        /// This is called before projection and camera matrices are applied.
-        /// </summary>
-        protected virtual void BeforeRender() { }
-        /// <summary>
-        /// This is for rendering things in the foreground.
-        /// </summary>
-        protected virtual void AfterRender() { }
 
         internal virtual void OnInit(TKContext ctx) { }
 

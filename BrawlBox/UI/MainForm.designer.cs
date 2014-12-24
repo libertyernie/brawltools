@@ -373,9 +373,6 @@ namespace BrawlBox
             // 
             this.modelPanel1.AllowSelection = false;
             this.modelPanel1.BackgroundImageType = BrawlLib.OpenGL.GLPanel.BGImageType.Stretch;
-            this.modelPanel1.DefaultTranslate = ((System.Vector3)(resources.GetObject("modelPanel1.DefaultTranslate")));
-            this.modelPanel1.InitialYFactor = 100;
-            this.modelPanel1.InitialZoomFactor = 5;
             this.modelPanel1.IsOrthographic = false;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
