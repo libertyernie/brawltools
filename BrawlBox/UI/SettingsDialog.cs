@@ -32,8 +32,9 @@ namespace BrawlBox
 
             listView1.Items.Clear();
             foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
-                foreach (string s in info._extensions)
-                    listView1.Items.Add(new ListViewItem() { Text = String.Format("{0} (*.{1})", info._name, s) });
+                if (info._forEditing)
+                    foreach (string s in info._extensions)
+                        listView1.Items.Add(new ListViewItem() { Text = String.Format("{0} (*.{1})", info._name, s) });
         }
 
         private void Apply()
