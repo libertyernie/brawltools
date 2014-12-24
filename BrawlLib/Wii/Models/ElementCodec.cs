@@ -274,87 +274,87 @@ namespace BrawlLib.Wii.Models
             _points = new List<List<Facepoint>>();
         }
 
-        //public void SetupBMD(BMDObjectAttrib* attrib)
-        //{
-        //    byte* pCom;
-        //    ElementDef* pDef;
+        public void SetupBMD(BMDObjectAttrib* attrib)
+        {
+            byte* pCom;
+            ElementDef* pDef;
 
-        //    WiiVertexComponentType format;
-        //    fixed (int* pDefData = Defs)
-        //    fixed (byte* pComData = Commands)
-        //    {
-        //        pCom = pComData;
-        //        pDef = (ElementDef*)pDefData;
+            WiiVertexComponentType format;
+            fixed (int* pDefData = Defs)
+            fixed (byte* pComData = Commands)
+            {
+                pCom = pComData;
+                pDef = (ElementDef*)pDefData;
 
-        //        while (attrib->ArrayType != GXAttribute.Null)
-        //        {
-        //            format = attrib->DataFormat;
-        //            switch (attrib->ArrayType)
-        //            {
-        //                case GXAttribute.PosNrmMtxId:
-        //                    Weighted = true;
-        //                    *pCom++ = (byte)DecodeOp.PosWeight;
-        //                    Stride++;
-        //                    break;
-        //                case GXAttribute.Tex0MtxId:
-        //                case GXAttribute.Tex1MtxId:
-        //                case GXAttribute.Tex2MtxId:
-        //                case GXAttribute.Tex3MtxId:
-        //                case GXAttribute.Tex4MtxId:
-        //                case GXAttribute.Tex5MtxId:
-        //                case GXAttribute.Tex6MtxId:
-        //                case GXAttribute.Tex7MtxId:
-        //                    *pCom++ = (byte)(DecodeOp.TexMtx0 + (int)(attrib->ArrayType - GXAttribute.Tex0MtxId));
-        //                    Stride++;
-        //                    break;
-        //                case GXAttribute.Position:
-        //                    HasData[0] = true;
-        //                    pDef->Type = 0;
-        //                    Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
-        //                    pDef->Output = 12;
-        //                    *pCom++ = (byte)DecodeOp.ElementIndexed;
-        //                    pDef++;
-        //                    break;
-        //                case GXAttribute.Normal:
-        //                    HasData[1] = true;
-        //                    pDef->Type = 1;
-        //                    Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
-        //                    pDef->Output = 12;
-        //                    *pCom++ = (byte)DecodeOp.ElementIndexed;
-        //                    pDef++;
-        //                    break;
-        //                case GXAttribute.Color0:
-        //                case GXAttribute.Color1:
-        //                    int cIndex = (int)(attrib->ArrayType - GXAttribute.Color0);
-        //                    HasData[cIndex + 2] = true;
-        //                    pDef->Type = (byte)(cIndex + 2);
-        //                    Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
-        //                    pDef->Output = 4;
-        //                    *pCom++ = (byte)DecodeOp.ElementIndexed;
-        //                    pDef++;
-        //                    break;
-        //                case GXAttribute.Tex0:
-        //                case GXAttribute.Tex1:
-        //                case GXAttribute.Tex2:
-        //                case GXAttribute.Tex3:
-        //                case GXAttribute.Tex4:
-        //                case GXAttribute.Tex5:
-        //                case GXAttribute.Tex6:
-        //                case GXAttribute.Tex7:
-        //                    int uIndex = (int)(attrib->ArrayType - GXAttribute.Tex0);
-        //                    HasData[uIndex + 4] = true;
-        //                    pDef->Type = (byte)(uIndex + 4);
-        //                    Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
-        //                    pDef->Output = 8;
-        //                    *pCom++ = (byte)DecodeOp.ElementIndexed;
-        //                    pDef++;
-        //                    break;
-        //            }
-        //            attrib++;
-        //        }
-        //        *pCom = 0;
-        //    }
-        //}
+                while (attrib->ArrayType != GXAttribute.Null)
+                {
+                    format = attrib->DataFormat;
+                    switch (attrib->ArrayType)
+                    {
+                        case GXAttribute.PosNrmMtxId:
+                            Weighted = true;
+                            *pCom++ = (byte)DecodeOp.PosWeight;
+                            Stride++;
+                            break;
+                        case GXAttribute.Tex0MtxId:
+                        case GXAttribute.Tex1MtxId:
+                        case GXAttribute.Tex2MtxId:
+                        case GXAttribute.Tex3MtxId:
+                        case GXAttribute.Tex4MtxId:
+                        case GXAttribute.Tex5MtxId:
+                        case GXAttribute.Tex6MtxId:
+                        case GXAttribute.Tex7MtxId:
+                            *pCom++ = (byte)(DecodeOp.TexMtx0 + (int)(attrib->ArrayType - GXAttribute.Tex0MtxId));
+                            Stride++;
+                            break;
+                        case GXAttribute.Position:
+                            HasData[0] = true;
+                            pDef->Type = 0;
+                            Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
+                            pDef->Output = 12;
+                            *pCom++ = (byte)DecodeOp.ElementIndexed;
+                            pDef++;
+                            break;
+                        case GXAttribute.Normal:
+                            HasData[1] = true;
+                            pDef->Type = 1;
+                            Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
+                            pDef->Output = 12;
+                            *pCom++ = (byte)DecodeOp.ElementIndexed;
+                            pDef++;
+                            break;
+                        case GXAttribute.Color0:
+                        case GXAttribute.Color1:
+                            int cIndex = (int)(attrib->ArrayType - GXAttribute.Color0);
+                            HasData[cIndex + 2] = true;
+                            pDef->Type = (byte)(cIndex + 2);
+                            Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
+                            pDef->Output = 4;
+                            *pCom++ = (byte)DecodeOp.ElementIndexed;
+                            pDef++;
+                            break;
+                        case GXAttribute.Tex0:
+                        case GXAttribute.Tex1:
+                        case GXAttribute.Tex2:
+                        case GXAttribute.Tex3:
+                        case GXAttribute.Tex4:
+                        case GXAttribute.Tex5:
+                        case GXAttribute.Tex6:
+                        case GXAttribute.Tex7:
+                            int uIndex = (int)(attrib->ArrayType - GXAttribute.Tex0);
+                            HasData[uIndex + 4] = true;
+                            pDef->Type = (byte)(uIndex + 4);
+                            Stride += (pDef->Format = (byte)((int)format < 2 ? 1 : 2));
+                            pDef->Output = 8;
+                            *pCom++ = (byte)DecodeOp.ElementIndexed;
+                            pDef++;
+                            break;
+                    }
+                    attrib++;
+                }
+                *pCom = 0;
+            }
+        }
 
         public void SetupMDL0(MDL0Object* polygon)
         {

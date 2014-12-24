@@ -168,65 +168,65 @@ namespace BrawlLib.Modeling
 
         public PrimitiveManager() { }
 
-        //public PrimitiveManager(
-        //    BMDObjectsHeader* header,
-        //    BMDObjectEntry* entry,
-        //    UnsafeBuffer[] assets,
-        //    IMatrixNode[] nodes)
-        //{
-        //    ElementDescriptor desc = new ElementDescriptor();
-        //    desc.SetupBMD(header->GetAttrib(entry->_attribOffset));
+        public PrimitiveManager(
+            BMDObjectsHeader* header,
+            BMDObjectEntry* entry,
+            UnsafeBuffer[] assets,
+            IMatrixNode[] nodes)
+        {
+            ElementDescriptor desc = new ElementDescriptor();
+            desc.SetupBMD(header->GetAttrib(entry->_attribOffset));
 
-        //    _pointCount = 0;
+            _pointCount = 0;
 
-        //    bushort* nodeTable = header->MatrixTable;
-        //    PacketLocation* grp = &header->Groups[entry->_firstGroupIndex];
-        //    MatrixData* mtx = &header->MatrixData[entry->_firstMatrixDataIndex];
+            bushort* nodeTable = header->MatrixTable;
+            PacketLocation* grp = &header->Groups[entry->_firstGroupIndex];
+            MatrixData* mtx = &header->MatrixData[entry->_firstMatrixDataIndex];
 
-        //    for (int i = 0; i < entry->_groupCount; i++)
-        //        _pointCount += FindPointCount((byte*)header->Primitives + grp[i]._offset, desc.Stride, grp[i]._size);
-            
-        //    _indices = new UnsafeBuffer(_pointCount * 2);
+            for (int i = 0; i < entry->_groupCount; i++)
+                _pointCount += FindPointCount((byte*)header->Primitives + grp[i]._offset, desc.Stride, grp[i]._size);
 
-        //    byte*[] pAssetList = new byte*[12];
-        //    byte*[] pFaceBuffers = new byte*[12];
+            _indices = new UnsafeBuffer(_pointCount * 2);
 
-        //    for (int i = 0; i < 12; i++)
-        //        if (desc.HasData[i] && assets[i] != null)
-        //        {
-        //            pFaceBuffers[i] = (byte*)(_faceData[i] = new UnsafeBuffer((i < 2 ? 12 : i < 4 ? 4 : 8) * _pointCount)).Address;
-        //            pAssetList[i] = (byte*)assets[i].Address;
-        //        }
+            byte*[] pAssetList = new byte*[12];
+            byte*[] pFaceBuffers = new byte*[12];
 
-        //    int triCount = 0, lineCount = 0, pointCount = 0;
-        //    fixed (byte** pOut = pFaceBuffers)
-        //    fixed (byte** pAssets = pAssetList)
-        //    {
-        //        for (int i = 0; i < entry->_groupCount; i++)
-        //        {
-        //            for (ushort x = 0, value = nodeTable[mtx[i]._firstIndex]; x < mtx[i]._count; x++, value = nodeTable[mtx[i]._firstIndex + x])
-        //                //if (value != 0xFFFF)
-        //                    desc.SetNode(x, value);
+            for (int i = 0; i < 12; i++)
+                if (desc.HasData[i] && assets[i] != null)
+                {
+                    pFaceBuffers[i] = (byte*)(_faceData[i] = new UnsafeBuffer((i < 2 ? 12 : i < 4 ? 4 : 8) * _pointCount)).Address;
+                    pAssetList[i] = (byte*)assets[i].Address;
+                }
 
-        //            _primGroups.AddRange(ReadPrimitives(
-        //                (byte*)header->Primitives + grp[i]._offset,
-        //                ref desc, pOut, pAssets, nodes, ref triCount, ref lineCount, ref pointCount, grp[i]._size));
-        //        }
-        //    }
+            int triCount = 0, lineCount = 0, pointCount = 0;
+            fixed (byte** pOut = pFaceBuffers)
+            fixed (byte** pAssets = pAssetList)
+            {
+                for (int i = 0; i < entry->_groupCount; i++)
+                {
+                    for (ushort x = 0, value = nodeTable[mtx[i]._firstIndex]; x < mtx[i]._count; x++, value = nodeTable[mtx[i]._firstIndex + x])
+                        //if (value != 0xFFFF)
+                        desc.SetNode(x, value);
 
-        //    CreateGLPrimitives(triCount, lineCount, pointCount);
+                    _primGroups.AddRange(ReadPrimitives(
+                        (byte*)header->Primitives + grp[i]._offset,
+                        ref desc, pOut, pAssets, nodes, ref triCount, ref lineCount, ref pointCount, grp[i]._size));
+                }
+            }
 
-        //    uint p3 = 0, p2 = 0, p1 = 0;
-        //    for (int i = 0; i < entry->_groupCount; i++)
-        //        ExtractIndices((byte*)header->Primitives + grp[i]._offset, desc.Stride, ref p3, ref p2, ref p1, grp[i]._size);
+            CreateGLPrimitives(triCount, lineCount, pointCount);
 
-        //    _vertices = desc.Finish((Vector3*)pAssetList[0], nodes);
+            uint p3 = 0, p2 = 0, p1 = 0;
+            for (int i = 0; i < entry->_groupCount; i++)
+                ExtractIndices((byte*)header->Primitives + grp[i]._offset, desc.Stride, ref p3, ref p2, ref p1, grp[i]._size);
 
-        //    ushort* pIndex = (ushort*)_indices.Address;
-        //    for (int x = 0; x < _pointCount; x++)
-        //        if (pIndex[x] >= 0 && pIndex[x] < _vertices.Count)
-        //            _vertices[pIndex[x]]._faceDataIndices.Add(x);
-        //}
+            _vertices = desc.Finish((Vector3*)pAssetList[0], nodes);
+
+            ushort* pIndex = (ushort*)_indices.Address;
+            for (int x = 0; x < _pointCount; x++)
+                if (pIndex[x] >= 0 && pIndex[x] < _vertices.Count)
+                    _vertices[pIndex[x]]._faceDataIndices.Add(x);
+        }
 
         public PrimitiveManager(
             MDL0Object* polygon,
