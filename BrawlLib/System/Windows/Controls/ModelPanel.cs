@@ -274,10 +274,7 @@ namespace System.Windows.Forms
 
             //Add the calculated distance to the front plane's distance
             //and add two units for the edges
-            float totalZ = frontMidPt._z + z + 2.0f;
-
-            //Temporary solution to bring models closer
-            totalZ *= (3.0f / 4.0f);
+            float totalZ = /*frontMidPt._z + */z + 2.0f; //This works better when that's commented out
 
             _camera.Reset();
             _camera.Translate(frontMidPt._x, frontMidPt._y, totalZ);
