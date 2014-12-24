@@ -21,24 +21,24 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-        private void chkBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
-        private void toggleBones_Click(object sender, EventArgs e) { RenderBones = !RenderBones; }
+        private void chkBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
+        private void toggleBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
 
-        private void chkPolygons_Click(object sender, EventArgs e) { RenderPolygons = !RenderPolygons; }
-        private void togglePolygons_Click(object sender, EventArgs e) { RenderPolygons = !RenderPolygons; }
+        private void chkPolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
+        private void togglePolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
 
-        private void chkVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
-        private void toggleVertices_Click(object sender, EventArgs e) { RenderVertices = !RenderVertices; }
+        private void chkVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
+        private void toggleVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
 
-        private void chkCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
-        private void toggleCollisions_Click(object sender, EventArgs e) { RenderCollisions = !RenderCollisions; }
+        private void chkCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
+        private void toggleCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
 
-        private void chkFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
-        private void toggleFloor_Click(object sender, EventArgs e) { RenderFloor = !RenderFloor; }
+        private void chkFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
+        private void toggleFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
 
-        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { RenderWireframe = !RenderWireframe; }
-        private void toggleNormals_Click(object sender, EventArgs e) { RenderNormals = !RenderNormals; }
-        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { RenderBox = !RenderBox; }
+        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderWireframe = !RenderWireframe; }
+        private void toggleNormals_Click(object sender, EventArgs e) { if (!_updating) RenderNormals = !RenderNormals; }
+        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderBox = !RenderBox; }
 
         #region Screen Capture
 

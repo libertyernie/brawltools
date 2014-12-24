@@ -5,12 +5,14 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing.Design;
 using System.Windows.Forms.Design;
+using System.Runtime.Serialization;
 
 namespace BrawlLib.Imaging
 {
+    [Serializable]
     [EditorAttribute(typeof(GoodColorControl.ColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ARGBPixel
+    public unsafe struct ARGBPixel : ISerializable
     {
         private const float ColorFactor = 1.0f / 255.0f;
 
@@ -18,6 +20,13 @@ namespace BrawlLib.Imaging
 
         public ARGBPixel(byte a, byte r, byte g, byte b) { A = a; R = r; G = g; B = b; }
         public ARGBPixel(byte intensity) { A = 255; R = intensity; G = intensity; B = intensity; }
+        public ARGBPixel(SerializationInfo info, StreamingContext context)
+        {
+            B = info.GetByte("B");
+            G = info.GetByte("G");
+            R = info.GetByte("R");
+            A = info.GetByte("A");
+        }
 
         public int DistanceTo(Color c)
         {
@@ -96,6 +105,14 @@ namespace BrawlLib.Imaging
         internal unsafe ARGBPixel Darken(int amount)
         {
             return new ARGBPixel(A, (byte)Math.Max(R - amount, 0), (byte)Math.Max(G - amount, 0), (byte)Math.Max(B - amount, 0));
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("B", B);
+            info.AddValue("G", G);
+            info.AddValue("R", R);
+            info.AddValue("A", A);
         }
     }
 
