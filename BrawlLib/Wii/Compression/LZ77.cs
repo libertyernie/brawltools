@@ -215,7 +215,7 @@ namespace BrawlLib.Wii.Compression
                             num = !extFmt ? temp + 3 : temp == 1 ? (((*srcPtr++ & 0xF) << 12) | ((*srcPtr++) << 4) | (*srcPtr >> 4)) + 0xFF + 0xF + 3 : temp == 0 ? (((*srcPtr++ & 0xF) << 4) | (*srcPtr >> 4)) + 0xF + 2 : temp + 1,
                             offset = (((*srcPtr++ & 0xF) << 8) | *srcPtr++) + 2;
 
-                        if (dstPtr - offset < dstAddress)
+                        if ((dstPtr - offset) < ((byte*)dstAddress))
                         {
                             //I researched why this happens, and there seems to be a 0xFF00 value 
                             //at the end of compressed data for small amounts of uncompressed data.
