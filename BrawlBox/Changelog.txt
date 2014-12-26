@@ -1,7 +1,6 @@
 
-BrawlBox Data Viewer - Version 0.73
-Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
-Copyright © 2014 libertyernie & Sammi Husky
+BrawlBox Data Viewer - Version 0.74
+Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
