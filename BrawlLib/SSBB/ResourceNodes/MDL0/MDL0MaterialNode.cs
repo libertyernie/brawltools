@@ -348,32 +348,32 @@ Those properties can use this color as an argument. This color is referred to as
         #region Indirect Texturing
 
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex0 { get { return (IndirectMethod)_indirectMethod1; } set { if (!CheckIfMetal()) _indirectMethod1 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex1 { get { return (IndirectMethod)_indirectMethod1; } set { if (!CheckIfMetal()) _indirectMethod1 = (byte)value; } }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex1 { get { return (IndirectMethod)_indirectMethod2; } set { if (!CheckIfMetal()) _indirectMethod2 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex2 { get { return (IndirectMethod)_indirectMethod2; } set { if (!CheckIfMetal()) _indirectMethod2 = (byte)value; } }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex2 { get { return (IndirectMethod)_indirectMethod3; } set { if (!CheckIfMetal()) _indirectMethod3 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex3 { get { return (IndirectMethod)_indirectMethod3; } set { if (!CheckIfMetal()) _indirectMethod3 = (byte)value; } }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex3 { get { return (IndirectMethod)_indirectMethod4; } set { if (!CheckIfMetal()) _indirectMethod4 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex4 { get { return (IndirectMethod)_indirectMethod4; } set { if (!CheckIfMetal()) _indirectMethod4 = (byte)value; } }
         
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex0ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale0 = value; } }
+        public IndTexScale IndirectTex1ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale0 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex0ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale0 = value; } }
+        public IndTexScale IndirectTex1ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale0 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex1ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale1 = value; } }
+        public IndTexScale IndirectTex2ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale1 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex1ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale1 = value; } }
+        public IndTexScale IndirectTex2ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale1 = value; } }
         
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex2ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale0 = value; } }
+        public IndTexScale IndirectTex3ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale0 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex2ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale0 = value; } }
+        public IndTexScale IndirectTex3ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale0 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex3ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale1 = value; } }
+        public IndTexScale IndirectTex4ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale1 = value; } }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex3ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale1 = value; } }
-
+        public IndTexScale IndirectTex4ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale1 = value; } }
+        
         public enum IndirectMethod
         {
             Warp = 0,
@@ -613,8 +613,7 @@ If this number is 2, both channels are applied.")]
 This dictates how many consecutive stages in the attached shader should be applied to produce the final output color.
 For example, if the shader has two stages but this number is 1, the second stage in the shader will be ignored.")]
         public byte ActiveShaderStages { get { return _activeStages; } set { if (!CheckIfMetal()) _activeStages = (value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value); } }
-        [Category("Material"), Description(@"
-")]
+        [Category("Material"), Description("The number of active indirect textures in the shader.")]
         public byte IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
         [Category("Material"), Description("This will make one, neither or both sides of the linked objects' mesh invisible.")]
         public CullMode CullMode { get { return _cull; } set { if (!CheckIfMetal()) _cull = value;  } }
@@ -632,16 +631,16 @@ For example, if the shader has two stages but this number is 1, the second stage
         Description("This is the index of the SCN0 Fog that should be applied to this model. Set to -1 if unused.")]
         public sbyte FogIndex { get { return _fogIndex; } set { if (!CheckIfMetal()) { _fogIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
         [Category("SCN0 References"), 
-        Description("This is the index of the 1st SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
+        Description("This is the index of the SCN0 Light that should be used for indirect texture 1 if it is a normal map. Set to -1 if unused.")]
         public sbyte NormMapRefLight1 { get { return _normMapRefLight1; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References"), 
-        Description("This is the index of the 2nd SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
+        [Category("SCN0 References"),
+        Description("This is the index of the SCN0 Light that should be used for indirect texture 2 if it is a normal map. Set to -1 if unused.")]
         public sbyte NormMapRefLight2 { get { return _normMapRefLight2; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References"), 
-        Description("This is the index of the 3rd SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
+        [Category("SCN0 References"),
+        Description("This is the index of the SCN0 Light that should be used for indirect texture 3 if it is a normal map. Set to -1 if unused.")]
         public sbyte NormMapRefLight3 { get { return _normMapRefLight3; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
-        [Category("SCN0 References"), 
-        Description("This is the index of the 4th SCN0 Light that should be used for normal maps. Set to -1 if unused.")]
+        [Category("SCN0 References"),
+        Description("This is the index of the SCN0 Light that should be used for indirect texture 4 if it is a normal map. Set to -1 if unused.")]
         public sbyte NormMapRefLight4 { get { return _normMapRefLight4; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
 
         #endregion

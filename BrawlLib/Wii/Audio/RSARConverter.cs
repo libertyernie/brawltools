@@ -380,19 +380,27 @@ namespace BrawlLib.Wii.Audio
         {
             SYMBMaskEntry* entry = header->Entries;
 
+#if DEBUG
             *entry++ = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, 0);
-            //entry[0] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
+#else
+            entry[0] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
+#endif
             for (int i = 1; i < grpList.Count; i++)
             {
-                *entry++ = new SYMBMaskEntry(true, -1, -1, -1, grpList[i]._stringId, i);
+#if DEBUG
+                *entry++ = new SYMBMaskEntry(true, -1, -1, -1, grpList[i]._stringId, i++);
                 *entry++ = new SYMBMaskEntry(false, 0, 0, 0, -1, i);
-                //entry[i++] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
-                //entry[i] = n._symbCache[grp][i];
+#else
+                entry[i++] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
+                entry[i] = n._symbCache[grp][i];
+#endif
             }
 
+#if DEBUG
             GenerateIDs(header);
-            //header->_rootId = n._rootIds[grp];
-
+#else
+            header->_rootId = n._rootIds[grp];
+#endif
             int len = 8 + (header->_numEntries = grpList.Count * 2 - 1) * SYMBMaskEntry.Size;
 
             return len;
@@ -552,10 +560,12 @@ namespace BrawlLib.Wii.Audio
             foreach (RSAREntryState s in _banks)
                 s._node._rebuildStringId = s._stringId = _strings.IndexOf(s._node._fullPath);
 
-            //_sounds.Sort(RSAREntryState.Compare);
-            //_playerInfo.Sort(RSAREntryState.Compare);
-            //_groups.Sort(RSAREntryState.Compare);
-            //_banks.Sort(RSAREntryState.Compare);
+#if !DEBUG
+            _sounds.Sort(RSAREntryState.Compare);
+            _playerInfo.Sort(RSAREntryState.Compare);
+            _groups.Sort(RSAREntryState.Compare);
+            _banks.Sort(RSAREntryState.Compare);
+#endif
         }
     }
 }

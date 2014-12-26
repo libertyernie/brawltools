@@ -894,6 +894,8 @@ namespace BrawlLib.Wii.Models
         //Materials must already be written. Do this last!
         private static void WriteTextures(ModelLinker linker, ref byte* pGroup)
         {
+            //Note: Brawl models don't write the metal00 texture!
+
             MDL0GroupNode texGrp = linker.Groups[(int)MDLResourceType.Textures];
             MDL0GroupNode palGrp = linker.Groups[(int)MDLResourceType.Palettes];
 

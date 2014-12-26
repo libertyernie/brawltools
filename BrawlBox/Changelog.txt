@@ -45,10 +45,10 @@ they be held accountable for the manner in which it is used.
 	. Section editor now displays number of selected bytes, rather than length of the full section. (bottom status bar)
 	. GCT editor saves unchecked codes as disabled in .txt (pads the left side with an asterisk). Saving as GCT will not save disabled codes
 	. GCT editor now allows multiline descriptions in .txt files.
-	. Improved pixel format conversion, furthering it's acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
+	. Improved pixel format conversion, furthering its acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
 	. Fixed scaling of bone control in the model previewer when changing the "Y Field Of View" in the environment settings window under Menu->Options
 	. Added experimental support for orthographic projection in the viewport. Toggleable under Menu->Options->Environment Settings->Orthographic. 
-		Note: there are problems with this, such as billboard bones and the scaling of the bone edit control. Orthographic cameras look AT their origin, while perspective cameras look OUT from their origin.
+		Note: there are problems with this, such as billboard bones and the scaling of the bone edit control. Orthographic cameras look AT their origin point, while perspective cameras look OUT from their origin point.
 	. Added a live texture folder to the model previewer. Select a folder under Menu->Tools->"Live Texture Folder" and any textures with names that match the model's textures will be auto-loaded on the model when modified.
 	. Added a small dialog in the collision editor to rotate/translate/scale selected planes by specific values.
 	. Object / Method editor has been added to the module editor pending a better UI for it.
@@ -58,6 +58,8 @@ they be held accountable for the manner in which it is used.
 		- Added a button to the disassembler that is only visible when a branch command is selected, allowing you to jump to that location.
 	. Better support for MDL0 billboard bones. Can now render properly in the viewer and be properly set in the bone's properties.
 	. Added the option to view property descriptions if they are available (Can be enabled in Tools->Settings). Most currently available descriptions are located in the properties of nodes found in MDL0 (materials, shaders, bones, etc).
+	. Added property descriptions to some MDL0 material and bone properties. More descriptions coming soon.
+	. Added a texture coordinate viewer when selecting MDL0 material reference nodes and MDL0 texture nodes. Options to display only certain coords and export as a texture coming soon.
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas

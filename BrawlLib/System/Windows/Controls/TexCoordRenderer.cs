@@ -28,6 +28,10 @@ namespace System.Windows.Forms
         bool _remapPoints = false;
         float[] _points = new float[8];
         List<RenderInfo> _renderInfo;
+        List<int> _uvSetIndices;
+
+        public BindingList<string> UVSetNames { get { return _uvSetNames; } }
+        BindingList<string> _uvSetNames = new BindingList<string>();
 
         public void SetTarget(MDL0TextureNode texture)
         {
@@ -53,7 +57,7 @@ namespace System.Windows.Forms
                         info._renderBuffer.Dispose();
 
             _renderInfo = new List<RenderInfo>();
-            List<int> sets = new List<int>();
+            _uvSetIndices = new List<int>();
             foreach (MDL0MaterialRefNode m in _attached)
             {
                 foreach (MDL0ObjectNode obj in m.Material.Objects)
@@ -61,9 +65,9 @@ namespace System.Windows.Forms
                     bool[] ignore = new bool[8];
                     int x = 0;
                     foreach (MDL0UVNode o in obj._uvSet)
-                        if (o != null && !sets.Contains(o.Index))
+                        if (o != null && !_uvSetIndices.Contains(o.Index))
                         {
-                            sets.Add(o.Index);
+                            _uvSetIndices.Add(o.Index);
                             ignore[x++] = false;
                         }
                         else
@@ -72,6 +76,15 @@ namespace System.Windows.Forms
                     _renderInfo.Add(new RenderInfo(this, obj._manager, ignore));
                 }
             }
+
+            MDL0Node model = _currentTextureNode.Model;
+            if (model != null && model._uvList != null)
+            {
+                _uvSetNames = new BindingList<string>();
+                foreach (int i in _uvSetIndices)
+                    _uvSetNames.Add(model._uvList[i].Name);
+            }
+
             Invalidate();
         }
 
@@ -119,6 +132,11 @@ namespace System.Windows.Forms
                     GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
                     bgTex.Bind();
 
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
                     float* points = stackalloc float[8];
                     points[0] = points[1] = points[3] = points[6] = 0.0f;
                     points[2] = points[4] = Width;
@@ -138,11 +156,6 @@ namespace System.Windows.Forms
                     GL.Vertex2(&points[6]);
 
                     GL.End();
-
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-                    GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
                 }
                 GL.PopMatrix();
             }

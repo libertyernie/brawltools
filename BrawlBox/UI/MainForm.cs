@@ -109,7 +109,7 @@ namespace BrawlBox
             var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
             var release = await github.Release.GetAll("libertyernie", "brawltools");
 
-            if (release[0].TagName != version)
+            if (release.Count > 0 && release[0].TagName != version)
             {
                 DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                 if (UpdateResult == DialogResult.Yes)
