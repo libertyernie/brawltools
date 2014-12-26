@@ -67,7 +67,7 @@ namespace BrawlBox
 
 #if !DEBUG //Don't need to see this every time a debug build is compiled
             if (CheckUpdatesOnStartup)
-                CheckUpdates();
+                CheckUpdates(false);
 #else
             Text += " DEBUG";
 #endif
@@ -102,27 +102,45 @@ namespace BrawlBox
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
 
-        private async void CheckUpdates()
+        private async void CheckUpdates(bool manual = true)
         {
-            string version = Program.AssemblyTitle.Substring(Program.AssemblyTitle.LastIndexOf('.') - 2).TrimEnd(' ');
-
-            var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-            var release = await github.Release.GetAll("libertyernie", "brawltools");
-
-            if (release.Count > 0 && release[0].TagName != version)
+            try
             {
-                DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
-                if (UpdateResult == DialogResult.Yes)
+                string version = Program.AssemblyTitle.Substring(Program.AssemblyTitle.LastIndexOf('.') - 2).TrimEnd(' ');
+
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+                IReadOnlyList<Release> release = null;
+                try
                 {
-                    DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
-                    if (OverwriteResult == DialogResult.Yes)
-                    {
-                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
-                        this.Close();
-                    }
-                    else if (OverwriteResult == DialogResult.No)
-                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                    release = await github.Release.GetAll("libertyernie", "brawltools");
                 }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    if (manual)
+                        MessageBox.Show("Unable to connect to the internet.");
+                    return;
+                }
+
+                if (release != null && release.Count > 0 && release[0].TagName != version)
+                {
+                    DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                    if (UpdateResult == DialogResult.Yes)
+                    {
+                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
+                        if (OverwriteResult == DialogResult.Yes)
+                        {
+                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
+                            this.Close();
+                        }
+                        else if (OverwriteResult == DialogResult.No)
+                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (manual)
+                    MessageBox.Show(e.Message);
             }
         }
 
