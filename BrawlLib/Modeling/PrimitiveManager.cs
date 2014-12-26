@@ -386,7 +386,7 @@ namespace BrawlLib.Modeling
                 {
                     if (newGroup == false)
                     {
-                        _primGroups.Add(group);
+                        groups.Add(group);
                         group = new PrimitiveGroup() { _offset = (uint)((pData - 1) - pStart) };
                         newGroup = true;
                     }
