@@ -135,7 +135,11 @@ namespace System.Windows.Forms
             if (TargetAnimation == null)
                 return;
 
-            if (_animFrame >= _maxFrame)
+            int i = 0;
+            if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
+                i = 1;
+
+            if (_animFrame >= _maxFrame - i)
                 if (!_loop)
                     StopAnim();
                 else
