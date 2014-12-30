@@ -384,20 +384,40 @@ namespace BrawlLib.Wii.Models
                     case MDLResourceType.Textures:
                         if (model._texList != null)
                         {
+                            List<MDL0TextureNode> texNodes = new List<MDL0TextureNode>();
                             foreach (MDL0TextureNode tex in model._texList)
-                                texLen += (tex._references.Count * 8) + 4;
-
-                            linker._texCount = entries = model._texList.Count;
+                            {
+                                int trefs = 0;
+                                foreach (MDL0MaterialRefNode r in tex._references)
+                                    if (r.Material._objects.Count != 0)
+                                        trefs++;
+                                if (trefs != 0)
+                                {
+                                    texLen += (trefs * 8) + 4;
+                                    texNodes.Add(tex);
+                                }
+                            }
+                            entries = (linker._texList = texNodes).Count;
                         }
                         break;
 
                     case MDLResourceType.Palettes:
                         if (model._pltList != null)
                         {
-                            foreach (MDL0TextureNode pal in model._pltList)
-                                texLen += (pal._references.Count * 8) + 4;
-
-                            linker._palCount = entries = model._pltList.Count;
+                            List<MDL0TextureNode> pltNodes = new List<MDL0TextureNode>();
+                            foreach (MDL0TextureNode plt in model._pltList)
+                            {
+                                int prefs = 0;
+                                foreach (MDL0MaterialRefNode r in plt._references)
+                                    if (r.Material._objects.Count != 0)
+                                        prefs++;
+                                if (prefs != 0)
+                                {
+                                    texLen += (prefs * 8) + 4;
+                                    pltNodes.Add(plt);
+                                }
+                            }
+                            entries = (linker._pltList = pltNodes).Count;
                         }
                         break;
                 }
@@ -896,69 +916,68 @@ namespace BrawlLib.Wii.Models
         {
             //Note: Brawl models don't write the metal00 texture!
 
-            MDL0GroupNode texGrp = linker.Groups[(int)MDLResourceType.Textures];
-            MDL0GroupNode palGrp = linker.Groups[(int)MDLResourceType.Palettes];
-
-            if (texGrp == null) return;
-
             ResourceGroup* pTexGroup = null;
             ResourceEntry* pTexEntry = null;
-            if (linker._texCount > 0)
+            if (linker._texList != null && linker._texList.Count > 0)
             {
                 linker.Textures = pTexGroup = (ResourceGroup*)pGroup;
-                *pTexGroup = new ResourceGroup(linker._texCount);
-
+                *pTexGroup = new ResourceGroup(linker._texList.Count);
                 pTexEntry = &pTexGroup->_first + 1;
                 pGroup += pTexGroup->_totalSize;
             }
 
-            ResourceGroup* pDecGroup = null;
-            ResourceEntry* pDecEntry = null;
-            if (linker._palCount > 0)
+            ResourceGroup* pPltGroup = null;
+            ResourceEntry* pPltEntry = null;
+            if (linker._pltList != null && linker._pltList.Count > 0)
             {
-                linker.Palettes = pDecGroup = (ResourceGroup*)pGroup;
-                *pDecGroup = new ResourceGroup(linker._palCount);
-                pDecEntry = &pDecGroup->_first + 1;
-                pGroup += pDecGroup->_totalSize;
+                linker.Palettes = pPltGroup = (ResourceGroup*)pGroup;
+                *pPltGroup = new ResourceGroup(linker._pltList.Count);
+                pPltEntry = &pPltGroup->_first + 1;
+                pGroup += pPltGroup->_totalSize;
             }
 
             bint* pData = (bint*)pGroup;
             int offset;
 
             //Textures
-            List<ResourceNode> list = texGrp.Children;
-            list.Sort(); //Alphabetical order
-            if (pTexGroup != null)
-                foreach (MDL0TextureNode t in list)
-                    if (t._references.Count > 0)
-                    {
-                        offset = (int)pData;
-                        (pTexEntry++)->_dataOffset = offset - (int)pTexGroup;
-                        *pData++ = t._references.Count;
-                        foreach (MDL0MaterialRefNode mat in t._references)
+            List<MDL0TextureNode> list = linker._texList;
+            if (list != null)
+            {
+                list.Sort(); //Alphabetical order
+                if (pTexGroup != null)
+                    foreach (MDL0TextureNode t in list)
+                        if (t._references.Count > 0)
                         {
-                            *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
-                            *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                            offset = (int)pData;
+                            (pTexEntry++)->_dataOffset = offset - (int)pTexGroup;
+                            *pData++ = t._references.Count;
+                            foreach (MDL0MaterialRefNode mat in t._references)
+                            {
+                                *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
+                                *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                            }
                         }
-                    }
+            }
 
             //Palettes
-            if (palGrp == null) return;
-            list = palGrp.Children;
-            list.Sort(); //Alphabetical order
-            if (pDecGroup != null)
-                foreach (MDL0TextureNode t in list)
-                    if (t._references.Count > 0)
-                    {
-                        offset = (int)pData;
-                        (pDecEntry++)->_dataOffset = offset - (int)pDecGroup;
-                        *pData++ = t._references.Count;
-                        foreach (MDL0MaterialRefNode mat in t._references)
+            list = linker._pltList;
+            if (list != null)
+            {
+                list.Sort(); //Alphabetical order
+                if (pPltGroup != null)
+                    foreach (MDL0TextureNode t in list)
+                        if (t._references.Count > 0)
                         {
-                            *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
-                            *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                            offset = (int)pData;
+                            (pPltEntry++)->_dataOffset = offset - (int)pPltGroup;
+                            *pData++ = t._references.Count;
+                            foreach (MDL0MaterialRefNode mat in t._references)
+                            {
+                                *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
+                                *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                            }
                         }
-                    }
+            }
         }
 
         private static void SetBox(ModelLinker linker)
