@@ -127,6 +127,12 @@
     <Compile Include="Manager\ManagerTextData.cs" />
     <Compile Include="DropDownLists.cs" />
     <Compile Include="FighterDefEnums.cs" />
+    <Compile Include="UI\Components\FolderSelectDialog.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="UI\Components\FolderSelectDialog.designer.cs">
+      <DependentUpon>FolderSelectDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="UI\Controls\NewScriptEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>

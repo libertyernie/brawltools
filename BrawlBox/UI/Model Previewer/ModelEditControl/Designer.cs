@@ -2127,6 +2127,7 @@ namespace System.Windows.Forms
                     for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
                         leftPanel.lstObjects.SetItemChecked(i, RenderCollisions);
                 }
+            modelPanel.Invalidate();
             _updating = false;
         }
 

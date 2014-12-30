@@ -19,7 +19,7 @@ namespace Ikarus
 
         private static OpenFileDialog _openDlg;
         private static SaveFileDialog _saveDlg;
-        private static FolderBrowserDialog _folderDlg;
+        private static FolderSelectDialog _folderDlg;
 
         static Program()
         {
@@ -80,7 +80,7 @@ namespace Ikarus
 
         public static string ChooseFolder(string basePath)
         {
-            _folderDlg.SelectedPath = basePath;
+            _folderDlg.InitialDirectory = basePath;
             if (_folderDlg.ShowDialog() == DialogResult.OK)
                 return _folderDlg.SelectedPath;
             return null;
