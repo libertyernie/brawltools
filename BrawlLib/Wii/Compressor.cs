@@ -92,7 +92,7 @@ namespace BrawlLib.Wii.Compression
             return false;
         }
 
-        public static FileMap TryExpand(DataSource source)
+        public static FileMap TryExpand(ref DataSource source)
         {
             FileMap decompressedMap = null;
             CompressionType algorithm = GetAlgorithm(source);
@@ -100,10 +100,9 @@ namespace BrawlLib.Wii.Compression
             {
                 try
                 {
+                    source.Compression = algorithm;
                     if (!Test(algorithm, source.Address))
                         return null;
-
-                    source.Compression = algorithm;
 
                     uint len = 0;
                     if (algorithm == CompressionType.RunLengthYAZ0)
