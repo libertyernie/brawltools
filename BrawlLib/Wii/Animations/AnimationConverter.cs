@@ -211,10 +211,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I4Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I4Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->Step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I6:
@@ -224,10 +226,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I6Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I6Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->_step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I12:
@@ -235,10 +239,12 @@ namespace BrawlLib.Wii.Animations
                         I12Header* header = (I12Header*)dataAddr;
                         fCount = header->_numFrames;
 
-                        I12Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I12Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, (int)entry->_index, entry->_value, true)._tangent = entry->_tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.L1:
@@ -247,11 +253,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        byte* sPtr = header->Data;
                         foreach (int x in arrays)
+                        {
+                            byte* sPtr = header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L2:
@@ -260,19 +267,22 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        bushort* sPtr = (bushort*)header->Data;
                         foreach (int x in arrays)
+                        {
+                            bushort* sPtr = (bushort*)header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L4:
                     {
-                        bfloat* sPtr = (bfloat*)dataAddr;
                         foreach (int x in arrays)
+                        {
+                            bfloat* sPtr = (bfloat*)dataAddr;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, *sPtr++, true)/*).GenerateTangent()*/;
+                                (kf.SetFrameValue(x, i, *sPtr++, true)).GenerateTangent();
+                        }
 
                         break;
                     }
