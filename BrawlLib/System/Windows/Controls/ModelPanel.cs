@@ -46,13 +46,6 @@ namespace System.Windows.Forms
 
         public ModelPanelSettings _settings = new ModelPanelSettings();
 
-        public bool _grabbing = false;
-        public bool _scrolling = false;
-        private int _lastX, _lastY;
-
-        public bool _showCamCoords = false;
-        public bool _enableSmoothing = false;
-
         public float RotationScale { get { return _settings._rotFactor; } set { _settings._rotFactor = value; } }
         public float TranslationScale { get { return _settings._transFactor; } set { _settings._transFactor = value; } }
         public float ZoomScale { get { return _settings._zoomFactor; } set { _settings._zoomFactor = value; } }
@@ -84,6 +77,13 @@ namespace System.Windows.Forms
         protected bool _allowSelection = false;
         protected bool _selecting = false;
         protected bool _updateImage = false;
+
+        public bool _grabbing = false;
+        public bool _scrolling = false;
+        public bool _showCamCoords = false;
+        public bool _enableSmoothing = false;
+
+        private int _lastX, _lastY;
 
         public new bool Enabled { get { return _enabled; } set { _enabled = value; base.Enabled = value; } }
         private bool _enabled = true;
@@ -353,13 +353,14 @@ namespace System.Windows.Forms
         {
             if (!Enabled)
                 return;
-
-            _scrolling = true;
+            
             float z = (float)e.Delta / 120;
             if (Control.ModifierKeys == Keys.Shift)
                 z *= 32;
 
-            Zoom(-z * _settings._zoomFactor * _multiplier);
+            _scrolling = true;
+            Zoom(-z * _settings._zoomFactor);
+            _scrolling = false;
 
             if (Control.ModifierKeys == Keys.Alt)
                 if (z < 0)
@@ -394,6 +395,9 @@ namespace System.Windows.Forms
 
             if (e.Button == MouseButtons.Right)
                 _grabbing = true;
+            else
+                if (e.Button == Forms.MouseButtons.Middle)
+                    _scrolling = true;
 
             base.OnMouseDown(e);
         }
@@ -413,7 +417,10 @@ namespace System.Windows.Forms
             if (e.Button == MouseButtons.Right)
                 _grabbing = false;
 
-            if (e.Button == Forms.MouseButtons.Right || e.Button == Forms.MouseButtons.Left)
+            if (e.Button == MouseButtons.Middle)
+                _scrolling = false;
+
+            if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Left)
                 Invalidate();
 
             base.OnMouseUp(e);
@@ -426,7 +433,7 @@ namespace System.Windows.Forms
             if (_selecting)
                 _selEnd = e.Location;
 
-            if (_ctx != null && _grabbing)
+            if (_ctx != null && (_grabbing || _scrolling))
                 lock (_ctx)
                 {
                     int xDiff = e.X - _lastX;
@@ -443,14 +450,15 @@ namespace System.Windows.Forms
                         yDiff *= 16;
                     }
 
-                    if (ctrl)
+                    if (_scrolling)
+                        Translate(0, 0, (float)yDiff * 0.01f);
+                    else if (ctrl)
                         if (alt)
                             Rotate(0, 0, -yDiff * RotationScale);
                         else
                             Rotate(yDiff * RotationScale, -xDiff * RotationScale);
                     else
                         Translate(-xDiff * TranslationScale, -yDiff * TranslationScale, 0.0f);
-
                 }
 
             _lastX = e.X;
@@ -607,7 +615,7 @@ namespace System.Windows.Forms
             x *= _orthographic ? 20.0f : 1.0f;
             y *= _orthographic ? 20.0f : 1.0f;
             _camera.Translate(x, y, z);
-            _scrolling = false;
+            //_scrolling = false;
             Invalidate();
         }
         private void Rotate(float x, float y)
