@@ -55,8 +55,8 @@ namespace System.Windows.Forms
             }
             else
             {
-                //if (weightEditor.Visible)
-                //    ToggleWeightEditor();
+                if (weightEditor.Visible)
+                    ToggleWeightEditor();
 
                 prevHeight = animCtrlPnl.Height;
                 prevWidth = animCtrlPnl.Width;
