@@ -773,6 +773,38 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public void BeginImport()
+        {
+            _isImport = true;
+            InitGroups();
+        }
+
+        public void FinishImport(Collada form = null)
+        {
+            CleanGroups();
+
+            _influences.Clean();
+            _influences.Sort();
+
+            CleanTextures();
+
+            _linker = ModelLinker.Prepare(this);
+            int size = ModelEncoder.CalcSize(form, _linker);
+
+            FileMap uncompMap = FileMap.FromTempFile(size);
+
+            ModelEncoder.Build(form, _linker, (MDL0Header*)uncompMap.Address, size, true);
+
+            _replSrc.Close();
+            _replUncompSrc.Close();
+            _replSrc = _replUncompSrc = new DataSource(uncompMap.Address, size);
+            _replSrc.Map = _replUncompSrc.Map = uncompMap;
+
+            IsDirty = false;
+            _reopen = true;
+            _isImport = false;
+        }
+
         public static MDL0Node FromFile(string path)
         {
             //string ext = Path.GetExtension(path);
@@ -780,8 +812,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return NodeFactory.FromFile(null, path) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
                 return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
-            //else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
-            //    return PMDModel.ImportModel(path);
+            else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
+                return PMDModel.ImportModel(path);
             //else if (string.Equals(ext, "fbx", StringComparison.OrdinalIgnoreCase))
             //{
             //}

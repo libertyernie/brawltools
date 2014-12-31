@@ -42,13 +42,17 @@ namespace BrawlLib.Modeling
             switch (type)
             {
                 case ImportType.MDL0:
-                    MDL0Node m = new MDL0Node() { _name = Path.GetFileNameWithoutExtension(filePath) };
-                    m.InitGroups();
+                    MDL0Node m = new MDL0Node()
+                    {
+                        _name = Path.GetFileNameWithoutExtension(filePath),
+                        _version = _importOptions._modelVersion.Clamp(8, 11)
+                    };
                     if (_importOptions._setOrigPath)
                         m._originalPath = filePath;
-                    m._version = _importOptions._modelVersion;
+                    m.BeginImport();
                     model = m;
                     break;
+
                 case ImportType.BMD:
                     break;
             }
@@ -614,32 +618,7 @@ namespace BrawlLib.Modeling
 
             //Clean the model and then build it!
             if (model != null)
-            {
-                model.CleanGroups();
-
-                model._isImport = true;
-
-                model._influences.Clean();
-                model._influences.Sort();
-
-                model.CleanTextures();
-
-                model._linker = ModelLinker.Prepare(model);
-                int size = ModelEncoder.CalcSize(this, model._linker);
-
-                FileMap uncompMap = FileMap.FromTempFile(size);
-
-                ModelEncoder.Build(this, model._linker, (MDL0Header*)uncompMap.Address, size, true);
-
-                model._replSrc.Close();
-                model._replUncompSrc.Close();
-                model._replSrc = model._replUncompSrc = new DataSource(uncompMap.Address, size);
-                model._replSrc.Map = model._replUncompSrc.Map = uncompMap;
-
-                model.IsDirty = false;
-                model._reopen = true;
-                model._isImport = false;
-            }
+                model.FinishImport();
         }
 
         public static ImportOptions _importOptions = new ImportOptions();

@@ -194,6 +194,7 @@
     <Compile Include="Modeling\IModel.cs" />
     <Compile Include="Modeling\IObject.cs" />
     <None Include="Modeling\XMLExporter.cs" />
+    <Compile Include="Modeling\PMDModel.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
