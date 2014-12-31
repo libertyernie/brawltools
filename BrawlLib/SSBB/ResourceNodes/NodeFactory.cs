@@ -14,7 +14,11 @@ namespace BrawlLib.SSBB.ResourceNodes
     //Factory is for initializing root node, and unknown child nodes.
     public static class NodeFactory
     {
+#if DEBUG
         private const bool UseRawDataNode = true;
+#else
+        private const bool UseRawDataNode = false;
+#endif
         
         private static List<ResourceParser> _parsers = new List<ResourceParser>();
         static NodeFactory()
