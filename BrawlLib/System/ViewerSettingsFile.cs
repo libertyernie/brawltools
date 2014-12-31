@@ -11,7 +11,7 @@ using System.Reflection;
 namespace System
 {
     [Serializable]
-    public class ModelEditorViewportEntry
+    public class ModelEditorViewportEntry : ISerializable
     {
         public bool Bones;
         public bool Polys;
@@ -34,6 +34,26 @@ namespace System
         public Vector3 _defaultCam;
         public Vector3 _defaultRot;
 
+        public ModelEditorViewportEntry() { }
+        public ModelEditorViewportEntry(SerializationInfo info, StreamingContext ctxt)
+        {
+            FieldInfo[] fields = GetType().GetFields(); //Gets public fields only
+            foreach (FieldInfo f in fields)
+            {
+                Type t = f.FieldType;
+                f.SetValue(this, info.GetValue(f.Name, t));
+            }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            FieldInfo[] fields = GetType().GetFields(); //Gets public fields only
+            foreach (FieldInfo f in fields)
+            {
+                Type t = f.FieldType;
+                info.AddValue(f.Name, f.GetValue(this));
+            }
+        }
 
         public enum ViewportType : uint
         {
@@ -184,14 +204,9 @@ namespace System
         }
     }
 
-    public class Serializer<T> where T : ISerializable
+    public static class Serializer
     {
-        public Serializer()
-        {
-
-        }
-
-        public void SerializeObject(string filename, T obj)
+        public static void SerializeObject(string filename, ISerializable obj)
         {
             Stream stream = File.Open(filename, FileMode.Create);
             BinaryFormatter bFormatter = new BinaryFormatter();
@@ -199,11 +214,11 @@ namespace System
             stream.Close();
         }
 
-        public T DeserializeObject(string filename)
+        public static ISerializable DeserializeObject(string filename)
         {
             Stream stream = File.Open(filename, FileMode.Open);
             BinaryFormatter bFormatter = new BinaryFormatter();
-            T obj = (T)bFormatter.Deserialize(stream);
+            ISerializable obj = (ISerializable)bFormatter.Deserialize(stream);
             stream.Close();
             return obj;
         }

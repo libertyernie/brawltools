@@ -607,6 +607,9 @@ namespace System.Windows.Forms
         public override void SetDefaultSettings() { DistributeSettings(ModelEditorSettings.Default); }
         public void DistributeSettings(ModelEditorSettings settings)
         {
+            if (settings == null)
+                return;
+
             _updating = true;
             ModelPanel.BeginUpdate();
 

@@ -62,6 +62,29 @@ namespace System.Windows.Forms
                 _hotKeys.Add(key.KeyCode, key._function);
         }
 
+        public virtual void LinkModelPanel(ModelPanel p)
+        {
+            p.PreRender += EventPreRender;
+            p.PostRender += EventPostRender;
+            p.MouseDown += EventMouseDown;
+            p.MouseMove += EventMouseMove;
+            p.MouseUp += EventMouseUp;
+        }
+        public virtual void UnlinkModelPanel(ModelPanel p)
+        {
+            p.PreRender -= EventPreRender;
+            p.PostRender -= EventPostRender;
+            p.MouseDown -= EventMouseDown;
+            p.MouseMove -= EventMouseMove;
+            p.MouseUp -= EventMouseUp;
+        }
+
+        public virtual void OnModelPanelChanged()
+        {
+            if (ModelViewerChanged != null)
+                ModelViewerChanged(this, null);
+        }
+
         #endregion
 
         #region Models

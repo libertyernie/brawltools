@@ -134,26 +134,17 @@ namespace System.Windows.Forms
 
                 _viewerForm = new ModelViewerForm(this);
 
-                //_viewerForm.modelPanel1._settings = modelPanel._settings;
-                //_viewerForm.modelPanel1._camera = modelPanel._camera;
+                _viewerForm.modelPanel1._settings = modelPanel._settings;
+                _viewerForm.modelPanel1._camera = modelPanel._camera;
 
                 _viewerForm.FormClosed += _viewerForm_FormClosed;
 
-                //modelPanel.PreRender -= EventPreRender;
-                //modelPanel.PostRender -= EventPostRender;
-                //modelPanel.MouseDown -= EventMouseDown;
-                //modelPanel.MouseMove -= EventMouseMove;
-                //modelPanel.MouseUp -= EventMouseUp;
+                UnlinkModelPanel(modelPanel);
+                LinkModelPanel(_viewerForm.modelPanel1);
 
-                //_viewerForm.modelPanel1.PreRender += EventPreRender;
-                //_viewerForm.modelPanel1.PostRender += EventPostRender;
-                //_viewerForm.modelPanel1.MouseDown += EventMouseDown;
-                //_viewerForm.modelPanel1.MouseMove += EventMouseMove;
-                //_viewerForm.modelPanel1.MouseUp += EventMouseUp;
-                //_viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
+                _viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
 
-                //if (ModelViewerChanged != null)
-                //    ModelViewerChanged(this, null);
+                OnModelPanelChanged();
 
                 _viewerForm.Show();
                 _viewerForm.modelPanel1.Invalidate();
@@ -174,26 +165,17 @@ namespace System.Windows.Forms
             modelPanel.Visible = true;
             modelPanel.Enabled = true;
             detachViewerToolStripMenuItem.Text = "Detach";
+            
+            _viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
 
-            //_viewerForm.modelPanel1.PreRender -= EventPreRender;
-            //_viewerForm.modelPanel1.PostRender -= EventPostRender;
-            //_viewerForm.modelPanel1.MouseDown -= EventMouseDown;
-            //_viewerForm.modelPanel1.MouseMove -= EventMouseMove;
-            //_viewerForm.modelPanel1.MouseUp -= EventMouseUp;
-            //_viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
+            UnlinkModelPanel(_viewerForm.modelPanel1);
+            LinkModelPanel(modelPanel);
 
-            //modelPanel.PreRender += EventPreRender;
-            //modelPanel.PostRender += EventPostRender;
-            //modelPanel.MouseDown += EventMouseDown;
-            //modelPanel.MouseMove += EventMouseMove;
-            //modelPanel.MouseUp += EventMouseUp;
+            _viewerForm = null;
+            _interpolationEditor.Visible = false;
+            interpolationEditorToolStripMenuItem.Enabled = true;
 
-            //_viewerForm = null;
-            //_interpolationEditor.Visible = false;
-            //interpolationEditorToolStripMenuItem.Enabled = true;
-
-            //if (ModelViewerChanged != null)
-            //    ModelViewerChanged(this, null);
+            OnModelPanelChanged();
         }
 
         #endregion
@@ -217,9 +199,7 @@ namespace System.Windows.Forms
                 string path = sd.FileName;
                 ModelEditorSettings settings = CollectSettings();
 
-                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
-                s.SerializeObject(path, settings);
-
+                Serializer.SerializeObject(path, settings);
                 MessageBox.Show("Settings successfully saved to " + path);
             }
         }
@@ -232,8 +212,7 @@ namespace System.Windows.Forms
             if (od.ShowDialog() == DialogResult.OK)
             {
                 string path = od.FileName;
-                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
-                ModelEditorSettings settings = s.DeserializeObject(path);
+                ModelEditorSettings settings = Serializer.DeserializeObject(path) as ModelEditorSettings;
                 DistributeSettings(settings);
             }
         }
