@@ -313,7 +313,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                     }
                                 }
 
-                                node._chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
+                                node._chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
                                 node.C1ColorEnabled = true;
                                 node.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1ColorAttenuation = GXAttnFn.Spotlight;
@@ -321,7 +321,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 node.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                                node._chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
+                                node._chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
                                 node.C2ColorEnabled = true;
                                 node.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
                                 node.C2ColorAttenuation = GXAttnFn.Specular;
@@ -332,8 +332,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 node._fogIndex = n._fogIndex;
 
                                 node._cull = n._cull;
-                                node._numLights = 2;
-                                node.ZCompareLoc = false;
+                                //node._numLights = 2;
+                                node.CompareBeforeTexture = true;
                                 node._normMapRefLight1 =
                                 node._normMapRefLight2 =
                                 node._normMapRefLight3 =
@@ -1079,11 +1079,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 attrib = args[0] as ModelRenderAttributes;
             else
                 attrib = _renderAttribs;
-
-#if DEBUG
-            attrib._applyBillboardBones = true;
-            //attrib._renderBox = true;
-#endif
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

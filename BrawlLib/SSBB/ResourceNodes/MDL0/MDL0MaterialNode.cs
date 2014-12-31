@@ -32,10 +32,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             _normMapRefLight2 =
             _normMapRefLight3 =
             _normMapRefLight4 = -1;
-            _numLights = 1;
+            //_numLights = 1;
 
-            _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
-            _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
+            _chan1 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
+            _chan2 = new LightChannel(false, 15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
         }
 
         //Just settings some extra, more brawl-specific defaults here
@@ -67,7 +67,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal UserDataCollection _userEntries = new UserDataCollection();
 
         public byte
-            _numLights,
+            //_numLights,
             _indirectMethod1,
             _indirectMethod2,
             _indirectMethod3,
@@ -87,8 +87,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _texMtxFlags;
 
         public LightChannel 
-            _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0),
-            _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0);
+            _chan1 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0),
+            _chan2 = new LightChannel(false, 15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0);
 
         internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
         internal List<XFData> XFCmds = new List<XFData>();
@@ -300,18 +300,20 @@ Those properties can use this color as an argument. This color is referred to as
 
         #region Depth Func
 
-        [Category("Z Mode")]
+        [Category("Z Mode"), Description("Generally this should be false if using alpha function (transparency), as transparent pixels will change the depth.")]
+        public bool CompareBeforeTexture { get { return _zCompLoc != 0; } set { if (!CheckIfMetal()) _zCompLoc = (byte)(value ? 1 : 0); } }
+        [Category("Z Mode"), Description("Determines if this material's pixels should be compared to other pixels in order to obscure or be obscured.")]
         public bool EnableDepthTest { get { return _zMode.EnableDepthTest; } set { if (!CheckIfMetal()) _zMode.EnableDepthTest = value;  } }
         [Category("Z Mode")]
         public bool EnableDepthUpdate { get { return _zMode.EnableDepthUpdate; } set { if (!CheckIfMetal()) _zMode.EnableDepthUpdate = value;  } }
-        [Category("Z Mode")]
+        [Category("Z Mode"), Description("How this material should be compared to other materials.")]
         public GXCompare DepthFunction { get { return _zMode.DepthFunction; } set { if (!CheckIfMetal()) _zMode.DepthFunction = value;  } }
 
         #endregion
 
         #region Blend Mode
 
-        [Category("Blend Mode")] //Allows textures to be opaque. Cannot be used with Alpha Function
+        [Category("Blend Mode"), Description("This allows the textures to be semi-transparent. Cannot be used with alpha function.")]
         public bool EnableBlend { get { return _blendMode.EnableBlend; } set { if (!CheckIfMetal()) { _blendMode.EnableBlend = value; } } }
         [Category("Blend Mode")]
         public bool EnableBlendLogic { get { return _blendMode.EnableLogicOp; } set { if (!CheckIfMetal()) _blendMode.EnableLogicOp = value;  } }
@@ -390,6 +392,12 @@ Those properties can use this color as an argument. This color is referred to as
 
         #region Lighting Channels
 
+//        [Category("Lighting Channels"), Browsable(false), Description(@"
+//This is how many light channels this material uses. Minimum of 0, maximum of 2.
+//If this number is 0, all light channels in this material are ignored.
+//If this number is 1, only Light Channel 1 is applied. 
+//If this number is 2, both channels are applied.")]
+//        public int ActiveLightChannels { get { return _numLights; } set { if (!CheckIfMetal()) _numLights = (byte)value.Clamp(0, 2); } }
         [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public LightChannel LightChannel1 { get { return _chan1; } set { if (!CheckIfMetal()) _chan1 = value; } }
         [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
@@ -565,7 +573,7 @@ Those properties can use this color as an argument. This color is referred to as
         public TexMatrixMode TextureMatrixMode { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
         
         [Category("Material"), Description("True if this material has transparency (alpha function) enabled.")]
-        public bool XLUMaterial 
+        public bool XLUMaterial
         {
             get { return _usageFlags[31]; }
             set
@@ -604,21 +612,13 @@ Those properties can use this color as an argument. This color is referred to as
         [Category("Material")]
         public int ID { get { return Index; } }
         [Category("Material"), Description(@"
-This is how many light channels this material uses. Minimum of 0, maximum of 2.
-If this number is 0, all light channels in this material are ignored.
-If this number is 1, only Light Channel 1 is applied. 
-If this number is 2, both channels are applied.")]
-        public byte LightChannels { get { return _numLights; } set { if (!CheckIfMetal()) _numLights = value.Clamp(0, 2); } }
-        [Category("Material"), Description(@"
 This dictates how many consecutive stages in the attached shader should be applied to produce the final output color.
 For example, if the shader has two stages but this number is 1, the second stage in the shader will be ignored.")]
-        public byte ActiveShaderStages { get { return _activeStages; } set { if (!CheckIfMetal()) _activeStages = (value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value); } }
+        public int ActiveShaderStages { get { return _activeStages; } set { if (!CheckIfMetal()) _activeStages = (byte)(value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value); } }
         [Category("Material"), Description("The number of active indirect textures in the shader.")]
-        public byte IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
+        public int IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (byte)(value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
         [Category("Material"), Description("This will make one, neither or both sides of the linked objects' mesh invisible.")]
         public CullMode CullMode { get { return _cull; } set { if (!CheckIfMetal()) _cull = value;  } }
-        [Category("Material"), Description("Generally this should be true if using alpha function (transparency).")]
-        public bool ZCompareLoc { get { return _zCompLoc != 1; } set { if (!CheckIfMetal()) _zCompLoc = (byte)(value ? 0 : 1); } }
 
         #endregion
 
@@ -751,7 +751,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                         mr.SetTextMtxData();
                     }
 
-                    _chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
+                    _chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
                     C1ColorEnabled = true;
                     C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
                     C1ColorAttenuation = GXAttnFn.Spotlight;
@@ -759,7 +759,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                     C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
                     C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                    _chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, this);
+                    _chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, this);
                     C2ColorEnabled = true;
                     C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
                     C2ColorAttenuation = GXAttnFn.Specular;
@@ -770,8 +770,8 @@ For example, if the shader has two stages but this number is 1, the second stage
                     _fogIndex = MetalMaterial._fogIndex;
 
                     _cull = MetalMaterial._cull;
-                    _numLights = 2;
-                    ZCompareLoc = false;
+                    //_numLights = 2;
+                    CompareBeforeTexture = true;
                     _normMapRefLight1 =
                     _normMapRefLight2 =
                     _normMapRefLight3 =
@@ -838,7 +838,6 @@ For example, if the shader has two stages but this number is 1, the second stage
             //Get XF Commands
             XFCmds = XFData.Parse((byte*)header->DisplayLists(_initVersion) + 0xE0);
 
-            _numLights = header->_numLightChans;
             _usageFlags = header->_usageFlags;
 
             _indirectMethod1 = header->_indirectMethod1;
@@ -883,6 +882,10 @@ For example, if the shader has two stages but this number is 1, the second stage
 
             (_chan1 = Light->Channel1)._parent = this;
             (_chan2 = Light->Channel2)._parent = this;
+
+            int lightCount = header->_numLightChans;
+            _chan1._enabled = lightCount != 0;
+            _chan2._enabled = lightCount == 2;
 
             (_userEntries = new UserDataCollection()).Read(header->UserData(_initVersion));
             
@@ -1020,10 +1023,22 @@ For example, if the shader has two stages but this number is 1, the second stage
             header->_numTextures = Children.Count;
             header->_numTexGens = (byte)Children.Count;
             header->_index = Index;
-            header->_numLightChans = _numLights;
             header->_activeTEVStages = (byte)_activeStages;
             header->_numIndTexStages = _activeIndStages;
             header->_enableAlphaTest = _zCompLoc;
+
+            byte lights = 0;
+            bool c1 = _chan1._enabled, c2 = _chan2._enabled;
+            if (c2 && !c1)
+            {
+                //Swap channels. First must be enabled before second
+                LightChannel temp = _chan1;
+                _chan1 = _chan2;
+                _chan2 = temp;
+            }
+            if (c1) lights++;
+            if (c2) lights++;
+            header->_numLightChans = lights;
 
             header->_lightSet = _lightSetIndex;
             header->_fogSet = _fogIndex;
@@ -1279,9 +1294,8 @@ For example, if the shader has two stages but this number is 1, the second stage
                     }
                     else if (t._textureIndex < _indirectFrameStates.Length)
                     {
-                        if (node != null && index >= 1)
-                        {
-                            fixed (TextureFrameState* state = &_indirectFrameStates[t._textureIndex])
+                        fixed (TextureFrameState* state = &_indirectFrameStates[t._textureIndex])
+                            if (node != null && index >= 1)
                             {
                                 float* f = (float*)state;
                                 for (int i = 0; i < 5; i++)
@@ -1290,9 +1304,8 @@ For example, if the shader has two stages but this number is 1, the second stage
                                 state->MatrixMode = node.MatrixMode;
                                 state->CalcTransforms();
                             }
-                        }
-                        else
-                            _indirectFrameStates[t._textureIndex] = TextureFrameState.Neutral;
+                            else
+                                *state = TextureFrameState.Neutral;
                     }
                 }
             else
@@ -1429,15 +1442,19 @@ For example, if the shader has two stages but this number is 1, the second stage
     {
         public MDL0MaterialNode _parent = null;
 
-        public LightChannel(uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material) : this(flags, mat, amb, color, alpha) { _parent = material; }
-        public LightChannel(uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha)
+        public LightChannel(bool enabled, uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material) : this(enabled, flags, mat, amb, color, alpha) { _parent = material; }
+        public LightChannel(bool enabled, uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha)
         {
+            _enabled = enabled;
             _flags = flags;
             _matColor = mat;
             _ambColor = amb;
             _color = new LightChannelControl(color) { _parent = this };
             _alpha = new LightChannelControl(alpha) { _parent = this };
         }
+
+        [Category("Lighting Channel")]
+        public bool Enabled { get { return _enabled; } set { _enabled = value; _parent.SignalPropertyChange(); } }
 
         [Category("Lighting Channel")]
         public LightingChannelFlags Flags { get { return (LightingChannelFlags)_flags; } set { _flags = (uint)value; _parent.SignalPropertyChange(); } }
@@ -1535,6 +1552,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             set { _alpha.Lights = value; _parent.SignalPropertyChange(); }
         }
 
+        public bool _enabled;
         public uint _flags;
         public RGBAPixel _matColor, _ambColor;
         public LightChannelControl _color, _alpha;
