@@ -1,5 +1,5 @@
 
-BrawlBox Data Viewer - Version 0.74
+BrawlBox Data Viewer - Version 0.74b
 Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
@@ -13,6 +13,9 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.74b- (??/??/20??) - BrawlLib v0.21b
+
 
  - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Brawlbox can now check for updates on startup (can be enabled via Tools->Settings) or when you go to Help->"Check for updates" and automatically install that update for you, in another folder or in place of the current version.
