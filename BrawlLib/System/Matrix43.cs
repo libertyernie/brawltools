@@ -344,7 +344,7 @@ namespace System
         {
             Matrix43 m = Identity;
             if (state.Flags != 7)
-                MtxArray[state.Indirect ? 0 : 1 + (int)state.MatrixMode * 7 + state.Flags]((float*)&m, state);
+                MtxArray[state.Indirect ? 0 : 1 + ((int)state.MatrixMode).Clamp(0, 2) * 7 + state.Flags]((float*)&m, state);
             return m;
         }
 

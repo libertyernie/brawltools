@@ -635,6 +635,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        [Browsable(false)]
         public KeyframeArray[] KeyArrays
         {
             get { return new KeyframeArray[] { Keyframes }; }

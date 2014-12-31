@@ -1176,8 +1176,10 @@ namespace System.Windows.Forms
             pnlPlaneProps.Dock = DockStyle.Fill;
             pnlPointProps.Dock = DockStyle.Fill;
 
+            _updating = true;
             cboMaterial.DataSource = Enum.GetValues(typeof(CollisionPlaneMaterial));
             cboType.DataSource = Enum.GetValues(typeof(CollisionPlaneType));
+            _updating = false;
         }
 
         private void TargetChanged(CollisionNode node)

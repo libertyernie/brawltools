@@ -115,7 +115,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     else
                         _name = "anim" + Index;
 
-                if (Header5->_origPathOffset > 0)
+                if (header->_origPathOffset > 0)
                     _originalPath = header->OrigPath;
 
                 (_userEntries = new UserDataCollection()).Read(header->UserData);

@@ -117,8 +117,8 @@ namespace System.Windows.Forms
                 new HotKeyInfo(Keys.V, true, true, false, HotkeyPasteEntryFrameKeyframesOnly),
                 new HotKeyInfo(Keys.V, true, false, false, HotkeyPasteEntryFrame),
                 new HotKeyInfo(Keys.V, false, false, false, HotkeyRenderVertices),
-                new HotKeyInfo(Keys.I, true, false, true, HotkeyCaptureScreenshotTransparent),
-                new HotKeyInfo(Keys.I, true, false, false, HotkeyCaptureScreenshot),
+                new HotKeyInfo(Keys.I, true, true, false, HotkeyCaptureScreenshotTransparent),
+                new HotKeyInfo(Keys.I, true, false, true, HotkeyCaptureScreenshot),
                 new HotKeyInfo(Keys.Z, true, false, false, HotkeyUndo),
                 new HotKeyInfo(Keys.Y, true, false, false, HotkeyRedo),
             };

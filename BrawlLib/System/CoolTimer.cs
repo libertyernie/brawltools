@@ -71,7 +71,7 @@ namespace System
             {
                 double v = value.Clamp(0.0, 1.0);
 
-                if (v <= 0.005)
+                if (v < 0.001)
                     _targetRenderPeriod = 0.0;
                 else
                     _targetRenderPeriod = v;
