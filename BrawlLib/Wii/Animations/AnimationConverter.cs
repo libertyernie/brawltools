@@ -13,7 +13,7 @@ namespace BrawlLib.Wii.Animations
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
             if (node is CHR0Node)
                 return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
@@ -30,7 +30,7 @@ namespace BrawlLib.Wii.Animations
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
             KeyframeArray kf = new KeyframeArray(numFrames);
 
@@ -690,13 +690,10 @@ namespace BrawlLib.Wii.Animations
 
         public static void EncodeCHR0Keyframes(KeyframeCollection kf, VoidPtr entryAddress, VoidPtr dataAddress, AnimationCode code)
         {
-            //VoidPtr dataAddr = addr + 8;
-
             CHR0Entry* header = (CHR0Entry*)entryAddress;
             header->_code = (uint)code._data;
             header->_stringOffset = 0;
 
-            //entryAddress += 8;
             bint* pOffset = (bint*)entryAddress + 2;
 
             //Write values/offset and encode groups
