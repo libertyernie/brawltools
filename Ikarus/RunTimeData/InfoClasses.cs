@@ -148,9 +148,9 @@ namespace Ikarus.ModelViewer
             CurrentFrame = index - _setAt;
         }
 
-        private AnimationNode GetAnim(AnimationNode[] arr, string name)
+        private NW4RAnimationNode GetAnim(NW4RAnimationNode[] arr, string name)
         {
-            foreach (AnimationNode n in arr)
+            foreach (NW4RAnimationNode n in arr)
                 if (n.Name.Contains(name))
                     return n;
             return null;
@@ -167,12 +167,12 @@ namespace Ikarus.ModelViewer
                     CurrentSubaction = _article._subActions[_subaction] as SubActionEntry;
                     if (CurrentSubaction != null)
                     {
-                        _chr0 = GetAnim(_chr0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as CHR0Node;
-                        _srt0 = GetAnim(_srt0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as SRT0Node;
-                        _pat0 = GetAnim(_pat0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as PAT0Node;
-                        _vis0 = GetAnim(_vis0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as VIS0Node;
-                        _shp0 = GetAnim(_shp0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as SHP0Node;
-                        _clr0 = GetAnim(_clr0List.ToArray<AnimationNode>(), CurrentSubaction.Name) as CLR0Node;
+                        _chr0 = GetAnim(_chr0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as CHR0Node;
+                        _srt0 = GetAnim(_srt0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as SRT0Node;
+                        _pat0 = GetAnim(_pat0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as PAT0Node;
+                        _vis0 = GetAnim(_vis0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as VIS0Node;
+                        _shp0 = GetAnim(_shp0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as SHP0Node;
+                        _clr0 = GetAnim(_clr0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as CLR0Node;
 
                         _maxFrame = _chr0.FrameCount;
                     }

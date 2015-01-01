@@ -8,7 +8,7 @@ using BrawlLib.Imaging;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SCN0Node : AnimationNode
+    public unsafe class SCN0Node : NW4RAnimationNode
     {
         internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal SCN0v4* Header4 { get { return (SCN0v4*)WorkingUncompressed.Address; } }

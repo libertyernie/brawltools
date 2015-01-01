@@ -8,7 +8,7 @@ namespace BrawlLib.Wii.Animations
     internal static unsafe class AnimationConverter
     {
         #region Decoding
-        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, AnimationNode node)
+        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, NW4RAnimationNode node)
         {
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will

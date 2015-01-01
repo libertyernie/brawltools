@@ -11,79 +11,50 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SRT0Node : AnimationNode
+    public unsafe class SRT0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal SRT0v4* Header4 { get { return (SRT0v4*)WorkingUncompressed.Address; } }
         internal SRT0v5* Header5 { get { return (SRT0v5*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SRT0; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(SRT0EntryNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SRT0EntryNode) }; } }
 
+        public SRT0Node() { _version = 4; }
         const string _category = "Texture Coordinate Animation";
-        public int _loop, _version = 4, _numFrames = 1, _matrixMode;
+        int _matrixMode;
 
         [Category(_category)]
-        public int Version 
-        { 
-            get { return _version; } 
-            set 
-            {
-                if (_version == value)
-                    return;
-
-                _version = value;
-                SignalPropertyChange();
-            }
-        }
-        [Category(_category)]
-        public override bool Loop
+        public override int Version
         {
-            get { return _loop != 0; }
-            set
-            {
-                _loop = value ? 1 : 0;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.Version; }
+            set { base.Version = value; }
         }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
+        [Category(_category)]
+        public override bool Loop
+        {
+            get { return base.Loop; }
+            set { base.Loop = value; UpdateChildFrameLimits(); }
+        }
+        [Category(_category)]
+        public override string OriginalPath
+        {
+            get { return base.OriginalPath; }
+            set { base.OriginalPath = value; }
+        }
+        [Category(_category)]
+        public TexMatrixMode MatrixMode { get { return (TexMatrixMode)_matrixMode; } set { _matrixMode = (int)value; SignalPropertyChange(); } }
 
-        private void UpdateChildFrameLimits()
+        protected override void UpdateChildFrameLimits()
         {
             foreach (SRT0EntryNode n in Children)
                 foreach (SRT0TextureNode t in n.Children)
                     t.SetSize(_numFrames, Loop);
         }
-
-        [Category(_category)]
-        public TexMatrixMode MatrixMode { get { return (TexMatrixMode)_matrixMode; } set { _matrixMode = (int)value; SignalPropertyChange(); } }
-
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
 
         public void InsertKeyframe(int index)
         {
@@ -102,36 +73,35 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
-
             if (_version == 5)
             {
-                if ((_name == null) && (Header5->_stringOffset != 0))
-                    _name = Header5->ResourceString;
-                _loop = ((int)Header5->_loop).Clamp(0, 1); //Clamp just in case
-                _numFrames = Header5->_numFrames;
-                _matrixMode = Header5->_matrixMode;
+                SRT0v5* header = Header5;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
+                _loop = ((int)header->_loop).Clamp(0, 1); //Clamp just in case
+                _numFrames = header->_numFrames;
+                _matrixMode = header->_matrixMode;
 
-                if (Header5->_origPathOffset > 0)
-                    _originalPath = Header5->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                (_userEntries = new UserDataCollection()).Read(Header5->UserData);
+                (_userEntries = new UserDataCollection()).Read(header->UserData);
 
-                return Header5->Group->_numEntries > 0;
+                return header->Group->_numEntries > 0;
             }
             else
             {
-                if ((_name == null) && (Header4->_stringOffset != 0))
-                    _name = Header4->ResourceString;
-                _loop = ((int)Header4->_loop).Clamp(0, 1); //Clamp just in case
-                _numFrames = Header4->_numFrames;
-                _matrixMode = Header4->_matrixMode;
+                SRT0v4* header = Header4;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
+                _loop = ((int)header->_loop).Clamp(0, 1); //Clamp just in case
+                _numFrames = header->_numFrames;
+                _matrixMode = header->_matrixMode;
 
-                if (Header4->_origPathOffset > 0)
-                    _originalPath = Header4->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                return Header4->Group->_numEntries > 0;
+                return header->Group->_numEntries > 0;
             }
         }
 

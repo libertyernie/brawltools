@@ -1785,7 +1785,7 @@ namespace Ikarus.UI
                     foreach (ARCEntryNode u in entries)
                         foreach (BRESGroupNode b in u.Children)
                         {
-                            AnimationNode anim = b.Children[0] as AnimationNode;
+                            NW4RAnimationNode anim = b.Children[0] as NW4RAnimationNode;
                             switch (b.Type)
                             {
                                 case BRESGroupNode.BRESGroupType.CHR0:

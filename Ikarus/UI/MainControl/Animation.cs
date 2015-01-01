@@ -260,7 +260,7 @@ namespace Ikarus.UI
                     break;
             }
 
-            AnimationNode anim = GetAnimation(type);
+            NW4RAnimationNode anim = GetAnimation(type);
             if (anim == null)
             {
                 pnlPlayback.numFrameIndex.Maximum = MaxFrame = 0;

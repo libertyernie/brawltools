@@ -94,7 +94,7 @@ namespace System.Windows.Forms
 
         public override void OnAnimationChanged()
         {
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
 
             selectedAnimationToolStripMenuItem.Enabled = node != null;
 

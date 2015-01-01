@@ -493,12 +493,52 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public class AnimationNode : BRESEntryNode
+    public unsafe class NW4RAnimationNode : BRESEntryNode
     {
+        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
+        
+        public int _numFrames = 1, _version, _loop;
+        public string _originalPath;
+        internal UserDataCollection _userEntries = new UserDataCollection();
+
         [Browsable(true)]
-        public virtual int FrameCount { get { return 0; } set { } }
+        public virtual int Version
+        {
+            get { return _version; }
+            set
+            {
+                _version = value;
+                SignalPropertyChange();
+            }
+        }
         [Browsable(true)]
-        public virtual bool Loop { get { return false; } set { } }
+        public virtual int FrameCount
+        {
+            get { return _numFrames; }
+            set
+            {
+                if (_numFrames == value || value < 1)
+                    return;
+
+                _numFrames = value;
+                UpdateChildFrameLimits();
+                SignalPropertyChange();
+            }
+        }
+        [Browsable(true)]
+        public virtual bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
+        [Browsable(true)]
+        public virtual string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
+        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
+        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
+
+        protected virtual void UpdateChildFrameLimits() { }
+
+        public override bool OnInitialize()
+        {
+            _version = Header->_version;
+            return false;
+        }
     }
 
     public unsafe class BRESEntryNode : ResourceNode

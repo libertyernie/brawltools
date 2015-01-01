@@ -17,13 +17,13 @@ namespace System.Windows.Forms
     public partial class ModelEditorBase : UserControl
     {
         #region Animation
-        public AnimationNode TargetAnimation
+        public NW4RAnimationNode TargetAnimation
         {
             get { return GetAnimation(TargetAnimType); }
             set { SetAnimation(TargetAnimType, value); }
         }
 
-        public AnimationNode GetAnimation(NW4RAnimType type)
+        public NW4RAnimationNode GetAnimation(NW4RAnimType type)
         {
             switch (type)
             {
@@ -37,7 +37,7 @@ namespace System.Windows.Forms
                 default: return null;
             }
         }
-        public void SetAnimation(NW4RAnimType type, AnimationNode value)
+        public void SetAnimation(NW4RAnimType type, NW4RAnimationNode value)
         {
             switch (type)
             {
@@ -50,7 +50,7 @@ namespace System.Windows.Forms
                 case NW4RAnimType.CLR: SelectedCLR0 = value as CLR0Node; break;
             }
         }
-        public void SetAnimation(AnimationNode value)
+        public void SetAnimation(NW4RAnimationNode value)
         {
             if (value is CHR0Node)
                 SelectedCHR0 = value as CHR0Node;
@@ -356,7 +356,7 @@ namespace System.Windows.Forms
                 UpdateKeyframePanel();
             }
 
-            AnimationNode node = GetAnimation(type);
+            NW4RAnimationNode node = GetAnimation(type);
             if (node == null)
             {
                 pnlPlayback.numFrameIndex.Maximum = (decimal)(_maxFrame = 0);

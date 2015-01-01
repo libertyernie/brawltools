@@ -382,7 +382,7 @@ namespace System.Windows.Forms
             if (TargetModel == null || !(TargetModel is MDL0Node))
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Port((MDL0Node)TargetModel);
 
@@ -394,7 +394,7 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).MergeWith();
 
@@ -406,7 +406,7 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Append();
             else if (node is SRT0Node)
@@ -426,7 +426,7 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Resize();
             else if (node is SRT0Node)
@@ -443,7 +443,7 @@ namespace System.Windows.Forms
 
         private void averageAllStartEndTangentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AnimationNode n = TargetAnimation;
+            NW4RAnimationNode n = TargetAnimation;
             if (n is CHR0Node)
                 ((CHR0Node)n).AverageKeys();
             if (n is SRT0Node)
@@ -454,7 +454,7 @@ namespace System.Windows.Forms
 
         private void averageboneStartendTangentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AnimationNode n = TargetAnimation;
+            NW4RAnimationNode n = TargetAnimation;
             if (n is CHR0Node && SelectedBone != null)
                 ((CHR0Node)n).AverageKeys(SelectedBone.Name);
             if (n is SRT0Node && TargetTexRef != null)
