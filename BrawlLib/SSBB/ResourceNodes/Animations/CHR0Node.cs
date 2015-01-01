@@ -279,7 +279,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             float ratio = (float)newFrameCount / (float)FrameCount;
             foreach (CHR0EntryNode e in Children)
             {
-                KeyframeCollection newCollection = new KeyframeCollection(9, newFrameCount, 1, 1, 1);
+                KeyframeCollection newCollection = new KeyframeCollection(9, newFrameCount + (Loop ? 1 : 0), 1, 1, 1);
                 for (int x = 0; x < FrameCount; x++)
                 {
                     int newFrame = (int)((float)x * ratio + 0.5f);

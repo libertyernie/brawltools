@@ -783,7 +783,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_keyframes == null)
                 {
-                    _keyframes = new KeyframeCollection(10, Scene.FrameCount);
+                    _keyframes = new KeyframeCollection(10, Scene.FrameCount + (Scene.Loop ? 1 : 0));
                     for (int i = 0, index = 0; i < 14; i++)
                         if (!(i == 3 || i == 7 || i == 9 || i == 11))
                             DecodeKeyframes(

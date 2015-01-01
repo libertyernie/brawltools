@@ -267,7 +267,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (SRT0EntryNode n in Children)
                 foreach (SRT0TextureNode e in n.Children)
                 {
-                    KeyframeCollection newCollection = new KeyframeCollection(5, newFrameCount, 1, 1);
+                    KeyframeCollection newCollection = new KeyframeCollection(5, newFrameCount + (Loop ? 1 : 0), 1, 1);
                     for (int x = 0; x < FrameCount; x++)
                     {
                         int newFrame = (int)((float)x * ratio + 0.5f);
