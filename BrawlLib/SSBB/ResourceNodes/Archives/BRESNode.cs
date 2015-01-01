@@ -536,6 +536,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            base.OnInitialize();
             _version = Header->_version;
             return false;
         }

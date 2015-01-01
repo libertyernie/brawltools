@@ -10,69 +10,57 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class SCN0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal SCN0v4* Header4 { get { return (SCN0v4*)WorkingUncompressed.Address; } }
         internal SCN0v5* Header5 { get { return (SCN0v5*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SCN0; } }
 
+        public SCN0Node() { _version = 4; }
         const string _category = "Scene Definition";
-        public int _version = 4, _frameCount = 1, _loop, _specLights, _lightsets, _amblights, _lights, _fogs, _cameras;
+        public int _specLights, _lightsets, _amblights, _lights, _fogs, _cameras;
 
         [Category(_category)]
-        public int Version { get { return _version; } set { _version = value; SignalPropertyChange(); } }
+        public override int Version
+        {
+            get { return base.Version; }
+            set { base.Version = value; }
+        }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _frameCount; }
-            set
-            {
-                if ((_frameCount == value) || (value < 1))
-                    return;
-
-                _frameCount = value;
-
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
         [Category(_category)]
         public override bool Loop
         {
-            get { return _loop != 0; }
-            set
-            {
-                _loop = value ? 1 : 0;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.Loop; }
+            set { base.Loop = value; UpdateChildFrameLimits(); }
+        }
+        [Category(_category)]
+        public override string OriginalPath
+        {
+            get { return base.OriginalPath; }
+            set { base.OriginalPath = value; }
         }
 
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
-
-        private void UpdateChildFrameLimits()
+        protected override void UpdateChildFrameLimits()
         {
             SCN0GroupNode grp = GetFolder<SCN0LightNode>();
             if (grp != null)
                 foreach (SCN0LightNode l in grp.Children)
-                    l.SetSize(_frameCount, Loop);
+                    l.SetSize(_numFrames, Loop);
             grp = GetFolder<SCN0FogNode>();
             if (grp != null)
                 foreach (SCN0FogNode l in grp.Children)
-                    l.SetSize(_frameCount, Loop);
+                    l.SetSize(_numFrames, Loop);
             grp = GetFolder<SCN0AmbientLightNode>();
             if (grp != null)
                 foreach (SCN0AmbientLightNode l in grp.Children)
-                    l.SetSize(_frameCount);
+                    l.SetSize(_numFrames);
             grp = GetFolder<SCN0CameraNode>();
             if (grp != null)
                 foreach (SCN0CameraNode l in grp.Children)
-                    l.SetSize(_frameCount, Loop);
+                    l.SetSize(_numFrames, Loop);
         }
 
         public override bool OnInitialize()
@@ -86,7 +74,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                _frameCount = header->_frameCount;
+                _numFrames = header->_frameCount;
                 _specLights = header->_specLightCount;
                 _loop = ((int)header->_loop).Clamp(0, 1);
                 _lightsets = header->_lightSetCount;
@@ -108,7 +96,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                _frameCount = header->_frameCount;
+                _numFrames = header->_frameCount;
                 _specLights = header->_specLightCount;
                 _loop = ((int)header->_loop).Clamp(0, 1);
                 _lightsets = header->_lightSetCount;
@@ -296,7 +284,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SCN0v5* header = (SCN0v5*)address;
 
                 header->_origPathOffset = 0;
-                header->_frameCount = (ushort)_frameCount;
+                header->_frameCount = (ushort)_numFrames;
                 header->_specLightCount = (ushort)_specLights;
                 header->_loop = _loop;
                 header->_pad = 0;
@@ -309,7 +297,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SCN0v4* header = (SCN0v4*)address;
 
                 header->_origPathOffset = 0;
-                header->_frameCount = (ushort)_frameCount;
+                header->_frameCount = (ushort)_numFrames;
                 header->_specLightCount = (ushort)_specLights;
                 header->_loop = _loop;
                 header->_pad = 0;
