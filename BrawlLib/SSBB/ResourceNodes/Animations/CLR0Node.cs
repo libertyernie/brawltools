@@ -9,55 +9,51 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class CLR0Node : AnimationNode
+    public unsafe class CLR0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal CLR0v3* Header3 { get { return (CLR0v3*)WorkingUncompressed.Address; } }
         internal CLR0v4* Header4 { get { return (CLR0v4*)WorkingUncompressed.Address; } }
-
         public override ResourceType ResourceType { get { return ResourceType.CLR0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(CLR0MaterialNode) }; } }
 
+        public CLR0Node() { _version = 3; }
         const string _category = "Material Color Animation";
-        internal int _numFrames = 1, _loop, _version = 3;
 
         [Category(_category)]
-        public int Version { get { return _version; } set { _version = value; SignalPropertyChange(); } }
+        public override int Version
+        {
+            get { return base.Version; }
+            set { base.Version = value; }
+        }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-
-                foreach (CLR0MaterialNode n in Children)
-                    foreach (CLR0MaterialEntryNode e in n.Children)
-                        e.NumEntries = _numFrames;
-
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
+        }
+        [Category(_category)]
+        public override bool Loop
+        {
+            get { return base.Loop; }
+            set { base.Loop = value; }
+        }
+        [Category(_category)]
+        public override string OriginalPath
+        {
+            get { return base.OriginalPath; }
+            set { base.OriginalPath = value; }
         }
 
-        [Category(_category)]
-        public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
-
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
+        protected override void UpdateChildFrameLimits()
+        {
+            foreach (CLR0MaterialNode n in Children)
+                foreach (CLR0MaterialEntryNode e in n.Children)
+                    e.NumEntries = _numFrames;
+        }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
             if (_version == 4)
             {
                 CLR0v4* header = Header4;

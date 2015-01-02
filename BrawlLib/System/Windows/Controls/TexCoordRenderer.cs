@@ -20,7 +20,6 @@ namespace System.Windows.Forms
         public TexCoordRenderer() { InitializeComponent(); }
 
         internal bool _updating = false;
-        private const float _lineWidth = 1.5f, _pointWidth = 5.0f;
         Vector2 _topLeft = new Vector2();
         Vector2 _bottomRight = new Vector2();
         List<ResourceNode> _attached;
@@ -33,19 +32,30 @@ namespace System.Windows.Forms
         public BindingList<string> UVSetNames { get { return _uvSetNames; } }
         BindingList<string> _uvSetNames = new BindingList<string>();
 
-        public void SetTarget(MDL0TextureNode texture)
+        public MDL0TextureNode TargetNode
+        {
+            get { return _currentTextureNode; }
+            set { SetTarget(value); }
+        }
+
+        private void SetTarget(MDL0TextureNode texture)
         {
             _camera.Reset();
             _currentTextureNode = texture;
 
-            foreach (MDL0MaterialRefNode m in _attached)
-                m.Unbind();
-
-            _attached.Clear();
+            if (_attached == null)
+                _attached = new List<ResourceNode>();
+            else
+            {
+                foreach (MDL0MaterialRefNode m in _attached)
+                    m.Unbind();
+                _attached.Clear();
+            }
 
             if (_currentTextureNode == null)
                 return;
 
+            _attached.Clear();
             _attached.AddRange(_currentTextureNode._references);
 
             foreach (MDL0MaterialRefNode m in _attached)

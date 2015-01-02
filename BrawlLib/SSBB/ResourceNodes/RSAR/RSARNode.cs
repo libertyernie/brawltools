@@ -32,7 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal INFOFooter ftr;
 
-        private List<RSARFileNode> _files;
+        private List<RSARFileNode> _files = new List<RSARFileNode>();
         [Browsable(false)]
         public List<RSARFileNode> Files { get { return _files; } }
 

@@ -252,6 +252,7 @@ namespace BrawlBox
             scN0CameraEditControl1.TargetSequence = null;
             scN0LightEditControl1.TargetSequence = null;
             scN0FogEditControl1.TargetSequence = null;
+            texCoordRenderer1.TargetNode = null;
             modelPanel1.ClearAll();
             
             Control newControl = null;
@@ -426,9 +427,9 @@ namespace BrawlBox
             else if (_currentControl is TexCoordRenderer)
             {
                 if (node is MDL0TextureNode)
-                    texCoordRenderer1.SetTarget((MDL0TextureNode)node);
+                    texCoordRenderer1.TargetNode = (MDL0TextureNode)node;
                 else
-                    texCoordRenderer1.SetTarget(((MDL0MaterialRefNode)node).TextureNode);
+                    texCoordRenderer1.TargetNode = ((MDL0MaterialRefNode)node).TextureNode;
             }
         }
 
@@ -452,7 +453,11 @@ namespace BrawlBox
         private void aRCArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<ARCNode>(); }
         private void u8FileArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<U8Node>(); }
         private void brresPackToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<BRESNode>(); }
-
+        private void tPLTextureArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<TPLNode>(); }
+        private void eFLSEffectListToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<EFLSNode>(); }
+        private void rEFFParticlesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFFNode>(); }
+        private void rEFTParticleTexturesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFTNode>(); }
+        
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) { Program.Save(); }
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) { Program.SaveAs(); }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e) { Program.Close(); }

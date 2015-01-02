@@ -1943,7 +1943,6 @@ namespace System.Windows.Forms
             this.leftPanel.Name = "leftPanel";
             this.leftPanel.Size = new System.Drawing.Size(138, 391);
             this.leftPanel.TabIndex = 4;
-            //this.leftPanel.TargetAnimType = System.Windows.Forms.NW4RAnimType.CHR;
             this.leftPanel.Visible = false;
             // 
             // ModelEditControl

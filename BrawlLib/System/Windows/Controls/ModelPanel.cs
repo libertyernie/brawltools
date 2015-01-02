@@ -46,13 +46,6 @@ namespace System.Windows.Forms
 
         public ModelPanelSettings _settings = new ModelPanelSettings();
 
-        public bool _grabbing = false;
-        public bool _scrolling = false;
-        private int _lastX, _lastY;
-
-        public bool _showCamCoords = false;
-        public bool _enableSmoothing = false;
-
         public float RotationScale { get { return _settings._rotFactor; } set { _settings._rotFactor = value; } }
         public float TranslationScale { get { return _settings._transFactor; } set { _settings._transFactor = value; } }
         public float ZoomScale { get { return _settings._zoomFactor; } set { _settings._zoomFactor = value; } }
@@ -84,6 +77,13 @@ namespace System.Windows.Forms
         protected bool _allowSelection = false;
         protected bool _selecting = false;
         protected bool _updateImage = false;
+
+        public bool _grabbing = false;
+        public bool _scrolling = false;
+        public bool _showCamCoords = false;
+        public bool _enableSmoothing = false;
+
+        private int _lastX, _lastY;
 
         public new bool Enabled { get { return _enabled; } set { _enabled = value; base.Enabled = value; } }
         private bool _enabled = true;
@@ -250,33 +250,22 @@ namespace System.Windows.Forms
         {
             //Get the position of the midpoint of the bounding box plane closer to the camera
             Vector3 frontMidPt = new Vector3((max._x + min._x) / 2.0f, (max._y + min._y) / 2.0f, max._z);
-            float tan = (float)Math.Tan(_fovY / 2.0f * Maths._deg2radf), z = 0;
+            float tan = (float)Math.Tan(_fovY / 2.0f * Maths._deg2radf), distX = 0, distY = 0;
 
             //The tangent value would only be 0 if the FOV was 0,
             //meaning nothing would be visible anyway
             if (tan != 0)
             {
                 //Calculate lengths
-                float x = max._x - frontMidPt._x; //Distance from model midpoint to the top
-                float y = max._y - frontMidPt._y; //Distance from model midpoint to the camera's right
-                z = y / tan; //The camera's distance from the model's midpoint in respect to Y
-
-                //If the model's X distance is greater than the Y distance, use different ratio calculations
-                if (x > y && y != 0)
-                {
-                    //Apply X/Y ratio to distance to convert it to relate to X
-                    z *= (x / y);
-
-                    if (_aspect > 1.0f)
-                        z /= _aspect; //Apply aspect ratio in relation to X
-                }
-                else
-                    if (_aspect < 1.0f && _aspect != 0.0f)
-                        z /= _aspect; //Apply aspect ratio in relation to Y
+                Vector3 extents = max - min;
+                Vector3 halfExtents = extents / 2.0f;
+                float ratio = halfExtents._x / halfExtents._y;
+                distY = halfExtents._y / tan; //The camera's distance from the model's midpoint in respect to Y
+                distX = distY * ratio;
             }
 
             _camera.Reset();
-            _camera.Translate(frontMidPt._x, frontMidPt._y, z + 2.0f);
+            _camera.Translate(frontMidPt._x, frontMidPt._y, Maths.Max(distX, distY, max._z) + 2.0f);
             Invalidate();
         }
 
@@ -364,13 +353,14 @@ namespace System.Windows.Forms
         {
             if (!Enabled)
                 return;
-
-            _scrolling = true;
+            
             float z = (float)e.Delta / 120;
             if (Control.ModifierKeys == Keys.Shift)
                 z *= 32;
 
-            Zoom(-z * _settings._zoomFactor * _multiplier);
+            _scrolling = true;
+            Zoom(-z * _settings._zoomFactor);
+            _scrolling = false;
 
             if (Control.ModifierKeys == Keys.Alt)
                 if (z < 0)
@@ -405,6 +395,9 @@ namespace System.Windows.Forms
 
             if (e.Button == MouseButtons.Right)
                 _grabbing = true;
+            else
+                if (e.Button == Forms.MouseButtons.Middle)
+                    _scrolling = true;
 
             base.OnMouseDown(e);
         }
@@ -424,7 +417,10 @@ namespace System.Windows.Forms
             if (e.Button == MouseButtons.Right)
                 _grabbing = false;
 
-            if (e.Button == Forms.MouseButtons.Right || e.Button == Forms.MouseButtons.Left)
+            if (e.Button == MouseButtons.Middle)
+                _scrolling = false;
+
+            if (e.Button == MouseButtons.Right || e.Button == MouseButtons.Left)
                 Invalidate();
 
             base.OnMouseUp(e);
@@ -437,7 +433,7 @@ namespace System.Windows.Forms
             if (_selecting)
                 _selEnd = e.Location;
 
-            if (_ctx != null && _grabbing)
+            if (_ctx != null && (_grabbing || _scrolling))
                 lock (_ctx)
                 {
                     int xDiff = e.X - _lastX;
@@ -454,14 +450,15 @@ namespace System.Windows.Forms
                         yDiff *= 16;
                     }
 
-                    if (ctrl)
+                    if (_scrolling)
+                        Translate(0, 0, (float)yDiff * 0.01f);
+                    else if (ctrl)
                         if (alt)
                             Rotate(0, 0, -yDiff * RotationScale);
                         else
                             Rotate(yDiff * RotationScale, -xDiff * RotationScale);
                     else
                         Translate(-xDiff * TranslationScale, -yDiff * TranslationScale, 0.0f);
-
                 }
 
             _lastX = e.X;
@@ -618,7 +615,7 @@ namespace System.Windows.Forms
             x *= _orthographic ? 20.0f : 1.0f;
             y *= _orthographic ? 20.0f : 1.0f;
             _camera.Translate(x, y, z);
-            _scrolling = false;
+            //_scrolling = false;
             Invalidate();
         }
         private void Rotate(float x, float y)

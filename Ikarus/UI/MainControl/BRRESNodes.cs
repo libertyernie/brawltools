@@ -40,7 +40,7 @@ namespace Ikarus.UI
         }
         public bool RetrieveAnimation(NW4RAnimType focusType, NW4RAnimType type)
         {
-            AnimationNode f = GetAnimation(focusType);
+            NW4RAnimationNode f = GetAnimation(focusType);
             if (f == null)
             {
                 SetSelectedBRRESFile(type, null);
@@ -49,7 +49,7 @@ namespace Ikarus.UI
             SetSelectedBRRESFile(type, RetrieveAnimation(f.Name, type));
             return GetAnimation(type) != null;
         }
-        public AnimationNode RetrieveAnimation(string name, NW4RAnimType type)
+        public NW4RAnimationNode RetrieveAnimation(string name, NW4RAnimType type)
         {
             if (listPanel._animations.ContainsKey(name) && listPanel._animations[name].ContainsKey(type))
                 return listPanel._animations[name][type];

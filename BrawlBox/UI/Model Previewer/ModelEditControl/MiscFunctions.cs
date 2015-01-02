@@ -145,10 +145,10 @@ namespace System.Windows.Forms
                     animCtrlPnl.Height = y;
                     animCtrlPnl.Width = z;
                 }
-                else
+                else if (!weightEditor.Visible && !vertexEditor.Visible)
                     animEditors.Height = animCtrlPnl.Width = 0;
             }
-            else
+            else if (!weightEditor.Visible && !vertexEditor.Visible)
                 animEditors.Height = animCtrlPnl.Width = 0;
 
             if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
@@ -268,8 +268,6 @@ namespace System.Windows.Forms
 
                 if (_currentControl != null)
                     _currentControl.Visible = true;
-
-                return;
             }
             CheckDimensions();
             UpdatePropDisplay();
@@ -297,9 +295,11 @@ namespace System.Windows.Forms
                 _snapX = _snapY = _snapZ = _snapCirc = false;
                 _rotating = _translating = _scaling = false;
 
-                //if (weightEditor.TargetVertices != _selectedVertices)
-                //    weightEditor.TargetVertices = _selectedVertices;
-                if (vertexEditor.TargetVertices != _selectedVertices)
+#if DEBUG
+                if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
+                    weightEditor.TargetVertices = _selectedVertices;
+#endif
+                if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
                     vertexEditor.TargetVertices = _selectedVertices;
             }
         }
@@ -478,7 +478,9 @@ namespace System.Windows.Forms
 
                 //Weight editor has been disabled due to the necessity
                 //of re-encoding objects after making influence changes.
-                //new HotKeyInfo(Keys.H, false, false, false, HotkeyWeightEditor),
+#if DEBUG
+                new HotKeyInfo(Keys.H, false, false, false, HotkeyWeightEditor),
+#endif
             };
             _hotkeyList.AddRange(temp);
         }
@@ -607,6 +609,9 @@ namespace System.Windows.Forms
         public override void SetDefaultSettings() { DistributeSettings(ModelEditorSettings.Default); }
         public void DistributeSettings(ModelEditorSettings settings)
         {
+            if (settings == null)
+                return;
+
             _updating = true;
             ModelPanel.BeginUpdate();
 

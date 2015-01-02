@@ -1195,7 +1195,7 @@ namespace System.Windows.Forms
             {
                 createNewToolStripMenuItem.Text = String.Format("Create New {0}0", TargetAnimType.ToString());
 
-                AnimationNode n = listAnims.SelectedItems[0].Tag as AnimationNode;
+                NW4RAnimationNode n = listAnims.SelectedItems[0].Tag as NW4RAnimationNode;
                 if (n != null)
                     chkLoop.Checked = n.Loop;
 
@@ -1419,7 +1419,7 @@ namespace System.Windows.Forms
 
         private void chkLoop_CheckedChanged(object sender, EventArgs e)
         {
-            AnimationNode n = _mainWindow.TargetAnimation;
+            NW4RAnimationNode n = _mainWindow.TargetAnimation;
             if (n != null)
             {
                 bool loopPrev = n.Loop;

@@ -8,12 +8,12 @@ namespace BrawlLib.Wii.Animations
     internal static unsafe class AnimationConverter
     {
         #region Decoding
-        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, AnimationNode node)
+        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, NW4RAnimationNode node)
         {
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
             if (node is CHR0Node)
                 return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
@@ -30,7 +30,7 @@ namespace BrawlLib.Wii.Animations
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
             KeyframeArray kf = new KeyframeArray(numFrames);
 
@@ -211,10 +211,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I4Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I4Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->Step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I6:
@@ -224,10 +226,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I6Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I6Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->_step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I12:
@@ -235,10 +239,12 @@ namespace BrawlLib.Wii.Animations
                         I12Header* header = (I12Header*)dataAddr;
                         fCount = header->_numFrames;
 
-                        I12Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I12Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, (int)entry->_index, entry->_value, true)._tangent = entry->_tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.L1:
@@ -247,11 +253,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        byte* sPtr = header->Data;
                         foreach (int x in arrays)
+                        {
+                            byte* sPtr = header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L2:
@@ -260,19 +267,22 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        bushort* sPtr = (bushort*)header->Data;
                         foreach (int x in arrays)
+                        {
+                            bushort* sPtr = (bushort*)header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L4:
                     {
-                        bfloat* sPtr = (bfloat*)dataAddr;
                         foreach (int x in arrays)
+                        {
+                            bfloat* sPtr = (bfloat*)dataAddr;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, *sPtr++, true)/*).GenerateTangent()*/;
+                                (kf.SetFrameValue(x, i, *sPtr++, true)).GenerateTangent();
+                        }
 
                         break;
                     }
@@ -690,13 +700,10 @@ namespace BrawlLib.Wii.Animations
 
         public static void EncodeCHR0Keyframes(KeyframeCollection kf, VoidPtr entryAddress, VoidPtr dataAddress, AnimationCode code)
         {
-            //VoidPtr dataAddr = addr + 8;
-
             CHR0Entry* header = (CHR0Entry*)entryAddress;
             header->_code = (uint)code._data;
             header->_stringOffset = 0;
 
-            //entryAddress += 8;
             bint* pOffset = (bint*)entryAddress + 2;
 
             //Write values/offset and encode groups

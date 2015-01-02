@@ -313,7 +313,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                     }
                                 }
 
-                                node._chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
+                                node._chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
                                 node.C1ColorEnabled = true;
                                 node.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1ColorAttenuation = GXAttnFn.Spotlight;
@@ -321,7 +321,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 node.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                                node._chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
+                                node._chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
                                 node.C2ColorEnabled = true;
                                 node.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
                                 node.C2ColorAttenuation = GXAttnFn.Specular;
@@ -332,8 +332,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 node._fogIndex = n._fogIndex;
 
                                 node._cull = n._cull;
-                                node._numLights = 2;
-                                node.ZCompareLoc = false;
+                                //node._numLights = 2;
+                                node.CompareBeforeTexture = true;
                                 node._normMapRefLight1 =
                                 node._normMapRefLight2 =
                                 node._normMapRefLight3 =
@@ -773,6 +773,38 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public void BeginImport()
+        {
+            _isImport = true;
+            InitGroups();
+        }
+
+        public void FinishImport(Collada form = null)
+        {
+            CleanGroups();
+
+            _influences.Clean();
+            _influences.Sort();
+
+            CleanTextures();
+
+            _linker = ModelLinker.Prepare(this);
+            int size = ModelEncoder.CalcSize(form, _linker);
+
+            FileMap uncompMap = FileMap.FromTempFile(size);
+
+            ModelEncoder.Build(form, _linker, (MDL0Header*)uncompMap.Address, size, true);
+
+            _replSrc.Close();
+            _replUncompSrc.Close();
+            _replSrc = _replUncompSrc = new DataSource(uncompMap.Address, size);
+            _replSrc.Map = _replUncompSrc.Map = uncompMap;
+
+            IsDirty = false;
+            _reopen = true;
+            _isImport = false;
+        }
+
         public static MDL0Node FromFile(string path)
         {
             //string ext = Path.GetExtension(path);
@@ -780,8 +812,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return NodeFactory.FromFile(null, path) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
                 return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
-            //else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
-            //    return PMDModel.ImportModel(path);
+            else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
+                return PMDModel.ImportModel(path);
             //else if (string.Equals(ext, "fbx", StringComparison.OrdinalIgnoreCase))
             //{
             //}
@@ -1079,11 +1111,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 attrib = args[0] as ModelRenderAttributes;
             else
                 attrib = _renderAttribs;
-
-#if DEBUG
-            attrib._applyBillboardBones = true;
-            //attrib._renderBox = true;
-#endif
 
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

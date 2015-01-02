@@ -581,7 +581,7 @@ namespace Ikarus.UI
         {
             InitializeComponent();
             movesetEditor.SelectedIndex = 2;
-            _animations = new SortedList<string, Dictionary<NW4RAnimType, AnimationNode>>();
+            _animations = new SortedList<string, Dictionary<NW4RAnimType, NW4RAnimationNode>>();
             foreach (var grid in new AttributeGrid[] { attributeGridSSE, attributeGridMain }) {
                 grid.AttributeArray = Manager.AttributeArray;
                 grid.CellEdited += (o, e) => MainForm.UpdateModelPanel();
@@ -589,7 +589,7 @@ namespace Ikarus.UI
             }
         }
 
-        public SortedList<string, Dictionary<NW4RAnimType, AnimationNode>> _animations;
+        public SortedList<string, Dictionary<NW4RAnimType, NW4RAnimationNode>> _animations;
 
         public bool LoadAnims(ResourceNode node)
         {
@@ -624,8 +624,8 @@ namespace Ikarus.UI
             return found;
         Add:
             if (!_animations.ContainsKey(node.Name))
-                _animations.Add(node.Name, new Dictionary<NW4RAnimType, AnimationNode>());
-            _animations[node.Name].Add(type, node as AnimationNode);
+                _animations.Add(node.Name, new Dictionary<NW4RAnimType, NW4RAnimationNode>());
+            _animations[node.Name].Add(type, node as NW4RAnimationNode);
             return found;
         }
 

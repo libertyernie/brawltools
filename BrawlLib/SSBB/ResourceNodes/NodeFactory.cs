@@ -14,7 +14,11 @@ namespace BrawlLib.SSBB.ResourceNodes
     //Factory is for initializing root node, and unknown child nodes.
     public static class NodeFactory
     {
+#if DEBUG
         private const bool UseRawDataNode = true;
+#else
+        private const bool UseRawDataNode = false;
+#endif
         
         private static List<ResourceParser> _parsers = new List<ResourceParser>();
         static NodeFactory()
@@ -48,7 +52,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (Forced.ContainsKey(ext))
                     {
                         node = Activator.CreateInstance(Forced[ext]) as ResourceNode;
-                        FileMap uncomp = Compressor.TryExpand(source);
+                        FileMap uncomp = Compressor.TryExpand(ref source);
                         if (uncomp != null)
                             node.Initialize(parent, source, new DataSource(uncomp));
                         else
@@ -76,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.Initialize(parent, source);
             else
             {
-                FileMap uncomp = Compressor.TryExpand(source);
+                FileMap uncomp = Compressor.TryExpand(ref source);
                 DataSource d;
                 if (uncomp != null && (n = NodeFactory.GetRaw(d = new DataSource(uncomp))) != null)
                     n.Initialize(parent, source, d);

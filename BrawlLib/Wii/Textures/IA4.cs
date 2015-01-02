@@ -39,13 +39,13 @@ namespace BrawlLib.Wii.Textures
     {
         public byte data;
 
-        public byte Intensity
+        public byte Alpha
         {
             get { return (byte)((data >> 4) | (data & 0xF0)); }
             set { data = (byte)((data & 0x0F) | (value << 4)); }
         }
 
-        public byte Alpha
+        public byte Intensity
         {
             get { return (byte)((data << 4) | (data & 0x0F)); }
             set { data = (byte)((data & 0xF0) | (value & 0x0F)); }
@@ -61,7 +61,7 @@ namespace BrawlLib.Wii.Textures
             int intensity = (p.R + p.G + p.B + 1) / 3;                  // Extra 1 added to get effect of rounding to nearest instead of rounding down
             intensity = Convert.ToInt32(intensity * (15.0 / 255.0));    // Convert intensity from 8 bits to 4
             int alpha = Convert.ToInt32(p.A * (15.0 / 255.0));          // Convert alpha from 8 bits to 4
-            return new IA4Pixel() { data = (byte)((intensity << 4) | alpha) };
+            return new IA4Pixel() { data = (byte)((alpha << 4) | intensity) };
         }
     }
 }

@@ -10,58 +10,42 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SHP0Node : AnimationNode
+    public unsafe class SHP0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal SHP0v3* Header3 { get { return (SHP0v3*)WorkingUncompressed.Address; } }
         internal SHP0v4* Header4 { get { return (SHP0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SHP0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SHP0EntryNode) }; } }
 
+        public SHP0Node() { _version = 3; }
         const string _category = "Vertex Morph Animation";
-        int _version = 3, _numFrames = 1, _loop;
 
         [Category(_category)]
-        public int Version
+        public override int Version
         {
-            get { return _version; }
-            set { _version = value; SignalPropertyChange(); }
+            get { return base.Version; }
+            set { base.Version = value; }
         }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
         [Category(_category)]
         public override bool Loop
         {
-            get { return _loop != 0; }
-            set
-            {
-                _loop = value ? 1 : 0;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.Loop; }
+            set { base.Loop = value; UpdateChildFrameLimits(); }
+        }
+        [Category(_category)]
+        public override string OriginalPath
+        {
+            get { return base.OriginalPath; }
+            set { base.OriginalPath = value; }
         }
 
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
-
-        private void UpdateChildFrameLimits()
+        protected override void UpdateChildFrameLimits()
         {
             foreach (SHP0EntryNode n in Children)
                 foreach (SHP0VertexSetNode s in n.Children)
@@ -635,6 +619,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        [Browsable(false)]
         public KeyframeArray[] KeyArrays
         {
             get { return new KeyframeArray[] { Keyframes }; }

@@ -12,69 +12,46 @@ using BrawlLib.Modeling;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class CHR0Node : AnimationNode
+    public unsafe class CHR0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal CHR0v4_3* Header4_3 { get { return (CHR0v4_3*)WorkingUncompressed.Address; } }
         internal CHR0v5* Header5 { get { return (CHR0v5*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.CHR0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(CHR0EntryNode) }; } }
 
+        public CHR0Node() { _version = 4; }
         const string _category = "Bone Animation";
-        internal int _numFrames = 1, _loop, _version = 4;
 
         [Category(_category)]
-        public int Version
+        public override int Version
         {
-            get { return _version; }
-            set
-            {
-                if (_version == value)
-                    return;
-
-                _version = value;
-                SignalPropertyChange();
-            }
+            get { return base.Version; }
+            set { base.Version = value; }
         }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-
-                foreach (CHR0EntryNode n in Children)
-                    n.SetSize(_numFrames, Loop);
-
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
         [Category(_category)]
         public override bool Loop
         {
-            get { return _loop != 0; }
-            set
-            {
-                _loop = (ushort)(value ? 1 : 0);
-
-                foreach (CHR0EntryNode n in Children)
-                    n.SetSize(_numFrames, Loop);
-
-                SignalPropertyChange();
-            }
+            get { return base.Loop; }
+            set { base.Loop = value; UpdateChildFrameLimits(); }
+        }
+        [Category(_category)]
+        public override string OriginalPath
+        {
+            get { return base.OriginalPath; }
+            set { base.OriginalPath = value; }
         }
 
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
+        protected override void UpdateChildFrameLimits()
+        {
+            foreach (CHR0EntryNode n in Children)
+                n.SetSize(_numFrames, Loop);
+        }
 
         public CHR0EntryNode CreateEntry() { return CreateEntry(null); }
         public CHR0EntryNode CreateEntry(string name)
@@ -102,7 +79,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
             if (_version == 5)
             {
                 CHR0v5* header = Header5;
@@ -115,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     else
                         _name = "anim" + Index;
 
-                if (Header5->_origPathOffset > 0)
+                if (header->_origPathOffset > 0)
                     _originalPath = header->OrigPath;
 
                 (_userEntries = new UserDataCollection()).Read(header->UserData);
@@ -303,7 +279,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             float ratio = (float)newFrameCount / (float)FrameCount;
             foreach (CHR0EntryNode e in Children)
             {
-                KeyframeCollection newCollection = new KeyframeCollection(9, newFrameCount, 1, 1, 1);
+                KeyframeCollection newCollection = new KeyframeCollection(9, newFrameCount + (Loop ? 1 : 0), 1, 1, 1);
                 for (int x = 0; x < FrameCount; x++)
                 {
                     int newFrame = (int)((float)x * ratio + 0.5f);

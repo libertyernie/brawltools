@@ -122,13 +122,13 @@ namespace Ikarus.UI
         public ModelViewerForm ModelViewerForm { get { return _viewerForm; } }
         ModelViewerForm _viewerForm = null;
 
-        public AnimationNode TargetAnimation
+        public NW4RAnimationNode TargetAnimation
         {
             get { return GetAnimation(TargetAnimType); }
             set { SetSelectedBRRESFile(TargetAnimType, value); }
         }
 
-        public AnimationNode GetAnimation(NW4RAnimType type)
+        public NW4RAnimationNode GetAnimation(NW4RAnimType type)
         {
             switch (type)
             {
@@ -141,7 +141,7 @@ namespace Ikarus.UI
                 default: return null;
             }
         }
-        public void SetSelectedBRRESFile(NW4RAnimType type, AnimationNode value)
+        public void SetSelectedBRRESFile(NW4RAnimType type, NW4RAnimationNode value)
         {
             switch (type)
             {

@@ -32,13 +32,21 @@ namespace BrawlBox
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
+            this.resourceTree = new BrawlBox.ResourceTree();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.aRCArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.brresPackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.bRStmAudioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.u8FileArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.archivesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.aRCFileArchiveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bRRESResourcePackToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.u8FileArchiveToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.tPLTextureArchiveToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.audioToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bRSTMAudioStreamToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.effectsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.eFLSEffectListToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rEFFParticlesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.rEFTParticleTexturesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -56,7 +64,6 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.resourceTree = new BrawlBox.ResourceTree();
             this.texCoordRenderer1 = new System.Windows.Forms.TexCoordRenderer();
             this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
@@ -103,6 +110,21 @@ namespace BrawlBox
             this.splitContainer1.TabIndex = 1;
             this.splitContainer1.TabStop = false;
             // 
+            // resourceTree
+            // 
+            this.resourceTree.AllowDrop = true;
+            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resourceTree.HideSelection = false;
+            this.resourceTree.ImageIndex = 0;
+            this.resourceTree.Indent = 20;
+            this.resourceTree.Location = new System.Drawing.Point(0, 24);
+            this.resourceTree.Name = "resourceTree";
+            this.resourceTree.SelectedImageIndex = 0;
+            this.resourceTree.ShowIcons = true;
+            this.resourceTree.Size = new System.Drawing.Size(214, 387);
+            this.resourceTree.TabIndex = 0;
+            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
+            // 
             // menuStrip1
             // 
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -135,41 +157,97 @@ namespace BrawlBox
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.aRCArchiveToolStripMenuItem,
-            this.brresPackToolStripMenuItem,
-            this.bRStmAudioToolStripMenuItem,
-            this.u8FileArchiveToolStripMenuItem});
+            this.archivesToolStripMenuItem,
+            this.audioToolStripMenuItem,
+            this.effectsToolStripMenuItem});
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
             this.newToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
             this.newToolStripMenuItem.Text = "&New";
             // 
-            // aRCArchiveToolStripMenuItem
+            // archivesToolStripMenuItem
             // 
-            this.aRCArchiveToolStripMenuItem.Name = "aRCArchiveToolStripMenuItem";
-            this.aRCArchiveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.aRCArchiveToolStripMenuItem.Text = "ARC File Archive";
-            this.aRCArchiveToolStripMenuItem.Click += new System.EventHandler(this.aRCArchiveToolStripMenuItem_Click);
+            this.archivesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.aRCFileArchiveToolStripMenuItem,
+            this.bRRESResourcePackToolStripMenuItem,
+            this.u8FileArchiveToolStripMenuItem1,
+            this.tPLTextureArchiveToolStripMenuItem1});
+            this.archivesToolStripMenuItem.Name = "archivesToolStripMenuItem";
+            this.archivesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.archivesToolStripMenuItem.Text = "Archives";
             // 
-            // brresPackToolStripMenuItem
+            // aRCFileArchiveToolStripMenuItem
             // 
-            this.brresPackToolStripMenuItem.Name = "brresPackToolStripMenuItem";
-            this.brresPackToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.brresPackToolStripMenuItem.Text = "Brres Resource Pack";
-            this.brresPackToolStripMenuItem.Click += new System.EventHandler(this.brresPackToolStripMenuItem_Click);
+            this.aRCFileArchiveToolStripMenuItem.Name = "aRCFileArchiveToolStripMenuItem";
+            this.aRCFileArchiveToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.aRCFileArchiveToolStripMenuItem.Text = "ARC File Archive";
+            this.aRCFileArchiveToolStripMenuItem.Click += new System.EventHandler(this.aRCArchiveToolStripMenuItem_Click);
             // 
-            // bRStmAudioToolStripMenuItem
+            // bRRESResourcePackToolStripMenuItem
             // 
-            this.bRStmAudioToolStripMenuItem.Name = "bRStmAudioToolStripMenuItem";
-            this.bRStmAudioToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.bRStmAudioToolStripMenuItem.Text = "Brstm Audio Stream";
-            this.bRStmAudioToolStripMenuItem.Click += new System.EventHandler(this.bRStmAudioToolStripMenuItem_Click);
+            this.bRRESResourcePackToolStripMenuItem.Name = "bRRESResourcePackToolStripMenuItem";
+            this.bRRESResourcePackToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.bRRESResourcePackToolStripMenuItem.Text = "BRRES Resource Pack";
+            this.bRRESResourcePackToolStripMenuItem.Click += new System.EventHandler(this.brresPackToolStripMenuItem_Click);
             // 
-            // u8FileArchiveToolStripMenuItem
+            // u8FileArchiveToolStripMenuItem1
             // 
-            this.u8FileArchiveToolStripMenuItem.Name = "u8FileArchiveToolStripMenuItem";
-            this.u8FileArchiveToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
-            this.u8FileArchiveToolStripMenuItem.Text = "U8 File Archive";
-            this.u8FileArchiveToolStripMenuItem.Click += new System.EventHandler(this.u8FileArchiveToolStripMenuItem_Click);
+            this.u8FileArchiveToolStripMenuItem1.Name = "u8FileArchiveToolStripMenuItem1";
+            this.u8FileArchiveToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
+            this.u8FileArchiveToolStripMenuItem1.Text = "U8 File Archive";
+            this.u8FileArchiveToolStripMenuItem1.Click += new System.EventHandler(this.u8FileArchiveToolStripMenuItem_Click);
+            // 
+            // tPLTextureArchiveToolStripMenuItem1
+            // 
+            this.tPLTextureArchiveToolStripMenuItem1.Name = "tPLTextureArchiveToolStripMenuItem1";
+            this.tPLTextureArchiveToolStripMenuItem1.Size = new System.Drawing.Size(186, 22);
+            this.tPLTextureArchiveToolStripMenuItem1.Text = "TPL Texture Archive";
+            this.tPLTextureArchiveToolStripMenuItem1.Click += new System.EventHandler(this.tPLTextureArchiveToolStripMenuItem_Click);
+            // 
+            // audioToolStripMenuItem
+            // 
+            this.audioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bRSTMAudioStreamToolStripMenuItem});
+            this.audioToolStripMenuItem.Name = "audioToolStripMenuItem";
+            this.audioToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.audioToolStripMenuItem.Text = "Audio";
+            // 
+            // bRSTMAudioStreamToolStripMenuItem
+            // 
+            this.bRSTMAudioStreamToolStripMenuItem.Name = "bRSTMAudioStreamToolStripMenuItem";
+            this.bRSTMAudioStreamToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
+            this.bRSTMAudioStreamToolStripMenuItem.Text = "BRSTM Audio Stream";
+            this.bRSTMAudioStreamToolStripMenuItem.Click += new System.EventHandler(this.bRStmAudioToolStripMenuItem_Click);
+            // 
+            // effectsToolStripMenuItem
+            // 
+            this.effectsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.eFLSEffectListToolStripMenuItem,
+            this.rEFFParticlesToolStripMenuItem,
+            this.rEFTParticleTexturesToolStripMenuItem});
+            this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
+            this.effectsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.effectsToolStripMenuItem.Text = "Particle Effects";
+            // 
+            // eFLSEffectListToolStripMenuItem
+            // 
+            this.eFLSEffectListToolStripMenuItem.Name = "eFLSEffectListToolStripMenuItem";
+            this.eFLSEffectListToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.eFLSEffectListToolStripMenuItem.Text = "EFLS Effect List";
+            this.eFLSEffectListToolStripMenuItem.Click += new System.EventHandler(this.eFLSEffectListToolStripMenuItem_Click);
+            // 
+            // rEFFParticlesToolStripMenuItem
+            // 
+            this.rEFFParticlesToolStripMenuItem.Name = "rEFFParticlesToolStripMenuItem";
+            this.rEFFParticlesToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.rEFFParticlesToolStripMenuItem.Text = "REFF Particles";
+            this.rEFFParticlesToolStripMenuItem.Click += new System.EventHandler(this.rEFFParticlesToolStripMenuItem_Click);
+            // 
+            // rEFTParticleTexturesToolStripMenuItem
+            // 
+            this.rEFTParticleTexturesToolStripMenuItem.Name = "rEFTParticleTexturesToolStripMenuItem";
+            this.rEFTParticleTexturesToolStripMenuItem.Size = new System.Drawing.Size(189, 22);
+            this.rEFTParticleTexturesToolStripMenuItem.Text = "REFT Particle Textures";
+            this.rEFTParticleTexturesToolStripMenuItem.Click += new System.EventHandler(this.rEFTParticleTexturesToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
             // 
@@ -326,21 +404,6 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(399, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
-            // 
-            // resourceTree
-            // 
-            this.resourceTree.AllowDrop = true;
-            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resourceTree.HideSelection = false;
-            this.resourceTree.ImageIndex = 0;
-            this.resourceTree.Indent = 20;
-            this.resourceTree.Location = new System.Drawing.Point(0, 24);
-            this.resourceTree.Name = "resourceTree";
-            this.resourceTree.SelectedImageIndex = 0;
-            this.resourceTree.ShowIcons = true;
-            this.resourceTree.Size = new System.Drawing.Size(214, 387);
-            this.resourceTree.TabIndex = 0;
-            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
             // 
             // texCoordRenderer1
             // 
@@ -537,13 +600,10 @@ namespace BrawlBox
         public System.Windows.Forms.PropertyGrid propertyGrid1;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private ToolStripMenuItem newToolStripMenuItem;
-        private ToolStripMenuItem aRCArchiveToolStripMenuItem;
-        private ToolStripMenuItem brresPackToolStripMenuItem;
         private ToolStripMenuItem settingsToolStripMenuItem;
         private AnimEditControl animEditControl;
         private MSBinEditor msBinEditor1;
         private MultipleInterpretationAttributeGrid attributeGrid1;
-        private ToolStripMenuItem bRStmAudioToolStripMenuItem;
         private SoundPackControl soundPackControl1;
         private AudioPlaybackPanel audioPlaybackPanel1;
         private CLRControl clrControl;
@@ -558,7 +618,6 @@ namespace BrawlBox
         private SCN0LightEditControl scN0LightEditControl1;
         private SCN0CameraEditControl scN0CameraEditControl1;
         private SCN0FogEditControl scN0FogEditControl1;
-        private ToolStripMenuItem u8FileArchiveToolStripMenuItem;
         public ModelPanel modelPanel1;
         private PreviewPanel previewPanel2;
         public ToolStripMenuItem editToolStripMenuItem;
@@ -568,6 +627,17 @@ namespace BrawlBox
         private ToolStripSeparator toolStripSeparator1;
         private TexCoordRenderer texCoordRenderer1;
         private ToolStripMenuItem checkForUpdatesToolStripMenuItem;
+        private ToolStripMenuItem archivesToolStripMenuItem;
+        private ToolStripMenuItem aRCFileArchiveToolStripMenuItem;
+        private ToolStripMenuItem bRRESResourcePackToolStripMenuItem;
+        private ToolStripMenuItem u8FileArchiveToolStripMenuItem1;
+        private ToolStripMenuItem tPLTextureArchiveToolStripMenuItem1;
+        private ToolStripMenuItem audioToolStripMenuItem;
+        private ToolStripMenuItem bRSTMAudioStreamToolStripMenuItem;
+        private ToolStripMenuItem effectsToolStripMenuItem;
+        private ToolStripMenuItem eFLSEffectListToolStripMenuItem;
+        private ToolStripMenuItem rEFFParticlesToolStripMenuItem;
+        private ToolStripMenuItem rEFTParticleTexturesToolStripMenuItem;
     }
 }
 

@@ -41,6 +41,6 @@ namespace BrawlLib.Modeling
         public bool _renderNormals = false;
         public bool _dontRenderOffscreen = false;
         public bool _renderBox = false;
-        public bool _applyBillboardBones = false;
+        public bool _applyBillboardBones = true;
     }
 }
