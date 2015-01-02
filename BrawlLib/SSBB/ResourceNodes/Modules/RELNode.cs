@@ -91,6 +91,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint ModuleAlign { get { return _moduleAlign; } }
         [Category("Relocatable Module")]
         public uint BSSAlign { get { return _bssAlign; } }
+        [Category("Relocatable Module")]
+        public uint FixSize { get { return _fixSize; } }
 
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
