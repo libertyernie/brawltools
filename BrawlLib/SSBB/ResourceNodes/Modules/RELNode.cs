@@ -337,66 +337,66 @@ namespace BrawlLib.SSBB.ResourceNodes
                 uint offset = 0;
                 List<RELLink> links;
 
-                //Iterate through each command in the section
-                RelCommand command = s._firstCommand;
-                while (command != null)
+                //Iterate through each command in the section          
+                foreach(Relocation r in s._relocations)
                 {
-                    ImportData impData;
-                    uint moduleID = command._moduleID;
-
-                    //Check if an import has been created for the target module.
-                    if (_imports.ContainsKey(moduleID))
+                    if (r.Command != null)
                     {
-                        //An import already exists, so we'll add to it.
-                        links = _imports[moduleID];
-                        impData = tempImports[moduleID];
+                        RelCommand command = r.Command;
+                        ImportData impData;
+                        uint moduleID = command._moduleID;
+
+                        //Check if an import has been created for the target module.
+                        if (_imports.ContainsKey(moduleID))
+                        {
+                            //An import already exists, so we'll add to it.
+                            links = _imports[moduleID];
+                            impData = tempImports[moduleID];
+                        }
+                        else
+                        {
+                            //An import does not exist, so it must be made.
+                            _imports.Add(moduleID, links = new List<RELLink>());
+
+                            //Create new temporary import data
+                            tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
+                        }
+
+                        //This is true when a new section is being evaluated.
+                        if (impData._newSection)
+                        {
+                            links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
+                            impData._newSection = false;
+                        }
+
+                        //Get the offset of the command within the section.
+                        offset = (uint)command._parentRelocation._index * 4 + (command.IsHalf ? 2u : 0);
+
+                        //Get the offset to this address relative to the last written link offset.
+                        uint diff = offset - impData._lastOffset;
+
+                        //If the difference is greater than ushort allows, 
+                        //add increment links until the difference works
+                        while (diff > 0xFFFF)
+                        {
+                            impData._lastOffset += 0xFFFF;
+                            diff = offset - impData._lastOffset;
+
+                            links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
+                        }
+
+                        //Gather the link information
+                        byte targetSection = (byte)command._targetSectionId;
+                        RELLinkType type = (RELLinkType)command._command;
+                        uint val = command._addend;
+
+                        //Write command link
+                        links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
+
+                        //Don't bother adding the difference, 
+                        //just set the exact offset as the last offset
+                        impData._lastOffset = offset;
                     }
-                    else
-                    {
-                        //An import does not exist, so it must be made.
-                        _imports.Add(moduleID, links = new List<RELLink>());
-
-                        //Create new temporary import data
-                        tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
-                    }
-
-                    //This is true when a new section is being evaluated.
-                    if (impData._newSection)
-                    {
-                        links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
-                        impData._newSection = false;
-                    }
-
-                    //Get the offset of the command within the section.
-                    offset = (uint)command._parentRelocation._index * 4 + (command.IsHalf ? 2u : 0);
-
-                    //Get the offset to this address relative to the last written link offset.
-                    uint diff = offset - impData._lastOffset;
-
-                    //If the difference is greater than ushort allows, 
-                    //add increment links until the difference works
-                    while (diff > 0xFFFF)
-                    {
-                        impData._lastOffset += 0xFFFF;
-                        diff = offset - impData._lastOffset;
-
-                        links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
-                    }
-
-                    //Gather the link information
-                    byte targetSection = (byte)command._targetSectionId;
-                    RELLinkType type = (RELLinkType)command._command;
-                    uint val = command._addend;
-
-                    //Write command link
-                    links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
-
-                    //Don't bother adding the difference, 
-                    //just set the exact offset as the last offset
-                    impData._lastOffset = offset;
-
-                    //Move to the next command
-                    command = command.Next;
                 }
             }
 
