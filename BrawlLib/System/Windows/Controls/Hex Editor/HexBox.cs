@@ -2569,36 +2569,23 @@ namespace Be.Windows.Forms
 
         void GetBrushes(Relocation r, long remainder, ref Brush foreColor, ref Brush backColor)
         {
-            foreColor = r.Linked.Count > 0 ? RelocationBrush : foreColor;
+            bool single = r.Linked.Count > 0 && r.Branched.Count == 0 
+                || (r.Branched.Count > 0 && r.Linked.Count == 0);
 
-            bool branch = (r._section.HasCode && r.Code is PPCBranch && _sectionEditor.highlightBlr.Checked);
+            foreColor = r.Linked.Count > 0 ? RelocationBrush :
+                r.Branched.Count > 0 ? new SolidBrush(Color.Blue) :
+                foreColor;
+
+            bool blr = (r._section.HasCode && r.Code is PPCblr && _sectionEditor.highlightBlr.Checked);
+            bool branch = (r._section.HasCode && r.Code is PPCBranch && !(blr || r.Code is PPCbctr));
             bool cmd = r.Command != null && ((r.Command.IsHalf && remainder > 1) || (!r.Command.IsHalf));
-
-            if (_sectionEditor._section.HasCode)
-            {
-                //Get the currently selected branch code.
-                //This is not the byte that is being painted!
-                PPCBranch branchOp = _sectionEditor.TargetBranch;
-                if (branchOp != null)
-                {
-                    int index = 
-                        !branchOp.Absolute ? 
-                        (_sectionEditor.TargetRelocation._index * 4 + branchOp.DataOffset).RoundDown(4) / 4 : 
-                        -1; //Absolute from start of section, start of file, or start of memory?
-
-                    if (index == r._index)
-                    {
-                        backColor = BranchOffsetBrush;
-                        return;
-                    }
-                }
-            }
 
             backColor = 
                 r._selected ? SelectedBrush :   //1st: is this selected?
                 cmd ? CommandBrush :            //2nd: is this a command?
-                branch ? BranchBrush :          //3rd: is this a branch?
-                null;                           //4th: this is nothing important.
+                blr ? BlrBrush :                //3rd: is this a blr?
+                branch ? BranchOffsetBrush :    //4th: Is this a branch?
+                null;                           //5th: this is nothing important.
         }
 
         void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Point gridPoint)
@@ -3648,21 +3635,21 @@ namespace Be.Windows.Forms
         /// Gets or sets the color for code branch relocations.
         /// </summary>
         [Category("Hex"), Description("Gets or sets the color for code branch relocations.")]
-        public Color BranchColor
+        public Color BlrColor
         {
-            get { return _branchColor; }
-            set { _branchColor = value; Invalidate(); }
-        }  Color _branchColor = Color.FromArgb(255, 255, 100);
+            get { return _blrColor; }
+            set { _blrColor = value; Invalidate(); }
+        }  Color _blrColor = Color.FromArgb(255, 255, 100);
         [Browsable(false)]
-        public Brush BranchBrush
+        public Brush BlrBrush
         {
             get
             {
-                return _branchBrush ??
-                    (_branchBrush = new SolidBrush(_branchColor));
+                return _blrBrush ??
+                    (_blrBrush = new SolidBrush(_blrColor));
             }
         }
-        Brush _branchBrush = null;
+        Brush _blrBrush = null;
 
         /// <summary>
         /// Gets or sets the color for relocations that are branched to.
@@ -3672,7 +3659,8 @@ namespace Be.Windows.Forms
         {
             get { return _branchOffsetColor; }
             set { _branchOffsetColor = value; Invalidate(); }
-        }  Color _branchOffsetColor = Color.MediumPurple;
+        }  Color _branchOffsetColor = Color.Plum;
+        
         [Browsable(false)]
         public Brush BranchOffsetBrush
         {

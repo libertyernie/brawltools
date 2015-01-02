@@ -57,6 +57,7 @@
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>
     </DefineConstants>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>

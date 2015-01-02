@@ -182,6 +182,7 @@
             // lstLinked
             // 
             this.lstLinked.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.lstLinked.DrawMode = DrawMode.OwnerDrawFixed;
             this.lstLinked.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstLinked.FormattingEnabled = true;
             this.lstLinked.IntegralHeight = false;
@@ -190,6 +191,7 @@
             this.lstLinked.Size = new System.Drawing.Size(165, 82);
             this.lstLinked.TabIndex = 10;
             this.lstLinked.DoubleClick += new System.EventHandler(this.lstLinked_DoubleClick);
+            this.lstLinked.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstLinked_DrawItem);
             // 
             // label1
             // 
@@ -576,11 +578,6 @@
             this.pnlHexEditor.TabIndex = 11;
             // 
             // hexBox1
-            // 
-            this.hexBox1.BranchColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(100)))));
-            this.hexBox1.BranchOffsetColor = System.Drawing.Color.MediumPurple;
-            // 
-            // 
             // 
             this.hexBox1.BuiltInContextMenu.CopyMenuItemText = "Copy";
             this.hexBox1.BuiltInContextMenu.CutMenuItemText = "Cut";

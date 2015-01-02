@@ -305,7 +305,11 @@ namespace System.Windows.Forms
                 {
                     _targetRelocation._selected = true;
 
-                    lstLinked.DataSource = _targetRelocation.Linked;
+                    lstLinked.Items.Clear();
+                    lstLinked.Items.AddRange(_targetRelocation.Linked.ToArray());
+                    lstLinked.Items.AddRange(_targetRelocation.Branched.ToArray());
+
+                        
 
                     if (_section.HasCode && ppcDisassembler1.Visible)
                     {
@@ -355,6 +359,7 @@ namespace System.Windows.Forms
                             _targetRelocation.Code is PPCBranch &&
                             !(_targetRelocation.Code is PPCblr || _targetRelocation.Code is PPCbctr))
                         {
+                            
                             _targetBranch = (PPCBranch)_targetRelocation.Code;
                             btnGotoBranch.Visible = btnGotoBranch.Enabled = (_targetBranchOffsetRelocation = GetBranchOffsetRelocation()) != null;
                         }
@@ -710,6 +715,21 @@ namespace System.Windows.Forms
         {
             if (lstLinked.SelectedItem != null)
                 OpenRelocation(lstLinked.SelectedItem as Relocation);
+        }
+        private void lstLinked_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+
+            Relocation r = lstLinked.Items[e.Index] as Relocation;
+
+            if (r != null)
+            {
+                Color c = r.Code is PPCBranch ? Color.DarkBlue :
+                r.Target != null ? Color.DarkGreen : Color.Black;
+
+                e.Graphics.DrawString(r.ToString(), lstLinked.Font, new SolidBrush(c), e.Bounds);
+            }
+            e.DrawFocusRectangle();
         }
 
         bool _updating = false;
