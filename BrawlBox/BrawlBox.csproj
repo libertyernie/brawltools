@@ -496,7 +496,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition=" '$(OS)' == 'Unix' ">cp "$(SolutionDir)/Updater/bin/$(ConfigurationName)/Updater.exe" "$(TargetDir)/Updater.exe"</PostBuildEvent>
-    <PostBuildEvent Condition=" '$(OS)' != 'Unix' " >%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>
