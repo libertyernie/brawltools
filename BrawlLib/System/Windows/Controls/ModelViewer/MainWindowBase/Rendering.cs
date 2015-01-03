@@ -1000,6 +1000,9 @@ namespace System.Windows.Forms
             GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
             GL.PolygonMode(MaterialFace.Back, PolygonMode.Fill);
 
+            //So that the model clips with the floor
+            GL.Enable(EnableCap.DepthTest);
+
             GL.Enable(EnableCap.Texture2D);
 
             GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
