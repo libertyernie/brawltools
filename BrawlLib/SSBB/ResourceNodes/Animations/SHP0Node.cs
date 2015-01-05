@@ -16,16 +16,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal SHP0v4* Header4 { get { return (SHP0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SHP0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SHP0EntryNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 3, 4 }; } }
 
         public SHP0Node() { _version = 3; }
         const string _category = "Vertex Morph Animation";
 
-        [Category(_category)]
-        public override int Version
-        {
-            get { return base.Version; }
-            set { base.Version = value; }
-        }
         [Category(_category)]
         public override int FrameCount
         {
@@ -37,12 +32,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get { return base.Loop; }
             set { base.Loop = value; UpdateChildFrameLimits(); }
-        }
-        [Category(_category)]
-        public override string OriginalPath
-        {
-            get { return base.OriginalPath; }
-            set { base.OriginalPath = value; }
         }
 
         protected override void UpdateChildFrameLimits()
@@ -77,16 +66,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (string s in _strings)
                 table.Add(s);
 
-            foreach (SHP0EntryNode n in Children)
-                table.Add(n.Name);
-
             if (_version == 4)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
@@ -105,7 +86,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = header->ResourceString;
 
                 _numFrames = header->_numFrames;
-                _loop = ((int)header->_loop).Clamp(0, 1);
+                _loop = header->_loop != 0;
 
                 bint* stringOffset = header->StringEntries;
                 for (int i = 0; i < header->_numEntries; i++)
@@ -126,7 +107,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = header->ResourceString;
 
                 _numFrames = header->_numFrames;
-                _loop = ((int)header->_loop).Clamp(0, 1);
+                _loop = header->_loop != 0;
 
                 bint* stringOffset = header->StringEntries;
                 for (int i = 0; i < header->_numEntries; i++)

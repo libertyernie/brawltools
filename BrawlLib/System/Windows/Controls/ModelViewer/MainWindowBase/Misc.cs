@@ -6,6 +6,7 @@ using Gif.Components;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -20,40 +21,31 @@ namespace System.Windows.Forms
 
         protected void PreConstruct()
         {
-            srt0Editor._mainWindow =
-            shp0Editor._mainWindow =
-            pat0Editor._mainWindow =
-            vis0Editor._mainWindow =
-            scn0Editor._mainWindow =
-            clr0Editor._mainWindow =
-            chr0Editor._mainWindow =
-            pnlPlayback._mainWindow =
-            this;
-
             _interpolationEditor = new Forms.InterpolationEditor(this);
         }
 
         protected void PostConstruct()
         {
-            if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
-            {
-                pnlPlayback.Dock = DockStyle.Left;
-                pnlPlayback.Width = pnlPlayback.MinimumSize.Width;
-            }
-            else
-                pnlPlayback.Dock = DockStyle.Fill;
-
             _timer = new CoolTimer();
             _timer.RenderFrame += _timer_RenderFrame;
 
-            modelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(this.modelPanel1_PreRender));
-            modelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(this.modelPanel1_PostRender));
-            modelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown));
-            modelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove));
-            modelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp));
-
             KeyframePanel.visEditor.EntryChanged += new EventHandler(VISEntryChanged);
             KeyframePanel.visEditor.IndexChanged += new EventHandler(VISIndexChanged);
+
+            ModelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(this.modelPanel1_PreRender));
+            ModelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(this.modelPanel1_PostRender));
+            ModelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown));
+            ModelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove));
+            ModelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp));
+
+            if (PlaybackPanel != null)
+                if (PlaybackPanel.Width <= PlaybackPanel.MinimumSize.Width)
+                {
+                    PlaybackPanel.Dock = DockStyle.Left;
+                    PlaybackPanel.Width = PlaybackPanel.MinimumSize.Width;
+                }
+                else
+                    PlaybackPanel.Dock = DockStyle.Fill;
 
             InitHotkeyList();
 
@@ -140,15 +132,15 @@ namespace System.Windows.Forms
 
         #region Viewer Background
 
-        public void setColorToolStripMenuItem_Click(object sender, EventArgs e)
+        public virtual ColorDialog ColorDialog { get { return null; } }
+
+        public virtual void ChooseBackgroundColor()
         {
-            if (dlgColor.ShowDialog(this) == DialogResult.OK)
-                ModelPanel.BackColor = ClearColor = dlgColor.Color;
+            if (ColorDialog != null && ColorDialog.ShowDialog(this) == DialogResult.OK)
+                ModelPanel.BackColor = ClearColor = ColorDialog.Color;
         }
 
-        public virtual bool BackgroundImageLoaded { get { return BGImage != null; } set { if (!value) BGImage = null; } }
-
-        public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
+        public void ChooseOrClearBackgroundImage()
         {
             if (BGImage == null)
             {
@@ -169,6 +161,63 @@ namespace System.Windows.Forms
                 BGImage = null;
         }
 
+        #endregion
+
+        #region Playback Panel
+        public void pnlPlayback_Resize(object sender, EventArgs e)
+        {
+            if (PlaybackPanel.Width <= PlaybackPanel.MinimumSize.Width)
+            {
+                PlaybackPanel.Dock = DockStyle.Left;
+                PlaybackPanel.Width = PlaybackPanel.MinimumSize.Width;
+            }
+            else
+                PlaybackPanel.Dock = DockStyle.Fill;
+        }
+
+        public void numFrameIndex_ValueChanged(object sender, EventArgs e)
+        {
+            int val = (int)PlaybackPanel.numFrameIndex.Value;
+            if (val != _animFrame)
+            {
+                int difference = val - _animFrame;
+                if (TargetAnimation != null)
+                    SetFrame(_animFrame += difference);
+            }
+        }
+        public void numFPS_ValueChanged(object sender, EventArgs e)
+        {
+            _timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value;
+        }
+        public void chkLoop_CheckedChanged(object sender, EventArgs e)
+        {
+            _loop = PlaybackPanel.chkLoop.Checked;
+            //if (TargetAnimation != null)
+            //    TargetAnimation.Loop = _loop;
+        }
+        public void numTotalFrames_ValueChanged(object sender, EventArgs e)
+        {
+            if ((TargetAnimation == null) || (_updating))
+                return;
+
+            int max = (int)PlaybackPanel.numTotalFrames.Value;
+            _maxFrame = max;
+            PlaybackPanel.numFrameIndex.Maximum = max;
+
+            if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
+                max--;
+
+            TargetAnimation.FrameCount = max;
+        }
+        public void btnPrevFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value--; }
+        public void btnNextFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value++; }
+        public void btnPlay_Click(object sender, EventArgs e)
+        {
+            if (_timer.IsRunning)
+                StopAnim();
+            else
+                PlayAnim();
+        }
         #endregion
 
         public virtual void SaveSettings() { }
@@ -203,7 +252,7 @@ namespace System.Windows.Forms
 
             AnimatedGifEncoder e = new AnimatedGifEncoder();
             e.Start(outPath);
-            e.SetDelay(1000 / (int)pnlPlayback.numFPS.Value);
+            e.SetDelay(1000 / (int)PlaybackPanel.numFPS.Value);
             e.SetRepeat(0);
             e.SetQuality(1);
             using (ProgressWindow progress = new ProgressWindow(this, "GIF Encoder", "Encoding, please wait...", true))
@@ -267,39 +316,12 @@ namespace System.Windows.Forms
                         bmp.Save(outPath, ImageFormat.Gif);
                     else { okay = false; }
                     if (okay)
-                        MessageBox.Show("Screenshot successfully saved to " + outPath.Replace("\\", "/"));
+                        if (MessageBox.Show(this, "Screenshot successfully saved to \"" + outPath.Replace("\\", "/") + "\".\nOpen the folder containing the screenshot now?", "Screenshot saved", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                            Process.Start("explorer.exe", path);
                 }
                 catch { }
             }
             bmp.Dispose();
-        }
-
-        public void OnDragEnter(object sender, DragEventArgs e)
-        {
-            if (_openFileDelegate == null)
-                return;
-
-            if (e.Data.GetDataPresent(DataFormats.FileDrop))
-                e.Effect = DragDropEffects.Copy;
-            else
-                e.Effect = DragDropEffects.None;
-        }
-
-        public void OnDragDrop(object sender, DragEventArgs e)
-        {
-            if (_openFileDelegate == null)
-                return;
-
-            Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
-            if (a != null)
-            {
-                string s = null;
-                for (int i = 0; i < a.Length; i++)
-                {
-                    s = a.GetValue(i).ToString();
-                    this.BeginInvoke(_openFileDelegate, new Object[] { s });
-                }
-            }
         }
     }
 }

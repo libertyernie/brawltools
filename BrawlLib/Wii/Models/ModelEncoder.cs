@@ -55,7 +55,7 @@ namespace BrawlLib.Wii.Models
         {
             MDL0Node model = linker.Model;
             model._needsNrmMtxArray = model._needsTexMtxArray = false;
-            model._numFacepoints = model._numFaces = 0;
+            model._numFacepoints = model._numTriangles = 0;
 
             int headerLen, 
                 groupLen = 0, 
@@ -128,7 +128,7 @@ namespace BrawlLib.Wii.Models
                                 //Using the material's attached polygon list is untrustable if the definitions were corrupt on parse.
                                 MDL0ObjectNode poly = model._objList[i] as MDL0ObjectNode;
 
-                                model._numFaces += poly._numFaces;
+                                model._numTriangles += poly._numFaces;
                                 model._numFacepoints += poly._numFacepoints;
 
                                 if (poly.OpaMaterialNode != null)
@@ -366,13 +366,14 @@ namespace BrawlLib.Wii.Models
                         if (model._objList != null)
                         {
                             entryList = model._objList;
-                            if (model._objList.Count > 0)
-                            {
-                                model._needsNrmMtxArray = true;
-                                foreach (MDL0ObjectNode n in model._objList)
+                            foreach (MDL0ObjectNode n in model._objList)
+                                if (n.Weighted)
+                                {
+                                    if (n.NormalNode != null || (n._manager != null && n._manager._faceData[1] != null))
+                                        model._needsNrmMtxArray = true;
                                     if (n.HasTexMtx)
                                         model._needsTexMtxArray = true;
-                            }
+                                }
                         }
                         break;
 
@@ -535,7 +536,7 @@ namespace BrawlLib.Wii.Models
             linker.Finish();
 
             //Set new properties
-            *props = new MDL0Props(linker.Version, linker.Model._numFacepoints, linker.Model._numFaces, linker.Model._numNodes, linker.Model._scalingRule, linker.Model._texMtxMode, linker.Model._needsNrmMtxArray, linker.Model._needsTexMtxArray, linker.Model._enableExtents, linker.Model._envMtxMode, linker.Model.BoxMin, linker.Model.BoxMax);
+            *props = new MDL0Props(linker.Version, linker.Model._numFacepoints, linker.Model._numTriangles, linker.Model._numNodes, linker.Model._scalingRule, linker.Model._texMtxMode, linker.Model._needsNrmMtxArray, linker.Model._needsTexMtxArray, linker.Model._enableExtents, linker.Model._envMtxMode, linker.Model._extents.Min, linker.Model._extents.Max);
         }
 
         private static void WriteNodeTable(ModelLinker linker)
@@ -982,22 +983,15 @@ namespace BrawlLib.Wii.Models
 
         private static void SetBox(ModelLinker linker)
         {
-            Vector3 min, max;
-
-            linker.Model.ApplyCHR(null, 0);
-            linker.Model.GetBox(out min, out max);
-
-            linker.Model._min = min;
-            linker.Model._max = max;
-
+            linker.Model.CalculateBoundingBoxes();
             if (linker.Model._objList != null)
             {
                 linker.Model._numFacepoints = 0;
-                linker.Model._numFaces = 0;
+                linker.Model._numTriangles = 0;
                 foreach (MDL0ObjectNode n in linker.Model._objList)
                 {
                     linker.Model._numFacepoints += n._numFacepoints;
-                    linker.Model._numFaces += n._numFaces;
+                    linker.Model._numTriangles += n._numFaces;
                 }
             }
         }
@@ -1005,11 +999,11 @@ namespace BrawlLib.Wii.Models
         private static void SetFormatLists(ModelLinker linker)
         {
             if (linker.Model._objList != null)
-            for (int i = 0; i < linker.Model._objList.Count; i++)
-            {
-                MDL0ObjectNode poly = (MDL0ObjectNode)linker.Model._objList[i];
-                poly._manager.SetFormatList(poly, linker);
-            }
+                for (int i = 0; i < linker.Model._objList.Count; i++)
+                {
+                    MDL0ObjectNode poly = (MDL0ObjectNode)linker.Model._objList[i];
+                    poly._manager.SetFormatList(poly, linker);
+                }
         }
     }
 }

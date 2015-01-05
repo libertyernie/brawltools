@@ -215,7 +215,10 @@ namespace System.Windows.Forms
 
         protected override void OnSelectedBoneChanged()
         {
-            //weightEditor.BoneChanged();
+#if DEBUG
+            if (weightEditor.Visible)
+                weightEditor.BoneChanged();
+#endif
             chkZoomExtents.Enabled = AllowZoomExtents;
         }
         public override void UpdateUndoButtons()
@@ -227,8 +230,7 @@ namespace System.Windows.Forms
         {
             base.OnSelectedVerticesChanged();
 
-            //weightEditor.TargetVertices = _selectedVertices;
-            vertexEditor._targetVertices = _selectedVertices;
+
         }
 
         public override void UpdateAnimationPanelDimensions()
@@ -553,6 +555,7 @@ namespace System.Windows.Forms
                 BoneListContains = rightPanel.pnlBones.chkContains.Checked,
                 SnapToColl = chkSnapToColl.Checked,
                 Maximize = chkMaximize.Checked,
+                UseBindStateBox = displayBindBoundingBoxesOn0FrameToolStripMenuItem.Checked,
 
                 _orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor,
                 _lineColor = (ARGBPixel)MDL0BoneNode.DefaultLineColor,
@@ -595,7 +598,9 @@ namespace System.Windows.Forms
                 e.Vertices = panel.RenderVertices;
                 e.Normals = panel.RenderNormals;
                 e.HideOffscreen = panel.DontRenderOffscreen;
-                e.BoundingBox = panel.RenderBox;
+                e.ModelBoundingBox = panel.RenderModelBox;
+                e.ObjectBoundingBox = panel.RenderObjectBox;
+                e.BoneBoundingBox = panel.RenderVisBoneBox;
                 e.Floor = panel.RenderFloor;
 
                 e.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
@@ -626,6 +631,7 @@ namespace System.Windows.Forms
             chkNonBRRESAnims.Checked = settings.DisplayNonBRRESAnims;
             rightPanel.pnlBones.chkFlat.Checked = settings.FlatBoneList;
             rightPanel.pnlBones.chkContains.Checked = settings.BoneListContains;
+            displayBindBoundingBoxesOn0FrameToolStripMenuItem.Checked = settings.UseBindStateBox;
 
             MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
             MDL0BoneNode.DefaultLineColor = (Color)settings._lineColor;
@@ -692,7 +698,9 @@ namespace System.Windows.Forms
                 panel.RenderWireframe = s.Wireframe;
                 panel.RenderPolygons = s.Polys;
                 panel.RenderVertices = s.Vertices;
-                panel.RenderBox = s.BoundingBox;
+                panel.RenderModelBox = s.ModelBoundingBox;
+                panel.RenderObjectBox = s.ObjectBoundingBox;
+                panel.RenderVisBoneBox = s.BoneBoundingBox;
                 panel.RenderNormals = s.Normals;
                 panel.DontRenderOffscreen = s.HideOffscreen;
                 panel.RenderFloor = s.Floor;

@@ -52,6 +52,11 @@ namespace System
         public static bool operator ==(Vector3 v1, Vector3 v2) { return (v1._x == v2._x) && (v1._y == v2._y) && (v1._z == v2._z); }
         public static bool operator !=(Vector3 v1, Vector3 v2) { return (v1._x != v2._x) || (v1._y != v2._y) || (v1._z != v2._z); }
 
+        public static bool operator <(Vector3 v1, Vector3 v2) { return (v1._x < v2._x) && (v1._y < v2._y) && (v1._z < v2._z); }
+        public static bool operator >(Vector3 v1, Vector3 v2) { return (v1._x > v2._x) && (v1._y > v2._y) && (v1._z > v2._z); }
+        public static bool operator <=(Vector3 v1, Vector3 v2) { return (v1._x <= v2._x) && (v1._y <= v2._y) && (v1._z <= v2._z); }
+        public static bool operator >=(Vector3 v1, Vector3 v2) { return (v1._x >= v2._x) && (v1._y >= v2._y) && (v1._z >= v2._z); }
+
         public void Add(Vector3* v) { _x += v->_x; _y += v->_y; _z += v->_z; }
         public void Add(float v) { _x += v; _y += v; _z += v; }
         public void Sub(Vector3* v) { _x -= v->_x; _y -= v->_y; _z -= v->_z; }

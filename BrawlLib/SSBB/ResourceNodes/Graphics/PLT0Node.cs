@@ -11,35 +11,28 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class PLT0Node : BRESEntryNode, IColorSource
     {
-        public override ResourceType ResourceType { get { return ResourceType.PLT0; } }
         internal PLT0v1* Header1 { get { return (PLT0v1*)WorkingUncompressed.Address; } }
         internal PLT0v3* Header3 { get { return (PLT0v3*)WorkingUncompressed.Address; } }
         internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
-        
+        public override ResourceType ResourceType { get { return ResourceType.PLT0; } }
         public override int DataAlign { get { return 0x20; } }
+        public override int[] SupportedVersions { get { return new int[] { 1, 3 }; } }
 
-        //private int _numColors;
+        public PLT0Node() { _version = 1; }
+
         private WiiPaletteFormat _format;
-        int _version;
         private ColorPalette _palette;
+
         [Browsable(false)]
         public ColorPalette Palette
         {
             get { return _palette == null ? _palette = TextureConverter.DecodePalette(Header1) : _palette; }
             set { _palette = value; SignalPropertyChange(); }
         }
-
-        [Category("Palette")]
+        [Category("G3D Palette")]
         public int Colors { get { return Palette.Entries.Length; } }// set { _numColors = value; } }
-        [Category("Palette")]
+        [Category("G3D Palette")]
         public WiiPaletteFormat Format { get { return _format; } set { _format = value; SignalPropertyChange(); } }
-        [Category("Palette")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
 
         public override bool OnInitialize()
         {
@@ -50,8 +43,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             if ((_name == null) && (Header1->_stringOffset != 0))
                 _name = Header1->ResourceString;
 
-            _version = Header1->_bresEntry._version;
-            //_numColors = Header->_numEntries;
             _format = Header1->PaletteFormat;
 
             if (_version == 3)
@@ -65,12 +56,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             table.Add(Name);
 
             if (_version == 3)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);

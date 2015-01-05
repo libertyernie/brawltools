@@ -13,37 +13,29 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class TEX0Node : BRESEntryNode, IImageSource
     {
-        public override ResourceType ResourceType { get { return ResourceType.TEX0; } }
         internal TEX0v1* Header1 { get { return (TEX0v1*)WorkingUncompressed.Address; } }
         internal TEX0v3* Header3 { get { return (TEX0v3*)WorkingUncompressed.Address; } }
-
+        public override ResourceType ResourceType { get { return ResourceType.TEX0; } }
         public override int DataAlign { get { return 0x20; } }
+        public override int[] SupportedVersions { get { return new int[] { 1, 3 }; } }
+
+        public TEX0Node() { _version = 1; }
 
         int _width, _height;
         WiiPixelFormat _format;
         int _lod;
         bool _hasPalette;
-        int _version;
 
-        //[Category("Texture")]
-        //public int Version { get { return _version; } set { _version = value; } }
-        [Category("Texture")]
+        [Category("G3D Texture")]
         public int Width { get { return _width; } }
-        [Category("Texture")]
+        [Category("G3D Texture")]
         public int Height { get { return _height; } }
-        [Category("Texture")]
+        [Category("G3D Texture")]
         public WiiPixelFormat Format { get { return _format; } }
-        [Category("Texture")]
+        [Category("G3D Texture")]
         public int LevelOfDetail { get { return _lod; } }
-        [Category("Texture")]
+        [Category("G3D Texture")]
         public bool HasPalette { get { return _hasPalette; } }
-        [Category("Texture")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
 
         public PLT0Node GetPaletteNode() { return ((_parent == null) || (!HasPalette)) ? null : Parent._parent.FindChild("Palettes(NW4R)/" + this.Name, false) as PLT0Node; }
 
@@ -59,7 +51,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             _format = Header1->PixelFormat;
             _lod = Header1->_levelOfDetail;
             _hasPalette = Header1->HasPalette;
-            _version = Header1->_header._version;
 
             if (_version == 3)
                 (_userEntries = new UserDataCollection()).Read(Header3->UserData);
@@ -72,12 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             table.Add(Name);
 
             if (_version == 3)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);

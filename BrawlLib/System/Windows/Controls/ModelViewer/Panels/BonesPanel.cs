@@ -30,7 +30,7 @@ namespace System.Windows.Forms
         private Panel panel1;
         private TextBox txtSearchBone;
         public CheckBox chkFlat;
-        private ListBox lstBones;
+        private CheckedListBox lstBones;
         public CheckBox chkContains;
         private ToolStripSeparator ctxBonesDivider1;
         private ToolStripMenuItem addToParentToolStripMenuItem;
@@ -50,7 +50,7 @@ namespace System.Windows.Forms
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.pnlKeyframes = new System.Windows.Forms.Panel();
             this.pnlBones = new System.Windows.Forms.Panel();
-            this.lstBones = new System.Windows.Forms.ListBox();
+            this.lstBones = new System.Windows.Forms.CheckedListBox();
             this.boneTree = new System.Windows.Forms.TreeView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtSearchBone = new System.Windows.Forms.TextBox();
@@ -104,6 +104,7 @@ namespace System.Windows.Forms
             this.lstBones.Name = "lstBones";
             this.lstBones.Size = new System.Drawing.Size(160, 373);
             this.lstBones.TabIndex = 32;
+            this.lstBones.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstBones_ItemCheck);
             this.lstBones.SelectedValueChanged += new System.EventHandler(this.lstBones_SelectedValueChanged);
             this.lstBones.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstBones_KeyDown);
             this.lstBones.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBones_MouseDown);
@@ -118,6 +119,7 @@ namespace System.Windows.Forms
             this.boneTree.Size = new System.Drawing.Size(160, 373);
             this.boneTree.TabIndex = 29;
             this.boneTree.Visible = false;
+            this.boneTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.boneTree_AfterCheck);
             this.boneTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.boneTree_AfterSelect);
             this.boneTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBones_MouseDown);
             // 
@@ -305,6 +307,7 @@ namespace System.Windows.Forms
         public bool _updating;
         public void Reset()
         {
+            _updating = true;
             //if (!chkFlat.Checked)
             {
                 boneTree.BeginUpdate();
@@ -320,11 +323,12 @@ namespace System.Windows.Forms
                 lstBones.Items.Clear();
 
                 if (TargetModel != null)
-                    foreach (MDL0BoneNode bone in TargetModel.BoneCache)
-                        lstBones.Items.Add(bone);
+                    foreach (IBoneNode bone in TargetModel.BoneCache)
+                        lstBones.Items.Add(bone, bone.IsRendering);
 
                 lstBones.EndUpdate();
             }
+            _updating = false;
         }
 
         private void ResetList()
@@ -332,15 +336,17 @@ namespace System.Windows.Forms
             string text = txtSearchBone.Text;
             bool addAll = String.IsNullOrEmpty(text) || txtSearchBone.ForeColor == Color.Gray;
 
+            _updating = true;
             lstBones.BeginUpdate();
             lstBones.Items.Clear();
 
             if (TargetModel != null)
                 foreach (IBoneNode bone in TargetModel.BoneCache)
-                    if (addAll || (chkContains.Checked && bone.Name.Contains(text)) || bone.Name.StartsWith(text))
-                        lstBones.Items.Add(bone);
+                    if (addAll || (chkContains.Checked && bone.Name.Contains(text, StringComparison.OrdinalIgnoreCase)) || bone.Name.StartsWith(text, StringComparison.OrdinalIgnoreCase))
+                        lstBones.Items.Add(bone, bone.IsRendering);
 
             lstBones.EndUpdate();
+            _updating = false;
         }
 
         private void PopulateBoneTree()
@@ -348,7 +354,7 @@ namespace System.Windows.Forms
             if (TargetModel != null)
             {
                 _treeNodes = new TreeNode[TargetModel.BoneCache.Length];
-                foreach (MDL0BoneNode bone in TargetModel.RootBones)
+                foreach (IBoneNode bone in TargetModel.RootBones)
                     RecursivePopulate(bone, boneTree.Nodes);
             }
 
@@ -357,7 +363,7 @@ namespace System.Windows.Forms
 
         private void RecursivePopulate(IBoneNode bone, TreeNodeCollection nodes)
         {
-            TreeNode node = new TreeNode() { Tag = bone, Text = bone.Name };
+            TreeNode node = new TreeNode() { Tag = bone, Text = bone.Name, Checked = bone.IsRendering };
 
             _treeNodes[bone.BoneIndex] = node;
             nodes.Add(node);
@@ -452,7 +458,7 @@ namespace System.Windows.Forms
         private void boneTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (!chkFlat.Checked && boneTree.SelectedNode != null)
-                SetBone(boneTree.SelectedNode.Tag as MDL0BoneNode);
+                SetBone(boneTree.SelectedNode.Tag as IBoneNode);
         }
 
         public void SetSelectedBone(IBoneNode bone)
@@ -595,6 +601,27 @@ namespace System.Windows.Forms
         private void BonesPanel_SizeChanged(object sender, EventArgs e)
         {
             UpdateListToolDisplay();
+        }
+
+        private void lstBones_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (_updating)
+                return;
+
+            int i = e.Index;
+            if (i < 0 || i >= TargetModel.BoneCache.Length)
+                return;
+
+            TargetModel.BoneCache[i].IsRendering = e.CurrentValue == CheckState.Checked;
+        }
+
+        private void boneTree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (_updating)
+                return;
+
+            if (e.Node != null && e.Node is IBoneNode)
+                (e.Node.Tag as IBoneNode).IsRendering = e.Node.Checked;
         }
     }
 }

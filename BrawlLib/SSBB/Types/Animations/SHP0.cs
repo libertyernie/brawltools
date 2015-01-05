@@ -21,7 +21,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _numEntries;
         public bint _loop;
 
-        public SHP0v3(int loop, ushort frames, ushort entries)
+        public SHP0v3(bool loop, ushort frames, ushort entries)
         {
             _header._tag = Tag;
             _header._size = Size;
@@ -31,7 +31,7 @@ namespace BrawlLib.SSBBTypes
             _dataOffset = 0x28;
             _origPathOffset = 0;
             _numFrames = frames;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
             _stringOffset = 0;
             _numEntries = entries;
 
@@ -75,7 +75,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _numEntries;
         public bint _loop;
 
-        public SHP0v4(int loop, ushort frames, ushort entries)
+        public SHP0v4(bool loop, ushort frames, ushort entries)
         {
             _header._tag = Tag;
             _header._size = Size;
@@ -86,7 +86,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = 0;
             _userDataOffset = 0;
             _numFrames = frames;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
             _stringOffset = 0;
             _numEntries = entries;
 

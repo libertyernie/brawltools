@@ -237,6 +237,7 @@
     <Compile Include="SSBB\Types\Subspace\Sound\GSND.cs" />
     <None Include="SSBB\Types\RARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Box.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>

@@ -1076,19 +1076,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public PrimitiveManager PrimitiveManager { get { return _manager; } }
 
-        public void GetBox(out Vector3 min, out Vector3 max)
+        public Box GetBox()
         {
-            min = new Vector3(float.MaxValue);
-            max = new Vector3(float.MinValue);
+            if (_manager == null || _manager._vertices == null)
+                return new Box();
 
-            if (_manager != null && _manager._vertices != null)
-                foreach (Vertex3 vertex in _manager._vertices)
-                {
-                    Vector3 v = vertex.WeightedPosition;
+            Box box = Box.ExpandableVolume;
+            foreach (Vertex3 vertex in _manager._vertices)
+                box.ExpandVolume(vertex.WeightedPosition);
 
-                    min.Min(v);
-                    max.Max(v);
-                }
+            return box;
         }
 
         //public void UpdateProgram(ModelPanel mainWindow)
@@ -1276,8 +1273,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                     else
                     {
+                        bool anyRendered = false;
                         foreach (MDL0MaterialRefNode mr in material.Children)
                         {
+                            if (mr._texture == null || !mr._texture.Enabled)
+                                continue;
+                            else
+                                anyRendered = true;
+
                             GL.MatrixMode(MatrixMode.Texture);
                             GL.PushMatrix();
 
@@ -1288,16 +1291,18 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                             mr.Bind(-1);
 
-                            if (mr._texture != null && mr._texture.Enabled)
-                                _manager.ApplyTexture(mr.Coordinates);
-                            else
-                                _manager.DisableTextures();
-
+                            _manager.ApplyTexture(mr.Coordinates);
                             _manager.RenderMesh();
 
                             GL.MatrixMode(MatrixMode.Texture);
                             GL.PopMatrix();
                             GL.MatrixMode(MatrixMode.Modelview);
+                        }
+
+                        if (!anyRendered)
+                        {
+                            _manager.DisableTextures();
+                            _manager.RenderMesh();
                         }
                     }
                 }
@@ -1313,32 +1318,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void DrawBox()
         {
-            Vector3 min, max;
-            GetBox(out min, out max);
-
-            GL.Begin(PrimitiveType.LineStrip);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.Vertex3(max._x, max._y, min._z);
-            GL.Vertex3(min._x, max._y, min._z);
-            GL.Vertex3(min._x, min._y, min._z);
-            GL.Vertex3(min._x, min._y, max._z);
-            GL.Vertex3(max._x, min._y, max._z);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.End();
-            GL.Begin(PrimitiveType.Lines);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(min._x, min._y, max._z);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(min._x, max._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(min._x, min._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(max._x, max._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(max._x, min._y, max._z);
-            GL.End();
+            TKContext.DrawWireframeBox(GetBox());
         }
 
         public bool _renderUpdate = false;

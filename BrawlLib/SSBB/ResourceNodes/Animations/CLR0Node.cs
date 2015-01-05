@@ -15,16 +15,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal CLR0v4* Header4 { get { return (CLR0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.CLR0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(CLR0MaterialNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 3, 4 }; } }
 
         public CLR0Node() { _version = 3; }
         const string _category = "Material Color Animation";
 
-        [Category(_category)]
-        public override int Version
-        {
-            get { return base.Version; }
-            set { base.Version = value; }
-        }
         [Category(_category)]
         public override int FrameCount
         {
@@ -36,12 +31,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get { return base.Loop; }
             set { base.Loop = value; }
-        }
-        [Category(_category)]
-        public override string OriginalPath
-        {
-            get { return base.OriginalPath; }
-            set { base.OriginalPath = value; }
         }
 
         protected override void UpdateChildFrameLimits()
@@ -59,7 +48,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 CLR0v4* header = Header4;
 
                 _numFrames = header->_frames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
@@ -76,7 +65,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 CLR0v3* header = Header3;
 
                 _numFrames = header->_frames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
@@ -197,12 +186,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 table.Add(n.Name);
 
             if (_version == 4)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);

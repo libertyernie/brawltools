@@ -22,6 +22,12 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderBones = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ApplyBillboardBones
+        {
+            get { return ModelPanel.ApplyBillboardBones; }
+            set { ModelPanel.ApplyBillboardBones = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderVertices
         {
             get { return ModelPanel.RenderVertices; }
@@ -46,10 +52,28 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderWireframe = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderBox
+        public bool RenderModelBox
         {
-            get { return ModelPanel.RenderBox; }
-            set { ModelPanel.RenderBox = value; }
+            get { return ModelPanel.RenderModelBox; }
+            set { ModelPanel.RenderModelBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderObjectBox
+        {
+            get { return ModelPanel.RenderObjectBox; }
+            set { ModelPanel.RenderObjectBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderVisBoneBox
+        {
+            get { return ModelPanel.RenderVisBoneBox; }
+            set { ModelPanel.RenderVisBoneBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool UseBindStateBoxes
+        {
+            get { return ModelPanel.UseBindStateBoxes; }
+            set { ModelPanel.UseBindStateBoxes = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DontRenderOffscreen
@@ -74,24 +98,26 @@ namespace System.Windows.Forms
         public bool Playing { get { return _playing; } set { _playing = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CHR0Editor CHR0Editor { get { return chr0Editor; } }
+        public virtual CHR0Editor CHR0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SRT0Editor SRT0Editor { get { return srt0Editor; } }
+        public virtual SRT0Editor SRT0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SHP0Editor SHP0Editor { get { return shp0Editor; } }
+        public virtual SHP0Editor SHP0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0Editor VIS0Editor { get { return vis0Editor; } }
+        public virtual VIS0Editor VIS0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PAT0Editor PAT0Editor { get { return pat0Editor; } }
+        public virtual PAT0Editor PAT0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SCN0Editor SCN0Editor { get { return scn0Editor; } }
+        public virtual SCN0Editor SCN0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CLR0Editor CLR0Editor { get { return clr0Editor; } }
+        public virtual CLR0Editor CLR0Editor { get { return null; } }
 
+        //TODO: make all playback panel values individual and virtual and inherit them with the playback panel values
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
+        public virtual ModelPlaybackPanel PlaybackPanel { get { return null; } }
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
+        public virtual ModelPanel ModelPanel { get { return _viewerForm == null ? null : _viewerForm.modelPanel1; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ModelViewerForm ModelViewerForm { get { return _viewerForm; } }
@@ -210,7 +236,7 @@ namespace System.Windows.Forms
         public Image BGImage
         {
             get { return ModelPanel.BackgroundImage; }
-            set { BackgroundImageLoaded = (ModelPanel.BackgroundImage = value) != null; }
+            set { ModelPanel.BackgroundImage = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllowZoomExtents { get { return _selectedBone != null; } }
@@ -224,13 +250,13 @@ namespace System.Windows.Forms
                     return;
 
                 _enableTransform = value;
-                chr0Editor.Enabled =
-                srt0Editor.Enabled =
-                shp0Editor.Enabled =
-                vis0Editor.Enabled =
-                pat0Editor.Enabled =
-                scn0Editor.Enabled =
-                clr0Editor.Enabled =
+                CHR0Editor.Enabled =
+                SRT0Editor.Enabled =
+                SHP0Editor.Enabled =
+                VIS0Editor.Enabled =
+                PAT0Editor.Enabled =
+                SCN0Editor.Enabled =
+                CLR0Editor.Enabled =
                 KeyframePanel.Enabled = value;
                 if (InterpolationEditor != null && InterpolationEditor.Visible)
                     InterpolationEditor.Enabled = value;

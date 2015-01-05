@@ -53,12 +53,23 @@ namespace System.Windows.Forms
         private ToolStripMenuItem createNewToolStripMenuItem;
         private ToolStripMenuItem deleteToolStripMenuItem;
         private ToolStripMenuItem chkLoop;
+        private ContextMenuStrip ctxAnimList;
+        private ToolStripMenuItem AnimListNewAnim;
+        private ToolStripMenuItem inModelsBRRESToolStripMenuItem;
+        private ToolStripMenuItem inExternalFileToolStripMenuItem;
+        private ToolStripMenuItem matrixModeToolStripMenuItem;
+        private ToolStripMenuItem chkMtxMaya;
+        private ToolStripMenuItem chkMtxXSI;
+        private ToolStripMenuItem chkMtxMax;
+        private Panel panel2;
+        private TextBox txtSearchAnim;
+        public CheckBox chkContains;
         private Panel pnlObjects;
 
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Animations", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Animations", System.Windows.Forms.HorizontalAlignment.Left);
             this.pnlObjects = new System.Windows.Forms.Panel();
             this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.lstObjects = new System.Windows.Forms.CheckedListBox();
@@ -68,6 +79,10 @@ namespace System.Windows.Forms
             this.pnlAnims = new System.Windows.Forms.Panel();
             this.listAnims = new System.Windows.Forms.ListView();
             this.nameColumn = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.ctxAnimList = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.AnimListNewAnim = new System.Windows.Forms.ToolStripMenuItem();
+            this.inModelsBRRESToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.inExternalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
             this.SaveAnims = new System.Windows.Forms.Button();
             this.Load = new System.Windows.Forms.Button();
@@ -87,23 +102,32 @@ namespace System.Windows.Forms
             this.lstTextures = new System.Windows.Forms.CheckedListBox();
             this.chkAllTextures = new System.Windows.Forms.CheckBox();
             this.btnTextures = new System.Windows.Forms.Button();
-            this.spltObjTex = new System.Windows.Forms.ProxySplitter();
-            this.spltAnimObj = new System.Windows.Forms.ProxySplitter();
             this.ctxAnim = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.toolStripMenuItem2 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            this.chkLoop = new System.Windows.Forms.ToolStripMenuItem();
+            this.matrixModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkMtxMaya = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkMtxXSI = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkMtxMax = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripMenuItem4 = new System.Windows.Forms.ToolStripMenuItem();
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkLoop = new System.Windows.Forms.ToolStripMenuItem();
+            this.spltObjTex = new System.Windows.Forms.ProxySplitter();
+            this.spltAnimObj = new System.Windows.Forms.ProxySplitter();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.txtSearchAnim = new System.Windows.Forms.TextBox();
+            this.chkContains = new System.Windows.Forms.CheckBox();
             this.pnlObjects.SuspendLayout();
             this.pnlAnims.SuspendLayout();
+            this.ctxAnimList.SuspendLayout();
             this.panel1.SuspendLayout();
             this.ctxTextures.SuspendLayout();
             this.pnlTextures.SuspendLayout();
             this.ctxAnim.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlObjects
@@ -189,6 +213,7 @@ namespace System.Windows.Forms
             // 
             this.pnlAnims.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlAnims.Controls.Add(this.listAnims);
+            this.pnlAnims.Controls.Add(this.panel2);
             this.pnlAnims.Controls.Add(this.panel1);
             this.pnlAnims.Controls.Add(this.btnAnims);
             this.pnlAnims.Dock = System.Windows.Forms.DockStyle.Top;
@@ -203,18 +228,19 @@ namespace System.Windows.Forms
             this.listAnims.AutoArrange = false;
             this.listAnims.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.nameColumn});
+            this.listAnims.ContextMenuStrip = this.ctxAnimList;
             this.listAnims.Cursor = System.Windows.Forms.Cursors.Default;
             this.listAnims.Dock = System.Windows.Forms.DockStyle.Fill;
-            listViewGroup2.Header = "Animations";
-            listViewGroup2.Name = "grpAnims";
+            listViewGroup1.Header = "Animations";
+            listViewGroup1.Name = "grpAnims";
             this.listAnims.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup2});
+            listViewGroup1});
             this.listAnims.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.listAnims.HideSelection = false;
-            this.listAnims.Location = new System.Drawing.Point(0, 42);
+            this.listAnims.Location = new System.Drawing.Point(0, 63);
             this.listAnims.MultiSelect = false;
             this.listAnims.Name = "listAnims";
-            this.listAnims.Size = new System.Drawing.Size(135, 134);
+            this.listAnims.Size = new System.Drawing.Size(135, 113);
             this.listAnims.TabIndex = 25;
             this.listAnims.UseCompatibleStateImageBehavior = false;
             this.listAnims.View = System.Windows.Forms.View.Details;
@@ -226,6 +252,42 @@ namespace System.Windows.Forms
             // 
             this.nameColumn.Text = "Name";
             this.nameColumn.Width = 160;
+            // 
+            // ctxAnimList
+            // 
+            this.ctxAnimList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.AnimListNewAnim});
+            this.ctxAnimList.Name = "ctxAnim";
+            this.ctxAnimList.Size = new System.Drawing.Size(195, 26);
+            this.ctxAnimList.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAnimList_Opening);
+            // 
+            // AnimListNewAnim
+            // 
+            this.AnimListNewAnim.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.inModelsBRRESToolStripMenuItem,
+            this.inExternalFileToolStripMenuItem});
+            this.AnimListNewAnim.Name = "AnimListNewAnim";
+            this.AnimListNewAnim.Size = new System.Drawing.Size(194, 22);
+            this.AnimListNewAnim.Text = "Create New Animation";
+            this.AnimListNewAnim.Click += new System.EventHandler(this.inModelsBRRESToolStripMenuItem_Click);
+            // 
+            // inModelsBRRESToolStripMenuItem
+            // 
+            this.inModelsBRRESToolStripMenuItem.Enabled = false;
+            this.inModelsBRRESToolStripMenuItem.Name = "inModelsBRRESToolStripMenuItem";
+            this.inModelsBRRESToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.inModelsBRRESToolStripMenuItem.Text = "In Model\'s BRRES";
+            this.inModelsBRRESToolStripMenuItem.Visible = false;
+            this.inModelsBRRESToolStripMenuItem.Click += new System.EventHandler(this.inModelsBRRESToolStripMenuItem_Click);
+            // 
+            // inExternalFileToolStripMenuItem
+            // 
+            this.inExternalFileToolStripMenuItem.Enabled = false;
+            this.inExternalFileToolStripMenuItem.Name = "inExternalFileToolStripMenuItem";
+            this.inExternalFileToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.inExternalFileToolStripMenuItem.Text = "In External File";
+            this.inExternalFileToolStripMenuItem.Visible = false;
+            this.inExternalFileToolStripMenuItem.Click += new System.EventHandler(this.inExternalFileToolStripMenuItem_Click);
             // 
             // panel1
             // 
@@ -415,32 +477,13 @@ namespace System.Windows.Forms
             this.btnTextures.UseVisualStyleBackColor = true;
             this.btnTextures.Click += new System.EventHandler(this.btnTextures_Click);
             // 
-            // spltObjTex
-            // 
-            this.spltObjTex.Cursor = System.Windows.Forms.Cursors.HSplit;
-            this.spltObjTex.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.spltObjTex.Location = new System.Drawing.Point(0, 332);
-            this.spltObjTex.Name = "spltObjTex";
-            this.spltObjTex.Size = new System.Drawing.Size(137, 4);
-            this.spltObjTex.TabIndex = 4;
-            this.spltObjTex.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltObjTex_Dragged);
-            // 
-            // spltAnimObj
-            // 
-            this.spltAnimObj.Cursor = System.Windows.Forms.Cursors.HSplit;
-            this.spltAnimObj.Dock = System.Windows.Forms.DockStyle.Top;
-            this.spltAnimObj.Location = new System.Drawing.Point(0, 178);
-            this.spltAnimObj.Name = "spltAnimObj";
-            this.spltAnimObj.Size = new System.Drawing.Size(137, 4);
-            this.spltAnimObj.TabIndex = 1;
-            this.spltAnimObj.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltAnimObj_Dragged);
-            // 
             // ctxAnim
             // 
             this.ctxAnim.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem2,
             this.toolStripSeparator1,
             this.chkLoop,
+            this.matrixModeToolStripMenuItem,
             this.toolStripMenuItem3,
             this.toolStripMenuItem4,
             this.renameToolStripMenuItem,
@@ -461,6 +504,49 @@ namespace System.Windows.Forms
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(191, 6);
+            // 
+            // chkLoop
+            // 
+            this.chkLoop.CheckOnClick = true;
+            this.chkLoop.Name = "chkLoop";
+            this.chkLoop.Size = new System.Drawing.Size(194, 22);
+            this.chkLoop.Text = "Loop";
+            this.chkLoop.CheckedChanged += new System.EventHandler(this.chkLoop_CheckedChanged);
+            // 
+            // matrixModeToolStripMenuItem
+            // 
+            this.matrixModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.chkMtxMaya,
+            this.chkMtxXSI,
+            this.chkMtxMax});
+            this.matrixModeToolStripMenuItem.Name = "matrixModeToolStripMenuItem";
+            this.matrixModeToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.matrixModeToolStripMenuItem.Text = "Matrix Mode";
+            this.matrixModeToolStripMenuItem.Visible = false;
+            // 
+            // chkMtxMaya
+            // 
+            this.chkMtxMaya.CheckOnClick = true;
+            this.chkMtxMaya.Name = "chkMtxMaya";
+            this.chkMtxMaya.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxMaya.Text = "Maya";
+            this.chkMtxMaya.CheckedChanged += new System.EventHandler(this.chkMtxMaya_CheckedChanged);
+            // 
+            // chkMtxXSI
+            // 
+            this.chkMtxXSI.CheckOnClick = true;
+            this.chkMtxXSI.Name = "chkMtxXSI";
+            this.chkMtxXSI.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxXSI.Text = "XSI";
+            this.chkMtxXSI.CheckedChanged += new System.EventHandler(this.chkMtxXSI_CheckedChanged);
+            // 
+            // chkMtxMax
+            // 
+            this.chkMtxMax.CheckOnClick = true;
+            this.chkMtxMax.Name = "chkMtxMax";
+            this.chkMtxMax.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxMax.Text = "3ds Max";
+            this.chkMtxMax.CheckedChanged += new System.EventHandler(this.chkMtxMax_CheckedChanged);
             // 
             // toolStripMenuItem3
             // 
@@ -497,13 +583,62 @@ namespace System.Windows.Forms
             this.createNewToolStripMenuItem.Text = "Create New Animation";
             this.createNewToolStripMenuItem.Click += new System.EventHandler(this.createNewToolStripMenuItem_Click);
             // 
-            // chkLoop
+            // spltObjTex
             // 
-            this.chkLoop.CheckOnClick = true;
-            this.chkLoop.Name = "chkLoop";
-            this.chkLoop.Size = new System.Drawing.Size(194, 22);
-            this.chkLoop.Text = "Loop";
-            this.chkLoop.CheckedChanged += new System.EventHandler(this.chkLoop_CheckedChanged);
+            this.spltObjTex.Cursor = System.Windows.Forms.Cursors.HSplit;
+            this.spltObjTex.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.spltObjTex.Location = new System.Drawing.Point(0, 332);
+            this.spltObjTex.Name = "spltObjTex";
+            this.spltObjTex.Size = new System.Drawing.Size(137, 4);
+            this.spltObjTex.TabIndex = 4;
+            this.spltObjTex.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltObjTex_Dragged);
+            // 
+            // spltAnimObj
+            // 
+            this.spltAnimObj.Cursor = System.Windows.Forms.Cursors.HSplit;
+            this.spltAnimObj.Dock = System.Windows.Forms.DockStyle.Top;
+            this.spltAnimObj.Location = new System.Drawing.Point(0, 178);
+            this.spltAnimObj.Name = "spltAnimObj";
+            this.spltAnimObj.Size = new System.Drawing.Size(137, 4);
+            this.spltAnimObj.TabIndex = 1;
+            this.spltAnimObj.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltAnimObj_Dragged);
+            // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.txtSearchAnim);
+            this.panel2.Controls.Add(this.chkContains);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 42);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(135, 21);
+            this.panel2.TabIndex = 32;
+            // 
+            // txtSearchAnim
+            // 
+            this.txtSearchAnim.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtSearchAnim.ForeColor = System.Drawing.Color.Gray;
+            this.txtSearchAnim.Location = new System.Drawing.Point(0, 0);
+            this.txtSearchAnim.Name = "txtSearchAnim";
+            this.txtSearchAnim.Size = new System.Drawing.Size(65, 20);
+            this.txtSearchAnim.TabIndex = 30;
+            this.txtSearchAnim.Text = "Search for an animation...";
+            this.txtSearchAnim.TextChanged += new System.EventHandler(this.txtSearchAnim_TextChanged);
+            this.txtSearchAnim.Enter += new System.EventHandler(this.txtSearchAnim_Enter);
+            this.txtSearchAnim.Leave += new System.EventHandler(this.txtSearchAnim_Leave);
+            // 
+            // chkContains
+            // 
+            this.chkContains.AutoSize = true;
+            this.chkContains.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkContains.Location = new System.Drawing.Point(65, 0);
+            this.chkContains.Margin = new System.Windows.Forms.Padding(0);
+            this.chkContains.Name = "chkContains";
+            this.chkContains.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.chkContains.Size = new System.Drawing.Size(70, 21);
+            this.chkContains.TabIndex = 32;
+            this.chkContains.Text = "Contains";
+            this.chkContains.UseVisualStyleBackColor = true;
+            this.chkContains.CheckedChanged += new System.EventHandler(this.chkContains_CheckedChanged);
             // 
             // LeftPanel
             // 
@@ -516,10 +651,13 @@ namespace System.Windows.Forms
             this.Size = new System.Drawing.Size(137, 500);
             this.pnlObjects.ResumeLayout(false);
             this.pnlAnims.ResumeLayout(false);
+            this.ctxAnimList.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.ctxTextures.ResumeLayout(false);
             this.pnlTextures.ResumeLayout(false);
             this.ctxAnim.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -628,7 +766,7 @@ namespace System.Windows.Forms
             listAnims.Groups.Add(_AnimGroup);
         }
 
-        public bool LoadAnims(ResourceNode node, NW4RAnimType type)
+        public bool LoadAnims(ResourceNode node, NW4RAnimType type, string compare, bool contains)
         {
             if (!_mainWindow.chkBRRESAnims.Checked && 
                 TargetModel != null && 
@@ -645,12 +783,9 @@ namespace System.Windows.Forms
                 case ResourceType.U8Folder:
                 case ResourceType.BRES:
                 case ResourceType.BRESGroup:
-                default:
+                //default:
                     foreach (ResourceNode n in node.Children)
-                        if (found) 
-                            LoadAnims(n, type);
-                        else 
-                            found = LoadAnims(n, type);
+                        found = LoadAnims(n, type, compare, contains) || found;
                     break;
 
                 case ResourceType.MDef:
@@ -665,7 +800,11 @@ namespace System.Windows.Forms
                 case ResourceType.CLR0: found = true; if (type == NW4RAnimType.CLR) goto Add; break;
             }
             return found;
-            Add: listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, _AnimGroup) { Tag = node });
+            
+            Add:
+            if (String.IsNullOrEmpty(compare) || (contains && node.Name.Contains(compare, StringComparison.OrdinalIgnoreCase)) || node.Name.StartsWith(compare, StringComparison.OrdinalIgnoreCase))
+                listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, _AnimGroup) { Tag = node });
+            
             return found;
         }
 
@@ -677,17 +816,20 @@ namespace System.Windows.Forms
             string Name = listAnims.SelectedItems != null && listAnims.SelectedItems.Count > 0 ? listAnims.SelectedItems[0].Tag.ToString() : null;
             int frame = CurrentFrame;
 
+            string text = txtSearchAnim.Text;
+            bool addAll = String.IsNullOrEmpty(text) || txtSearchAnim.ForeColor == Color.Gray;
+
             listAnims.BeginUpdate();
             listAnims.Items.Clear();
 
             if (TargetModel != null && TargetModel is MDL0Node)
-                if (_mainWindow.chkNonBRRESAnims.Checked)
-                    LoadAnims(((MDL0Node)TargetModel).RootNode, type);
-                else
-                    LoadAnims(((MDL0Node)TargetModel).BRESNode, type);
+            {
+                ResourceNode node = _mainWindow.chkNonBRRESAnims.Checked ? ((MDL0Node)TargetModel).RootNode : ((MDL0Node)TargetModel).BRESNode;
+                LoadAnims(node, type, addAll ? null : text, chkContains.Checked);
+            }
 
             if (_mainWindow.ExternalAnimationsNode != null && _mainWindow.chkExternalAnims.Checked)
-                LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type);
+                LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type, addAll ? null : text, chkContains.Checked);
 
             listAnims.EndUpdate();
 
@@ -1231,7 +1373,16 @@ namespace System.Windows.Forms
             if (_mainWindow.TargetAnimation == null)
                 e.Cancel = true;
             else
+            {
                 sourceToolStripMenuItem.Text = String.Format("Source: {0}", Path.GetFileName(_mainWindow.TargetAnimation.RootNode._origPath));
+                if (matrixModeToolStripMenuItem.Visible = _mainWindow.TargetAnimation is SRT0Node)
+                {
+                    SRT0Node node = (SRT0Node)_mainWindow.TargetAnimation;
+                    chkMtxMax.Checked = node.MatrixMode == BrawlLib.SSBBTypes.TexMatrixMode.Matrix3dsMax;
+                    chkMtxXSI.Checked = node.MatrixMode == BrawlLib.SSBBTypes.TexMatrixMode.MatrixXSI;
+                    chkMtxMaya.Checked = node.MatrixMode == BrawlLib.SSBBTypes.TexMatrixMode.MatrixMaya;
+                }
+            }
         }
 
         private SaveFileDialog dlgSave = new SaveFileDialog();
@@ -1294,6 +1445,8 @@ namespace System.Windows.Forms
             if (e.Button == MouseButtons.Right)
                 if (_mainWindow.TargetAnimation != null)
                     listAnims.ContextMenuStrip = ctxAnim;
+                else
+                    listAnims.ContextMenuStrip = ctxAnimList;
         }
 
         private void renameToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1316,7 +1469,7 @@ namespace System.Windows.Forms
                     case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
                     case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
-            UpdateAnimations(TargetAnimType);
+            UpdateAnimations();
             listAnims.Items[listAnims.Items.Count - 1].Selected = true;
         }
 
@@ -1432,6 +1585,121 @@ namespace System.Windows.Forms
                     _mainWindow.PlaybackPanel.numTotalFrames.Value += b;
                 }
             }
+        }
+
+        private void inModelsBRRESToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ResourceNode r = TargetModel as ResourceNode;
+            if (r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRESNode))
+                return;
+
+            AddAnimation((BRESNode)r.Parent.Parent);
+        }
+
+        private void AddAnimation(BRESNode target)
+        {
+            Type t = ModelEditorBase.AnimTypeList[(int)TargetAnimType];
+            var method = typeof(BRESNode).GetMethod("CreateResource");
+            var generic = method.MakeGenericMethod(t);
+            generic.Invoke(target, new object[] { "New" + TargetAnimType.ToString() });
+            UpdateAnimations();
+            listAnims.Items[listAnims.Items.Count - 1].Selected = true;
+        }
+
+        private void inExternalFileToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_mainWindow.ExternalAnimationsNode == null)
+                return;
+
+            ResourceNode r = _mainWindow.ExternalAnimationsNode;
+            BRESNode target = null;
+
+            if (target != null)
+                AddAnimation(target);
+        }
+
+        private void ctxAnimList_Opening(object sender, CancelEventArgs e)
+        {
+            ResourceNode r = TargetModel as ResourceNode;
+            bool targetBRRES = !(r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRESNode));
+
+            if (!targetBRRES)
+                e.Cancel = true;
+
+            //inModelsBRRESToolStripMenuItem.Enabled = targetBRRES;
+            //inExternalFileToolStripMenuItem.Enabled = _mainWindow.ExternalAnimationsNode != null;
+        }
+
+        private void chkMtxMaya_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+            _updating = true;
+
+            if (chkMtxMaya.Checked)
+                chkMtxMax.Checked = chkMtxXSI.Checked = false;
+            else
+                chkMtxMaya.Checked = true;
+
+            _updating = false;
+        }
+
+        private void chkMtxXSI_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+            _updating = true;
+
+            if (chkMtxXSI.Checked)
+                chkMtxMax.Checked = chkMtxMaya.Checked = false;
+            else
+                chkMtxXSI.Checked = true;
+
+            _updating = false;
+        }
+
+        private void chkMtxMax_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+            _updating = true;
+
+            if (chkMtxMax.Checked)
+                chkMtxXSI.Checked = chkMtxMaya.Checked = false;
+            else
+                chkMtxMax.Checked = true;
+
+            _updating = false;
+        }
+
+        private void txtSearchAnim_Enter(object sender, EventArgs e)
+        {
+            if (txtSearchAnim.ForeColor == Color.Gray)
+            {
+                txtSearchAnim.Text = "";
+                txtSearchAnim.Font = new Font(txtSearchAnim.Font, Drawing.FontStyle.Regular);
+                txtSearchAnim.ForeColor = Color.Black;
+            }
+        }
+
+        private void txtSearchAnim_Leave(object sender, EventArgs e)
+        {
+            if (txtSearchAnim.Text == String.Empty)
+            {
+                txtSearchAnim.Font = new Font(txtSearchAnim.Font, Drawing.FontStyle.Italic);
+                txtSearchAnim.ForeColor = Color.Gray;
+                txtSearchAnim.Text = "Search for an animation...";
+            }
+        }
+
+        private void txtSearchAnim_TextChanged(object sender, EventArgs e)
+        {
+            UpdateAnimations();
+        }
+
+        private void chkContains_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdateAnimations();
         }
     }
 }

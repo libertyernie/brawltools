@@ -32,5 +32,9 @@ namespace System
         {
             return Array.IndexOf(a, value);
         }
+        public static bool Contains(this Array a, object value)
+        {
+            return Array.IndexOf(a, value) >= 0;
+        }
     }
 }

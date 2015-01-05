@@ -20,7 +20,9 @@ namespace System
         public bool Vertices;
         public bool Normals;
         public bool ShowCamCoords;
-        public bool BoundingBox;
+        public bool ModelBoundingBox;
+        public bool ObjectBoundingBox;
+        public bool BoneBoundingBox;
         public bool HideOffscreen;
         public bool CameraSet;
         public bool EnableSmoothing;
@@ -100,7 +102,9 @@ namespace System
             Wireframe = false,
             Polys = true,
             Vertices = false,
-            BoundingBox = false,
+            ModelBoundingBox = false,
+            ObjectBoundingBox = false,
+            BoneBoundingBox = false,
             Normals = false,
             HideOffscreen = false,
             ShowCamCoords = false,
@@ -120,6 +124,7 @@ namespace System
         public bool RetrieveCorrAnims;
         public bool DisplayExternalAnims;
         public bool DisplayNonBRRESAnims;
+        public bool UseBindStateBox;
         public bool SyncTexToObj;
         public bool SyncObjToVIS0;
         public bool DisableBonesOnPlay;
@@ -168,6 +173,7 @@ namespace System
             SnapToColl = false,
             FlatBoneList = true,
             BoneListContains = false,
+            UseBindStateBox = true,
 
             _imageCapFmt = 0,
             _undoCount = 50,

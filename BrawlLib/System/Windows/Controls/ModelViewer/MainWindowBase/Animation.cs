@@ -71,36 +71,36 @@ namespace System.Windows.Forms
         /// <param name="offset">The amount to add to the current rotation displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyAngle(int index, float offset)
         {
-            NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2) + 3];
+            NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2) + 3];
             float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
             {
                 box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
+                CHR0Editor.BoxChanged(box, null);
             }
         }
         /// <param name="index">0 = X, 1 = Y, 2 = Z</param>
         /// <param name="offset">The amount to add to the current translation displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyTranslation(int index, float offset)
         {
-            NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2) + 6];
+            NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2) + 6];
             float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
             {
                 box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
+                CHR0Editor.BoxChanged(box, null);
             }
         }
         /// <param name="index">0 = X, 1 = Y, 2 = Z</param>
         /// <param name="offset">The multiplier for the current scale displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyScale(int index, float scale)
         {
-            NumericInputBox box = chr0Editor._transBoxes[index.Clamp(0, 2)];
+            NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2)];
             float newVal = (float)Math.Round(box.Value * scale, 3);
             if (box.Value != newVal && newVal != 0.0f)
             {
                 box.Value = newVal;
-                chr0Editor.BoxChanged(box, null);
+                CHR0Editor.BoxChanged(box, null);
             }
         }
 
@@ -113,14 +113,17 @@ namespace System.Windows.Forms
 
             CurrentFrame = index;
 
-            pnlPlayback.btnNextFrame.Enabled = _animFrame < _maxFrame;
-            pnlPlayback.btnPrevFrame.Enabled = _animFrame > 0;
+            if (PlaybackPanel != null)
+            {
+                PlaybackPanel.btnNextFrame.Enabled = _animFrame < _maxFrame;
+                PlaybackPanel.btnPrevFrame.Enabled = _animFrame > 0;
 
-            pnlPlayback.btnLast.Enabled = _animFrame != _maxFrame;
-            pnlPlayback.btnFirst.Enabled = _animFrame > 1;
+                PlaybackPanel.btnLast.Enabled = _animFrame != _maxFrame;
+                PlaybackPanel.btnFirst.Enabled = _animFrame > 1;
 
-            if (_animFrame <= (float)pnlPlayback.numFrameIndex.Maximum)
-                pnlPlayback.numFrameIndex.Value = (decimal)_animFrame;
+                if (_animFrame <= (float)PlaybackPanel.numFrameIndex.Maximum)
+                    PlaybackPanel.numFrameIndex.Value = (decimal)_animFrame;
+            }
 
             if (!_playing)
             {
@@ -170,8 +173,13 @@ namespace System.Windows.Forms
             if (_animFrame >= _maxFrame)
                 SetFrame(1);
 
-            pnlPlayback.btnPlay.Text = "Stop";
-            _timer.Run(0, (double)pnlPlayback.numFPS.Value);
+            if (PlaybackPanel != null)
+            {
+                PlaybackPanel.btnPlay.Text = "Stop";
+                _timer.Run(0, (double)PlaybackPanel.numFPS.Value);
+            }
+            else
+                _timer.Run(0, 60);
         }
         public virtual void StopAnim()
         {
@@ -190,8 +198,14 @@ namespace System.Windows.Forms
                 _bonesWereOff = false;
             }
 
-            pnlPlayback.btnPlay.Text = "Play";
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnPlay.Text = "Play";
+
             EnableTransformEdit = true;
+
+            if (InterpolationEditor != null && InterpolationEditor.Visible)
+                InterpolationEditor.Frame = CurrentFrame;
+            KeyframePanel.numFrame_ValueChanged();
 
             if (_capture)
             {
@@ -212,12 +226,12 @@ namespace System.Windows.Forms
         {
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: chr0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SRT: srt0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SHP: shp0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.PAT: pat0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SCN: scn0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.CLR: clr0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CHR: CHR0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SRT: SRT0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SHP: SHP0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.PAT: PAT0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SCN: SCN0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CLR: CLR0Editor.UpdatePropDisplay(); break;
                 case NW4RAnimType.VIS:
                     if (KeyframePanel.visEditor.TargetNode != null && !((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Constant)
                     {
@@ -299,11 +313,11 @@ namespace System.Windows.Forms
                     break;
                 case NW4RAnimType.SRT:
                     if (_srt0 != null && TargetTexRef != null)
-                        KeyframePanel.TargetSequence = srt0Editor.TexEntry;
+                        KeyframePanel.TargetSequence = SRT0Editor.TexEntry;
                     break;
                 case NW4RAnimType.SHP:
                     if (_shp0 != null)
-                        KeyframePanel.TargetSequence = shp0Editor.VertexSetDest;
+                        KeyframePanel.TargetSequence = SHP0Editor.VertexSetDest;
                     break;
             }
         }
@@ -328,24 +342,32 @@ namespace System.Windows.Forms
                     UpdateSRT0FocusControls(SelectedSRT0);
                     break;
                 case NW4RAnimType.SHP:
-                    shp0Editor.UpdateSHP0Indices();
+                    SHP0Editor.UpdateSHP0Indices();
                     break;
                 case NW4RAnimType.PAT:
-                    pat0Editor.UpdateBoxes();
+                    PAT0Editor.UpdateBoxes();
                     UpdatePAT0FocusControls(SelectedPAT0);
                     break;
                 case NW4RAnimType.VIS:
-                    vis0Editor.UpdateAnimation();
+                    VIS0Editor.UpdateAnimation();
                     break;
                 case NW4RAnimType.SCN:
                     //foreach (MDL0Node m in _targetModels)
                     //    m.SetSCN0(_scn0);
-                    scn0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, scn0Editor.tabIndex, TabControlAction.Selected));
+                    SCN0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, SCN0Editor.tabIndex, TabControlAction.Selected));
                     break;
                 case NW4RAnimType.CLR:
-                    clr0Editor.UpdateAnimation();
+                    CLR0Editor.UpdateAnimation();
                     break;
             }
+        }
+
+        /// <summary>
+        /// Call AFTER setting the maximum frame
+        /// </summary>
+        /// <param name="nowNull"></param>
+        protected virtual void UpdatePlaybackPanel(bool nowNull)
+        {
         }
 
         public void AnimChanged(NW4RAnimType type)
@@ -359,38 +381,34 @@ namespace System.Windows.Forms
             NW4RAnimationNode node = GetAnimation(type);
             if (node == null)
             {
-                pnlPlayback.numFrameIndex.Maximum = (decimal)(_maxFrame = 0);
-                pnlPlayback.numTotalFrames.Minimum = 0;
-
-                _updating = true;
-                pnlPlayback.numTotalFrames.Value = 0;
-                _updating = false;
-
-                pnlPlayback.btnPlay.Enabled =
-                pnlPlayback.numTotalFrames.Enabled =
-                pnlPlayback.numFrameIndex.Enabled = false;
-                pnlPlayback.btnLast.Enabled = false;
-                pnlPlayback.btnFirst.Enabled = false;
-                pnlPlayback.Enabled = false;
+                _maxFrame = 0;
                 EnableTransformEdit = true;
+
+                PlaybackPanel.numFrameIndex.Maximum = _maxFrame;
+                PlaybackPanel.numTotalFrames.Minimum = 0;
+                PlaybackPanel.numTotalFrames.Value = 0;
+                PlaybackPanel.btnPlay.Enabled =
+                PlaybackPanel.numTotalFrames.Enabled =
+                PlaybackPanel.numFrameIndex.Enabled =
+                PlaybackPanel.btnLast.Enabled =
+                PlaybackPanel.btnFirst.Enabled =
+                PlaybackPanel.Enabled = false;
+
                 SetFrame(0);
             }
             else
             {
                 _maxFrame = node.FrameCount;
-
-                _updating = true;
-                pnlPlayback.btnPlay.Enabled =
-                pnlPlayback.numFrameIndex.Enabled =
-                pnlPlayback.numTotalFrames.Enabled = true;
-                pnlPlayback.Enabled = true;
-                pnlPlayback.numTotalFrames.Value = (decimal)_maxFrame;
-                _updating = false;
-
-                pnlPlayback.numFrameIndex.Maximum = (decimal)_maxFrame;
-                SetFrame(1);
-
                 EnableTransformEdit = !_playing;
+
+                PlaybackPanel.btnPlay.Enabled =
+                PlaybackPanel.numFrameIndex.Enabled =
+                PlaybackPanel.numTotalFrames.Enabled =
+                PlaybackPanel.Enabled = true;
+                PlaybackPanel.numTotalFrames.Value = (decimal)_maxFrame;
+                PlaybackPanel.numFrameIndex.Maximum = (decimal)_maxFrame;
+
+                SetFrame(1);
             }
 
             OnAnimationChanged();
@@ -640,7 +658,7 @@ namespace System.Windows.Forms
                 }
 
                 if (node != null && ((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Name == node.Name)
-                    vis0Editor.UpdateEntry();
+                    VIS0Editor.UpdateEntry();
             }
             else
             {
@@ -660,63 +678,6 @@ namespace System.Windows.Forms
 
         #endregion
 
-        #region Playback Panel
-        public void pnlPlayback_Resize(object sender, EventArgs e)
-        {
-            if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
-            {
-                pnlPlayback.Dock = DockStyle.Left;
-                pnlPlayback.Width = pnlPlayback.MinimumSize.Width;
-            }
-            else
-                pnlPlayback.Dock = DockStyle.Fill;
-        }
-
-        public void numFrameIndex_ValueChanged(object sender, EventArgs e)
-        {
-            int val = (int)pnlPlayback.numFrameIndex.Value;
-            if (val != _animFrame)
-            {
-                int difference = val - _animFrame;
-                if (TargetAnimation != null)
-                    SetFrame(_animFrame += difference);
-            }
-        }
-        public void numFPS_ValueChanged(object sender, EventArgs e)
-        {
-            _timer.TargetRenderFrequency = (double)pnlPlayback.numFPS.Value;
-        }
-        public void chkLoop_CheckedChanged(object sender, EventArgs e)
-        {
-            _loop = pnlPlayback.chkLoop.Checked;
-            //if (TargetAnimation != null)
-            //    TargetAnimation.Loop = _loop;
-        }
-        public void numTotalFrames_ValueChanged(object sender, EventArgs e)
-        {
-            if ((TargetAnimation == null) || (_updating))
-                return;
-
-            int max = (int)pnlPlayback.numTotalFrames.Value;
-            _maxFrame = max;
-            pnlPlayback.numFrameIndex.Maximum = max;
-
-            if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
-                max--;
-
-            TargetAnimation.FrameCount = max;
-        }
-        public void btnPrevFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value--; }
-        public void btnNextFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value++; }
-        public void btnPlay_Click(object sender, EventArgs e)
-        {
-            if (_timer.IsRunning)
-                StopAnim();
-            else
-                PlayAnim();
-        }
-        #endregion
-
         public void _interpolationForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             _interpolationForm = null;
@@ -732,9 +693,7 @@ namespace System.Windows.Forms
 
         protected void VISIndexChanged(object sender, EventArgs e)
         {
-            int i = KeyframePanel.visEditor.listBox1.SelectedIndex;
-            if (i >= 0 && i <= MaxFrame && i != CurrentFrame - 1)
-                SetFrame(i + 1);
+            SetFrame((KeyframePanel.visEditor.listBox1.SelectedIndex + 1).Clamp(0, MaxFrame));
         }
     }
 }

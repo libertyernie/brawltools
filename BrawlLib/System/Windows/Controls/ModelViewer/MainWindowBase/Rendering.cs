@@ -542,7 +542,7 @@ namespace System.Windows.Forms
                 }
 
                 //Render invisible depth planes for translation and scale controls
-                if (ControlType != TransformType.Rotation && (SelectedBone != null || VertexLoc() != null))
+                if ((ControlType != TransformType.Rotation && SelectedBone != null) || VertexLoc() != null)
                 {
                     #region Axis Selection Display List
 
@@ -999,6 +999,9 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.Lighting);
             GL.PolygonMode(MaterialFace.Front, PolygonMode.Line);
             GL.PolygonMode(MaterialFace.Back, PolygonMode.Fill);
+
+            //So that the model clips with the floor
+            GL.Enable(EnableCap.DepthTest);
 
             GL.Enable(EnableCap.Texture2D);
 

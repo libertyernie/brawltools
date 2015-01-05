@@ -14,6 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal PAT0v4* Header4 { get { return (PAT0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.PAT0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(PAT0EntryNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 3, 4 }; } }
 
         internal List<string> _textureFiles = new List<string>();
         internal List<string> _paletteFiles = new List<string>();
@@ -21,12 +22,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public PAT0Node() { _version = 3; }
         const string _category = "Texture Pattern Animation";
 
-        [Category(_category)]
-        public override int Version
-        {
-            get { return base.Version; }
-            set { base.Version = value; }
-        }
         [Category(_category)]
         public override int FrameCount
         {
@@ -40,12 +35,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { base.Loop = value; }
         }
         [Category(_category)]
-        public override string OriginalPath
-        {
-            get { return base.OriginalPath; }
-            set { base.OriginalPath = value; }
-        }
-        [Category(_category)]
         public string[] Textures { get { return _textureFiles.ToArray(); } }
         [Category(_category)]
         public string[] Palettes { get { return _paletteFiles.ToArray(); } }
@@ -53,34 +42,60 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void RegenerateTextureList()
         {
             int index = -1;
+
+            //Reset list to recollect
             _textureFiles.Clear();
+
+            //First, collect texture names
             foreach (PAT0EntryNode n in Children)
                 foreach (PAT0TextureNode t in n.Children)
                     foreach (PAT0TextureEntryNode e in t.Children)
-                        if (t._hasTex && !String.IsNullOrEmpty(e._tex) && (index = _textureFiles.IndexOf(e._tex)) >= 0)
+                        if (t._hasTex && !String.IsNullOrEmpty(e._tex))
                         {
-                            _textureFiles.Add(e._tex);
-                            e._texFileIndex = (ushort)index;
+                            if ((index = _textureFiles.IndexOf(e._tex)) < 0)
+                                _textureFiles.Add(e._tex);
                         }
                         else
                             e._texFileIndex = 0;
+
+            //Sort them
             _textureFiles.Sort();
+
+            //Now assign indices into the sorted list
+            foreach (PAT0EntryNode n in Children)
+                foreach (PAT0TextureNode t in n.Children)
+                    foreach (PAT0TextureEntryNode e in t.Children)
+                        if (t._hasTex && !String.IsNullOrEmpty(e._tex))
+                            e._texFileIndex = (ushort)_textureFiles.IndexOf(e._tex);
         }
         public void RegeneratePaletteList()
         {
             int index = -1;
+
+            //Reset list to recollect
             _paletteFiles.Clear();
+
+            //First, collect palette names
             foreach (PAT0EntryNode n in Children)
                 foreach (PAT0TextureNode t in n.Children)
                     foreach (PAT0TextureEntryNode e in t.Children)
-                        if (t._hasPlt && !String.IsNullOrEmpty(e._plt) && (index = _paletteFiles.IndexOf(e._plt)) >= 0)
+                        if (t._hasPlt && !String.IsNullOrEmpty(e._plt))
                         {
-                            _paletteFiles.Add(e._plt);
-                            e._pltFileIndex = (ushort)index;
+                            if ((index = _paletteFiles.IndexOf(e._plt)) < 0)
+                                _paletteFiles.Add(e._plt);
                         }
                         else
                             e._pltFileIndex = 0;
+
+            //Sort them
             _paletteFiles.Sort();
+
+            //Now assign indices into the sorted list
+            foreach (PAT0EntryNode n in Children)
+                foreach (PAT0TextureNode t in n.Children)
+                    foreach (PAT0TextureEntryNode e in t.Children)
+                        if (t._hasPlt && !String.IsNullOrEmpty(e._plt))
+                            e._pltFileIndex = (ushort)_paletteFiles.IndexOf(e._plt);
         }
 
         public override bool OnInitialize()
@@ -95,44 +110,51 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 PAT0v4* header = Header4;
                 _numFrames = header->_numFrames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
                 texPtr = header->_numTexPtr;
                 pltPtr = header->_numPltPtr;
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                if (Header4->_origPathOffset > 0)
-                    _originalPath = Header4->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                (_userEntries = new UserDataCollection()).Read(Header4->UserData);
+                (_userEntries = new UserDataCollection()).Read(header->UserData);
+
+                //Get texture strings
+                for (int i = 0; i < texPtr; i++)
+                    _textureFiles.Add(header->GetTexStringEntry(i));
+
+                //Get palette strings
+                for (int i = 0; i < pltPtr; i++)
+                    _paletteFiles.Add(header->GetPltStringEntry(i));
+
+                return header->Group->_numEntries > 0;
             }
             else
             {
                 PAT0v3* header = Header3;
                 _numFrames = header->_numFrames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
                 texPtr = header->_numTexPtr;
                 pltPtr = header->_numPltPtr;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
-                if (Header3->_origPathOffset > 0)
-                    _originalPath = Header3->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
+
+                //Get texture strings
+                for (int i = 0; i < texPtr; i++)
+                    _textureFiles.Add(header->GetTexStringEntry(i));
+
+                //Get palette strings
+                for (int i = 0; i < pltPtr; i++)
+                    _paletteFiles.Add(header->GetPltStringEntry(i));
+
+                return header->Group->_numEntries > 0;
             }
-
-            //Get texture strings
-            for (int i = 0; i < texPtr; i++)
-                _textureFiles.Add(Header3->GetTexStringEntry(i));
-
-            //Get palette strings
-            for (int i = 0; i < pltPtr; i++)
-                _paletteFiles.Add(Header3->GetPltStringEntry(i));
-
-            //Link all entries
-            Populate();
-
-            return Header3->Group->_numEntries > 0;
         }
 
         public override void OnPopulate()
@@ -155,12 +177,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if (_version == 4)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
@@ -168,20 +185,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            _textureFiles.Clear();
-            _paletteFiles.Clear();
-            foreach (PAT0EntryNode n in Children)
-                foreach (PAT0TextureNode t in n.Children)
-                    foreach (PAT0TextureEntryNode e in t.Children)
-                    {
-                        if (t._hasTex && !String.IsNullOrEmpty(e._tex) && !_textureFiles.Contains(e._tex))
-                            _textureFiles.Add(e._tex);
-                        if (t._hasPlt && !String.IsNullOrEmpty(e._plt) && !_paletteFiles.Contains(e._plt))
-                            _paletteFiles.Add(e._plt);
-                    }
-
-            _textureFiles.Sort();
-            _paletteFiles.Sort();
+            RegenerateTextureList();
+            RegeneratePaletteList();
 
             int size = PAT0v3.Size + 0x18 + Children.Count * 0x10;
             size += (_textureFiles.Count + _paletteFiles.Count) * 8;
@@ -208,7 +213,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_numEntries = (ushort)Children.Count;
                 header->_numTexPtr = (ushort)_textureFiles.Count;
                 header->_numPltPtr = (ushort)_paletteFiles.Count;
-                header->_loop = _loop;
+                header->_loop = _loop ? 1 : 0;
             }
             else
             {
@@ -221,7 +226,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_numEntries = (ushort)Children.Count;
                 header->_numTexPtr = (ushort)_textureFiles.Count;
                 header->_numPltPtr = (ushort)_paletteFiles.Count;
-                header->_loop = _loop;
+                header->_loop = _loop ? 1 : 0;
             }
 
             PAT0v3* commonHeader = (PAT0v3*)address;

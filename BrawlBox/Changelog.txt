@@ -15,7 +15,23 @@ they be held accountable for the manner in which it is used.
  ====================================
 
  - v0.74b- (??/??/20??) - BrawlLib v0.21b
-
+	. Fixed bug where the file's compression type was not displayed
+	. Loop frame is no longer included when playing an animation. This is how it works in-game; the loop frame is only for interpolation from the last frame to the first and therefore only included for CHR0, SRT0, SHP0, and SCN0
+	. Fixed bug where IA4 alpha and intensity were swapped
+	. Fixed bug where a raw data node would appear when opening an unrecognizable file format instead of showing a message
+	. Fixed bug where the loop frame was not included in the frame count when parsing CHR0, SRT0, SHP0, and SCN0
+	. Fixed bug where detaching and reattaching the model panel as a separate window did not work
+	. Fixed bug when trying to view the interpolation of SHP0 nodes
+	. Fixed model viewer screenshot hotkeys
+	. Fixed bug when opening the collision editor
+	. Fixed bug where isotropic animations (isotropic means all the values are the same, so this is usually scale) were not parsed correctly
+	. Fixed bug where PMD models could no longer be imported
+	. Fixed bug where the vertex editor did not appear in the model viewer when using the "J" hotkey
+	. Removed MDL0 material light channel count and instead added "enabled" to each light channel's properties
+	. Renamed MDL0 material "ZCompareLoc" property to "CompareBeforeTexture" and added it under "Z Mode".
+	. Added TPL, EFLS, REFF and REFT as nodes that can be created from scratch
+	. Fixed bug where billboard bones did not apply in the model panel
+	. Added option to zoom precisely in the model viewer by pressing the middle mouse button and dragging
 
  - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Brawlbox can now check for updates on startup (can be enabled via Tools->Settings) or when you go to Help->"Check for updates" and automatically install that update for you, in another folder or in place of the current version.

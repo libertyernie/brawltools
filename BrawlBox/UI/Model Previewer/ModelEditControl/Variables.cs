@@ -67,11 +67,11 @@ namespace System.Windows.Forms
         //public override Panel AnimCtrlPnl { get { return animCtrlPnl; } }
         //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         //public override Panel AnimEditors { get { return animEditors; } }
-        public override bool BackgroundImageLoaded
-        {
-            get { return loadImageToolStripMenuItem.Text == "Load Image"; }
-            set { loadImageToolStripMenuItem.Text = value ? "Clear Image" : "Load Image"; }
-        }
+        //public override bool BackgroundImageLoaded
+        //{
+        //    get { return loadImageToolStripMenuItem.Text == "Load Image"; }
+        //    set { loadImageToolStripMenuItem.Text = value ? "Clear Image" : "Load Image"; }
+        //}
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool DoNotHighlightOnMouseMove 
         {

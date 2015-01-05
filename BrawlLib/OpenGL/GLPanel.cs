@@ -37,9 +37,11 @@ namespace BrawlLib.OpenGL
         public Matrix _projectionMatrix;
         public Matrix _projectionInverse;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool ProjectionChanged { get { return _projectionChanged; } set { _projectionChanged = value; } }
         protected bool _projectionChanged = true;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool IsOrthographic { get { return _orthographic; } set { _orthographic = value; _projectionChanged = true; Invalidate(); } }
         protected bool _orthographic = false;
 

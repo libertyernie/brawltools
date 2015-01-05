@@ -21,6 +21,34 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
+        private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (!_updating) RenderModelBox = !RenderModelBox;
+        }
+
+        private void objectsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating) RenderObjectBox = !RenderObjectBox;
+        }
+
+        private void visibilityBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating) RenderVisBoneBox = !RenderVisBoneBox;
+        }
+
+        private void displayBindBoundingBoxesOn0FrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+            {
+                UseBindStateBoxes = !UseBindStateBoxes;
+
+                if (CurrentFrame == 0)
+                    ModelPanel.Invalidate();
+            }
+        }
+
+        private void chkBillboardBones_Click(object sender, EventArgs e) { if (!_updating) { ApplyBillboardBones = !ApplyBillboardBones; ModelPanel.Invalidate(); } }
+
         private void chkBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
         private void toggleBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
 
@@ -38,7 +66,7 @@ namespace System.Windows.Forms
 
         private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderWireframe = !RenderWireframe; }
         private void toggleNormals_Click(object sender, EventArgs e) { if (!_updating) RenderNormals = !RenderNormals; }
-        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderBox = !RenderBox; }
+        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { }
 
         #region Screen Capture
 

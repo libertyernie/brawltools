@@ -588,7 +588,7 @@ namespace BrawlLib.Modeling
                 model._matList.Add(mn);
             }
 
-            model._numFaces = 0;
+            model._numTriangles = 0;
             model._numFacepoints = 0;
 
             int x = 0;
@@ -602,7 +602,7 @@ namespace BrawlLib.Modeling
                 p.Name = "polygon" + x++;
                 p._parent = model._objGroup;
 
-                model._numFaces += p._numFaces = manager._faceCount = manager._pointCount / 3;
+                model._numTriangles += p._numFaces = manager._faceCount = manager._pointCount / 3;
                 model._numFacepoints += p._numFacepoints = manager._pointCount;
 
                 p._manager._indices = new UnsafeBuffer((int)m._faceVertCount * 2);

@@ -24,7 +24,7 @@ namespace System.Windows.Forms
         {
             if (weightEditor.Visible)
             {
-                animCtrlPnl.Height = prevHeight;
+                animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;
                 weightEditor.Visible = false;
                 _currentControl.Visible = true;
@@ -34,10 +34,10 @@ namespace System.Windows.Forms
                 if (vertexEditor.Visible)
                     ToggleVertexEditor();
 
-                prevHeight = animCtrlPnl.Height;
+                prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;
                 animCtrlPnl.Width = 320;
-                animCtrlPnl.Height = 78;
+                animEditors.Height = 78;
                 weightEditor.Visible = true;
                 _currentControl.Visible = false;
             }
@@ -48,7 +48,7 @@ namespace System.Windows.Forms
         {
             if (vertexEditor.Visible)
             {
-                animCtrlPnl.Height = prevHeight;
+                animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;
                 vertexEditor.Visible = false;
                 _currentControl.Visible = true;
@@ -58,10 +58,10 @@ namespace System.Windows.Forms
                 if (weightEditor.Visible)
                     ToggleWeightEditor();
 
-                prevHeight = animCtrlPnl.Height;
+                prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;
-                animCtrlPnl.Width = 118;
-                animCtrlPnl.Height = 85;
+                animCtrlPnl.Width = 230;
+                animEditors.Height = 82;
                 vertexEditor.Visible = true;
                 _currentControl.Visible = false;
             }
@@ -104,11 +104,15 @@ namespace System.Windows.Forms
             appendToolStripMenuItem.Enabled = node != null && Array.IndexOf(Appendable, node.GetType()) >= 0;
 
             int i = -1;
-            bool enabled = node != null && (i = Array.IndexOf(Interpolated, node.GetType())) >= 0 && (i == 0 ? SelectedBone != null : i == 1 ? TargetTexRef != null : shp0Editor.VertexSetDest != null);
-            if (averageboneStartendTangentsToolStripMenuItem.Enabled = enabled)
-                averageboneStartendTangentsToolStripMenuItem.Text = String.Format("Average {0} start/end keyframes", i == 0 ? SelectedBone.Name : i == 1 ? TargetTexRef.Name : shp0Editor.VertexSetDest.Name);
-            else
-                averageboneStartendTangentsToolStripMenuItem.Text = "Average entry start/end keyframes";
+            bool hasKeys = node != null && !(node is SCN0Node) && (i = Array.IndexOf(Interpolated, node.GetType())) >= 0;
+            string s = 
+                i == 0 ? (SelectedBone != null ? SelectedBone.Name : "entry") :
+                i == 1 ? (TargetTexRef != null ? TargetTexRef.Name : "entry") :
+                i == 2 ? (shp0Editor.VertexSetDest != null ? shp0Editor.VertexSetDest.Name : "entry") :
+            "entry";
+
+            averageboneStartendTangentsToolStripMenuItem.Enabled = hasKeys && s != "entry";
+            averageboneStartendTangentsToolStripMenuItem.Text = String.Format("Average {0} start/end keyframes", s);
 
             averageAllStartEndTangentsToolStripMenuItem.Enabled = node != null && Array.IndexOf(Interpolated, node.GetType()) >= 0;
             syncStartendTangentsToolStripMenuItem.Enabled = node != null && Array.IndexOf(Interpolated, node.GetType()) >= 0;

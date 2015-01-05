@@ -419,7 +419,7 @@ namespace BrawlLib.Modeling
                             break;
                         }
 
-                model._numFaces += poly._numFaces = manager._faceCount = manager._pointCount / 3;
+                model._numTriangles += poly._numFaces = manager._faceCount = manager._pointCount / 3;
                 model._numFacepoints += poly._numFacepoints = manager._pointCount;
                 
                 poly._parent = model._objGroup;

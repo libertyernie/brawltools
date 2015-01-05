@@ -496,21 +496,10 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class NW4RAnimationNode : BRESEntryNode
     {
         internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
-        
-        public int _numFrames = 1, _version, _loop;
-        public string _originalPath;
-        internal UserDataCollection _userEntries = new UserDataCollection();
 
-        [Browsable(true)]
-        public virtual int Version
-        {
-            get { return _version; }
-            set
-            {
-                _version = value;
-                SignalPropertyChange();
-            }
-        }
+        public int _numFrames = 1;
+        public bool _loop;
+
         [Browsable(true)]
         public virtual int FrameCount
         {
@@ -526,34 +515,58 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
         [Browsable(true)]
-        public virtual bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
-        [Browsable(true)]
-        public virtual string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
+        public virtual bool Loop { get { return _loop; } set { if (_loop != value) { _loop = value; SignalPropertyChange(); } } }
 
         protected virtual void UpdateChildFrameLimits() { }
-
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-            _version = Header->_version;
-            return false;
-        }
     }
 
     public unsafe class BRESEntryNode : ResourceNode
     {
         internal BRESCommonHeader* CommonHeader { get { return (BRESCommonHeader*)WorkingSource.Address; } }
-
         [Browsable(false)]
         public virtual int DataAlign { get { return 4; } }
-
         [Browsable(false)]
         public BRESNode BRESNode { get { return ((_parent != null) && (Parent.Parent is BRESNode)) ? Parent.Parent as BRESNode : null; } }
+        [Browsable(false)]
+        public virtual int[] SupportedVersions { get { return new int[0]; } }
+
+        public int _version;
+        public string _originalPath;
+        internal UserDataCollection _userEntries = new UserDataCollection();
+
+        [Category("G3D Node"), Browsable(true)]
+        public int Version
+        {
+            get { return _version; }
+            set
+            {
+                if (SupportedVersions.Contains(_version))
+                {
+                    int previous = _version;
+                    _version = value;
+                    SignalPropertyChange();
+                    OnVersionChanged(previous);
+                }
+                else
+                {
+                    string message = "The version entered for this node is either invalid or unsupported.\nSupported versions are: ";
+                    foreach (int i in SupportedVersions)
+                        message += " " + i;
+                    MessageBox.Show(RootNode._mainForm, message, "Unsupported version", MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+                }
+            }
+        }
+        [Category("G3D Node"), Browsable(true)]
+        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
+        [Category("User Data"), Browsable(true), TypeConverter(typeof(ExpandableObjectCustomConverter))]
+        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
+
+        protected virtual void OnVersionChanged(int previousVersion) { }
 
         public override bool OnInitialize()
         {
+            _userEntries = new UserDataCollection();
+            _version = CommonHeader->_version;
             SetSizeInternal(CommonHeader->_size);
             return false;
         }

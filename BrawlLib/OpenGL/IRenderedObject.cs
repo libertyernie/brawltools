@@ -14,6 +14,6 @@ namespace BrawlLib.OpenGL
         void Detach();
         void Refresh();
         void Render(params object[] args);
-        void GetBox(out Vector3 min, out Vector3 max);
+        Box GetBox();
     }
 }

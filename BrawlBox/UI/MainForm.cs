@@ -418,11 +418,9 @@ namespace BrawlBox
                     m.ResetToBindState();
                 }
 
-                modelPanel1.AddTarget((IRenderedObject)node);
-
-                Vector3 min, max;
-                ((IRenderedObject)node).GetBox(out min, out max);
-                modelPanel1.SetCamWithBox(min, max);
+                IRenderedObject o = node as IRenderedObject;
+                modelPanel1.AddTarget(o);
+                modelPanel1.SetCamWithBox(o.GetBox());
             }
             else if (_currentControl is TexCoordRenderer)
             {
