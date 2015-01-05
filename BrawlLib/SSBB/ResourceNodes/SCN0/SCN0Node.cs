@@ -13,17 +13,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal SCN0v4* Header4 { get { return (SCN0v4*)WorkingUncompressed.Address; } }
         internal SCN0v5* Header5 { get { return (SCN0v5*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SCN0; } }
+        public override int[] SupportedVersions { get { return new int[] { 4, 5 }; } }
 
         public SCN0Node() { _version = 4; }
         const string _category = "Scene Definition";
         public int _specLights, _lightsets, _amblights, _lights, _fogs, _cameras;
 
-        [Category(_category)]
-        public override int Version
-        {
-            get { return base.Version; }
-            set { base.Version = value; }
-        }
         [Category(_category)]
         public override int FrameCount
         {
@@ -35,12 +30,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get { return base.Loop; }
             set { base.Loop = value; UpdateChildFrameLimits(); }
-        }
-        [Category(_category)]
-        public override string OriginalPath
-        {
-            get { return base.OriginalPath; }
-            set { base.OriginalPath = value; }
         }
 
         protected override void UpdateChildFrameLimits()
@@ -66,8 +55,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
             if (_version == 5)
             {
                 SCN0v5* header = Header5;
@@ -76,7 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 _numFrames = header->_frameCount;
                 _specLights = header->_specLightCount;
-                _loop = ((int)header->_loop).Clamp(0, 1);
+                _loop = header->_loop != 0;
                 _lightsets = header->_lightSetCount;
                 _amblights = header->_ambientCount;
                 _lights = header->_lightCount;
@@ -98,7 +85,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 _numFrames = header->_frameCount;
                 _specLights = header->_specLightCount;
-                _loop = ((int)header->_loop).Clamp(0, 1);
+                _loop = header->_loop != 0;
                 _lightsets = header->_lightSetCount;
                 _amblights = header->_ambientCount;
                 _lights = header->_lightCount;
@@ -286,7 +273,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_origPathOffset = 0;
                 header->_frameCount = (ushort)_numFrames;
                 header->_specLightCount = (ushort)_specLights;
-                header->_loop = _loop;
+                header->_loop = _loop ? 1 : 0;
                 header->_pad = 0;
                 header->_dataOffset = SCN0v5.Size;
 
@@ -299,7 +286,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_origPathOffset = 0;
                 header->_frameCount = (ushort)_numFrames;
                 header->_specLightCount = (ushort)_specLights;
-                header->_loop = _loop;
+                header->_loop = _loop ? 1 : 0;
                 header->_pad = 0;
                 header->_dataOffset = SCN0v4.Size;
 

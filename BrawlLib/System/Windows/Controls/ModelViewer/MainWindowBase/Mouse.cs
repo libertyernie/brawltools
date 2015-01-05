@@ -667,22 +667,32 @@ namespace System.Windows.Forms
                     if (NotCtrlAlt)
                         ResetVertexColors();
 
+                    bool selected = false;
                     if (TargetModel != null)
                         if (TargetModel.SelectedObjectIndex < 0)
                         {
                             foreach (IObject o in TargetModel.Objects)
                                 if (o.IsRendering)
+                                {
                                     SelectVertices(o, panel);
+                                    selected = true;
+                                }
                         }
                         else
                         {
                             IObject w = TargetModel.Objects[TargetModel.SelectedObjectIndex];
                             if (w.IsRendering)
+                            {
                                 SelectVertices(w, panel);
+                                selected = true;
+                            }
                             else
                                 foreach (IObject h in TargetModel.Objects)
                                     if (h.IsRendering)
+                                    {
                                         SelectVertices(h, panel);
+                                        selected = true;
+                                    }
                         }
                     else if (_targetModels != null)
                     {
@@ -692,20 +702,31 @@ namespace System.Windows.Forms
                             {
                                 foreach (IObject o in m.Objects)
                                     if (o.IsRendering)
+                                    {
                                         SelectVertices(o, panel);
+                                        selected = true;
+                                    }
                             }
                             else
                             {
                                 IObject w = m.Objects[m.SelectedObjectIndex];
                                 if (w.IsRendering)
+                                {
                                     SelectVertices(w, panel);
+                                    selected = true;
+                                }
                                 else
                                     foreach (IObject h in m.Objects)
                                         if (h.IsRendering)
+                                        {
                                             SelectVertices(h, panel);
+                                            selected = true;
+                                        }
                             }
                         }
                     }
+                    if (selected)
+                        OnSelectedVerticesChanged();
                 }
                 else
                 {
@@ -739,6 +760,9 @@ namespace System.Windows.Forms
 
             panel.Invalidate();
         }
+        /// <summary>
+        /// Does not call OnSelectedVerticesChanged()!
+        /// </summary>
         private void SelectVertices(IObject o, ModelPanel panel)
         {
             foreach (Vertex3 v in o.PrimitiveManager._vertices)

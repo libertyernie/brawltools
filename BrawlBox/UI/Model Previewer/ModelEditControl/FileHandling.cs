@@ -33,7 +33,7 @@ namespace System.Windows.Forms
                         if (!CloseExternal())
                             return false;
 
-                        if (!leftPanel.LoadAnims(node, TargetAnimType))
+                        if (!leftPanel.LoadAnims(node, TargetAnimType, null, false))
                             MessageBox.Show(this, "No animations could be found in external file.", "Error");
                         else
                         {

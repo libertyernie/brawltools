@@ -150,16 +150,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (CollisionObject obj in _objects)
                 obj.Render();
         }
-        public void GetBox(out Vector3 min, out Vector3 max)
+        public Box GetBox()
         {
-            min = new Vector3();
-            max = new Vector3();
-
+            Box box = Box.ExpandableVolume;
             foreach (CollisionObject obj in _objects)
-            {
-                min.Min(new Vector3(obj._boxMin._x, obj._boxMin._y, 0));
-                max.Max(new Vector3(obj._boxMax._x, obj._boxMax._y, 0));
-            }
+                box.ExpandVolume(new Vector3(obj._boxMin._x, obj._boxMin._y, 0));
+            return box;
         }
         #endregion
 

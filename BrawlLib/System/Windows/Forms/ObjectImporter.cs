@@ -299,9 +299,7 @@ namespace System.Windows.Forms
             }
 
             modelPanel1.AddTarget(_node);
-            Vector3 min, max;
-            _node.GetBox(out min, out max);
-            modelPanel1.SetCamWithBox(min, max);
+            modelPanel1.SetCamWithBox(_node.GetBox());
         }
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
@@ -334,9 +332,7 @@ namespace System.Windows.Forms
                 baseBone.Text = _baseInf.ToString();
 
                 modelPanel1.AddTarget(_externalModel);
-                Vector3 min, max;
-                _externalModel.GetBox(out min, out max);
-                modelPanel1.SetCamWithBox(min, max);
+                modelPanel1.SetCamWithBox(_externalModel.GetBox());
             }
             else
             {

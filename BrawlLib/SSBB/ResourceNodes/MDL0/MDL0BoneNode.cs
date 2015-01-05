@@ -61,9 +61,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public FrameState _frameState = FrameState.Neutral;
         public Matrix _frameMatrix = Matrix.Identity, _inverseFrameMatrix = Matrix.Identity;
 
-        private Vector3 _bMin, _bMax;
+        private Box _extents = new Box();
         internal int _nodeIndex, _weightCount, _refCount, _headerLen, _mdl0Offset, _stringOffset, _parentOffset, _firstChildOffset, _prevOffset, _nextOffset, _userDataOffset;
-
+        
         #region IBoneNode Implementation
 
         [Browsable(false)]
@@ -193,7 +193,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Bone"), Browsable(false)]
         public BoneFlags Flags { get { return _boneFlags; } set { _boneFlags = (BoneFlags)(int)value; SignalPropertyChange(); } }
 
-        [Category("Bone"), Browsable(false)]
+        [Category("Bone"), Browsable(true)]
         public bool HasBillboardParent
         {
             get { return _boneFlags.HasFlag(BoneFlags.HasBillboardParent); }
@@ -282,7 +282,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         }
 
         [Category("Bone")]
-        public string BillboardRefNode { get { return _bbRefNode == null ? String.Empty : Name; } }
+        public string BillboardRefNode { get { return _bbRefNode == null ? String.Empty : _bbRefNode.Name; } }
         MDL0BoneNode _bbRefNode;
 
         [Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
@@ -385,9 +385,9 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         }
 
         [Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
-        public Vector3 BoxMin { get { return _bMin; } set { _bMin = value; SignalPropertyChange(); } }
+        public Vector3 BoxMin { get { return _extents.Min; } set { _extents.Min = value; SignalPropertyChange(); } }
         [Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
-        public Vector3 BoxMax { get { return _bMax; } set { _bMax = value; SignalPropertyChange(); } }
+        public Vector3 BoxMax { get { return _extents.Max; } set { _extents.Max = value; SignalPropertyChange(); } }
 
         //[Category("Kinect Settings"), Browsable(true)]
         //public SkeletonJoint Joint
@@ -410,12 +410,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             foreach (MDL0BoneNode n in Children)
                 n.GetStrings(table);
 
-            foreach (UserDataClass s in _userEntries)
-            {
-                table.Add(s._name);
-                if (s._type == UserValueType.String && s._entries.Count > 0)
-                    table.Add(s._entries[0]);
-            }
+            _userEntries.GetStrings(table);
         }
 
         //Initialize should only be called from parent group during parse.
@@ -470,8 +465,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             _bindMatrix = _frameMatrix = header->_transform;
             _inverseBindMatrix = _inverseFrameMatrix = header->_transformInv;
 
-            _bMin = header->_boxMin;
-            _bMax = header->_boxMax;
+            _extents = header->_extents;
 
             (_userEntries = new UserDataCollection()).Read(header->UserDataAddress);
             
@@ -604,8 +598,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             header->_scale = _bindState._scale;
             header->_rotation = _bindState._rotate;
             header->_translation = _bindState._translate;
-            header->_boxMin = _bMin;
-            header->_boxMax = _bMax;
+            header->_extents = _extents;
             header->_transform = (bMatrix43)_bindMatrix;
             header->_transformInv = (bMatrix43)_inverseBindMatrix;
 
@@ -640,7 +633,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             SignalPropertyChange();
         }
-        public void RecalcFrameState()
+        public void RecalcFrameState(bool applyBillboardBones = false)
         {
             if (_overrideBone != null)
             {
@@ -670,11 +663,11 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             //    foreach (MDL0BoneNode b in _overriding)
             //        b.RecalcFrameState();
 
-            if (BillboardSetting != BillboardFlags.Off)
+            if (BillboardSetting != BillboardFlags.Off && applyBillboardBones)
                 ApplyBillboard();
 
             foreach (MDL0BoneNode bone in Children)
-                bone.RecalcFrameState();
+                bone.RecalcFrameState(applyBillboardBones);
         }
 
         public void ApplyBillboard()
@@ -712,7 +705,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     m = Matrix.RotationMatrix(_frameState.Rotate);
                     mInv = Matrix.ReverseRotationMatrix(_frameState.Rotate);
 
-                    //TODO: apply restrictions
+                    //TODO: apply restrictions?
                     break;
 
                 case BillboardFlags.Y:
@@ -722,7 +715,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     m = Matrix.RotationMatrix(worldState.Rotate);
                     mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
 
-                    //TODO: test this
+                    //Only Y is allowed to rotate automatically
                     rot._x = 0;
                     rot._z = 0;
                     
@@ -736,6 +729,47 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             _frameMatrix = worldState._transform * m;
             _inverseFrameMatrix = worldState._iTransform * mInv;
+        }
+
+        public unsafe void DrawBox(bool drawChildren, bool bindBox)
+        {
+            Box box = bindBox ? _extents : GetBox();
+
+            if (bindBox)
+            {
+                GL.MatrixMode(MatrixMode.Modelview);
+                GL.PushMatrix();
+                fixed (Matrix* m = &_frameMatrix)
+                    GL.MultMatrix((float*)m);
+            }
+            
+            TKContext.DrawWireframeBox(box);
+
+            if (bindBox)
+                GL.PopMatrix();
+            
+            if (drawChildren)
+                foreach (MDL0BoneNode b in Children)
+                    b.DrawBox(true, bindBox);
+        }
+
+        public Box GetBox()
+        {
+            if (AttachedObjects.Length == 0)
+                return new Box();
+
+            Box box = Box.ExpandableVolume;
+            foreach (MDL0ObjectNode o in AttachedObjects)
+                box.ExpandVolume(o.GetBox());
+
+            return box;
+        }
+
+        internal void SetBox()
+        {
+            _extents = GetBox();
+            foreach (MDL0BoneNode b in Children)
+                b.SetBox();
         }
 
         public unsafe List<MDL0BoneNode> ChildTree(List<MDL0BoneNode> list)
@@ -796,8 +830,8 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         //public bool Attached { get { return _attached; } }
         //private bool _attached = false;
 
-        //[Browsable(false)]
-        //public bool IsRendering { get { return _render; } set { _render = value; } }
+        [Browsable(false)]
+        public bool IsRendering { get { return _render; } set { _render = value; } }
         public bool _render = true;
 
         //public void Detach() { }
@@ -811,12 +845,12 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         public void Render(params object[] args)
         {
+            if (!_render)
+                return;
+
             bool Foreground = (args.Length > 0 && args[0] is bool ? (bool)args[0] : false);
 
             Color c = Foreground ? DefaultLineColor : DefaultLineDeselectedColor;
-
-            if (!_render)
-                return;
 
             if (_boneColor != Color.Transparent)
                 GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);

@@ -542,7 +542,7 @@ namespace System.Windows.Forms
                 }
 
                 //Render invisible depth planes for translation and scale controls
-                if (ControlType != TransformType.Rotation && (SelectedBone != null || VertexLoc() != null))
+                if ((ControlType != TransformType.Rotation && SelectedBone != null) || VertexLoc() != null)
                 {
                     #region Axis Selection Display List
 

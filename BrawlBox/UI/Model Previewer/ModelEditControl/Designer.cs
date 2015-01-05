@@ -21,6 +21,17 @@ namespace System.Windows.Forms
     public partial class ModelEditControl : ModelEditorBase
     {
         #region Designer
+        public ModelPlaybackPanel pnlPlayback;
+        public ColorDialog dlgColor;
+        public ModelPanel modelPanel;
+        public CHR0Editor chr0Editor;
+        public SRT0Editor srt0Editor;
+        public VIS0Editor vis0Editor;
+        public PAT0Editor pat0Editor;
+        public SHP0Editor shp0Editor;
+        public CLR0Editor clr0Editor;
+        public SCN0Editor scn0Editor;
+
         public ComboBox models;
         private Button btnLeftToggle;
         private Button btnRightToggle;
@@ -180,11 +191,15 @@ namespace System.Windows.Forms
         public ToolStripMenuItem LiveTextureFolderPath;
         public ToolStripMenuItem EnableLiveTextureFolder;
         public LeftPanel leftPanel;
+        private ToolStripMenuItem chkBillboardBones;
+        private ToolStripMenuItem chkBBObjects;
+        private ToolStripMenuItem chkBBVisBones;
+        private ToolStripMenuItem chkBBModels;
+        private ToolStripMenuItem displayBindBoundingBoxesOn0FrameToolStripMenuItem;
         private RightPanel rightPanel;
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ModelEditControl));
             this.dlgColor = new System.Windows.Forms.ColorDialog();
             this.btnLeftToggle = new System.Windows.Forms.Button();
             this.btnRightToggle = new System.Windows.Forms.Button();
@@ -233,6 +248,7 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkSnapToColl = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMaximize = new System.Windows.Forms.ToolStripMenuItem();
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -276,6 +292,10 @@ namespace System.Windows.Forms
             this.wireframeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleNormals = new System.Windows.Forms.ToolStripMenuItem();
             this.boundingBoxToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBBModels = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBBObjects = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBBVisBones = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBillboardBones = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playCHR0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -438,7 +458,7 @@ namespace System.Windows.Forms
             this.kinectToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(303, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(395, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -629,7 +649,8 @@ namespace System.Windows.Forms
             this.enableTextOverlaysToolStripMenuItem,
             this.syncStartendTangentsToolStripMenuItem,
             this.chkSnapToColl,
-            this.chkMaximize});
+            this.chkMaximize,
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
@@ -644,7 +665,7 @@ namespace System.Windows.Forms
             this.chkGenTansFog,
             this.chkGenTansCamera});
             this.generateTangentsToolStripMenuItem.Name = "generateTangentsToolStripMenuItem";
-            this.generateTangentsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.generateTangentsToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.generateTangentsToolStripMenuItem.Text = "Generate tangents";
             // 
             // chkGenTansCHR
@@ -712,7 +733,7 @@ namespace System.Windows.Forms
             this.displayFrameCountDifferencesToolStripMenuItem.CheckOnClick = true;
             this.displayFrameCountDifferencesToolStripMenuItem.Enabled = false;
             this.displayFrameCountDifferencesToolStripMenuItem.Name = "displayFrameCountDifferencesToolStripMenuItem";
-            this.displayFrameCountDifferencesToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.displayFrameCountDifferencesToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.displayFrameCountDifferencesToolStripMenuItem.Text = "Warn if frame counts differ";
             this.displayFrameCountDifferencesToolStripMenuItem.Visible = false;
             // 
@@ -721,7 +742,7 @@ namespace System.Windows.Forms
             this.alwaysSyncFrameCountsToolStripMenuItem.CheckOnClick = true;
             this.alwaysSyncFrameCountsToolStripMenuItem.Enabled = false;
             this.alwaysSyncFrameCountsToolStripMenuItem.Name = "alwaysSyncFrameCountsToolStripMenuItem";
-            this.alwaysSyncFrameCountsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.alwaysSyncFrameCountsToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.alwaysSyncFrameCountsToolStripMenuItem.Text = "Always sync frame counts";
             this.alwaysSyncFrameCountsToolStripMenuItem.Visible = false;
             // 
@@ -731,7 +752,7 @@ namespace System.Windows.Forms
             this.syncAnimationsTogetherToolStripMenuItem.CheckOnClick = true;
             this.syncAnimationsTogetherToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.syncAnimationsTogetherToolStripMenuItem.Name = "syncAnimationsTogetherToolStripMenuItem";
-            this.syncAnimationsTogetherToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.syncAnimationsTogetherToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.syncAnimationsTogetherToolStripMenuItem.Text = "Retrieve corresponding animations";
             this.syncAnimationsTogetherToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncAnimationsTogetherToolStripMenuItem_CheckedChanged);
             // 
@@ -739,7 +760,7 @@ namespace System.Windows.Forms
             // 
             this.syncTexObjToolStripMenuItem.CheckOnClick = true;
             this.syncTexObjToolStripMenuItem.Name = "syncTexObjToolStripMenuItem";
-            this.syncTexObjToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.syncTexObjToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.syncTexObjToolStripMenuItem.Text = "Sync texture list with object list";
             this.syncTexObjToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncTexObjToolStripMenuItem_CheckedChanged);
             // 
@@ -747,7 +768,7 @@ namespace System.Windows.Forms
             // 
             this.syncObjectsListToVIS0ToolStripMenuItem.CheckOnClick = true;
             this.syncObjectsListToVIS0ToolStripMenuItem.Name = "syncObjectsListToVIS0ToolStripMenuItem";
-            this.syncObjectsListToVIS0ToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.syncObjectsListToVIS0ToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.syncObjectsListToVIS0ToolStripMenuItem.Text = "Sync objects list edits to VIS0";
             this.syncObjectsListToVIS0ToolStripMenuItem.CheckedChanged += new System.EventHandler(this.syncObjectsListToVIS0ToolStripMenuItem_CheckedChanged);
             // 
@@ -757,14 +778,14 @@ namespace System.Windows.Forms
             this.disableBonesWhenPlayingToolStripMenuItem.CheckOnClick = true;
             this.disableBonesWhenPlayingToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.disableBonesWhenPlayingToolStripMenuItem.Name = "disableBonesWhenPlayingToolStripMenuItem";
-            this.disableBonesWhenPlayingToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.disableBonesWhenPlayingToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.disableBonesWhenPlayingToolStripMenuItem.Text = "Disable bones when playing";
             // 
             // chkDontRenderOffscreen
             // 
             this.chkDontRenderOffscreen.Enabled = false;
             this.chkDontRenderOffscreen.Name = "chkDontRenderOffscreen";
-            this.chkDontRenderOffscreen.Size = new System.Drawing.Size(276, 22);
+            this.chkDontRenderOffscreen.Size = new System.Drawing.Size(300, 22);
             this.chkDontRenderOffscreen.Text = "Don\'t render offscreen objects";
             this.chkDontRenderOffscreen.Visible = false;
             // 
@@ -772,14 +793,14 @@ namespace System.Windows.Forms
             // 
             this.dontHighlightBonesAndVerticesToolStripMenuItem.CheckOnClick = true;
             this.dontHighlightBonesAndVerticesToolStripMenuItem.Name = "dontHighlightBonesAndVerticesToolStripMenuItem";
-            this.dontHighlightBonesAndVerticesToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.dontHighlightBonesAndVerticesToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.dontHighlightBonesAndVerticesToolStripMenuItem.Text = "Don\'t highlight bones and vertices";
             // 
             // enablePointAndLineSmoothingToolStripMenuItem
             // 
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckOnClick = true;
             this.enablePointAndLineSmoothingToolStripMenuItem.Name = "enablePointAndLineSmoothingToolStripMenuItem";
-            this.enablePointAndLineSmoothingToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.enablePointAndLineSmoothingToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.enablePointAndLineSmoothingToolStripMenuItem.Text = "Enable point and line smoothing";
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged);
             // 
@@ -787,7 +808,7 @@ namespace System.Windows.Forms
             // 
             this.enableTextOverlaysToolStripMenuItem.CheckOnClick = true;
             this.enableTextOverlaysToolStripMenuItem.Name = "enableTextOverlaysToolStripMenuItem";
-            this.enableTextOverlaysToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.enableTextOverlaysToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.enableTextOverlaysToolStripMenuItem.Text = "Enable text overlays";
             this.enableTextOverlaysToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enableTextOverlaysToolStripMenuItem_CheckedChanged);
             // 
@@ -796,7 +817,7 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem.CheckOnClick = true;
             this.syncStartendTangentsToolStripMenuItem.Enabled = false;
             this.syncStartendTangentsToolStripMenuItem.Name = "syncStartendTangentsToolStripMenuItem";
-            this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(276, 22);
+            this.syncStartendTangentsToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.syncStartendTangentsToolStripMenuItem.Text = "Sync first && last frame tangents";
             this.syncStartendTangentsToolStripMenuItem.Visible = false;
             // 
@@ -804,15 +825,24 @@ namespace System.Windows.Forms
             // 
             this.chkSnapToColl.CheckOnClick = true;
             this.chkSnapToColl.Name = "chkSnapToColl";
-            this.chkSnapToColl.Size = new System.Drawing.Size(276, 22);
+            this.chkSnapToColl.Size = new System.Drawing.Size(300, 22);
             this.chkSnapToColl.Text = "Snap dragged bones to floor collisions";
             // 
             // chkMaximize
             // 
             this.chkMaximize.CheckOnClick = true;
             this.chkMaximize.Name = "chkMaximize";
-            this.chkMaximize.Size = new System.Drawing.Size(276, 22);
+            this.chkMaximize.Size = new System.Drawing.Size(300, 22);
             this.chkMaximize.Text = "Maximize upon opening";
+            // 
+            // displayBindBoundingBoxesOn0FrameToolStripMenuItem
+            // 
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Checked = true;
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Name = "displayBindBoundingBoxesOn0FrameToolStripMenuItem";
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Text = "Display written bounding boxes on 0 frame";
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Click += new System.EventHandler(this.displayBindBoundingBoxesOn0FrameToolStripMenuItem_Click);
             // 
             // allSettingsToolStripMenuItem
             // 
@@ -827,21 +857,21 @@ namespace System.Windows.Forms
             // resetToolStripMenuItem
             // 
             this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-            this.resetToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.resetToolStripMenuItem.Text = "Reset";
             this.resetToolStripMenuItem.Click += new System.EventHandler(this.clearSavedSettingsToolStripMenuItem_Click);
             // 
             // exportToolStripMenuItem
             // 
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.exportToolStripMenuItem.Text = "Export";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -1157,7 +1187,8 @@ namespace System.Windows.Forms
             this.toggleCollisions,
             this.wireframeToolStripMenuItem,
             this.toggleNormals,
-            this.boundingBoxToolStripMenuItem});
+            this.boundingBoxToolStripMenuItem,
+            this.chkBillboardBones});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
             this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.modelToolStripMenuItem.Text = "Model";
@@ -1216,10 +1247,44 @@ namespace System.Windows.Forms
             // 
             // boundingBoxToolStripMenuItem
             // 
+            this.boundingBoxToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.chkBBModels,
+            this.chkBBObjects,
+            this.chkBBVisBones});
             this.boundingBoxToolStripMenuItem.Name = "boundingBoxToolStripMenuItem";
             this.boundingBoxToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
             this.boundingBoxToolStripMenuItem.Text = "Bounding Box";
             this.boundingBoxToolStripMenuItem.Click += new System.EventHandler(this.boundingBoxToolStripMenuItem_Click);
+            // 
+            // chkBBModels
+            // 
+            this.chkBBModels.Name = "chkBBModels";
+            this.chkBBModels.Size = new System.Drawing.Size(153, 22);
+            this.chkBBModels.Text = "Models";
+            this.chkBBModels.Click += new System.EventHandler(this.modelToolStripMenuItem1_Click);
+            // 
+            // chkBBObjects
+            // 
+            this.chkBBObjects.Name = "chkBBObjects";
+            this.chkBBObjects.Size = new System.Drawing.Size(153, 22);
+            this.chkBBObjects.Text = "Objects";
+            this.chkBBObjects.Click += new System.EventHandler(this.objectsToolStripMenuItem_Click);
+            // 
+            // chkBBVisBones
+            // 
+            this.chkBBVisBones.Name = "chkBBVisBones";
+            this.chkBBVisBones.Size = new System.Drawing.Size(153, 22);
+            this.chkBBVisBones.Text = "Visibility Bones";
+            this.chkBBVisBones.Click += new System.EventHandler(this.visibilityBonesToolStripMenuItem_Click);
+            // 
+            // chkBillboardBones
+            // 
+            this.chkBillboardBones.Checked = true;
+            this.chkBillboardBones.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkBillboardBones.Name = "chkBillboardBones";
+            this.chkBillboardBones.Size = new System.Drawing.Size(159, 22);
+            this.chkBillboardBones.Text = "Billboard Bones";
+            this.chkBillboardBones.Click += new System.EventHandler(this.chkBillboardBones_Click);
             // 
             // fileTypesToolStripMenuItem
             // 
@@ -1240,7 +1305,7 @@ namespace System.Windows.Forms
             this.playVIS0ToolStripMenuItem,
             this.playCLR0ToolStripMenuItem});
             this.playToolStripMenuItem.Name = "playToolStripMenuItem";
-            this.playToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.playToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.playToolStripMenuItem.Text = "Play";
             // 
             // playCHR0ToolStripMenuItem
@@ -1251,6 +1316,7 @@ namespace System.Windows.Forms
             this.playCHR0ToolStripMenuItem.Name = "playCHR0ToolStripMenuItem";
             this.playCHR0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playCHR0ToolStripMenuItem.Text = "CHR0";
+            this.playCHR0ToolStripMenuItem.Click += new System.EventHandler(this.playCHR0ToolStripMenuItem_Click);
             // 
             // playSRT0ToolStripMenuItem
             // 
@@ -1260,6 +1326,7 @@ namespace System.Windows.Forms
             this.playSRT0ToolStripMenuItem.Name = "playSRT0ToolStripMenuItem";
             this.playSRT0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playSRT0ToolStripMenuItem.Text = "SRT0";
+            this.playSRT0ToolStripMenuItem.Click += new System.EventHandler(this.playSRT0ToolStripMenuItem_Click);
             // 
             // playSHP0ToolStripMenuItem
             // 
@@ -1269,6 +1336,7 @@ namespace System.Windows.Forms
             this.playSHP0ToolStripMenuItem.Name = "playSHP0ToolStripMenuItem";
             this.playSHP0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playSHP0ToolStripMenuItem.Text = "SHP0";
+            this.playSHP0ToolStripMenuItem.Click += new System.EventHandler(this.playSHP0ToolStripMenuItem_Click);
             // 
             // playPAT0ToolStripMenuItem
             // 
@@ -1278,6 +1346,7 @@ namespace System.Windows.Forms
             this.playPAT0ToolStripMenuItem.Name = "playPAT0ToolStripMenuItem";
             this.playPAT0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playPAT0ToolStripMenuItem.Text = "PAT0";
+            this.playPAT0ToolStripMenuItem.Click += new System.EventHandler(this.playPAT0ToolStripMenuItem_Click);
             // 
             // playVIS0ToolStripMenuItem
             // 
@@ -1287,6 +1356,7 @@ namespace System.Windows.Forms
             this.playVIS0ToolStripMenuItem.Name = "playVIS0ToolStripMenuItem";
             this.playVIS0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playVIS0ToolStripMenuItem.Text = "VIS0";
+            this.playVIS0ToolStripMenuItem.Click += new System.EventHandler(this.playVIS0ToolStripMenuItem_Click);
             // 
             // playCLR0ToolStripMenuItem
             // 
@@ -1295,6 +1365,7 @@ namespace System.Windows.Forms
             this.playCLR0ToolStripMenuItem.Name = "playCLR0ToolStripMenuItem";
             this.playCLR0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playCLR0ToolStripMenuItem.Text = "CLR0";
+            this.playCLR0ToolStripMenuItem.Click += new System.EventHandler(this.playCLR0ToolStripMenuItem_Click);
             // 
             // sCN0ToolStripMenuItem
             // 
@@ -1304,7 +1375,7 @@ namespace System.Windows.Forms
             this.displayFogToolStripMenuItem,
             this.displayCameraToolStripMenuItem});
             this.sCN0ToolStripMenuItem.Name = "sCN0ToolStripMenuItem";
-            this.sCN0ToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.sCN0ToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.sCN0ToolStripMenuItem.Text = "SCN0";
             // 
             // displayAmbienceToolStripMenuItem
@@ -1344,10 +1415,10 @@ namespace System.Windows.Forms
             this.displayToolStripMenuItem.Text = "Display";
             this.displayToolStripMenuItem.Visible = false;
             // 
-            // stPersonToolStripMenuItem
+            // firstPersonCameraToolStripMenuItem
             // 
             this.firstPersonCameraToolStripMenuItem.CheckOnClick = true;
-            this.firstPersonCameraToolStripMenuItem.Name = "stPersonToolStripMenuItem";
+            this.firstPersonCameraToolStripMenuItem.Name = "firstPersonCameraToolStripMenuItem";
             this.firstPersonCameraToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
             this.firstPersonCameraToolStripMenuItem.Text = "1st Person";
             this.firstPersonCameraToolStripMenuItem.CheckedChanged += new System.EventHandler(this.stPersonToolStripMenuItem_CheckedChanged);
@@ -1668,7 +1739,6 @@ namespace System.Windows.Forms
             this.chkBoundaries,
             this.chkSpawns,
             this.chkItems});
-            this.dropdownOverlays.Image = ((System.Drawing.Image)(resources.GetObject("dropdownOverlays.Image")));
             this.dropdownOverlays.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.dropdownOverlays.Name = "dropdownOverlays";
             this.dropdownOverlays.Size = new System.Drawing.Size(65, 21);
@@ -1724,7 +1794,6 @@ namespace System.Windows.Forms
             // chkZoomExtents
             // 
             this.chkZoomExtents.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
-            this.chkZoomExtents.Image = ((System.Drawing.Image)(resources.GetObject("chkZoomExtents.Image")));
             this.chkZoomExtents.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.chkZoomExtents.Name = "chkZoomExtents";
             this.chkZoomExtents.Size = new System.Drawing.Size(83, 19);
@@ -1978,6 +2047,7 @@ namespace System.Windows.Forms
             this.ResumeLayout(false);
 
         }
+
         #endregion
 
         #region Initialization
@@ -1991,6 +2061,16 @@ namespace System.Windows.Forms
             rightPanel.pnlBones._mainWindow =
             weightEditor._mainWindow =
             vertexEditor._mainWindow = this;
+
+            srt0Editor._mainWindow =
+            shp0Editor._mainWindow =
+            pat0Editor._mainWindow =
+            vis0Editor._mainWindow =
+            scn0Editor._mainWindow =
+            clr0Editor._mainWindow =
+            chr0Editor._mainWindow =
+            pnlPlayback._mainWindow =
+            this;
 
             PreConstruct();
 
@@ -2008,15 +2088,91 @@ namespace System.Windows.Forms
             _openFileDelegate = new DelegateOpenFile(OpenFile);
 
             ModelPanel.RenderBonesChanged += modelPanel_RenderBonesChanged;
-            ModelPanel.RenderBoxChanged += modelPanel_RenderBoxChanged;
+            ModelPanel.RenderModelBoxChanged += modelPanel_RenderModelBoxChanged;
+            ModelPanel.RenderObjectBoxChanged += modelPanel_RenderObjectBoxChanged;
+            ModelPanel.RenderVisBoneBoxChanged += modelPanel_RenderVisBoneBoxChanged;
             ModelPanel.RenderFloorChanged += modelPanel_RenderFloorChanged;
             ModelPanel.RenderNormalsChanged += modelPanel_RenderNormalsChanged;
             ModelPanel.RenderOffscreenChanged += modelPanel_RenderOffscreenChanged;
             ModelPanel.RenderPolygonsChanged += ModelPanel_RenderPolygonsChanged;
             ModelPanel.RenderVerticesChanged += ModelPanel_RenderVerticesChanged;
             ModelPanel.RenderWireframeChanged += ModelPanel_RenderWireframeChanged;
+            ModelPanel.ApplyBillboardBonesChanged += ModelPanel_ApplyBillboardBonesChanged;
+            ModelPanel.UseBindStateBoxesChanged += ModelPanel_UseBindStateBoxesChanged;
 
             PostConstruct();
+        }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CHR0Editor CHR0Editor { get { return chr0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SRT0Editor SRT0Editor { get { return srt0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SHP0Editor SHP0Editor { get { return shp0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override VIS0Editor VIS0Editor { get { return vis0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override PAT0Editor PAT0Editor { get { return pat0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SCN0Editor SCN0Editor { get { return scn0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CLR0Editor CLR0Editor { get { return clr0Editor; } }
+
+        public override ColorDialog ColorDialog { get { return dlgColor; } }
+
+        public void OnDragEnter(object sender, DragEventArgs e)
+        {
+            if (_openFileDelegate == null)
+                return;
+
+            if (e.Data.GetDataPresent(DataFormats.FileDrop))
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+
+        public void OnDragDrop(object sender, DragEventArgs e)
+        {
+            if (_openFileDelegate == null)
+                return;
+
+            Array a = (Array)e.Data.GetData(DataFormats.FileDrop);
+            if (a != null)
+            {
+                string s = null;
+                for (int i = 0; i < a.Length; i++)
+                {
+                    s = a.GetValue(i).ToString();
+                    this.BeginInvoke(_openFileDelegate, new Object[] { s });
+                }
+            }
+        }
+
+        void ModelPanel_UseBindStateBoxesChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                displayBindBoundingBoxesOn0FrameToolStripMenuItem.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void ModelPanel_ApplyBillboardBonesChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkBillboardBones.Checked = value;
+                _updating = false;
+            }
         }
 
         void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
@@ -2025,7 +2181,7 @@ namespace System.Windows.Forms
             if (ModelPanel == panel) 
             {
                 _updating = true;
-                chkPolygons.Checked = togglePolygons.Checked = value;
+                wireframeToolStripMenuItem.Checked = value;
                 _updating = false;
             }
         }
@@ -2085,13 +2241,33 @@ namespace System.Windows.Forms
             }
         }
 
-        void modelPanel_RenderBoxChanged(ModelPanel panel, bool value)
+        void modelPanel_RenderModelBoxChanged(ModelPanel panel, bool value)
         {
             //Only update if the focused panel triggered the event
             if (ModelPanel == panel)
             {
                 _updating = true;
-                boundingBoxToolStripMenuItem.Checked = value;
+                chkBBModels.Checked = value;
+                _updating = false;
+            }
+        }
+        void modelPanel_RenderObjectBoxChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkBBObjects.Checked = value;
+                _updating = false;
+            }
+        }
+        void modelPanel_RenderVisBoneBoxChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel)
+            {
+                _updating = true;
+                chkBBVisBones.Checked = value;
                 _updating = false;
             }
         }
@@ -2144,5 +2320,54 @@ namespace System.Windows.Forms
         }
 
         #endregion
+
+        public void setColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChooseBackgroundColor();
+        }
+
+        public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChooseOrClearBackgroundImage();
+        }
+
+        protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
+        protected void btnRedo_Click(object sender, EventArgs e) { Redo(); }
+
+        private void playCHR0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_chr0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
+
+        private void playSRT0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_srt0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
+
+        private void playSHP0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_shp0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
+
+        private void playPAT0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_pat0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
+
+        private void playVIS0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_vis0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
+
+        private void playCLR0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_clr0 != null && CurrentFrame != 0)
+                ModelPanel.Invalidate();
+        }
     }
 }

@@ -569,8 +569,20 @@ Those properties can use this color as an argument. This color is referred to as
 
         #region General Material
 
-        [Category("Material"), Description("Determines how the game should calculate texture matrices.")]
-        public TexMatrixMode TextureMatrixMode { get { return (TexMatrixMode)_texMtxFlags; } set { if (!CheckIfMetal()) _texMtxFlags = (uint)value; } }
+        [Category("Material"), Description(MDL0Node._textureMatrixModeDescription)]
+        public TexMatrixMode TextureMatrixMode
+        {
+            get { return (TexMatrixMode)_texMtxFlags; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags = (uint)value;
+                    foreach (MDL0MaterialRefNode r in Children)
+                        r._bindState.MatrixMode = r._frameState.MatrixMode = value;
+                }
+            }
+        }
         
         [Category("Material"), Description("True if this material has transparency (alpha function) enabled.")]
         public bool XLUMaterial

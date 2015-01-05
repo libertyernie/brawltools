@@ -46,12 +46,17 @@ namespace System.Windows.Forms
 
         public ModelPanelSettings _settings = new ModelPanelSettings();
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float RotationScale { get { return _settings._rotFactor; } set { _settings._rotFactor = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float TranslationScale { get { return _settings._transFactor; } set { _settings._transFactor = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float ZoomScale { get { return _settings._zoomFactor; } set { _settings._zoomFactor = value; } }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector3StringConverter))]
         public Vector3 DefaultTranslate { get { return _settings._defaultTranslate; } set { _settings._defaultTranslate = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector2StringConverter))]
         public Vector3 DefaultRotate { get { return _settings._defaultRotate; } set { _settings._defaultRotate = value; } }
 
@@ -64,8 +69,11 @@ namespace System.Windows.Forms
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Drawing.Point SelectionEnd { get { return _selEnd; } }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllowSelection { get { return _allowSelection; } set { _allowSelection = value; } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool TextOverlaysEnabled { get { return _textEnabled; } set { _textEnabled = value; Invalidate(); } }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BGImageType BackgroundImageType { get { return _bgType; } set { _bgType = value; Invalidate(); } }
 
         protected Drawing.Point _selStart, _selEnd;
@@ -85,12 +93,14 @@ namespace System.Windows.Forms
 
         private int _lastX, _lastY;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public new bool Enabled { get { return _enabled; } set { _enabled = value; base.Enabled = value; } }
         private bool _enabled = true;
         private float _multiplier = 1.0f;
 
         public event GLRenderEventHandler PreRender, PostRender;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Color BackColor
         {
             get { return base.BackColor; }
@@ -105,6 +115,7 @@ namespace System.Windows.Forms
             }
         }
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector4StringConverter))]
         public Vector4 Emission
         {
@@ -115,6 +126,7 @@ namespace System.Windows.Forms
                 Invalidate();
             }
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector4StringConverter))]
         public Vector4 Ambient
         {
@@ -125,6 +137,7 @@ namespace System.Windows.Forms
                 Invalidate();
             }
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector4StringConverter))]
         public Vector4 LightPosition
         {
@@ -135,6 +148,7 @@ namespace System.Windows.Forms
                 Invalidate(); 
             }
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector4StringConverter))]
         public Vector4 Diffuse
         {
@@ -145,6 +159,7 @@ namespace System.Windows.Forms
                 Invalidate();
             }
         }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         [TypeConverter(typeof(Vector4StringConverter))]
         public Vector4 Specular
         {
@@ -173,7 +188,7 @@ namespace System.Windows.Forms
             MDL0TextureNode._folderWatcher.Renamed -= _folderWatcher_Renamed;
             MDL0TextureNode._folderWatcher.Error -= _folderWatcher_Error;
         }
-
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override Image BackgroundImage
         {
             get { return base.BackgroundImage; }
@@ -246,6 +261,7 @@ namespace System.Windows.Forms
             Invalidate();
         }
 
+        public void SetCamWithBox(Box value) { SetCamWithBox(value.Min, value.Max); }
         public void SetCamWithBox(Vector3 min, Vector3 max)
         {
             //Get the position of the midpoint of the bounding box plane closer to the camera
@@ -981,12 +997,16 @@ namespace System.Windows.Forms
         public event RenderStateEvent
             RenderFloorChanged,
             RenderBonesChanged,
-            RenderBoxChanged,
+            RenderModelBoxChanged,
+            RenderObjectBoxChanged,
+            RenderVisBoneBoxChanged,
             RenderOffscreenChanged,
             RenderVerticesChanged,
             RenderNormalsChanged,
             RenderPolygonsChanged,
-            RenderWireframeChanged;
+            RenderWireframeChanged,
+            UseBindStateBoxesChanged,
+            ApplyBillboardBonesChanged;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderFloor
@@ -1074,17 +1094,59 @@ namespace System.Windows.Forms
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderBox
+        public bool RenderModelBox
         {
-            get { return _settings._renderAttrib._renderBox; }
+            get { return _settings._renderAttrib._renderModelBox; }
             set
             {
-                _settings._renderAttrib._renderBox = value;
+                _settings._renderAttrib._renderModelBox = value;
 
                 Invalidate();
 
-                if (RenderBoxChanged != null)
-                    RenderBoxChanged(this, value);
+                if (RenderModelBoxChanged != null)
+                    RenderModelBoxChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderObjectBox
+        {
+            get { return _settings._renderAttrib._renderObjectBoxes; }
+            set
+            {
+                _settings._renderAttrib._renderObjectBoxes = value;
+
+                Invalidate();
+
+                if (RenderObjectBoxChanged != null)
+                    RenderObjectBoxChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderVisBoneBox
+        {
+            get { return _settings._renderAttrib._renderBoneBoxes; }
+            set
+            {
+                _settings._renderAttrib._renderBoneBoxes = value;
+
+                Invalidate();
+
+                if (RenderVisBoneBoxChanged != null)
+                    RenderVisBoneBoxChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool UseBindStateBoxes
+        {
+            get { return _settings._renderAttrib._useBindStateBoxes; }
+            set
+            {
+                _settings._renderAttrib._useBindStateBoxes = value;
+
+                Invalidate();
+
+                if (UseBindStateBoxesChanged != null)
+                    UseBindStateBoxesChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1111,8 +1173,8 @@ namespace System.Windows.Forms
 
                 Invalidate();
 
-                if (RenderBoxChanged != null)
-                    RenderBoxChanged(this, value);
+                if (ApplyBillboardBonesChanged != null)
+                    ApplyBillboardBonesChanged(this, value);
             }
         }
 

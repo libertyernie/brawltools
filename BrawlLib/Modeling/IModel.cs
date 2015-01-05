@@ -40,7 +40,10 @@ namespace BrawlLib.Modeling
         public bool _renderVertices = false;
         public bool _renderNormals = false;
         public bool _dontRenderOffscreen = false;
-        public bool _renderBox = false;
+        public bool _renderModelBox = false;
+        public bool _renderObjectBoxes = false;
+        public bool _renderBoneBoxes = false;
+        public bool _useBindStateBoxes = true;
         public bool _applyBillboardBones = true;
     }
 }

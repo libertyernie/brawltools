@@ -454,7 +454,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 PAT0Texture = prev.Texture;
                 PAT0Palette = prev.Palette;
-                if (!PAT0Textures.ContainsKey(PAT0Texture))
+                if (PAT0Texture != null && !PAT0Textures.ContainsKey(PAT0Texture))
                 {
                     TEX0Node texture = RootNode.FindChildByType(PAT0Texture, true, ResourceNodes.ResourceType.TEX0) as TEX0Node;
                     if (texture != null)

@@ -23,5 +23,7 @@ namespace BrawlLib.Modeling
         int BoneIndex { get; }
         IModel IModel { get; }
         List<Influence> LinkedInfluences { get; }
+        bool IsRendering { get; set; }
+        void Render(params object[] args);
     }
 }

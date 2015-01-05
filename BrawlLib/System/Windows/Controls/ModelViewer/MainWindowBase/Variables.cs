@@ -56,7 +56,6 @@ namespace System.Windows.Forms
         }
 
         protected NW4RAnimType _targetAnimType;
-        protected OpenFileDialog dlgOpen = new OpenFileDialog();
 
         protected Vector3 _lastPointBone, _firstPointBone, _lastPointWorld, _firstPointWorld;
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
@@ -89,18 +88,8 @@ namespace System.Windows.Forms
         public ModelViewerForm _viewerForm = null;
         public InterpolationEditor _interpolationEditor;
         public InterpolationForm _interpolationForm = null;
-        public ModelPlaybackPanel pnlPlayback;
         public Control _currentControl = null;
-        public ColorDialog dlgColor;
-        
-        public ModelPanel modelPanel;
-        public CHR0Editor chr0Editor;
-        public SRT0Editor srt0Editor;
-        public VIS0Editor vis0Editor;
-        public PAT0Editor pat0Editor;
-        public SHP0Editor shp0Editor;
-        public CLR0Editor clr0Editor;
-        public SCN0Editor scn0Editor;
+        protected OpenFileDialog dlgOpen = new OpenFileDialog();
 
         public uint _allowedUndos = 50;
         public List<SaveState> _undoSaves = new List<SaveState>();
@@ -122,6 +111,17 @@ namespace System.Windows.Forms
         protected DelegateOpenFile _openFileDelegate;
 
         #endregion
+
+        public static readonly Type[] AnimTypeList = new Type[]
+        {
+            typeof(CHR0Node),
+            typeof(SRT0Node),
+            typeof(SHP0Node),
+            typeof(PAT0Node),
+            typeof(VIS0Node),
+            typeof(CLR0Node),
+            typeof(SCN0Node),
+        };
     }
 
     public enum NW4RAnimType : int

@@ -21,51 +21,43 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class MDL0Node : BRESEntryNode, IModel
     {
         internal MDL0Header* Header { get { return (MDL0Header*)WorkingUncompressed.Address; } }
-
         public override ResourceType ResourceType { get { return ResourceType.MDL0; } }
-
         public override int DataAlign { get { return 0x20; } }
+        public override int[] SupportedVersions { get { return new int[] { 8, 9, 10, 11 }; } }
+
+        public MDL0Node() { _version = 9; _linker = ModelLinker.Prepare(this); }
 
         #region Variables and Attributes
 
-        //Changing the version will change the conversion.
-        internal int _version = 9;
-        internal int _scalingRule, _texMtxMode, _origPathOffset;
+        internal int _scalingRule, _texMtxMode;
         public byte _envMtxMode;
         public bool _needsNrmMtxArray, _needsTexMtxArray, _enableExtents;
-        internal int _numFacepoints, _numFaces, _numNodes;
-        internal Vector3 _min, _max;
-
+        public int _numFacepoints, _numTriangles, _numNodes;
+        public Box _extents;
+        
         public ModelLinker _linker;
-        internal AssetStorage _assets;
-        internal bool _hasTree, _hasMix, _hasOpa, _hasXlu, _isImport, _autoMetal;
+        public AssetStorage _assets;
+        public bool _hasTree, _hasMix, _hasOpa, _hasXlu, _isImport, _autoMetal;
 
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
+        public List<MDL0BoneNode> _billboardBones = new List<MDL0BoneNode>();
+        public InfluenceManager _influences = new InfluenceManager();
+        public List<string> _errors = new List<string>();
+
+        internal const string _textureMatrixModeDescription = @"";
 
         [Browsable(false)]
         public InfluenceManager Influences { get { return _influences; } }
-        public InfluenceManager _influences = new InfluenceManager();
 
-        public List<string> _errors = new List<string>();
-        //public TextureManager _textures = new TextureManager();
-
-        public string _originalPath;
-        public List<MDL0BoneNode> _billboardBones = new List<MDL0BoneNode>();
-
-        [Browsable(true)]
+        [Browsable(true), Description(@"This feature is for Super Smash Bros Brawl models specifically.\nWhen true, metal materials and shaders will be added and modulated as you edit your own custom materials and shaders.")]
         public bool AutoMetalMaterials { get { return _autoMetal; } set { _autoMetal = value; CheckMetals(); } }
-        
-        [Category("MDL0 Definition")]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition")]
+
+        [Category("G3D Model")]
         public MDLScalingRule ScalingRule { get { return (MDLScalingRule)_scalingRule; } set { _scalingRule = (int)value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), Description(_textureMatrixModeDescription)]
         public TexMatrixMode TextureMatrixMode { get { return (TexMatrixMode)_texMtxMode; } set { _texMtxMode = (int)value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), Description("How many points are stored in the model file and sent to the GPU every frame. A lower value is better.")]
         public int NumFacepoints { get { return _numFacepoints; } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), Description("How many individual vertices this model has. A vertex in this case is only a point in space with its associated influence.")]
         public int NumVertices
         {
             get
@@ -77,51 +69,47 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (MDL0ObjectNode n in _objList)
                     i += n.VertexCount;
                 return i;
-            } 
+            }
         }
 
-        [Category("MDL0 Definition")]
-        public int NumFaces { get { return _numFaces; } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), Description("The number of individual triangle faces this model has.")]
+        public int NumTriangles { get { return _numTriangles; } }
+        [Category("G3D Model"), Description("The number of matrices used in this model (bones + weighted influences).")]
         public int NumNodes { get { return _numNodes; } }
-        [Category("MDL0 Definition")]
-        public int Version 
+        
+        protected override void OnVersionChanged(int previousVersion)
         {
-            get { return _version; } 
-            set 
+            bool
+                convertingDown = previousVersion > 9 && _version <= 9,
+                convertingUp = previousVersion <= 9 && _version > 9;
+
+            if (convertingDown)
             {
-                int newVersion = value.Clamp(8, 11);
-                if (_version != newVersion)
-                {
-                    //TODO: fix conversion! v10 and v11 need better support
-                    //Also, warn user if any information might be lost when converting down to v8 or v9
+                //TODO: alert user to information that will be lost after converting down to v8 or v9,  saving and closing.
+                //No need to allow cancelling the version change here, as the user can simply change the version back before saving and closing.
+            }
 
-                    //Version 10 and 11 objects are slighly different from 8 and 9
-                    if (((_version > 9 && newVersion <= 9) ||
-                        (_version <= 9 && newVersion > 9)) &&
-                        _objList != null)
-                        foreach (MDL0ObjectNode o in _objList)
-                            o._rebuild = true;
+            //Be sure the model is populated so that the object list is filled
+            if (_children == null)
+                Populate(0);
 
-                    if (_children == null)
-                        Populate();
-
-                    _version = newVersion;
-                    SignalPropertyChange();
-                }
-            } 
+            //Version 10 and 11 objects are slighly different from 8 and 9
+            if (_objList != null && (convertingDown || convertingUp))
+                foreach (MDL0ObjectNode o in _objList)
+                    o._rebuild = true;
         }
-        [Category("MDL0 Definition")]
+
+        [Category("G3D Model"), Description("True when one or more objects has normals and is rigged to more than one influence (the object's single bind property says '(none)').")]
         public bool NeedsNormalMtxArray { get { return _needsNrmMtxArray; } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), Description("True when one or more objects has a texture matrix turned on and is rigged to more than one influence (the object's single bind property says '(none)').")]
         public bool NeedsTextureMtxArray { get { return _needsTexMtxArray; } }
-        [Category("MDL0 Definition"), TypeConverter(typeof(Vector3StringConverter))]
-        public Vector3 BoxMin { get { return _min; } set { _min = value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition"), TypeConverter(typeof(Vector3StringConverter))]
-        public Vector3 BoxMax { get { return _max; } set { _max = value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition")]
-        public bool EnableExtents { get { return _enableExtents; } set { _enableExtents = value; SignalPropertyChange(); } }
-        [Category("MDL0 Definition")]
+        [Category("G3D Model"), TypeConverter(typeof(Vector3StringConverter))]
+        public Vector3 BoxMin { get { return _extents.Min; } set { _extents.Min = value; SignalPropertyChange(); } }
+        [Category("G3D Model"), TypeConverter(typeof(Vector3StringConverter))]
+        public Vector3 BoxMax { get { return _extents.Max; } set { _extents.Max = value; SignalPropertyChange(); } }
+        [Category("G3D Model")]
+        public bool EnableBoundingBox { get { return _enableExtents; } set { _enableExtents = value; SignalPropertyChange(); } }
+        [Category("G3D Model")]
         public MDLEnvelopeMatrixMode EnvelopeMatrixMode { get { return (MDLEnvelopeMatrixMode)_envMtxMode; } set { _envMtxMode = (byte)value; SignalPropertyChange(); } }
 
         #endregion
@@ -188,35 +176,33 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Functions
 
-        public void GetBox(out Vector3 min, out Vector3 max)
+        /// <summary>
+        /// Call ApplyCHR0 before calling this
+        /// </summary>
+        public Box GetBox()
         {
-            min = new Vector3(float.MaxValue);
-            max = new Vector3(float.MinValue);
-            if (_objList != null)
-                foreach (MDL0ObjectNode o in _objList)
-                {
-                    if (o._manager != null && o._manager._vertices != null)
-                        foreach (Vertex3 vertex in o._manager._vertices)
-                        {
-                            Vector3 v = vertex.WeightedPosition;
+            if (_objList == null)
+                return new Box();
 
-                            if (v._x < min._x)
-                                min._x = v._x;
-                            if (v._y < min._y)
-                                min._y = v._y;
-                            if (v._z < min._z)
-                                min._z = v._z;
+            Box box = Box.ExpandableVolume;
+            foreach (MDL0ObjectNode o in _objList)
+                if (o._manager != null && o._manager._vertices != null)
+                    foreach (Vertex3 vertex in o._manager._vertices)
+                        box.ExpandVolume(vertex.WeightedPosition);
 
-                            if (v._x > max._x)
-                                max._x = v._x;
-                            if (v._y > max._y)
-                                max._y = v._y;
-                            if (v._z > max._z)
-                                max._z = v._z;
-                        }
-                }
-            else
-                min = max = new Vector3(0);
+            return box;
+        }
+
+        /// <summary>
+        /// Does not signal a property change!
+        /// </summary>
+        public void CalculateBoundingBoxes()
+        {
+            ApplyCHR(null, 0);
+            _extents = GetBox();
+            if (_boneList != null)
+                foreach (MDL0BoneNode b in _boneList)
+                    b.SetBox();
         }
 
         public void RemoveBone(MDL0BoneNode bone)
@@ -240,14 +226,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void CheckTextures()
         {
             if (_texList != null)
-            foreach (MDL0TextureNode t in _texList)
-            {
-                for (int i = 0; i < t._references.Count; i++)
-                    if (t._references[i].Parent == null)
-                        t._references.RemoveAt(i--);
-                if (t._references.Count == 0)
-                    t.Remove();
-            }
+                foreach (MDL0TextureNode t in _texList)
+                {
+                    for (int i = 0; i < t._references.Count; i++)
+                        if (t._references[i].Parent == null)
+                            t._references.RemoveAt(i--);
+                    if (t._references.Count == 0)
+                        t.Remove();
+                }
         }
 
         public List<ResourceNode> GetUsedShaders()
@@ -689,17 +675,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             MDL0Props* props = header->Properties;
 
-            _version = header->_header._version;
             _scalingRule = props->_scalingRule;
             _texMtxMode = props->_texMatrixMode;
             _numFacepoints = props->_numVertices;
-            _numFaces = props->_numFaces;
-            _origPathOffset = props->_origPathOffset;
+            _numTriangles = props->_numTriangles;
             _numNodes = props->_numNodes;
             _needsNrmMtxArray = props->_needNrmMtxArray != 0;
             _needsTexMtxArray = props->_needTexMtxArray != 0;
-            _min = props->_minExtents;
-            _max = props->_maxExtents;
+            _extents = props->_extents;
             _enableExtents = props->_enableExtents != 0;
             _envMtxMode = props->_envMtxMode;
 
@@ -853,12 +836,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_hasXlu) table.Add("DrawXlu");
 
             if (_version > 9)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
@@ -1125,9 +1103,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Apply billboard bones before rendering meshes
             if (attrib._applyBillboardBones && _billboardBones.Count > 0)
             {
-                List<IMatrixNodeUser> affected = new List<IMatrixNodeUser>();
                 foreach (MDL0BoneNode b in _billboardBones)
-                    b.RecalcFrameState();
+                    b.RecalcFrameState(true);
                 foreach (Influence inf in _influences._influences)
                     inf.CalcMatrix();
                 if (_objList != null)
@@ -1162,30 +1139,49 @@ namespace BrawlLib.SSBB.ResourceNodes
                     foreach (MDL0ObjectNode p in _objList)
                         if (!rendered.Contains(p))
                             RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
+
+                //Turn off the last bound shader program.
+                if (TKContext.CurrentContext._shadersEnabled)
+                {
+                    GL.UseProgram(0);
+                    GL.ClientActiveTexture(TextureUnit.Texture0);
+                }
             }
 
-            if (attrib._renderBox)
+            if (attrib._renderModelBox || attrib._renderObjectBoxes || attrib._renderBoneBoxes)
             {
                 //GL.LineWidth(1.0f);
                 GL.Disable(EnableCap.Lighting);
                 //GL.Disable(EnableCap.DepthTest);
 
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.Color4(Color.Gray);
 
-                DrawBox();
+                bool bindState = _bindFrame && attrib._useBindStateBoxes;
 
-                if (_objList != null)
+                if (attrib._renderModelBox)
+                {
+                    GL.Color4(Color.Gray);
+                    DrawBox(bindState);
+                }
+
+                if (attrib._renderObjectBoxes && _objList != null)
+                {
+                    GL.Color4(Color.Purple);
                     if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
                         ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
-                //else
-                //    foreach (MDL0ObjectNode p in _polyList)
-                //        if (p._render)
-                //            p.DrawBox();
-            }
+                    else
+                        foreach (MDL0ObjectNode p in _objList)
+                            if (p._render)
+                                p.DrawBox();
+                }
 
-            //Turn off the last bound shader program.
-            if (TKContext.CurrentContext._shadersEnabled) { GL.UseProgram(0); GL.ClientActiveTexture(TextureUnit.Texture0); }
+                if (attrib._renderBoneBoxes)
+                {
+                    GL.Color4(Color.Orange);
+                    foreach (MDL0BoneNode bone in _boneList)
+                        bone.DrawBox(true, bindState);
+                }
+            }
 
             if (attrib._renderBones)
             {
@@ -1258,45 +1254,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             ApplyCLR(null, 0);
         }
 
-        public void DrawBox()
+        public void DrawBox(bool bindState)
         {
-            Vector3 min, max;
-            GetBox(out min, out max);
-
-            GL.Begin(PrimitiveType.LineStrip);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.Vertex3(max._x, max._y, min._z);
-            GL.Vertex3(min._x, max._y, min._z);
-            GL.Vertex3(min._x, min._y, min._z);
-            GL.Vertex3(min._x, min._y, max._z);
-            GL.Vertex3(max._x, min._y, max._z);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.End();
-            GL.Begin(PrimitiveType.Lines);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(max._x, max._y, max._z);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(min._x, min._y, max._z);
-            GL.Vertex3(min._x, max._y, max._z);
-            GL.Vertex3(min._x, max._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(min._x, min._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(max._x, max._y, min._z);
-            GL.Vertex3(max._x, min._y, min._z);
-            GL.Vertex3(max._x, min._y, max._z);
-            GL.End();
+            Box box = bindState ? _extents : GetBox();
+            //if (box.IsValid)
+                TKContext.DrawWireframeBox(box);
         }
-
+        
+        bool _bindFrame = true;
         public void ApplyCHR(CHR0Node node, float index)
         {
+            _bindFrame = node == null || index == 0;
+
             //Transform bones
             if (_boneList != null)
             {
                 foreach (MDL0BoneNode b in _boneList)
                     b.ApplyCHR0(node, index);
                 foreach (MDL0BoneNode b in _boneList)
-                    b.RecalcFrameState();
+                    b.RecalcFrameState(false);
             }
 
             //Transform nodes

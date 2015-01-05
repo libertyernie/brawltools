@@ -164,7 +164,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnCopyAll.PerformClick();
+                CHR0Editor.btnCopyAll.PerformClick();
                 return true;
             }
             return false;
@@ -173,7 +173,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnCopy.PerformClick();
+                CHR0Editor.btnCopy.PerformClick();
                 return true;
             }
             return false;
@@ -182,8 +182,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = true;
-                chr0Editor.btnPasteAll.PerformClick();
+                CHR0Editor._onlyKeys = true;
+                CHR0Editor.btnPasteAll.PerformClick();
                 return true;
             }
             return false;
@@ -192,8 +192,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = false;
-                chr0Editor.btnPasteAll.PerformClick();
+                CHR0Editor._onlyKeys = false;
+                CHR0Editor.btnPasteAll.PerformClick();
                 return true;
             }
             return false;
@@ -202,8 +202,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = true;
-                chr0Editor.btnPaste.PerformClick();
+                CHR0Editor._onlyKeys = true;
+                CHR0Editor.btnPaste.PerformClick();
                 return true;
             }
             return false;
@@ -212,8 +212,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = false;
-                chr0Editor.btnPaste.PerformClick();
+                CHR0Editor._onlyKeys = false;
+                CHR0Editor.btnPaste.PerformClick();
                 return true;
             }
             return false;
@@ -288,7 +288,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnClearAll.PerformClick();
+                CHR0Editor.btnClearAll.PerformClick();
                 return true;
             }
             return false;
@@ -297,7 +297,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.ClearEntry();
+                CHR0Editor.ClearEntry();
                 return true;
             }
             return false;
@@ -306,7 +306,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnDelete.PerformClick();
+                CHR0Editor.btnDelete.PerformClick();
                 return true;
             }
             return false;
@@ -317,54 +317,58 @@ namespace System.Windows.Forms
             if (_rotating)
             {
                 _rotating = false;
-                chr0Editor.numRotX.Value = _oldAngles._x;
-                chr0Editor.numRotY.Value = _oldAngles._y;
-                chr0Editor.numRotZ.Value = _oldAngles._z;
-                chr0Editor.BoxChanged(chr0Editor.numRotX, null);
-                chr0Editor.BoxChanged(chr0Editor.numRotY, null);
-                chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
+                CHR0Editor.numRotX.Value = _oldAngles._x;
+                CHR0Editor.numRotY.Value = _oldAngles._y;
+                CHR0Editor.numRotZ.Value = _oldAngles._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numRotX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numRotY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numRotZ, null);
             }
             if (_translating)
             {
                 _translating = false;
-                chr0Editor.numTransX.Value = _oldPosition._x;
-                chr0Editor.numTransY.Value = _oldPosition._y;
-                chr0Editor.numTransZ.Value = _oldPosition._z;
-                chr0Editor.BoxChanged(chr0Editor.numTransX, null);
-                chr0Editor.BoxChanged(chr0Editor.numTransY, null);
-                chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
+                CHR0Editor.numTransX.Value = _oldPosition._x;
+                CHR0Editor.numTransY.Value = _oldPosition._y;
+                CHR0Editor.numTransZ.Value = _oldPosition._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numTransX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numTransY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numTransZ, null);
             }
             if (_scaling)
             {
                 _scaling = false;
-                chr0Editor.numScaleX.Value = _oldScale._x;
-                chr0Editor.numScaleY.Value = _oldScale._y;
-                chr0Editor.numScaleZ.Value = _oldScale._z;
-                chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
-                chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
-                chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
+                CHR0Editor.numScaleX.Value = _oldScale._x;
+                CHR0Editor.numScaleY.Value = _oldScale._y;
+                CHR0Editor.numScaleZ.Value = _oldScale._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
             }
             ModelPanel.AllowSelection = true;
             return false;
         }
         private bool HotkeyLastFrame()
         {
-            pnlPlayback.btnLast_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnLast_Click(this, null);
             return true;
         }
         private bool HotkeyNextFrame()
         {
-            pnlPlayback.btnNextFrame_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnNextFrame_Click(this, null);
             return true;
         }
         private bool HotkeyFirstFrame()
         {
-            pnlPlayback.btnFirst_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnFirst_Click(this, null);
             return true;
         }
         private bool HotkeyPrevFrame()
         {
-            pnlPlayback.btnPrevFrame_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnPrevFrame_Click(this, null);
             return true;
         }
     }
