@@ -215,7 +215,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Replace(Bitmap bmp)
         {
-            FileMap tMap;
+            UnsafeBuffer tMap;
             if (HasPlt)
                 tMap = TextureConverter.Get(_format).EncodeREFTTextureIndexed(bmp, LevelOfDetail, Palette.Entries.Length, PaletteFormat, QuantizationAlgorithm.MedianCut);
             else

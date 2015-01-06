@@ -40,19 +40,19 @@ namespace BrawlLib.Wii.Textures
         //    _blockIndex = 0;
         //    return base.EncodeTexture(src, mipLevels, out paletteFile);
         //}
-        internal FileMap EncodeTPLTextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
+        internal UnsafeBuffer EncodeTPLTextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
         {
             _blockBuffer = blockBuffer;
             try { return base.EncodeTPLTexture(src, mipLevels); }
             finally { _blockBuffer = null; }
         }
-        public FileMap EncodeREFTTextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
+        public UnsafeBuffer EncodeREFTTextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
         {
             _blockBuffer = blockBuffer;
             try { return base.EncodeREFTTexture(src, mipLevels, WiiPaletteFormat.IA8); }
             finally { _blockBuffer = null; }
         }
-        public FileMap EncodeTEX0TextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
+        public UnsafeBuffer EncodeTEX0TextureCached(Bitmap src, int mipLevels, UnsafeBuffer blockBuffer)
         {
             _blockBuffer = blockBuffer;
             try { return base.EncodeTEX0Texture(src, mipLevels); }

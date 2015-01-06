@@ -523,6 +523,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Name = Path.GetFileNameWithoutExtension(fileName);
             ReplaceRaw(FileMap.FromFile(fileName, prot, 0, 0, options));
         }
+        public unsafe virtual void ReplaceRaw(UnsafeBuffer buffer)
+        {
+			ReplaceRaw(buffer.Address, buffer.Length);
+        }
         public unsafe virtual void ReplaceRaw(VoidPtr address, int length)
         {
             FileMap map = FileMap.FromTempFile(length);

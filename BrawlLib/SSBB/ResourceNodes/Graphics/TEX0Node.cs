@@ -128,7 +128,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Replace(Bitmap bmp)
         {
-            FileMap tMap, pMap;
+            UnsafeBuffer tMap, pMap;
             if (HasPalette)
             {
                 PLT0Node pn = GetPaletteNode();

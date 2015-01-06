@@ -51,48 +51,48 @@ namespace BrawlLib.Wii.Textures
         {
             return GetMipOffset(width, height, mipLevels + 1);
         }
-        public virtual FileMap EncodeTPLTextureIndexed(Bitmap src, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm, out FileMap paletteFile)
+        public virtual UnsafeBuffer EncodeTPLTextureIndexed(Bitmap src, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm, out UnsafeBuffer paletteFile)
         {
             using (Bitmap indexed = src.Quantize(algorithm, numColors, RawFormat, format, null))
                 return EncodeTPLTextureIndexed(indexed, 1, format, out paletteFile);
         }
-        public virtual FileMap EncodeTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm, out FileMap paletteFile)
+        public virtual UnsafeBuffer EncodeTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm, out UnsafeBuffer paletteFile)
         {
             using (Bitmap indexed = src.Quantize(algorithm, numColors, RawFormat, format, null))
                 return EncodeTEX0TextureIndexed(indexed, mipLevels, format, out paletteFile);
         }
-        public virtual FileMap EncodeREFTTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm)
+        public virtual UnsafeBuffer EncodeREFTTextureIndexed(Bitmap src, int mipLevels, int numColors, WiiPaletteFormat format, QuantizationAlgorithm algorithm)
         {
             using (Bitmap indexed = src.Quantize(algorithm, numColors, RawFormat, format, null))
                 return EncodeREFTTextureIndexed(indexed, mipLevels, format);
         }
-        public virtual FileMap EncodeTPLTextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out FileMap paletteFile)
+        public virtual UnsafeBuffer EncodeTPLTextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out UnsafeBuffer paletteFile)
         {
             if (!src.IsIndexed())
                 throw new ArgumentException("Source image must be indexed.");
 
-            FileMap texMap = EncodeTPLTexture(src, mipLevels);
+            UnsafeBuffer texMap = EncodeTPLTexture(src, mipLevels);
             paletteFile = EncodeTPLPalette(src.Palette, format);
             return texMap;
         }
-        public virtual FileMap EncodeREFTTextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format)
+        public virtual UnsafeBuffer EncodeREFTTextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format)
         {
             if (!src.IsIndexed())
                 throw new ArgumentException("Source image must be indexed.");
 
             return EncodeREFTTexture(src, mipLevels, format);
         }
-        public virtual FileMap EncodeTEX0TextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out FileMap paletteFile)
+        public virtual UnsafeBuffer EncodeTEX0TextureIndexed(Bitmap src, int mipLevels, WiiPaletteFormat format, out UnsafeBuffer paletteFile)
         {
             if (!src.IsIndexed())
                 throw new ArgumentException("Source image must be indexed.");
 
-            FileMap texMap = EncodeTEX0Texture(src, mipLevels);
+            UnsafeBuffer texMap = EncodeTEX0Texture(src, mipLevels);
             paletteFile = EncodePLT0Palette(src.Palette, format);
             return texMap;
         }
 
-        public virtual FileMap EncodeREFTTexture(Bitmap src, int mipLevels, WiiPaletteFormat format)
+        public virtual UnsafeBuffer EncodeREFTTexture(Bitmap src, int mipLevels, WiiPaletteFormat format)
         {
             int w = src.Width, h = src.Height;
             int bw = BlockWidth, bh = BlockHeight;
@@ -101,7 +101,7 @@ namespace BrawlLib.Wii.Textures
 
             PixelFormat fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
 
-            FileMap fileView = FileMap.FromTempFile(GetFileSize(w, h, mipLevels) + 0x20 + (pal != null ? (pal.Entries.Length * 2) : 0));
+            UnsafeBuffer fileView = new UnsafeBuffer(GetFileSize(w, h, mipLevels) + 0x20 + (pal != null ? (pal.Entries.Length * 2) : 0));
             try
             {
                 //Build REFT image header
@@ -155,14 +155,14 @@ namespace BrawlLib.Wii.Textures
             }
         }
 
-        public virtual FileMap EncodeTEX0Texture(Bitmap src, int mipLevels)
+        public virtual UnsafeBuffer EncodeTEX0Texture(Bitmap src, int mipLevels)
         {
             int w = src.Width, h = src.Height;
             int bw = BlockWidth, bh = BlockHeight;
 
             PixelFormat fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
 
-            FileMap fileView = FileMap.FromTempFile(GetFileSize(w, h, mipLevels) + 0x40);
+            UnsafeBuffer fileView = new UnsafeBuffer(GetFileSize(w, h, mipLevels) + 0x40);
             try
             {
                 //Build TEX header
@@ -185,14 +185,14 @@ namespace BrawlLib.Wii.Textures
                 return null;
             }
         }
-        public virtual FileMap EncodeTPLTexture(Bitmap src, int mipLevels)
+        public virtual UnsafeBuffer EncodeTPLTexture(Bitmap src, int mipLevels)
         {
             int w = src.Width, h = src.Height;
             int bw = BlockWidth, bh = BlockHeight;
 
             PixelFormat fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
 
-            FileMap fileView = FileMap.FromTempFile(GetFileSize(w, h, mipLevels) + TPLTextureHeader.Size);
+            UnsafeBuffer fileView = new UnsafeBuffer(GetFileSize(w, h, mipLevels) + TPLTextureHeader.Size);
             try
             {
                 //Build TPL header
@@ -336,9 +336,9 @@ namespace BrawlLib.Wii.Textures
         public static Bitmap DecodeIndexed(TEX0v1* texture, PLT0v1* palette, int mipLevel) { return Get(texture->PixelFormat).DecodeTextureIndexed(texture, palette, mipLevel); }
         public static Bitmap DecodeIndexed(TEX0v1* texture, ColorPalette palette, int mipLevel) { return Get(texture->PixelFormat).DecodeTextureIndexed(texture, palette, mipLevel); }
         public static Bitmap DecodeIndexed(VoidPtr addr, int w, int h, ColorPalette palette, int mipLevel, WiiPixelFormat fmt) { return Get(fmt).DecodeTextureIndexed(addr, w, h, palette, mipLevel, fmt); }
-        public static FileMap EncodePLT0Palette(ColorPalette pal, WiiPaletteFormat format)
+        public static UnsafeBuffer EncodePLT0Palette(ColorPalette pal, WiiPaletteFormat format)
         {
-            FileMap fileView = FileMap.FromTempFile((pal.Entries.Length * 2) + 0x40);
+            UnsafeBuffer fileView = new UnsafeBuffer((pal.Entries.Length * 2) + 0x40);
             try
             {
                 PLT0v1* header = (PLT0v1*)fileView.Address;
@@ -356,9 +356,9 @@ namespace BrawlLib.Wii.Textures
                 //return null;
             }
         }
-        public static FileMap EncodeTPLPalette(ColorPalette pal, WiiPaletteFormat format)
+        public static UnsafeBuffer EncodeTPLPalette(ColorPalette pal, WiiPaletteFormat format)
         {
-            FileMap fileView = FileMap.FromTempFile((pal.Entries.Length * 2) + 0xC);
+            UnsafeBuffer fileView = new UnsafeBuffer((pal.Entries.Length * 2) + 0xC);
             try
             {
                 TPLPaletteHeader* header = (TPLPaletteHeader*)fileView.Address;
@@ -378,9 +378,9 @@ namespace BrawlLib.Wii.Textures
                 //return null;
             }
         }
-        public static FileMap EncodePalette(ColorPalette pal, WiiPaletteFormat format)
+        public static UnsafeBuffer EncodePalette(ColorPalette pal, WiiPaletteFormat format)
         {
-            FileMap fileView = FileMap.FromTempFile((pal.Entries.Length * 2));
+            UnsafeBuffer fileView = new UnsafeBuffer((pal.Entries.Length * 2));
             try
             {
                 EncodePalette(fileView.Address, pal, format);

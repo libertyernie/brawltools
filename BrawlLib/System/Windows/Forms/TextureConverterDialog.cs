@@ -58,8 +58,8 @@ namespace System.Windows.Forms
         private TPLPaletteNode _origTPLPlt;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TPLPaletteNode TPLPaletteNode { get { return _origTPLPlt; } }
-        
-        private FileMap _textureData;
+
+		private UnsafeBuffer _textureData;
         private Label label11;
         private NumericUpDown numH;
         private NumericUpDown numW;
@@ -68,11 +68,11 @@ namespace System.Windows.Forms
         private CheckBox chkConstrainProps;
     
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public FileMap TextureData { get { return _textureData; } }
+		public UnsafeBuffer TextureData { get { return _textureData; } }
 
-        private FileMap _paletteData;
+        private UnsafeBuffer _paletteData;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public FileMap PaletteData { get { return _paletteData; } }
+		public UnsafeBuffer PaletteData { get { return _paletteData; } }
 
         public TextureConverterDialog()
         {
