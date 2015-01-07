@@ -362,14 +362,6 @@ namespace System.Windows.Forms
             }
         }
 
-        /// <summary>
-        /// Call AFTER setting the maximum frame
-        /// </summary>
-        /// <param name="nowNull"></param>
-        protected virtual void UpdatePlaybackPanel(bool nowNull)
-        {
-        }
-
         public void AnimChanged(NW4RAnimType type)
         {
             if (type == TargetAnimType)
@@ -398,7 +390,9 @@ namespace System.Windows.Forms
             }
             else
             {
-                _maxFrame = node.FrameCount;
+                bool loopFrame =  node.Loop && Interpolated.Contains(node.GetType());
+
+                _maxFrame = node.FrameCount + (loopFrame ? 1 : 0);
                 EnableTransformEdit = !_playing;
 
                 PlaybackPanel.btnPlay.Enabled =
@@ -406,6 +400,7 @@ namespace System.Windows.Forms
                 PlaybackPanel.numTotalFrames.Enabled =
                 PlaybackPanel.Enabled = true;
                 PlaybackPanel.numTotalFrames.Value = (decimal)_maxFrame;
+                PlaybackPanel.numTotalFrames.Minimum = loopFrame ? 2 : 1;
                 PlaybackPanel.numFrameIndex.Maximum = (decimal)_maxFrame;
 
                 SetFrame(1);
@@ -416,38 +411,69 @@ namespace System.Windows.Forms
 
         public virtual void OnAnimationChanged() { }
 
-        protected static readonly Type[] Mergeable = new Type[] { typeof(CHR0Node) };
-        protected static readonly Type[] Appendable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
-        protected static readonly Type[] Resizable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
-        protected static readonly Type[] Interpolated = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(SCN0Node) };
+        public static readonly Type[] Mergeable = new Type[] { typeof(CHR0Node) };
+        public static readonly Type[] Appendable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
+        public static readonly Type[] Resizable = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(VIS0Node), typeof(PAT0Node) };
+        public static readonly Type[] Interpolated = new Type[] { typeof(CHR0Node), typeof(SRT0Node), typeof(SHP0Node), typeof(SCN0Node) };
 
         #endregion
 
         #region BRRES
 
-        public void GetFiles(NW4RAnimType focusType)
+        public virtual void GetFiles(NW4RAnimType focusType)
         {
             if (focusType == NW4RAnimType.None)
             {
                 focusType = TargetAnimType;
-                if (focusType != NW4RAnimType.CHR) _chr0 = null;
-                if (focusType != NW4RAnimType.SRT) _srt0 = null;
-                if (focusType != NW4RAnimType.SHP) _shp0 = null;
-                if (focusType != NW4RAnimType.PAT) _pat0 = null;
-                if (focusType != NW4RAnimType.VIS) _vis0 = null;
-                if (focusType != NW4RAnimType.SCN) _scn0 = null;
-                if (focusType != NW4RAnimType.CLR) _clr0 = null;
+                for (int i = 0; i < 6; i++)
+                    if ((int)focusType != i)
+                        SetAnimation((NW4RAnimType)i, null);
             }
             else
+                for (int i = 0; i < 6; i++)
+                    if ((int)focusType != i)
+                        RetrieveAnimation(focusType, (NW4RAnimType)i);
+        }
+
+        public ResourceType[] ResourceTypeList = new ResourceType[]
+        {
+            ResourceType.CHR0,
+            ResourceType.SRT0,
+            ResourceType.SHP0,
+            ResourceType.PAT0,
+            ResourceType.VIS0,
+            ResourceType.CLR0,
+            ResourceType.SCN0,
+        };
+
+        public virtual bool RetrieveAnimation(NW4RAnimType focusType, NW4RAnimType targetType)
+        {
+            BRESEntryNode focusFile = GetAnimation(focusType);
+            if (focusFile == null)
             {
-                if (focusType != NW4RAnimType.CHR) GetCHR0(focusType);
-                if (focusType != NW4RAnimType.SRT) GetSRT0(focusType);
-                if (focusType != NW4RAnimType.SHP) GetSHP0(focusType);
-                if (focusType != NW4RAnimType.PAT) GetPAT0(focusType);
-                if (focusType != NW4RAnimType.VIS) GetVIS0(focusType);
-                if (focusType != NW4RAnimType.SCN) GetSCN0(focusType);
-                if (focusType != NW4RAnimType.CLR) GetCLR0(focusType);
+                SetAnimation(targetType, null);
+                return false;
             }
+
+            if (TargetModel != null && FindAnimation((ResourceNode)TargetModel, focusFile.Name, targetType))
+                return true;
+
+            foreach (ResourceNode r in _animationSearchNodes)
+                if (r != null && FindAnimation(r, focusFile.Name, targetType))
+                    return true;
+
+            return false;
+        }
+
+        private bool FindAnimation(ResourceNode searchNode, string name, NW4RAnimType targetType)
+        {
+            NW4RAnimationNode node = searchNode.RootNode.FindChildByType(name, true, ResourceTypeList[(int)targetType]) as NW4RAnimationNode;
+            if (node != null)
+            {
+                SetAnimation(node);
+                return true;
+            }
+            return false;
         }
 
         public virtual bool GetSCN0(NW4RAnimType focusType)

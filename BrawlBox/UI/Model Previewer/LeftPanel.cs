@@ -1333,6 +1333,7 @@ namespace System.Windows.Forms
         private void listAnims_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (_closing) return;
+            _updating = true;
             if (listAnims.SelectedItems.Count > 0)
             {
                 createNewToolStripMenuItem.Text = String.Format("Create New {0}0", TargetAnimType.ToString());
@@ -1359,6 +1360,8 @@ namespace System.Windows.Forms
 
             //if (_selectedAnim != null)
             //    portToolStripMenuItem.Enabled = !_selectedAnim.IsPorted;
+
+            _updating = false;
         }
 
         private void fileType_SelectedIndexChanged(object sender, EventArgs e)
@@ -1572,18 +1575,29 @@ namespace System.Windows.Forms
 
         private void chkLoop_CheckedChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             NW4RAnimationNode n = _mainWindow.TargetAnimation;
             if (n != null)
             {
-                bool loopPrev = n.Loop;
-                if ((n.Loop = chkLoop.Checked) != loopPrev)
+                if (ModelEditControl.Interpolated.Contains(n.GetType()))
                 {
-                    int b = -1;
-                    if (n.Loop)
-                        b = 1;
-
-                    _mainWindow.PlaybackPanel.numTotalFrames.Value += b;
+                    bool loopPrev = n.Loop;
+                    if ((n.Loop = chkLoop.Checked) != loopPrev)
+                        if (n.Loop)
+                        {
+                            _mainWindow.PlaybackPanel.numTotalFrames.Value += 1;
+                            _mainWindow.PlaybackPanel.numTotalFrames.Minimum = 2;
+                        }
+                        else
+                        {
+                            _mainWindow.PlaybackPanel.numTotalFrames.Value -= 1;
+                            _mainWindow.PlaybackPanel.numTotalFrames.Minimum = 1;
+                        }
                 }
+                else
+                    n.Loop = chkLoop.Checked;
             }
         }
 
