@@ -20,7 +20,7 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         private void ScreenCapBgLocText_Click(object sender, EventArgs e)
         {
@@ -273,78 +273,78 @@ namespace Ikarus.UI
 
         public unsafe void SaveSettings(bool maximize)
         {            
-            try
-            {
-                ModelEditorSettings settings = new ModelEditorSettings();
-                settings._tag = ModelEditorSettings.Tag;
-                settings._version = 2;
-                settings._defaultCam = modelPanel.DefaultTranslate;
-                settings._defaultRot = modelPanel.DefaultRotate;
-                settings._amb = modelPanel.Ambient;
-                settings._pos = modelPanel.LightPosition;
-                settings._diff = modelPanel.Diffuse;
-                settings._spec = modelPanel.Specular;
-                settings._yFov = modelPanel._fovY;
-                settings._nearZ = modelPanel._nearZ;
-                settings._farz = modelPanel._farZ;
-                settings._tScale = modelPanel.TranslationScale;
-                settings._rScale = modelPanel.RotationScale;
-                settings._zScale = modelPanel.ZoomScale;
-                settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
-                settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultLineColor;
-                settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
-                //settings.SetFlags1(
-                //    syncAnimationsTogetherToolStripMenuItem.Checked,
-                //    true,
-                //    syncLoopToAnimationToolStripMenuItem.Checked,
-                //    syncTexObjToolStripMenuItem.Checked,
-                //    syncObjectsListToVIS0ToolStripMenuItem.Checked,
-                //    disableBonesWhenPlayingToolStripMenuItem.Checked,
-                //    maximize,
-                //    btnSaveCam.Text == "Clear Camera");
-                settings._undoCount = (uint)_allowedUndos;
-                settings._shaderCount = 0;
-                settings._matCount = 0;
-                settings._emis = modelPanel.Emission;
-                settings._imageCapFmt = _imgExtIndex;
-                settings.Bones = _renderBones;
-                settings.Polys = _renderPolygons;
-                settings.Wireframe = _renderWireframe;
-                settings.Vertices = _renderVertices;
-                settings.Normals = _renderNormals;
-                settings.HideOffscreen = _dontRenderOffscreen;
-                settings.BoundingBox = _renderBox;
-                settings.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
-                settings.Floor = _renderFloor;
-                settings.OrthoCam = orthographicToolStripMenuItem.Checked;
-                settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
-                settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
+            //try
+            //{
+            //    ModelEditorSettings settings = new ModelEditorSettings();
+            //    settings._tag = ModelEditorSettings.Tag;
+            //    settings._version = 2;
+            //    settings._defaultCam = modelPanel.DefaultTranslate;
+            //    settings._defaultRot = modelPanel.DefaultRotate;
+            //    settings._amb = modelPanel.Ambient;
+            //    settings._pos = modelPanel.LightPosition;
+            //    settings._diff = modelPanel.Diffuse;
+            //    settings._spec = modelPanel.Specular;
+            //    settings._yFov = modelPanel._fovY;
+            //    settings._nearZ = modelPanel._nearZ;
+            //    settings._farz = modelPanel._farZ;
+            //    settings._tScale = modelPanel.TranslationScale;
+            //    settings._rScale = modelPanel.RotationScale;
+            //    settings._zScale = modelPanel.ZoomScale;
+            //    settings._orbColor = (ARGBPixel)MDL0BoneNode.DefaultNodeColor;
+            //    settings._lineColor = (ARGBPixel)MDL0BoneNode.DefaultLineColor;
+            //    settings._floorColor = (ARGBPixel)StaticMainWindow._floorHue;
+            //    //settings.SetFlags1(
+            //    //    syncAnimationsTogetherToolStripMenuItem.Checked,
+            //    //    true,
+            //    //    syncLoopToAnimationToolStripMenuItem.Checked,
+            //    //    syncTexObjToolStripMenuItem.Checked,
+            //    //    syncObjectsListToVIS0ToolStripMenuItem.Checked,
+            //    //    disableBonesWhenPlayingToolStripMenuItem.Checked,
+            //    //    maximize,
+            //    //    btnSaveCam.Text == "Clear Camera");
+            //    settings._undoCount = (uint)_allowedUndos;
+            //    settings._shaderCount = 0;
+            //    settings._matCount = 0;
+            //    settings._emis = modelPanel.Emission;
+            //    settings._imageCapFmt = _imgExtIndex;
+            //    settings.Bones = _renderBones;
+            //    settings.Polys = _renderPolygons;
+            //    settings.Wireframe = _renderWireframe;
+            //    settings.Vertices = _renderVertices;
+            //    settings.Normals = _renderNormals;
+            //    settings.HideOffscreen = _dontRenderOffscreen;
+            //    settings.BoundingBox = _renderBox;
+            //    settings.ShowCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
+            //    settings.Floor = _renderFloor;
+            //    settings.OrthoCam = orthographicToolStripMenuItem.Checked;
+            //    settings.EnableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+            //    settings.EnableText = enableTextOverlaysToolStripMenuItem.Checked;
 
-                //if (BrawlLib.Properties.Settings.Default.External)
-                //{
-                //    using (FileStream stream = new FileStream(Application.StartupPath + "/brawlbox.settings", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
-                //    {
-                //        CompactStringTable s = new CompactStringTable();
-                //        s.Add(ScreenCapBgLocText.Text);
-                //        stream.SetLength((long)BrawlBoxViewerSettings.Size + s.TotalSize);
-                //        using (FileMap map = FileMap.FromStream(stream))
-                //        {
-                //            *(BrawlBoxViewerSettings*)map.Address = settings;
-                //            s.WriteTable(map.Address + BrawlBoxViewerSettings.Size);
-                //            ((BrawlBoxViewerSettings*)map.Address)->_screenCapPathOffset = (uint)s[ScreenCapBgLocText.Text] - (uint)map.Address;
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    BrawlLib.Properties.Settings.Default.ViewerSettings = settings;
-                //    BrawlLib.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
-                //    BrawlLib.Properties.Settings.Default.Save();
-                //}
+            //    //if (BrawlLib.Properties.Settings.Default.External)
+            //    //{
+            //    //    using (FileStream stream = new FileStream(Application.StartupPath + "/brawlbox.settings", FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
+            //    //    {
+            //    //        CompactStringTable s = new CompactStringTable();
+            //    //        s.Add(ScreenCapBgLocText.Text);
+            //    //        stream.SetLength((long)BrawlBoxViewerSettings.Size + s.TotalSize);
+            //    //        using (FileMap map = FileMap.FromStream(stream))
+            //    //        {
+            //    //            *(BrawlBoxViewerSettings*)map.Address = settings;
+            //    //            s.WriteTable(map.Address + BrawlBoxViewerSettings.Size);
+            //    //            ((BrawlBoxViewerSettings*)map.Address)->_screenCapPathOffset = (uint)s[ScreenCapBgLocText.Text] - (uint)map.Address;
+            //    //        }
+            //    //    }
+            //    //}
+            //    //else
+            //    //{
+            //    //    BrawlLib.Properties.Settings.Default.ViewerSettings = settings;
+            //    //    BrawlLib.Properties.Settings.Default.ScreenCapBgLocText = ScreenCapBgLocText.Text;
+            //    //    BrawlLib.Properties.Settings.Default.Save();
+            //    //}
 
-                clearSavedSettingsToolStripMenuItem.Enabled = true;
-            }
-            catch (Exception ex) { MessageBox.Show(ex.ToString()); }
+            //    clearSavedSettingsToolStripMenuItem.Enabled = true;
+            //}
+            //catch (Exception ex) { MessageBox.Show(ex.ToString()); }
         }
 
         private unsafe void saveCurrentSettingsToolStripMenuItem_Click(object sender, EventArgs e)
@@ -459,299 +459,7 @@ namespace Ikarus.UI
             if (dlgColor.ShowDialog(this) == DialogResult.OK)
                 modelPanel.BackColor = ClearColor = dlgColor.Color;
         }
-        protected override bool ProcessKeyPreview(ref Message m)
-        {
-            if (!modelPanel.Focused)
-                return base.ProcessKeyPreview(ref m);
-
-            if (m.Msg == 0x100)
-            {
-                Keys key = (Keys)m.WParam;
-                if (key == Keys.PageUp)
-                {
-                    if (Ctrl)
-                        pnlPlayback.btnLast_Click(this, null);
-                    else
-                        pnlPlayback.btnNextFrame_Click(this, null);
-                    return true; 
-                }
-                else if (key == Keys.PageDown)
-                {
-                    if (Ctrl)
-                        pnlPlayback.btnFirst_Click(this, null);
-                    else
-                        pnlPlayback.btnPrevFrame_Click(this, null);
-                    return true;
-                }
-                else if (key == Keys.U)
-                {
-                    if (Ctrl)
-                    {
-                        modelPanel.ResetCamera();
-                        return true;
-                    }
-                }
-                else if (key == Keys.A)
-                {
-                    if (Ctrl)
-                    {
-                        ResetVertexColors();
-                        _selectedVertices.Clear();
-                        if (_targetModels != null)
-                            foreach (MDL0Node mdl in _targetModels)
-                                if (mdl._objList != null)
-                                    foreach (MDL0ObjectNode o in mdl._objList)
-                                        if (o._render)
-                                            foreach (Vertex3 v in o._manager._vertices)
-                                            {
-                                                _selectedVertices.Add(v);
-                                                v._selected = true;
-                                                v._highlightColor = Color.Orange;
-                                            }
-                        modelPanel.Invalidate();
-                    }
-                    else
-                    {
-                        btnLeftToggle_Click(null, null);
-                        return true;
-                    }
-                }
-                else if (key == Keys.D)
-                {
-                    if (Control.ModifierKeys == (Keys.Control | Keys.Alt))
-                        if (listPanel.Visible || animEditors.Visible || MovesetPanel.Visible || controlPanel.Visible)
-                            showAnim.Checked = showLeft.Checked = showRight.Checked = showOptions.Checked = false;
-                        else
-                            showAnim.Checked = showLeft.Checked = showRight.Checked = showOptions.Checked = true;
-                    else
-                        btnRightToggle_Click(null, null);
-                    return true;
-                }
-                else if (key == Keys.W)
-                {
-                    btnOptionToggle_Click(null, null);
-                    return true;
-                }
-                else if (key == Keys.S)
-                {
-                    btnPlaybackToggle_Click(null, null);
-                    return true;
-                }
-                else if (key == Keys.E)
-                {
-                    scaleToolStripMenuItem.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.R)
-                {
-                    rotationToolStripMenuItem.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.G)
-                {
-                    modelPanel.RefreshReferences();
-                    return true;
-                }
-                else if (key == Keys.T)
-                {
-                    translationToolStripMenuItem.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.C)
-                {
-                    //Copy frame
-                    if (Ctrl)
-                        if ((ModifierKeys & Keys.Shift) == Keys.Shift)
-                        {
-                            //We're copying the whole frame
-                            if (_currentControl is CHR0Editor)
-                            {
-                                chr0Editor.btnCopyAll.PerformClick();
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            //We're copying the entry frame
-                            if (_currentControl is CHR0Editor)
-                            {
-                                chr0Editor.btnCopy.PerformClick();
-                                return true;
-                            }
-                        }
-                }
-                else if (key == Keys.V)
-                {
-                    //Paste frame
-                    if (Ctrl)
-                        if (Shift)
-                            if (Alt)
-                            {
-                                //We're pasting only keyframes of the whole frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor._onlyKeys = true;
-                                    chr0Editor.btnPasteAll.PerformClick(); 
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                //We're pasting the whole frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor._onlyKeys = false;
-                                    chr0Editor.btnPasteAll.PerformClick();
-                                    return true;
-                                }
-                            }
-                        else
-                            if (Alt)
-                            {
-                                //We're pasting only keyframes of the entry frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor._onlyKeys = true;
-                                    chr0Editor.btnPaste.PerformClick();
-                                    return true;
-                                }
-                            }
-                            else
-                            {
-                                //We're pasting the entry frame
-                                if (_currentControl is CHR0Editor)
-                                {
-                                    chr0Editor._onlyKeys = false;
-                                    chr0Editor.btnPaste.PerformClick();
-                                    return true;
-                                }
-                            }
-                }
-                else if (key == Keys.Back)
-                {
-                    if (Ctrl)
-                    {
-                        //Clear all keyframes from frame
-                        if ((ModifierKeys & Keys.Shift) == Keys.Shift)
-                        {
-                            //We're removing the whole frame
-                            if (_currentControl is CHR0Editor)
-                            {
-                                chr0Editor.btnClearAll.PerformClick();
-                                return true;
-                            }
-                        }
-                        else
-                        {
-                            //We're removing the entry frame
-                            if (_currentControl is CHR0Editor)
-                            {
-                                chr0Editor.ClearEntry();
-                                return true;
-                            }
-                        }
-                    }
-                    else if (ModifierKeys == Keys.Shift)
-                    {
-                        //Delete frame
-                        if (_currentControl is CHR0Editor)
-                        {
-                            chr0Editor.btnDelete.PerformClick();
-                            return true;
-                        }
-                    }
-                }
-                else if (key == Keys.P)
-                {
-                    chkPolygons.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.B)
-                {
-                    chkBones.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.F)
-                {
-                    chkFloor.PerformClick();
-                    return true;
-                }
-                else if (key == Keys.I)
-                {
-                    if ((ModifierKeys & (Keys.Alt | Keys.Control)) == (Keys.Alt | Keys.Control))
-                    {
-                        btnExportToImgWithTransparency_Click(null, null);
-                        return true;
-                    }
-                    else if ((ModifierKeys & (Keys.Shift | Keys.Control)) == (Keys.Shift | Keys.Control))
-                    {
-                        btnExportToImgNoTransparency_Click(null, null);
-                        return true;
-                    }
-                }
-                if (key == Keys.Z)
-                {
-                    if (Ctrl)
-                    {
-                        if (btnUndo.Enabled)
-                            btnUndo_Click(null, null);
-
-                        return true;
-                    }
-                }
-                else if (key == Keys.Y)
-                {
-                    if (Ctrl)
-                    {
-                        if (btnRedo.Enabled)
-                            btnRedo_Click(null, null);
-
-                        return true;
-                    }
-                }
-                else if (key == Keys.Escape)
-                {
-                    //Undo transformations, make sure to reset keyframes
-                    if (_rotating)
-                    {
-                        _rotating = false;
-                        chr0Editor.numRotX.Value = _oldAngles._x;
-                        chr0Editor.numRotY.Value = _oldAngles._y;
-                        chr0Editor.numRotZ.Value = _oldAngles._z;
-                        chr0Editor.BoxChanged(chr0Editor.numRotX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numRotY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
-                    }
-                    if (_translating)
-                    {
-                        _translating = false;
-                        chr0Editor.numTransX.Value = _oldPosition._x;
-                        chr0Editor.numTransY.Value = _oldPosition._y;
-                        chr0Editor.numTransZ.Value = _oldPosition._z;
-                        chr0Editor.BoxChanged(chr0Editor.numTransX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numTransY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
-                    }
-                    if (_scaling)
-                    {
-                        _scaling = false;
-                        chr0Editor.numScaleX.Value = _oldScale._x;
-                        chr0Editor.numScaleY.Value = _oldScale._y;
-                        chr0Editor.numScaleZ.Value = _oldScale._z;
-                        chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
-                        chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
-                        chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
-                    }
-                    modelPanel.AllowSelection = true;
-                }
-                else if (key == Keys.Space)
-                {
-                    btnPlay_Click(null, null);
-                    //return true;
-                }
-            }
-            return base.ProcessKeyPreview(ref m);
-        }
+        
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog d = new OpenFileDialog();

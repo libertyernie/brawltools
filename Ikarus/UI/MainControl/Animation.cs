@@ -21,53 +21,6 @@ namespace Ikarus.UI
 {
     public partial class MainControl : ModelEditorBase
     {
-        //Updates specified angle by applying an offset.
-        //Allows pnlAnim to handle the changes so keyframes are updated.
-        private unsafe void ApplyAngle(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index + 3];
-            box.Value = (float)Math.Round(box.Value + offset, 3);
-            chr0Editor.BoxChanged(box, null);
-        }
-        //Updates translation with offset.
-        private unsafe void ApplyTranslation(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index + 6];
-            box.Value = (float)Math.Round(box.Value + offset, 3);
-            chr0Editor.BoxChanged(box, null);
-        }
-        //Updates scale with offset.
-        private unsafe void ApplyScale(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index];
-            float value = (float)Math.Round(box.Value * offset, 3);
-            if (value == 0) return;
-            box.Value = value;
-            chr0Editor.BoxChanged(box, null);
-        }
-        private unsafe void ApplyScale2(int index, float offset)
-        {
-            NumericInputBox box = chr0Editor._transBoxes[index];
-
-            if (box._value == 0)
-                return;
-
-            float scale = (box.Value + offset) / box.Value;
-
-            float value = (float)Math.Round(box.Value * scale, 3);
-            if (value == 0) return;
-            box.Value = value;
-            chr0Editor.BoxChanged(box, null);
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public NW4RAnimType TargetAnimType
-        {
-            get { return (NW4RAnimType)fileType.SelectedIndex; }
-            set { fileType.SelectedIndex = (int)value; }
-        }
-
-        private Control _currentControl = null;
         public int prevHeight = 0, prevWidth = 0;
         public void SetCurrentControl()
         {
@@ -151,39 +104,14 @@ namespace Ikarus.UI
         }
         public void UpdatePropDisplay()
         {
-            if (animEditors.Height == 0 || animEditors.Visible == false)
-                return;
-
-            switch (TargetAnimType)
-            {
-                case NW4RAnimType.CHR: chr0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SRT: srt0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SHP: shp0Editor.UpdatePropDisplay(); break;
-                //case AnimType.VIS: vis0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.PAT: pat0Editor.UpdatePropDisplay(); break;
-                //case AnimType.SCN: scn0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.CLR: clr0Editor.UpdatePropDisplay(); break;
-            }
-
-            if (TargetAnimType == NW4RAnimType.VIS)
-            {
-                //if (scriptPanel.pnlKeyframes.visEditor.TargetNode != null && !((VIS0EntryNode)scriptPanel.pnlKeyframes.visEditor.TargetNode).Constant)
-                //{
-                //    scriptPanel.pnlKeyframes.visEditor._updating = true;
-                //    scriptPanel.pnlKeyframes.visEditor.listBox1.SelectedIndices.Clear();
-                //    scriptPanel.pnlKeyframes.visEditor.listBox1.SelectedIndex = CurrentFrame - 1;
-                //    scriptPanel.pnlKeyframes.visEditor._updating = false;
-                //}
-            }
+            
         }
-
-        public bool _editingAll { get { return (!(comboCharacters.SelectedItem is MDL0Node) && comboCharacters.SelectedItem != null && comboCharacters.SelectedItem.ToString() == "All"); } }
-        public void UpdateModel()
+        public override void UpdateModel()
         {
             if (_updating)
                 return;
 
-            if (!_editingAll)
+            if (!EditingAll)
             {
                 if (TargetModel != null)
                     UpdateModel(TargetModel);

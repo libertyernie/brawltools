@@ -18,7 +18,7 @@ using System.Windows.Forms;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         private void ModelEditControl_DragEnter(object sender, DragEventArgs e)
         {

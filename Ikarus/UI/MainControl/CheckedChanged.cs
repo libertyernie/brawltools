@@ -20,7 +20,7 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         private unsafe void storeSettingsExternallyToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
@@ -100,7 +100,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundImageType.Stretch;
+                modelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -113,7 +113,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundImageType.Center;
+                modelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -126,16 +126,16 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
-                modelPanel._bgType = GLPanel.BackgroundImageType.ResizeWithBars;
+                modelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
                 _updating = false;
                 modelPanel.Invalidate();
             }
         }
         private void chkShaders_CheckedChanged(object sender, EventArgs e)
         {
-            if (modelPanel._ctx != null)
+            if (modelPanel.Context != null)
             {
-                if (modelPanel._ctx._version < 2 && chkShaders.Checked)
+                if (modelPanel.Context._version < 2 && chkShaders.Checked)
                 {
                     MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
                     MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
@@ -145,8 +145,8 @@ namespace Ikarus.UI
                 }
                 else
                 {
-                    if (modelPanel._ctx._shadersEnabled && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
-                    modelPanel._ctx._shadersEnabled = chkShaders.Checked;
+                    if (modelPanel.Context._shadersEnabled && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
+                    modelPanel.Context._shadersEnabled = chkShaders.Checked;
                 }
             }
             modelPanel.Invalidate();

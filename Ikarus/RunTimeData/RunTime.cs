@@ -49,7 +49,7 @@ namespace Ikarus.ModelViewer
             }
             return 0.0f;
         }
-        public static void SetVar(VariableType var, VarMemType mem, int num, float value)
+        public static void SetVar(VariableType var, VarMemType mem, int num, double value)
         {
             switch (mem)
             {
@@ -259,19 +259,19 @@ namespace Ikarus.ModelViewer
                         continue;
 
                     i.SubactionIndex = -1;
+
+                    //Models in etc file are not visible by default.
+                    //Models in the character file are.
                     if (!i._etcModel)
                     {
                         if (i._model != null)
-                        {
-                            i._model._attached = true;
-                            i._model.ApplyCHR(null, 0);
-                        }
+                            i._model.Attach();
                         i.Running = true;
                     }
                     else
                     {
                         if (i._model != null)
-                            i._model._attached = false;
+                            i._model.Detach();
                         i.Running = false;
                     }
                 }

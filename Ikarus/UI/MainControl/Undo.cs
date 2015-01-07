@@ -19,7 +19,7 @@ using System.Windows.Forms;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         public uint _allowedUndos = 50;
         public List<SaveState> _undoSaves = new List<SaveState>();

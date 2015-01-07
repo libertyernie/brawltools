@@ -21,7 +21,7 @@ using Ikarus.MovesetFile;
 
 namespace Ikarus.UI
 {
-    public partial class MainControl : UserControl, IMainWindow
+    public partial class MainControl : ModelEditorBase
     {
         private const float _orbRadius = 1.0f;
         private const float _circRadius = 1.2f;
@@ -75,87 +75,9 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public Panel AnimEditors { get { return animEditors; } }
 
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BonesPanel BonesPanel { get { return null; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public KeyframePanel KeyframePanel { get { return null; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPanel ModelPanel { get { return modelPanel; } }
-
-        public CHR0Node _chr0;
-        public SRT0Node _srt0;
-        public SHP0Node _shp0;
-        public PAT0Node _pat0;
-        public VIS0Node _vis0;
-        public CLR0Node _clr0;
-
-        public bool _rotating, _translating, _scaling;
-        private Vector3 _lastPointBone, _firstPointBone, _lastPointWorld, _firstPointWorld;
-        private Vector3 _oldAngles, _oldPosition, _oldScale;
-        private bool _snapX, _snapY, _snapZ, _snapCirc;
-        private bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
-
-        public List<MDL0Node> _targetModels = new List<MDL0Node>();
-        private MDL0Node _targetModel;
-
-        public Color _clearColor;
-        public MDL0MaterialRefNode _targetTexRef = null;
-        public Vertex3 _targetVertex = null;
-        public VIS0EntryNode _targetVisEntry;
-        public bool _enableTransform = true;
-
-        public bool 
-            _renderFloor = true, 
-            _renderBones = true, 
-            _renderPolygons = true, 
-            _renderBox, 
-            _dontRenderOffscreen = true, 
-            _renderVertices, 
-            _renderNormals, 
-            _renderHurtboxes, 
-            _renderHitboxes, 
-            _renderWireframe;
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelViewerForm ModelViewerForm { get { return _viewerForm; } }
-        ModelViewerForm _viewerForm = null;
-
-        public NW4RAnimationNode TargetAnimation
-        {
-            get { return GetAnimation(TargetAnimType); }
-            set { SetSelectedBRRESFile(TargetAnimType, value); }
-        }
-
-        public NW4RAnimationNode GetAnimation(NW4RAnimType type)
-        {
-            switch (type)
-            {
-                case NW4RAnimType.CHR: return SelectedCHR0;
-                case NW4RAnimType.SRT: return SelectedSRT0;
-                case NW4RAnimType.SHP: return SelectedSHP0;
-                case NW4RAnimType.PAT: return SelectedPAT0;
-                case NW4RAnimType.VIS: return SelectedVIS0;
-                case NW4RAnimType.CLR: return SelectedCLR0;
-                default: return null;
-            }
-        }
-        public void SetSelectedBRRESFile(NW4RAnimType type, NW4RAnimationNode value)
-        {
-            switch (type)
-            {
-                case NW4RAnimType.CHR: SelectedCHR0 = value as CHR0Node; break;
-                case NW4RAnimType.SRT: SelectedSRT0 = value as SRT0Node; break;
-                case NW4RAnimType.SHP: SelectedSHP0 = value as SHP0Node; break;
-                case NW4RAnimType.PAT: SelectedPAT0 = value as PAT0Node; break;
-                case NW4RAnimType.VIS: SelectedVIS0 = value as VIS0Node; break;
-                case NW4RAnimType.CLR: SelectedCLR0 = value as CLR0Node; break;
-            }
-        }
-
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0Node TargetModel { get { return _targetModel; } set { ModelChanged(value); } }
+        public bool
+            _renderHurtboxes,
+            _renderHitboxes;
 
         public bool _resetCam = true;
         public bool _hide = false;
@@ -165,7 +87,7 @@ namespace Ikarus.UI
                 _targetModels.Add(model);
 
             if (_targetModel != null)
-                _targetModel._isTargetModel = false;
+                _targetModel.IsTargetModel = false;
 
             if (_targetModel != null)
                 modelPanel.RemoveTarget(_targetModel);
@@ -174,7 +96,7 @@ namespace Ikarus.UI
             {
                 modelPanel.AddTarget(_targetModel);
                 listPanel.VIS0Indices = _targetModel.VIS0Indices;
-                _targetModel._isTargetModel = true;
+                _targetModel.IsTargetModel = true;
                 ResetVertexColors();
                 hurtboxEditor._mainControl_TargetModelChanged(null, null);
             }
@@ -200,131 +122,6 @@ namespace Ikarus.UI
             if (_targetModel != null)
                 RenderBones = _targetModel._renderBones;
         }
-        
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CHR0Node SelectedCHR0
-        { 
-            get { return _chr0; } 
-            set 
-            {
-                _chr0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CHR);
-                UpdatePropDisplay();
-            } 
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SRT0Node SelectedSRT0 
-        { 
-            get { return _srt0; } 
-            set 
-            { 
-                _srt0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SRT);
-                UpdatePropDisplay();
-            } 
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SHP0Node SelectedSHP0
-        {
-            get { return _shp0; }
-            set
-            {
-                _shp0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SHP);
-                UpdatePropDisplay();
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PAT0Node SelectedPAT0
-        {
-            get { return _pat0; }
-            set
-            {
-                _pat0 = value; 
-                
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.PAT);
-                UpdatePropDisplay();
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0Node SelectedVIS0
-        {
-            get { return _vis0; }
-            set
-            {
-                _vis0 = value; 
-                
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.VIS);
-                UpdatePropDisplay();
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SCN0Node SelectedSCN0
-        {
-            get { return null; }
-            set { }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CLR0Node SelectedCLR0
-        {
-            get { return _clr0; }
-            set
-            {
-                _clr0 = value;
-
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CLR);
-                UpdatePropDisplay();
-            }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color ClearColor { get { return _clearColor; } set { _clearColor = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Image BGImage { get { return modelPanel.BackgroundImage; } set { modelPanel.BackgroundImage = value; } }
-
-        //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        //public Vertex3 TargetVertex 
-        //{
-        //    get { return _targetVertex; }
-        //    set
-        //    {
-        //        if (_targetVertex != null)
-        //        {
-        //            _targetVertex._highlightColor = Color.Transparent;
-        //            if (_selectedVertices.Contains(_targetVertex))
-        //                _selectedVertices.Remove(_targetVertex);
-        //        }
-        //        if ((_targetVertex = value) != null)
-        //        {
-        //            _targetVertex._highlightColor = Color.Orange;
-        //            _targetVertex._selected = true;
-        //            if (!_selectedVertices.Contains(_targetVertex))
-        //                _selectedVertices.Add(_targetVertex);
-        //        }
-        //        //weightEditor.TargetVertex = _targetVertex;
-        //        UpdatePropDisplay();
-        //    }
-        //}
 
         MDL0BoneNode _selectedBone = null;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -413,21 +210,21 @@ namespace Ikarus.UI
             get { return _renderBones; }
             set
             {
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderBones = value;
-                else if (TargetModel != null)
-                    TargetModel._renderBones = value;
-                if (RunTime._articles != null)
-                foreach (ArticleInfo i in RunTime._articles)
-                    if (i.Running && i.ModelVisible)
-                        i._model._renderBones = value;
+                //if (_editingAll)
+                //    foreach (MDL0Node m in _targetModels)
+                //        m._renderBones = value;
+                //else if (TargetModel != null)
+                //    TargetModel._renderBones = value;
+                //if (RunTime._articles != null)
+                //foreach (ArticleInfo i in RunTime._articles)
+                //    if (i.Running && i.ModelVisible)
+                //        i._model._renderBones = value;
 
-                _renderBones = value;
-                _updating = true;
-                chkBones.Checked = toggleBones.Checked = _renderBones;
-                _updating = false;
-                modelPanel.Invalidate();
+                //_renderBones = value;
+                //_updating = true;
+                //chkBones.Checked = toggleBones.Checked = _renderBones;
+                //_updating = false;
+                //modelPanel.Invalidate();
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -436,21 +233,21 @@ namespace Ikarus.UI
             get { return _renderPolygons; }
             set
             {
-                if (_editingAll)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderPolygons = value;
-                else if (TargetModel != null)
-                    TargetModel._renderPolygons = value;
-                if (RunTime._articles != null)
-                foreach (ArticleInfo i in RunTime._articles)
-                    if (i.Running && i.ModelVisible)
-                        i._model._renderPolygons = value;
+                //if (_editingAll)
+                //    foreach (MDL0Node m in _targetModels)
+                //        m._renderPolygons = value;
+                //else if (TargetModel != null)
+                //    TargetModel._renderPolygons = value;
+                //if (RunTime._articles != null)
+                //foreach (ArticleInfo i in RunTime._articles)
+                //    if (i.Running && i.ModelVisible)
+                //        i._model._renderPolygons = value;
 
-                _renderPolygons = value;
-                _updating = true;
-                chkPolygons.Checked = togglePolygons.Checked = _renderPolygons;
-                _updating = false;
-                modelPanel.Invalidate();
+                //_renderPolygons = value;
+                //_updating = true;
+                //chkPolygons.Checked = togglePolygons.Checked = _renderPolygons;
+                //_updating = false;
+                //modelPanel.Invalidate();
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -459,21 +256,21 @@ namespace Ikarus.UI
             get { return _renderBox; }
             set
             {
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m._renderBox = value;
-                else if (TargetModel != null)
-                    TargetModel._renderBox = value;
-                if (RunTime._articles != null)
-                foreach (ArticleInfo i in RunTime._articles)
-                    if (i.Running && i.ModelVisible)
-                        i._model._renderBox = value;
+                //if (_editingAll && _targetModels != null)
+                //    foreach (MDL0Node m in _targetModels)
+                //        m._renderBox = value;
+                //else if (TargetModel != null)
+                //    TargetModel._renderBox = value;
+                //if (RunTime._articles != null)
+                //    foreach (ArticleInfo i in RunTime._articles)
+                //        if (i.Running && i.ModelVisible)
+                //            i._model._renderBox = value;
 
-                _renderBox = value;
-                _updating = true;
-                boundingBoxToolStripMenuItem.Checked = _renderBox;
-                _updating = false;
-                modelPanel.Invalidate();
+                //_renderBox = value;
+                //_updating = true;
+                //boundingBoxToolStripMenuItem.Checked = _renderBox;
+                //_updating = false;
+                //modelPanel.Invalidate();
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -482,17 +279,17 @@ namespace Ikarus.UI
             get { return _dontRenderOffscreen; }
             set
             {
-                if (_editingAll && _targetModels != null)
-                    foreach (MDL0Node m in _targetModels)
-                        m._dontRenderOffscreen = value;
-                else if (TargetModel != null)
-                    TargetModel._dontRenderOffscreen = value;
+                //if (_editingAll && _targetModels != null)
+                //    foreach (MDL0Node m in _targetModels)
+                //        m._dontRenderOffscreen = value;
+                //else if (TargetModel != null)
+                //    TargetModel._dontRenderOffscreen = value;
 
-                _dontRenderOffscreen = value;
-                _updating = true;
-                chkDontRenderOffscreen.Checked = _dontRenderOffscreen;
-                _updating = false;
-                modelPanel.Invalidate();
+                //_dontRenderOffscreen = value;
+                //_updating = true;
+                //chkDontRenderOffscreen.Checked = _dontRenderOffscreen;
+                //_updating = false;
+                //modelPanel.Invalidate();
             }
         }
 

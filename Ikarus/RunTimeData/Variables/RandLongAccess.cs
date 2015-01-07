@@ -89,7 +89,7 @@ namespace Ikarus
             }
             return 0;
         }
-        public static void Set(VariableType var, int num, float value)
+        public static void Set(VariableType var, int num, double value)
         {
             switch (var)
             {
@@ -97,7 +97,7 @@ namespace Ikarus
                     Basic[num] = (int)(value + 0.5f);
                     break;
                 case VariableType.Float:
-                    Float[num] = value;
+                    Float[num] = (float)value;
                     break;
                 case VariableType.Bit:
                     Bit[num] = value == 0 ? false : true;
@@ -129,7 +129,7 @@ namespace Ikarus
             }
             return 0;
         }
-        public static void Set(VariableType var, int num, float value)
+        public static void Set(VariableType var, int num, double value)
         {
             switch (var)
             {
@@ -137,7 +137,7 @@ namespace Ikarus
                     Basic[num] = (int)(value + 0.5f);
                     break;
                 case VariableType.Float:
-                    Float[num] = value;
+                    Float[num] = (float)value;
                     break;
                 case VariableType.Bit:
                     Bit[num] = value == 0.0f ? false : true;

@@ -254,9 +254,6 @@
     <Compile Include="UI\MainControl\FileHandling.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\MainControl\Mouse.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\MainControl\Rendering.cs">
       <SubType>UserControl</SubType>
     </Compile>

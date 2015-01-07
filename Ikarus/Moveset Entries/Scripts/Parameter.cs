@@ -21,11 +21,11 @@ namespace Ikarus.MovesetFile
 
         /// <summary>
         /// Returns the real value for use in scripting as a generic float value.
-        /// 1.0f == true, 0.0f == false.
+        /// Returns 1.0 if true, 0.0 if false.
         /// The only event type that allows you to set this is Variable.
         /// </summary>
         [Browsable(false)]
-        public virtual float RealValue { get { return _value; } set { } }
+        public virtual double RealValue { get { return _value; } set { } }
 
         [Browsable(false)]
         public virtual int Data { get { return _value; } set { _value = value; SignalPropertyChange(); } }
@@ -463,7 +463,7 @@ namespace Ikarus.MovesetFile
         [Category("Event Scalar Value")]
         public float Value { get { return Util.UnScalar(Data); } set { Data = Util.Scalar(value); } }
 
-        public override float RealValue { get { return Value; } }
+        public override double RealValue { get { return Value; } }
 
         public override string GetArg()
         {
@@ -490,7 +490,7 @@ namespace Ikarus.MovesetFile
 
     public unsafe class EventVariable : Parameter
     {
-        public override float RealValue
+        public override double RealValue
         {
             get { return RunTime.GetVar(type, mem, number); }
             set { RunTime.SetVar(type, mem, number, value); }

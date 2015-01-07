@@ -664,27 +664,27 @@ namespace Ikarus.MovesetFile
             return _event == 0x060A0800 || _event == 0x060A0900 || _event == 0x060A0A00;
         }
 
-        public void Render(TKContext ctx, Vector3 cam)
+        public void Render(Vector3 cam)
         {
             switch (_event)
             {
                 case 0x06000D00:
                 case 0x062B0D00:
-                    RenderOffensiveCollision(ctx, cam);
+                    RenderOffensiveCollision(cam);
                     break;
                 case 0x06150F00:
-                    RenderSpecialOffensiveCollision(ctx, cam);
+                    RenderSpecialOffensiveCollision(cam);
                     break;
                 case 0x060A0800:
                 case 0x060A0900:
                 case 0x060A0A00:
-                    RenderCatchCollision(ctx, cam);
+                    RenderCatchCollision(cam);
                     break;
             }
         }
 
         #region Offensive Collision
-        private unsafe void RenderOffensiveCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderOffensiveCollision(Vector3 cam)
         {
             if (_event != 0x06000D00) //Offensive Collision
                 return;
@@ -741,8 +741,8 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(flags.Type);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.5f);
-            
-            GLDisplayList spheres = c.GetSphereList();
+
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
 
             //Angle indicator
@@ -811,7 +811,7 @@ namespace Ikarus.MovesetFile
             GL.PopMatrix();
 
             // border
-            GLDisplayList rings = c.GetRingList();
+            GLDisplayList rings = TKContext.GetRingList();
             for (int i = -5; i <= 5; i++)
             {
                 GL.PushMatrix();
@@ -841,7 +841,7 @@ namespace Ikarus.MovesetFile
         #endregion
 
         #region Special Offensive Collision
-        private unsafe void RenderSpecialOffensiveCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderSpecialOffensiveCollision(Vector3 cam)
         {
             if (_event != 0x06150F00) //Special Offensive Collision
                 return;
@@ -896,8 +896,8 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(flags.Type);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.5f);
-                
-            GLDisplayList spheres = c.GetSphereList();
+
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
             if (specialFlags.Stretches)
             {
@@ -996,7 +996,7 @@ namespace Ikarus.MovesetFile
             GL.PopMatrix();
 
             // border
-            GLDisplayList rings = c.GetRingList();
+            GLDisplayList rings = TKContext.GetRingList();
             for (int i = -5; i <= 5; i++)
             {
                 GL.PushMatrix();
@@ -1026,7 +1026,7 @@ namespace Ikarus.MovesetFile
         #endregion
 
         #region Catch Collision
-        private unsafe void RenderCatchCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderCatchCollision(Vector3 cam)
         {
             if (_event != 0x060A0800 && _event != 0x060A0900 && _event != 0x060A0A00)
                 return;
@@ -1076,7 +1076,7 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(Util.HitboxType.Throwing);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.375f);
-            GLDisplayList spheres = c.GetSphereList();
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
             
             GL.PopMatrix();
