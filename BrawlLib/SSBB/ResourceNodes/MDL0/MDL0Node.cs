@@ -1103,14 +1103,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Apply billboard bones before rendering meshes
             if (attrib._applyBillboardBones && _billboardBones.Count > 0)
             {
-                foreach (MDL0BoneNode b in _billboardBones)
-                    b.RecalcFrameState(true);
-                foreach (Influence inf in _influences._influences)
-                    inf.CalcMatrix();
-                if (_objList != null)
-                    foreach (MDL0ObjectNode o in _objList)
-                        o.WeightVertices();
+                if (_boneList != null)
+                    foreach (MDL0BoneNode b in _boneList)
+                        b.RecalcFrameState(true);
 
+                CalcAndWeight();
                 ApplySHP(_currentSHP, _currentSHPIndex);
             }
 
@@ -1261,6 +1258,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                 TKContext.DrawWireframeBox(box);
         }
         
+        private void CalcAndWeight()
+        {
+            //Transform nodes
+            foreach (Influence inf in _influences._influences)
+                inf.CalcMatrix();
+
+            //Weight Vertices
+            if (_objList != null)
+                foreach (MDL0ObjectNode poly in _objList)
+                    poly.WeightVertices();
+        }
+
         bool _bindFrame = true;
         public void ApplyCHR(CHR0Node node, float index)
         {
@@ -1275,14 +1284,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     b.RecalcFrameState(false);
             }
 
-            //Transform nodes
-            foreach (Influence inf in _influences._influences)
-                inf.CalcMatrix();
-
-            //Weight Vertices
-            if (_objList != null)
-                foreach (MDL0ObjectNode poly in _objList)
-                    poly.WeightVertices();
+            CalcAndWeight();
         }
 
         public void ApplySRT(SRT0Node node, float index)
@@ -1316,7 +1318,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_objList != null)
                     foreach (MDL0ObjectNode o in _objList)
                         if (o._visBoneNode != null)
-                            o._render = o._visBoneNode.Flags.HasFlag(BoneFlags.Visible);
+                            o._render = o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
                 return;
             }
 

@@ -27,9 +27,6 @@ namespace System.Windows.Forms
             if (!_targetModels.Contains(model))
                 _targetModels.Add(model);
 
-            if (!models.Items.Contains(model))
-                models.Items.Add(model);
-
             ModelPanel.AddTarget(model);
             model.ResetToBindState();
         }
@@ -69,7 +66,7 @@ namespace System.Windows.Forms
         protected override void OnModelChanged()
         {
             _updating = true;
-            if (_targetModel != null && !EditingAll && TargetCollision == null)
+            if (_targetModel != null && TargetCollision == null)
                 models.SelectedItem = _targetModel;
 
             leftPanel.Reset();
@@ -83,14 +80,14 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
 
-            EditingAll = models.SelectedIndex == 0;
-
             //Leave the target model and collision alone if just switching to edit all
             if (!EditingAll)
             {
+                object item = models.SelectedItem;
+
                 _resetCamera = false;
-                TargetModel = models.SelectedItem is IModel ? (IModel)models.SelectedItem : null;
-                TargetCollision = models.SelectedItem is CollisionNode ? (CollisionNode)models.SelectedItem : null;
+                TargetModel = item is IModel ? (IModel)item : null;
+                TargetCollision = item is CollisionNode ? (CollisionNode)item : null;
             }
             _undoSaves.Clear();
             _redoSaves.Clear();

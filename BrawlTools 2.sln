@@ -1,14 +1,12 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30825.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlBox", "BrawlBox\BrawlBox.csproj", "{0B8588FD-74EE-4A7D-A397-91EA3F6A2C77}"
 	ProjectSection(ProjectDependencies) = postProject
 		{9FAFC886-08B5-4922-BECC-E03D84FF15B0} = {9FAFC886-08B5-4922-BECC-E03D84FF15B0}
 	EndProjectSection
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlCmd", "BrawlCmd\BrawlCmd.csproj", "{D6F2B214-C2EB-4629-86C5-765457A7BB99}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BrawlLib", "BrawlLib\BrawlLib.csproj", "{462D0BBF-CE82-405B-8848-2F91E9E14C55}"
 EndProject
@@ -53,25 +51,6 @@ Global
 		{0B8588FD-74EE-4A7D-A397-91EA3F6A2C77}.Release|x64.ActiveCfg = Release|x86
 		{0B8588FD-74EE-4A7D-A397-91EA3F6A2C77}.Release|x86.ActiveCfg = Release|x86
 		{0B8588FD-74EE-4A7D-A397-91EA3F6A2C77}.Release|x86.Build.0 = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Any CPU.ActiveCfg = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Itanium.ActiveCfg = Debug|Itanium
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Mixed Platforms.ActiveCfg = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Mixed Platforms.Build.0 = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Win32.ActiveCfg = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|Win32.Build.0 = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|x64.ActiveCfg = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|x86.ActiveCfg = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Debug|x86.Build.0 = Debug|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Any CPU.ActiveCfg = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Any CPU.Build.0 = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Itanium.ActiveCfg = Release|Itanium
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Mixed Platforms.ActiveCfg = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Mixed Platforms.Build.0 = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Win32.ActiveCfg = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|Win32.Build.0 = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|x64.ActiveCfg = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|x86.ActiveCfg = Release|x86
-		{D6F2B214-C2EB-4629-86C5-765457A7BB99}.Release|x86.Build.0 = Release|x86
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Debug|Any CPU.ActiveCfg = Debug|x86
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Debug|Any CPU.Build.0 = Debug|x86
 		{462D0BBF-CE82-405B-8848-2F91E9E14C55}.Debug|Itanium.ActiveCfg = Debug|Itanium

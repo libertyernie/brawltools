@@ -13,7 +13,7 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        public unsafe virtual void modelPanel1_PreRender(object sender)
+        public unsafe virtual void modelPanel1_PreRender(GLPanel sender)
         {
             //This function may be called from a model panel that is not necessarily the currently focused one
             ModelPanel panel = sender as ModelPanel;
@@ -22,7 +22,7 @@ namespace System.Windows.Forms
                 OnRenderFloor();
         }
 
-        public unsafe virtual void modelPanel1_PostRender(object sender)
+        public unsafe virtual void modelPanel1_PostRender(GLPanel sender)
         {
             //This function may be called from a model panel that is not necessarily the currently focused one
             ModelPanel panel = sender as ModelPanel;

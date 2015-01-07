@@ -720,7 +720,7 @@ namespace System.Windows.Forms
         {
             e.DrawBackground();
 
-            Relocation r = lstLinked.Items[e.Index] as Relocation;
+            Relocation r = e.Index < 0 || e.Index > lstLinked.Items.Count ? null : lstLinked.Items[e.Index] as Relocation;
 
             if (r != null)
             {

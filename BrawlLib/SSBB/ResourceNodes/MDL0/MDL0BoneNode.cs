@@ -22,7 +22,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal MDL0Bone* Header { get { return (MDL0Bone*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.MDL0Bone; } }
         public override bool AllowDuplicateNames { get { return true; } }
-        
+        public override bool RetainChildrenOnReplace { get { return true; } }
+
         private MDL0BoneNode _overrideBone;
         [Browsable(false)]
         public MDL0BoneNode OverrideBone
@@ -49,12 +50,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool _locked; //For the weight editor
         public bool _moved = false;
 
-        public BoneFlags _boneFlags = (BoneFlags)0x100;
+        public BoneFlags _boneFlags = (BoneFlags)0x11F;
         public BillboardFlags _billboardFlags;
         //public uint _bbNodeId;
 
         public List<MDL0ObjectNode> _infPolys = new List<MDL0ObjectNode>();
         public List<MDL0ObjectNode> _manPolys = new List<MDL0ObjectNode>();
+        public MDL0BoneNode _bbRefNode;
 
         public FrameState _bindState = FrameState.Neutral;
         public Matrix _bindMatrix = Matrix.Identity, _inverseBindMatrix = Matrix.Identity;
@@ -62,8 +64,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Matrix _frameMatrix = Matrix.Identity, _inverseFrameMatrix = Matrix.Identity;
 
         private Box _extents = new Box();
-        internal int _nodeIndex, _weightCount, _refCount, _headerLen, _mdl0Offset, _stringOffset, _parentOffset, _firstChildOffset, _prevOffset, _nextOffset, _userDataOffset;
-        
+        public int _nodeIndex, _weightCount, _refCount;
+
         #region IBoneNode Implementation
 
         [Browsable(false)]
@@ -187,24 +189,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _boneFlags &= ~BoneFlags.ClassicScaleOff;
             }
         }
-        public int _boneIndex;
         [Category("Bone")]
-        public int BoneIndex { get { return _boneIndex; } }
-        [Category("Bone"), Browsable(false)]
-        public BoneFlags Flags { get { return _boneFlags; } set { _boneFlags = (BoneFlags)(int)value; SignalPropertyChange(); } }
-
-        [Category("Bone"), Browsable(true)]
-        public bool HasBillboardParent
-        {
-            get { return _boneFlags.HasFlag(BoneFlags.HasBillboardParent); }
-            set
-            {
-                if (value)
-                    _boneFlags |= BoneFlags.HasBillboardParent;
-                else
-                    _boneFlags &= ~BoneFlags.HasBillboardParent;
-            }
-        }
+        public int BoneIndex { get { return _entryIndex; } }
 
         [Category("Bone"), Description(@"This setting will rotate the bone and all influenced geometry in relation to the camera.
 If the setting is 'Perspective', the bone's Z axis points at the camera's position.
@@ -244,26 +230,20 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     
                 if (n != null)
                 {
-                    HasBillboardParent = true;
-                    _bbRefNode = n;
-
+                    BBRefNode = n;
                     foreach (MDL0BoneNode b in Children)
-                        b.RecursiveSetBillboard(_bbRefNode);
+                        b.RecursiveSetBillboard(BBRefNode);
                 }
                 else
                 {
-                    HasBillboardParent = false;
-                    _bbRefNode = null;
-                    
+                    BBRefNode = null;
                     foreach (MDL0BoneNode b in Children)
                         b.RecursiveSetBillboard(null);
                 }
             }
             else
             {
-                HasBillboardParent = false;
-                _bbRefNode = null;
-
+                BBRefNode = null;
                 foreach (MDL0BoneNode b in Children)
                     b.RecursiveSetBillboard(this);
             }
@@ -273,17 +253,37 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         {
             if (BillboardSetting == BillboardFlags.Off)
             {
-                HasBillboardParent = node != null;
-                _bbRefNode = node;
-
+                BBRefNode = node;
                 foreach (MDL0BoneNode b in Children)
                     b.RecursiveSetBillboard(node);
             }
         }
 
-        [Category("Bone")]
-        public string BillboardRefNode { get { return _bbRefNode == null ? String.Empty : _bbRefNode.Name; } }
-        MDL0BoneNode _bbRefNode;
+        [Category("Bone"), TypeConverter(typeof(DropDownListBones))]
+        public string BillboardRefNode
+        {
+            get { return _bbRefNode == null ? String.Empty : _bbRefNode.Name; }
+            set
+            {
+                BBRefNode = String.IsNullOrEmpty(value) ? null : Model.FindBone(value);
+                SignalPropertyChange();
+            }
+        }
+        
+        [Browsable(false)]
+        public MDL0BoneNode BBRefNode
+        {
+            get { return _bbRefNode; }
+            set
+            {
+                _bbRefNode = value;
+
+                if (_bbRefNode != null)
+                    _boneFlags |= BoneFlags.HasBillboardParent;
+                else
+                    _boneFlags &= ~BoneFlags.HasBillboardParent;
+            }
+        }
 
         [Category("Bone"), TypeConverter(typeof(Vector3StringConverter))]
         public Vector3 Scale 
@@ -421,41 +421,36 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             SetSizeInternal(header->_headerLen);
 
-            //Assign true parent using parent header offset
-            int offset = header->_parentOffset;
-            //Offsets are always < 0, because parent entries are listed before children
-            if (offset < 0)
+            if (!_replaced)
             {
-                //Get address of parent header
-                MDL0Bone* pHeader = (MDL0Bone*)((byte*)header + offset);
-                //Search bone list for matching header
-                foreach (MDL0BoneNode bone in Parent._children)
-                    if (pHeader == bone.Header)
-                    {
-                        _parent = bone;
-                        break;
-                    }
+                //Assign true parent using parent header offset
+                int offset = header->_parentOffset;
+                //Offsets are always < 0, because parent entries are listed before children
+                if (offset < 0)
+                {
+                    //Get address of parent header
+                    MDL0Bone* pHeader = (MDL0Bone*)((byte*)header + offset);
+                    //Search bone list for matching header
+                    foreach (MDL0BoneNode bone in Parent._children)
+                        if (pHeader == bone.Header)
+                        {
+                            _parent = bone;
+                            break;
+                        }
+                }
             }
 
             //Conditional name assignment
-            if ((_name == null) && (header->_stringOffset != 0))
+            if (_name == null && header->_stringOffset != 0)
                 _name = header->ResourceString;
 
             //Assign fields
             _boneFlags = (BoneFlags)(uint)header->_flags;
             _billboardFlags = (BillboardFlags)(uint)header->_bbFlags;
             _nodeIndex = header->_nodeId;
-            _boneIndex = header->_index;
-            _headerLen = header->_headerLen;
-            _mdl0Offset = header->_mdl0Offset;
-            _stringOffset = header->_stringOffset;
-            _parentOffset = header->_parentOffset;
-            _firstChildOffset = header->_firstChildOffset;
-            _nextOffset = header->_nextOffset;
-            _prevOffset = header->_prevOffset;
-            _userDataOffset = header->_userDataOffset;
+            _entryIndex = header->_index;
 
-            _bbRefNode = _boneFlags.HasFlag(BoneFlags.HasBillboardParent) ?
+            _bbRefNode = !_replaced && _boneFlags.HasFlag(BoneFlags.HasBillboardParent) ?
                 Model._linker.NodeCache[header->_bbNodeId] as MDL0BoneNode : null;
 
             if (_billboardFlags != BillboardFlags.Off)
@@ -506,7 +501,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             Moved = true;
         }
 
-        public void RecalcOffsets(MDL0Bone* header, VoidPtr address, int length)
+        private void RecalcOffsets(MDL0Bone* header, VoidPtr address, int length)
         {
             MDL0BoneNode bone;
             int index = 0, offset;
@@ -590,11 +585,11 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 _boneFlags &= ~BoneFlags.HasGeometry;
 
             header->_headerLen = length;
-            header->_index = _boneIndex = _entryIndex;
+            header->_index = _entryIndex;
             header->_nodeId = _nodeIndex;
             header->_flags = (uint)_boneFlags;
             header->_bbFlags = (uint)_billboardFlags;
-            header->_bbNodeId = _bbRefNode == null || !HasBillboardParent ? 0 : (uint)_bbRefNode.NodeIndex;
+            header->_bbNodeId = _bbRefNode == null ? 0 : (uint)_bbRefNode.NodeIndex;
             header->_scale = _bindState._scale;
             header->_rotation = _bindState._rotate;
             header->_translation = _bindState._translate;
@@ -658,10 +653,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     _inverseFrameMatrix = _frameState._iTransform;
                 }
             }
-
-            //if (_overriding.Count != 0)
-            //    foreach (MDL0BoneNode b in _overriding)
-            //        b.RecalcFrameState();
 
             if (BillboardSetting != BillboardFlags.Off && applyBillboardBones)
                 ApplyBillboard();

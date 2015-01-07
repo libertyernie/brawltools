@@ -25,9 +25,9 @@ namespace System.Windows.Forms
 
         public Vector3 _defaultTranslate;
         public Vector3 _defaultRotate;
-        
+
         public List<ResourceNode> _resourceList = new List<ResourceNode>();
-        public List<IRenderedObject> _renderList = new List<IRenderedObject>();
+        public BindingList<IRenderedObject> _renderList = new BindingList<IRenderedObject>();
 
         const float v = 100.0f / 255.0f;
         public Vector4 _position = new Vector4(100.0f, 45.0f, 45.0f, 1.0f);

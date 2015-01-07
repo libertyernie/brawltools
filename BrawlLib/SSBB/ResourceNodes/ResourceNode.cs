@@ -529,9 +529,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             Memory.Move(map.Address, address, (uint)length);
             ReplaceRaw(map);
         }
+        [Browsable(false)]
+        public virtual bool RetainChildrenOnReplace { get { return false; } }
         public unsafe virtual void ReplaceRaw(FileMap map)
         {
-            if (_children != null)
+            if (_children != null && !RetainChildrenOnReplace)
             {
                 foreach (ResourceNode node in _children)
                     node.Dispose();
@@ -542,27 +544,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             _replUncompSrc.Close();
             _replSrc.Close();
 
-            _compression = Compressor.GetAlgorithm(map.Address, map.Length);
-            if (_compression != CompressionType.None)
-            {
-                //TODO: YAZ0 and YAY0?
+            _replSrc = new DataSource(map);
 
-                CompressionHeader* cmpr = (CompressionHeader*)map.Address;
-                if (Compressor.Supports(cmpr->Algorithm))
-                {
-                    FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
-                    Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
-                    _replSrc = new DataSource(map, cmpr->Algorithm);
-                    _replUncompSrc = new DataSource(uncompMap);
-                }
-                else
-                    _replSrc = _replUncompSrc = new DataSource(map);
-            }
-            else
-                _replSrc = _replUncompSrc = new DataSource(map);
+            FileMap uncompMap = Compressor.TryExpand(ref _replSrc, false);
+            _compression = _replSrc.Compression;
+            _replUncompSrc = uncompMap != null ? new DataSource(uncompMap) : _replSrc;
 
             _replaced = true;
-            if (!OnInitialize())
+            if (!OnInitialize() && !RetainChildrenOnReplace)
                 _children = new List<ResourceNode>();
             _replaced = false;
 

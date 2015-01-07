@@ -121,7 +121,7 @@ namespace BrawlBox
                     return;
                 }
 
-                if (release != null && release.Count > 0 && release[0].TagName != version)
+                if (release != null && release.Count > 0 && !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture))
                 {
                     DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                     if (UpdateResult == DialogResult.Yes)

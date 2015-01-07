@@ -556,7 +556,7 @@ namespace System.Windows.Forms
                                 if (CompareDistanceRecursive(b, point, ref o))
                                     break;
                     }
-                    else
+                    else if (_targetModel != null)
                         foreach (IBoneNode b in _targetModel.RootBones)
                             if (CompareDistanceRecursive(b, point, ref o))
                                 break;

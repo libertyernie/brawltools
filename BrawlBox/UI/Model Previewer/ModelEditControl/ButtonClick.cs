@@ -298,7 +298,6 @@ namespace System.Windows.Forms
             ModelPanel.Camera.Reset();
             ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
             ModelPanel.Invalidate();
-
         }
         private void chkBoundaries_Click(object sender, EventArgs e)
         {
@@ -325,9 +324,6 @@ namespace System.Windows.Forms
             _targetModels.Clear();
 
             ModelPanel.ClearAll();
-
-            models.Items.Clear();
-            models.Items.Add("All");
         }
 
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -355,7 +351,7 @@ namespace System.Windows.Forms
 
             ModelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);
-            models.Items.Remove(TargetModel);
+            //models.Items.Remove(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
                 TargetModel = _targetModels[0];
@@ -379,7 +375,6 @@ namespace System.Windows.Forms
                 {
                     _targetModels.Remove(node);
                     ModelPanel.RemoveTarget(node);
-                    models.Items.Remove(node);
                 }
 
             ModelPanel.Invalidate();

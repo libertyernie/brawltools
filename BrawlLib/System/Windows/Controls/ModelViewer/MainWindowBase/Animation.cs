@@ -432,7 +432,7 @@ namespace System.Windows.Forms
             else
                 for (int i = 0; i < 6; i++)
                     if ((int)focusType != i)
-                        RetrieveAnimation(focusType, (NW4RAnimType)i);
+                        SetCorrespondingAnimation(focusType, (NW4RAnimType)i);
         }
 
         public ResourceType[] ResourceTypeList = new ResourceType[]
@@ -446,147 +446,28 @@ namespace System.Windows.Forms
             ResourceType.SCN0,
         };
 
-        public virtual bool RetrieveAnimation(NW4RAnimType focusType, NW4RAnimType targetType)
+        public virtual void SetCorrespondingAnimation(NW4RAnimType focusType, NW4RAnimType targetType)
         {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                SetAnimation(targetType, null);
-                return false;
-            }
+            NW4RAnimationNode focusFile = GetAnimation(focusType);
+            SetAnimation(targetType, focusFile == null ? null : FindCorrespondingAnimation(focusFile, targetType));
+        }
 
-            if (TargetModel != null && FindAnimation((ResourceNode)TargetModel, focusFile.Name, targetType))
-                return true;
+        protected virtual NW4RAnimationNode FindCorrespondingAnimation(NW4RAnimationNode focusFile, NW4RAnimType targetType)
+        {
+            NW4RAnimationNode node;
+            if (TargetModel != null && (node = FindAnimation((ResourceNode)TargetModel, focusFile.Name, targetType)) != null)
+                return node;
 
             foreach (ResourceNode r in _animationSearchNodes)
-                if (r != null && FindAnimation(r, focusFile.Name, targetType))
-                    return true;
+                if (r != null && (node = FindAnimation(r, focusFile.Name, targetType)) != null)
+                    return node;
 
-            return false;
+            return null;
         }
 
-        private bool FindAnimation(ResourceNode searchNode, string name, NW4RAnimType targetType)
+        private NW4RAnimationNode FindAnimation(ResourceNode searchNode, string name, NW4RAnimType targetType)
         {
-            NW4RAnimationNode node = searchNode.RootNode.FindChildByType(name, true, ResourceTypeList[(int)targetType]) as NW4RAnimationNode;
-            if (node != null)
-            {
-                SetAnimation(node);
-                return true;
-            }
-            return false;
-        }
-
-        public virtual bool GetSCN0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _scn0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_scn0 = (SCN0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SCN0)) != null)
-                return true;
-
-            foreach (ResourceNode r in _animationSearchNodes)
-                if (r != null && (_scn0 = (SCN0Node)r.FindChildByType(focusFile.Name, true, ResourceType.SCN0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetCLR0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _clr0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_clr0 = (CLR0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.CLR0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_clr0 = (CLR0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.CLR0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetVIS0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _vis0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_vis0 = (VIS0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.VIS0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_vis0 = (VIS0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.VIS0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetPAT0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _pat0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_pat0 = (PAT0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.PAT0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_pat0 = (PAT0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.PAT0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetSRT0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _srt0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_srt0 = (SRT0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SRT0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_srt0 = (SRT0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.SRT0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetSHP0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _shp0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_shp0 = (SHP0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.SHP0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_shp0 = (SHP0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.SHP0)) != null)
-                    return true;
-            return false;
-        }
-        public virtual bool GetCHR0(NW4RAnimType focusType)
-        {
-            BRESEntryNode focusFile = GetAnimation(focusType);
-            if (focusFile == null)
-            {
-                _chr0 = null;
-                return false;
-            }
-            if (TargetModel != null && (_chr0 = (CHR0Node)((ResourceNode)TargetModel).RootNode.FindChildByType(focusFile.Name, true, ResourceType.CHR0)) != null)
-                return true;
-
-            foreach (ResourceNode _externalAnimationsNode in _animationSearchNodes)
-                if (_externalAnimationsNode != null && (_chr0 = (CHR0Node)_externalAnimationsNode.FindChildByType(focusFile.Name, true, ResourceType.CHR0)) != null)
-                    return true;
-            return false;
+            return searchNode.RootNode.FindChildByType(name, true, ResourceTypeList[(int)targetType]) as NW4RAnimationNode;
         }
 
         public void CreateVIS0()

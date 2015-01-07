@@ -196,6 +196,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem chkBBVisBones;
         private ToolStripMenuItem chkBBModels;
         private ToolStripMenuItem displayBindBoundingBoxesOn0FrameToolStripMenuItem;
+        private ToolStripMenuItem chkEditAllModels;
         private RightPanel rightPanel;
 
         private void InitializeComponent()
@@ -375,6 +376,7 @@ namespace System.Windows.Forms
             this.vertexEditor = new System.Windows.Forms.VertexEditor();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
+            this.chkEditAllModels = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -650,7 +652,8 @@ namespace System.Windows.Forms
             this.syncStartendTangentsToolStripMenuItem,
             this.chkSnapToColl,
             this.chkMaximize,
-            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem});
+            this.displayBindBoundingBoxesOn0FrameToolStripMenuItem,
+            this.chkEditAllModels});
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
             this.settingsToolStripMenuItem.Size = new System.Drawing.Size(187, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
@@ -857,21 +860,21 @@ namespace System.Windows.Forms
             // resetToolStripMenuItem
             // 
             this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-            this.resetToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.resetToolStripMenuItem.Text = "Reset";
             this.resetToolStripMenuItem.Click += new System.EventHandler(this.clearSavedSettingsToolStripMenuItem_Click);
             // 
             // exportToolStripMenuItem
             // 
             this.exportToolStripMenuItem.Name = "exportToolStripMenuItem";
-            this.exportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.exportToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.exportToolStripMenuItem.Text = "Export";
             this.exportToolStripMenuItem.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
             // importToolStripMenuItem
             // 
             this.importToolStripMenuItem.Name = "importToolStripMenuItem";
-            this.importToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.importToolStripMenuItem.Size = new System.Drawing.Size(110, 22);
             this.importToolStripMenuItem.Text = "Import";
             this.importToolStripMenuItem.Click += new System.EventHandler(this.importToolStripMenuItem_Click);
             // 
@@ -2014,6 +2017,16 @@ namespace System.Windows.Forms
             this.leftPanel.TabIndex = 4;
             this.leftPanel.Visible = false;
             // 
+            // chkEditAllModels
+            // 
+            this.chkEditAllModels.Checked = true;
+            this.chkEditAllModels.CheckOnClick = true;
+            this.chkEditAllModels.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEditAllModels.Name = "chkEditAllModels";
+            this.chkEditAllModels.Size = new System.Drawing.Size(300, 22);
+            this.chkEditAllModels.Text = "Edit All Models";
+            this.chkEditAllModels.CheckedChanged += new System.EventHandler(this.chkEditAllModels_CheckedChanged);
+            // 
             // ModelEditControl
             // 
             this.AllowDrop = true;
@@ -2086,6 +2099,8 @@ namespace System.Windows.Forms
             MDL0TextureNode.TextureOverrideDirectory = LiveTextureFolderPath.Text;
 
             _openFileDelegate = new DelegateOpenFile(OpenFile);
+
+            models.DataSource = ModelPanel._settings._renderList;
 
             ModelPanel.RenderBonesChanged += modelPanel_RenderBonesChanged;
             ModelPanel.RenderModelBoxChanged += modelPanel_RenderModelBoxChanged;
@@ -2368,6 +2383,11 @@ namespace System.Windows.Forms
         {
             if (_clr0 != null && CurrentFrame != 0)
                 ModelPanel.Invalidate();
+        }
+
+        private void chkEditAllModels_CheckedChanged(object sender, EventArgs e)
+        {
+            EditingAll = chkEditAllModels.Checked;
         }
     }
 }

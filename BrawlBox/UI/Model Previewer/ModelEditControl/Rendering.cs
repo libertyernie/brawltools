@@ -20,7 +20,7 @@ namespace System.Windows.Forms
     {
         #region Post Render
 
-        public unsafe override void modelPanel1_PostRender(object sender)
+        public unsafe override void modelPanel1_PostRender(GLPanel sender)
         {
             base.modelPanel1_PostRender(sender);
 

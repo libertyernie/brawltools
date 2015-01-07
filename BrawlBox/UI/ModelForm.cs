@@ -168,9 +168,7 @@ namespace BrawlBox
                         modelEditControl1.TargetModel = null;
 
                     modelEditControl1._targetModels.Clear();
-
                     modelEditControl1.ModelPanel.ClearAll();
-                    modelEditControl1.models.Items.Clear();
                 }
                 catch { }
             }

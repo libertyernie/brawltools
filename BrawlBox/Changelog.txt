@@ -14,24 +14,37 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.74b- (??/??/20??) - BrawlLib v0.21b
+ - v0.74b- (1/6/2015) - BrawlLib v0.21b
 	. Fixed bug where the file's compression type was not displayed
 	. Loop frame is no longer included when playing an animation. This is how it works in-game; the loop frame is only for interpolation from the last frame to the first and therefore only included for CHR0, SRT0, SHP0, and SCN0
+	. Fixed several bugs involving the loop frame
 	. Fixed bug where IA4 alpha and intensity were swapped
 	. Fixed bug where a raw data node would appear when opening an unrecognizable file format instead of showing a message
 	. Fixed bug where the loop frame was not included in the frame count when parsing CHR0, SRT0, SHP0, and SCN0
 	. Fixed bug where detaching and reattaching the model panel as a separate window did not work
 	. Fixed bug when trying to view the interpolation of SHP0 nodes
 	. Fixed model viewer screenshot hotkeys
+	. Fixed bug where models no longer clipped with the floor in the model viewer
 	. Fixed bug when opening the collision editor
 	. Fixed bug where isotropic animations (isotropic means all the values are the same, so this is usually scale) were not parsed correctly
 	. Fixed bug where PMD models could no longer be imported
 	. Fixed bug where the vertex editor did not appear in the model viewer when using the "J" hotkey
 	. Removed MDL0 material light channel count and instead added "enabled" to each light channel's properties
 	. Renamed MDL0 material "ZCompareLoc" property to "CompareBeforeTexture" and added it under "Z Mode".
+	. Fixed bug where MDL0 textures that aren't used by any object were written to the model (metal00 for Brawl models).
 	. Added TPL, EFLS, REFF and REFT as nodes that can be created from scratch
 	. Fixed bug where billboard bones did not apply in the model panel
 	. Added option to zoom precisely in the model viewer by pressing the middle mouse button and dragging
+	. Fixed bug where replacing an MDL0 bone node would remove its children
+	. Moved option to edit all models out of the dropdown in the model viewer and into the settings area under Options->Settings
+	. Added tool to search for animations at the top of the animation list in the model viewer
+	. Added option to MDL0 right click menu to recalculate and set bounding boxes at bind state (model and visibility bone boxes)
+	. Added options to render visibility bone boxes, model boxes, and object boxes separately under View->Model->'Bounding Boxes' in the model viewer
+	. Added option to render the bounding boxes that have been written to the model on frame 0 (the bind state) instead of rendering the auto-calculated ones. This option is located under Options->Settings in the model viewer
+	. Branch opcodes are now highlighted in purple in the module section editor.
+	. Branch offset destinations are now included in the module section editor's list box, highlighted in blue. Command destinations are highlighted in green.
+	. REL Section 5 object parser has been added back
+	. Added the option to manually set a bone's billboard reference bone.
 
  - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Brawlbox can now check for updates on startup (can be enabled via Tools->Settings) or when you go to Help->"Check for updates" and automatically install that update for you, in another folder or in place of the current version.
@@ -570,7 +583,11 @@ they be held accountable for the manner in which it is used.
 |*********** Requirements ***********|
  ====================================
  
-* Microsoft .Net Framework v4.0
+* BrawlBox: Microsoft .Net Framework v4.5.1
+	http://www.microsoft.com/en-us/download/details.aspx?id=40779 (Offline installer)
+	http://www.microsoft.com/en-us/download/details.aspx?id=40773 (Web installer)
+
+* BrawlLib: Microsoft .Net Framework v4.0
 	http://www.microsoft.com/en-us/download/details.aspx?id=17718
 	
 * A video card that supports OpenGL 1.1 or higher.
