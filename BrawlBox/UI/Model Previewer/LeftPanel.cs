@@ -1635,7 +1635,11 @@ namespace System.Windows.Forms
             _updating = true;
 
             if (chkMtxMaya.Checked)
+            {
+                SRT0Node node = (SRT0Node)_mainWindow.TargetAnimation;
+                node.MatrixMode = BrawlLib.SSBBTypes.TexMatrixMode.MatrixMaya;
                 chkMtxMax.Checked = chkMtxXSI.Checked = false;
+            }
             else
                 chkMtxMaya.Checked = true;
 
@@ -1649,7 +1653,11 @@ namespace System.Windows.Forms
             _updating = true;
 
             if (chkMtxXSI.Checked)
+            {
+                SRT0Node node = (SRT0Node)_mainWindow.TargetAnimation;
+                node.MatrixMode = BrawlLib.SSBBTypes.TexMatrixMode.MatrixXSI;
                 chkMtxMax.Checked = chkMtxMaya.Checked = false;
+            }
             else
                 chkMtxXSI.Checked = true;
 
@@ -1663,7 +1671,11 @@ namespace System.Windows.Forms
             _updating = true;
 
             if (chkMtxMax.Checked)
+            {
+                SRT0Node node = (SRT0Node)_mainWindow.TargetAnimation;
+                node.MatrixMode = BrawlLib.SSBBTypes.TexMatrixMode.Matrix3dsMax;
                 chkMtxXSI.Checked = chkMtxMaya.Checked = false;
+            }
             else
                 chkMtxMax.Checked = true;
 
