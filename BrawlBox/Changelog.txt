@@ -14,7 +14,13 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.74b- (1/6/2015) - BrawlLib v0.21b
+ - v0.74b - BrawlLib v0.21b
+
+ Hotfix 1 (1/7/2015): 
+	. Fixed bug where animations did not set the frame count in the model viewer
+	. Fixed bug where part of the animation edit control at the bottom of the model viewer would be cut off when the scroll bar became visible
+
+ Initial Release (1/6/2015):
 	. Fixed bug where the file's compression type was not displayed
 	. Loop frame is no longer included when playing an animation. This is how it works in-game; the loop frame is only for interpolation from the last frame to the first and therefore only included for CHR0, SRT0, SHP0, and SCN0
 	. Fixed several bugs involving the loop frame
@@ -24,6 +30,7 @@ they be held accountable for the manner in which it is used.
 	. Fixed bug where detaching and reattaching the model panel as a separate window did not work
 	. Fixed bug when trying to view the interpolation of SHP0 nodes
 	. Fixed model viewer screenshot hotkeys
+	. Fixed bug where PAT0 animations did not save texture/palette names properly
 	. Fixed bug where models no longer clipped with the floor in the model viewer
 	. Fixed bug when opening the collision editor
 	. Fixed bug where isotropic animations (isotropic means all the values are the same, so this is usually scale) were not parsed correctly
