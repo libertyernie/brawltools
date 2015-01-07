@@ -123,7 +123,7 @@ namespace BrawlBox
 
                 if (release != null && release.Count > 0 && !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture))
                 {
-                    DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                     if (UpdateResult == DialogResult.Yes)
                     {
                         DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
