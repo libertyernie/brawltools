@@ -70,9 +70,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void InitBuffer(uint size, VoidPtr address)
         {
             _dataBuffer = new UnsafeBuffer((int)size.RoundUp(4));
-            _relocations = new List<Relocation>();
 
-            for (int x = 0; x < _dataBuffer.Length / 4; x++)
+            // When an item is added to the list, increasing it past Capacity,
+            // the size of the List<T> is doubled and the array is copied behind
+            // the scenes. To avoid this being unnecessarily called here, 
+            // initialize the list with passed in capacity.
+            _relocations = new List<Relocation>(_dataBuffer.Length/4);
+
+            //TODO: Optimize or remove this step. Currently, in the largest modules,
+            // This iterates 995,216 tims. Which obviously slows everything down to 
+            // a stop.
+            for (int x = 0; x < _relocations.Capacity; x++)
                 _relocations.Add(new Relocation(this, x));
 
             Memory.Move(_dataBuffer.Address, address, size);

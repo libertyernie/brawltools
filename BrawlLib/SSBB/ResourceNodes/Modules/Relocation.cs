@@ -80,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     (_index * 4 + branchOp.DataOffset).RoundDown(4) / 4 :
                     -1;
                         Relocation r = _section.GetRelocationAtIndex(index);
-                        if(!r.Branched.Contains(this))
+                        if (!r.Branched.Contains(this))
                             r.Branched.Add(this);
                     }
 

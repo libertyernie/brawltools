@@ -796,7 +796,7 @@ namespace System.PowerPcAssembly
 
         public override string GetName()
         {
-            if (_operands[1] == _operands[2])
+            if (_operands[1].Value == _operands[2].Value)
                     return _names[1];
 
             return base.GetName();
@@ -806,7 +806,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            if (_operands[1] == _operands[2])
+            if (_operands[1].Value == _operands[2].Value)
                 return String.Format("{0},{1}", formatted);
             else
                 return String.Format("{0},{1},{2}", formatted);

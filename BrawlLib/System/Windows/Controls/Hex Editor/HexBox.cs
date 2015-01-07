@@ -2569,9 +2569,6 @@ namespace Be.Windows.Forms
 
         void GetBrushes(Relocation r, long remainder, ref Brush foreColor, ref Brush backColor)
         {
-            bool single = r.Linked.Count > 0 && r.Branched.Count == 0 
-                || (r.Branched.Count > 0 && r.Linked.Count == 0);
-
             foreColor = r.Linked.Count > 0 ? RelocationBrush :
                 r.Branched.Count > 0 ? new SolidBrush(Color.Blue) :
                 foreColor;
