@@ -1972,36 +1972,30 @@ namespace System.Windows.Forms
             _mainWindow.KeyframePanel.TargetSequence = cboNodeList.SelectedItem as ResourceNode;
         }
 
-        public void GetDimensions(out int animEditorHeight, out int animCtrlPnlHeight, out int animCtrlPnlWidth)
+        public void GetDimensions(out int animEditorHeight, out int animCtrlPnlWidth)
         {
             animEditorHeight = 0;
-            animCtrlPnlHeight = 0;
             animCtrlPnlWidth = 0;
             switch (tabIndex)
             {
                 case 0:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 70;
+                    animEditorHeight = 70;
                     animCtrlPnlWidth = 626;
                     break;
                 case 1:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 72;
+                    animEditorHeight = 72;
                     animCtrlPnlWidth = 566;
                     break;
                 case 2:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 128;
+                    animEditorHeight = 128;
                     animCtrlPnlWidth = 634;
                     break;
                 case 3:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 70;
+                    animEditorHeight = 70;
                     animCtrlPnlWidth = 566;
                     break;
                 case 4:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 120;
+                    animEditorHeight = 120;
                     animCtrlPnlWidth = 660;
                     break;
             }

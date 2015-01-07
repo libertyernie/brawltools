@@ -94,7 +94,6 @@ namespace System.Windows.Forms
             _saveIndex = -1;
         }
 
-        bool addedHeight = false;
         private void ModelEditControl_SizeChanged(object sender, EventArgs e)
         {
             CheckDimensions();
@@ -102,52 +101,65 @@ namespace System.Windows.Forms
 
         public void CheckDimensions()
         {
+            int totalWidth = animEditors.Width;
+            int w = animCtrlPnl.Width, h = animEditors.Height;
             if (_currentControl != null && _currentControl.Visible)
             {
                 if (_currentControl is CHR0Editor)
                 {
-                    animEditors.Height = 78;
-                    animCtrlPnl.Width = 582;
+                    h = 78;
+                    w = 582;
                 }
                 else if (_currentControl is SRT0Editor)
                 {
-                    animEditors.Height = 78;
-                    animCtrlPnl.Width = 483;
+                    h = 78;
+                    w = 483;
                 }
                 else if (_currentControl is SHP0Editor)
                 {
                     animEditors.Height = 106;
-                    animCtrlPnl.Width = 533;
+                    w = 533;
                 }
                 else if (_currentControl is PAT0Editor)
                 {
-                    animEditors.Height = 78;
-                    animCtrlPnl.Width = 402;
+                    h = 78;
+                    w = 402;
                 }
                 else if (_currentControl is VIS0Editor)
                 {
-                    animEditors.Height = 62;
-                    animCtrlPnl.Width = 210;
+                    h = 62;
+                    w = 210;
                 }
                 else if (_currentControl is CLR0Editor)
                 {
-                    animEditors.Height = 62;
-                    animCtrlPnl.Width = 168;
+                    h = 62;
+                    w = 168;
                 }
                 else if (_currentControl is SCN0Editor)
-                {
-                    int x, y, z;
-                    scn0Editor.GetDimensions(out x, out y, out z);
-                    animEditors.Height = x;
-                    animCtrlPnl.Height = y;
-                    animCtrlPnl.Width = z;
-                }
+                    scn0Editor.GetDimensions(out h, out w);
                 else if (!weightEditor.Visible && !vertexEditor.Visible)
-                    animEditors.Height = animCtrlPnl.Width = 0;
+                    w = h = 0;
             }
             else if (!weightEditor.Visible && !vertexEditor.Visible)
-                animEditors.Height = animCtrlPnl.Width = 0;
+                w = h = 0;
 
+            //See if the scroll bar needs to be visible
+            int addedHeight = 0;
+            if (w + pnlPlayback.MinimumSize.Width > totalWidth)
+            {
+                addedHeight = 17;
+                animEditors.HorizontalScroll.Visible = true;
+            }
+            else
+                animEditors.HorizontalScroll.Visible = false;
+
+            //Don't update the width and height every time, only if need be
+            if (animCtrlPnl.Width != w)
+                animCtrlPnl.Width = w;
+            if (animEditors.Height != h + addedHeight)
+                animEditors.Height = h + addedHeight;
+
+            //Dock playback panel if it reaches its minimum size
             if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
             {
                 pnlPlayback.Dock = DockStyle.Left;
@@ -156,36 +168,13 @@ namespace System.Windows.Forms
             else
                 pnlPlayback.Dock = DockStyle.Fill;
 
-            if (_updating)
-                return;
-
+            //Stretch playback panel if there's space
             if (animEditors.Width - animCtrlPnl.Width >= pnlPlayback.MinimumSize.Width)
             {
                 pnlPlayback.Width += animEditors.Width - animCtrlPnl.Width - pnlPlayback.MinimumSize.Width;
                 pnlPlayback.Dock = DockStyle.Fill;
             }
             else pnlPlayback.Dock = DockStyle.Left;
-
-            if (animCtrlPnl.Width + pnlPlayback.Width <= animEditors.Width)
-            {
-                if (addedHeight)
-                {
-                    _updating = true;
-                    animEditors.Height -= 17;
-                    _updating = false;
-                    animEditors.HorizontalScroll.Visible = addedHeight = false;
-                }
-            }
-            else
-            {
-                if (!addedHeight)
-                {
-                    _updating = true;
-                    animEditors.Height += 17;
-                    _updating = false;
-                    animEditors.HorizontalScroll.Visible = addedHeight = true;
-                }
-            }
         }
 
         public bool Close()
@@ -234,10 +223,9 @@ namespace System.Windows.Forms
         {
             if (_currentControl is SCN0Editor)
             {
-                int x, y, z;
-                scn0Editor.GetDimensions(out x, out y, out z);
+                int x, z;
+                scn0Editor.GetDimensions(out x, out z);
                 animEditors.Height = x;
-                animCtrlPnl.Height = y;
                 animCtrlPnl.Width = z;
             }
         }

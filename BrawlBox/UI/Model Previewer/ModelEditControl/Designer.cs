@@ -2090,7 +2090,7 @@ namespace System.Windows.Forms
             leftPanel.fileType.DataSource = _editableAnimTypes;
             TargetAnimType = NW4RAnimType.CHR;
 
-            animEditors.HorizontalScroll.Enabled = addedHeight = (!(animEditors.Width - animCtrlPnl.Width >= pnlPlayback.MinimumSize.Width));
+            animEditors.HorizontalScroll.Enabled = (!(animEditors.Width - animCtrlPnl.Width >= pnlPlayback.MinimumSize.Width));
 
             string applicationFolder = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
             ScreenCapBgLocText.Text = applicationFolder + "\\ScreenCaptures";
