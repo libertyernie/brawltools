@@ -409,7 +409,7 @@ namespace System.Windows.Forms
             if (node is CHR0Node)
                 (node as CHR0Node).Port((MDL0Node)TargetModel);
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -421,7 +421,7 @@ namespace System.Windows.Forms
             if (node is CHR0Node)
                 (node as CHR0Node).MergeWith();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void appendToolStripMenuItem_Click(object sender, EventArgs e)
@@ -441,7 +441,7 @@ namespace System.Windows.Forms
             else if (node is VIS0Node)
                 (node as VIS0Node).Append();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void resizeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -461,7 +461,7 @@ namespace System.Windows.Forms
             else if (node is VIS0Node)
                 (node as VIS0Node).Resize();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void averageAllStartEndTangentsToolStripMenuItem_Click(object sender, EventArgs e)

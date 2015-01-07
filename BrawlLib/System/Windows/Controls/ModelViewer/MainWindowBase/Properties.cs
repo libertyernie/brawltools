@@ -133,11 +133,8 @@ namespace System.Windows.Forms
             {
                 _chr0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CHR);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.CHR);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -148,11 +145,8 @@ namespace System.Windows.Forms
             {
                 _srt0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SRT);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SRT);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -163,11 +157,8 @@ namespace System.Windows.Forms
             {
                 _shp0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SHP);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SHP);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -178,11 +169,8 @@ namespace System.Windows.Forms
             {
                 _pat0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.PAT);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.PAT);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -196,8 +184,8 @@ namespace System.Windows.Forms
                 if (_updating)
                     return;
 
-                AnimChanged(NW4RAnimType.VIS);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.VIS);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -208,11 +196,8 @@ namespace System.Windows.Forms
             {
                 _scn0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SCN);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SCN);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -223,11 +208,8 @@ namespace System.Windows.Forms
             {
                 _clr0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CLR);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.CLR);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

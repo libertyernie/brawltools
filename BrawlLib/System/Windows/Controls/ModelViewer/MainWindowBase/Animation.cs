@@ -362,13 +362,21 @@ namespace System.Windows.Forms
             }
         }
 
+        /// <summary>
+        /// Updates controls when the target animation has changed.
+        /// </summary>
+        public void AnimChanged() { AnimChanged(TargetAnimType); }
+        /// <summary>
+        /// Updates controls when the target animation has changed.
+        /// Does nothing if the type does not match the current target type.
+        /// </summary>
         public void AnimChanged(NW4RAnimType type)
         {
-            if (type == TargetAnimType)
-            {
-                UpdateEditor();
-                UpdateKeyframePanel();
-            }
+            if (type != TargetAnimType && type != NW4RAnimType.None)
+                return;
+            
+            UpdateEditor();
+            UpdateKeyframePanel();
 
             NW4RAnimationNode node = GetAnimation(type);
             if (node == null)
@@ -386,6 +394,7 @@ namespace System.Windows.Forms
                 PlaybackPanel.btnFirst.Enabled =
                 PlaybackPanel.Enabled = false;
 
+                GetFiles(NW4RAnimType.None);
                 SetFrame(0);
             }
             else
@@ -403,9 +412,12 @@ namespace System.Windows.Forms
                 PlaybackPanel.numTotalFrames.Minimum = loopFrame ? 2 : 1;
                 PlaybackPanel.numFrameIndex.Maximum = (decimal)_maxFrame;
 
+                GetFiles(TargetAnimType);
                 SetFrame(1);
             }
 
+            UpdateModel();
+            UpdatePropDisplay();
             OnAnimationChanged();
         }
 
@@ -420,6 +432,11 @@ namespace System.Windows.Forms
 
         #region BRRES
 
+        /// <summary>
+        /// Retrieves corresponding animations to the target animation type.
+        /// If NW4RAnimType.None is sent as the focus type, all animations but the target animation are cleared.
+        /// </summary>
+        /// <param name="focusType"></param>
         public virtual void GetFiles(NW4RAnimType focusType)
         {
             if (focusType == NW4RAnimType.None)
@@ -448,8 +465,10 @@ namespace System.Windows.Forms
 
         public virtual void SetCorrespondingAnimation(NW4RAnimType focusType, NW4RAnimType targetType)
         {
+            _updating = true;
             NW4RAnimationNode focusFile = GetAnimation(focusType);
             SetAnimation(targetType, focusFile == null ? null : FindCorrespondingAnimation(focusFile, targetType));
+            _updating = false;
         }
 
         protected virtual NW4RAnimationNode FindCorrespondingAnimation(NW4RAnimationNode focusFile, NW4RAnimType targetType)

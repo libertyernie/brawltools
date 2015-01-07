@@ -82,10 +82,7 @@ namespace System.Windows.Forms
                     SelectedBone.BoneColor = SelectedBone.NodeColor = Color.Transparent;
 
                 leftPanel.UpdateAnimations(TargetAnimType);
-                SetAnimation(TargetAnimType, null);
-                GetFiles(NW4RAnimType.None);
-                UpdatePropDisplay();
-                UpdateModel();
+                TargetAnimation = null;
             }
             return true;
         }
@@ -94,8 +91,10 @@ namespace System.Windows.Forms
             if ((_externalAnimationsNode == null) || ((!_externalAnimationsNode.IsDirty) && !As))
                 return true;
 
+#if !DEBUG
             try
             {
+#endif
                 if (As)
                     using (SaveFileDialog d = new SaveFileDialog())
                     {
@@ -114,8 +113,11 @@ namespace System.Windows.Forms
                     _externalAnimationsNode.Export(_externalAnimationsNode._origPath);
                 }
                 return true;
+#if !DEBUG
             }
             catch (Exception x) { MessageBox.Show(this, x.ToString()); }
+#endif
+
             return false;
         }
 

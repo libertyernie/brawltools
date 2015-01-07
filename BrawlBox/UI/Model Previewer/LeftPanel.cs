@@ -845,10 +845,7 @@ namespace System.Windows.Forms
             CurrentFrame = frame;
 
             if ((_mainWindow.GetAnimation(TargetAnimType) == null) && (listAnims.SelectedItems.Count == 0))
-            {
                 _mainWindow.GetFiles(NW4RAnimType.None);
-                _mainWindow.UpdateModel();
-            }
         }
 
         public void UpdateSRT0Selection(SRT0Node selection)
@@ -1332,7 +1329,9 @@ namespace System.Windows.Forms
 
         private void listAnims_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (_closing) return;
+            if (_closing)
+                return;
+
             _updating = true;
             if (listAnims.SelectedItems.Count > 0)
             {
@@ -1342,21 +1341,10 @@ namespace System.Windows.Forms
                 if (n != null)
                     chkLoop.Checked = n.Loop;
 
-                _mainWindow.Updating = true;
-                _mainWindow.SetAnimation(TargetAnimType, n);
-                _mainWindow.Updating = false;
-
-                _mainWindow.AnimChanged(TargetAnimType);
-                _mainWindow.GetFiles(TargetAnimType);
+                _mainWindow.TargetAnimation = n;
             }
             else
-            {
-                _mainWindow.AnimChanged(NW4RAnimType.None);
-                _mainWindow.GetFiles(NW4RAnimType.None);
-            }
-
-            _mainWindow.UpdatePropDisplay();
-            _mainWindow.UpdateModel();
+                _mainWindow.TargetAnimation = null;
 
             //if (_selectedAnim != null)
             //    portToolStripMenuItem.Enabled = !_selectedAnim.IsPorted;
@@ -1565,12 +1553,8 @@ namespace System.Windows.Forms
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
             _mainWindow.TargetAnimation.Remove();
-            _mainWindow.GetFiles(NW4RAnimType.None);
+            _mainWindow.TargetAnimation = null;
             UpdateAnimations();
-            _mainWindow.UpdatePropDisplay();
-            _mainWindow.UpdateModel();
-            _mainWindow.AnimChanged(NW4RAnimType.None);
-            _mainWindow.ModelPanel.Invalidate();
         }
 
         private void chkLoop_CheckedChanged(object sender, EventArgs e)
