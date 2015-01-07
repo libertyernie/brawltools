@@ -106,7 +106,9 @@ namespace BrawlBox
         {
             try
             {
-                string version = Program.AssemblyTitle.Substring(Program.AssemblyTitle.LastIndexOf('.') - 2).TrimEnd(' ');
+                //I now realize that sometimes this will have to be different than the title
+                //Make sure this matches the tag name of the release on github exactly
+                string version = "v0.74b1";
 
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
                 IReadOnlyList<Release> release = null;
