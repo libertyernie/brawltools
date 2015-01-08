@@ -129,7 +129,9 @@ namespace System.Windows.Forms
             {
                 if (InterpolationEditor != null && InterpolationEditor.Visible)
                     InterpolationEditor.Frame = CurrentFrame;
-                KeyframePanel.numFrame_ValueChanged();
+
+                if (KeyframePanel != null)
+                    KeyframePanel.numFrame_ValueChanged();
             }
         }
 
@@ -205,7 +207,9 @@ namespace System.Windows.Forms
 
             if (InterpolationEditor != null && InterpolationEditor.Visible)
                 InterpolationEditor.Frame = CurrentFrame;
-            KeyframePanel.numFrame_ValueChanged();
+
+            if (KeyframePanel != null)
+                KeyframePanel.numFrame_ValueChanged();
 
             if (_capture)
             {
@@ -226,14 +230,14 @@ namespace System.Windows.Forms
         {
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: CHR0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SRT: SRT0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SHP: SHP0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.PAT: PAT0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SCN: SCN0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.CLR: CLR0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CHR: if (CHR0Editor != null) CHR0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SRT: if (SRT0Editor != null) SRT0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SHP: if (SHP0Editor != null) SHP0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.PAT: if (PAT0Editor != null) PAT0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.SCN: if (SCN0Editor != null) SCN0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CLR: if (CLR0Editor != null) CLR0Editor.UpdatePropDisplay(); break;
                 case NW4RAnimType.VIS:
-                    if (KeyframePanel.visEditor.TargetNode != null && !((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Constant)
+                    if (KeyframePanel != null && KeyframePanel.visEditor.TargetNode != null && !((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Constant)
                     {
                         KeyframePanel.visEditor._updating = true;
                         KeyframePanel.visEditor.listBox1.SelectedIndices.Clear();
@@ -249,7 +253,7 @@ namespace System.Windows.Forms
         /// Applies animations to all models and invalidates the viewport.
         /// Also updates animation controls if not playing.
         /// </summary>
-        public void UpdateModel()
+        public virtual void UpdateModel()
         {
             if (_updating)
                 return;
@@ -303,7 +307,11 @@ namespace System.Windows.Forms
         public void UpdateKeyframePanel() { UpdateKeyframePanel(TargetAnimType); }
         public virtual void UpdateKeyframePanel(NW4RAnimType type)
         {
+            if (KeyframePanel == null)
+                return;
+
             KeyframePanel.TargetSequence = null;
+
             //btnRightToggle.Enabled = true;
             switch (type)
             {

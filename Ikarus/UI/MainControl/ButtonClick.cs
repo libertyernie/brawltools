@@ -22,6 +22,9 @@ namespace Ikarus.UI
 {
     public partial class MainControl : ModelEditorBase
     {
+        private void btnUndo_Click(object sender, EventArgs e) { Undo(); }
+        private void btnRedo_Click(object sender, EventArgs e) { Redo(); }
+
         private void ScreenCapBgLocText_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog d = new FolderBrowserDialog())
@@ -137,13 +140,11 @@ namespace Ikarus.UI
                 showRight.Checked = false;
         }
 
-        public bool _capture = false;
-        public List<Image> images = new List<Image>();
         public void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
             SetFrame(1);
             images = new List<Image>();
-            RunTime._loop = false;
+            Loop = false;
             _capture = true;
             Enabled = false;
             ModelPanel.Enabled = false;
@@ -459,15 +460,6 @@ namespace Ikarus.UI
             if (dlgColor.ShowDialog(this) == DialogResult.OK)
                 modelPanel.BackColor = ClearColor = dlgColor.Color;
         }
-        
-        private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog d = new OpenFileDialog();
-            d.Filter = "All Compatible Files (*.pac, *.pcs, *.brres, *.mrg, *.arc, *.szs,  *.mdl0)|*.pac;*.pcs;*.brres;*.mrg;*.arc;*.szs;*.mdl0";
-            d.Title = "Select a file to open";
-            if (d.ShowDialog() == DialogResult.OK)
-                OpenFile(d.FileName);
-        }
 
         private void toggleBonesToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -500,7 +492,7 @@ namespace Ikarus.UI
 
         private void hideFromSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCam = false;
+            _resetCamera = false;
 
             modelPanel.RemoveTarget(TargetModel);
 
@@ -512,7 +504,7 @@ namespace Ikarus.UI
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCam = false;
+            _resetCamera = false;
 
             modelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);

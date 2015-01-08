@@ -32,7 +32,7 @@ namespace Ikarus
 
             _openDlg = new OpenFileDialog();
             _saveDlg = new SaveFileDialog();
-            _folderDlg = new FolderBrowserDialog();
+            _folderDlg = new FolderSelectDialog();
         }
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace Ikarus
         public static string RootPath = null;
         public static bool OpenRoot(string basePath)
         {
-            _folderDlg.Description = "Choose the root folder of all Brawl files.";
+            //_folderDlg.Description = "Choose the root folder of all Brawl files.";
             return OpenRootFromPath(ChooseFolder(basePath));
         }
 
@@ -97,14 +97,18 @@ namespace Ikarus
         {
             if (!String.IsNullOrEmpty(path))
             {
+#if !DEBUG
                 try
                 {
+#endif
                     Manager.CloseRoot();
                     RootPath = path;
                     Manager.OpenRoot(path);
                     return true;
+#if !DEBUG
                 }
                 catch (Exception x) { Say(x.ToString()); }
+#endif
             }
             return false;
         }

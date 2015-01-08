@@ -132,7 +132,7 @@ namespace Ikarus.MovesetFile
         /// <summary>
         /// Provides easy access to the model that this moveset will affect.
         /// </summary>
-        public MDL0Node Model { get { return MainForm.Instance._mainControl.TargetModel; } }
+        public MDL0Node Model { get { return MainForm.Instance._mainControl.TargetModel as MDL0Node; } }
 
         internal List<MovesetEntryNode> _postProcessEntries;
         internal List<List<int>>[] _scriptOffsets;

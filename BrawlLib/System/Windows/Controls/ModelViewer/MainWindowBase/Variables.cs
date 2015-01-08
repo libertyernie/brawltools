@@ -64,12 +64,12 @@ namespace System.Windows.Forms
         protected bool _rotating, _translating, _scaling;
         protected bool _snapX, _snapY, _snapZ, _snapCirc;
         protected bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
-        protected bool _resetCamera = true;
+        public bool _resetCamera = true;
         protected bool _enableTransform = true;
         protected bool _playing = false;
         protected bool _bonesWereOff = false;
         protected bool _renderLightDisplay = false;
-        protected bool _capture = false;
+        public bool _capture = false;
 
         public static Color _floorHue = Color.FromArgb(255, 128, 128, 191);
         public Color _clearColor;

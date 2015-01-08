@@ -29,8 +29,11 @@ namespace System.Windows.Forms
             _timer = new CoolTimer();
             _timer.RenderFrame += _timer_RenderFrame;
 
-            KeyframePanel.visEditor.EntryChanged += new EventHandler(VISEntryChanged);
-            KeyframePanel.visEditor.IndexChanged += new EventHandler(VISIndexChanged);
+            if (KeyframePanel != null)
+            {
+                KeyframePanel.visEditor.EntryChanged += new EventHandler(VISEntryChanged);
+                KeyframePanel.visEditor.IndexChanged += new EventHandler(VISIndexChanged);
+            }
 
             ModelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(this.modelPanel1_PreRender));
             ModelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(this.modelPanel1_PostRender));
@@ -175,7 +178,7 @@ namespace System.Windows.Forms
                 PlaybackPanel.Dock = DockStyle.Fill;
         }
 
-        public void numFrameIndex_ValueChanged(object sender, EventArgs e)
+        public virtual void numFrameIndex_ValueChanged(object sender, EventArgs e)
         {
             int val = (int)PlaybackPanel.numFrameIndex.Value;
             if (val != _animFrame)
@@ -185,17 +188,17 @@ namespace System.Windows.Forms
                     SetFrame(_animFrame += difference);
             }
         }
-        public void numFPS_ValueChanged(object sender, EventArgs e)
+        public virtual void numFPS_ValueChanged(object sender, EventArgs e)
         {
             _timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value;
         }
-        public void chkLoop_CheckedChanged(object sender, EventArgs e)
+        public virtual void chkLoop_CheckedChanged(object sender, EventArgs e)
         {
             _loop = PlaybackPanel.chkLoop.Checked;
             //if (TargetAnimation != null)
             //    TargetAnimation.Loop = _loop;
         }
-        public void numTotalFrames_ValueChanged(object sender, EventArgs e)
+        public virtual void numTotalFrames_ValueChanged(object sender, EventArgs e)
         {
             if ((TargetAnimation == null) || (_updating))
                 return;

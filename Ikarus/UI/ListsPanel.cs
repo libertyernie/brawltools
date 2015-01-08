@@ -511,7 +511,7 @@ namespace Ikarus.UI
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone as MDL0BoneNode; } set { _mainWindow.SelectedBone = value; } }
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef
@@ -534,7 +534,7 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel
         {
-            get { return _mainWindow.TargetModel; }
+            get { return _mainWindow.TargetModel as MDL0Node; }
             set { _mainWindow.TargetModel = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -1002,28 +1002,19 @@ namespace Ikarus.UI
                 string r = RunTime.CurrentSubaction._animationName;
                 if (_animations.ContainsKey(r))
                 {
-                    _mainWindow._updating = true;
-                    if (_animations[r].ContainsKey(TargetAnimType))
-                        _mainWindow.SetSelectedBRRESFile(TargetAnimType, _animations[r][TargetAnimType]);
-                    createNewToolStripMenuItem.Text = String.Format("Create New {0}", TargetAnimType.ToString() + "0");
-                    _mainWindow._updating = false;
-                    _mainWindow.GetFiles(TargetAnimType);
+                    var x = _animations[r];
+                    foreach (var c in x)
+                        _mainWindow.SetAnimation(c.Value);
                     _mainWindow.AnimChanged(TargetAnimType);
+                    //if (_animations[r].ContainsKey(TargetAnimType))
+                    //    _mainWindow.TargetAnimation = _animations[r][TargetAnimType];
+                    createNewToolStripMenuItem.Text = String.Format("Create New {0}", TargetAnimType.ToString() + "0");
                 }
                 else
-                {
-                    _mainWindow.GetFiles(NW4RAnimType.None);
-                    _mainWindow.SetSelectedBRRESFile(TargetAnimType, null);
-                }
+                    _mainWindow.TargetAnimation = null;
             }
             else
-            {
-                _mainWindow.GetFiles(NW4RAnimType.None);
-                _mainWindow.UpdateModel();
-                _mainWindow.AnimChanged(NW4RAnimType.None);
-            }
-
-            _mainWindow.UpdatePropDisplay();
+                _mainWindow.TargetAnimation = null;
 
             _mainWindow.Updating = true;
             RunTime.Loop = RunTime.CurrentSubaction._flags.HasFlag(AnimationFlags.Loop);
@@ -1065,7 +1056,9 @@ namespace Ikarus.UI
             if (_closing)
                 return;
 
-            RunTime.CurrentSubRoutine = (EntryOverridesList.SelectedItem as ActionOverrideEntry)._script;
+            ActionOverrideEntry r = EntryOverridesList.SelectedItem as ActionOverrideEntry;
+            if (r != null)
+                RunTime.CurrentSubRoutine = r._script;
         }
 
         private void ExitOverridesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -1073,7 +1066,9 @@ namespace Ikarus.UI
             if (_closing)
                 return;
 
-            RunTime.CurrentSubRoutine = (ExitOverridesList.SelectedItem as ActionOverrideEntry)._script;
+            ActionOverrideEntry r = ExitOverridesList.SelectedItem as ActionOverrideEntry;
+            if (r != null)
+                RunTime.CurrentSubRoutine = r._script;
         }
 
         private void FlashOverlayList_SelectedIndexChanged(object sender, EventArgs e)

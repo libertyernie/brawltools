@@ -134,27 +134,31 @@ namespace Ikarus.MovesetFile
             {
                 SubActionEntry sg;
                 sSubActionFlags* sflags = (sSubActionFlags*)Address(hdr[4]);
-                size = _root.GetSize(hdr[6]);
-                count = size / 4;
-                for (int z = 0; z < count; z++)
-                {
-                    sSubActionFlags flag = sflags[z];
-                    _subActions.Add(sg = new SubActionEntry(flag, flag._stringOffset > 0 ? new String((sbyte*)Address(flag._stringOffset)) : "<null>", z));
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    int x = hdr[6 + i];
-                    if (x <= 0)
-                        continue;
 
-                    actionOffset = (bint*)Address(x);
+                if (hdr[6] > 1480)
+                {
+                    size = _root.GetSize(hdr[6]);
+                    count = size / 4;
                     for (int z = 0; z < count; z++)
                     {
-                        if (actionOffset[z] > 0)
-                            s = Parse<Script>(actionOffset[z], this);
-                        else
-                            s = new Script(this);
-                        _subActions[z].SetWithType(i, s);
+                        sSubActionFlags flag = sflags[z];
+                        _subActions.Add(sg = new SubActionEntry(flag, flag._stringOffset > 0 ? new String((sbyte*)Address(flag._stringOffset)) : "<null>", z));
+                    }
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int x = hdr[6 + i];
+                        if (x <= 0)
+                            continue;
+
+                        actionOffset = (bint*)Address(x);
+                        for (int z = 0; z < count; z++)
+                        {
+                            if (actionOffset[z] > 0)
+                                s = Parse<Script>(actionOffset[z], this);
+                            else
+                                s = new Script(this);
+                            _subActions[z].SetWithType(i, s);
+                        }
                     }
                 }
             }

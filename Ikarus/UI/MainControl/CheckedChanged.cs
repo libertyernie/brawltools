@@ -159,7 +159,7 @@ namespace Ikarus.UI
 
         private void enableTextOverlaysToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel._textEnabled = enableTextOverlaysToolStripMenuItem.Checked;
+            modelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
         }
 
         private void enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -174,50 +174,26 @@ namespace Ikarus.UI
 
         private void rotationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (rotationToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                scaleToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
-                _editType = TransformType.Rotation;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                modelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = rotationToolStripMenuItem.Checked ? TransformType.Rotation : TransformType.None;
         }
 
         private void translationToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (translationToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                rotationToolStripMenuItem.Checked = scaleToolStripMenuItem.Checked = false;
-                _editType = TransformType.Translation;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                modelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = translationToolStripMenuItem.Checked ? TransformType.Translation : TransformType.None;
         }
 
         private void scaleToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            if (_updating) return;
-            if (scaleToolStripMenuItem.Checked)
-            {
-                _updating = true;
-                rotationToolStripMenuItem.Checked = translationToolStripMenuItem.Checked = false;
-                _editType = TransformType.Scale;
-                _snapCirc = _snapX = _snapY = _snapZ = false;
-                _updating = false;
-                modelPanel.Invalidate();
-            }
-            else if (translationToolStripMenuItem.Checked == rotationToolStripMenuItem.Checked == scaleToolStripMenuItem.Checked)
-                _editType = TransformType.None;
+            if (_updating)
+                return;
+
+            ControlType = scaleToolStripMenuItem.Checked ? TransformType.Scale : TransformType.None;
         }
         //private void displayBRRESRelativeAnimationsToolStripMenuItem_CheckStateChanged(object sender, EventArgs e)
         //{
@@ -301,13 +277,13 @@ namespace Ikarus.UI
         }
 
         public ScriptPanel MovesetPanel { get { return scriptPanel.scriptPanel; } }
-        public void numFPS_ValueChanged(object sender, EventArgs e) 
+        public override void numFPS_ValueChanged(object sender, EventArgs e) 
         {
-            RunTime._timer.TargetRenderFrequency = (double)pnlPlayback.numFPS.Value; 
+            RunTime._timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value; 
         }
-        public void chkLoop_CheckedChanged(object sender, EventArgs e) 
+        public override void chkLoop_CheckedChanged(object sender, EventArgs e) 
         {
-            RunTime._loop = pnlPlayback.chkLoop.Checked;
+            RunTime.Loop = PlaybackPanel.chkLoop.Checked;
             if (syncLoopToAnimationToolStripMenuItem.Checked && !_updating)
                 GetAnimation(TargetAnimType).Loop = Loop;
         }
@@ -339,7 +315,7 @@ namespace Ikarus.UI
 
         public void SelectedPolygonChanged(object sender, EventArgs e) 
         {
-            _targetModel._selectedObjectIndex = _targetModel._objList.IndexOf(modelListsPanel1.SelectedPolygon);
+            _targetModel.SelectedObjectIndex = _targetModel.Objects.IndexOf(modelListsPanel1.SelectedPolygon);
 
             if (modelListsPanel1._syncObjTex)
                 modelListsPanel1.UpdateTextures();
@@ -363,33 +339,33 @@ namespace Ikarus.UI
             modelPanel.Invalidate(); 
         }
 
-        public void numTotalFrames_ValueChanged(object sender, EventArgs e)
-        {
-            if ((GetAnimation(TargetAnimType) == null) || (_updating))
-                return;
+        //public void numTotalFrames_ValueChanged(object sender, EventArgs e)
+        //{
+        //    if ((GetAnimation(TargetAnimType) == null) || (_updating))
+        //        return;
 
-            MaxFrame = (int)pnlPlayback.numTotalFrames.Value;
+        //    MaxFrame = (int)pnlPlayback.numTotalFrames.Value;
 
-            //AnimationNode n;
-            //if (alwaysSyncFrameCountsToolStripMenuItem.Checked)
-            //    for (int i = 0; i < 5; i++)
-            //        if ((n = GetAnimation((AnimType)i)) != null) 
-            //            //if (i == 5) ((BRESEntryNode)n).tFrameCount = _maxFrame - 1; else 
-            //            n.FrameCount = _maxFrame;
-            //        else { }
-            //else
-            //{
-            //    if ((n = GetAnimation(TargetAnimType)) != null)
-            //        n.FrameCount = _maxFrame;
-            //    if (displayFrameCountDifferencesToolStripMenuItem.Checked)
-            //        if (MessageBox.Show("Do you want to update the frame counts of the other animation types?", "Update Frame Counts?", MessageBoxButtons.YesNo) == DialogResult.Yes)
-            //        for (int i = 0; i < 5; i++)
-            //            if (i != (int)TargetAnimType && (n = GetAnimation((AnimType)i)) != null)
-            //                n.FrameCount = _maxFrame;
-            //}
+        //    //AnimationNode n;
+        //    //if (alwaysSyncFrameCountsToolStripMenuItem.Checked)
+        //    //    for (int i = 0; i < 5; i++)
+        //    //        if ((n = GetAnimation((AnimType)i)) != null) 
+        //    //            //if (i == 5) ((BRESEntryNode)n).tFrameCount = _maxFrame - 1; else 
+        //    //            n.FrameCount = _maxFrame;
+        //    //        else { }
+        //    //else
+        //    //{
+        //    //    if ((n = GetAnimation(TargetAnimType)) != null)
+        //    //        n.FrameCount = _maxFrame;
+        //    //    if (displayFrameCountDifferencesToolStripMenuItem.Checked)
+        //    //        if (MessageBox.Show("Do you want to update the frame counts of the other animation types?", "Update Frame Counts?", MessageBoxButtons.YesNo) == DialogResult.Yes)
+        //    //        for (int i = 0; i < 5; i++)
+        //    //            if (i != (int)TargetAnimType && (n = GetAnimation((AnimType)i)) != null)
+        //    //                n.FrameCount = _maxFrame;
+        //    //}
 
-            pnlPlayback.numFrameIndex.Maximum = MaxFrame;
-        }
+        //    pnlPlayback.numFrameIndex.Maximum = MaxFrame;
+        //}
         private void showAssets_CheckedChanged(object sender, EventArgs e)
         {
             panel1.Visible = spltLeft.Visible = showLeft.Checked;
@@ -450,7 +426,7 @@ namespace Ikarus.UI
             if (_updating)
                 return;
 
-            _resetCam = false;
+            _resetCamera = false;
 
             Manager.TargetCharacter = (CharName)Enum.Parse(typeof(CharName), comboCharacters.SelectedItem.ToString());
 
@@ -474,7 +450,7 @@ namespace Ikarus.UI
         private void boundingBoxToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                RenderBox = boundingBoxToolStripMenuItem.Checked;
+                RenderModelBox = boundingBoxToolStripMenuItem.Checked;
         }
 
         private void chkDontRenderOffscreen_CheckedChanged(object sender, EventArgs e)

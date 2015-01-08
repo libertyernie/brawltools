@@ -239,7 +239,7 @@ namespace Ikarus
 
         private void LoadEtcFiles(ARCNode etc, ref Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> files)
         {
-            etc.Populate();
+            //etc.Populate();
             files = new Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>>();
             foreach (ARCEntryNode e in etc.Children)
             {

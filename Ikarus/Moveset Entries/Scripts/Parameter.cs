@@ -596,7 +596,7 @@ namespace Ikarus.MovesetFile
             _val = GetRequirement(Data);
         }
 
-        public override float RealValue
+        public override double RealValue
         {
             get
             {

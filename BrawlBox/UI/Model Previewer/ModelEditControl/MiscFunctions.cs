@@ -117,7 +117,7 @@ namespace System.Windows.Forms
                 }
                 else if (_currentControl is SHP0Editor)
                 {
-                    animEditors.Height = 106;
+                    h = 106;
                     w = 533;
                 }
                 else if (_currentControl is PAT0Editor)

@@ -232,14 +232,23 @@ namespace System.Windows.Forms
                     return;
 
                 _enableTransform = value;
-                CHR0Editor.Enabled =
-                SRT0Editor.Enabled =
-                SHP0Editor.Enabled =
-                VIS0Editor.Enabled =
-                PAT0Editor.Enabled =
-                SCN0Editor.Enabled =
-                CLR0Editor.Enabled =
-                KeyframePanel.Enabled = value;
+
+                if (CHR0Editor != null)
+                    CHR0Editor.Enabled = value;
+                if (SRT0Editor != null)
+                    SRT0Editor.Enabled = value;
+                if (SHP0Editor != null)
+                    SHP0Editor.Enabled = value;
+                if (VIS0Editor != null)
+                    VIS0Editor.Enabled = value;
+                if (PAT0Editor != null)
+                    PAT0Editor.Enabled = value;
+                if (SCN0Editor != null)
+                    SCN0Editor.Enabled = value;
+                if (CLR0Editor != null)
+                    CLR0Editor.Enabled = value;
+                if (KeyframePanel != null)
+                    KeyframePanel.Enabled = value;
                 if (InterpolationEditor != null && InterpolationEditor.Visible)
                     InterpolationEditor.Enabled = value;
 
@@ -357,7 +366,7 @@ namespace System.Windows.Forms
                 if (BonesPanel != null)
                     BonesPanel.SetSelectedBone(_selectedBone);
 
-                if (TargetAnimType == NW4RAnimType.CHR)
+                if (TargetAnimType == NW4RAnimType.CHR && KeyframePanel != null)
                     KeyframePanel.TargetSequence =
                         _chr0 != null && _selectedBone != null ?
                         _chr0.FindChild(_selectedBone.Name, false) :

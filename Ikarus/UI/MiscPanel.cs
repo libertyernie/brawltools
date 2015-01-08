@@ -526,7 +526,7 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel
         {
-            get { return _mainWindow.TargetModel; }
+            get { return _mainWindow.TargetModel as MDL0Node; }
             set { _mainWindow.TargetModel = value; UpdateModel(); }
         }
 

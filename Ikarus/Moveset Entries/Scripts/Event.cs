@@ -303,12 +303,17 @@ namespace Ikarus.MovesetFile
             _numArgs = e->_numArguments;
             _unknown = e->_unk1;
 
-            //Merge values to create ID and match with events to get name
-            _event = uint.Parse(String.Format("{0:X02}{1:X02}{2:X02}{3:X02}", _nameSpace, _id, _numArgs, 0), System.Globalization.NumberStyles.HexNumber);
+            _event = *(buint*)address;
+
             if (Manager.Events.ContainsKey(_event))
                 _name = Manager.Events[_event]._name;
+            if (Manager.Events.ContainsKey(_event & 0xFFFFFF00))
+                _name = Manager.Events[_event & 0xFFFFFF00]._name;
             else 
                 _name = Helpers.Hex8(_event);
+
+            if (_name == "FADEF00D" || _name == "FADE0D8A")
+                return;
 
             sParameter* args = (sParameter*)Address((int)e->_argumentOffset);
             for (int i = 0; i < _numArgs; i++)
@@ -635,7 +640,7 @@ namespace Ikarus.MovesetFile
             if (_event == 0x06150F00)
                 specialFlags = ev[14] as SpecialHitboxFlagsNode;
             if ((_articleIndex = articleIndex) < 0)
-                _model = RunTime.MainWindow.TargetModel;
+                _model = RunTime.MainWindow.TargetModel as MDL0Node;
             else
                 _model = RunTime._articles[_articleIndex]._model;
             _parameters = ev.Select(x => x.Data).ToArray();

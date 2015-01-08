@@ -277,7 +277,7 @@ namespace Ikarus.ModelViewer
                 }
 
             //Reset model visiblity to its default state
-            if (MainWindow.TargetModel != null && MainWindow.TargetModel._objList != null && Manager.Moveset != null)
+            if (MainWindow.TargetModel != null && MainWindow.TargetModel.Objects.Length > 0 && Manager.Moveset != null)
             {
                 ModelVisibility node = Manager.Moveset.Data._modelVis;
                 if (node.Count != 0)
@@ -344,7 +344,7 @@ namespace Ikarus.ModelViewer
             bool forward = oldFrame == frame - 1;
 
             //Reset only if the on the first frame or the animation is going backward
-            if (frame <= 0 || (!_playing && !forward))
+            if (frame <= 0 || (!Playing && !forward))
                 ResetSubactionVariables();
 
             //The next two things work for editing, but are technically wrong for emulation.
@@ -365,7 +365,7 @@ namespace Ikarus.ModelViewer
                     if (a != null && a.Running)
                         a.SetFrame(frame);
 
-            if (MainWindow._capture && _playing)
+            if (MainWindow._capture && Playing)
                 MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(false));
         }
 
@@ -404,18 +404,23 @@ namespace Ikarus.ModelViewer
 
         #region Rendering
 
-        public static int CurrentFrame 
+        public static int CurrentFrame
         {
-            get { return _animFrame; }
-            set { _animFrame = value; MainWindow.ApplyFrame(); }
+            get { return MainWindow.CurrentFrame; }
+            set
+            {
+                MainWindow.CurrentFrame = value;
+                MainWindow.UpdatePropDisplay();
+                MainWindow.UpdatePlaybackPanel();
+            }
         }
 
-        public static int MaxFrame { get { return _maxFrame; } set { _maxFrame = value; } }
-        public static bool Loop { get { return _loop; } set { _loop = value; } }
-        public static bool Playing { get { return _playing; } set { _playing = value; MainWindow.pnlPlayback.btnPlay.Text = _playing ? "Stop" : "Play"; } }
+        public static int MaxFrame { get { return MainWindow.MaxFrame; } set { MainWindow.MaxFrame = value; } }
+        public static bool Loop { get { return MainWindow.Loop; } set { MainWindow.Loop = value; } }
+        public static bool Playing { get { return MainWindow.Playing; } set { MainWindow.Playing = value; MainWindow.pnlPlayback.btnPlay.Text = Playing ? "Stop" : "Play"; } }
 
-        public static int _animFrame = -1, _maxFrame;
-        public static bool _loop, _playing;
+        //public static int _animFrame = -1, _maxFrame;
+        //public static bool _loop, _playing;
 
         private static void RenderFrame(object sender, FrameEventArgs e)
         {

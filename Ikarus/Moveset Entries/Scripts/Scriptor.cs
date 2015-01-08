@@ -432,7 +432,7 @@ namespace Ikarus.ModelViewer
                         break;
                     articleInfo = RunTime._articles[id];
                     if (articleInfo != null && articleInfo._model != null)
-                        articleInfo._model._attached = p[1] != 0;
+                        articleInfo._model.IsRendering = p[1] != 0;
                     break;
                 case 0x01010000: //Loop Rest
                     _waitFrames = 1;
@@ -681,9 +681,9 @@ namespace Ikarus.ModelViewer
                     break;
                 case 0x0B020100: //Model visibility
                     if (Article == null)
-                        Root.Model._attached = p[0] != 0;
+                        Root.Model.IsRendering = p[0] != 0;
                     else if (Article.Index < RunTime._articles.Length && RunTime._articles[Article.Index]._model != null)
-                        RunTime._articles[Article.Index]._model._attached = p[0] != 0;
+                        RunTime._articles[Article.Index]._model.IsRendering = p[0] != 0;
                     break;
                 case 0x0D000200: //Concurrent Infinite Loop
                     index = p[0];
@@ -740,7 +740,7 @@ namespace Ikarus.ModelViewer
                         if (articleInfo._model != null)
                         {
                             main.RemoveTarget(articleInfo._model);
-                            articleInfo._model._attached = false;
+                            articleInfo._model.Detach();
                         }
 
                         //This article is no longer available for use
@@ -754,16 +754,8 @@ namespace Ikarus.ModelViewer
                         //Add the article's model to the scene
                         if (articleInfo._model != null)
                         {
-                            main.AddTarget(articleInfo._model);
-                            articleInfo._model._attached = true;
-
-                            articleInfo._model._renderBones = RunTime.MainWindow._renderBones;
-                            articleInfo._model._renderWireframe = RunTime.MainWindow._renderWireframe;
-                            articleInfo._model._renderPolygons = RunTime.MainWindow._renderPolygons;
-                            articleInfo._model._renderVertices = RunTime.MainWindow._renderVertices;
-                            articleInfo._model._renderBox = RunTime.MainWindow._renderBox;
-                            articleInfo._model._renderNormals = RunTime.MainWindow._renderNormals;
-                            articleInfo._model._dontRenderOffscreen = RunTime.MainWindow._dontRenderOffscreen;
+                            main.AppendTarget(articleInfo._model);
+                            articleInfo._model.Attach();
                         }
 
                         //This article is now available for use

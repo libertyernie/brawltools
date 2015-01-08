@@ -257,9 +257,6 @@
     <Compile Include="UI\MainControl\Rendering.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\MainControl\Undo.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\MainControl\Variables.cs">
       <SubType>UserControl</SubType>
     </Compile>

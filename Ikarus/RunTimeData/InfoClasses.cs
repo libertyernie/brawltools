@@ -186,7 +186,7 @@ namespace Ikarus.ModelViewer
             get { return _running; } 
             set { _running = value; }
         }
-        public bool ModelVisible { get { return _model == null ? false : _model._attached; } set { if (_model == null) return; _model._attached = value; } }
+        public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }
 
         public void UpdateModel()
         {

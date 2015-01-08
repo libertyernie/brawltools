@@ -100,6 +100,7 @@ namespace System.Windows.Forms
             // 
             this.lstBones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstBones.FormattingEnabled = true;
+            this.lstBones.IntegralHeight = false;
             this.lstBones.Location = new System.Drawing.Point(0, 21);
             this.lstBones.Name = "lstBones";
             this.lstBones.Size = new System.Drawing.Size(160, 373);

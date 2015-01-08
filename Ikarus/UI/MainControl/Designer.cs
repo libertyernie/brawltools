@@ -153,7 +153,6 @@ namespace Ikarus.UI
 
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainControl));
             this.dlgColor = new System.Windows.Forms.ColorDialog();
             this.btnBottomToggle = new System.Windows.Forms.Button();
             this.spltLeft = new System.Windows.Forms.Splitter();
@@ -165,6 +164,7 @@ namespace Ikarus.UI
             this.pathToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnLoadChar = new System.Windows.Forms.ToolStripMenuItem();
             this.saveAllFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveTextInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnUndo = new System.Windows.Forms.ToolStripMenuItem();
             this.btnRedo = new System.Windows.Forms.ToolStripMenuItem();
@@ -262,7 +262,7 @@ namespace Ikarus.UI
             this.animEditors = new System.Windows.Forms.Panel();
             this.pnlPlayback = new System.Windows.Forms.ModelPlaybackPanel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.hurtboxEditor = new HurtboxEditor();
+            this.hurtboxEditor = new Ikarus.UI.HurtboxEditor();
             this.vis0Editor = new System.Windows.Forms.VIS0Editor();
             this.pat0Editor = new System.Windows.Forms.PAT0Editor();
             this.shp0Editor = new System.Windows.Forms.SHP0Editor();
@@ -270,15 +270,14 @@ namespace Ikarus.UI
             this.chr0Editor = new System.Windows.Forms.CHR0Editor();
             this.clr0Editor = new System.Windows.Forms.CLR0Editor();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.scriptPanel = new EditorPanel();
+            this.scriptPanel = new Ikarus.UI.EditorPanel();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.listPanel = new ListsPanel();
+            this.listPanel = new Ikarus.UI.ListsPanel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.spltRight = new System.Windows.Forms.Splitter();
-            this.modelListsPanel1 = new ModelListsPanel();
-            this.saveTextInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.modelListsPanel1 = new Ikarus.UI.ModelListsPanel();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -299,7 +298,7 @@ namespace Ikarus.UI
             this.btnBottomToggle.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.btnBottomToggle.Location = new System.Drawing.Point(0, 495);
             this.btnBottomToggle.Name = "btnBottomToggle";
-            this.btnBottomToggle.Size = new System.Drawing.Size(379, 18);
+            this.btnBottomToggle.Size = new System.Drawing.Size(519, 18);
             this.btnBottomToggle.TabIndex = 8;
             this.btnBottomToggle.TabStop = false;
             this.btnBottomToggle.UseVisualStyleBackColor = false;
@@ -308,7 +307,7 @@ namespace Ikarus.UI
             // spltLeft
             // 
             this.spltLeft.BackColor = System.Drawing.SystemColors.Control;
-            this.spltLeft.Location = new System.Drawing.Point(368, 24);
+            this.spltLeft.Location = new System.Drawing.Point(228, 24);
             this.spltLeft.Name = "spltLeft";
             this.spltLeft.Size = new System.Drawing.Size(4, 513);
             this.spltLeft.TabIndex = 9;
@@ -319,7 +318,7 @@ namespace Ikarus.UI
             this.btnTopToggle.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnTopToggle.Location = new System.Drawing.Point(0, 0);
             this.btnTopToggle.Name = "btnTopToggle";
-            this.btnTopToggle.Size = new System.Drawing.Size(379, 18);
+            this.btnTopToggle.Size = new System.Drawing.Size(519, 18);
             this.btnTopToggle.TabIndex = 11;
             this.btnTopToggle.TabStop = false;
             this.btnTopToggle.UseVisualStyleBackColor = false;
@@ -335,7 +334,7 @@ namespace Ikarus.UI
             this.kinectToolStripMenuItem1});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(242, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(150, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -356,7 +355,7 @@ namespace Ikarus.UI
             this.btnLoadChar});
             this.newSceneToolStripMenuItem.Name = "newSceneToolStripMenuItem";
             this.newSceneToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.N)));
-            this.newSceneToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.newSceneToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.newSceneToolStripMenuItem.Text = "Load";
             // 
             // btnLoadRoot
@@ -385,9 +384,16 @@ namespace Ikarus.UI
             // saveAllFilesToolStripMenuItem
             // 
             this.saveAllFilesToolStripMenuItem.Name = "saveAllFilesToolStripMenuItem";
-            this.saveAllFilesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.saveAllFilesToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
             this.saveAllFilesToolStripMenuItem.Text = "Save All Files";
             this.saveAllFilesToolStripMenuItem.Click += new System.EventHandler(this.saveAllFilesToolStripMenuItem_Click);
+            // 
+            // saveTextInfoToolStripMenuItem
+            // 
+            this.saveTextInfoToolStripMenuItem.Name = "saveTextInfoToolStripMenuItem";
+            this.saveTextInfoToolStripMenuItem.Size = new System.Drawing.Size(147, 22);
+            this.saveTextInfoToolStripMenuItem.Text = "Save Text Info";
+            this.saveTextInfoToolStripMenuItem.Click += new System.EventHandler(this.saveTextInfoToolStripMenuItem_Click);
             // 
             // editToolStripMenuItem
             // 
@@ -1082,6 +1088,7 @@ namespace Ikarus.UI
             this.comboCharacters.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.comboCharacters.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboCharacters.Enabled = false;
             this.comboCharacters.FormattingEnabled = true;
             this.comboCharacters.Items.AddRange(new object[] {
             "All"});
@@ -1090,7 +1097,6 @@ namespace Ikarus.UI
             this.comboCharacters.Size = new System.Drawing.Size(120, 21);
             this.comboCharacters.TabIndex = 21;
             this.comboCharacters.SelectedIndexChanged += new System.EventHandler(this.comboCharacters_SelectedIndexChanged);
-            this.comboCharacters.Enabled = false;
             // 
             // controlPanel
             // 
@@ -1277,16 +1283,8 @@ namespace Ikarus.UI
             this.modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel.Location = new System.Drawing.Point(0, 0);
             this.modelPanel.Name = "modelPanel";
-            this.modelPanel.RotationScale = 0.4F;
-            this.modelPanel.Size = new System.Drawing.Size(379, 513);
+            this.modelPanel.Size = new System.Drawing.Size(519, 513);
             this.modelPanel.TabIndex = 0;
-            this.modelPanel.TranslationScale = 0.05F;
-            this.modelPanel.ZoomScale = 2.5F;
-            this.modelPanel.PreRender += new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PreRender);
-            this.modelPanel.PostRender += new System.Windows.Forms.GLRenderEventHandler(this.modelPanel1_PostRender);
-            this.modelPanel.MouseDown += new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown);
-            this.modelPanel.MouseMove += new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove);
-            this.modelPanel.MouseUp += new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp);
             // 
             // animEditors
             // 
@@ -1397,7 +1395,7 @@ namespace Ikarus.UI
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 24);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(368, 513);
+            this.panel1.Size = new System.Drawing.Size(228, 513);
             this.panel1.TabIndex = 34;
             // 
             // scriptPanel
@@ -1405,7 +1403,7 @@ namespace Ikarus.UI
             this.scriptPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.scriptPanel.Location = new System.Drawing.Point(0, 264);
             this.scriptPanel.Name = "scriptPanel";
-            this.scriptPanel.Size = new System.Drawing.Size(368, 249);
+            this.scriptPanel.Size = new System.Drawing.Size(228, 249);
             this.scriptPanel.TabIndex = 33;
             // 
             // splitter2
@@ -1413,7 +1411,7 @@ namespace Ikarus.UI
             this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitter2.Location = new System.Drawing.Point(0, 261);
             this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(368, 3);
+            this.splitter2.Size = new System.Drawing.Size(228, 3);
             this.splitter2.TabIndex = 34;
             this.splitter2.TabStop = false;
             // 
@@ -1422,7 +1420,7 @@ namespace Ikarus.UI
             this.listPanel.Dock = System.Windows.Forms.DockStyle.Top;
             this.listPanel.Location = new System.Drawing.Point(0, 0);
             this.listPanel.Name = "listPanel";
-            this.listPanel.Size = new System.Drawing.Size(368, 261);
+            this.listPanel.Size = new System.Drawing.Size(228, 261);
             this.listPanel.TabIndex = 32;
             // 
             // panel4
@@ -1433,9 +1431,9 @@ namespace Ikarus.UI
             this.panel4.Controls.Add(this.btnTopToggle);
             this.panel4.Controls.Add(this.modelPanel);
             this.panel4.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.panel4.Location = new System.Drawing.Point(372, 24);
+            this.panel4.Location = new System.Drawing.Point(232, 24);
             this.panel4.Name = "panel4";
-            this.panel4.Size = new System.Drawing.Size(379, 513);
+            this.panel4.Size = new System.Drawing.Size(519, 513);
             this.panel4.TabIndex = 36;
             // 
             // button3
@@ -1452,7 +1450,7 @@ namespace Ikarus.UI
             // button2
             // 
             this.button2.Dock = System.Windows.Forms.DockStyle.Right;
-            this.button2.Location = new System.Drawing.Point(361, 18);
+            this.button2.Location = new System.Drawing.Point(501, 18);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(18, 477);
             this.button2.TabIndex = 12;
@@ -1477,13 +1475,6 @@ namespace Ikarus.UI
             this.modelListsPanel1.Name = "modelListsPanel1";
             this.modelListsPanel1.Size = new System.Drawing.Size(156, 513);
             this.modelListsPanel1.TabIndex = 35;
-            // 
-            // saveTextInfoToolStripMenuItem
-            // 
-            this.saveTextInfoToolStripMenuItem.Name = "saveTextInfoToolStripMenuItem";
-            this.saveTextInfoToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
-            this.saveTextInfoToolStripMenuItem.Text = "Save Text Info";
-            this.saveTextInfoToolStripMenuItem.Click += new System.EventHandler(this.saveTextInfoToolStripMenuItem_Click);
             // 
             // MainControl
             // 
@@ -1526,6 +1517,7 @@ namespace Ikarus.UI
             modelListsPanel1._mainWindow =
             this;
             MovesetPanel._mainWindow = this;
+            modelListsPanel1.bonesPanel1._mainWindow =
             chr0Editor._mainWindow =
             srt0Editor._mainWindow =
             shp0Editor._mainWindow =
@@ -1537,12 +1529,14 @@ namespace Ikarus.UI
             MovesetPanel.comboActionEntry.SelectedIndex = 0;
             _updating = true;
 
+            PreConstruct();
+
             ScreenCapBgLocText.Text = Application.StartupPath;
 
             comboCharacters.DataSource = Manager._supportedCharacters;
             comboCharacters.SelectedIndex = Array.IndexOf(Manager._supportedCharacters, Manager.TargetCharacter);
 
-            _targetModels = new List<MDL0Node>();
+            _targetModels = new List<IModel>();
 
             Manager.RootChanged += new EventHandler(FolderManager_RootChanged);
             Manager.TargetCharacterChanged += new EventHandler(FolderManager_TargetCharacterChanged);
@@ -1555,9 +1549,30 @@ namespace Ikarus.UI
             modelPanel.DefaultRotate = new Vector3(-5.0f, -30.0f, 0.0f);
             modelPanel.ResetCamera();
             _updating = false;
+
+            PostConstruct();
         }
 
         #endregion
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CHR0Editor CHR0Editor { get { return chr0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SRT0Editor SRT0Editor { get { return srt0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SHP0Editor SHP0Editor { get { return shp0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override VIS0Editor VIS0Editor { get { return vis0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override PAT0Editor PAT0Editor { get { return pat0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CLR0Editor CLR0Editor { get { return clr0Editor; } }
+        public override ColorDialog ColorDialog { get { return dlgColor; } }
 
         protected override void OnLoad(EventArgs e)
         {
@@ -1574,7 +1589,8 @@ namespace Ikarus.UI
 
             Application.AddMessageFilter(RunTime.ButtonManager._keyFilter);
 
-            TargetAnimType = NW4RAnimType.CHR;
+            fileType.SelectedIndex = 0;
+            //TargetAnimType = NW4RAnimType.CHR;
             if (listPanel.SubActionsList.Items.Count > 0)
                 listPanel.SubActionsList_SelectedIndexChanged_1(this, null);
         }
@@ -1592,18 +1608,6 @@ namespace Ikarus.UI
             Reset();
         }
 
-        private void pnlPlayback_Resize(object sender, EventArgs e)
-        {
-            if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
-            {
-                pnlPlayback.Dock = DockStyle.Left;
-                pnlPlayback.Width = pnlPlayback.MinimumSize.Width;
-            }
-            else
-                pnlPlayback.Dock = DockStyle.Fill;
-        }
-
-        bool addedHeight = false;
         private void ModelEditControl_SizeChanged(object sender, EventArgs e)
         {
             CheckDimensions();
@@ -1611,6 +1615,63 @@ namespace Ikarus.UI
 
         public void CheckDimensions()
         {
+            int totalWidth = animEditors.Width;
+            int w = panel3.Width, h = animEditors.Height;
+            if (_currentControl != null && _currentControl.Visible)
+            {
+                if (_currentControl is CHR0Editor)
+                {
+                    h = 78;
+                    w = 582;
+                }
+                else if (_currentControl is SRT0Editor)
+                {
+                    h = 78;
+                    w = 483;
+                }
+                else if (_currentControl is SHP0Editor)
+                {
+                    h = 106;
+                    w = 533;
+                }
+                else if (_currentControl is PAT0Editor)
+                {
+                    h = 78;
+                    w = 402;
+                }
+                else if (_currentControl is VIS0Editor)
+                {
+                    h = 62;
+                    w = 210;
+                }
+                else if (_currentControl is CLR0Editor)
+                {
+                    h = 62;
+                    w = 168;
+                }
+                else
+                    w = h = 0;
+            }
+            else
+                w = h = 0;
+
+            //See if the scroll bar needs to be visible
+            int addedHeight = 0;
+            if (w + pnlPlayback.MinimumSize.Width > totalWidth)
+            {
+                addedHeight = 17;
+                animEditors.HorizontalScroll.Visible = true;
+            }
+            else
+                animEditors.HorizontalScroll.Visible = false;
+
+            //Don't update the width and height every time, only if need be
+            if (panel3.Width != w)
+                panel3.Width = w;
+            if (animEditors.Height != h + addedHeight)
+                animEditors.Height = h + addedHeight;
+
+            //Dock playback panel if it reaches its minimum size
             if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
             {
                 pnlPlayback.Dock = DockStyle.Left;
@@ -1619,36 +1680,13 @@ namespace Ikarus.UI
             else
                 pnlPlayback.Dock = DockStyle.Fill;
 
-            if (_updating)
-                return;
-
+            //Stretch playback panel if there's space
             if (animEditors.Width - panel3.Width >= pnlPlayback.MinimumSize.Width)
             {
                 pnlPlayback.Width += animEditors.Width - panel3.Width - pnlPlayback.MinimumSize.Width;
                 pnlPlayback.Dock = DockStyle.Fill;
             }
             else pnlPlayback.Dock = DockStyle.Left;
-
-            if (panel3.Width + pnlPlayback.Width <= animEditors.Width)
-            {
-                if (addedHeight)
-                {
-                    _updating = true;
-                    animEditors.Height -= 17;
-                    _updating = false;
-                    animEditors.HorizontalScroll.Visible = addedHeight = false;
-                }
-            }
-            else
-            {
-                if (!addedHeight)
-                {
-                    _updating = true;
-                    animEditors.Height += 17;
-                    _updating = false;
-                    animEditors.HorizontalScroll.Visible = addedHeight = true;
-                }
-            }
         }
 
         internal void DisableHurtboxEditor()
@@ -1698,7 +1736,7 @@ namespace Ikarus.UI
         }
         public void Reset()
         {
-            _resetCam = false;
+            _resetCamera = false;
             modelPanel.ClearAll();
             if (Manager.SelectedInfo != null)
             {
@@ -1774,7 +1812,7 @@ namespace Ikarus.UI
                         {
                             info.Running = true;
                             info._etcModel = false;
-                            AddTarget(info._model);
+                            AppendTarget(info._model);
                         }
                     }
                 }
@@ -1823,8 +1861,19 @@ namespace Ikarus.UI
             CollectArticles();
         }
 
+        protected override void OnModelChanged()
+        {
+            if (_targetModel != null)
+                listPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
+
+            hurtboxEditor._mainControl_TargetModelChanged(null, null);
+            modelListsPanel1.Reset();
+            RunTime.ResetSubactionVariables();
+        }
+
         private void fileType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            TargetAnimType = (NW4RAnimType)fileType.SelectedIndex;
             SetCurrentControl();
         }
 

@@ -146,16 +146,23 @@ namespace Ikarus
 
         internal static void ModelIndexChanged()
         {
+            MainControl control = MainForm.Instance._mainControl;
+
             MDL0Node model = null;
             if (SelectedInfo != null)
             {
+                model = SelectedInfo.SelectedModel;
+
+                if (model != null)
+                    control.ModelPanel.RemoveTarget(model);
+
                 SelectedInfo.ModelIndexChanged();
                 model = SelectedInfo.SelectedModel;
             }
-            MainForm.Instance._mainControl._resetCam = false;
-            MainForm.Instance._mainControl.TargetModel = model;
-            RunTime.ResetSubactionVariables();
-            MainForm.Instance._mainControl.UpdateModel();
+            
+            control._resetCamera = false;
+            control.TargetModel = model;
+            control.UpdateModel();
         }
 
         public static TextInfo TextInfo { get { return Thread.CurrentThread.CurrentCulture.TextInfo; } }
