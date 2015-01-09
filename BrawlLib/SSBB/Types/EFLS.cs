@@ -7,7 +7,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct EFLSHeader
     {
         public const uint Tag = 0x534C4645;
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
 
         public uint _tag;
         public bshort _numEntries;
@@ -41,7 +41,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout( LayoutKind.Sequential, Pack=1)]
     public unsafe struct EFLSEntry
     {
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
 
         public bshort _brresID1; //-1 if no brres, otherwise brres ID
         public bshort _brresID2; //brres ID
@@ -63,7 +63,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct RE3D //Found inside EFLS files
     {
         public const uint Tag = 0x44334552;
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
         
         public uint _tag;
         public byte _numEntries;

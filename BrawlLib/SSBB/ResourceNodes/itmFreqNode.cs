@@ -134,7 +134,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override int OnCalculateSize(bool force)
         {
-            int size = ItmFreqHeader.Size;
+            int size = sizeof(ItmFreqHeader);
             foreach (TableNode node in Children)
                 size += node.CalculateSize(true);
             size += (_pointerList.Count * 4);
@@ -199,7 +199,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override int OnCalculateSize(bool force)
         {
-            int size = ItmFreqOffEntry.Size;
+            int size = sizeof(ItmFreqOffEntry);
             foreach (TableGroupNode node in Children)
                 size += node.CalculateSize(force);
             return size;
@@ -363,7 +363,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override int OnCalculateSize(bool force)
         {
-            int size = ItmFreqEntry.Size;
+            int size = sizeof(ItmFreqEntry);
             return size;
         }
         public void UpdateName()

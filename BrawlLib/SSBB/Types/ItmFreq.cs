@@ -8,7 +8,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqHeader
     {
-        public const int Size = 0x20;
+        //public const int Size = 0x20;
 
         public bint _Length;
         public bint _DataLength;
@@ -27,7 +27,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqEntry
     {
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
 
         public bint _ID;
         public bint _subItem;
@@ -41,7 +41,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqTableList
     {
-        public const int Size = 0x28;
+        //public const int Size = 0x28;
 
         public ItmFreqOffEntry _table1;
         public ItmFreqOffEntry _table2;
@@ -56,7 +56,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqGroup
     {
-        public const int Size = 0x14;
+        public const int Size = 0x14; // Is this correct?
 
         public bint _unknown0;
         public bint _unknown1;
@@ -71,7 +71,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqOffEntry
     {
-        public const int Size = 0x08;
+        //public const int Size = 0x08;
 
         public bint _offset;
         public bint _count;
@@ -82,7 +82,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ItmFreqOffPair
     {
-        public const int Size = 0x08;
+        //public const int Size = 0x08;
 
         public bint _offset1;
         public bint _offset2;

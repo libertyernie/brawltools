@@ -177,7 +177,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            int size = DOLHeader.Size;
+            int size = sizeof(DOLHeader);
             foreach (ModuleSectionNode s in Children)
                 if (s._dataBuffer != null && s._dataBuffer.Length > 0)
                     size += s.CalculateSize(true);
@@ -187,8 +187,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             DOLHeader* header = (DOLHeader*)address;
-            VoidPtr dataAddr = address + DOLHeader.Size;
-            int offset = DOLHeader.Size;
+            VoidPtr dataAddr = address + sizeof(DOLHeader);
+            int offset = sizeof(DOLHeader);
             foreach (ModuleSectionNode s in Children)
             {
                 int i = s.Index;

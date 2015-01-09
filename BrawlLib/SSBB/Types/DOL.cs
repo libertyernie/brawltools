@@ -6,7 +6,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct DOLHeader
     {
-        public const int Size = 0x100;
+        //public const int Size = 0x100;
 
         public buint Text0Offset;
         public buint Text1Offset;

@@ -12,7 +12,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct LMBin
     {
-        public const int Size = 0x60;
+        //public const int Size = 0x60;
 
         public byte _unk1;
         public fixed byte _name[11];
@@ -48,7 +48,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct LMBinTexture
     {
-        public const int Size = 0xC;
+        //public const int Size = 0xC;
 
         public bshort _width;
         public bshort _height;
@@ -61,7 +61,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct LMBinBone
     {
-        public const int Size = 108;
+        //public const int Size = 108; // Is this correct?
 
         public bshort _parentIndex;
         public bshort _childIndex;
@@ -96,7 +96,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct LMBinPart
     {
-        public const int Size = 4;
+        //public const int Size = 4;
         
         public bshort _shaderIndex;
         public bshort _batchIndex;
