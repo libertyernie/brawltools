@@ -46,7 +46,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _planeCount += obj._planes.Count;
             }
 
-            return CollisionHeader.Size + (_pointCount * 8) + (_planeCount * ColPlane.Size) + (_objects.Count * ColObject.Size);
+            return sizeof(CollisionHeader) + (_pointCount * 8) + (_planeCount * sizeof(ColPlane)) + (_objects.Count * sizeof(ColObject));
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)

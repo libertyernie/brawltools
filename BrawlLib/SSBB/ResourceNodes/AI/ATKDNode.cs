@@ -42,7 +42,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             int header = 0x10;
             int entries = 0;
             for (int i = 0; i < Children.Count; i++)
-                entries += (int)ATKDEntry.Size;
+                entries += sizeof(ATKDEntry);
             return (header + entries);
         }
 

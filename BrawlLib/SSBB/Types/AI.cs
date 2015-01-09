@@ -23,7 +23,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct ATKDEntry
     {
-        public const uint Size = 0x24;
+        //public const uint Size = 0x24;
 
         public bshort _SubActID;//ID of Sub Action
         public bshort _unk1;
@@ -33,6 +33,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _xMaxRange;
         public bfloat _yMinRange;
         public bfloat _yMaxRange;
+        private fixed byte _padding[12];
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public BVec2 MinimumRange { get { return new BVec2(_xMinRange, _yMinRange); } }
@@ -97,7 +98,7 @@ namespace BrawlLib.SSBBTypes
     unsafe struct AIPD
     {
         public const uint Tag = 0x44504941;
-        public const int Size = 0xF;
+        //public const int Size = 0xF; (is this correct?)
 
         public uint _tag;
         public bint DataOffset;//0000000C

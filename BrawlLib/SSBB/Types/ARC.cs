@@ -7,7 +7,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct ARCHeader
     {
-        public const int Size = 0x40;
+        //public const int Size = 0x40;
         public const uint Tag = 0x00435241;
 
         public uint _tag; //ARC
@@ -38,7 +38,7 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        public ARCFileHeader* First { get { return (ARCFileHeader*)(Address + Size); } }
+        public ARCFileHeader* First { get { return (ARCFileHeader*)(Address + sizeof(ARCHeader)); } }
 
         public ARCHeader(ushort numFiles, string name)
         {
@@ -54,7 +54,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct ARCFileHeader
     {
-        public const int Size = 0x20;
+        //public const int Size = 0x20;
 
         internal bshort _type;
         internal bshort _index;
@@ -81,8 +81,8 @@ namespace BrawlLib.SSBBTypes
 
         private ARCFileHeader* Address { get { fixed (ARCFileHeader* ptr = &this)return ptr; } }
 
-        public VoidPtr Data { get { return (VoidPtr)Address + Size; } }
-        public ARCFileHeader* Next { get { return (ARCFileHeader*)((uint)(Data + _size)).Align(Size); } }
+        public VoidPtr Data { get { return (VoidPtr)Address + sizeof(ARCFileHeader); } }
+        public ARCFileHeader* Next { get { return (ARCFileHeader*)((uint)(Data + _size)).Align((uint)sizeof(ARCFileHeader)); } }
 
         public ARCFileType FileType
         {

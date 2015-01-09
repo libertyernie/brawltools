@@ -72,6 +72,12 @@ namespace BrawlLib.SSBBTypes
             _address = address;
             _length = length;
         }
+
+        public DataBlock(VoidPtr address, int length) {
+            if (length < 0) throw new ArgumentOutOfRangeException("Length must not be negative.");
+            _address = address;
+            _length = (uint)length;
+        }
     }
 
     unsafe struct DataBlockCollection
@@ -91,7 +97,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct NW4RCommonHeader
     {
-        public const uint Size = 0x10;
+        //public const uint Size = 0x10;
 
         public BinTag _tag;
         public bushort _endian;
@@ -101,7 +107,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _numEntries;
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public DataBlock DataBlock { get { return new DataBlock(Address, Size); } }
+        public DataBlock DataBlock { get { return new DataBlock(Address, sizeof(NW4RCommonHeader)); } }
 
         public byte VersionMajor { get { return ((byte*)_version.Address)[0]; } set { ((byte*)_version.Address)[0] = value; } }
         public byte VersionMinor { get { return ((byte*)_version.Address)[1]; } set { ((byte*)_version.Address)[1] = value; } }
@@ -113,7 +119,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct NW4FCommonHeader
     {
-        public const uint Size = 0x10;
+        //public const uint Size = 0x10;
 
         public BinTag _tag;
         public bushort _endian;
@@ -123,7 +129,7 @@ namespace BrawlLib.SSBBTypes
         public bint _length;
         
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public DataBlock DataBlock { get { return new DataBlock(Address, Size); } }
+        public DataBlock DataBlock { get { return new DataBlock(Address, sizeof(NW4FCommonHeader)); } }
 
         public byte VersionMajor { get { return ((byte*)_version.Address)[0]; } set { ((byte*)_version.Address)[0] = value; } }
         public byte VersionMinor { get { return ((byte*)_version.Address)[1]; } set { ((byte*)_version.Address)[1] = value; } }
@@ -214,19 +220,19 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct SSBBEntryHeader
     {
-        public const uint Size = 8;
+        //public const uint Size = 8;
 
         public BinTag _tag;
         public bint _length;
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public DataBlock DataBlock { get { return new DataBlock(Address, Size); } }
+        public DataBlock DataBlock { get { return new DataBlock(Address, sizeof(SSBBEntryHeader)); } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ResourceGroup : IEnumerable<ResourcePair>
     {
-        public const int Size = 0x18;
+        //public const int Size = 0x18;
 
         public bint _totalSize;
         public bint _numEntries;
@@ -234,13 +240,13 @@ namespace BrawlLib.SSBBTypes
 
         public ResourceGroup(int numEntries)
         {
-            _totalSize = (numEntries * 0x10) + 0x18;
+            _totalSize = (numEntries * 0x10) + sizeof(ResourceGroup);
             _numEntries = numEntries;
             _first = new ResourceEntry(0xFFFF, 0, 0, 0, 0);
         }
         
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public ResourceEntry* First { get { return (ResourceEntry*)(Address + 0x18); } }
+        public ResourceEntry* First { get { return (ResourceEntry*)(Address + sizeof(ResourceGroup)); } }
         public VoidPtr EndAddress { get { return Address + _totalSize; } }
 
         public IEnumerator<ResourcePair> GetEnumerator() { return new ResourceEnumerator((ResourceGroup*)Address); }
@@ -297,7 +303,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ResourceEntry
     {
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
 
         public bushort _id;
         public bushort _flag;

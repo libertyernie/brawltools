@@ -265,7 +265,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         StringTable _stringTable = new StringTable();
         public override int OnCalculateSize(bool force)
         {
-            int size = BRESHeader.Size;
+            int size = sizeof(BRESHeader);
             _rootSize = 0x20 + (Children.Count * 0x10);
 
             //Get entry count and data start
@@ -613,33 +613,33 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_size = dataLength;
         }
 
-		/// <summary>
-		/// Find the MD5 checksum of this node's data.
-		/// Before calculating the checksum, the data will be copied to a
-		/// temporary area in memory and PostProcess will be run just as in Export().
-		/// </summary>
-		public override unsafe byte[] MD5() {
-			if (WorkingUncompressed.Address == null || WorkingUncompressed.Length == 0) {
-				// skip bres fix
-				return base.MD5();
-			}
+        /// <summary>
+        /// Find the MD5 checksum of this node's data.
+        /// Before calculating the checksum, the data will be copied to a
+        /// temporary area in memory and PostProcess will be run just as in Export().
+        /// </summary>
+        public override unsafe byte[] MD5() {
+            if (WorkingUncompressed.Address == null || WorkingUncompressed.Length == 0) {
+                // skip bres fix
+                return base.MD5();
+            }
 
-			Rebuild();
+            Rebuild();
 
-			StringTable table = new StringTable();
-			GetStrings(table);
+            StringTable table = new StringTable();
+            GetStrings(table);
 
-			int dataLen = WorkingUncompressed.Length.Align(4);
-			int size = dataLen + table.GetTotalSize();
+            int dataLen = WorkingUncompressed.Length.Align(4);
+            int size = dataLen + table.GetTotalSize();
 
-			byte[] datacopy = new byte[size];
-			fixed (byte* ptr = datacopy) {
-				System.Memory.Move(ptr, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
-				table.WriteTable(ptr + dataLen);
-				PostProcess(null, ptr, WorkingUncompressed.Length, table);
-			}
+            byte[] datacopy = new byte[size];
+            fixed (byte* ptr = datacopy) {
+                System.Memory.Move(ptr, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
+                table.WriteTable(ptr + dataLen);
+                PostProcess(null, ptr, WorkingUncompressed.Length, table);
+            }
 
-			return ResourceNode.MD5Provider.ComputeHash(datacopy);
-		}
+            return ResourceNode.MD5Provider.ComputeHash(datacopy);
+        }
     }
 }

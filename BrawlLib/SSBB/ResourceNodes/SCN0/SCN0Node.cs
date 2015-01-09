@@ -228,7 +228,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _specLights = 0;
 
             //Add header and resource group size
-            int size = SCN0v4.Size + ResourceGroup.Size + Children.Count * ResourceEntry.Size;
+            int size = SCN0v4.Size + sizeof(ResourceGroup) + Children.Count * sizeof(ResourceEntry);
 
             //Add the size of each resource group, and headers and all data
             foreach (SCN0GroupNode n in Children)

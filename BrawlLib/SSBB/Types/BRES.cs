@@ -10,7 +10,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct BRESHeader// : IEnumerable<VoidPtr>
     {
         public const string Tag = "bres";
-        public const int Size = 16;
+        //public const int Size = 16;
 
         public BinTag _tag;
         public bushort _endian;
@@ -68,7 +68,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct BRESCommonHeader
     {
-        public const uint Size = 0x10;
+        //public const uint Size = 0x10;
 
         public BinTag _tag;
         public bint _size;

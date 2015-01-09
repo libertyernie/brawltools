@@ -6,7 +6,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct CollisionHeader
     {
-        public const int Size = 0x28;
+        //public const int Size = 0x28;
 
         public bshort _numPoints;
         public bshort _numPlanes;
@@ -23,9 +23,9 @@ namespace BrawlLib.SSBBTypes
             _numPlanes = (short)numPlanes;
             _numObjects = (short)numObjects;
             _unk1 = (short)unk1;
-            _pointOffset = 0x28;
-            _planeOffset = 0x28 + (numPoints * 8);
-            _objectOffset = 0x28 + (numPoints * 8) + (numPlanes * ColPlane.Size);
+            _pointOffset = sizeof(CollisionHeader);
+            _planeOffset = sizeof(CollisionHeader) + (numPoints * 8);
+            _objectOffset = sizeof(CollisionHeader) + (numPoints * 8) + (numPlanes * sizeof(ColPlane));
 
             fixed (int* p = _pad)
                 for (int i = 0; i < 5; i++)
@@ -42,7 +42,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColPlane
     {
-        public const int Size = 0x10;
+        //public const int Size = 0x10;
 
         public bshort _point1;
         public bshort _point2;
@@ -72,7 +72,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ColObject
     {
-        public const int Size = 0x6C;
+        //public const int Size = 0x6C;
 
         public bshort _planeIndex;
         public bshort _planeCount;
@@ -89,6 +89,7 @@ namespace BrawlLib.SSBBTypes
         public bshort _boneIndex;
         public fixed byte _modelName[32];
         public fixed byte _boneName[32];
+        private fixed byte _padding[8];
 
         public ColObject(int planeIndex, int planeCount, int pointOffset, int pointCount, Vector2 boxMin, Vector2 boxMax, string modelName, string boneName,
             int unk1, int unk2, int unk3, int flags, int unk5, int unk6, int boneIndex)

@@ -90,7 +90,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            int size = ARCHeader.Size + (Children.Count * 0x20);
+            int size = sizeof(ARCHeader) + (Children.Count * 0x20);
             foreach (ResourceNode node in Children)
                 size += node.CalculateSize(force).Align(0x20);
             return size;

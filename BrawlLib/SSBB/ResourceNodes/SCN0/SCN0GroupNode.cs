@@ -45,7 +45,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             //Calculate resource group length.
             //Null nodes are not included in the resource group.
-            _dataLengths[0] = ResourceGroup.Size + UsedChildren.Count * ResourceEntry.Size;
+            _dataLengths[0] = sizeof(ResourceGroup) + UsedChildren.Count * sizeof(ResourceEntry);
 
             //Reset entry length
             _dataLengths[1] = 0;
