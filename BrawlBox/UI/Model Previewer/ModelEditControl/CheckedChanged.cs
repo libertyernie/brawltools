@@ -193,6 +193,11 @@ namespace System.Windows.Forms
 
         #endregion
 
+        private void chkEditAllModels_CheckedChanged(object sender, EventArgs e)
+        {
+            EditingAll = chkEditAllModels.Checked;
+        }
+
         private void EnableLiveTextureFolder_CheckedChanged(object sender, EventArgs e)
         {
             MDL0TextureNode._folderWatcher.EnableRaisingEvents = EnableLiveTextureFolder.Checked;
