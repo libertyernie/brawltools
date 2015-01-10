@@ -8,7 +8,6 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct TEX0v1
     {
-        public const int Size = 0x40;
         public const uint Tag = 0x30584554;
 
         public BRESCommonHeader _header;
@@ -22,6 +21,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _minLod;
         public bfloat _maxLod;
         public bint _origPathOffset;
+        private fixed byte padding[12];
 
         internal VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
@@ -52,11 +52,11 @@ namespace BrawlLib.SSBBTypes
         public TEX0v1(int width, int height, WiiPixelFormat format, int mipLevels)
         {
             _header._tag = Tag;
-            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + Size;
+            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + sizeof(TEX0v1);
             _header._version = 1;
             _header._bresOffset = 0;
 
-            _headerLen = Size;
+            _headerLen = sizeof(TEX0v1);
             _stringOffset = 0;
             _hasPalette = ((format == WiiPixelFormat.CI4) || (format == WiiPixelFormat.CI8)) ? 1 : 0;
             _width = (short)width;
@@ -72,7 +72,6 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct TEX0v3
     {
-        public const int Size = 0x44;
         public const uint Tag = 0x30584554;
 
         public BRESCommonHeader _header;
@@ -87,6 +86,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _maxLod;
         public bint _origPathOffset;
         public bint _userDataOffset;
+        private fixed byte padding[12];
 
         //User Data comes before texture data. Align to 0x20
 
@@ -125,11 +125,11 @@ namespace BrawlLib.SSBBTypes
         public TEX0v3(int width, int height, WiiPixelFormat format, int mipLevels)
         {
             _header._tag = Tag;
-            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + Size;
+            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + sizeof(TEX0v3);
             _header._version = 3;
             _header._bresOffset = 0;
 
-            _headerLen = Size;
+            _headerLen = sizeof(TEX0v3);
             _stringOffset = 0;
             _hasPalette = ((format == WiiPixelFormat.CI4) || (format == WiiPixelFormat.CI8)) ? 1 : 0;
             _width = (short)width;
