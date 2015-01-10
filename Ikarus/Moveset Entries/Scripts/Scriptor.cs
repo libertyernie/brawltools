@@ -740,6 +740,7 @@ namespace Ikarus.ModelViewer
                         if (articleInfo._model != null)
                         {
                             main.RemoveTarget(articleInfo._model);
+                            articleInfo._model.IsRendering = false;
                             articleInfo._model.Detach();
                         }
 
@@ -755,6 +756,7 @@ namespace Ikarus.ModelViewer
                         if (articleInfo._model != null)
                         {
                             main.AppendTarget(articleInfo._model);
+                            articleInfo._model.IsRendering = true;
                             articleInfo._model.Attach();
                         }
 
@@ -857,6 +859,13 @@ namespace Ikarus.ModelViewer
                     sChangeInfo = new SubActionChangeInfo(p[0], false);
                     sChangeInfo._requirements.Add(new RequirementInfo(p[1]));
                     RunTime.AddSubActionChangeInfo(sChangeInfo);
+                    break;
+                case 0x11010A00: //External Graphic Effect
+                case 0x11001000: //Same as prev but with random offset and rotation
+
+                    break;
+                case 0x111A1000: //Graphic Effect; no file
+                    
                     break;
             }
         }

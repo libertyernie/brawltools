@@ -643,11 +643,7 @@ namespace Ikarus.UI
 
                 if ((n = TargetModel.FindChild("Textures", false)) != null)
                     foreach (MDL0TextureNode tref in n.Children)
-                    {
-                        if (tref.Name.Contains("EyeHigh"))
-                            tref.Enabled = false;
                         lstTextures.Items.Add(tref, tref.Enabled);
-                    }
             }
             lstTextures.EndUpdate();
             lstObjects.EndUpdate();

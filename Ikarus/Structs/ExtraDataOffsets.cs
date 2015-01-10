@@ -118,8 +118,8 @@ namespace Ikarus.MovesetFile
                 //    return new YellowAlloy();
                 //case CharName.BlueAlloy:
                 //    return new BlueAlloy();
-                //case CharName.Zelda:
-                //    return new Zelda();
+                case CharName.Zelda:
+                    return new Zelda();
             }
             return null;
         }
@@ -336,6 +336,48 @@ namespace Ikarus.MovesetFile
             {
                 Offsets* addr = (Offsets*)address;
                 for (int i = 11; i < 14; i++)
+                {
+                    int x = (int)addr->Entries[i];
+                    node._articles.Add(x, node.Parse<ArticleEntry>(x));
+                }
+            }
+
+            public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
+            {
+
+            }
+        }
+
+        public class Zelda : OffsetHolder
+        {
+            public int Count { get { return Offsets.Count; } }
+
+            [StructLayout(LayoutKind.Sequential, Pack = 1)]
+            public unsafe struct Offsets
+            {
+                public const int Count = 10;
+
+                public buint _params1;
+                public buint _params2;
+                public buint _params3;
+                public buint _params4;
+                public buint _params5;
+                public buint _params6;
+                public buint _article1;
+                public buint _article2;
+                public buint _article3;
+                public buint _article4;
+
+                public buint* Entries { get { return (buint*)Address; } }
+                private VoidPtr Address { get { fixed (void* p = &this)return p; } }
+
+                public int Size { get { return Count * 4; } }
+            }
+
+            public void Parse(DataSection node, VoidPtr address)
+            {
+                Offsets* addr = (Offsets*)address;
+                for (int i = 6; i < 10; i++)
                 {
                     int x = (int)addr->Entries[i];
                     node._articles.Add(x, node.Parse<ArticleEntry>(x));

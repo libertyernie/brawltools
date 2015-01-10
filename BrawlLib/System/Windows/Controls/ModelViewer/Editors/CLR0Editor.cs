@@ -165,9 +165,13 @@ namespace System.Windows.Forms
             }
 
             _entry = _mat.FindChild(lstTarget.SelectedItem as string, false) as CLR0MaterialEntryNode;
-            _mainWindow.KeyframePanel.chkEnabled.Checked = _entry != null;
-            _mainWindow.KeyframePanel.chkConstant.Checked = _entry != null ? _entry.Constant : false;
-            _mainWindow.KeyframePanel.TargetSequence = _entry;
+
+            if (_mainWindow.KeyframePanel != null)
+            {
+                _mainWindow.KeyframePanel.chkEnabled.Checked = _entry != null;
+                _mainWindow.KeyframePanel.chkConstant.Checked = _entry != null ? _entry.Constant : false;
+                _mainWindow.KeyframePanel.TargetSequence = _entry;
+            }
         }
     }
 }

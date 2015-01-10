@@ -47,6 +47,7 @@ namespace Ikarus.UI
                     _currentControl.Visible = true;
             }
             CheckDimensions();
+            UpdateEditor();
             UpdatePropDisplay();
         }
 

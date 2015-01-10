@@ -303,6 +303,7 @@ namespace Ikarus.UI
             // 
             // attributeGridSSE
             // 
+            this.attributeGridSSE.AttributeArray = null;
             this.attributeGridSSE.Dock = System.Windows.Forms.DockStyle.Fill;
             this.attributeGridSSE.Location = new System.Drawing.Point(0, 21);
             this.attributeGridSSE.Name = "attributeGridSSE";
@@ -312,6 +313,7 @@ namespace Ikarus.UI
             // 
             // attributeGridMain
             // 
+            this.attributeGridMain.AttributeArray = null;
             this.attributeGridMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.attributeGridMain.Location = new System.Drawing.Point(0, 21);
             this.attributeGridMain.Margin = new System.Windows.Forms.Padding(0);
@@ -347,7 +349,8 @@ namespace Ikarus.UI
             "SSE Attributes",
             "Miscellaneous",
             "Articles",
-            "Common SubRoutines"});
+            "Common SubRoutines",
+            "Modules"});
             this.movesetEditor.Location = new System.Drawing.Point(0, 0);
             this.movesetEditor.Name = "movesetEditor";
             this.movesetEditor.Size = new System.Drawing.Size(374, 21);
@@ -923,6 +926,9 @@ namespace Ikarus.UI
                     if (_mainWindow != null)
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
                     break;
+                case 13:
+
+                    break;
             }
 
             if (_currentControl != null)
@@ -1003,6 +1009,8 @@ namespace Ikarus.UI
                 if (_animations.ContainsKey(r))
                 {
                     var x = _animations[r];
+                    _mainWindow.TargetAnimation = null;
+                    _mainWindow.GetFiles(NW4RAnimType.None);
                     foreach (var c in x)
                         _mainWindow.SetAnimation(c.Value);
                     _mainWindow.AnimChanged(TargetAnimType);

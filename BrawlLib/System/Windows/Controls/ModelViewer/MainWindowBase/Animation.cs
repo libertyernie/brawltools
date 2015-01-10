@@ -249,7 +249,6 @@ namespace System.Windows.Forms
                     }
                     break;
             }
-            OnAnimationChanged();
         }
 
         /// <summary>

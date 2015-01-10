@@ -25,17 +25,17 @@ namespace Ikarus.ModelViewer
         [Browsable(false)]
         public MDL0Node _model;
         [Browsable(false)]
-        public List<CHR0Node> _chr0List;
+        public Dictionary<int, CHR0Node> _chr0List;
         [Browsable(false)]
-        public List<SRT0Node> _srt0List;
+        public Dictionary<int, SRT0Node> _srt0List;
         [Browsable(false)]
-        public List<SHP0Node> _shp0List;
+        public Dictionary<int, SHP0Node> _shp0List;
         [Browsable(false)]
-        public List<VIS0Node> _vis0List;
+        public Dictionary<int, VIS0Node> _vis0List;
         [Browsable(false)]
-        public List<PAT0Node> _pat0List;
+        public Dictionary<int, PAT0Node> _pat0List;
         [Browsable(false)]
-        public List<CLR0Node> _clr0List;
+        public Dictionary<int, CLR0Node> _clr0List;
 
         public int _animFrame = 0, _maxFrame, _setAt;
 
@@ -167,15 +167,26 @@ namespace Ikarus.ModelViewer
                     CurrentSubaction = _article._subActions[_subaction] as SubActionEntry;
                     if (CurrentSubaction != null)
                     {
-                        _chr0 = GetAnim(_chr0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as CHR0Node;
-                        _srt0 = GetAnim(_srt0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as SRT0Node;
-                        _pat0 = GetAnim(_pat0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as PAT0Node;
-                        _vis0 = GetAnim(_vis0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as VIS0Node;
-                        _shp0 = GetAnim(_shp0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as SHP0Node;
-                        _clr0 = GetAnim(_clr0List.ToArray<NW4RAnimationNode>(), CurrentSubaction.Name) as CLR0Node;
+                        int index = CurrentSubaction.Index;
+                        _chr0 = _chr0List.ContainsKey(index) ? _chr0List[index] : null;
+                        _srt0 = _srt0List.ContainsKey(index) ? _srt0List[index] : null;
+                        _pat0 = _pat0List.ContainsKey(index) ? _pat0List[index] : null;
+                        _vis0 = _vis0List.ContainsKey(index) ? _vis0List[index] : null;
+                        _shp0 = _shp0List.ContainsKey(index) ? _shp0List[index] : null;
+                        _clr0 = _clr0List.ContainsKey(index) ? _clr0List[index] : null;
 
                         _maxFrame = _chr0.FrameCount;
                     }
+                    else
+                    {
+                        _chr0 = null; _srt0 = null; _vis0 = null; _pat0 = null; _shp0 = null; _clr0 = null;
+                        _maxFrame = 0;
+                    }
+                }
+                else
+                {
+                    _chr0 = null; _srt0 = null; _vis0 = null; _pat0 = null; _shp0 = null; _clr0 = null;
+                    _maxFrame = 0;
                 }
                 CurrentFrame = 0;
             }
@@ -194,29 +205,14 @@ namespace Ikarus.ModelViewer
                 return;
 
             MainControl ctrl = MainForm.Instance._mainControl;
+            int frame = _animFrame + 1;
 
-            if (_chr0 != null && !(ctrl.TargetAnimType != NW4RAnimType.CHR && !ctrl.playCHR0ToolStripMenuItem.Checked) && _subaction >= 0)
-                _model.ApplyCHR(_chr0, _animFrame + 1);
-            else
-                _model.ApplyCHR(null, 0);
-            if (_srt0 != null && !(ctrl.TargetAnimType != NW4RAnimType.SRT && !ctrl.playSRT0ToolStripMenuItem.Checked))
-                _model.ApplySRT(_srt0, _animFrame + 1);
-            else
-                _model.ApplySRT(null, 0);
-            if (_shp0 != null && !(ctrl.TargetAnimType != NW4RAnimType.SHP && !ctrl.playSHP0ToolStripMenuItem.Checked))
-                _model.ApplySHP(_shp0, _animFrame + 1);
-            else
-                _model.ApplySHP(null, 0);
-            if (_pat0 != null && !(ctrl.TargetAnimType != NW4RAnimType.PAT && !ctrl.playPAT0ToolStripMenuItem.Checked))
-                _model.ApplyPAT(_pat0, _animFrame + 1);
-            else
-                _model.ApplyPAT(null, 0);
-            if (_vis0 != null && !(ctrl.TargetAnimType != NW4RAnimType.VIS && !ctrl.playVIS0ToolStripMenuItem.Checked))
-                _model.ApplyVIS(_vis0, _animFrame + 1);
-            if (_clr0 != null && !(ctrl.TargetAnimType != NW4RAnimType.CLR && !ctrl.playCLR0ToolStripMenuItem.Checked))
-                _model.ApplyCLR(_clr0, _animFrame + 1);
-            else
-                _model.ApplyCLR(null, 0);
+            _model.ApplyCHR(ctrl.PlayCHR0 ? _chr0 : null, frame);
+            _model.ApplySRT(ctrl.PlaySRT0 ? _srt0 : null, frame);
+            _model.ApplySHP(ctrl.PlaySHP0 ? _shp0 : null, frame);
+            _model.ApplyPAT(ctrl.PlayPAT0 ? _pat0 : null, frame);
+            _model.ApplyVIS(ctrl.PlayVIS0 ? _vis0 : null, frame);
+            _model.ApplyCLR(ctrl.PlayCLR0 ? _clr0 : null, frame);
         }
 
         public ArticleInfo(ArticleEntry article, MDL0Node model, bool running)
@@ -225,12 +221,12 @@ namespace Ikarus.ModelViewer
             _model = model;
             _running = running;
 
-            _chr0List = new List<CHR0Node>();
-            _srt0List = new List<SRT0Node>();
-            _shp0List = new List<SHP0Node>();
-            _vis0List = new List<VIS0Node>();
-            _pat0List = new List<PAT0Node>();
-            _clr0List = new List<CLR0Node>();
+            _chr0List = new Dictionary<int, CHR0Node>();
+            _srt0List = new Dictionary<int, SRT0Node>();
+            _shp0List = new Dictionary<int, SHP0Node>();
+            _vis0List = new Dictionary<int, VIS0Node>();
+            _pat0List = new Dictionary<int, PAT0Node>();
+            _clr0List = new Dictionary<int, CLR0Node>();
 
             _article._info = this;
         }

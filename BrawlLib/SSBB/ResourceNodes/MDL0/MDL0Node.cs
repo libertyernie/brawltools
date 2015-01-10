@@ -1315,10 +1315,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (node == null || index < 1)
             {
-                if (_objList != null)
-                    foreach (MDL0ObjectNode o in _objList)
-                        if (o._visBoneNode != null)
-                            o._render = o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                //if (_objList != null)
+                //    foreach (MDL0ObjectNode o in _objList)
+                //        if (o._visBoneNode != null)
+                //            o._render = o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
                 return;
             }
 

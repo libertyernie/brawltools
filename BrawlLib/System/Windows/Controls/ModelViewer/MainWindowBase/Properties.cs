@@ -270,9 +270,13 @@ namespace System.Windows.Forms
             {
                 _targetVisEntry = value;
                 UpdatePropDisplay();
-                KeyframePanel.TargetSequence = _targetVisEntry as ResourceNode;
-                KeyframePanel.chkConstant.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Constant);
-                KeyframePanel.chkEnabled.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Enabled);
+
+                if (KeyframePanel != null)
+                {
+                    KeyframePanel.TargetSequence = _targetVisEntry as ResourceNode;
+                    KeyframePanel.chkConstant.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Constant);
+                    KeyframePanel.chkEnabled.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Enabled);
+                }
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

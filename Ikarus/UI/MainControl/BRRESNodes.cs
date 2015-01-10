@@ -29,26 +29,34 @@ namespace Ikarus.UI
             return null;
         }
 
-
-        public void ReadVIS0()
+        public override void ApplyVIS0ToInterface()
         {
-            if (CurrentFrame == 0 || modelListsPanel1.lstObjects.Items.Count == 0)
+            if (_animFrame == 0 || modelListsPanel1.lstObjects.Items.Count == 0)
                 return;
 
-            listPanel._vis0Updating = true;
+            VIS0Updating = true;
             if (_vis0 != null)
-                foreach (string n in listPanel.VIS0Indices.Keys)
+            {
+                //if (TargetAnimation != null && _vis0.FrameCount != TargetAnimation.tFrameCount)
+                //    UpdateVis0(null, null);
+
+                foreach (string n in VIS0Indices.Keys)
                 {
                     VIS0EntryNode node = null;
-                    List<int> indices = listPanel.VIS0Indices[n];
+                    List<int> indices = VIS0Indices[n];
                     for (int i = 0; i < indices.Count; i++)
+                    {
                         if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
-                            if (node._entryCount != 0 && CurrentFrame > 0)
-                                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node.GetEntry(CurrentFrame - 1));
+                        {
+                            if (node._entryCount != 0 && _animFrame > 0)
+                                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node.GetEntry((int)_animFrame - 1));
                             else
                                 modelListsPanel1.lstObjects.SetItemChecked(indices[i], node._flags.HasFlag(VIS0Flags.Enabled));
+                        }
+                    }
                 }
-            listPanel._vis0Updating = false;
+            }
+            VIS0Updating = false;
         }
     }
 }

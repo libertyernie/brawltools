@@ -185,7 +185,7 @@ namespace System.Windows.Forms
             {
                 int difference = val - _animFrame;
                 if (TargetAnimation != null)
-                    SetFrame(_animFrame += difference);
+                    SetFrame(_animFrame + difference);
             }
         }
         public virtual void numFPS_ValueChanged(object sender, EventArgs e)

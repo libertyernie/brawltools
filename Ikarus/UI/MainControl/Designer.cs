@@ -1580,7 +1580,8 @@ namespace Ikarus.UI
             base.OnLoad(e);
 
             if (!String.IsNullOrEmpty(Ikarus.Properties.Settings.Default.RootPath))
-            { 
+            {
+                RunTime._IsRoot = true;
                 Program.OpenRootFromPath(pathToolStripMenuItem.Text = Ikarus.Properties.Settings.Default.RootPath);
                 comboCharacters.Enabled = true;
             }
@@ -1775,10 +1776,10 @@ namespace Ikarus.UI
                     {
                         //First load models in the recolor pac
                         //These models are always visible
-                        LoadArticles(Manager.SelectedInfo._characterFiles, groupID, articleInfo, true);
+                        LoadArticles(Manager.SelectedInfo.CharacterFiles, groupID, articleInfo, true);
 
                         //Now load extra articles that will be called later
-                        LoadArticles(Manager.SelectedInfo._characterEtcFiles, groupID, articleInfo, false);
+                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, false);
                     }
                     RunTime._articles[article.Index] = articleInfo;
                 }
@@ -1813,6 +1814,7 @@ namespace Ikarus.UI
                         {
                             info.Running = true;
                             info._etcModel = false;
+                            info._model.IsRendering = true;
                             AppendTarget(info._model);
                         }
                     }
@@ -1821,31 +1823,43 @@ namespace Ikarus.UI
                 {
                     List<ARCEntryNode> entries = t2[ARCFileType.AnimationData];
                     foreach (ARCEntryNode u in entries)
-                        foreach (BRESGroupNode b in u.Children)
+                    {
+                        ARCEntryNode node;
+                        if (u.RedirectIndex >= 0 &&
+                            u.RedirectIndex != u.Index &&
+                            u.Parent != null &&
+                            u.RedirectIndex < u.Parent.Children.Count)
+                            node = u.Parent.Children[u.RedirectIndex] as ARCEntryNode;
+                        else
+                            node = u;
+
+                        int index = node.FileIndex;
+                        foreach (BRESGroupNode b in node.Children)
                         {
                             NW4RAnimationNode anim = b.Children[0] as NW4RAnimationNode;
                             switch (b.Type)
                             {
                                 case BRESGroupNode.BRESGroupType.CHR0:
-                                    info._chr0List.Add(anim as CHR0Node);
+                                    info._chr0List[index] = anim as CHR0Node;
                                     break;
                                 case BRESGroupNode.BRESGroupType.SRT0:
-                                    info._srt0List.Add(anim as SRT0Node);
+                                    info._srt0List[index] = anim as SRT0Node;
                                     break;
                                 case BRESGroupNode.BRESGroupType.SHP0:
-                                    info._shp0List.Add(anim as SHP0Node);
+                                    info._shp0List[index] = anim as SHP0Node;
                                     break;
                                 case BRESGroupNode.BRESGroupType.VIS0:
-                                    info._vis0List.Add(anim as VIS0Node);
+                                    info._vis0List[index] = anim as VIS0Node;
                                     break;
                                 case BRESGroupNode.BRESGroupType.PAT0:
-                                    info._pat0List.Add(anim as PAT0Node);
+                                    info._pat0List[index] = anim as PAT0Node;
                                     break;
                                 case BRESGroupNode.BRESGroupType.CLR0:
-                                    info._clr0List.Add(anim as CLR0Node);
+                                    info._clr0List[index] = anim as CLR0Node;
                                     break;
                             }
                         }
+                    }
                 }
 
             }

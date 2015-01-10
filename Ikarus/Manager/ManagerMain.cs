@@ -27,13 +27,6 @@ namespace Ikarus
         public static string RootPath { get { return Program.RootPath; } }
 
         public static string[] _supportedCharacters = Enum.GetNames(typeof(CharName));
-        //public static CharName[] _supportedCharacters = new CharName[]
-        //{
-        //    CharName.Link,
-        //    CharName.Mario,
-        //    CharName.Pit,
-        //    CharName.ZeroSuitSamus
-        //};
 
         //This is the character that will be loaded at startup
         private static CharName _targetChar = CharName.Mario;
@@ -297,5 +290,60 @@ namespace Ikarus
 
             return new EventInformation(id, id.ToString("X"), "No Description Available.", null, null);
         }
+
+        public static object[] GFXPaths = new object[]
+        {
+            "/system/common3_en.pac /system/common3.pac",
+            CharName.Mario,
+            CharName.DonkeyKong,
+            CharName.Link,
+            CharName.Samus,
+            CharName.Yoshi,
+            CharName.Kirby,
+            CharName.Fox,
+            CharName.Pikachu,
+            CharName.Luigi,
+            CharName.CaptainFalcon,
+            CharName.Ness,
+            CharName.Bowser,
+            CharName.Peach,
+            CharName.Zelda,
+            CharName.Sheik,
+            CharName.Popo,
+            null,
+            CharName.Marth,
+            CharName.MrGameNWatch,
+            CharName.Falco,
+            CharName.Ganondorf,
+            CharName.Wario,
+            CharName.Metaknight,
+            CharName.Pit,
+            CharName.ZeroSuitSamus,
+            CharName.Olimar,
+            CharName.Lucas,
+            CharName.DiddyKong,
+            CharName.PokemonTrainer,
+            CharName.Charizard,
+            CharName.Squirtle,
+            CharName.Ivysaur,
+            CharName.KingDedede,
+            CharName.Lucario,
+            CharName.Ike,
+            CharName.ROB,
+            null,
+            CharName.Jigglypuff,
+            null,
+            null,
+            null,
+            CharName.ToonLink,
+            null,
+            null,
+            CharName.Wolf,
+            null,
+            CharName.Snake,
+            CharName.Sonic,
+            CharName.GigaBowser,
+            
+        };
     }
 }

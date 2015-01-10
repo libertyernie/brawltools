@@ -256,7 +256,9 @@ namespace System.Windows.Forms
                 if (_currentControl != null)
                     _currentControl.Visible = true;
             }
+            AnimChanged();
             CheckDimensions();
+            UpdateEditor();
             UpdatePropDisplay();
         }
 

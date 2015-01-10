@@ -658,7 +658,7 @@ namespace Ikarus.MovesetFile
 
         public bool IsOffensive(bool includeSpecial)
         {
-            return (_event == 0x06000D00 || _event == 0x062B0D00) || (includeSpecial ? _event == 0x06150F00 : false);
+            return (_event == 0x06000D00 || _event == 0x062B0D00) || (includeSpecial ? IsSpecialOffensive() : false);
         }
         public bool IsSpecialOffensive()
         {
@@ -671,29 +671,17 @@ namespace Ikarus.MovesetFile
 
         public void Render(Vector3 cam)
         {
-            switch (_event)
-            {
-                case 0x06000D00:
-                case 0x062B0D00:
-                    RenderOffensiveCollision(cam);
-                    break;
-                case 0x06150F00:
-                    RenderSpecialOffensiveCollision(cam);
-                    break;
-                case 0x060A0800:
-                case 0x060A0900:
-                case 0x060A0A00:
-                    RenderCatchCollision(cam);
-                    break;
-            }
+            if (IsOffensive(false))
+                RenderOffensiveCollision(cam);
+            else if (IsSpecialOffensive())
+                RenderSpecialOffensiveCollision(cam);
+            else if (IsCatch())
+                RenderCatchCollision(cam);
         }
 
         #region Offensive Collision
         private unsafe void RenderOffensiveCollision(Vector3 cam)
         {
-            if (_event != 0x06000D00) //Offensive Collision
-                return;
-
             MovesetNode node = Root;
             ResourceNode[] bl = _model._linker.BoneCache;
 
@@ -848,9 +836,6 @@ namespace Ikarus.MovesetFile
         #region Special Offensive Collision
         private unsafe void RenderSpecialOffensiveCollision(Vector3 cam)
         {
-            if (_event != 0x06150F00) //Special Offensive Collision
-                return;
-
             ResourceNode[] bl = _model._linker.BoneCache;
 
             int boneindex = (int)_parameters[0] >> 16;
@@ -1033,9 +1018,6 @@ namespace Ikarus.MovesetFile
         #region Catch Collision
         private unsafe void RenderCatchCollision(Vector3 cam)
         {
-            if (_event != 0x060A0800 && _event != 0x060A0900 && _event != 0x060A0A00)
-                return;
-
             ResourceNode[] bl = _model._linker.BoneCache;
 
             int boneindex = _parameters[1];

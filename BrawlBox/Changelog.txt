@@ -14,6 +14,10 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
+ - v0.74c (??/??/2015) - BrawlLib v0.21c
+	. Fixed bug where MDL0 material blend mode values were read and written incorrectly
+	. Fixed bug in model viewer where setting an SRT0's matrix mode via the animation's right click menu didn't actually set it
+
  - v0.74b - BrawlLib v0.21b
 
  Hotfix 1 (1/7/2015): 

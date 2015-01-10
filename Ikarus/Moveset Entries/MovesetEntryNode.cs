@@ -136,8 +136,12 @@ namespace Ikarus.MovesetFile
         private static T CommonInit<T>(MovesetNode root, VoidPtr addr, params object[] parameters) where T : MovesetEntryNode
         {
             int offset = root.Offset(addr);
-            if (offset <= 0)
+            bool attributes = parameters.Length > 0 && parameters[0] is string && ((string)parameters[0]) == "Attributes";
+            if (offset <= 0 && !attributes)
                 return null;
+
+            if (attributes)
+                parameters = new object[0];
 
             T n = Activator.CreateInstance(typeof(T), parameters) as T;
             n.Setup(root, offset);
