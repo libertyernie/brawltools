@@ -55,12 +55,11 @@ namespace BrawlBox
 
         public static bool _modelViewerOpen = false;
 
-        public IWin32Window _owner;
         public GenericWrapper(IWin32Window owner) { _owner = owner;  ContextMenuStrip = _menu; }
         public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
 
         public void MoveUp() { MoveUp(true); }
-        public void MoveUp(bool select)
+        public virtual void MoveUp(bool select)
         {
             if (_modelViewerOpen)
                 return;
@@ -84,7 +83,7 @@ namespace BrawlBox
         }
 
         public void MoveDown() { MoveDown(true); }
-        public void MoveDown(bool select)
+        public virtual void MoveDown(bool select)
         {
             if (_modelViewerOpen)
                 return;

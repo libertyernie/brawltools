@@ -46,8 +46,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem toolStripMenuItem3;
         private ToolStripMenuItem toolStripMenuItem4;
         private ToolStripMenuItem renameToolStripMenuItem;
-        public Button SaveAnims;
-        public Button Load;
+        public Button btnSaveAnims;
+        public Button btnLoad;
         private TransparentPanel overObjPnl;
         private TransparentPanel overTexPnl;
         private ToolStripMenuItem createNewToolStripMenuItem;
@@ -84,8 +84,8 @@ namespace System.Windows.Forms
             this.inModelsBRRESToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inExternalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.SaveAnims = new System.Windows.Forms.Button();
-            this.Load = new System.Windows.Forms.Button();
+            this.btnSaveAnims = new System.Windows.Forms.Button();
+            this.btnLoad = new System.Windows.Forms.Button();
             this.fileType = new System.Windows.Forms.ComboBox();
             this.btnAnims = new System.Windows.Forms.Button();
             this.ctxTextures = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -291,8 +291,8 @@ namespace System.Windows.Forms
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.SaveAnims);
-            this.panel1.Controls.Add(this.Load);
+            this.panel1.Controls.Add(this.btnSaveAnims);
+            this.panel1.Controls.Add(this.btnLoad);
             this.panel1.Controls.Add(this.fileType);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 21);
@@ -302,23 +302,23 @@ namespace System.Windows.Forms
             // 
             // SaveAnims
             // 
-            this.SaveAnims.Location = new System.Drawing.Point(41, 0);
-            this.SaveAnims.Name = "SaveAnims";
-            this.SaveAnims.Size = new System.Drawing.Size(41, 21);
-            this.SaveAnims.TabIndex = 28;
-            this.SaveAnims.Text = "Save";
-            this.SaveAnims.UseVisualStyleBackColor = true;
-            this.SaveAnims.Click += new System.EventHandler(this.button2_Click);
+            this.btnSaveAnims.Location = new System.Drawing.Point(41, 0);
+            this.btnSaveAnims.Name = "SaveAnims";
+            this.btnSaveAnims.Size = new System.Drawing.Size(41, 21);
+            this.btnSaveAnims.TabIndex = 28;
+            this.btnSaveAnims.Text = "Save";
+            this.btnSaveAnims.UseVisualStyleBackColor = true;
+            this.btnSaveAnims.Click += new System.EventHandler(this.button2_Click);
             // 
             // Load
             // 
-            this.Load.Location = new System.Drawing.Point(1, 0);
-            this.Load.Name = "Load";
-            this.Load.Size = new System.Drawing.Size(41, 21);
-            this.Load.TabIndex = 27;
-            this.Load.Text = "Load";
-            this.Load.UseVisualStyleBackColor = true;
-            this.Load.Click += new System.EventHandler(this.button1_Click);
+            this.btnLoad.Location = new System.Drawing.Point(1, 0);
+            this.btnLoad.Name = "Load";
+            this.btnLoad.Size = new System.Drawing.Size(41, 21);
+            this.btnLoad.TabIndex = 27;
+            this.btnLoad.Text = "Load";
+            this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.button1_Click);
             // 
             // fileType
             // 

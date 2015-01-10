@@ -116,9 +116,8 @@ namespace System.Windows.Forms
 #if !DEBUG
             }
             catch (Exception x) { MessageBox.Show(this, x.ToString()); }
-#endif
-
             return false;
+#endif
         }
 
         public void btnOpenClose_Click(object sender, EventArgs e)
@@ -126,10 +125,10 @@ namespace System.Windows.Forms
             if (btnOpenClose.Text == "Load")
             {
                 if (LoadExternal())
-                    btnOpenClose.Text = leftPanel.Load.Text = "Close";
+                    btnOpenClose.Text = leftPanel.btnLoad.Text = "Close";
             }
             else if (btnOpenClose.Text == "Close" && CloseExternal())
-                btnOpenClose.Text = leftPanel.Load.Text = "Load";
+                btnOpenClose.Text = leftPanel.btnLoad.Text = "Load";
         }
         public void btnSave_Click(object sender, EventArgs e) { SaveExternal(false); }
         private void btnSaveAs_Click(object sender, EventArgs e) { SaveExternal(true); }

@@ -309,7 +309,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
             }
 
-            Dictionary<int, KeyValuePair<int, float>> values;
+            //Dictionary<int, KeyValuePair<int, float>> values;
 
             VoidPtr offset = (VoidPtr)Header + 0x20;
             if (KeyTableSize > 4)
@@ -347,10 +347,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (InfoTableSize > 4)
             {
                 AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
-                switch ((v9AnimCurveTargetField)_hdr.kindType)
-                {
+                //switch ((v9AnimCurveTargetField)_hdr.kindType)
+                //{
 
-                }
+                //}
             }
 
 #if DEBUG

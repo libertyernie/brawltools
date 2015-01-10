@@ -389,10 +389,7 @@ namespace Gif.Components
 		   ----------------------------------------------------------------------------------- */
 		public void Unbiasnet() 
 		{
-
-			int i, j;
-
-			for (i = 0; i < netsize; i++) 
+			for (int i = 0; i < netsize; i++) 
 			{
 				network[i][0] >>= netbiasshift;
 				network[i][1] >>= netbiasshift;
