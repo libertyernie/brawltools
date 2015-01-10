@@ -59,6 +59,20 @@ namespace Ikarus.UI
             _renderHitboxes;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlayCHR0 { get { return playCHR0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlaySRT0 { get { return playSRT0ToolStripMenuItem.Checked; } set { playSRT0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlayPAT0 { get { return playPAT0ToolStripMenuItem.Checked; } set { playPAT0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlayVIS0 { get { return playVIS0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlayCLR0 { get { return playCLR0ToolStripMenuItem.Checked; } set { playCLR0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
+        public override bool PlaySCN0 { get { return false; } set { } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlaySHP0 { get { return playSHP0ToolStripMenuItem.Checked; } set { playSHP0ToolStripMenuItem.Checked = value; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override KeyframePanel KeyframePanel { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override BonesPanel BonesPanel { get { return modelListsPanel1.bonesPanel1; } }

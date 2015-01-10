@@ -25,7 +25,14 @@ namespace Ikarus.MovesetFile
         [Browsable(false)]
         public MDL0BoneNode ArticleBoneNode
         {
-            get { if (_info == null || _info._model == null) return null; if (_info._model._linker == null || articleBone > _info._model._linker.BoneCache.Length || articleBone < 0) return null; return (MDL0BoneNode)_info._model._linker.BoneCache[articleBone]; }
+            get
+            {
+                if (_info == null || _info._model == null)
+                    return null;
+                if (articleBone >= _info._model.BoneCache.Length || articleBone < 0)
+                    return null;
+                return (MDL0BoneNode)_info._model.BoneCache[articleBone];
+            }
             set { articleBone = value.BoneIndex; }
         }
 

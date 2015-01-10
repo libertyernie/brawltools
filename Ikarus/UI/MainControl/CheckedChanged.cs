@@ -279,9 +279,9 @@ namespace Ikarus.UI
         public ScriptPanel MovesetPanel { get { return scriptPanel.scriptPanel; } }
         public override void numFPS_ValueChanged(object sender, EventArgs e) 
         {
-            RunTime._timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value; 
+            RunTime.Timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value; 
         }
-        public override void chkLoop_CheckedChanged(object sender, EventArgs e) 
+        public override void PlaybackPanel_LoopChanged() 
         {
             RunTime.Loop = PlaybackPanel.chkLoop.Checked;
             if (syncLoopToAnimationToolStripMenuItem.Checked && !_updating)

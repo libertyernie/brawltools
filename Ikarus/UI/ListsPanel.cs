@@ -1016,9 +1016,9 @@ namespace Ikarus.UI
             else
                 _mainWindow.TargetAnimation = null;
 
-            _mainWindow.Updating = true;
-            RunTime.Loop = RunTime.CurrentSubaction._flags.HasFlag(AnimationFlags.Loop);
-            _mainWindow.Updating = false;
+            //_mainWindow.Updating = true;
+            //RunTime.Loop = RunTime.CurrentSubaction._flags.HasFlag(AnimationFlags.Loop);
+            //_mainWindow.Updating = false;
         }
 
         private void List_KeyDown(object sender, KeyEventArgs e)
@@ -1028,7 +1028,7 @@ namespace Ikarus.UI
                 b.SelectedItems.Clear();
             else if (e.KeyCode == Keys.Space)
             {
-                _mainWindow.MovesetPanel.btnRunScript_Click(null, null);
+                RunTime.TogglePlay();
                 e.SuppressKeyPress = true;
             }
         }
