@@ -2335,59 +2335,5 @@ namespace System.Windows.Forms
         }
 
         #endregion
-
-        public void setColorToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ChooseBackgroundColor();
-        }
-
-        public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ChooseOrClearBackgroundImage();
-        }
-
-        protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
-        protected void btnRedo_Click(object sender, EventArgs e) { Redo(); }
-
-        private void playCHR0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_chr0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void playSRT0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_srt0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void playSHP0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_shp0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void playPAT0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_pat0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void playVIS0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_vis0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void playCLR0ToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            if (_clr0 != null && CurrentFrame != 0)
-                ModelPanel.Invalidate();
-        }
-
-        private void chkEditAllModels_CheckedChanged(object sender, EventArgs e)
-        {
-            EditingAll = chkEditAllModels.Checked;
-        }
     }
 }

@@ -1301,6 +1301,7 @@ namespace Ikarus.UI
             // 
             this.pnlPlayback.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pnlPlayback.Location = new System.Drawing.Point(264, 0);
+            this.pnlPlayback.MinimumSize = new System.Drawing.Size(290, 54);
             this.pnlPlayback.Name = "pnlPlayback";
             this.pnlPlayback.Size = new System.Drawing.Size(647, 60);
             this.pnlPlayback.TabIndex = 30;

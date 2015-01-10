@@ -6,7 +6,7 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Bin32
     {
-        public uint _data;
+        public buint _data;
 
         public Bin32(uint val) { _data = val; }
 
@@ -174,7 +174,7 @@ namespace System
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct Bin16
     {
-        public ushort _data;
+        public bushort _data;
 
         public Bin16(ushort val) { _data = val; }
 
@@ -202,9 +202,9 @@ namespace System
             set
             {
                 if (value)
-                    _data |= (ushort)(1 << index);
+                    _data = (ushort)((ushort)_data | (ushort)(1 << index));
                 else
-                    _data &= (ushort)~(1 << index);
+                    _data = (ushort)((ushort)_data & ~(ushort)(1 << index));
             }
         }
 

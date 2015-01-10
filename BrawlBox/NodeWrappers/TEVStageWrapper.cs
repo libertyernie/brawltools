@@ -25,9 +25,6 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        protected static void MoveUpAction(object sender, EventArgs e) { GetInstance<TEVStageWrapper>().MoveUp(); }
-        protected static void MoveDownAction(object sender, EventArgs e) { GetInstance<TEVStageWrapper>().MoveDown(); }
-        
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[0].Enabled = _menu.Items[1].Enabled = true;
@@ -39,7 +36,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items[1].Enabled = w.NextNode != null;
         }
 
-        public void MoveUp()
+        public override void MoveUp(bool select)
         {
             if (PrevNode == null)
                 return;
@@ -51,7 +48,8 @@ namespace BrawlBox.NodeWrappers
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                TreeView.SelectedNode = this;
+                if (select)
+                    TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
 
                 foreach (ResourceNode n in _resource.Parent.Children)
@@ -59,7 +57,7 @@ namespace BrawlBox.NodeWrappers
             }
         }
 
-        public void MoveDown()
+        public override void MoveDown(bool select)
         {
             if (NextNode == null)
                 return;
@@ -71,7 +69,8 @@ namespace BrawlBox.NodeWrappers
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                TreeView.SelectedNode = this;
+                if (select)
+                    TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
 
                 foreach (ResourceNode n in _resource.Parent.Children)

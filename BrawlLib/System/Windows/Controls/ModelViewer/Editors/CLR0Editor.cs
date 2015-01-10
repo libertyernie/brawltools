@@ -119,7 +119,7 @@ namespace System.Windows.Forms
             set { _mainWindow.SelectedCLR0 = value; }
         }
 
-        public void UpdateAnimation()
+        public void AnimationChanged()
         {
             listBox1.Items.Clear();
             listBox1.BeginUpdate();
@@ -168,12 +168,6 @@ namespace System.Windows.Forms
             _mainWindow.KeyframePanel.chkEnabled.Checked = _entry != null;
             _mainWindow.KeyframePanel.chkConstant.Checked = _entry != null ? _entry.Constant : false;
             _mainWindow.KeyframePanel.TargetSequence = _entry;
-        }
-
-        public void UpdatePropDisplay()
-        {
-            if (!Enabled)
-                return;
         }
     }
 }

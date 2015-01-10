@@ -21,8 +21,8 @@ namespace Ikarus.ModelViewer
         public static bool _IsRoot;
         static RunTime()
         {
-            _timer.RenderFrame += RenderFrame;
-            _timer.UpdateFrame += UpdateFrame;
+            Timer.RenderFrame += RenderFrame;
+            Timer.UpdateFrame += UpdateFrame;
         }
 
         private static RunTimeAccessor _instance;
@@ -98,12 +98,44 @@ namespace Ikarus.ModelViewer
 
         public static bool _muteSFX = false;
 
-        public static CoolTimer _timer = new CoolTimer();
-        public static bool IsRunning { get { return _timer.IsRunning; } }
-        public static void Run() { Playing = true; _timer.Run(0, FramesPerSecond); }
-        public static void Stop()
+        public static CoolTimer Timer { get { return MainWindow._timer; } }
+        public static bool IsRunning { get { return Timer.IsRunning; } }
+        private static void Run()
         {
-            _timer.Stop(); 
+            if (CurrentFrame >= MaxFrame)
+                SetFrame(1);
+
+            //LoadSubactionScripts();
+            //ResetSubactionVariables();
+            //SetFrame(CurrentFrame);
+
+            //Run the timer.
+            //This will run scripts and animations until the user stops it or everything ends itself.
+            //Then the code directly after this line will be executed.
+            Playing = true;
+            Timer.Run(0, FramesPerSecond);
+
+            //This next section of code will not run until the timer stops.
+            //If we have any sounds still playing, stop and dispose of them.
+            //This should only be necessary if the user manually stops the timer,
+            //as the timer will not stop automatically until all sounds are completed and disposed of.
+            if (_playingSounds.Count != 0)
+            {
+                List<int> keys = new List<int>();
+                foreach (var b in _playingSounds)
+                    foreach (AudioInfo info in b.Value)
+                        if (info._buffer != null && info._buffer.Owner != null)
+                        {
+                            info._buffer.Stop();
+                            info._buffer.Dispose();
+                            info._stream.Dispose();
+                        }
+                _playingSounds.Clear();
+            }
+        }
+        private static void Stop()
+        {
+            Timer.Stop(); 
             Playing = false; 
             if (MainWindow._capture)
             {
@@ -113,13 +145,21 @@ namespace Ikarus.ModelViewer
             }
         }
 
+        public static void TogglePlay()
+        {
+            if (IsRunning)
+                Stop();
+            else
+                Run();
+        }
+
         /// <summary>
         /// This determines how many frames should be rendered per second.
         /// </summary>
         public static double FramesPerSecond 
         {
-            get { return _timer.TargetRenderFrequency; }
-            set { _timer.TargetRenderFrequency = value; }
+            get { return Timer.TargetRenderFrequency; }
+            set { Timer.TargetRenderFrequency = value; }
         }
 
         /// <summary>
@@ -128,8 +168,8 @@ namespace Ikarus.ModelViewer
         /// </summary>
         public static double UpdatesPerSecond
         {
-            get { return _timer.TargetUpdateFrequency; }
-            set { _timer.TargetUpdateFrequency = value; }
+            get { return Timer.TargetUpdateFrequency; }
+            set { Timer.TargetUpdateFrequency = value; }
         }
 
         public static bool _passFrame = false;
@@ -340,11 +380,11 @@ namespace Ikarus.ModelViewer
 
             //Set the animation frame
             int oldFrame = CurrentFrame;
-            CurrentFrame = frame.Clamp(-1, MaxFrame - 1);
+            CurrentFrame = frame.Clamp(0, MaxFrame);
             bool forward = oldFrame == frame - 1;
 
             //Reset only if the on the first frame or the animation is going backward
-            if (frame <= 0 || (!Playing && !forward))
+            if (frame <= 1 || (!Playing && !forward))
                 ResetSubactionVariables();
 
             //The next two things work for editing, but are technically wrong for emulation.
@@ -354,7 +394,7 @@ namespace Ikarus.ModelViewer
             //will be reset and also loop.
 
             //Set the scripts to the current frame
-            UpdateScripts(frame);
+            UpdateScripts(frame - 1);
 
             //Update the article models
             //Do this after applying the scripts!
@@ -363,7 +403,7 @@ namespace Ikarus.ModelViewer
             if (RunTime._articles != null)
                 foreach (ArticleInfo a in RunTime._articles)
                     if (a != null && a.Running)
-                        a.SetFrame(frame);
+                        a.SetFrame(frame - 1);
 
             if (MainWindow._capture && Playing)
                 MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(false));
@@ -422,12 +462,16 @@ namespace Ikarus.ModelViewer
         //public static int _animFrame = -1, _maxFrame;
         //public static bool _loop, _playing;
 
-        private static void RenderFrame(object sender, FrameEventArgs e)
+        public static void RenderFrame(object sender, FrameEventArgs e)
         {
             if (!IsRunning)
                 return;
 
-            if (CurrentFrame == MainWindow.MaxFrame - 1)
+            int i = 0;
+            if (MainWindow.TargetAnimation != null && ModelEditorBase.Interpolated.Contains(MainWindow.TargetAnimation.GetType()) && MainWindow.TargetAnimation.Loop)
+                i = 1;
+
+            if (CurrentFrame >= MainWindow.MaxFrame - i)
             {
                 if (!MainWindow.Loop)
                 {
@@ -441,7 +485,7 @@ namespace Ikarus.ModelViewer
                     //Wait for playing sounds to finish, but don't update the frame.
                 }
                 else
-                    SetFrame(0);
+                    SetFrame(1);
             }
             else
                 SetFrame(CurrentFrame + 1);

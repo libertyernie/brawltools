@@ -556,7 +556,7 @@ namespace BrawlLib.Imaging
             {
                 ColorBox* outBox = null;
                 double lBias = 1.0, maxC = 0.0;
-                double val;
+                //double val;
                 double rpe, gpe, bpe, ape;
                 //int index = -1;
 

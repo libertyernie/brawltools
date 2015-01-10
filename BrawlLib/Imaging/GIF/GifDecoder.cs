@@ -879,8 +879,8 @@ namespace Gif.Components
 			lastImage = image;
 			lastBgColor = bgColor;
 			//		int dispose = 0;
-			bool transparency = false;
-			int delay = 0;
+            //transparency = false;
+            //delay = 0;
 			lct = null;
 		}
 

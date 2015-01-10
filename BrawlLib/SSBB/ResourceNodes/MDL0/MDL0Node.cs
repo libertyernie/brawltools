@@ -1338,17 +1338,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public void SetSCN0(SCN0Node node)
+        public void ApplySCN(SCN0Node node, float index)
         {
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
-                    mat.SetSCN0(node);
-        }
-        public void SetSCN0Frame(float index)
-        {
-            if (_matList != null)
-                foreach (MDL0MaterialNode mat in _matList)
-                    mat.SetSCN0Frame(index);
+                    mat.ApplySCN(node, index);
         }
 
         //This only modifies vertices after ApplyCHR0 has weighted them.
@@ -1366,7 +1360,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (_objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    if ((n = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null)
+                    if (poly._manager != null && (n = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null)
                     {
                         //Max amount of morphs allowed is technically 32
                         float[] weights = new float[n.Children.Count];

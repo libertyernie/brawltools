@@ -399,7 +399,7 @@ namespace BrawlLib.Wii.Audio
 
         private static unsafe void Something12(double* source, double* dest)
         {
-            double v1 = 1.0, v2 = -source[1], v3 = -source[2];
+            double v2 = -source[1], v3 = -source[2];
             double val = (v3 * v2 + v2) / (1.0 - v3 * v3);
 
             dest[0] = 1.0;
@@ -448,7 +448,7 @@ namespace BrawlLib.Wii.Audio
 
         private static unsafe void Something7(double* src, double* dst)
         {
-            double v1, v2, v3;
+            //double v1, v2, v3;
             double* buffer = stackalloc double[9];
             //DVector3* p = (DVector3*)buffer;
 

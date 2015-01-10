@@ -150,7 +150,7 @@ namespace Ikarus.UI
             ModelPanel.Enabled = false;
             if (InterpolationEditor != null)
                 InterpolationEditor.Enabled = false;
-            btnPlay_Click(null, null);
+            TogglePlay();
         }
 
         public void RenderToGIF(Image[] images)
@@ -449,9 +449,9 @@ namespace Ikarus.UI
 
         #region Animation
 
-        public void btnPrevFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value--; }
-        public void btnNextFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value++; }
-        public void btnPlay_Click(object sender, EventArgs e) { MovesetPanel.btnRunScript_Click(sender, e); }
+        public override void btnPrevFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value--; }
+        public override void btnNextFrame_Click(object sender, EventArgs e) { pnlPlayback.numFrameIndex.Value++; }
+        public override void TogglePlay() { RunTime.TogglePlay(); }
 
         #endregion
 

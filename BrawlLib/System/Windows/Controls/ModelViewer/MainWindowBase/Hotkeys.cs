@@ -249,10 +249,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                if (_timer.IsRunning)
-                    StopAnim();
-                else
-                    PlayAnim();
+                TogglePlay();
                 return true;
             }
             return false;

@@ -59,13 +59,13 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public VIS0EntryNode TargetVisEntry { get { return _mainWindow.TargetVisEntry; } set { _mainWindow.TargetVisEntry = value; } }
         
-        public void UpdateAnimation()
+        public void AnimationChanged()
         {
             listBox1.Items.Clear();
             listBox1.BeginUpdate();
             if (_mainWindow.SelectedVIS0 != null)
-            foreach (VIS0EntryNode n in _mainWindow.SelectedVIS0.Children)
-                listBox1.Items.Add(n);
+                foreach (VIS0EntryNode n in _mainWindow.SelectedVIS0.Children)
+                    listBox1.Items.Add(n);
 
             listBox1.EndUpdate();
         }

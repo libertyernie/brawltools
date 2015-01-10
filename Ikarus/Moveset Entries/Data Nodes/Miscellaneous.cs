@@ -278,13 +278,13 @@ namespace Ikarus.MovesetFile
     {
         internal Vector3 _posOffset, _stretch;
         internal float _radius;
-        internal sHurtBoxFlags flags = new sHurtBoxFlags();
+        internal sHurtBoxFlags _flags = new sHurtBoxFlags();
 
         [Browsable(false)]
         public MDL0BoneNode BoneNode
         {
-            get { if (Model == null) return null; if (flags.BoneIndex >= Model._linker.BoneCache.Length || flags.BoneIndex < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[flags.BoneIndex]; }
-            set { flags.BoneIndex = value.BoneIndex; _name = value.Name; }
+            get { if (Model == null) return null; if (_flags.BoneIndex >= Model._linker.BoneCache.Length || _flags.BoneIndex < 0) return null; return (MDL0BoneNode)Model._linker.BoneCache[_flags.BoneIndex]; }
+            set { _flags.BoneIndex = value.BoneIndex; _name = value.Name; }
         }
         
         [Category("HurtBox"), TypeConverter(typeof(Vector3StringConverter))]
@@ -294,15 +294,15 @@ namespace Ikarus.MovesetFile
         [Category("HurtBox")]
         public float Radius { get { return _radius; } set { _radius = value; SignalPropertyChange(); } }
         [Category("HurtBox"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
-        public string Bone { get { return BoneNode == null ? flags.BoneIndex.ToString() : BoneNode.Name; } set { if (Model == null) { flags.BoneIndex = Convert.ToInt32(value); _name = flags.BoneIndex.ToString(); } else { BoneNode = String.IsNullOrEmpty(value) ? BoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
+        public string Bone { get { return BoneNode == null ? _flags.BoneIndex.ToString() : BoneNode.Name; } set { if (Model == null) { _flags.BoneIndex = Convert.ToInt32(value); _name = _flags.BoneIndex.ToString(); } else { BoneNode = String.IsNullOrEmpty(value) ? BoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
         [Category("HurtBox")]
-        public bool Enabled { get { return flags.Enabled; } set { flags.Enabled = value; SignalPropertyChange(); } }
+        public bool Enabled { get { return _flags.Enabled; } set { _flags.Enabled = value; SignalPropertyChange(); } }
         [Category("HurtBox")]
-        public HurtBoxZone Zone { get { return flags.Zone; } set { flags.Zone = value; SignalPropertyChange(); } }
+        public HurtBoxZone Zone { get { return _flags.Zone; } set { _flags.Zone = value; SignalPropertyChange(); } }
         [Category("HurtBox")]
-        public int Region { get { return flags.Region; } set { flags.Region = value; SignalPropertyChange(); } }
+        public int Region { get { return _flags.Region; } set { _flags.Region = value; SignalPropertyChange(); } }
         [Category("HurtBox")]
-        public int Unknown { get { return flags.Unk; } set { flags.Unk = value; SignalPropertyChange(); } }
+        public int Unknown { get { return _flags.Unk; } set { _flags.Unk = value; SignalPropertyChange(); } }
 
         public override string Name
         {
@@ -315,7 +315,7 @@ namespace Ikarus.MovesetFile
             _posOffset = hdr->_offset;
             _stretch = hdr->_stretch;
             _radius = hdr->_radius;
-            flags = hdr->_flags;
+            _flags = hdr->_flags;
         }
 
         protected override int OnGetSize()
@@ -330,7 +330,7 @@ namespace Ikarus.MovesetFile
             header->_offset = _posOffset;
             header->_stretch = _stretch;
             header->_radius = _radius;
-            header->_flags = flags;
+            header->_flags = _flags;
         }
 
         #region Rendering

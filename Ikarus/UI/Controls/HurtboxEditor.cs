@@ -49,7 +49,8 @@ namespace Ikarus.UI
                     numRotZ.Value = _targetHurtbox.Stretch._z;
                     numRadius.Value = _targetHurtbox.Radius;
                     numRegion.Value = _targetHurtbox.Region;
-                    SelectedZone.SelectedIndex = (int)_targetHurtbox.Zone;
+                    int zone = (int)_targetHurtbox.Zone;
+                    SelectedZone.SelectedIndex = zone >= SelectedZone.Items.Count || zone < 0 ? -1 : zone;
                     SelectedBone.SelectedIndex = Array.IndexOf(MainForm.Instance._mainControl.TargetModel.BoneCache, _targetHurtbox.BoneNode);
                     checkBox1.Checked = _targetHurtbox.Enabled;
 

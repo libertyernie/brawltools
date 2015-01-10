@@ -22,8 +22,7 @@ namespace BrawlLib.Modeling
         void ApplyPAT(PAT0Node node, float index);
         void ApplyVIS(VIS0Node node, float index);
         void ApplyCLR(CLR0Node node, float index);
-        void SetSCN0(SCN0Node node);
-        void SetSCN0Frame(float index);
+        void ApplySCN(SCN0Node node, float index);
         
         void RenderVertices(bool depthPass, IBoneNode weightTarget);
         void RenderNormals();

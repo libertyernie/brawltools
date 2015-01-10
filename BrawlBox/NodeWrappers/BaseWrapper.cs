@@ -95,7 +95,7 @@ namespace BrawlBox
                     //Collapse();
                     if (res.HasChildren)
                     {
-                        nodes.Add(new GenericWrapper() { _owner = _owner });
+                        nodes.Add(new GenericWrapper());
                         _discovered = false;
                     }
                     else

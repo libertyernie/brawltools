@@ -50,15 +50,37 @@ namespace Ikarus.UI
             UpdatePropDisplay();
         }
 
+        protected override void ModelChanged(IModel newModel)
+        {
+            if (_targetModel != null)
+            {
+                _targetModel.IsTargetModel = false;
+                ModelPanel.RemoveTarget(_targetModel);
+            }
+
+            if ((_targetModel = newModel) != null)
+            {
+                ModelPanel.AddTarget(_targetModel);
+                _targetModel.IsTargetModel = true;
+            }
+
+            if (_resetCamera)
+            {
+                ModelPanel.ResetCamera();
+                SetFrame(0);
+            }
+            else
+                _resetCamera = true;
+
+            OnModelChanged();
+        }
+
         public override void UpdateModel()
         {
             if (_updating)
                 return;
 
-            if (EditingAll)
-                foreach (IModel n in _targetModels)
-                    UpdateModel(n);
-            else if (TargetModel != null)
+            if (TargetModel != null)
                 UpdateModel(TargetModel);
 
             if (RunTime._articles != null)
@@ -69,7 +91,7 @@ namespace Ikarus.UI
             if (!_playing) 
                 UpdatePropDisplay();
 
-            modelPanel.Invalidate();
+            ModelPanel.Invalidate();
         }
         
         //public void AnimChanged(NW4RAnimType type)
@@ -156,7 +178,7 @@ namespace Ikarus.UI
 
         internal void UpdatePlaybackPanel()
         {
-            int frame = CurrentFrame + 1;
+            int frame = CurrentFrame;
 
             pnlPlayback.btnNextFrame.Enabled = frame < MaxFrame;
             pnlPlayback.btnPrevFrame.Enabled = frame > 0;
@@ -168,7 +190,82 @@ namespace Ikarus.UI
 
         public override void SetFrame(int index)
         {
-            RunTime.SetFrame(index - 1);
+            RunTime.SetFrame(index);
+        }
+
+        protected override void _timer_RenderFrame(object sender, FrameEventArgs e)
+        {
+            RunTime.RenderFrame(sender, e);
+        }
+
+        public override void PlayAnim()
+        {
+            if (TargetAnimation == null || _maxFrame == 1)
+                return;
+
+            _playing = true;
+
+            if (DisableBonesWhenPlaying)
+            {
+                if (RenderBones == false)
+                    _bonesWereOff = true;
+                RenderBones = false;
+            }
+
+            EnableTransformEdit = false;
+
+            if (_animFrame >= _maxFrame)
+                SetFrame(1);
+
+            if (PlaybackPanel != null)
+            {
+                PlaybackPanel.btnPlay.Text = "Stop";
+                _timer.Run(0, (double)PlaybackPanel.numFPS.Value);
+            }
+            else
+                _timer.Run(0, 60);
+        }
+        public override void StopAnim()
+        {
+            if (!_playing && !_timer.IsRunning)
+                return;
+
+            _timer.Stop();
+
+            _playing = false;
+
+            if (DisableBonesWhenPlaying)
+            {
+                if (!_bonesWereOff)
+                    RenderBones = true;
+
+                _bonesWereOff = false;
+            }
+
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnPlay.Text = "Play";
+
+            EnableTransformEdit = true;
+
+            if (InterpolationEditor != null && InterpolationEditor.Visible)
+                InterpolationEditor.Frame = CurrentFrame;
+
+            if (KeyframePanel != null)
+                KeyframePanel.numFrame_ValueChanged();
+
+            if (_capture)
+            {
+                RenderToGIF(images.ToArray());
+
+                images.Clear();
+                _capture = false;
+
+                if (InterpolationEditor != null)
+                    InterpolationEditor.Enabled = true;
+
+                ModelPanel.Enabled = true;
+                Enabled = true;
+            }
         }
     }
 }

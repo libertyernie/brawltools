@@ -192,7 +192,7 @@ namespace System.Windows.Forms
         {
             _timer.TargetRenderFrequency = (double)PlaybackPanel.numFPS.Value;
         }
-        public virtual void chkLoop_CheckedChanged(object sender, EventArgs e)
+        public virtual void PlaybackPanel_LoopChanged()
         {
             _loop = PlaybackPanel.chkLoop.Checked;
             //if (TargetAnimation != null)
@@ -204,17 +204,17 @@ namespace System.Windows.Forms
                 return;
 
             int max = (int)PlaybackPanel.numTotalFrames.Value;
-            _maxFrame = max;
             PlaybackPanel.numFrameIndex.Maximum = max;
 
             if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
                 max--;
 
+            _maxFrame = max;
             TargetAnimation.FrameCount = max;
         }
-        public void btnPrevFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value--; }
-        public void btnNextFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value++; }
-        public void btnPlay_Click(object sender, EventArgs e)
+        public virtual void btnPrevFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value--; }
+        public virtual void btnNextFrame_Click(object sender, EventArgs e) { PlaybackPanel.numFrameIndex.Value++; }
+        public virtual void TogglePlay()
         {
             if (_timer.IsRunning)
                 StopAnim();
