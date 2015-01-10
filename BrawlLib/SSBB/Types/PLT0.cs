@@ -11,6 +11,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct PLT0v1
     {
+        public const int Size = 0x40;
         public const uint Tag = 0x30544C50;
 
         public BRESCommonHeader _bresEntry;
@@ -37,6 +38,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (uint)value - (uint)this.Address; }
         }
         public VoidPtr PaletteData { get { return (VoidPtr)this.Address + _headerLen; } }
+        public int PaletteDataLength { get { return _bresEntry._size - Size; } }
         public WiiPaletteFormat PaletteFormat
         {
             get { return (WiiPaletteFormat)(uint)_pixelFormat; }
@@ -46,11 +48,11 @@ namespace BrawlLib.SSBBTypes
         public PLT0v1(int length, WiiPaletteFormat format)
         {
             _bresEntry._tag = Tag;
-            _bresEntry._size = (length * 2) + sizeof(PLT0v1);
+            _bresEntry._size = (length * 2) + Size;
             _bresEntry._version = 1;
             _bresEntry._bresOffset = 0;
 
-            _headerLen = sizeof(PLT0v1);
+            _headerLen = Size;
             _stringOffset = 0;
             _pixelFormat = (uint)format;
             _numEntries = (short)length;
@@ -62,6 +64,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct PLT0v3
     {
+        public const int Size = 0x44;
         public const uint Tag = 0x30544C50;
 
         public BRESCommonHeader _bresEntry;
@@ -97,6 +100,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (uint)value - (uint)this.Address; }
         }
         public VoidPtr PaletteData { get { return (VoidPtr)this.Address + _headerLen; } }
+        public int PaletteDataLength { get { return _bresEntry._size - Size; } }
         public WiiPaletteFormat PaletteFormat
         {
             get { return (WiiPaletteFormat)(uint)_pixelFormat; }
@@ -106,11 +110,11 @@ namespace BrawlLib.SSBBTypes
         public PLT0v3(int length, WiiPaletteFormat format)
         {
             _bresEntry._tag = Tag;
-            _bresEntry._size = (length * 2) + sizeof(PLT0v3);
+            _bresEntry._size = (length * 2) + Size;
             _bresEntry._version = 1;
             _bresEntry._bresOffset = 0;
 
-            _headerLen = sizeof(PLT0v3);
+            _headerLen = Size;
             _stringOffset = 0;
             _pixelFormat = (uint)format;
             _numEntries = (short)length;
