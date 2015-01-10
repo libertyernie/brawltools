@@ -1386,9 +1386,10 @@ For example, if the shader has two stages but this number is 1, the second stage
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplyPAT0Texture(null, 0);
         }
-        public float renderFrame = 0;
-        internal unsafe void SetSCN0(SCN0Node node)
+        public float _renderFrame = 0;
+        internal unsafe void ApplySCN(SCN0Node node, float index)
         {
+            _renderFrame = index;
             if (node == null)
             {
                 _lightSet = null;
@@ -1401,16 +1402,6 @@ For example, if the shader has two stages but this number is 1, the second stage
                 g = node.GetFolder<SCN0FogNode>();
                 _fog = FogIndex < g.Children.Count && FogIndex >= 0 ? g.Children[FogIndex] as SCN0FogNode : null;
             }
-        }
-
-        public void SetSCN0Frame(float frame)
-        {
-            renderFrame = frame;
-        }
-
-        internal unsafe void ApplySCN0(int index)
-        {
-            
         }
 
         #endregion

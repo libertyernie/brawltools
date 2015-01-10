@@ -24,7 +24,7 @@ namespace System.Windows.Forms
 
         public int _animFrame = 0, _maxFrame;
         public bool _updating, _loop;
-        protected CoolTimer _timer;
+        public CoolTimer _timer;
 
         public CHR0Node _chr0;
         public SRT0Node _srt0;

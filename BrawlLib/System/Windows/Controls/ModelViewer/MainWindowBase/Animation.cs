@@ -106,19 +106,23 @@ namespace System.Windows.Forms
 
         public virtual void SetFrame(int index)
         {
-            if (index > _maxFrame || index < 0)
+            if (index < 0)
                 return;
 
-            index = TargetModel == null ? 0 : index;
+            NW4RAnimationNode node = TargetAnimation;
+            int loopMax = _maxFrame + (node != null && node.Loop && Interpolated.Contains(node.GetType()) ? 1 : 0);
+
+            if (index > loopMax)
+                return;
 
             CurrentFrame = index;
 
             if (PlaybackPanel != null)
             {
-                PlaybackPanel.btnNextFrame.Enabled = _animFrame < _maxFrame;
+                PlaybackPanel.btnNextFrame.Enabled = _animFrame < loopMax;
                 PlaybackPanel.btnPrevFrame.Enabled = _animFrame > 0;
 
-                PlaybackPanel.btnLast.Enabled = _animFrame != _maxFrame;
+                PlaybackPanel.btnLast.Enabled = _animFrame != loopMax;
                 PlaybackPanel.btnFirst.Enabled = _animFrame > 1;
 
                 if (_animFrame <= (float)PlaybackPanel.numFrameIndex.Maximum)
@@ -140,11 +144,7 @@ namespace System.Windows.Forms
             if (TargetAnimation == null)
                 return;
 
-            int i = 0;
-            if (Interpolated.Contains(TargetAnimation.GetType()) && TargetAnimation.Loop)
-                i = 1;
-
-            if (_animFrame >= _maxFrame - i)
+            if (_animFrame >= _maxFrame)
                 if (!_loop)
                     StopAnim();
                 else
@@ -226,6 +226,9 @@ namespace System.Windows.Forms
             }
         }
 
+        /// <summary>
+        /// Called only when the animation frame or frame data changes
+        /// </summary>
         public virtual void UpdatePropDisplay()
         {
             switch (TargetAnimType)
@@ -235,7 +238,7 @@ namespace System.Windows.Forms
                 case NW4RAnimType.SHP: if (SHP0Editor != null) SHP0Editor.UpdatePropDisplay(); break;
                 case NW4RAnimType.PAT: if (PAT0Editor != null) PAT0Editor.UpdatePropDisplay(); break;
                 case NW4RAnimType.SCN: if (SCN0Editor != null) SCN0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.CLR: if (CLR0Editor != null) CLR0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CLR: break;
                 case NW4RAnimType.VIS:
                     if (KeyframePanel != null && KeyframePanel.visEditor.TargetNode != null && !((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Constant)
                     {
@@ -273,35 +276,21 @@ namespace System.Windows.Forms
         {
             //TODO: support for applying more than one animation per type
 
-            if (_chr0 != null && PlayCHR0)
-                model.ApplyCHR(_chr0, _animFrame);
-            else
-                model.ApplyCHR(null, 0);
-            if (_srt0 != null && PlaySRT0)
-                model.ApplySRT(_srt0, _animFrame);
-            else
-                model.ApplySRT(null, 0);
-            if (_shp0 != null && PlaySHP0)
-                model.ApplySHP(_shp0, _animFrame);
-            else
-                model.ApplySHP(null, 0);
-            if (_pat0 != null && PlayPAT0)
-                model.ApplyPAT(_pat0, _animFrame);
-            else
-                model.ApplyPAT(null, 0);
+            model.ApplyCHR(PlayCHR0 ? _chr0 : null, _animFrame);
+            model.ApplySRT(PlaySRT0 ? _srt0 : null, _animFrame);
+            model.ApplySHP(PlaySHP0 ? _shp0 : null, _animFrame);
+            model.ApplyPAT(PlayPAT0 ? _pat0 : null, _animFrame);
+            model.ApplyCLR(PlayCLR0 ? _clr0 : null, _animFrame);
+
             if (_vis0 != null && PlayVIS0)
                 if (model == TargetModel)
                     ApplyVIS0ToInterface();
                 else
                     model.ApplyVIS(_vis0, _animFrame);
-            if (_scn0 != null && PlaySCN0)
-                model.SetSCN0Frame(_animFrame);
             else
-                model.SetSCN0Frame(0);
-            if (_clr0 != null && PlayCLR0)
-                model.ApplyCLR(_clr0, _animFrame);
-            else
-                model.ApplyCLR(null, 0);
+                model.ApplyVIS(null, 0);
+
+            model.ApplySCN(PlaySCN0 ? _scn0 : null, _animFrame);
         }
 
         public void UpdateKeyframePanel() { UpdateKeyframePanel(TargetAnimType); }
@@ -333,14 +322,17 @@ namespace System.Windows.Forms
         protected virtual void UpdateSRT0FocusControls(SRT0Node node) { }
         protected virtual void UpdatePAT0FocusControls(PAT0Node node) { }
         
+        /// <summary>
+        /// Called only when the animation changes
+        /// </summary>
         public void UpdateEditor() { UpdateEditor(TargetAnimType); }
+        /// <summary>
+        /// Called only when the animation changes
+        /// </summary>
         public virtual void UpdateEditor(NW4RAnimType type)
         {
             if (type != NW4RAnimType.SRT) UpdateSRT0FocusControls(null);
             if (type != NW4RAnimType.PAT) UpdatePAT0FocusControls(null);
-            if (type != NW4RAnimType.SCN)
-                foreach (IModel m in _targetModels)
-                    m.SetSCN0(null);
 
             switch (type)
             {
@@ -350,22 +342,25 @@ namespace System.Windows.Forms
                     UpdateSRT0FocusControls(SelectedSRT0);
                     break;
                 case NW4RAnimType.SHP:
-                    SHP0Editor.UpdateSHP0Indices();
+                    if (SHP0Editor != null)
+                        SHP0Editor.AnimationChanged();
                     break;
                 case NW4RAnimType.PAT:
-                    PAT0Editor.UpdateBoxes();
+                    if (PAT0Editor != null)
+                        PAT0Editor.UpdateBoxes();
                     UpdatePAT0FocusControls(SelectedPAT0);
                     break;
                 case NW4RAnimType.VIS:
-                    VIS0Editor.UpdateAnimation();
+                    if (VIS0Editor != null)
+                        VIS0Editor.AnimationChanged();
                     break;
                 case NW4RAnimType.SCN:
-                    //foreach (MDL0Node m in _targetModels)
-                    //    m.SetSCN0(_scn0);
-                    SCN0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, SCN0Editor.tabIndex, TabControlAction.Selected));
+                    if (SCN0Editor != null)
+                        SCN0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, SCN0Editor.tabIndex, TabControlAction.Selected));
                     break;
                 case NW4RAnimType.CLR:
-                    CLR0Editor.UpdateAnimation();
+                    if (CLR0Editor != null)
+                        CLR0Editor.AnimationChanged();
                     break;
             }
         }
@@ -407,18 +402,18 @@ namespace System.Windows.Forms
             }
             else
             {
-                bool loopFrame =  node.Loop && Interpolated.Contains(node.GetType());
+                int loopBias =  node.Loop && Interpolated.Contains(node.GetType()) ? 1 : 0;
 
-                _maxFrame = node.FrameCount + (loopFrame ? 1 : 0);
+                _maxFrame = node.FrameCount;
                 EnableTransformEdit = !_playing;
 
                 PlaybackPanel.btnPlay.Enabled =
                 PlaybackPanel.numFrameIndex.Enabled =
                 PlaybackPanel.numTotalFrames.Enabled =
                 PlaybackPanel.Enabled = true;
-                PlaybackPanel.numTotalFrames.Value = (decimal)_maxFrame;
-                PlaybackPanel.numTotalFrames.Minimum = loopFrame ? 2 : 1;
-                PlaybackPanel.numFrameIndex.Maximum = (decimal)_maxFrame;
+                PlaybackPanel.numTotalFrames.Value = (decimal)(_maxFrame + loopBias);
+                PlaybackPanel.numTotalFrames.Minimum = loopBias + 1;
+                PlaybackPanel.numFrameIndex.Maximum = (decimal)(_maxFrame + loopBias);
 
                 GetFiles(TargetAnimType);
                 SetFrame(1);
@@ -607,7 +602,7 @@ namespace System.Windows.Forms
 
         public virtual void ApplyVIS0ToInterface()
         {
-            TargetModel.ApplyVIS(_vis0, _animFrame);
+            TargetModel.ApplyVIS(PlayVIS0 ? _vis0 : null, _animFrame);
         }
 
         #endregion

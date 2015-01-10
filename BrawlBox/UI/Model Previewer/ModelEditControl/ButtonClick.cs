@@ -142,7 +142,7 @@ namespace System.Windows.Forms
                     _bonesWereOff = true;
                 RenderBones = false;
             }
-            btnPlay_Click(null, null);
+            TogglePlay();
         }
 
         #endregion
