@@ -13,7 +13,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0Header
     {
-        public const uint Size = 16;
+        //public const uint Size = 16;
         public const string Tag = "MDL0";
 
         public BRESCommonHeader _header;
@@ -190,7 +190,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0Props
     {
-        public const uint Size = 0x40;
+        //public const uint Size = 0x40;
 
         public buint _headerLen; //0x40
         public bint _mdl0Offset;
@@ -298,10 +298,10 @@ namespace BrawlLib.SSBBTypes
             object n = null;
             switch (*(byte*)addr++)
             {
-                case 2: { n = Marshal.PtrToStructure(addr, typeof(MDL0Node2Class)); addr += MDL0Node2Class.Size; break; }
+                case 2: { n = Marshal.PtrToStructure(addr, typeof(MDL0Node2Class)); addr += sizeof(MDL0Node2Class); break; }
                 case 3: { n = new MDL0Node3Class((MDL0NodeType3*)addr); addr += ((MDL0Node3Class)n).GetSize(); break; }
-                case 4: { n = Marshal.PtrToStructure(addr, typeof(MDL0NodeType4)); addr += MDL0NodeType4.Size; break; }
-                case 5: { n = Marshal.PtrToStructure(addr, typeof(MDL0NodeType5)); addr += MDL0NodeType5.Size; break; }
+                case 4: { n = Marshal.PtrToStructure(addr, typeof(MDL0NodeType4)); addr += sizeof(MDL0NodeType4); break; }
+                case 5: { n = Marshal.PtrToStructure(addr, typeof(MDL0NodeType5)); addr += sizeof(MDL0NodeType5); break; }
                 case 6: n = null; addr += 4; break;
             }
             return n;
@@ -309,9 +309,9 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe class MDL0Node2Class : MDL0NodeClass
+    public unsafe struct MDL0Node2Class
     {
-        public const uint Size = 0x04;
+        //public const uint Size = 0x04;
 
         public bushort _boneIndex;
         public bushort _parentNodeIndex;
@@ -340,7 +340,7 @@ namespace BrawlLib.SSBBTypes
         public ushort Id { get { return _id; } set { _id = value; } }
         public MDL0NodeType3Entry[] Entries { get { return _entries.ToArray(); } }
 
-        public int GetSize() { return 3 + (_entries.Count * MDL0NodeType3Entry.Size); }
+        public int GetSize() { return 3 + (_entries.Count * sizeof(MDL0NodeType3Entry)); }
 
         public override string ToString()
         {
@@ -351,7 +351,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0NodeType2
     {
-        public const int Size = 0x04;
+        //public const int Size = 0x04;
 
         public bushort _index;
         public bushort _parentId;
@@ -368,7 +368,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0NodeType3
     {
-        public const int Size = 0x03;
+        //public const int Size = 0x03;
 
         public bushort _id;
         public byte _numEntries;
@@ -388,7 +388,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0NodeType3Entry
     {
-        public const int Size = 0x06;
+        //public const int Size = 0x06;
 
         public bushort _id;
         public bfloat _value;
@@ -405,7 +405,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0NodeType4
     {
-        public const uint Size = 0x07;
+        //public const uint Size = 0x07;
 
         public bushort _materialIndex;
         public bushort _polygonIndex;
@@ -427,7 +427,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MDL0NodeType5
     {
-        public const uint Size = 0x04;
+        //public const uint Size = 0x04;
 
         public bushort _id; //Node Id
         public bushort _index; //Node Index
@@ -702,13 +702,14 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct TextureSRT
+    public unsafe struct TextureSRT
     {
-        public const int Size = 0x20;
+        //public const int Size = 0x20;
 
         public BVec2 TexScale;
         public bfloat TexRotation;
         public BVec2 TexTranslation;
+		public fixed byte _padding[12];
 
         public static readonly TextureSRT Default = new TextureSRT()
         {
@@ -958,9 +959,9 @@ namespace BrawlLib.SSBBTypes
         public MDL0MaterialLighting* Light(int version) { return (MDL0MaterialLighting*)(Address + 0x3E8 + (_matRefOffset == 0 ? (version < 10 ? 4 : 8) : (_matRefOffset & 0xF))); }
         public UserData* UserData(int version) { if (UserDataOffset(version) > 0) return (UserData*)(Address + UserDataOffset(version)); else return null; }
         public MatModeBlock* DisplayLists(int version) { return (MatModeBlock*)(Address + DisplayListOffset(version)); }
-        public MatTevColorBlock* TevColorBlock(int version) { return (MatTevColorBlock*)(Address + DisplayListOffset(version) + MatModeBlock.Size); }
-        public MatTevKonstBlock* TevKonstBlock(int version) { return (MatTevKonstBlock*)(Address + DisplayListOffset(version) + MatModeBlock.Size + MatTevColorBlock.Size); }
-        public MatIndMtxBlock* IndMtxBlock(int version) { return (MatIndMtxBlock*)(Address + DisplayListOffset(version) + MatModeBlock.Size + MatTevColorBlock.Size + MatTevKonstBlock.Size); }
+        public MatTevColorBlock* TevColorBlock(int version) { return (MatTevColorBlock*)(Address + DisplayListOffset(version) + sizeof(MatModeBlock)); }
+        public MatTevKonstBlock* TevKonstBlock(int version) { return (MatTevKonstBlock*)(Address + DisplayListOffset(version) + sizeof(MatModeBlock) + sizeof(MatTevColorBlock)); }
+        public MatIndMtxBlock* IndMtxBlock(int version) { return (MatIndMtxBlock*)(Address + DisplayListOffset(version) + sizeof(MatModeBlock) + sizeof(MatTevColorBlock) + sizeof(MatTevKonstBlock)); }
         
         public string ResourceString { get { return new String((sbyte*)ResourceStringAddress); } }
         public VoidPtr ResourceStringAddress
@@ -1061,7 +1062,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MatModeBlock
     {
-        public const int Size = 32;
+        //public const int Size = 32;
         public static readonly MatModeBlock Default = new MatModeBlock()
         {
             _alphafuncCmd = 0xF361,
@@ -1093,7 +1094,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MatTevColorBlock
     {
-        public const int Size = 64;
+        //public const int Size = 64;
         public static readonly MatTevColorBlock Default = new MatTevColorBlock()
         {
             _tr1LCmd = 0xE261,
@@ -1143,7 +1144,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct MatTevKonstBlock
     {
-        public const int Size = 64;
+        //public const int Size = 64;
         public static readonly MatTevKonstBlock Default = new MatTevKonstBlock()
         {
             _tr0LoCmd = 0xE061,
@@ -1187,7 +1188,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct KSelSwapBlock
     {
-        public const int Size = 64;
+        //public const int Size = 64;
         public static readonly KSelSwapBlock Default = new KSelSwapBlock()
         {
             Reg00 = 0x61,
@@ -1322,7 +1323,7 @@ namespace BrawlLib.SSBBTypes
         //TRef and KSel modify both stages.
         //The odd stage does not need to be used.
 
-        public const int Size = 0x30;
+        //public const int Size = 0x30;
         
         public BPCommand mask; //KSel Mask - Selection Mode (XRB = 0, XGA = 0)
         public BPCommand ksel; //KSel
@@ -1333,6 +1334,7 @@ namespace BrawlLib.SSBBTypes
         public BPCommand oAlpEnv; //Alpha Env Odd (Optional)
         public BPCommand eCMD; //CMD (Indirect Texture) Even
         public BPCommand oCMD; //CMD (Indirect Texture) Odd (Optional)
+		public fixed byte _padding[3];
 
         public static readonly StageGroup Default = new StageGroup()
         {
