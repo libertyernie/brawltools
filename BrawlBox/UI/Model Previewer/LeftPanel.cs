@@ -6,6 +6,7 @@ using System.ComponentModel;
 using BrawlLib.OpenGL;
 using BrawlLib;
 using System.IO;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace System.Windows.Forms
@@ -1452,13 +1453,13 @@ namespace System.Windows.Forms
             if ((r = _mainWindow.TargetAnimation) != null)
                 switch (TargetAnimType)
                 {
-                    case NW4RAnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
-                    case NW4RAnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
-                    case NW4RAnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
-                    case NW4RAnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
-                    case NW4RAnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
-                    case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
-                    case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
+                    case NW4RAnimType.CHR: ((BRRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
+                    case NW4RAnimType.SRT: ((BRRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
+                    case NW4RAnimType.SHP: ((BRRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
+                    case NW4RAnimType.PAT: ((BRRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
+                    case NW4RAnimType.VIS: ((BRRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
+                    case NW4RAnimType.SCN: ((BRRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
+                    case NW4RAnimType.CLR: ((BRRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
             UpdateAnimations();
             listAnims.Items[listAnims.Items.Count - 1].Selected = true;
@@ -1588,16 +1589,16 @@ namespace System.Windows.Forms
         private void inModelsBRRESToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ResourceNode r = TargetModel as ResourceNode;
-            if (r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRESNode))
+            if (r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRRESNode))
                 return;
 
-            AddAnimation((BRESNode)r.Parent.Parent);
+            AddAnimation((BRRESNode)r.Parent.Parent);
         }
 
-        private void AddAnimation(BRESNode target)
+        private void AddAnimation(BRRESNode target)
         {
             Type t = ModelEditorBase.AnimTypeList[(int)TargetAnimType];
-            var method = typeof(BRESNode).GetMethod("CreateResource");
+            var method = typeof(BRRESNode).GetMethod("CreateResource");
             var generic = method.MakeGenericMethod(t);
             generic.Invoke(target, new object[] { "New" + TargetAnimType.ToString() });
             UpdateAnimations();
@@ -1610,7 +1611,7 @@ namespace System.Windows.Forms
                 return;
 
             ResourceNode r = _mainWindow.ExternalAnimationsNode;
-            BRESNode target = null;
+            BRRESNode target = null;
 
             if (target != null)
                 AddAnimation(target);
@@ -1619,7 +1620,7 @@ namespace System.Windows.Forms
         private void ctxAnimList_Opening(object sender, CancelEventArgs e)
         {
             ResourceNode r = TargetModel as ResourceNode;
-            bool targetBRRES = !(r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRESNode));
+            bool targetBRRES = !(r == null || r.Parent == null || r.Parent.Parent == null || !(r.Parent.Parent is BRRESNode));
 
             if (!targetBRRES)
                 e.Cancel = true;

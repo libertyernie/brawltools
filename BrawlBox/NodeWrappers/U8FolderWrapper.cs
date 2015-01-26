@@ -144,9 +144,9 @@ namespace BrawlBox
             return node;
         }
 
-        public BRESNode NewBrres()
+        public BRRESNode NewBrres()
         {
-            BRESNode node = ((U8FolderNode)_resource).CreateResource<BRESNode>("NewBrres");
+            BRRESNode node = ((U8FolderNode)_resource).CreateResource<BRRESNode>("NewBrres");
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
             res.EnsureVisible();
@@ -229,7 +229,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.BRES, out path) > 0)
             {
-                BRESNode node = NodeFactory.FromFile(null, path) as BRESNode;
+                BRRESNode node = NodeFactory.FromFile(null, path) as BRRESNode;
                 ((U8FolderNode)_resource).AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
@@ -247,7 +247,7 @@ namespace BrawlBox
             ExportAllFormatDialog dialog = new ExportAllFormatDialog();
 
             if (dialog.ShowDialog() == DialogResult.OK)
-                ((BRESNode)_resource).ExportToFolder(path, dialog.SelectedExtension);
+                ((BRRESNode)_resource).ExportToFolder(path, dialog.SelectedExtension);
         }
 
         public void EditAll()
@@ -266,7 +266,7 @@ namespace BrawlBox
             dialog.label1.Text = "Input format for textures:";
 
             if (dialog.ShowDialog() == DialogResult.OK)
-                ((BRESNode)_resource).ReplaceFromFolder(path, dialog.SelectedExtension);
+                ((BRRESNode)_resource).ReplaceFromFolder(path, dialog.SelectedExtension);
         }
 
         public void ImportFolder()
@@ -275,7 +275,7 @@ namespace BrawlBox
             if (path == null)
                 return;
 
-            ((BRESNode)_resource).ImportFolder(path);
+            ((BRRESNode)_resource).ImportFolder(path);
         }
 
         private void LoadModels(ResourceNode node, List<MDL0Node> models)

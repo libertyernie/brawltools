@@ -105,9 +105,9 @@ namespace BrawlBox
             w.TreeView.SelectedNode = w;
             return node;
         }
-        public BRESNode NewBRES()
+        public BRRESNode NewBRES()
         {
-            BRESNode node = new BRESNode() { FileType = ARCFileType.MiscData };
+            BRRESNode node = new BRRESNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);

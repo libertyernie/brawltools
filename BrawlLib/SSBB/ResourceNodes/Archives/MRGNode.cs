@@ -45,8 +45,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
-                else if (entry is BRESNode)
-                    ((BRESNode)entry).ExportToFolder(outFolder);
+                else if (entry is BRRESNode)
+                    ((BRRESNode)entry).ExportToFolder(outFolder);
             }
         }
 
@@ -66,9 +66,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                         continue;
                     }
                 }
-                else if (entry is BRESNode)
+                else if (entry is BRRESNode)
                 {
-                    ((BRESNode)entry).ReplaceFromFolder(inFolder);
+                    ((BRRESNode)entry).ReplaceFromFolder(inFolder);
                 }
 
                 //Find file name for entry

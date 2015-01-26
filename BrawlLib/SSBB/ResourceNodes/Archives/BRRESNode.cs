@@ -9,10 +9,11 @@ using BrawlLib.IO;
 using System.Windows.Forms;
 using BrawlLib.Wii.Textures;
 using Gif.Components;
+using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class BRESNode : ARCEntryNode
+    public unsafe class BRRESNode : ARCEntryNode
     {
         internal BRESHeader* Header { get { return (BRESHeader*)WorkingUncompressed.Address; } }
 
@@ -343,10 +344,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             _stringTable.Clear();
         }
 
-        public static BRESNode FromGIF(string file)
+        public static BRRESNode FromGIF(string file)
         {
             string s = Path.GetFileNameWithoutExtension(file);
-            BRESNode b = new BRESNode() { _name = s };
+            BRRESNode b = new BRRESNode() { _name = s };
             PAT0Node p = new PAT0Node() { _name = s };
             p.CreateEntry();
 
@@ -372,7 +373,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return b;
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((BRESHeader*)source.Address)->_tag == BRESHeader.Tag ? new BRESNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) { return ((BRESHeader*)source.Address)->_tag == BRESHeader.Tag ? new BRRESNode() : null; }
     }
 
     public unsafe class BRESGroupNode : ResourceNode
@@ -526,7 +527,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public virtual int DataAlign { get { return 4; } }
         [Browsable(false)]
-        public BRESNode BRESNode { get { return ((_parent != null) && (Parent.Parent is BRESNode)) ? Parent.Parent as BRESNode : null; } }
+        public BRRESNode BRESNode { get { return ((_parent != null) && (Parent.Parent is BRRESNode)) ? Parent.Parent as BRRESNode : null; } }
         [Browsable(false)]
         public virtual int[] SupportedVersions { get { return new int[0]; } }
 

@@ -61,8 +61,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (ARCEntryNode entry in Children)
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
-                else if (entry is BRESNode)
-                    ((BRESNode)entry).ExportToFolder(outFolder);
+                else if (entry is BRRESNode)
+                    ((BRRESNode)entry).ExportToFolder(outFolder);
         }
 
         public void ReplaceFromFolder(string inFolder)
@@ -80,9 +80,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                         continue;
                     }
                 }
-                else if (entry is BRESNode)
+                else if (entry is BRRESNode)
                 {
-                    ((BRESNode)entry).ReplaceFromFolder(inFolder);
+                    ((BRRESNode)entry).ReplaceFromFolder(inFolder);
                     continue;
                 }
             }
@@ -105,10 +105,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (ARCEntryNode node in Children)
             {
                 *entry = new ARCFileHeader(node.FileType, node.FileIndex, node._calcSize, node.GroupID, node._redirectIndex);
-                if (node.IsCompressed)
-                    node.MoveRaw(entry->Data, entry->Length);
-                else
-                    node.Rebuild(entry->Data, entry->Length, force);
+                node.Rebuild(entry->Data, entry->Length, force);
                 entry = entry->Next;
             }
         }

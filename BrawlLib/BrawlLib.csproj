@@ -300,7 +300,6 @@
     <Compile Include="SSBB\CompactStringTable.cs" />
     <Compile Include="SSBB\FileFilters.cs" />
     <Compile Include="SSBB\LabelBuilder.cs" />
-    <Compile Include="SSBB\NodeComparer.cs" />
     <Compile Include="SSBB\NodeDeepChecksum.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\AIPDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
@@ -633,7 +632,7 @@
     <Compile Include="Platform\Linux.cs" />
     <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
-    <Compile Include="SSBB\ResourceNodes\Archives\BRESNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\BRRESNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\CHR0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\CLR0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\PAT0Node.cs" />
