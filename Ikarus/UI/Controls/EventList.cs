@@ -16,7 +16,7 @@ namespace System.Windows.Forms
     {
         public DialogResult status;
         public long eventEvent;
-        public MovesetNode p;
+        public SakuraiArchiveNode p;
 
         public FormEventList()
         {

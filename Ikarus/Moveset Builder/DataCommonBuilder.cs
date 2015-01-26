@@ -10,10 +10,11 @@ using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.OpenGL;
 using Ikarus;
+using Ikarus.MovesetFile;
 
-namespace BrawlLib.SSBB.ResourceNodes
+namespace Ikarus.MovesetBuilder
 {
-    public unsafe partial class NewMovesetBuilder
+    public unsafe class DataCommonBuilder : BuilderBase
     {
         //---Notes--- (these may or may not actually matter - follow just to be safe)
         // - Subroutines are written right before the first script are called by
@@ -49,15 +50,18 @@ namespace BrawlLib.SSBB.ResourceNodes
         //patternPowerMul events  
         //Sections data
         //dataCommon header
+        
+        DataCommonSection _dataCommon;
+        public DataCommonBuilder(DataCommonSection dataCommon) { _dataCommon = dataCommon; }
 
-        public static int CalcDataCommonSize(DataCommonSection node)
+        public override int CalcSize()
         {
-            int size = 0;
-            
-            return 0;
+            _size = sizeof(CommonHeader);
+
+            return _size;
         }
 
-        internal static unsafe void BuildDataCommon(DataCommonSection node, int length, bool force)
+        public override void Build(VoidPtr address)
         {
 
         }

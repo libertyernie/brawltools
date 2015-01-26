@@ -262,7 +262,6 @@ namespace Ikarus.UI
             this.animEditors = new System.Windows.Forms.Panel();
             this.pnlPlayback = new System.Windows.Forms.ModelPlaybackPanel();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.hurtboxEditor = new Ikarus.UI.HurtboxEditor();
             this.vis0Editor = new System.Windows.Forms.VIS0Editor();
             this.pat0Editor = new System.Windows.Forms.PAT0Editor();
             this.shp0Editor = new System.Windows.Forms.SHP0Editor();
@@ -270,14 +269,15 @@ namespace Ikarus.UI
             this.chr0Editor = new System.Windows.Forms.CHR0Editor();
             this.clr0Editor = new System.Windows.Forms.CLR0Editor();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.scriptPanel = new Ikarus.UI.EditorPanel();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.listPanel = new Ikarus.UI.ListsPanel();
             this.panel4 = new System.Windows.Forms.Panel();
             this.button3 = new System.Windows.Forms.Button();
             this.button2 = new System.Windows.Forms.Button();
             this.spltRight = new System.Windows.Forms.Splitter();
             this.modelListsPanel1 = new Ikarus.UI.ModelListsPanel();
+            this.scriptPanel = new Ikarus.UI.EditorPanel();
+            this.listPanel = new Ikarus.UI.ListsPanel();
+            this.hurtboxEditor = new Ikarus.UI.HurtboxEditor();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -928,7 +928,7 @@ namespace Ikarus.UI
             this.hitboxesOffToolStripMenuItem.Checked = true;
             this.hitboxesOffToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.hitboxesOffToolStripMenuItem.Name = "hitboxesOffToolStripMenuItem";
-            this.hitboxesOffToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.hitboxesOffToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.hitboxesOffToolStripMenuItem.Text = "Hitboxes";
             this.hitboxesOffToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RenderStateChanged);
             this.hitboxesOffToolStripMenuItem.Click += new System.EventHandler(this.hitboxesOffToolStripMenuItem_Click);
@@ -938,7 +938,7 @@ namespace Ikarus.UI
             this.hurtboxesOffToolStripMenuItem.Checked = true;
             this.hurtboxesOffToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
             this.hurtboxesOffToolStripMenuItem.Name = "hurtboxesOffToolStripMenuItem";
-            this.hurtboxesOffToolStripMenuItem.Size = new System.Drawing.Size(128, 22);
+            this.hurtboxesOffToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.hurtboxesOffToolStripMenuItem.Text = "Hurtboxes";
             this.hurtboxesOffToolStripMenuItem.CheckedChanged += new System.EventHandler(this.RenderStateChanged);
             this.hurtboxesOffToolStripMenuItem.Click += new System.EventHandler(this.hurtboxesOffToolStripMenuItem_Click);
@@ -1322,16 +1322,6 @@ namespace Ikarus.UI
             this.panel3.Size = new System.Drawing.Size(264, 60);
             this.panel3.TabIndex = 29;
             // 
-            // hurtboxEditor
-            // 
-            this.hurtboxEditor.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.hurtboxEditor.Location = new System.Drawing.Point(0, 0);
-            this.hurtboxEditor.Name = "hurtboxEditor";
-            this.hurtboxEditor.Size = new System.Drawing.Size(264, 60);
-            this.hurtboxEditor.TabIndex = 31;
-            this.hurtboxEditor.TargetHurtBox = null;
-            this.hurtboxEditor.Visible = false;
-            // 
             // vis0Editor
             // 
             this.vis0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1390,39 +1380,23 @@ namespace Ikarus.UI
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.scriptPanel);
-            this.panel1.Controls.Add(this.splitter2);
             this.panel1.Controls.Add(this.listPanel);
+            this.panel1.Controls.Add(this.splitter2);
+            this.panel1.Controls.Add(this.scriptPanel);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel1.Location = new System.Drawing.Point(0, 24);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(228, 513);
             this.panel1.TabIndex = 34;
             // 
-            // scriptPanel
-            // 
-            this.scriptPanel.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.scriptPanel.Location = new System.Drawing.Point(0, 264);
-            this.scriptPanel.Name = "scriptPanel";
-            this.scriptPanel.Size = new System.Drawing.Size(228, 249);
-            this.scriptPanel.TabIndex = 33;
-            // 
             // splitter2
             // 
-            this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.splitter2.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.splitter2.Location = new System.Drawing.Point(0, 261);
             this.splitter2.Name = "splitter2";
             this.splitter2.Size = new System.Drawing.Size(228, 3);
             this.splitter2.TabIndex = 34;
             this.splitter2.TabStop = false;
-            // 
-            // listPanel
-            // 
-            this.listPanel.Dock = System.Windows.Forms.DockStyle.Top;
-            this.listPanel.Location = new System.Drawing.Point(0, 0);
-            this.listPanel.Name = "listPanel";
-            this.listPanel.Size = new System.Drawing.Size(228, 261);
-            this.listPanel.TabIndex = 32;
             // 
             // panel4
             // 
@@ -1476,6 +1450,32 @@ namespace Ikarus.UI
             this.modelListsPanel1.Name = "modelListsPanel1";
             this.modelListsPanel1.Size = new System.Drawing.Size(156, 513);
             this.modelListsPanel1.TabIndex = 35;
+            // 
+            // scriptPanel
+            // 
+            this.scriptPanel.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.scriptPanel.Location = new System.Drawing.Point(0, 264);
+            this.scriptPanel.Name = "scriptPanel";
+            this.scriptPanel.Size = new System.Drawing.Size(228, 249);
+            this.scriptPanel.TabIndex = 33;
+            // 
+            // listPanel
+            // 
+            this.listPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listPanel.Location = new System.Drawing.Point(0, 0);
+            this.listPanel.Name = "listPanel";
+            this.listPanel.Size = new System.Drawing.Size(228, 261);
+            this.listPanel.TabIndex = 32;
+            // 
+            // hurtboxEditor
+            // 
+            this.hurtboxEditor.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.hurtboxEditor.Location = new System.Drawing.Point(0, 0);
+            this.hurtboxEditor.Name = "hurtboxEditor";
+            this.hurtboxEditor.Size = new System.Drawing.Size(264, 60);
+            this.hurtboxEditor.TabIndex = 31;
+            this.hurtboxEditor.TargetHurtBox = null;
+            this.hurtboxEditor.Visible = false;
             // 
             // MainControl
             // 
@@ -1579,10 +1579,19 @@ namespace Ikarus.UI
         {
             base.OnLoad(e);
 
-            if (!String.IsNullOrEmpty(Ikarus.Properties.Settings.Default.RootPath))
+            string path = null;
+#if DEBUG
+            if (Environment.UserName == "David")
+                path = "X:/Documents/Games/SSBB";
+            else
+                path = Ikarus.Properties.Settings.Default.RootPath;
+#else
+            path = Ikarus.Properties.Settings.Default.RootPath;
+#endif
+            if (!String.IsNullOrEmpty(path))
             {
                 RunTime._IsRoot = true;
-                Program.OpenRootFromPath(pathToolStripMenuItem.Text = Ikarus.Properties.Settings.Default.RootPath);
+                Program.OpenRootFromPath(pathToolStripMenuItem.Text = path);
                 comboCharacters.Enabled = true;
             }
 
@@ -1767,19 +1776,16 @@ namespace Ikarus.UI
             if (Manager.Moveset != null && Manager.Moveset.Data != null)
             {
                 RunTime._articles = new ArticleInfo[Manager.Moveset.Data._articles.Count];
-                foreach (ArticleEntry article in Manager.Moveset.Data._articles.Values)
+                foreach (ArticleNode article in Manager.Moveset.Data._articles.Values)
                 {
                     ArticleInfo articleInfo = new ArticleInfo(article, null, false);
 
                     int groupID = article.ARCGroupID;
                     if (groupID >= 0)
                     {
-                        //First load models in the recolor pac
-                        //These models are always visible
                         LoadArticles(Manager.SelectedInfo.CharacterFiles, groupID, articleInfo, true);
-
-                        //Now load extra articles that will be called later
-                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, false);
+                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, true);
+                        LoadArticles(Manager.SelectedInfo.CharacterFinalFiles, groupID, articleInfo, true);
                     }
                     RunTime._articles[article.Index] = articleInfo;
                 }
@@ -1813,8 +1819,6 @@ namespace Ikarus.UI
                         if (addTarget)
                         {
                             info.Running = true;
-                            info._etcModel = false;
-                            info._model.IsRendering = true;
                             AppendTarget(info._model);
                         }
                     }

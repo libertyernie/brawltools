@@ -6,11 +6,18 @@ using System.ComponentModel;
 using System.IO;
 using System.Windows.Forms;
 using Ikarus;
+using BrawlLib.SSBBTypes;
+using Ikarus.MovesetBuilder;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class DataSection : ExternalEntryNode
+    public unsafe class DataSection : TableEntryNode
     {
+        internal static TableEntryNode TestType(string name)
+        {
+            return name == "data" ? new DataSection() : null;
+        }
+        
         DataHeader _hdr;
         int _unk27, _unk28, _flags2;
         uint _flags1;
@@ -48,9 +55,9 @@ namespace Ikarus.MovesetFile
         [Category("Data Offsets")]
         public int SubactionOther { get { return _hdr.SubactionOtherStart; } }
         [Category("Data Offsets")]
-        public int AnchoredItemPositions { get { return _hdr.BoneFloats1; } }
+        public int AnchoredItemPositions { get { return _hdr.AnchoredItemPositions; } }
         [Category("Data Offsets")]
-        public int GooeyBombPositions { get { return _hdr.BoneFloats2; } }
+        public int GooeyBombPositions { get { return _hdr.GooeyBombPositions; } }
         [Category("Data Offsets")]
         public int BoneRef1 { get { return _hdr.BoneRef1; } }
         [Category("Data Offsets")]
@@ -62,7 +69,7 @@ namespace Ikarus.MovesetFile
         [Category("Data Offsets")]
         public int Unknown22 { get { return _hdr.Unknown22; } }
         [Category("Data Offsets")]
-        public int BoneFloats3 { get { return _hdr.BoneFloats3; } }
+        public int SamusArmCannonPositions { get { return _hdr.SamusArmCannonPositions; } }
         [Category("Data Offsets")]
         public int Unknown24 { get { return _hdr.Unknown24; } }
         [Category("Data Offsets")]
@@ -86,7 +93,7 @@ namespace Ikarus.MovesetFile
         public AttributeList _attributes, _sseAttributes;
         public Miscellaneous _misc;
         public ModelVisibility _modelVis;
-        public ArticleEntry _entryArticle;
+        public ArticleNode _entryArticle;
         public ActionInterrupts _actionInterrupts;
         public Unknown22 _unknown22;
         public Unknown24 _unknown24;
@@ -114,6 +121,14 @@ namespace Ikarus.MovesetFile
         //public Wario6 warioParams6;
         //public int warioSwing4StringOffset = -1;
 
+        /// <summary>
+        /// Returns the name of the character this moveset is for.
+        /// This can be directed converted into CharFolder for easy access to necessary files
+        /// </summary>
+        [Browsable(false)]
+        public CharName Character { get { return _character; } }
+        private CharName _character;
+
         public BindingList<SubActionEntry> SubActions { get { return _subActions; } }
 
         protected override void OnParse(VoidPtr address)
@@ -131,7 +146,7 @@ namespace Ikarus.MovesetFile
             _flags2 = _hdr.Flags2;
 
             bint* v = (bint*)address;
-            int[] sizes = MovesetNode.CalculateSizes(_root._dataSize, v, 27, true);
+            int[] sizes = SakuraiArchiveNode.CalculateSizes(_root._dataSize, v, 27, true);
             ParseScripts(v, sizes);
 
             //Parse all data entries.
@@ -154,12 +169,12 @@ namespace Ikarus.MovesetFile
             _unknown24 = Parse<Unknown24>(v[24]);
             
             //Parse extra offsets specific to this character
-            OffsetHolder o = ExtraDataOffsets.GetOffsets(_root.Character);
+            OffsetHolder o = ExtraDataOffsets.GetOffsets(Character);
             if (o != null)
                 o.Parse(this, address + DataHeader.Size);
 
             int u = 0;
-            foreach (ArticleEntry e in _articles.Values)
+            foreach (ArticleNode e in _articles.Values)
                 e._index = u++;
         }
 
@@ -616,17 +631,14 @@ namespace Ikarus.MovesetFile
 #endregion
         //}
 
+        DataBuilder _builder;
         protected override int OnGetSize()
         {
-            _entryLength = 124 + ExtraDataOffsets.GetOffsets(_root.Character).Count * 4;
-            _childLength = MovesetNode.Builder.CalcDataSize(this);
-            return (_entryLength + _childLength);
+            _builder = new DataBuilder(this);
+            _entryLength = 124 + ExtraDataOffsets.GetOffsets(Character).Count * 4;
+            _childLength = _builder.CalcSize();
+            return _entryLength + _childLength;
         }
-
-        internal VoidPtr _dataHeader;
-        protected override void OnWrite(VoidPtr address)
-        {
-            MovesetNode.Builder.BuildData(this, (DataHeader*)_dataHeader, address);
-        }
+        protected override void OnWrite(VoidPtr address) { _builder.Build(address); _builder = null; }
     }
 }

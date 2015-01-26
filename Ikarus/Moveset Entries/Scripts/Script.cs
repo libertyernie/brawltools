@@ -8,6 +8,7 @@ using System.Windows.Forms;
 using System.Drawing;
 using System.Collections;
 using Ikarus.ModelViewer;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.MovesetFile
 {
@@ -124,7 +125,7 @@ namespace Ikarus.MovesetFile
 
         public override string ToString() { return String.Format("[{0}] Action", ID.ToString().PadLeft(3)); }
     }
-    public unsafe class Script : ExternalEntryNode, IEnumerable<Event>
+    public unsafe class Script : TableEntryNode, IEnumerable<Event>
     {
         #region Child Enumeration
 
@@ -199,17 +200,14 @@ namespace Ikarus.MovesetFile
         public List<MovesetEntryNode> _actionRefs = new List<MovesetEntryNode>();
         public MovesetEntryNode[] ActionRefs { get { return _actionRefs.ToArray(); } }
 
-        public ArticleEntry _parentArticle = null;
-        public Script(ArticleEntry article) 
+        public Script(ArticleNode article)
         {
             _build = false;
-            _parentArticle = article;
             _scriptor = new Scriptor(this);
         }
         public Script()
         {
             _build = false;
-            _parentArticle = null;
             _scriptor = new Scriptor(this);
         }
 
@@ -268,7 +266,7 @@ namespace Ikarus.MovesetFile
                     if (p.ParamType != ParamType.Offset)
                         *paramAddr = new sParameter() { _type = (int)p.ParamType, _data = p.Data };
                     else
-                        MovesetNode.Builder._postProcessNodes.Add(p);
+                        SakuraiArchiveNode.Builder._postProcessNodes.Add(p);
                     paramAddr++;
                 }
             }

@@ -1,14 +1,13 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
-using Ikarus.MovesetBuilder;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 
-namespace Ikarus.MovesetFile
+namespace BrawlLib.SSBBTypes
 {
-    public abstract unsafe class MovesetEntryNode
+    public abstract unsafe class SakuraiEntryNode
     {
         [Browsable(false)]
         public int RebuildOffset
@@ -23,9 +22,40 @@ namespace Ikarus.MovesetFile
         }
         [Browsable(false)]
         public VoidPtr BaseAddress { get { return _root.BaseAddress; } }
-        [Browsable(false)]
-        public MDL0Node Model { get { return _root.Model; } }
-        public MovesetNode _root;
+        //[Browsable(false)]
+        //public MDL0Node Model
+        //{
+        //    get
+        //    {
+        //        ArticleNode article = ParentArticle;
+        //        if (article != null)
+        //        {
+        //            if (article._info != null)
+        //                return article._info._model;
+        //        }
+        //        else if (_root != null)
+        //            return _root.Model;
+
+        //        return null;
+        //    }
+        //}
+
+        public SakuraiEntryNode _parent;
+
+        //[Browsable(false)]
+        //public ArticleNode ParentArticle
+        //{
+        //    get
+        //    {
+        //        MovesetEntryNode n = _parent;
+        //        while (!(n is ArticleNode) && n != null)
+        //            n = n._parent;
+        //        return n as ArticleNode;
+        //    }
+        //}
+
+        public SakuraiArchiveNode _root;
+
         [Browsable(false)]
         public bool External { get { return _externalEntry != null; } }
         [Browsable(false)]
@@ -35,14 +65,12 @@ namespace Ikarus.MovesetFile
             set { _changed = value; if (_root != null) _root.ChangedEntries.Remove(this); }
         }
         [Browsable(false)]
-        public virtual string Name
-        {
-            get { return _name; }
-        }
+        public virtual string Name { get { return _name; } }
         /// <summary>
         /// This is where the data for this node was written during the last rebuild.
         /// Don't forget to set this when rebuilding a node!
         /// </summary>
+        [Browsable(false)]
         public VoidPtr RebuildAddress
         {
             get { return _rebuildAddress; }
@@ -51,7 +79,7 @@ namespace Ikarus.MovesetFile
                 if (_root.IsRebuilding)
                     _rebuildAddress = value;
                 else
-                    throw new Exception("Can't set rebuild address when the moveset isn't being rebuilt.");
+                    throw new Exception("Can't set rebuild address when the file isn't being rebuilt.");
             }
         }
         [Browsable(false)]
@@ -64,7 +92,7 @@ namespace Ikarus.MovesetFile
 
         public string _name;
         public int _offset;
-        public ExternalEntryNode _externalEntry = null;
+        public TableEntryNode _externalEntry = null;
         private bool _changed;
         internal int _index;
 
@@ -103,9 +131,9 @@ namespace Ikarus.MovesetFile
         /// Be sure to send the proper constructor parameters for the given type
         /// as well, or an error will be thrown.
         /// </summary>
-        public T Parse<T>(int offset, params object[] parameters) where T : MovesetEntryNode
+        public T Parse<T>(int offset, params object[] parameters) where T : SakuraiEntryNode
         {
-            return CommonInit<T>(_root, Address(offset), parameters);
+            return CommonInit<T>(_root, this, Address(offset), parameters);
         }
         /// <summary>
         /// Use this to parse a node of a specific type at the given address.
@@ -114,9 +142,9 @@ namespace Ikarus.MovesetFile
         /// Be sure to send the proper constructor parameters for the given type
         /// as well, or an error will be thrown.
         /// </summary>
-        public T Parse<T>(VoidPtr address, params object[] parameters) where T : MovesetEntryNode
+        public T Parse<T>(VoidPtr address, params object[] parameters) where T : SakuraiEntryNode
         {
-            return CommonInit<T>(_root, address, parameters);
+            return CommonInit<T>(_root, this, address, parameters);
         }
         /// <summary>
         /// Use this to parse a node of a specific type at the given address.
@@ -125,18 +153,18 @@ namespace Ikarus.MovesetFile
         /// Be sure to send the proper constructor parameters for the given type
         /// as well, or an error will be thrown.
         /// </summary>
-        public static T Parse<T>(MovesetNode root, VoidPtr address, params object[] parameters) where T : MovesetEntryNode
+        public static T Parse<T>(SakuraiArchiveNode root, SakuraiEntryNode parent, VoidPtr address, params object[] parameters) where T : SakuraiEntryNode
         {
-            return CommonInit<T>(root, address, parameters);
+            return CommonInit<T>(root, parent, address, parameters);
         }
         /// <summary>
         /// Don't call this outside of the Parse functions. 
         /// This is here to eliminate redundant code.
         /// </summary>
-        private static T CommonInit<T>(MovesetNode root, VoidPtr addr, params object[] parameters) where T : MovesetEntryNode
+        private static T CommonInit<T>(SakuraiArchiveNode root, SakuraiEntryNode parent, VoidPtr addr, params object[] parameters) where T : SakuraiEntryNode
         {
             int offset = root.Offset(addr);
-            bool attributes = parameters.Length > 0 && parameters[0] is string && ((string)parameters[0]) == "Attributes";
+            bool attributes = parameters.Contains("Attributes");
             if (offset <= 0 && !attributes)
                 return null;
 
@@ -144,16 +172,17 @@ namespace Ikarus.MovesetFile
                 parameters = new object[0];
 
             T n = Activator.CreateInstance(typeof(T), parameters) as T;
-            n.Setup(root, offset);
+            n.Setup(root, parent, offset);
             n.OnParse(addr);
             return n;
         }
-        private void Setup(MovesetNode node, int offset) { Setup(node, offset, null); }
-        private void Setup(MovesetNode node, int offset, string name)
+        private void Setup(SakuraiArchiveNode node, SakuraiEntryNode parent, int offset) { Setup(node, parent, offset, null); }
+        private void Setup(SakuraiArchiveNode node, SakuraiEntryNode parent, int offset, string name)
         {
             _name = name;
             _root = node;
             _offset = offset;
+            _parent = parent;
             if (_initSize <= 0)
                 _initSize = _root.GetSize(_offset);
             _root.EntryCache[_offset] = this;
@@ -170,5 +199,7 @@ namespace Ikarus.MovesetFile
         protected virtual void PostProcess(LookupManager lookupOffsets) { }
 
         public override string ToString() { return String.IsNullOrEmpty(Name) ? base.ToString() : Name; }
+
+        public virtual void PostParse() { }
     }
 }

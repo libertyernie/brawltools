@@ -21,6 +21,7 @@ namespace Ikarus
 
         private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterEffectFiles;
         private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterEtcFiles;
+        private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFinalFiles;
         private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFiles;
         
         public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterEffectFiles
@@ -38,11 +39,24 @@ namespace Ikarus
                 return _characterEffectFiles;
             }
         }
+        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterFinalFiles
+        {
+            get
+            {
+                if (_characterFinalFiles != null)
+                    return _characterFinalFiles;
+
+                ARCNode m = FinalArc;
+                if (m == null) return null;
+                LoadArcFiles(m, ref _characterFinalFiles);
+                return _characterFinalFiles;
+            }
+        }
         public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterEtcFiles { get { return _characterEtcFiles; } }
         public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterFiles { get { return _characterFiles; } }
         
-        private BRESNode _animations = null;
-        private MovesetNode _moveset = null;
+        private BRRESNode _animations = null;
+        private SakuraiArchiveNode _moveset = null;
 
         private string FileName(int i) { return (RunTime._IsRoot ? "/fighter/{0}/" : "/") + _fileNames[i]; }
         private static readonly string[] _fileNames = 
@@ -107,7 +121,7 @@ namespace Ikarus
             return Manager.FileExists(searchDir, searchOpened, String.Format(FileName(4), Folder, index.ToString().PadLeft(2, '0')), String.Format(FileName(5), Folder, index.ToString().PadLeft(2, '0')));
         }
 
-        internal BRESNode Animations 
+        internal BRRESNode Animations 
         {
             get
             {
@@ -116,14 +130,14 @@ namespace Ikarus
 
                 ARCNode m = MotionEtcArc;
                 if (m != null && m.Children.Count >= 2 && m.Children[1].Children.Count > 0)
-                    return _animations = m.Children[1].Children[0] as BRESNode;
+                    return _animations = m.Children[1].Children[0] as BRRESNode;
                 else if (m != null && m.Children.Count == 1 && m.Children[0].Children.Count > 0)
-                    return _animations = m.Children[0] as BRESNode;
+                    return _animations = m.Children[0] as BRRESNode;
                 return _animations = null;
             }
         }
 
-        internal MovesetNode Moveset
+        internal SakuraiArchiveNode Moveset
         {
             get
             {
@@ -134,7 +148,8 @@ namespace Ikarus
                 if (m == null) return null;
                 if (m.Children.Count == 0) return null;
                 ARCEntryNode entry = m.Children[0] as ARCEntryNode;
-                (_moveset = new MovesetNode((CharName)_charId)).Initialize(null, entry.WorkingUncompressed);
+                (_moveset = new SakuraiArchiveNode()).Initialize(null, entry.WorkingUncompressed);
+                _moveset.Populate(0);
                 return _moveset;
             }
         }
@@ -228,6 +243,9 @@ namespace Ikarus
 
         private void LoadArcFiles(ARCNode arc, ref Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> files)
         {
+            if (arc == null)
+                return;
+
             files = new Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>>();
             foreach (ARCEntryNode e in arc.Children)
             {

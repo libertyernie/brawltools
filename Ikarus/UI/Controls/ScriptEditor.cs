@@ -7,6 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using Ikarus.MovesetFile;
 using Ikarus;
+using BrawlLib.SSBBTypes.SakuraiArchive;
 
 namespace Ikarus.UI
 {
@@ -238,12 +239,12 @@ namespace Ikarus.UI
 
         public ScriptPanel _mainWindow;
 
-        private MovesetNode _mDef;
+        private SakuraiArchiveNode _mDef;
         private Panel panel2;
         public ListBox EventList;
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MovesetNode MoveDef
+        public SakuraiArchiveNode MoveDef
         {
             get { return _mDef; }
             set { _mDef = value; }

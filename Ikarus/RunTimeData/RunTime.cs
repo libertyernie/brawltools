@@ -298,58 +298,18 @@ namespace Ikarus.ModelViewer
                     if (i == null)
                         continue;
 
+                    i.Running = true;
                     i.SubactionIndex = -1;
-
-                    //Models in etc file are not visible by default.
-                    //Models in the character file are.
-                    if (!i._etcModel)
-                    {
-                        if (i._model != null)
-                            i._model.Attach();
-                        i.Running = true;
-                    }
-                    else
-                    {
-                        if (i._model != null)
-                            i._model.Detach();
-                        i.Running = false;
-                    }
                 }
 
             //Reset model visiblity to its default state
-            if (MainWindow.TargetModel != null && MainWindow.TargetModel.Objects.Length > 0 && Manager.Moveset != null)
+            if (MainWindow.TargetModel != null && 
+                MainWindow.TargetModel.Objects.Length > 0 && 
+                Manager.Moveset != null)
             {
                 ModelVisibility node = Manager.Moveset.Data._modelVis;
-                if (node.Count != 0)
-                {
-                    ModelVisReference entry = node[0] as ModelVisReference;
-
-                    //First, disable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                    {
-                        int i = 0;
-                        foreach (ModelVisGroup Group in Switch)
-                        {
-                            if (i != Switch._defaultGroup)
-                                foreach (BoneIndexValue b in Group._bones)
-                                    if (b.BoneNode != null)
-                                        foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                            p._render = false;
-                            i++;
-                        }
-                    }
-
-                    //Now, enable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                        if (Switch._defaultGroup >= 0 && Switch._defaultGroup < Switch.Count)
-                        {
-                            ModelVisGroup Group = Switch[Switch._defaultGroup];
-                            foreach (BoneIndexValue b in Group._bones)
-                                if (b.BoneNode != null)
-                                    foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                        p._render = true;
-                        }
-                }
+                if (node != null)
+                    node.ResetVisibility(0);
             }
         }
 
@@ -415,7 +375,7 @@ namespace Ikarus.ModelViewer
             for (int i = 0; i < _runningScripts.Count; i++)
             {
                 Script a = _runningScripts[i];
-                if (a._parentArticle != null)
+                if (a.ParentArticle != null)
                     continue;
 
                 a.SetFrame(index);
@@ -426,10 +386,10 @@ namespace Ikarus.ModelViewer
             for (int i = 0; i < _runningScripts.Count; i++)
             {
                 Script a = _runningScripts[i];
-                if (a._parentArticle == null)
+                if (a.ParentArticle == null)
                     continue;
 
-                a.SetFrame(index - _articles[a._parentArticle.Index]._setAt);
+                a.SetFrame(index - _articles[a.ParentArticle.Index]._setAt);
                 
                 MainWindow.MovesetPanel.UpdateScriptEditor(a);
             }

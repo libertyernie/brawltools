@@ -57,6 +57,7 @@ namespace Ikarus.UI
         private ListBox ScreenTintList;
         private ListBox ArticleList;
         private ListBox CommonSubRoutinesList;
+        private ListBox lstModules;
         private ListBox SubRoutinesList;
 
         private void InitializeComponent()
@@ -99,6 +100,7 @@ namespace Ikarus.UI
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lstModules = new System.Windows.Forms.ListBox();
             this.pnlLists.SuspendLayout();
             this.listGroupPanel.SuspendLayout();
             this.pnlHurtboxes.SuspendLayout();
@@ -132,6 +134,7 @@ namespace Ikarus.UI
             this.listGroupPanel.Controls.Add(this.ArticleList);
             this.listGroupPanel.Controls.Add(this.attributeGridSSE);
             this.listGroupPanel.Controls.Add(this.attributeGridMain);
+            this.listGroupPanel.Controls.Add(this.lstModules);
             this.listGroupPanel.Controls.Add(this.pnlTop);
             this.listGroupPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listGroupPanel.Location = new System.Drawing.Point(0, 0);
@@ -474,6 +477,15 @@ namespace Ikarus.UI
             this.createNewToolStripMenuItem.Text = "Create New Animation";
             this.createNewToolStripMenuItem.Click += new System.EventHandler(this.createNewToolStripMenuItem_Click);
             // 
+            // lstModules
+            // 
+            this.lstModules.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstModules.FormattingEnabled = true;
+            this.lstModules.Location = new System.Drawing.Point(0, 21);
+            this.lstModules.Name = "lstModules";
+            this.lstModules.Size = new System.Drawing.Size(374, 303);
+            this.lstModules.TabIndex = 2;
+            // 
             // ListsPanel
             // 
             this.Controls.Add(this.pnlLists);
@@ -767,13 +779,13 @@ namespace Ikarus.UI
             if ((r = _mainWindow.GetAnimation(TargetAnimType)) != null)
                 switch (TargetAnimType)
                 {
-                    case NW4RAnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
-                    case NW4RAnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
-                    case NW4RAnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
-                    case NW4RAnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
-                    case NW4RAnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
-                    case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
-                    case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
+                    case NW4RAnimType.CHR: ((BRRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
+                    case NW4RAnimType.SRT: ((BRRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
+                    case NW4RAnimType.SHP: ((BRRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
+                    case NW4RAnimType.PAT: ((BRRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
+                    case NW4RAnimType.VIS: ((BRRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
+                    case NW4RAnimType.SCN: ((BRRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
+                    case NW4RAnimType.CLR: ((BRRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
             UpdateAnimations();
             SubActionsList.SetSelected(SubActionsList.Items.Count - 1, true);
@@ -862,56 +874,85 @@ namespace Ikarus.UI
                 case 0:
                     newControl = CommonActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Actions;
+                    }
                     break;
                 case 1:
                     newControl = ActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Actions;
+                    }
                     break;
                 case 2:
                     newControl = SubActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subactions;
+                    }
                     break;
                 case 3:
                     newControl = SubRoutinesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 4:
                     newControl = EntryOverridesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 5:
                     newControl = ExitOverridesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 6:
                     newControl = FlashOverlayList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 7:
                     newControl = ScreenTintList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 8:
                     newControl = attributeGridMain;
-                    _mainWindow.scriptPanel.Visible = false;
+                    if (_mainWindow != null)
+                        _mainWindow.scriptPanel.Visible = false;
                     break;
                 case 9:
                     newControl = attributeGridSSE;
-                    _mainWindow.scriptPanel.Visible = false;
+                    if (_mainWindow != null)
+                        _mainWindow.scriptPanel.Visible = false;
                     break;
                 case 10:
                     newControl = pnlHurtboxes;
-                    _mainWindow.scriptPanel.Visible = false;
-                    if (SelectedHurtbox != null)
-                        _mainWindow.EnableHurtboxEditor();
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = false;
+                        if (SelectedHurtbox != null)
+                            _mainWindow.EnableHurtboxEditor();
+                    }
                     break;
                 case 11:
                     newControl = ArticleList;
@@ -924,10 +965,17 @@ namespace Ikarus.UI
                 case 12:
                     newControl = CommonSubRoutinesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 13:
-
+                    newControl = lstModules;
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.scriptPanel.Visible = false;
+                    }
                     break;
             }
 
@@ -948,7 +996,7 @@ namespace Ikarus.UI
 
         public void UpdateMoveset()
         {
-            MovesetNode moveset = Manager.Moveset;
+            SakuraiArchiveNode moveset = Manager.Moveset;
 
             if (moveset == null)
                 return;

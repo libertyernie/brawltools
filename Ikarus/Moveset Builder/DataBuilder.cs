@@ -6,10 +6,11 @@ using System.ComponentModel;
 using System.IO;
 using Ikarus.MovesetFile;
 using BrawlLib;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.MovesetBuilder
 {
-    public unsafe partial class NewMovesetBuilder
+    public unsafe class DataBuilder : BuilderBase
     {
         //---Notes--- (these may or may not actually matter - follow just to be safe)
         // - Subroutines are written right before the first script are called by
@@ -70,6 +71,22 @@ namespace Ikarus.MovesetBuilder
         //References Offsets
         //Sections/References String Table
 
+        DataSection _data;
+        public DataBuilder(DataSection data) : base() { _data = data; }
+
+        public override int CalcSize()
+        {
+            _size = DataHeader.Size;
+
+            return _size;
+        }
+
+        public override void Build(VoidPtr address)
+        {
+
+        }
+
+
         public int GetSectionSize(MovesetEntryNode node)
         {
             //if (node != null)
@@ -94,7 +111,7 @@ namespace Ikarus.MovesetBuilder
         }
 
         //Children are written in order but before their parent! 
-        public void Write(MovesetNode node, VoidPtr address, int length)
+        public void Write(VoidPtr address, int length)
         {
             //_movesetNode = node;
 

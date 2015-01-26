@@ -3,35 +3,10 @@ using System.Collections.Generic;
 using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.SSBB.ResourceNodes;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.MovesetFile
 {
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct MovesetHeader
-    {
-        public const int Size = 0x20;
-
-        public bint _fileSize;
-        public bint _lookupOffset;
-        public bint _lookupEntryCount;
-        public bint _sectionCount; //Has string entry
-        public bint _externalSubRoutineCount; //Has string entry
-        public int _pad1, _pad2, _pad3;
-
-        //From here begins file data. All offsets are relative to this location (0x20).
-        public VoidPtr BaseAddress { get { return Address + 0x20; } }
-
-        public bint* LookupEntries { get { return (bint*)(Address + _lookupOffset + 0x20); } }
-        
-        public sStringEntry* Sections { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4); } }
-        public sStringEntry* ExternalSubRoutines { get { return (sStringEntry*)(Address + _lookupOffset + 0x20 + _lookupEntryCount * 4 + _sectionCount * 8); } }
-        
-        //for DataTable and ExternalSubRoutines
-        public sStringTable* StringTable { get { return (sStringTable*)((Address + _lookupOffset + 0x20) + (_lookupEntryCount * 4) + (_sectionCount * 8) + (_externalSubRoutineCount * 8)); } }
-        
-        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-    }
-
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct DataHeader
     {
@@ -57,15 +32,15 @@ namespace Ikarus.MovesetFile
         public bint SubactionSFXStart;
         public bint SubactionOtherStart;
 
-        public bint BoneFloats1;
-        public bint BoneFloats2;
+        public bint AnchoredItemPositions;
+        public bint GooeyBombPositions;
         public bint BoneRef1;
         public bint BoneRef2;
 
         public bint EntryActionOverrides;
         public bint ExitActionOverrides;
         public bint Unknown22;
-        public bint BoneFloats3;
+        public bint SamusArmCannonPositions;
 
         public bint Unknown24;
         public bint StaticArticlesStart;
@@ -166,23 +141,6 @@ namespace Ikarus.MovesetFile
             get { return ((bint*)Address)[i]; }
             set { ((bint*)Address)[i] = value; }
         }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct sStringTable
-    {
-        public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public string GetString(int offset)
-        {
-            return new String((sbyte*)Address + offset);
-        }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct sStringEntry
-    {
-        public bint _dataOffset;
-        public bint _stringOffset; //Base is string table
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -706,15 +664,6 @@ namespace Ikarus.MovesetFile
     {
         public bint _numHangFrame;
         public bfloat _unk1;
-
-        public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-    }
-
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct sListOffset
-    {
-        public bint _startOffset;
-        public bint _listCount;
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }

@@ -13,7 +13,7 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class ArticleEntry : MovesetEntryNode
+    public unsafe class ArticleNode : MovesetEntryNode
     {
         [Browsable(false)]
         public MDL0BoneNode CharBoneNode
@@ -102,6 +102,7 @@ namespace Ikarus.MovesetFile
             Static = _initSize > 52 && _extraOffsets[0] < 1480 && _extraOffsets[0] >= 0;
 
             //_collisionData = Parse<CollisionData>(off1);
+            _mdlVis = Parse<ModelVisibility>(visStart);
 
             _scriptOffsets = new List<int>[4];
             for (int i = 0; i < 4; i++)

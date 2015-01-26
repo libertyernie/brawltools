@@ -70,11 +70,10 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Moveset Builder\LookupManager.cs" />
-    <Compile Include="Moveset Builder\MovesetBuilder.cs" />
+    <Compile Include="Moveset Builder\BuilderBase.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk7.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12.cs" />
-    <Compile Include="Moveset Entries\MovesetEntryNode.cs" />
+    <Compile Include="Moveset Entries\MovesetNode.cs" />
     <Compile Include="Moveset Entries\Scripts\Script.cs" />
     <Compile Include="Moveset Entries\Scripts\Event.cs" />
     <Compile Include="Moveset Entries\Scripts\Parameter.cs" />
@@ -112,15 +111,13 @@
     <Compile Include="Moveset Entries\Data Nodes\Unknown22.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Unknown24.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Unknown7.cs" />
-    <Compile Include="Moveset Entries\General.cs" />
     <Compile Include="Moveset Entries\Items\AnimParamNode.cs" />
     <None Include="Moveset Entries\Lookup.cs" />
-    <Compile Include="Moveset Entries\MovesetNode.cs" />
     <Compile Include="Moveset Entries\RawParamList.cs" />
     <Compile Include="Moveset Entries\Scripts\Scriptor.cs" />
     <Compile Include="RunTimeData\Attributes.cs" />
-    <Compile Include="RunTimeData\Variables\RandLongAccess.cs" />
-    <Compile Include="RunTimeData\Variables\InternalConstant.cs" />
+    <Compile Include="RunTimeData\Variables\Accessors.cs" />
+    <Compile Include="RunTimeData\Variables\ICFunctions.cs" />
     <Compile Include="RunTimeData\InfoClasses.cs" />
     <Compile Include="RunTimeData\RunTime.cs" />
     <Compile Include="Manager\ManagerClasses.cs" />
@@ -169,7 +166,7 @@
     </Compile>
     <Compile Include="UI\SyntaxTextBox\Win32.cs" />
     <Compile Include="Utilities.cs" />
-    <None Include="Moveset Builder\DataCommonBuilder.cs" />
+    <Compile Include="Moveset Builder\DataCommonBuilder.cs" />
     <Compile Include="Moveset Builder\DataBuilder.cs" />
     <Compile Include="Structs\ExtraDataOffsets.cs" />
     <Compile Include="Structs\FighterDefinition.cs" />

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 
-namespace Ikarus.MovesetBuilder
+namespace BrawlLib.SSBBTypes
 {
     /// <summary>
     /// When rebuilding, add the addresses of all offset values to this collection

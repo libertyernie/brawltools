@@ -1,4 +1,5 @@
-﻿using Ikarus.MovesetBuilder;
+﻿using BrawlLib.SSBBTypes;
+using Ikarus.MovesetBuilder;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -156,7 +157,7 @@ namespace Ikarus.MovesetFile
                 for (int i = 0; i < 5; i++)
                     node._extraEntries.Add(node.Parse<RawParamList>((int)addr->Entries[i]));
                 for (int i = 5; i < 10; i++)
-                    node._articles.Add((int)addr->Entries[i], node.Parse<ArticleEntry>((int)addr->Entries[i]));
+                    node._articles.Add((int)addr->Entries[i], node.Parse<ArticleNode>((int)addr->Entries[i]));
             }
 
             public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
@@ -212,7 +213,7 @@ namespace Ikarus.MovesetFile
                     node._extraEntries.Add(node.Parse<RawParamList>((int)addr->Entries[i]));
                 for (int i = 11; i < 20; i++)
                     if (i != 12 && i != 14)
-                        node._articles.Add((int)addr->Entries[i], node.Parse<ArticleEntry>((int)addr->Entries[i]));
+                        node._articles.Add((int)addr->Entries[i], node.Parse<ArticleNode>((int)addr->Entries[i]));
             }
 
             public void Write(List<MovesetEntryNode> entries, LookupManager lookup, VoidPtr basePtr, VoidPtr address)
@@ -252,7 +253,7 @@ namespace Ikarus.MovesetFile
                 for (int i = 4; i < 8; i++)
                 {
                     int x = (int)addr->Entries[i];
-                    node._articles.Add(x, node.Parse<ArticleEntry>(x));
+                    node._articles.Add(x, node.Parse<ArticleNode>(x));
                 }
             }
 
@@ -295,7 +296,7 @@ namespace Ikarus.MovesetFile
                 for (int i = 9; i < 13; i++)
                 {
                     int x = (int)addr->Entries[i];
-                    node._articles.Add(x, node.Parse<ArticleEntry>(x));
+                    node._articles.Add(x, node.Parse<ArticleNode>(x));
                 }
             }
 
@@ -338,7 +339,7 @@ namespace Ikarus.MovesetFile
                 for (int i = 11; i < 14; i++)
                 {
                     int x = (int)addr->Entries[i];
-                    node._articles.Add(x, node.Parse<ArticleEntry>(x));
+                    node._articles.Add(x, node.Parse<ArticleNode>(x));
                 }
             }
 
@@ -380,7 +381,7 @@ namespace Ikarus.MovesetFile
                 for (int i = 6; i < 10; i++)
                 {
                     int x = (int)addr->Entries[i];
-                    node._articles.Add(x, node.Parse<ArticleEntry>(x));
+                    node._articles.Add(x, node.Parse<ArticleNode>(x));
                 }
             }
 

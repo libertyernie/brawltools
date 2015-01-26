@@ -4,13 +4,63 @@ using System.Linq;
 using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
-using Ikarus;
 using System.Collections;
 using BrawlLib.SSBB.ResourceNodes;
+using System.Reflection;
 
-namespace Ikarus.MovesetFile
+namespace BrawlLib.SSBBTypes
 {
-    public unsafe class RawDataNode : ExternalEntryNode
+    internal delegate TableEntryNode SakuraiSectionParser(string name);
+
+    public unsafe class TableEntryNode : SakuraiEntryNode
+    {
+        private static List<SakuraiSectionParser> _parsers = new List<SakuraiSectionParser>();
+        static TableEntryNode()
+        {
+            Delegate del;
+            foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+                if (t.IsSubclassOf(typeof(TableEntryNode)))
+                    if ((del = Delegate.CreateDelegate(typeof(SakuraiSectionParser), t, "TestType", false, false)) != null)
+                        _parsers.Add(del as SakuraiSectionParser);
+        }
+
+        public static TableEntryNode GetRaw(string name)
+        {
+            TableEntryNode n = null;
+            foreach (SakuraiSectionParser d in _parsers)
+                if ((n = d(name)) != null)
+                    break;
+            return n;
+        }
+
+        [Browsable(false)]
+        public List<int> DataOffsets { get { return _dataOffsets; } set { _dataOffsets = value; } }
+        private List<int> _dataOffsets = new List<int>();
+
+        [Browsable(false)]
+        public List<SakuraiEntryNode> References { get { return _references; } set { _references = value; } }
+        private List<SakuraiEntryNode> _references = new List<SakuraiEntryNode>();
+
+        protected override void OnParse(VoidPtr address)
+        {
+            _dataOffsets = new List<int>() { _offset };
+
+            int offset = *(bint*)address;
+
+            while (offset > 0)
+            {
+                _dataOffsets.Add(offset);
+
+                offset = *(bint*)(BaseAddress + offset);
+
+                //Infinite loops are NO GOOD
+                if (_dataOffsets.Contains(offset))
+                    break;
+            }
+        }
+    }
+
+    public unsafe class RawDataNode : TableEntryNode
     {
         internal byte[] _data;
 
@@ -45,59 +95,7 @@ namespace Ikarus.MovesetFile
         }
     }
 
-    public unsafe class BoneIndexValue : MovesetEntryNode
-    {
-        [Browsable(false)]
-        public MDL0BoneNode BoneNode
-        {
-            get 
-            {
-                if (//ParentArticle == null && 
-                    Model == null) 
-                    return null;
-
-                MDL0Node model;
-                //if (ParentArticle != null && ParentArticle._info != null)
-                //    model = ParentArticle._info._model;
-                //else
-                    model = Model;
-
-                if (boneIndex >= model._linker.BoneCache.Length || boneIndex < 0) 
-                    return null;
-
-                return (MDL0BoneNode)model._linker.BoneCache[boneIndex];
-            }
-            set
-            {
-                boneIndex = value.BoneIndex; 
-                _name = value.Name;
-            }
-        }
-
-        [Category("Bone Index"), TypeConverter(typeof(DropDownListBonesMDef))]
-        public string Bone { get { return BoneNode == null ? boneIndex.ToString() : BoneNode.Name; } set { if (Model == null) { boneIndex = Convert.ToInt32(value); _name = boneIndex.ToString(); } else { BoneNode = String.IsNullOrEmpty(value) ? BoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
-        internal int boneIndex = 0;
-
-        public override string Name { get { return Bone; } }
-
-        protected override void OnParse(VoidPtr address)
-        {
-            boneIndex = *(bint*)address;
-        }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 4;
-        }
-
-        protected override void OnWrite(VoidPtr address)
-        {
-            *(bint*)(RebuildAddress = address) = boneIndex;
-        }
-    }
-
-    public unsafe class IndexValue : MovesetEntryNode
+    public unsafe class IndexValue : SakuraiEntryNode
     {
         public int val = 0;
 
@@ -121,7 +119,7 @@ namespace Ikarus.MovesetFile
         }
     }
 
-    public unsafe class OffsetValue : MovesetEntryNode
+    public unsafe class OffsetValue : SakuraiEntryNode
     {
         [Category("Offset Entry")]
         public int DataOffset { get { return _dataOffset; } }
@@ -130,40 +128,11 @@ namespace Ikarus.MovesetFile
         protected override void OnParse(VoidPtr address) { _dataOffset = *(bint*)address; }
     }
 
-    public unsafe class ExternalEntryNode : MovesetEntryNode
-    {
-        [Browsable(false)]
-        public List<int> DataOffsets { get { return _dataOffsets; } set { _dataOffsets = value; } }
-        private List<int> _dataOffsets = new List<int>();
-
-        [Browsable(false)]
-        public List<MovesetEntryNode> References { get { return _references; } set { _references = value; } }
-        private List<MovesetEntryNode> _references = new List<MovesetEntryNode>();
-
-        protected override void OnParse(VoidPtr address)
-        {
-            _dataOffsets = new List<int>() { _offset };
-
-            int offset = *(bint*)address;
-
-            while (offset > 0)
-            {
-                _dataOffsets.Add(offset);
-
-                offset = *(bint*)(BaseAddress + offset);
-
-                //Infinite loops are NO GOOD
-                if (_dataOffsets.Contains(offset))
-                    break;
-            }
-        }
-    }
-
     /// <summary>
     /// Generic list class for handling structs in a memory array.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class EntryList<T> : MovesetEntryNode, IEnumerable<T>, IListSource where T : MovesetEntryNode 
+    public class EntryList<T> : SakuraiEntryNode, IEnumerable<T>, IListSource where T : SakuraiEntryNode 
     {
         #region Child Enumeration
 
@@ -269,7 +238,7 @@ namespace Ikarus.MovesetFile
     /// Deprecated; avoid use
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public unsafe class EntryListOffset<T> : ListOffset where T : MovesetEntryNode
+    public unsafe class EntryListOffset<T> : ListOffset where T : SakuraiEntryNode
     {
         private int _stride;
         public List<T> _entries;
@@ -313,7 +282,7 @@ namespace Ikarus.MovesetFile
     /// <summary>
     /// Deprecated; avoid use
     /// </summary>
-    public unsafe class ListOffset : MovesetEntryNode
+    public unsafe class ListOffset : SakuraiEntryNode
     {
         sListOffset hdr;
 

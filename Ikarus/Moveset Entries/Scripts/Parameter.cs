@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using Ikarus;
 using Ikarus.MovesetBuilder;
 using Ikarus.ModelViewer;
+using BrawlLib.SSBBTypes.SakuraiArchive;
 
 namespace Ikarus.MovesetFile
 {
@@ -34,7 +35,7 @@ namespace Ikarus.MovesetFile
         public Parameter() { _value = 0; }
         public Parameter(int value) { _value = value; }
 
-        public static explicit operator int(Parameter val) { return (int)val._value; }
+        public static implicit operator int(Parameter val) { return (int)val._value; }
 
         [Browsable(false)]
         public virtual ParamType ParamType { get { return ParamType.Value; } }
@@ -313,7 +314,7 @@ namespace Ikarus.MovesetFile
                     if (_externalEntry.Name != value)
                         _externalEntry.References.Remove(this);
 
-                foreach (ExternalEntryNode e in _root.ReferenceList)
+                foreach (TableEntryNode e in _root.ReferenceList)
                     if (e.Name == value)
                     {
                         _externalEntry = e;
@@ -361,6 +362,11 @@ namespace Ikarus.MovesetFile
             //        _offsetInfo.list = ListValue.Null;
             //    }
             //}
+        }
+
+        public override void PostParse()
+        {
+            LinkScript();
         }
 
         internal void LinkScript()
@@ -422,7 +428,7 @@ namespace Ikarus.MovesetFile
                 if (External)
                     RebuildAddress += 4;
                 else
-                    foreach (ExternalEntryNode e in _root.ReferenceList)
+                    foreach (TableEntryNode e in _root.ReferenceList)
                         if (e.Name == this.Name)
                         {
                             _externalEntry = e;

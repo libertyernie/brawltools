@@ -13,8 +13,13 @@ using Ikarus;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class DataCommonSection : ExternalEntryNode
+    public unsafe class DataCommonSection : TableEntryNode
     {
+        internal static TableEntryNode TestType(string name)
+        {
+            return name == "dataCommon" ? new DataCommonSection() : null;
+        }
+
         CommonHeader hdr;
         
         [Category("Data Offsets")]
@@ -86,7 +91,7 @@ namespace Ikarus.MovesetFile
         {
             hdr = *(CommonHeader*)address;
             bint* v = (bint*)address;
-            int[] sizes = MovesetNode.CalculateSizes(_root._dataSize, v, 26, false);
+            int[] sizes = SakuraiArchiveNode.CalculateSizes(_root._dataSize, v, 26, false);
             ParseScripts(v, sizes);
 
             //These ICs need to be sorted into int and float arrays

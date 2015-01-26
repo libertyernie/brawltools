@@ -12,95 +12,8 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus
 {
-    public class VarFuncHolder<T> : Dictionary<int, Func<T>> where T : IConvertible
+    public static unsafe partial class IC
     {
-        private bool _logCalls = true;
-        public bool LogCalls { get { return _logCalls; } set { _logCalls = value; } }
-
-        public new T this[int id]
-        {
-            get
-            {
-                bool contains = ContainsKey(id);
-                T value = contains ? base[id]() : default(T);
-
-                if (LogCalls)
-                    LogCall(value, id, contains);
-
-                return value;
-            }
-        }
-        private unsafe void LogCall(T value, int id, bool contains)
-        {
-            int type = value is float ? 0 : value is int ? 1 : value is bool ? 2 : 3;
-            string var = "";
-            string val = "";
-            switch (type)
-            {
-                case 0:
-                    var = "Float";
-                    val = value.ToSingle(CultureInfo.InvariantCulture).ToString();
-                    break;
-                case 1:
-                    var = "Basic";
-                    val = value.ToInt32(CultureInfo.InvariantCulture).ToString();
-                    break;
-                case 2:
-                    var = "Bit";
-                    val = value.ToBoolean(CultureInfo.InvariantCulture).ToString();
-                    break;
-                default:
-                    return;
-            }
-            RunTime.Log(String.Format("IC.{0}[{1}] returned {2} {3}", var, id, val, contains ? "" : "(This variable is not supported)"));
-        }
-    }
-
-    public static unsafe class IC
-    {
-        static IC()
-        {
-            var m = typeof(IC).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Static);
-            foreach (MethodInfo method in m)
-            {
-                Type t = method.ReturnType;
-                string s = method.Name.Substring(1);
-
-                int i;
-                if (!int.TryParse(s, System.Globalization.NumberStyles.Number, CultureInfo.InvariantCulture, out i))
-                    continue;
-
-                if (t == typeof(bool))
-                    Bit.Add(i, (Func<bool>)Delegate.CreateDelegate(typeof(Func<bool>), method));
-                else if (t == typeof(int))
-                    Basic.Add(i, (Func<int>)Delegate.CreateDelegate(typeof(Func<int>), method));
-                else if (t == typeof(float))
-                    Float.Add(i, (Func<float>)Delegate.CreateDelegate(typeof(Func<float>), method));
-            }
-        }
-
-        public static VarFuncHolder<float> Float = new VarFuncHolder<float>();
-        public static VarFuncHolder<int> Basic = new VarFuncHolder<int>();
-        public static VarFuncHolder<bool> Bit = new VarFuncHolder<bool>();
-
-        public static void ClearAll()
-        {
-            Float.Clear();
-            Basic.Clear();
-            Bit.Clear();
-        }
-
-        public static float Get(VariableType var, int num)
-        {
-            switch (var)
-            {
-                case VariableType.Basic: return Basic[num];
-                case VariableType.Float: return Float[num];
-                case VariableType.Bit: return Bit[num] ? 1 : 0;
-            }
-            return 0;
-        }
-
         /// <summary>
         /// Returns a constant IC from Fighter.pac
         /// </summary>
@@ -135,7 +48,7 @@ namespace Ikarus
                 Manager.Moveset.Data._misc != null)
             {
                 Vector3 p = Manager.Moveset.Data._misc._boneRefs[4].BoneNode._frameMatrix.GetPoint();
-                return (int)(p._x + 0.5f);
+                return (int)(p._x < 0 ? p._x - 0.5f : p._x + 0.5f);
             }
             return 0; 
         }
@@ -147,7 +60,7 @@ namespace Ikarus
                 Manager.Moveset.Data._misc != null)
             {
                 Vector3 p = Manager.Moveset.Data._misc._boneRefs[4].BoneNode._frameMatrix.GetPoint();
-                return (int)(p._y + 0.5f);
+                return (int)(p._y < 0 ? p._y - 0.5f : p._y + 0.5f);
             }
             return 0;
         }

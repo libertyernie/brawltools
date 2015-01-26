@@ -9,6 +9,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.OpenGL;
 using Ikarus.ModelViewer;
 using BrawlLib.Modeling;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.MovesetFile
 {
@@ -89,15 +90,14 @@ namespace Ikarus.MovesetFile
             set
             {
                 _event = value;
-                string ev = Helpers.Hex8(_event);
-                _nameSpace = byte.Parse(ev.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-                _id = byte.Parse(ev.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-                _numArgs = byte.Parse(ev.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-                _unknown = byte.Parse(ev.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
-                if (Manager.Events.ContainsKey(_event))
-                    _name = Manager.Events[_event]._name;
-                else
-                    _name = ev;
+                _nameSpace = (byte)((_event >> 24) & 0xFF);
+                _id = (byte)((_event >> 16) & 0xFF);
+                _numArgs = (byte)((_event >> 8) & 0xFF);
+                _unknown = (byte)((_event >> 0) & 0xFF);
+
+                _name = Manager.Events.ContainsKey(_event) ? 
+                    Manager.Events[_event]._name :
+                    Helpers.Hex8(_event);
             }
         }
 
@@ -366,7 +366,7 @@ namespace Ikarus.MovesetFile
 
                             //If the offset is -1, this is probably an external reference.
                             //Otherwise, check to see if the offset point to an external entry.
-                            ExternalEntryNode ext;
+                            TableEntryNode ext;
                             if (offset == -1)
                                 ext = _root.TryGetExternal((int)_eventOffset + i * 8 + 4);
                             else

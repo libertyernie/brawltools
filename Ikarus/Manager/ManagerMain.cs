@@ -31,7 +31,7 @@ namespace Ikarus
         //This is the character that will be loaded at startup
         private static CharName _targetChar = CharName.Mario;
         private static CharacterInfo _selected = null;
-        private static MovesetNode _cmnMoveset;
+        private static SakuraiArchiveNode _cmnMoveset;
         private static RSARNode _rsar;
 
         private static ARCNode _cmnMovesetArc;
@@ -161,8 +161,8 @@ namespace Ikarus
         public static TextInfo TextInfo { get { return Thread.CurrentThread.CurrentCulture.TextInfo; } }
 
         //Nodes specific to the selected character
-        public static BRESNode Animations { get { return _selected == null ? null : _selected.Animations; } }
-        public static MovesetNode Moveset { get { return _selected == null ? null : _selected.Moveset; } }
+        public static BRRESNode Animations { get { return _selected == null ? null : _selected.Animations; } }
+        public static SakuraiArchiveNode Moveset { get { return _selected == null ? null : _selected.Moveset; } }
 
         public static unsafe MDL0Node TargetModel { get { return SelectedInfo == null ? null : SelectedInfo.SelectedModel; } }
 
@@ -185,7 +185,7 @@ namespace Ikarus
             }
         }
 
-        public static MovesetNode CommonMoveset
+        public static SakuraiArchiveNode CommonMoveset
         {
             get
             {
@@ -194,7 +194,7 @@ namespace Ikarus
                 if (CommonMovesetArc == null) return null;
                 if (CommonMovesetArc.Children.Count == 0) return null;
                 ARCEntryNode entry = CommonMovesetArc.Children[0] as ARCEntryNode;
-                (_cmnMoveset = new MovesetNode(CharName.None)).Initialize(null, entry.WorkingUncompressed);
+                (_cmnMoveset = new SakuraiArchiveNode()).Initialize(null, entry.WorkingUncompressed);
                 return _cmnMoveset;
             }
         }
@@ -291,7 +291,22 @@ namespace Ikarus
             return new EventInformation(id, id.ToString("X"), "No Description Available.", null, null);
         }
 
-        public static object[] GFXPaths = new object[]
+        public const int ModuleCharMin = 91;
+
+        public static readonly int[] ModuleCharRemap = new int[]
+        {
+            9,
+            26,
+            24,
+            1,
+            17,
+            6,
+            16, //GW
+            18,
+
+        };
+
+        public static readonly object[] GFXPaths = new object[]
         {
             "/system/common3_en.pac /system/common3.pac",
             CharName.Mario,

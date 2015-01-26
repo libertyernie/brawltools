@@ -7,8 +7,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
-using System.Windows.Forms;
 using Ikarus.UI;
+using BrawlLib.SSBBTypes;
+using BrawlLib.SSBBTypes.SakuraiArchive;
 
 namespace Ikarus.ModelViewer
 {
@@ -21,7 +22,7 @@ namespace Ikarus.ModelViewer
         //There are a lot of things here that are copied directly from the main window
 
         [Browsable(false)]
-        public ArticleEntry _article;
+        public ArticleNode _article;
         [Browsable(false)]
         public MDL0Node _model;
         [Browsable(false)]
@@ -51,13 +52,7 @@ namespace Ikarus.ModelViewer
         public SubActionEntry CurrentSubaction
         {
             get { return _currentSubaction; }
-            set
-            {
-                _currentSubaction = value;
-
-                //Reset all of the subaction-dependent variables
-                ResetSubactionVariables();
-            }
+            set { _currentSubaction = value; }
         }
 
         public ActionEntry CurrentAction
@@ -71,7 +66,7 @@ namespace Ikarus.ModelViewer
             if (CurrentSubaction != null)
             {
                 for (int i = 0; i < RunTime._runningScripts.Count; i++)
-                    if (RunTime._runningScripts[i]._parentArticle != null)
+                    if (RunTime._runningScripts[i].ParentArticle != null)
                         RunTime._runningScripts.RemoveAt(i);
                 
                 foreach (Script script in CurrentSubaction.GetScriptArray())
@@ -89,44 +84,15 @@ namespace Ikarus.ModelViewer
             LoadSubactionScripts();
 
             //Reset model visiblity to its default state
-            if (_model != null && _model._objList != null && _article._mdlVis != null)
-            {
-                ModelVisibility node = _article._mdlVis;
-                if (node.Count != 0)
-                {
-                    ModelVisReference entry = node[0];
-
-                    //First, disable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                    {
-                        int i = 0;
-                        foreach (ModelVisGroup Group in Switch)
-                        {
-                            if (i != Switch._defaultGroup)
-                                foreach (BoneIndexValue b in Group._bones)
-                                    if (b.BoneNode != null)
-                                        foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                            p._render = false;
-                            i++;
-                        }
-                    }
-
-                    //Now, enable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                        if (Switch._defaultGroup >= 0 && Switch._defaultGroup < Switch.Count)
-                        {
-                            ModelVisGroup Group = Switch[Switch._defaultGroup];
-                            foreach (BoneIndexValue b in Group._bones)
-                                if (b.BoneNode != null)
-                                    foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                        p._render = true;
-                        }
-                }
-            }
+            if (_model != null && _model._objList != null)
+                if (_article._mdlVis != null)
+                    _article._mdlVis.ResetVisibility(0);
+                else
+                    foreach (MDL0ObjectNode o in _model._objList)
+                        o._render = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
         }
 
         private bool _running = false;
-        public bool _etcModel = true; //If false, this article should be visible by default
 
         public int CurrentFrame
         {
@@ -134,6 +100,10 @@ namespace Ikarus.ModelViewer
             set
             {
                 _animFrame = value;
+
+                if (_animFrame <= 0)
+                    ResetSubactionVariables();
+
                 UpdateModel();
             }
         }
@@ -146,14 +116,6 @@ namespace Ikarus.ModelViewer
         public void SetFrame(int index)
         {
             CurrentFrame = index - _setAt;
-        }
-
-        private NW4RAnimationNode GetAnim(NW4RAnimationNode[] arr, string name)
-        {
-            foreach (NW4RAnimationNode n in arr)
-                if (n.Name.Contains(name))
-                    return n;
-            return null;
         }
 
         private int _subaction = -1;
@@ -195,8 +157,21 @@ namespace Ikarus.ModelViewer
         public bool Running 
         {
             get { return _running; } 
-            set { _running = value; }
+            set
+            {
+                _running = value;
+                if (_model != null)
+                    _model.IsRendering = _running;
+                ResetSubactionVariables();
+            }
         }
+
+        public void ResetRunning()
+        {
+            //Anchored articles are visible by default
+            Running = _article.ArticleBoneNode != null && _article.CharBoneNode != null;
+        }
+
         public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }
 
         public void UpdateModel()
@@ -215,7 +190,7 @@ namespace Ikarus.ModelViewer
             _model.ApplyCLR(ctrl.PlayCLR0 ? _clr0 : null, frame);
         }
 
-        public ArticleInfo(ArticleEntry article, MDL0Node model, bool running)
+        public ArticleInfo(ArticleNode article, MDL0Node model, bool running)
         {
             _article = article;
             _model = model;

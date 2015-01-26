@@ -152,7 +152,7 @@ namespace Ikarus.MovesetFile
                 e.RebuildAddress = address;
                 sActionOverride* addr = (sActionOverride*)address;
                 addr->_actionID = e._actionId;
-                MovesetNode.Builder._postProcessNodes.Add(this);
+                SakuraiArchiveNode.Builder._postProcessNodes.Add(this);
                 if (e._script != null && e._script.Count > 0)
                     _lookupOffsets.Add(addr->_commandListOffset.Address);
                 address += 8;
