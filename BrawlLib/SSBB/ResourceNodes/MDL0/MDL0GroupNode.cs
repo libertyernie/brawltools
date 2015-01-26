@@ -30,14 +30,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Browsable(false)]
-        public BRESNode BRESNode
+        public BRRESNode BRESNode
         {
             get
             {
                 ResourceNode n = _parent;
-                while (!(n is BRESNode) && (n != null))
+                while (!(n is BRRESNode) && (n != null))
                     n = n._parent;
-                return n as BRESNode;
+                return n as BRRESNode;
             }
         }
 
@@ -424,6 +424,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         
         protected internal virtual void PostProcess(VoidPtr mdlAddress, VoidPtr dataAddress, StringTable stringTable)
         {
+            if (dataAddress <= mdlAddress)
+                return;
+
             ResourceGroup* pGroup = (ResourceGroup*)dataAddress;
             ResourceEntry* rEntry = &pGroup->_first;
             int index = 1;
@@ -437,7 +440,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     dataAddress = (VoidPtr)pGroup + (rEntry++)->_dataOffset;
                     ResourceEntry.Build(pGroup, index++, dataAddress, (BRESString*)stringTable[n.Name]);
-                    n.PostProcess(mdlAddress, dataAddress, stringTable);
+
+                    if (dataAddress > mdlAddress)
+                        n.PostProcess(mdlAddress, dataAddress, stringTable);
                 }
         }
 

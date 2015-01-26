@@ -283,7 +283,7 @@ namespace BrawlLib.Modeling
             long* pOutDataList = stackalloc long[12];
             int* pData = stackalloc int[16];
             int faces = 0, lines = 0, points = 0;
-            ushort fIndex = 0, lIndex = 0, temp;
+            uint fIndex = 0, lIndex = 0, temp;
 
             PrimitiveDecodeCommand* pCmd = (PrimitiveDecodeCommand*)pData;
             byte** pInData = (byte**)pInDataList;
@@ -408,7 +408,7 @@ namespace BrawlLib.Modeling
                             while (count-- > 0)
                             {
                                 pTriarr[pTri++] = temp;
-                                pTriarr[pTri++] = (uint)(fIndex - 1);
+                                pTriarr[pTri++] = fIndex - 1;
                                 pTriarr[pTri++] = fIndex++;
                             }
                         }
@@ -422,15 +422,15 @@ namespace BrawlLib.Modeling
                             {
                                 if ((i & 1) == 0)
                                 {
-                                    pTriarr[pTri++] = (uint)(fIndex - 2);
-                                    pTriarr[pTri++] = (uint)(fIndex - 1);
+                                    pTriarr[pTri++] = fIndex - 2;
+                                    pTriarr[pTri++] = fIndex - 1;
                                     pTriarr[pTri++] = fIndex++;
                                 }
                                 else
                                 {
-                                    pTriarr[pTri++] = (uint)(fIndex - 2);
+                                    pTriarr[pTri++] = fIndex - 2;
                                     pTriarr[pTri++] = fIndex;
-                                    pTriarr[pTri++] = (uint)(fIndex++ - 1);
+                                    pTriarr[pTri++] = fIndex++ - 1;
                                 }
                             }
                         }
@@ -443,7 +443,7 @@ namespace BrawlLib.Modeling
                             lIndex++;
                             while (count-- > 0)
                             {
-                                pLinarr[pLin++] = (uint)(lIndex - 1);
+                                pLinarr[pLin++] = lIndex - 1;
                                 pLinarr[pLin++] = lIndex++;
                             }
                         }

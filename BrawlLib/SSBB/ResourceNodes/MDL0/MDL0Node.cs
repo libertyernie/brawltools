@@ -764,28 +764,43 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void FinishImport(Collada form = null)
         {
+            //Prepare for rebuild
+            CleanTextures();
             CleanGroups();
-
             _influences.Clean();
             _influences.Sort();
-
-            CleanTextures();
-
             _linker = ModelLinker.Prepare(this);
-            int size = ModelEncoder.CalcSize(form, _linker);
 
-            FileMap uncompMap = FileMap.FromTempFile(size);
+            //Calculate size and align for string table later
+            int size = (_calcSize = ModelEncoder.CalcSize(form, _linker)).Align(4);
 
-            ModelEncoder.Build(form, _linker, (MDL0Header*)uncompMap.Address, size, true);
+            //Rebuild and write the model to a temp buffer with no string table
+            UnsafeBuffer buffer = new UnsafeBuffer(size);
+            ModelEncoder.Build(form, _linker, (MDL0Header*)buffer.Address, _calcSize, true);
 
-            _replSrc.Close();
-            _replUncompSrc.Close();
-            _replSrc = _replUncompSrc = new DataSource(uncompMap.Address, size);
-            _replSrc.Map = _replUncompSrc.Map = uncompMap;
+            //Get strings AFTER calculating the size and rebuilding
+            StringTable table = new StringTable();
+            GetStrings(table);
 
-            IsDirty = false;
-            _reopen = true;
+            //Create temporary file map with the string table included
+            FileMap uncompMap = FileMap.FromTempFile(size + table.GetTotalSize());
+
+            //Set the sources
+            _origSource = _uncompSource = new DataSource(uncompMap);
+
+            //move the temp buffer to the end of the file map
+            Memory.Move(uncompMap.Address, buffer.Address, (uint)buffer.Length);
+
+            //Write the string table and do final calculations
+            table.WriteTable(uncompMap.Address + size);
+            PostProcess(null, uncompMap.Address, _calcSize, table);
+            
+            //Clear table and reset import bool
+            table.Clear();
             _isImport = false;
+
+            //Set replacement maps with the uncompressed map to force a reparse
+            ReplaceRaw(uncompMap);
         }
 
         public static MDL0Node FromFile(string path)
@@ -890,8 +905,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (MDL0GroupNode node in Children)
             {
                 MDLResourceType type = (MDLResourceType)Enum.Parse(typeof(MDLResourceType), node.Name);
-                if (((index = gList.IndexOf(type)) >= 0) && (type != MDLResourceType.Shaders))
-                    node.PostProcess(dataAddress, dataAddress + offsets[index], stringTable);
+                if ((index = gList.IndexOf(type)) >= 0 && type != MDLResourceType.Shaders)
+                {
+                    int offset = offsets[index];
+                    if (offset > 0)
+                        node.PostProcess(dataAddress, dataAddress + offset, stringTable);
+                }
             }
 
             //Post-process definitions

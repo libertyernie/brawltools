@@ -496,11 +496,11 @@ namespace BrawlLib.Modeling
                         for (int i = 0; i < count; i += 4)
                         {
                             p3arr[p3++] = index;
-                            p3arr[p3++] = (uint)(index + 2);
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 2;
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index;
-                            p3arr[p3++] = (uint)(index + 3);
-                            p3arr[p3++] = (uint)(index + 2);
+                            p3arr[p3++] = index + 3;
+                            p3arr[p3++] = index + 2;
                             index += 4;
                         }
                         break;
@@ -508,8 +508,8 @@ namespace BrawlLib.Modeling
                         count = *(bushort*)pData;
                         for (int i = 0; i < count; i += 3)
                         {
-                            p3arr[p3++] = (uint)(index + 2);
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 2;
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index;
                             index += 3;
                         }
@@ -520,7 +520,7 @@ namespace BrawlLib.Modeling
                         for (int i = 2; i < count; i++)
                         {
                             p3arr[p3++] = temp;
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index++;
                         }
                         index++;
@@ -532,7 +532,7 @@ namespace BrawlLib.Modeling
                         {
                             p3arr[p3++] = index;
                             p3arr[p3++] = (uint)(index - 1 - (i & 1));
-                            p3arr[p3++] = (uint)((index++) - 2 + (i & 1));
+                            p3arr[p3++] = (uint)(index++ - 2 + (i & 1));
                         }
                         break;
                     case GXListCommand.DrawLines:
@@ -634,7 +634,15 @@ namespace BrawlLib.Modeling
                 //Indices are written in reverse for each triangle, 
                 //so they need to be set to a triangle in reverse if not CCW
                 for (int t = 0; t < _triangles._indices.Length; t++)
-                    points[forceCCW ? t : (t - (t % 3)) + (2 - (t % 3))] = facepoints[indices[t]];
+                {
+                    uint index = indices[t];
+                    int pointIndex = forceCCW ? t : (t - (t % 3)) + (2 - (t % 3));
+                    if (pointIndex < points.Length)
+                        if (index >= facepoints.Length)
+                            points[pointIndex] = new Facepoint();
+                        else
+                            points[pointIndex] = facepoints[index];
+                }
 
                 _primGroups.AddRange(converter.GroupPrimitives(points, out newPointCount, out newFaceCount));
             }
