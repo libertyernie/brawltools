@@ -20,12 +20,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         U8Folder = 0x0501,
         BRES = 0x0603,
         BRESEntry = 0x0700,
+        BFRES = 0x6800,
+        BFRESEntry = 0x6900,
+        BFRESGroup = 0x6A01,
         MRG = 0x0801,
         BLOC = 0x5C25,
         Redirect = 0x5E30,
-        RARC = 0x6300,
-        RARCEntry = 0x6400,
-        RARCFolder = 0x6501,
+        RARC = 0x6600,
+        RARCEntry = 0x6700,
+        RARCFolder = 0x6701,
+        SARC = 0x6B00,
+        SARCEntry = 0x6C00,
 
         //Effects
         EFLS = 0x0913,
@@ -49,7 +54,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         CollisionDef = 0x1314,
         MSBin = 0x1404,
         STPM = 0x1520,
-		STDT = 0x5B26,
+        STDT = 0x5B26,
+        SCLA = 0x6D00,
 
         //AI
         AI = 0x1616,
@@ -121,7 +127,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         RWSDDataGroup = 0x4801,
         RSEQGroup = 0x4901,
         RBNKGroup = 0x4A01,
-        
+
         //Moveset
         MDef = 0x4B1A,
         NoEdit = 0x4C01,
@@ -147,7 +153,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         BMD = 0x6100,
         BMDGroup = 0x6101,
         BTI = 0x6200,
-        
+
         //Subspace Emmisary
         GDOR = 0x5D27,
         GEG1 = 0x5D28,
@@ -159,5 +165,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         GBLK = 0x5D2E,
         GMPS = 0x5D2F,
         BGMG = 0x5F32,
+
+        FMDL = 0x6D00,
     }
 }

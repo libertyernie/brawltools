@@ -32,6 +32,10 @@ namespace System
         /// </summary>
         public static Single RemapToRange(this Single value, Single min, Single max)
         {
+            //Check if the value is already in the range
+            if (value < max && value >= min)
+                return value;
+
             //Get the distance between max and min
             float range = max - min;
 

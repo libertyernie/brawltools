@@ -14,7 +14,6 @@ namespace BrawlLib.Wii.Models
     public unsafe delegate void ElementDecoder(ref byte* pIn, ref byte* pOut, float scale);
     public unsafe class ElementCodec
     {
-        [Flags]
         public enum CodecType : int
         {
             S = 0,

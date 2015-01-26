@@ -63,9 +63,9 @@ namespace BrawlLib.OpenGL
         {
             _window = window;
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
-            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
+            _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
-            (_context as IGraphicsContextInternal).LoadAll();
+            _context.LoadAll();
             
             // Check for GLSL support
             string version = GL.GetString(StringName.Version);
@@ -112,8 +112,7 @@ namespace BrawlLib.OpenGL
             Reset();
         }
 
-        public void Capture() { Capture(false); }
-        public void Capture(bool force)
+        public void Capture(bool force = false)
         {
             try
             {

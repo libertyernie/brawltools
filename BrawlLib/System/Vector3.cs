@@ -195,6 +195,20 @@ namespace System
         public void Morph(Vector3 dest, float percent) { this += ((dest - this) * percent); }
         public Vector3 ReturnMorph(Vector3 dest, float percent) { return this + ((dest - this) * percent); }
         
+        public void RemapToRange(float min, float max)
+        {
+            _x = _x.RemapToRange(-180.0f, 180.0f);
+            _y = _y.RemapToRange(-180.0f, 180.0f);
+            _z = _z.RemapToRange(-180.0f, 180.0f);
+        }
+        public Vector3 RemappedToRange(float min, float max)
+        {
+            return new Vector3(
+                _x.RemapToRange(-180.0f, 180.0f),
+                _y.RemapToRange(-180.0f, 180.0f),
+                _z.RemapToRange(-180.0f, 180.0f));
+        }
+
         public int CompareTo(object obj)
         {
             if (obj is Vector3)

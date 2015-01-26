@@ -98,7 +98,7 @@ namespace BrawlBox
         {
             if (_rootNode != null)
             {
-                if ((_rootNode.IsDirty) && (!force))
+                if ((_rootNode.IsDirty || _rootNode.CompressionHasChanged) && !force)
                 {
                     DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
                     if (((res == DialogResult.Yes) && (!Save())) || (res == DialogResult.Cancel))
@@ -188,19 +188,23 @@ namespace BrawlBox
                 try
                 {
                 #endif
-                    if (_rootPath == null)
-                        return SaveAs();
 
-                    if (!_rootNode.IsDirty)
-                    {
-                        MessageBox.Show("No changes have been made.");
-                        return false;
-                    }
+                if (_rootPath == null)
+                    return SaveAs();
 
-                    _rootNode.Merge(Control.ModifierKeys == (Keys.Control | Keys.Shift));
-                    _rootNode.Export(_rootPath);
-                    _rootNode.IsDirty = false;
-                    return true;
+                bool force = Control.ModifierKeys == (Keys.Control | Keys.Shift);
+                if (!force && !_rootNode.IsDirty && !_rootNode.CompressionHasChanged)
+                {
+                    MessageBox.Show("No changes have been made.");
+                    return false;
+                }
+
+                _rootNode.Merge(force);
+                _rootNode.Export(_rootPath);
+                _rootNode.IsDirty = false;
+
+                return true;
+
                 #if !DEBUG
                 }
                 catch (Exception x) { Say(x.Message); }

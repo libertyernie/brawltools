@@ -156,7 +156,6 @@ namespace System.Drawing
                 }
             }
 
-
             dst.UnlockBits(dData);
             src.UnlockBits(sData);
 
