@@ -18,7 +18,15 @@ namespace Ikarus.MovesetFile
         [Browsable(false)]
         public MDL0BoneNode CharBoneNode
         {
-            get { if (_root.Model == null) return null; if (charBone > _root.Model._linker.BoneCache.Length || charBone < 0) return null; return (MDL0BoneNode)_root.Model._linker.BoneCache[charBone]; }
+            get
+            {
+                MovesetNode node = (MovesetNode)_root;
+                if (node.Model == null)
+                    return null;
+                if (charBone > node.Model._linker.BoneCache.Length || charBone < 0)
+                    return null;
+                return (MDL0BoneNode)node.Model._linker.BoneCache[charBone];
+            }
             set { charBone = value.BoneIndex; }
         }
 
@@ -40,7 +48,7 @@ namespace Ikarus.MovesetFile
         public int ID { get { return Index; } }
         [Category("Article")]
         public int ARCGroupID { get { return id; } set { id = value; SignalPropertyChange(); } }
-        [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
+        [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesArticleMDef))]
         public string ArticleBone { get { return ArticleBoneNode == null ? articleBone.ToString() : ArticleBoneNode.Name; } set { if (Model == null) { articleBone = Convert.ToInt32(value); } else { ArticleBoneNode = String.IsNullOrEmpty(value) ? ArticleBoneNode : _info._model.FindBone(value); } SignalPropertyChange(); } }
         [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
         public string CharacterBone { get { return CharBoneNode == null ? charBone.ToString() : CharBoneNode.Name; } set { if (Model == null) { charBone = Convert.ToInt32(value); } else { CharBoneNode = String.IsNullOrEmpty(value) ? CharBoneNode : Model.FindBone(value); } SignalPropertyChange(); } }

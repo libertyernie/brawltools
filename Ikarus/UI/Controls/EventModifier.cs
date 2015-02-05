@@ -6,8 +6,8 @@ using System.Reflection;
 using System.Windows.Forms;
 using Ikarus;
 using Ikarus.MovesetFile;
-using System.Windows.Forms;
 using Ikarus.ModelViewer;
+using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {
@@ -436,11 +436,14 @@ namespace System.Windows.Forms
                 //So that changes don't affect the original event until the user finishes
                 if (_newEv == null)
                 {
-                    _newEv = new Event();
+                    _newEv = new Event()
+                    {
+                        EventID = _origEvent.EventID,
+                        _offset = _origEvent._offset,
+                        _initSize = _origEvent._initSize,
+                    };
 
-                    _newEv.EventID = _origEvent.EventID;
                     EventInformation info = _origEvent.Info;
-
                     for (int i = 0; i < _newEv.NumArguments; i++)
                     {
                         Parameter p = _origEvent[i];
@@ -450,7 +453,11 @@ namespace System.Windows.Forms
                             type = (int)p.ParamType;
                             value = p.Data;
                         }
-                        _newEv.NewParam(i, value, type);
+
+                        MovesetEntryNode e = _newEv.NewParam(i, value, type);
+                        e._offset = p._offset;
+                        e._initSize = p._initSize;
+
                         if (type == (int)ParamType.Offset)
                         {
                             EventOffset oldoff = p as EventOffset;
@@ -458,7 +465,7 @@ namespace System.Windows.Forms
                             newoff._offsetInfo = oldoff._offsetInfo;
                             newoff._script = oldoff._script;
                         }
-                    } 
+                    }
 
                     //Set the node to be "Clean", so that if the user makes a change and cancels, we'll know
                     _newEv.IsDirty = false;
@@ -668,17 +675,17 @@ namespace System.Windows.Forms
                 case 0:
                     comboBox3.Items.Add("Entry");
                     comboBox3.Items.Add("Exit");
-                    comboBox2.DataSource = param._root.Actions;
+                    comboBox2.DataSource = ((MovesetNode)param._root).Actions;
                     break;
                 case 1:
                     comboBox3.Items.Add("Main");
                     comboBox3.Items.Add("GFX");
                     comboBox3.Items.Add("SFX");
                     comboBox3.Items.Add("Other");
-                    comboBox2.DataSource = param._root.Data.SubActions;
+                    comboBox2.DataSource = ((MovesetNode)param._root).Data.SubActions;
                     break;
                 case 2:
-                    comboBox2.DataSource = param._root.SubRoutines;
+                    comboBox2.DataSource = ((MovesetNode)param._root).SubRoutines;
                     break;
                 case 3:
                     comboBox2.DataSource = param._root.ReferenceList;
@@ -706,7 +713,7 @@ namespace System.Windows.Forms
                         _targetNode._externalEntry.References.Remove(_targetNode);
                         _targetNode._externalEntry = null;
                     }
-                    (param._externalEntry = param._root.ReferenceList[comboBox2.SelectedIndex] as ExternalEntryNode).References.Add(param);
+                    (param._externalEntry = param._root.ReferenceList[comboBox2.SelectedIndex] as TableEntryNode).References.Add(param);
                 }
             }
             else
@@ -723,7 +730,7 @@ namespace System.Windows.Forms
                 (TypeValue)(comboBox1.SelectedIndex >= 2 ? -1 : comboBox3.SelectedIndex),
                 (comboBox1.SelectedIndex == 4 ? -1 : comboBox2.SelectedIndex));
 
-            _targetNode._script = param._root.GetScript(_targetNode._offsetInfo);
+            _targetNode._script = ((MovesetNode)param._root).GetScript(_targetNode._offsetInfo);
             if (_targetNode._script != null)
                 _targetNode._script._actionRefs.Add(param);
             else

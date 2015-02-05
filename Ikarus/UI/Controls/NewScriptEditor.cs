@@ -55,6 +55,8 @@ namespace System.Windows.Forms
             "switch",
             "case",
             "default",
+            "default:",
+            "break",
             "loop",
         };
         public char[] _separators =
@@ -305,14 +307,23 @@ namespace System.Windows.Forms
 
         private void textBox_SelectionChanged(object sender, EventArgs e)
         {
+            int position = textBox.SelectionStart;
             if (pnlIntel.Visible)
-            {
-                int n = textBox.SelectionStart;
-                if (!(_buffer != null && n >= _start && n <= _buffer.Length))
+                if (!(_buffer != null && position >= _start && position <= _buffer.Length))
                     HideIntel();
-            }
 
             //If the user clicks on an event or parameter, display the name and description.
+            if (_targetNode != null)
+            {
+                EventInformation info = _targetNode.FindEvent(position + textBox.GetLineFromCharIndex(position));
+                if (info != null && !String.IsNullOrEmpty(info._description))
+                {
+                    txtDescription.Visible = true;
+                    txtDescription.Text = info._description;
+                }
+                else
+                    txtDescription.Visible = false;
+            }
         }
 
         //index, length

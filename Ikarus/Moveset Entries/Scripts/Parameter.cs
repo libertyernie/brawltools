@@ -9,7 +9,6 @@ using System.Runtime.InteropServices;
 using Ikarus;
 using Ikarus.MovesetBuilder;
 using Ikarus.ModelViewer;
-using BrawlLib.SSBBTypes.SakuraiArchive;
 
 namespace Ikarus.MovesetFile
 {
@@ -298,7 +297,7 @@ namespace Ikarus.MovesetFile
                 //    SignalPropertyChange();
                 //    return;
                 //}
-                MovesetEntryNode r = _root.GetEntry(value);
+                SakuraiEntryNode r = _root.GetEntry(value);
                 if (r != null && r is Script)
                     Data = value;
                 else MessageBox.Show("An action could not be located.");
@@ -330,7 +329,7 @@ namespace Ikarus.MovesetFile
         /// Use this only when parsing.
         /// </summary>
         /// <returns></returns>
-        internal Script GetScript() { return _root.GetScript(RawOffset); }
+        internal Script GetScript() { return ((MovesetNode)_root).GetScript(RawOffset); }
         public Script _script;
 
         protected override void OnParse(VoidPtr address)
@@ -371,16 +370,18 @@ namespace Ikarus.MovesetFile
 
         internal void LinkScript()
         {
-            MovesetEntryNode e = _root.GetEntry(RawOffset);
+            MovesetNode node = (MovesetNode)_root;
+
+            SakuraiEntryNode e = _root.GetEntry(RawOffset);
             bool exist = e != null && e is Event;
 
-            _offsetInfo = _root.GetScriptLocation(RawOffset);
+            _offsetInfo = node.GetScriptLocation(RawOffset);
 
             Script a;
             if (_offsetInfo.list == ListValue.Null && !exist)
-                _root.SubRoutines.Add(a = Parse<Script>(RawOffset));
+                node.SubRoutines.Add(a = Parse<Script>(RawOffset));
             else if (_offsetInfo.list != ListValue.References)
-                a = _root.GetScript(_offsetInfo);
+                a = node.GetScript(_offsetInfo);
             else
             {
                 if (_externalEntry == null && _offsetInfo.index >= 0 && _offsetInfo.index < _root.ReferenceList.Count)

@@ -303,14 +303,8 @@ namespace Ikarus.MovesetFile
             _numArgs = e->_numArguments;
             _unknown = e->_unk1;
 
-            _event = *(buint*)address;
-
-            if (Manager.Events.ContainsKey(_event))
-                _name = Manager.Events[_event]._name;
-            if (Manager.Events.ContainsKey(_event & 0xFFFFFF00))
-                _name = Manager.Events[_event & 0xFFFFFF00]._name;
-            else 
-                _name = Helpers.Hex8(_event);
+            _event = ((uint)*(buint*)address) & 0xFFFFFF00;
+            _name = Manager.Events.ContainsKey(_event) ? Manager.Events[_event]._name : Helpers.Hex8(_event);
 
             if (_name == "FADEF00D" || _name == "FADE0D8A")
                 return;
@@ -380,7 +374,7 @@ namespace Ikarus.MovesetFile
                                 ext.References.Add(parameter);
                             }
                             else if (offset > 0)
-                                _root._postProcessEntries.Add(parameter);
+                                _root._postParseEntries.Add(parameter);
 
                             break;
                     }
@@ -466,7 +460,7 @@ namespace Ikarus.MovesetFile
 
                             args.Add(thisArg);
 
-                            //Check for following AND or OR if events
+                            //Check for following AND or OR 'if' events
                             if (ev.Next != null)
                             {
                                 ev = ev.Next;
@@ -502,7 +496,7 @@ namespace Ikarus.MovesetFile
 
                         case 0x0B: //And
                         case 0x0C: //Or
-                            return null; //This is handled by the parent If event above
+                            return null; //This is handled by the parent 'If' event above
                         case 0x0E: //Else
                             return "}" + n + "else" + n + "{";
                         case 0x0F: //End If
@@ -524,8 +518,7 @@ namespace Ikarus.MovesetFile
                             else
                                 mid = String.Format("case {0}:", Arg(0));
 
-                            if (Next != null)
-                                if (Next.EventID != 0x00110100)
+                            if (Next != null && Next.EventID != 0x00110100)
                                     end = n + "{";
 
                             return start + mid + end;
@@ -538,6 +531,8 @@ namespace Ikarus.MovesetFile
                                 va2 += "    }" + n; //Forced tab
 
                             return va2 + "}";
+                        case 0x18: //break
+                            return "break;";
                     }
                     break;
                 case 0x12: //Variables
@@ -633,7 +628,7 @@ namespace Ikarus.MovesetFile
         //This allows the values to be modified by other events.
         public HitBox(Event ev, int articleIndex)
         {
-            Root = ev._root;
+            Root = ev._root as MovesetNode;
             _event = ev.EventID;
             if (_event != 0x060A0800)
                 flags = ev[12] as HitboxFlagsNode;

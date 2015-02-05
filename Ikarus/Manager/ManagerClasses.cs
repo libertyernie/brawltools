@@ -56,7 +56,7 @@ namespace Ikarus
         public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterFiles { get { return _characterFiles; } }
         
         private BRRESNode _animations = null;
-        private SakuraiArchiveNode _moveset = null;
+        private MovesetNode _moveset = null;
 
         private string FileName(int i) { return (RunTime._IsRoot ? "/fighter/{0}/" : "/") + _fileNames[i]; }
         private static readonly string[] _fileNames = 
@@ -137,7 +137,7 @@ namespace Ikarus
             }
         }
 
-        internal SakuraiArchiveNode Moveset
+        internal MovesetNode Moveset
         {
             get
             {
@@ -148,7 +148,7 @@ namespace Ikarus
                 if (m == null) return null;
                 if (m.Children.Count == 0) return null;
                 ARCEntryNode entry = m.Children[0] as ARCEntryNode;
-                (_moveset = new SakuraiArchiveNode()).Initialize(null, entry.WorkingUncompressed);
+                (_moveset = new MovesetNode(Name)).Initialize(null, entry.WorkingUncompressed);
                 _moveset.Populate(0);
                 return _moveset;
             }

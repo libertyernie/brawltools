@@ -17,7 +17,7 @@ using System.Windows.Forms;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class Miscellaneous : MovesetEntryNode
+    public unsafe class MiscSectionNode : MovesetEntryNode
     {
         sDataMisc _hdr;
 
@@ -26,7 +26,7 @@ namespace Ikarus.MovesetFile
         [Category("Misc Offsets")]
         public int FinalSmashAuraOffset { get { return _hdr.FinalSmashAuraOffset; } }
         [Category("Misc Offsets")]
-        public int UnkBoneSectionCount { get { return _hdr.FinalSmashAuraCount; } }
+        public int FinalSmashAuraCount { get { return _hdr.FinalSmashAuraCount; } }
         [Category("Misc Offsets")]
         public int HurtBoxOffset { get { return _hdr.HurtBoxOffset; } }
         [Category("Misc Offsets")]

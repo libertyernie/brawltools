@@ -6,6 +6,7 @@ using Ikarus;
 using Ikarus.MovesetFile;
 using System.Windows.Forms;
 using Ikarus.ModelViewer;
+using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {
@@ -173,7 +174,7 @@ namespace System.Windows.Forms
 
             _updating = true;
 
-            if (_targetNode._root.DataCommon != null)
+            if (((MovesetNode)_targetNode._root).DataCommon != null)
             {
                 listBox.Items.Clear();
                 listBox.Items.AddRange(new object[] {
@@ -223,36 +224,36 @@ namespace System.Windows.Forms
             typeBox.Items.Clear();
             typeBox.Visible = label3.Visible = listBox.SelectedIndex < 2;
             indexBox.Visible = label2.Visible = listBox.SelectedIndex != 4;
-
+            MovesetNode node = ((MovesetNode)_targetNode._root);
             switch (listBox.SelectedIndex)
             {
                 case 0:
                     typeBox.Items.Add("Entry");
                     typeBox.Items.Add("Exit");
-                    indexBox.DataSource = _targetNode._root.Actions;
+                    indexBox.DataSource = node.Actions;
                     break;
                 case 1:
                     typeBox.Items.Add("Main");
                     typeBox.Items.Add("GFX");
                     typeBox.Items.Add("SFX");
                     typeBox.Items.Add("Other");
-                    if (TargetNode._root.Data != null  && TargetNode._root.Data.SubActions != null)
-                        indexBox.DataSource = _targetNode._root.Data.SubActions;
+                    if (node.Data != null && node.Data.SubActions != null)
+                        indexBox.DataSource = node.Data.SubActions;
                     break;
                 case 2:
-                    indexBox.DataSource = _targetNode._root.SubRoutines;
+                    indexBox.DataSource = node.SubRoutines;
                     break;
                 case 3:
-                    indexBox.DataSource = _targetNode._root.ReferenceList;
+                    indexBox.DataSource = node.ReferenceList;
                     break;
                 case 4:
 
                     break;
                 case 5:
-                    indexBox.DataSource = _targetNode._root.DataCommon.ScreenTints;
+                    indexBox.DataSource = node.DataCommon.ScreenTints;
                     break;
                 case 6:
-                    indexBox.DataSource = _targetNode._root.DataCommon.FlashOverlays;
+                    indexBox.DataSource = node.DataCommon.FlashOverlays;
                     break;
 
             }
@@ -314,7 +315,8 @@ namespace System.Windows.Forms
                 (TypeValue)(listBox.SelectedIndex >= 2 ? -1 : typeBox.SelectedIndex),
                 (listBox.SelectedIndex == 4 ? -1 : indexBox.SelectedIndex));
 
-            _targetNode._script = _targetNode._root.GetScript(_targetNode._offsetInfo);
+
+            _targetNode._script = ((MovesetNode)_targetNode._root).GetScript(_targetNode._offsetInfo);
             if (_targetNode._script != null)
                 _targetNode.Data = _targetNode._script._offset;
             _targetNode.SignalPropertyChange();

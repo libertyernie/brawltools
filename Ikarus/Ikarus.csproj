@@ -71,8 +71,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Moveset Builder\BuilderBase.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part3.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part2.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part1.cs" />
+    <Compile Include="Moveset Builder\Data\Part7.cs" />
+    <Compile Include="Moveset Builder\Data\Part6.cs" />
+    <Compile Include="Moveset Builder\Data\Part5.cs" />
+    <Compile Include="Moveset Builder\Data\Part4.cs" />
+    <Compile Include="Moveset Builder\Data\Part3.cs" />
+    <Compile Include="Moveset Builder\Data\Part2.cs" />
+    <Compile Include="Moveset Builder\Data\Part1.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk7.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnLegBonesNode.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnUnknown11Node.cs" />
     <Compile Include="Moveset Entries\MovesetNode.cs" />
     <Compile Include="Moveset Entries\Scripts\Script.cs" />
     <Compile Include="Moveset Entries\Scripts\Event.cs" />
@@ -93,8 +105,8 @@
       <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Moveset Entries\CharacterSpecific.cs" />
-    <Compile Include="Moveset Entries\DataCommonSection.cs" />
-    <Compile Include="Moveset Entries\Common Nodes\PatternPowerMul.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\DataCommonSection.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnPatternPowerMulNode.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionFlags.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionInterrupts.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionOverrides.cs" />
@@ -103,7 +115,7 @@
     <Compile Include="Moveset Entries\Data Nodes\AttributeList.cs" />
     <Compile Include="Moveset Entries\Data Nodes\BoneReferences2.cs" />
     <Compile Include="Moveset Entries\Data Nodes\CollisionData.cs" />
-    <Compile Include="Moveset Entries\DataSection.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\DataSection.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ItemAnchor.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Miscellaneous.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ModelVisibility.cs" />
@@ -166,8 +178,8 @@
     </Compile>
     <Compile Include="UI\SyntaxTextBox\Win32.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="Moveset Builder\DataCommonBuilder.cs" />
-    <Compile Include="Moveset Builder\DataBuilder.cs" />
+    <Compile Include="Moveset Builder\DataCommon\DataCommonBuilder.cs" />
+    <Compile Include="Moveset Builder\Data\DataBuilder.cs" />
     <Compile Include="Structs\ExtraDataOffsets.cs" />
     <Compile Include="Structs\FighterDefinition.cs" />
     <Compile Include="UI\Controls\ArticleAttributeGrid.cs">
@@ -222,7 +234,7 @@
     <Compile Include="UI\MainForm.designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <None Include="Moveset Builder\MoveDefStringTables.cs" />
+    <Compile Include="Moveset Builder\MoveDefStringTables.cs" />
     <Compile Include="WiimoteLib\DataTypes.cs" />
     <Compile Include="WiimoteLib\Events.cs" />
     <Compile Include="WiimoteLib\HIDImports.cs" />
@@ -342,6 +354,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Moveset Builder\DataCommon\notes.txt" />
+    <Content Include="Moveset Builder\Data\notes.txt" />
     <Content Include="OpenTK.dll" />
     <None Include="Resources\splash.png" />
     <Content Include="Untitled-1.ico" />

@@ -5,6 +5,7 @@ using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.MovesetFile;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus
 {
@@ -16,6 +17,18 @@ namespace Ikarus
             MDL0Node model = (context.Instance as MovesetEntryNode).Model;
             if (model != null)
                 return new StandardValuesCollection(model._linker.BoneCache.Select(n => n.ToString()).ToList());
+            return null;
+        }
+    }
+
+    public class DropDownListBonesArticleMDef : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            ArticleNode article = context.Instance as ArticleNode;
+            if (article != null && article._info != null && article._info._model != null)
+                return new StandardValuesCollection(article._info._model.BoneCache.Select(n => n.ToString()).ToList());
             return null;
         }
     }
@@ -49,7 +62,7 @@ namespace Ikarus
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            ExternalEntryNode[] values = (context.Instance as MovesetEntryNode)._root.ReferenceList.ToArray();
+            TableEntryNode[] values = (context.Instance as MovesetEntryNode)._root.ReferenceList.ToArray();
             if (values != null)
                 return new StandardValuesCollection(values.Select(n => n.ToString()).ToList());
             return null;

@@ -168,6 +168,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sPatternPowerMulEntry
     {
+        public const int Size = 24;
+
         public sEvent _event1;
         public sEvent _event2;
         public bint _pad1;
@@ -177,6 +179,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sCommonUnk7Entry
     {
+        public const int Size = 12;
+
         public sListOffset _list;
         public bshort _unk3;
         public bshort _unk4;
@@ -187,6 +191,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sCommonUnk7EntryListEntry
     {
+        public const int Size = 8;
+
         public bfloat _unk1;
         public bfloat _unk2;
 
@@ -196,6 +202,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sCommonUnknown11Entry
     {
+        public const int Size = 12;
+
         public bint _unk1;
         public sListOffset _list;
 
@@ -205,6 +213,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sActionOverride
     {
+        public const int Size = 8;
+
         public bint _actionID;
         public bint _commandListOffset;
 
@@ -576,6 +586,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sActionFlags
     {
+        public const int Size = 0x10;
+
         public bint _flags1; //Sometimes -1
         public bint _flags2; //Sometimes -1
         public bint _flags3; //Sometimes -1

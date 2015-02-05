@@ -8,11 +8,11 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.UI;
 using System.Reflection;
 using System.Globalization;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.ModelViewer
 {
@@ -24,7 +24,7 @@ namespace Ikarus.ModelViewer
         {
             _script = s;
         }
-        public static Scriptor()
+        static Scriptor()
         {
             var m = typeof(Scriptor).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
             foreach (MethodInfo method in m)
@@ -50,8 +50,22 @@ namespace Ikarus.ModelViewer
             set { _script[i] = value; }
         }
 
-        public SakuraiArchiveNode Root { get { return _script._root; } }
-        public ArticleNode Article { get { return _script.ParentArticle; } }
+        public MovesetNode Root { get { return _script._root as MovesetNode; } }
+
+        private ArticleNode _article = null;
+        public ArticleNode Article
+        {
+            get
+            {
+                if (_article != null)
+                    return _article;
+
+                SakuraiEntryNode n = _script._parent;
+                while (!(n is ArticleNode) && n != null)
+                    n = n._parent;
+                return _article = n as ArticleNode;
+            }
+        }
 
         #region Variables
 
@@ -717,7 +731,7 @@ namespace Ikarus.ModelViewer
 
                     //Make sure we have all the data we need available
                     MainControl main = MainForm.Instance._mainControl;
-                    SakuraiArchiveNode mNode = Manager.Moveset;
+                    MovesetNode mNode = Manager.Moveset;
                     if (mNode == null)
                         break;
                     DataSection d = mNode.Data;

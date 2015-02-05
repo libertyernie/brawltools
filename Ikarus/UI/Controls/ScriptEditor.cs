@@ -7,7 +7,7 @@ using System.IO;
 using System.Windows.Forms;
 using Ikarus.MovesetFile;
 using Ikarus;
-using BrawlLib.SSBBTypes.SakuraiArchive;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.UI
 {
@@ -239,12 +239,12 @@ namespace Ikarus.UI
 
         public ScriptPanel _mainWindow;
 
-        private SakuraiArchiveNode _mDef;
+        private MovesetNode _mDef;
         private Panel panel2;
         public ListBox EventList;
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SakuraiArchiveNode MoveDef
+        public MovesetNode MoveDef
         {
             get { return _mDef; }
             set { _mDef = value; }
@@ -283,7 +283,7 @@ namespace Ikarus.UI
         {
             if (TargetNode != null)
             {
-                MoveDef = TargetNode._root;
+                MoveDef = TargetNode._root as MovesetNode;
                 //Offset.Text = TargetNode.HexOffset;
                 MakeScript();
 
@@ -431,7 +431,7 @@ namespace Ikarus.UI
                     {
                         int id = int.Parse(p[0]);
                         if (id >= 400)
-                            TargetNode._root.GetBoneIndex(ref id);
+                            ((MovesetNode)TargetNode._root).GetBoneIndex(ref id);
                         if (_targetNode.Model != null && _targetNode.Model._linker.BoneCache != null && _targetNode.Model._linker.BoneCache.Length > id && id >= 0)
                             return _targetNode.Model._linker.BoneCache[id].Name;
                         else return id.ToString();
@@ -583,9 +583,14 @@ namespace Ikarus.UI
                         //        return sa.Children[(int)value].Name;
                         //}
                         //else 
-                            if (TargetNode._root.Data != null && TargetNode._root.Data.SubActions != null && value < TargetNode._root.Data.SubActions.Count && value >= 0)
-                            return TargetNode._root.Data.SubActions[(int)value].Name;
-                        else return ((int)value).ToString();
+                        {
+                            DataSection data = ((MovesetNode)TargetNode._root).Data;
+                            if (data != null && data.SubActions != null && value < data.SubActions.Count && value >= 0)
+                                return data.SubActions[(int)value].Name;
+                            else
+                                return ((int)value).ToString();
+                        }
+
                     break;
                 //case 0x02010200:
                 //case 0x02010300:
@@ -803,7 +808,7 @@ namespace Ikarus.UI
                 string[] Events = s.Split('/');
                 foreach (string x in Events)
                 {
-                    Event y = Event.Deserialize(x, TargetNode._root);
+                    Event y = Event.Deserialize(x, TargetNode._root as MovesetNode);
                     if (y != null)
                     {
                         if (highest == TargetNode.Count)
