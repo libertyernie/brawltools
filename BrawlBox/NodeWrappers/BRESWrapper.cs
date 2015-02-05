@@ -150,16 +150,6 @@ namespace BrawlBox
                     BaseWrapper w = this.FindResource(node, true);
                     w.EnsureVisible();
                     w.TreeView.SelectedNode = w;
-
-                    if ((node as MDL0Node)._reopen == true)
-                    {
-                        string tempPath = Path.GetTempFileName();
-
-                        node.Export(tempPath);
-                        node.Replace(tempPath, FileMapProtect.ReadWrite, FileOptions.SequentialScan | FileOptions.DeleteOnClose);
-
-                        node.SignalPropertyChange();
-                    }
                 }
             }
         }

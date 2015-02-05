@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlBox.Properties;
 using BrawlLib.Imaging;
-using System.Reflection;
-using BrawlLib.IO;
-using System.Audio;
-using BrawlLib.Wii.Audio;
-using BrawlLib.OpenGL;
-using System.Diagnostics;
-using BrawlBox.Properties;
-using System.Collections.Specialized;
-using BrawlLib.SSBB;
 using BrawlLib.Modeling;
+using BrawlLib.OpenGL;
+using BrawlLib.SSBB;
+using BrawlLib.SSBB.ResourceNodes;
 using Octokit;
+using System;
+using System.Audio;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Windows.Forms;
 
 namespace BrawlBox
 {
@@ -88,7 +80,7 @@ namespace BrawlBox
             previewPanel2.Dock =
             videoPlaybackPanel1.Dock =
 			attributeGrid1.Dock =
-            texCoordRenderer1.Dock =
+            texCoordControl1.Dock =
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
@@ -257,7 +249,7 @@ namespace BrawlBox
             scN0CameraEditControl1.TargetSequence = null;
             scN0LightEditControl1.TargetSequence = null;
             scN0FogEditControl1.TargetSequence = null;
-            texCoordRenderer1.TargetNode = null;
+            texCoordControl1.TargetNode = null;
             modelPanel1.ClearAll();
             
             Control newControl = null;
@@ -275,9 +267,9 @@ namespace BrawlBox
                     videoPlaybackPanel1.TargetSource = node as IVideo;
                     newControl = videoPlaybackPanel1;
                 }
-                else if (node is MDL0TextureNode || node is MDL0MaterialRefNode)
+                else if (node is MDL0MaterialRefNode)
                 {
-                    newControl = texCoordRenderer1;
+                    newControl = texCoordControl1;
                 }
                 else if (node is MSBinNode)
                 {
@@ -427,13 +419,8 @@ namespace BrawlBox
                 modelPanel1.AddTarget(o);
                 modelPanel1.SetCamWithBox(o.GetBox());
             }
-            else if (_currentControl is TexCoordRenderer)
-            {
-                if (node is MDL0TextureNode)
-                    texCoordRenderer1.TargetNode = (MDL0TextureNode)node;
-                else
-                    texCoordRenderer1.TargetNode = ((MDL0MaterialRefNode)node).TextureNode;
-            }
+            else if (_currentControl is TexCoordControl)
+                texCoordControl1.TargetNode = ((MDL0MaterialRefNode)node);
         }
 
         protected override void OnClosing(CancelEventArgs e)

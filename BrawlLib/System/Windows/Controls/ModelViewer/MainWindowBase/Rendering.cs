@@ -838,7 +838,7 @@ namespace System.Windows.Forms
             {
                 IObject o = TargetModel.Objects[TargetModel.SelectedObjectIndex];
                 if (o.IsRendering)
-                    foreach (Vertex3 v in o.PrimitiveManager._vertices)
+                    foreach (Vertex3 v in o.Vertices)
                     {
                         float t = v.WeightedPosition.TrueDistance(point);
                         if (Math.Abs(t) < 0.025f)
@@ -847,7 +847,7 @@ namespace System.Windows.Forms
                 else
                     foreach (IObject w in TargetModel.Objects)
                         if (w.IsRendering)
-                            foreach (Vertex3 v in w.PrimitiveManager._vertices)
+                            foreach (Vertex3 v in w.Vertices)
                             {
                                 float t = v.WeightedPosition.TrueDistance(point);
                                 if (Math.Abs(t) < 0.025f)
@@ -857,7 +857,7 @@ namespace System.Windows.Forms
             else
                 foreach (IObject o in TargetModel.Objects)
                     if (o.IsRendering)
-                        foreach (Vertex3 v in o.PrimitiveManager._vertices)
+                        foreach (Vertex3 v in o.Vertices)
                         {
                             float t = v.WeightedPosition.TrueDistance(point);
                             if (Math.Abs(t) < 0.025f)

@@ -333,7 +333,7 @@ namespace System.Windows.Forms
             if (_targetModels != null)
                 foreach (IModel mdl in _targetModels)
                     if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
-                        foreach (Vertex3 v in ((IObject)mdl.Objects[mdl.SelectedObjectIndex]).PrimitiveManager._vertices)
+                        foreach (Vertex3 v in ((IObject)mdl.Objects[mdl.SelectedObjectIndex]).Vertices)
                         {
                             _selectedVertices.Add(v);
                             v._selected = true;
@@ -341,7 +341,7 @@ namespace System.Windows.Forms
                         }
                     else
                         foreach (IObject o in mdl.Objects)
-                            foreach (Vertex3 v in o.PrimitiveManager._vertices)
+                            foreach (Vertex3 v in o.Vertices)
                             {
                                 _selectedVertices.Add(v);
                                 v._selected = true;

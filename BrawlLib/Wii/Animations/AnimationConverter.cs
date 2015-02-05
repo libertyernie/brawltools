@@ -15,14 +15,21 @@ namespace BrawlLib.Wii.Animations
             //set the frame count later manually.
             int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
-            if (node is CHR0Node)
-                return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
-            else if (node is SRT0Node)
-                return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
-            //else if (node is SHP0Node)
-            //    return DecodeSHP0Keyframes((SHP0KeyframeEntries*)entry, numFrames);
+            int type = node is CHR0Node ? 0 : node is SRT0Node ? 1 : 2;
 
-            return new KeyframeCollection(0, 1);
+            if (type != 2)
+                if (type == 0)
+                    if (entry)
+                        return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
+                    else
+                        return new KeyframeCollection(9, numFrames, 1, 1, 1);
+                else
+                    if (entry)
+                        return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
+                    else
+                        return new KeyframeCollection(5, numFrames, 1, 1);
+            else
+                return new KeyframeCollection(1, numFrames);
         }
 
         public static KeyframeArray DecodeSHP0Keyframes(SHP0KeyframeEntries* entry, SHP0Node node)
@@ -349,12 +356,12 @@ namespace BrawlLib.Wii.Animations
             KeyframeEntry[] roots = new KeyframeEntry[3];
 
             KeyframeEntry[][] arr = new KeyframeEntry[3][];
-            int* count = stackalloc int[3];
-            bool* isExist = stackalloc bool[3];
-            bool* isFixed = stackalloc bool[3];
-            bool* isScalable = stackalloc bool[3];
-            float* floor = stackalloc float[3];
-            float* ceil = stackalloc float[3];
+            int[] count = new int[3];
+            bool[] isExist = new bool[3];
+            bool[] isFixed = new bool[3];
+            bool[] isScalable = new bool[3];
+            float[] floor = new float[3];
+            float[] ceil = new float[3];
 
             KeyframeEntry entry;
             int eCount = 0;
@@ -484,7 +491,7 @@ namespace BrawlLib.Wii.Animations
                         {
                             for (int x = 0; x < numFrames; x++)
                             {
-                                val = kf[index + i, x];
+                                val = kf[x, index + i];
                                 distance = ((val - basev) / step) + 0.5f;
                                 distance = Math.Abs(val - (basev + ((int)distance * step)));
 
@@ -611,15 +618,15 @@ namespace BrawlLib.Wii.Animations
             //1 = rot
             //2 = trans
 
-            int index = group * 3;
+            int index = group == 0 ? 0 : group == 1 ? 2 : 3;
             int numFrames = kf.FrameLimit;
             int dataLen = 0;
             KeyframeEntry[] roots = new KeyframeEntry[2];
             bool exist = false;
             bool isotropic = group == 0;
-            int* count = stackalloc int[2];
-            bool* isExist = stackalloc bool[2];
-            bool* isFixed = stackalloc bool[2];
+            int[] count = new int[2];
+            bool[] isExist = new bool[2];
+            bool[] isFixed = new bool[2];
 
             for (int i = 0; i < (group == 1 ? 1 : 2); i++)
             {
@@ -859,7 +866,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.L1)
             {
                 //Find best span
-                span = EvalSpan(255, 32, min, stride, root, true, kf._linearRot);
+                span = EvalSpan(255, 32, min, stride, root, true);
                 step = stride / span;
 
                 L1Header* header = (L1Header*)addr;
@@ -879,7 +886,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.I4)
             {
                 //Find best span
-                span = EvalSpan(4095, 32, min, stride, root, false, false);
+                span = EvalSpan(4095, 32, min, stride, root, false);
                 step = stride / span;
 
                 I4Header* header = (I4Header*)addr;
@@ -901,7 +908,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.I6)
             {
                 //Find best span
-                span = EvalSpan(65535, 32, min, stride, root, false, false);
+                span = EvalSpan(65535, 32, min, stride, root, false);
                 step = stride / span;
 
                 I6Header* header = (I6Header*)addr;
@@ -927,7 +934,7 @@ namespace BrawlLib.Wii.Animations
             return 0;
         }
 
-        public static int EvalSpan(int maxSpan, int maxIterations, float valBase, float valStride, KeyframeEntry root, bool evalAll, bool linear)
+        public static int EvalSpan(int maxSpan, int maxIterations, float valBase, float valStride, KeyframeEntry root, bool evalAll)
         {
             KeyframeEntry entry;
             float bestError = float.MaxValue;
@@ -952,7 +959,7 @@ namespace BrawlLib.Wii.Animations
 
                     for (int x = 0; x < count; x++)
                     {
-                        val = entry.Interpolate(x, linear);
+                        val = entry.Interpolate(x);
                         error = (val - valBase) / step + 0.5f;
                         error = Math.Abs(val - (valBase + ((int)error * step)));
 

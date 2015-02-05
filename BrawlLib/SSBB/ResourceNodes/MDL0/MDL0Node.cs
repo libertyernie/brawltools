@@ -856,6 +856,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
         }
+        public override unsafe void Replace(string fileName, FileMapProtect prot, FileOptions options)
+        {
+            MDL0Node node = FromFile(fileName);
+            if (node == null)
+                return;
+
+            int i = Index;
+            Parent.InsertChild(node, true, i);
+            Parent.SelectChildAtIndex(i);
+            Remove();
+            Dispose();
+        }
         public override unsafe void Export(string outPath)
         {
             if (outPath.ToUpper().EndsWith(".DAE"))
@@ -867,7 +879,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 base.Export(outPath);
         }
-        public bool _reopen = false;
         public override int OnCalculateSize(bool force)
         {
             //Clean and sort influence list

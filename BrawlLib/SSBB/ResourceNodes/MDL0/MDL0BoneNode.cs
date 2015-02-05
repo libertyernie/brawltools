@@ -84,19 +84,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int WeightCount { get { return _weightCount; } set { _weightCount = value; } }
 
         [Browsable(false)]
-        public bool Moved
-        {
-            get { return _moved; }
-            set
-            {
-                _moved = true;
-                MDL0Node model = Model;
-                model._linker = ModelLinker.Prepare(model);
-                model.SignalPropertyChange();
-            }
-        }
-
-        [Browsable(false)]
         public bool Locked
         {
             get { return _locked; }
@@ -403,6 +390,13 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         #endregion
 
+        public override void OnMoved()
+        {
+            MDL0Node model = Model;
+            model._linker = ModelLinker.Prepare(model);
+            SignalPropertyChange();
+        }
+
         internal override void GetStrings(StringTable table)
         {
             table.Add(Name);
@@ -498,7 +492,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         public override void RemoveChild(ResourceNode child)
         {
             base.RemoveChild(child);
-            Moved = true;
+            OnMoved();
         }
 
         private void RecalcOffsets(MDL0Bone* header, VoidPtr address, int length)
@@ -640,8 +634,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 if (_overrideLocalTranslate != new Vector3())
                     _frameState = new FrameState(_frameState.Scale, _frameState.Rotate, _frameState.Translate + _overrideLocalTranslate);
 
-                _frameState.CalcTransforms();
-
                 if (_parent is MDL0BoneNode)
                 {
                     _frameMatrix = ((MDL0BoneNode)_parent)._frameMatrix * _frameState._transform;
@@ -683,8 +675,8 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 case BillboardFlags.StandardPerspective:
 
                     //Is affected by parent rotation
-                    m = Matrix.RotationMatrix(worldState.Rotate);
-                    mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
+                    //m = Matrix.RotationMatrix(worldState.Rotate);
+                    //mInv = Matrix.ReverseRotationMatrix(worldState.Rotate);
 
                     //No restrictions to apply
                     break;
@@ -814,7 +806,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             _boneColor = Color.Transparent;
             _nodeColor = Color.Transparent;
         }
-
+        
         //public void Attach() { }
 
         //[Browsable(false)]
@@ -847,8 +839,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
             else
                 GL.Color4(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, Foreground ? 1.0f : 0.45f);
-
-            //GL.LineWidth(1.0f);
 
             //Draw name if selected
             if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)

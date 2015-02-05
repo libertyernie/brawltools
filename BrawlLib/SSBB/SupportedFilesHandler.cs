@@ -86,6 +86,13 @@ namespace BrawlLib.SSBB
             //new SupportedFileInfo(true, "J3D v4 Model", "bdl"),
             //new SupportedFileInfo(true, "Luigi's Mansion GC model", "bin"),
 
+            //Wii U
+            new SupportedFileInfo(true, "Wii U Archive", "sarc"),
+            new SupportedFileInfo(true, "Wii U Resource Pack", "bfres"),
+            new SupportedFileInfo(true, "Wii U Model", "fmdl"),
+            new SupportedFileInfo(true, "Wii U Texture", "ftex"),
+            new SupportedFileInfo(true, "Wii U Skeletal Animation", "fska"),
+
             //The following files are not for direct editing
 
             //Images
@@ -93,8 +100,8 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(false, "Truevision TARGA", "tga"),
             new SupportedFileInfo(false, "Tagged Image File Format", "tif", "tiff"),
             new SupportedFileInfo(false, "Bitmap", "bmp"),
-            new SupportedFileInfo(false, "Jpeg", "jpg", "jpeg"),
-            new SupportedFileInfo(false, "Gif", "gif"),
+            new SupportedFileInfo(false, "Joint Photographic Experts Group Image", "jpg", "jpeg"),
+            new SupportedFileInfo(false, "Graphics Interchange Format", "gif"),
 
             //Misc
             new SupportedFileInfo(false, "Text File", "txt"),

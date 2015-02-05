@@ -8,6 +8,6 @@ namespace BrawlLib.Modeling
 {
     public interface IObject : IRenderedObject
     {
-        PrimitiveManager PrimitiveManager { get; }
+        List<Vertex3> Vertices { get; }
     }
 }

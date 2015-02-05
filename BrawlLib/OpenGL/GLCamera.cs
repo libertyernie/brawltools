@@ -33,6 +33,7 @@ namespace BrawlLib.OpenGL
         public void Rotate(Vector3 v)
         {
             _rotation += v;
+            _rotation.RemapToRange(-180.0f, 180.0f);
 
             Apply();
         }

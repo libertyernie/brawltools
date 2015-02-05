@@ -412,8 +412,7 @@ namespace BrawlBox
                 else
                     dropping.Parent.AddChild(dragging, true);
 
-                if (dragging is MDL0BoneNode)
-                    ((MDL0BoneNode)dragging).Moved = true;
+                dragging.OnMoved();
             }
 
             return good;
@@ -437,8 +436,7 @@ namespace BrawlBox
                     dragging.Parent.RemoveChild(dragging);
                 dropping.AddChild(dragging);
 
-                if (dragging is MDL0BoneNode)
-                    ((MDL0BoneNode)dragging).Moved = true;
+                dragging.OnMoved();
             }
 
             return good;

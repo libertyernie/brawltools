@@ -33,7 +33,7 @@ namespace System.Windows.Forms
         public DialogResult ShowDialog(IWin32Window owner, RSARFileNode node)
         {
             TargetNode = node;
-            TargetNode.UpdateCurrControl += OnUpdateCurrControl;
+            TargetNode.UpdateControl += OnUpdateCurrControl;
             return base.ShowDialog();
         }
 
@@ -41,7 +41,7 @@ namespace System.Windows.Forms
         {
             DialogResult = DialogResult.OK;
             audioPlaybackPanel1.TargetSource = null;
-            TargetNode.UpdateCurrControl -= OnUpdateCurrControl;
+            TargetNode.UpdateControl -= OnUpdateCurrControl;
             Close();
         }
 

@@ -64,7 +64,7 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
-            this.texCoordRenderer1 = new System.Windows.Forms.TexCoordRenderer();
+            this.texCoordControl1 = new System.Windows.Forms.TexCoordControl();
             this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
             this.modelPanel1 = new System.Windows.Forms.ModelPanel();
@@ -172,7 +172,7 @@ namespace BrawlBox
             this.u8FileArchiveToolStripMenuItem1,
             this.tPLTextureArchiveToolStripMenuItem1});
             this.archivesToolStripMenuItem.Name = "archivesToolStripMenuItem";
-            this.archivesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.archivesToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.archivesToolStripMenuItem.Text = "Archives";
             // 
             // aRCFileArchiveToolStripMenuItem
@@ -208,7 +208,7 @@ namespace BrawlBox
             this.audioToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.bRSTMAudioStreamToolStripMenuItem});
             this.audioToolStripMenuItem.Name = "audioToolStripMenuItem";
-            this.audioToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.audioToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.audioToolStripMenuItem.Text = "Audio";
             // 
             // bRSTMAudioStreamToolStripMenuItem
@@ -225,7 +225,7 @@ namespace BrawlBox
             this.rEFFParticlesToolStripMenuItem,
             this.rEFTParticleTexturesToolStripMenuItem});
             this.effectsToolStripMenuItem.Name = "effectsToolStripMenuItem";
-            this.effectsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.effectsToolStripMenuItem.Size = new System.Drawing.Size(151, 22);
             this.effectsToolStripMenuItem.Text = "Particle Effects";
             // 
             // eFLSEffectListToolStripMenuItem
@@ -373,7 +373,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
-            this.splitContainer2.Panel2.Controls.Add(this.texCoordRenderer1);
+            this.splitContainer2.Panel2.Controls.Add(this.texCoordControl1);
             this.splitContainer2.Panel2.Controls.Add(this.attributeGrid1);
             this.splitContainer2.Panel2.Controls.Add(this.videoPlaybackPanel1);
             this.splitContainer2.Panel2.Controls.Add(this.modelPanel1);
@@ -405,15 +405,14 @@ namespace BrawlBox
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
             // 
-            // texCoordRenderer1
+            // texCoordControl1
             // 
-            this.texCoordRenderer1.IsOrthographic = false;
-            this.texCoordRenderer1.Location = new System.Drawing.Point(0, 0);
-            this.texCoordRenderer1.Name = "texCoordRenderer1";
-            this.texCoordRenderer1.ProjectionChanged = false;
-            this.texCoordRenderer1.Size = new System.Drawing.Size(399, 202);
-            this.texCoordRenderer1.TabIndex = 19;
-            this.texCoordRenderer1.Visible = false;
+            this.texCoordControl1.Location = new System.Drawing.Point(0, 0);
+            this.texCoordControl1.Name = "texCoordControl1";
+            this.texCoordControl1.Size = new System.Drawing.Size(396, 199);
+            this.texCoordControl1.TabIndex = 19;
+            this.texCoordControl1.TargetNode = null;
+            this.texCoordControl1.Visible = false;
             // 
             // attributeGrid1
             // 
@@ -434,20 +433,12 @@ namespace BrawlBox
             // 
             // modelPanel1
             // 
-            this.modelPanel1.AllowSelection = false;
-            this.modelPanel1.BackgroundImageType = BrawlLib.OpenGL.GLPanel.BGImageType.Stretch;
-            this.modelPanel1.IsOrthographic = false;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
-            this.modelPanel1.ProjectionChanged = false;
-            this.modelPanel1.RotationScale = 0.4F;
             this.modelPanel1.Size = new System.Drawing.Size(381, 169);
             this.modelPanel1.TabIndex = 15;
             this.modelPanel1.TabStop = false;
-            this.modelPanel1.TextOverlaysEnabled = false;
-            this.modelPanel1.TranslationScale = 0.05F;
             this.modelPanel1.Visible = false;
-            this.modelPanel1.ZoomScale = 2.5F;
             // 
             // previewPanel2
             // 
@@ -625,7 +616,6 @@ namespace BrawlBox
         private ToolStripMenuItem gCTEditorToolStripMenuItem;
         private ToolStripMenuItem recentFilesToolStripMenuItem;
         private ToolStripSeparator toolStripSeparator1;
-        private TexCoordRenderer texCoordRenderer1;
         private ToolStripMenuItem checkForUpdatesToolStripMenuItem;
         private ToolStripMenuItem archivesToolStripMenuItem;
         private ToolStripMenuItem aRCFileArchiveToolStripMenuItem;
@@ -638,6 +628,7 @@ namespace BrawlBox
         private ToolStripMenuItem eFLSEffectListToolStripMenuItem;
         private ToolStripMenuItem rEFFParticlesToolStripMenuItem;
         private ToolStripMenuItem rEFTParticleTexturesToolStripMenuItem;
+        private TexCoordControl texCoordControl1;
     }
 }
 

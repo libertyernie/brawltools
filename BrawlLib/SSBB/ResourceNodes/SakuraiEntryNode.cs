@@ -9,6 +9,9 @@ namespace BrawlLib.SSBBTypes
 {
     public abstract unsafe class SakuraiEntryNode
     {
+        public string DataOffset { get { return "0x" + _offset.ToString("X"); } }
+        public string DataSize { get { return "0x" + _initSize.ToString("X"); } }
+        
         [Browsable(false)]
         public int RebuildOffset
         {
@@ -22,40 +25,6 @@ namespace BrawlLib.SSBBTypes
         }
         [Browsable(false)]
         public VoidPtr BaseAddress { get { return _root.BaseAddress; } }
-        //[Browsable(false)]
-        //public MDL0Node Model
-        //{
-        //    get
-        //    {
-        //        ArticleNode article = ParentArticle;
-        //        if (article != null)
-        //        {
-        //            if (article._info != null)
-        //                return article._info._model;
-        //        }
-        //        else if (_root != null)
-        //            return _root.Model;
-
-        //        return null;
-        //    }
-        //}
-
-        public SakuraiEntryNode _parent;
-
-        //[Browsable(false)]
-        //public ArticleNode ParentArticle
-        //{
-        //    get
-        //    {
-        //        MovesetEntryNode n = _parent;
-        //        while (!(n is ArticleNode) && n != null)
-        //            n = n._parent;
-        //        return n as ArticleNode;
-        //    }
-        //}
-
-        public SakuraiArchiveNode _root;
-
         [Browsable(false)]
         public bool External { get { return _externalEntry != null; } }
         [Browsable(false)]
@@ -78,7 +47,7 @@ namespace BrawlLib.SSBBTypes
             {
                 if (_root.IsRebuilding)
                     _rebuildAddress = value;
-                else
+                else //DEBUG
                     throw new Exception("Can't set rebuild address when the file isn't being rebuilt.");
             }
         }
@@ -86,20 +55,27 @@ namespace BrawlLib.SSBBTypes
         public virtual bool IsDirty { get { return HasChanged; } set { HasChanged = value; } }
         [Browsable(false)]
         public virtual int Index { get { return _index; } }
-
-        public int _initSize = -1;
-        public int _calcSize;
+        [Browsable(false)]
+        public int TotalSize { get { return _entryLength + _childLength; } }
 
         public string _name;
-        public int _offset;
-        public TableEntryNode _externalEntry = null;
         private bool _changed;
-        internal int _index;
+        public SakuraiEntryNode _parent;
+        public SakuraiArchiveNode _root;
+        public int
+            _offset, //The initial offset of this entry when first parsed
+            _index, //The entry's child index when first parsed
+            _initSize = -1, //The size of this entry when first parsed.
+            _calcSize; //This size of this entry after GetSize() has been called.
+
+        //Sometimes a section will reference an entry contained in another section.
+        //This keeps track of that
+        public TableEntryNode _externalEntry = null;
 
         private VoidPtr _rebuildAddress = null;
         public int _entryLength = 0, _childLength = 0;
         public int _lookupCount = 0;
-        public List<VoidPtr> _lookupOffsets = new List<VoidPtr>();
+        public List<VoidPtr> _lookupOffsets;
         
         //Functions
         /// <summary>
@@ -176,6 +152,18 @@ namespace BrawlLib.SSBBTypes
             n.OnParse(addr);
             return n;
         }
+
+        public void ParseSelf(SakuraiArchiveNode root, SakuraiEntryNode parent, int offset)
+        {
+            Setup(root, parent, offset);
+            OnParse(Address(offset));
+        }
+        public void ParseSelf(SakuraiArchiveNode root, SakuraiEntryNode parent, VoidPtr address)
+        {
+            Setup(root, parent, Offset(address));
+            OnParse(address);
+        }
+
         private void Setup(SakuraiArchiveNode node, SakuraiEntryNode parent, int offset) { Setup(node, parent, offset, null); }
         private void Setup(SakuraiArchiveNode node, SakuraiEntryNode parent, int offset, string name)
         {
@@ -189,13 +177,63 @@ namespace BrawlLib.SSBBTypes
             if ((_externalEntry = _root.TryGetExternal(offset)) != null)
                 _externalEntry.References.Add(this);
         }
-        public int GetSize() { return _calcSize = OnGetSize(); }
-        public int Write(VoidPtr address) { OnWrite(address); return RebuildOffset; }
+        public int GetSize()
+        {
+            _entryLength = 0;
+            _childLength = 0;
+            return _calcSize = OnGetSize();
+        }
+
+        /// <summary>
+        /// Writes this node's data at the given address.
+        /// Because most entries write their children before their header,
+        /// this returns the offset of the header.
+        /// Also resets the lookup count for the next rebuild.
+        /// </summary>
+        public int Write(VoidPtr address)
+        {
+            //Reset list of lookup offsets
+            //Addresses will be added in OnWrite.
+            _lookupOffsets = new List<VoidPtr>();
+            
+            //Write this node's data to the address.
+            //Sets RebuildAddress to the location of the header.
+            //The header is often not the first thing written to the given address.
+            //Children are always written first.
+            OnWrite(address);
+
+            if (_lookupOffsets.Count != _lookupCount) //DEBUG
+                throw new Exception("Number of actual lookup offsets does not match the calculated count.");
+
+            //Reset for next calc size
+            _lookupCount = 0;
+
+            if (!RebuildAddress) //DEBUG
+                throw new Exception("RebuildAddress was not set.");
+
+            //Return the offset to the header
+            return RebuildOffset;
+        }
+
+        public int GetLookupCount()
+        {
+            if (_lookupCount == 0)
+                _lookupCount = OnGetLookupCount();
+            return _lookupCount;
+        }
+
+        //Call this function on the addresses of all offsets.
+        //DO NOT send the offset itself as the address!
+        protected void Lookup(VoidPtr address)
+        {
+            _lookupOffsets.Add(Offset(address));
+        }
 
         //Overridable functions
         protected virtual void OnParse(VoidPtr address) { }
         protected virtual void OnWrite(VoidPtr address) { }
         protected virtual int OnGetSize() { return 0; }
+        protected virtual int OnGetLookupCount() { return 0; }
         protected virtual void PostProcess(LookupManager lookupOffsets) { }
 
         public override string ToString() { return String.IsNullOrEmpty(Name) ? base.ToString() : Name; }

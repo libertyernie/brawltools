@@ -30,6 +30,8 @@ namespace BrawlLib.Modeling
             MDL0,
             BMD,
             //LM
+            //FMDL
+            //NP3D
         }
 
         public IModel ImportModel(string filePath, ImportType type)

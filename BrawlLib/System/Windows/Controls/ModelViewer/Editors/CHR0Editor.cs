@@ -855,9 +855,9 @@ namespace System.Windows.Forms
                             for (int x = 0; x < 9; x++)
                                 if (f.GetBool(x))
                                     dPtr[x] = sPtr[x];
-                            bone._frameState = s;
+                            s.CalcTransforms();
+                            bone._bindState = s;
                         }
-                        bone._bindState.CalcTransforms();
                         //bone.RecalcBindState();
                         bone.SignalPropertyChange();
                     }

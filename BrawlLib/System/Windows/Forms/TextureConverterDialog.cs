@@ -32,9 +32,9 @@ namespace System.Windows.Forms
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public WiiPixelFormat? InitialFormat;
 
-        private BRESNode _bresParent;
+        private BRRESNode _bresParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BRESNode BRESParentNode { get { return _bresParent; } }
+        public BRRESNode BRESParentNode { get { return _bresParent; } }
         private TPLNode _tplParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TPLNode TPLParentNode { get { return _tplParent; } }
@@ -94,7 +94,7 @@ namespace System.Windows.Forms
             cboAlgorithm.SelectedItem = QuantizationAlgorithm.MedianCut;
         }
 
-        public DialogResult ShowDialog(IWin32Window owner, BRESNode parent)
+        public DialogResult ShowDialog(IWin32Window owner, BRRESNode parent)
         {
             _bresParent = parent;
             _origTEX0 = null;
@@ -608,7 +608,7 @@ namespace System.Windows.Forms
                     }
                     else
                     {
-                        _bresParent = _origTEX0.Parent.Parent as BRESNode;
+                        _bresParent = _origTEX0.Parent.Parent as BRRESNode;
                         _origPLT0 = _bresParent.CreateResource<PLT0Node>(_origTEX0.Name);
                         _origPLT0.Name = _origTEX0.Name;
                         _origPLT0.ReplaceRaw(_paletteData);

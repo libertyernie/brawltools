@@ -112,9 +112,13 @@ namespace System.Windows.Forms
             // 
             // boneTree
             // 
+            this.boneTree.CheckBoxes = true;
             this.boneTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.boneTree.FullRowSelect = true;
             this.boneTree.HideSelection = false;
+            this.boneTree.HotTracking = true;
+            this.boneTree.Indent = 14;
+            this.boneTree.ItemHeight = 16;
             this.boneTree.Location = new System.Drawing.Point(0, 21);
             this.boneTree.Name = "boneTree";
             this.boneTree.Size = new System.Drawing.Size(160, 373);
@@ -477,8 +481,8 @@ namespace System.Windows.Forms
 
         private void addToParentToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.ToParent())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.ToParent())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], parent = null;
                 if (bone != null && bone.Parent != null)
@@ -490,7 +494,7 @@ namespace System.Windows.Forms
                 bone.Remove();
                 parent.Parent.Nodes.Add(bone);
                 node.Parent = node.Parent.Parent;
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -499,8 +503,8 @@ namespace System.Windows.Forms
 
         private void addToNextUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.AddUp())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.AddUp())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevNode != null)
@@ -512,7 +516,7 @@ namespace System.Windows.Forms
                 node.Parent = node.Parent.Children[node.Index - 1];
                 bone.Remove();
                 prev.Nodes.Add(bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -521,8 +525,8 @@ namespace System.Windows.Forms
 
         private void addToNextDownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.AddDown())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.AddDown())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextNode != null)
@@ -534,7 +538,7 @@ namespace System.Windows.Forms
                 node.Parent = node.Parent.Children[node.Index + 1];
                 bone.Remove();
                 next.Nodes.Add(bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -543,8 +547,8 @@ namespace System.Windows.Forms
 
         private void moveUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.MoveUp())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.MoveUp())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevVisibleNode != null)
@@ -557,7 +561,7 @@ namespace System.Windows.Forms
                 boneTree.BeginUpdate();
                 bone.Remove();
                 parent.Nodes.Insert(index, bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.SelectedNode = bone;
                 boneTree.EndUpdate();
                 _mainWindow.ModelPanel.Invalidate();
@@ -566,8 +570,8 @@ namespace System.Windows.Forms
 
         private void moveDownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.MoveDown())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.MoveDown())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextVisibleNode != null)
@@ -580,7 +584,7 @@ namespace System.Windows.Forms
                 boneTree.BeginUpdate();
                 bone.Remove();
                 parent.Nodes.Insert(index, bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.SelectedNode = bone;
                 boneTree.EndUpdate();
                 _mainWindow.ModelPanel.Invalidate();
@@ -613,7 +617,8 @@ namespace System.Windows.Forms
             if (i < 0 || i >= TargetModel.BoneCache.Length)
                 return;
 
-            TargetModel.BoneCache[i].IsRendering = e.CurrentValue == CheckState.Checked;
+            TargetModel.BoneCache[i].IsRendering = e.NewValue == CheckState.Checked;
+            _mainWindow.ModelPanel.Invalidate();
         }
 
         private void boneTree_AfterCheck(object sender, TreeViewEventArgs e)
@@ -621,8 +626,11 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
 
-            if (e.Node != null && e.Node is IBoneNode)
+            if (e.Node != null && e.Node.Tag is IBoneNode)
+            {
                 (e.Node.Tag as IBoneNode).IsRendering = e.Node.Checked;
+                _mainWindow.ModelPanel.Invalidate();
+            }
         }
     }
 }

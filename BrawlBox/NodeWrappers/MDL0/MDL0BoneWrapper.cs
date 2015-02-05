@@ -63,7 +63,7 @@ namespace BrawlBox.NodeWrappers
                     Remove();
                     prev.Nodes.Add(this);
                     _resource.Parent = _resource.Parent.Children[_resource.Index - 1];
-                    (_resource as MDL0BoneNode).Moved = true;
+                    _resource.OnMoved();
                     TreeView.EndUpdate();
                     EnsureVisible();
                     //TreeView.SelectedNode = this;
@@ -88,7 +88,7 @@ namespace BrawlBox.NodeWrappers
                     Remove();
                     next.Nodes.Add(this);
                     _resource.Parent = _resource.Parent.Children[_resource.Index + 1];
-                    (_resource as MDL0BoneNode).Moved = true;
+                    _resource.OnMoved();
                     TreeView.EndUpdate();
                     EnsureVisible();
                     //TreeView.SelectedNode = this;
@@ -113,7 +113,7 @@ namespace BrawlBox.NodeWrappers
                     Remove();
                     parent.Parent.Nodes.Add(this);
                     _resource.Parent = _resource.Parent.Parent;
-                    (_resource as MDL0BoneNode).Moved = true;
+                    _resource.OnMoved();
                     TreeView.EndUpdate();
                     EnsureVisible();
                     //TreeView.SelectedNode = this;
@@ -147,7 +147,7 @@ namespace BrawlBox.NodeWrappers
             Matrix.Identity;
 
             _resource.AddChild(bone, true);
-            bone.Moved = true;
+            bone.OnMoved();
 
             TreeView.EndUpdate();
 

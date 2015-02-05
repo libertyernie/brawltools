@@ -14,7 +14,6 @@ namespace BrawlLib.Modeling
         bool Locked { get; set; }
         Matrix BindMatrix { get; }
         Matrix InverseBindMatrix { get; }
-        bool Moved { get; set; }
         int WeightCount { get; set; }
         FrameState BindState { get; set; }
         FrameState FrameState { get; set; }

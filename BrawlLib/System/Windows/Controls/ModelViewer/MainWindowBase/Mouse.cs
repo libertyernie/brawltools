@@ -765,7 +765,7 @@ namespace System.Windows.Forms
         /// </summary>
         private void SelectVertices(IObject o, ModelPanel panel)
         {
-            foreach (Vertex3 v in o.PrimitiveManager._vertices)
+            foreach (Vertex3 v in o.Vertices)
             {
                 //Project each vertex into screen coordinates.
                 //Then check to see if the 2D coordinates lie within the selection box.
@@ -807,8 +807,8 @@ namespace System.Windows.Forms
             if (_targetModels != null)
                 foreach (IModel m in _targetModels)
                     foreach (IObject o in m.Objects)
-                        if (o.PrimitiveManager != null && o.PrimitiveManager._vertices != null)
-                            foreach (Vertex3 v in o.PrimitiveManager._vertices)
+                        if (o.Vertices != null)
+                            foreach (Vertex3 v in o.Vertices)
                             {
                                 v._highlightColor = Color.Transparent;
                                 v._selected = false;

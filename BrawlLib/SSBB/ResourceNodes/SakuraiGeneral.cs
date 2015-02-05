@@ -10,15 +10,21 @@ using System.Reflection;
 
 namespace BrawlLib.SSBBTypes
 {
-    internal delegate TableEntryNode SakuraiSectionParser(string name);
+    public delegate TableEntryNode SakuraiSectionParser(string name);
 
     public unsafe class TableEntryNode : SakuraiEntryNode
     {
-        private static List<SakuraiSectionParser> _parsers = new List<SakuraiSectionParser>();
+        public static List<SakuraiSectionParser> _parsers = new List<SakuraiSectionParser>();
         static TableEntryNode()
         {
+            AddParsers(Assembly.GetExecutingAssembly());
+            AddParsers(Assembly.GetEntryAssembly());
+        }
+
+        static void AddParsers(Assembly e)
+        {
             Delegate del;
-            foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+            foreach (Type t in e.GetTypes())
                 if (t.IsSubclassOf(typeof(TableEntryNode)))
                     if ((del = Delegate.CreateDelegate(typeof(SakuraiSectionParser), t, "TestType", false, false)) != null)
                         _parsers.Add(del as SakuraiSectionParser);
@@ -97,14 +103,14 @@ namespace BrawlLib.SSBBTypes
 
     public unsafe class IndexValue : SakuraiEntryNode
     {
-        public int val = 0;
+        public int _value = 0;
 
         [Category("Index Entry")]
-        public int ItemIndex { get { return val; } set { val = value; SignalPropertyChange(); } }
+        public int ItemIndex { get { return _value; } set { _value = value; SignalPropertyChange(); } }
 
         protected override void OnParse(VoidPtr address)
         {
-            val = *(bint*)address;
+            _value = *(bint*)address;
         }
 
         protected override int OnGetSize()
@@ -115,7 +121,7 @@ namespace BrawlLib.SSBBTypes
 
         protected override void OnWrite(VoidPtr address)
         {
-            *(bint*)(RebuildAddress = address) = val;
+            *(bint*)(RebuildAddress = address) = _value;
         }
     }
 
@@ -231,6 +237,11 @@ namespace BrawlLib.SSBBTypes
             RebuildAddress = address;
             for (int i = 0; i < _entries.Count; i++)
                 _entries[i].Write(address[i, _stride]);
+        }
+
+        public int GetLookupCount()
+        {
+            return Count > 0 ? 1 : 0;
         }
     }
 

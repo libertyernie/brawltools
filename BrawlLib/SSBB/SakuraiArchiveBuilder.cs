@@ -8,6 +8,9 @@ namespace BrawlLib.SSBBTypes
 {
     public class SakuraiArchiveBuilder
     {
+        //Modifyable behavior!
+        const bool AddUnreferencedReferences = true;
+
         public SakuraiArchiveBuilder(SakuraiArchiveNode node)
         {
             _rootNode = node;
@@ -24,7 +27,9 @@ namespace BrawlLib.SSBBTypes
         CompactStringTable _referenceStringTable;
 
         public List<SakuraiEntryNode> _postProcessNodes;
-        public VoidPtr _baseAddress;
+        public VoidPtr _baseAddress, _currentAddress;
+
+        //The lookup manager stores all offsets to offsets in the file.
         public LookupManager _lookupManager;
         public int _lookupCount = 0, _lookupLen = 0;
 
@@ -52,13 +57,7 @@ namespace BrawlLib.SSBBTypes
                 //An example of an exception to this is the 'AnimCmd' section
                 //If a reference exists, calculate the size of that reference instead
                 if (section.References.Count > 0)
-                {
                     entry = section.References[0];
-
-                    //Table entries don't use lookup table?
-                    //TODO: double check this
-                    //lookupCount++;
-                }
 
                 //Add the size of the entry's data, and the entry itself
                 _size += entry.GetSize() + 8;
@@ -73,7 +72,7 @@ namespace BrawlLib.SSBBTypes
             //Calculate reference table size and add names to string table
             foreach (TableEntryNode reference in _rootNode.ReferenceList)
             {
-                if (reference.References.Count > 0)
+                if (reference.References.Count > 0 || AddUnreferencedReferences)
                 {
                     //Add entry name to string table
                     _referenceStringTable.Add(reference.Name);
@@ -82,8 +81,9 @@ namespace BrawlLib.SSBBTypes
                     _size += 8;
                 }
 
-                //Table entries don't use lookup table?
-                //TODO: double check this
+                //TODO: Does each reference offset throughout the file
+                //have a lookup offset?
+                //Also, subtract 1 because the initial offset has no lookup entry
                 //lookupCount += e.References.Count - 1;
             }
 
@@ -97,15 +97,43 @@ namespace BrawlLib.SSBBTypes
 
         public unsafe void Write(SakuraiArchiveNode node, VoidPtr address, int length)
         {
-            _baseAddress = address;
+            _baseAddress = address + 0x20;
+            _currentAddress = _baseAddress;
 
+            //Write header
             SakuraiArchiveHeader* hdr = (SakuraiArchiveHeader*)address;
-            hdr->_externalSubRoutineCount = _sectionCount;
+            hdr->_sectionCount = _sectionCount;
+            hdr->_externalSubRoutineCount = _referenceCount;
+            hdr->_lookupEntryCount = _lookupManager.Count;
+            hdr->_fileSize = length;
+            hdr->_pad1 = hdr->_pad2 = hdr->_pad3 = 0;
 
-            foreach (TableEntryNode e in node.SectionList)
+            List<int> _sectionOffsets = new List<int>();
+            
+            //Write section data
+            foreach (TableEntryNode section in node.SectionList)
             {
+                SakuraiEntryNode entry = section;
 
+                //If this section is referenced from an entry,
+                //write that entry instead
+                if (section.References.Count > 0)
+                    entry = section.References[0];
+
+                _sectionOffsets.Add(entry.Write(_currentAddress));
+                _currentAddress += entry.TotalSize;
             }
+
+            //Write lookup values
+            hdr->_lookupOffset = (int)_currentAddress - (int)_baseAddress;
+            _lookupManager.Write(ref _currentAddress);
+
+            //These can only be accessed after the lookup offset and count
+            //have been written to the header.
+            sStringEntry* sectionAddr = hdr->Sections;
+            sStringEntry* refAddr = hdr->ExternalSubRoutines;
+
+
         }
     }
 }

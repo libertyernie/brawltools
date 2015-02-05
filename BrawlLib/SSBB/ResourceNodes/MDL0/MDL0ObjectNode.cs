@@ -1073,9 +1073,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool Attached { get { return _attached; } set { _attached = value; } }
         public bool _attached = false;
 
-        [Browsable(false)]
-        public PrimitiveManager PrimitiveManager { get { return _manager; } }
-
         public Box GetBox()
         {
             if (_manager == null || _manager._vertices == null)

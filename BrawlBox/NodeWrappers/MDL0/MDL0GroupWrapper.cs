@@ -43,7 +43,7 @@ namespace BrawlBox.NodeWrappers
                     bone.Scale = new Vector3(1, 1, 1);
                     bone._bindMatrix = Matrix.Identity;
                     bone._inverseBindMatrix = Matrix.Identity;
-                    bone.Moved = true;
+                    bone.OnMoved();
                     break;
             }
         }
