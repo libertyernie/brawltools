@@ -112,7 +112,7 @@ namespace System.Windows.Forms
         }
         private void enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            ModelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+            //ModelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
         }
         private void stPersonToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {

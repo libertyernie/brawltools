@@ -80,12 +80,11 @@ namespace BrawlLib.OpenGL
         public void BeginUpdate() { _updateCounter++; }
         public void EndUpdate() { if ((_updateCounter = Math.Max(_updateCounter - 1, 0)) == 0) Invalidate(); }
 
-        protected delegate void NoArgsDelegate();
         public new void Capture()
         {
             if (InvokeRequired)
             {
-                Invoke(new NoArgsDelegate(Capture));
+                Invoke(new Action(Capture));
                 return;
             }
 

@@ -250,6 +250,7 @@ namespace System.Windows.Forms
             this.chkSnapToColl = new System.Windows.Forms.ToolStripMenuItem();
             this.chkMaximize = new System.Windows.Forms.ToolStripMenuItem();
             this.displayBindBoundingBoxesOn0FrameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkEditAllModels = new System.Windows.Forms.ToolStripMenuItem();
             this.allSettingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -376,7 +377,6 @@ namespace System.Windows.Forms
             this.vertexEditor = new System.Windows.Forms.VertexEditor();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
-            this.chkEditAllModels = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.controlPanel.SuspendLayout();
             this.toolStrip1.SuspendLayout();
@@ -460,7 +460,7 @@ namespace System.Windows.Forms
             this.kinectToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(395, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(303, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -802,9 +802,11 @@ namespace System.Windows.Forms
             // enablePointAndLineSmoothingToolStripMenuItem
             // 
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckOnClick = true;
+            this.enablePointAndLineSmoothingToolStripMenuItem.Enabled = false;
             this.enablePointAndLineSmoothingToolStripMenuItem.Name = "enablePointAndLineSmoothingToolStripMenuItem";
             this.enablePointAndLineSmoothingToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.enablePointAndLineSmoothingToolStripMenuItem.Text = "Enable point and line smoothing";
+            this.enablePointAndLineSmoothingToolStripMenuItem.Visible = false;
             this.enablePointAndLineSmoothingToolStripMenuItem.CheckedChanged += new System.EventHandler(this.enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged);
             // 
             // enableTextOverlaysToolStripMenuItem
@@ -846,6 +848,16 @@ namespace System.Windows.Forms
             this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Size = new System.Drawing.Size(300, 22);
             this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Text = "Display written bounding boxes on 0 frame";
             this.displayBindBoundingBoxesOn0FrameToolStripMenuItem.Click += new System.EventHandler(this.displayBindBoundingBoxesOn0FrameToolStripMenuItem_Click);
+            // 
+            // chkEditAllModels
+            // 
+            this.chkEditAllModels.Checked = true;
+            this.chkEditAllModels.CheckOnClick = true;
+            this.chkEditAllModels.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEditAllModels.Name = "chkEditAllModels";
+            this.chkEditAllModels.Size = new System.Drawing.Size(300, 22);
+            this.chkEditAllModels.Text = "Edit All Models";
+            this.chkEditAllModels.CheckedChanged += new System.EventHandler(this.chkEditAllModels_CheckedChanged);
             // 
             // allSettingsToolStripMenuItem
             // 
@@ -898,7 +910,7 @@ namespace System.Windows.Forms
             this.showBottom,
             this.showRight});
             this.editorsToolStripMenuItem.Name = "editorsToolStripMenuItem";
-            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.editorsToolStripMenuItem.Text = "Panels";
             // 
             // showTop
@@ -944,7 +956,7 @@ namespace System.Windows.Forms
             this.showCameraCoordinatesToolStripMenuItem,
             this.detachViewerToolStripMenuItem});
             this.backColorToolStripMenuItem.Name = "backColorToolStripMenuItem";
-            this.backColorToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.backColorToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.backColorToolStripMenuItem.Text = "Viewer";
             // 
             // backgroundToolStripMenuItem
@@ -1193,7 +1205,7 @@ namespace System.Windows.Forms
             this.boundingBoxToolStripMenuItem,
             this.chkBillboardBones});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
-            this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.modelToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.modelToolStripMenuItem.Text = "Model";
             // 
             // toggleBones
@@ -1295,7 +1307,7 @@ namespace System.Windows.Forms
             this.playToolStripMenuItem,
             this.sCN0ToolStripMenuItem});
             this.fileTypesToolStripMenuItem.Name = "fileTypesToolStripMenuItem";
-            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.fileTypesToolStripMenuItem.Text = "Animations";
             // 
             // playToolStripMenuItem
@@ -1429,7 +1441,7 @@ namespace System.Windows.Forms
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
@@ -2016,16 +2028,6 @@ namespace System.Windows.Forms
             this.leftPanel.Size = new System.Drawing.Size(138, 391);
             this.leftPanel.TabIndex = 4;
             this.leftPanel.Visible = false;
-            // 
-            // chkEditAllModels
-            // 
-            this.chkEditAllModels.Checked = true;
-            this.chkEditAllModels.CheckOnClick = true;
-            this.chkEditAllModels.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkEditAllModels.Name = "chkEditAllModels";
-            this.chkEditAllModels.Size = new System.Drawing.Size(300, 22);
-            this.chkEditAllModels.Text = "Edit All Models";
-            this.chkEditAllModels.CheckedChanged += new System.EventHandler(this.chkEditAllModels_CheckedChanged);
             // 
             // ModelEditControl
             // 

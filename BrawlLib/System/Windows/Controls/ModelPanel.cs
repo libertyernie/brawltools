@@ -89,7 +89,6 @@ namespace System.Windows.Forms
         public bool _grabbing = false;
         public bool _scrolling = false;
         public bool _showCamCoords = false;
-        public bool _enableSmoothing = false;
 
         private int _lastX, _lastY;
 
@@ -355,7 +354,7 @@ namespace System.Windows.Forms
         {
             if (InvokeRequired)
             {
-                Invoke(new NoArgsDelegate(RefreshReferences));
+                Invoke(new Action(RefreshReferences));
                 return;
             }
 
@@ -370,7 +369,7 @@ namespace System.Windows.Forms
             if (!Enabled)
                 return;
             
-            float z = (float)e.Delta / 120;
+            float z = (float)e.Delta / 120.0f;
             if (Control.ModifierKeys == Keys.Shift)
                 z *= 32;
 
@@ -603,7 +602,6 @@ namespace System.Windows.Forms
         }
         private void Zoom(float amt)
         {
-            amt *= _multiplier;
             if (_orthographic)
             {
                 float scale = (amt >= 0 ? amt / 2.0f : 2.0f / -amt);
@@ -619,7 +617,6 @@ namespace System.Windows.Forms
             z *= _multiplier;
 
             _camera.Scale(x, y, z);
-            _scrolling = false;
             Invalidate();
         }
         private void Translate(float x, float y, float z)
@@ -630,8 +627,8 @@ namespace System.Windows.Forms
 
             x *= _orthographic ? 20.0f : 1.0f;
             y *= _orthographic ? 20.0f : 1.0f;
+
             _camera.Translate(x, y, z);
-            //_scrolling = false;
             Invalidate();
         }
         private void Rotate(float x, float y)
@@ -670,11 +667,11 @@ namespace System.Windows.Forms
                 cosAzi = (float)Math.Cos(azimuth),
                 sinAzi = (float)Math.Sin(azimuth);
 
-            Vector4 PositionLight = new Vector4(r * cosAzi * sinElev, r * cosElev, r * sinAzi * sinElev, 1);
-            Vector4 SpotDirectionLight = new Vector4(-cosAzi * sinElev, -cosElev, -sinAzi * sinElev, 1);
-            
-            GL.Light(LightName.Light0, LightParameter.Position, (float*)&PositionLight);
-            GL.Light(LightName.Light0, LightParameter.SpotDirection, (float*)&SpotDirectionLight);
+            Vector4 posLight = new Vector4(r * cosAzi * sinElev, r * cosElev, r * sinAzi * sinElev, 1);
+            Vector4 spotDirLight = new Vector4(-cosAzi * sinElev, -cosElev, -sinAzi * sinElev, 1);
+
+            GL.Light(LightName.Light0, LightParameter.Position, (float*)&posLight);
+            GL.Light(LightName.Light0, LightParameter.SpotDirection, (float*)&spotDirLight);
 
             fixed (Vector4* pos = &_settings._ambient)
             {
@@ -697,23 +694,6 @@ namespace System.Windows.Forms
             }
 
             GL.TexEnv(TextureEnvTarget.TextureEnv, TextureEnvParameter.TextureEnvMode, (int)TextureEnvMode.Modulate);
-
-            if (_enableSmoothing)
-            {
-                GL.Enable(EnableCap.PointSmooth);
-                GL.Enable(EnableCap.PolygonSmooth);
-                GL.Enable(EnableCap.LineSmooth);
-                GL.PointSize(1.0f);
-                GL.LineWidth(1.0f);
-            }
-            else
-            {
-                GL.Disable(EnableCap.PointSmooth);
-                GL.Disable(EnableCap.PolygonSmooth);
-                GL.Disable(EnableCap.LineSmooth);
-                GL.PointSize(3.0f);
-                GL.LineWidth(2.0f);
-            }
         }
 
         internal unsafe override void OnInit(TKContext ctx)
@@ -739,12 +719,14 @@ namespace System.Windows.Forms
             GL.Enable(EnableCap.AlphaTest);
             GL.AlphaFunc(AlphaFunction.Gequal, 0.1f);
 
-            //GL.PointSize(3.0f);
-            //GL.LineWidth(2.0f);
-
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.Light0);
-            //GL.Enable(EnableCap.Normalize);
+
+            GL.Disable(EnableCap.PointSmooth);
+            GL.Disable(EnableCap.PolygonSmooth);
+            GL.Disable(EnableCap.LineSmooth);
+            GL.PointSize(3.0f);
+            GL.LineWidth(2.0f);
 
             RecalcLight();
 
