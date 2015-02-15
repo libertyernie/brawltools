@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class MiscUnknown12 : MovesetEntryNode
+    public unsafe class MiscUnk12 : MovesetEntryNode
     {
         int _unk1, _unk2, _unk3, _unk4;
 
