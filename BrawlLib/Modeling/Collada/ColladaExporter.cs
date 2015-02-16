@@ -793,7 +793,7 @@ namespace BrawlLib.Modeling
                 else
                 {
                     foreach (Vertex3 v in verts)
-                        foreach (BoneWeight w in v._matrixNode.Weights)
+                        foreach (BoneWeight w in v.MatrixNode.Weights)
                         {
                             //if (!boneSet.Contains(w.Bone))
                             //{
@@ -956,7 +956,7 @@ namespace BrawlLib.Modeling
                             first = false;
                         else
                             writer.WriteString(" ");
-                        writer.WriteString(v._matrixNode.Weights.Count.ToString(CultureInfo.InvariantCulture.NumberFormat));
+                        writer.WriteString(v.MatrixNode.Weights.Count.ToString(CultureInfo.InvariantCulture.NumberFormat));
                     }
                 
                 writer.WriteEndElement(); //vcount
@@ -979,7 +979,7 @@ namespace BrawlLib.Modeling
                         }
                 else
                     foreach (Vertex3 v in verts)
-                        foreach (BoneWeight w in v._matrixNode.Weights)
+                        foreach (BoneWeight w in v.MatrixNode.Weights)
                         {
                             if (first)
                                 first = false;

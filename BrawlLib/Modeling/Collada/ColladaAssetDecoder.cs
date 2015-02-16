@@ -195,11 +195,11 @@ namespace BrawlLib.Modeling
                     Vertex3 v = null;
                     if (*pVInd < vertList.Count)
                         v = vertList[*pVInd];
-                    if (v != null && v._matrixNode != null)
-                        if (v._matrixNode.Weights.Count > 1)
+                    if (v != null && v.MatrixNode != null)
+                        if (v.MatrixNode.Weights.Count > 1)
                             pNorms[i] = skin._bindMatrix.GetRotationMatrix() * pNorms[i];
                         else
-                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * v._matrixNode.Weights[0].Bone.InverseBindMatrix.GetRotationMatrix() * pNorms[i];
+                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * v.MatrixNode.Weights[0].Bone.InverseBindMatrix.GetRotationMatrix() * pNorms[i];
                 }
             }
 
