@@ -680,7 +680,7 @@ namespace BrawlLib.Modeling
 
                     *Indices++ = j;
                     pTriarr[pTri++] = (uint)l;
-                    *Vertices++ = p._manager._vertices[j]._position;
+                    *Vertices++ = p._manager._vertices[j].Position;
                     *Normals++ = mv._normal;
                     *UVs++ = mv._texCoord;
                 }
@@ -696,12 +696,12 @@ namespace BrawlLib.Modeling
                     bool singlebind = true;
 
                     foreach (Vertex3 v in p._manager._vertices)
-                        if (v._matrixNode != null)
+                        if (v.MatrixNode != null)
                         {
                             if (node == null)
-                                node = v._matrixNode;
+                                node = v.MatrixNode;
 
-                            if (v._matrixNode != node)
+                            if (v.MatrixNode != node)
                             {
                                 singlebind = false;
                                 break;
@@ -711,12 +711,12 @@ namespace BrawlLib.Modeling
                     if (singlebind && p._matrixNode == null)
                     {
                         //Increase reference count ahead of time for rebuild
-                        if (p._manager._vertices[0]._matrixNode != null)
-                            p._manager._vertices[0]._matrixNode.ReferenceCount++;
+                        if (p._manager._vertices[0].MatrixNode != null)
+                            p._manager._vertices[0].MatrixNode.ReferenceCount++;
 
                         foreach (Vertex3 v in p._manager._vertices)
-                            if (v._matrixNode != null)
-                                v._matrixNode.ReferenceCount--;
+                            if (v.MatrixNode != null)
+                                v.MatrixNode.ReferenceCount--;
 
                         p._nodeId = -2; //Continued on polygon rebuild
                     }
