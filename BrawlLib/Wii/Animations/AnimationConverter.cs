@@ -747,12 +747,11 @@ namespace BrawlLib.Wii.Animations
 
             bint* pOffset = (bint*)entryAddress + 1;
 
-            int r = 0;
+            int index = 0;
 
             //Write values/offset and encode groups
             for (int type = 0; type < 3; type++)
             {
-                r = type * 3; //Increment to next
                 bool has = false;
                 switch (type)
                 {
@@ -760,7 +759,7 @@ namespace BrawlLib.Wii.Animations
                     case 1: has = !code.NoRotation; break;
                     case 2: has = !code.NoTranslation; break;
                 }
-                for (int axis = 0; axis < (type == 1 ? 1 : 2); axis++)
+                for (int axis = 0; axis < (type == 1 ? 1 : 2); axis++, index++)
                 {
                     if (has)
                     {
@@ -773,48 +772,19 @@ namespace BrawlLib.Wii.Animations
                                 else
                                 {
                                     *pOffset = (int)dataAddress - (int)pOffset; pOffset++;
-                                    dataAddress += EncodeEntry(r + axis, AnimDataFormat.I12, kf, dataAddress);
+                                    dataAddress += EncodeEntry(index, AnimDataFormat.I12, kf, dataAddress);
                                 }
                             }
                         }
                         else
                         {
-                            bool fix = false;
-                            switch (type)
-                            {
-                                case 0:
-                                    switch (axis)
-                                    {
-                                        case 0:
-                                            fix = code.FixedScaleX;
-                                            break;
-                                        case 1:
-                                            fix = code.FixedScaleY;
-                                            break;
-                                    }
-                                    break;
-                                case 1:
-                                    fix = code.FixedRotation;
-                                    break;
-                                case 2:
-                                    switch (axis)
-                                    {
-                                        case 0:
-                                            fix = code.FixedX;
-                                            break;
-                                        case 1:
-                                            fix = code.FixedY;
-                                            break;
-                                    }
-                                    break;
-                            }
-
-                            if (fix)
-                                *(bfloat*)pOffset++ = kf._keyArrays[r + axis]._keyRoot._next._value;
+                            //This gets the fixed bit. Same order, so it can be indexed
+                            if (code._data[5 + index])
+                                *(bfloat*)pOffset++ = kf._keyArrays[index]._keyRoot._next._value;
                             else
                             {
-                                *pOffset = (int)((System.bint*)(dataAddress) - pOffset); pOffset++;
-                                dataAddress += EncodeEntry(r + axis, AnimDataFormat.I12, kf, dataAddress);
+                                *pOffset = (int)dataAddress - (int)pOffset; pOffset++;
+                                dataAddress += EncodeEntry(index, AnimDataFormat.I12, kf, dataAddress);
                             }
                         }
                     }
