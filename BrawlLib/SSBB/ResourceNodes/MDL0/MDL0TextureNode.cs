@@ -353,6 +353,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
                 sourceImage.UnlockBits(sourceData);
                 targetImage.UnlockBits(targetData);
+                targetImage.Palette = sourceImage.Palette;
                 return targetImage;
             }
         } 
