@@ -77,8 +77,8 @@ namespace BrawlLib.Modeling
             for (int i = 0; i < p._faceData[1].Length / 12; i++)
             {
                 //writer.WriteLine("vn {0} {1} {2}", pVert->_x, pVert->_y, (pVert++)->_z);
-                if (weight && p._vertices[*pIndex]._matrixNode != null)
-                    v = p._vertices[*pIndex++]._matrixNode.Matrix.GetRotationMatrix() * *pVert++;
+                if (weight && p._vertices[*pIndex].MatrixNode != null)
+                    v = p._vertices[*pIndex++].MatrixNode.Matrix.GetRotationMatrix() * *pVert++;
                 else
                     v = *pVert++;
                 writer.WriteLine("vn {0} {1} {2}", v._x, v._y, v._z);

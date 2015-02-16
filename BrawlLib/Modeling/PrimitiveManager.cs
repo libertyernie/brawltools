@@ -79,7 +79,7 @@ namespace BrawlLib.Modeling
             int i = 0;
             _rawVertices = new Vector3[_vertices.Count];
             foreach (Vertex3 v in _vertices)
-                _rawVertices[i++] = v._position;
+                _rawVertices[i++] = v.Position;
 
             return _rawVertices;
         }
