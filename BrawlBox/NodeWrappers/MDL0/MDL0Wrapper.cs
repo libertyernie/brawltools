@@ -99,8 +99,7 @@ namespace BrawlBox.NodeWrappers
 
         public void Preview()
         {
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, (MDL0Node)_resource);
+            new ModelForm().Show(_owner, (MDL0Node)_resource);
         }
 
         private void Optimize()

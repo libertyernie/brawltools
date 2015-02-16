@@ -209,8 +209,7 @@ namespace BrawlBox
             List<IModel> models = new List<IModel>();
             List<CollisionNode> collisions = new List<CollisionNode>();
             LoadModels(_resource, models, collisions);
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, models, collisions);
+            new ModelForm().Show(_owner, models, collisions);
         }
 
         public void ExportAll()

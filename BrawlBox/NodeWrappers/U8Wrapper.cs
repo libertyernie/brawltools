@@ -156,9 +156,7 @@ namespace BrawlBox
         }
         public void PreviewAll()
         {
-            List<IModel> models = ModelPanel.CollectModels(_resource);
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, models);
+            new ModelForm().Show(_owner, ModelPanel.CollectModels(_resource));
         }
 
         public void ExportAll()
