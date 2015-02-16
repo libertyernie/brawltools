@@ -87,11 +87,11 @@ namespace BrawlLib.SSBB
             //new SupportedFileInfo(true, "Luigi's Mansion GC model", "bin"),
 
             //Wii U
-            new SupportedFileInfo(true, "Wii U Archive", "sarc"),
-            new SupportedFileInfo(true, "Wii U Resource Pack", "bfres"),
-            new SupportedFileInfo(true, "Wii U Model", "fmdl"),
-            new SupportedFileInfo(true, "Wii U Texture", "ftex"),
-            new SupportedFileInfo(true, "Wii U Skeletal Animation", "fska"),
+            //new SupportedFileInfo(true, "Wii U Archive", "sarc"),
+            //new SupportedFileInfo(true, "Wii U Resource Pack", "bfres"),
+            //new SupportedFileInfo(true, "Wii U Model", "fmdl"),
+            //new SupportedFileInfo(true, "Wii U Texture", "ftex"),
+            //new SupportedFileInfo(true, "Wii U Skeletal Animation", "fska"),
 
             new SupportedFileInfo(true, "GCT Code List", "gct"),
 
