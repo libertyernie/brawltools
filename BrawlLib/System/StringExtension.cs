@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace System
 {
@@ -102,6 +103,15 @@ namespace System
             int bit = bitIndex % 8;
             int byteIndex = (bitIndex - bit) / 8;
             return ((s[byteIndex] >> (7 - bit)) & 1) != 0;
+        }
+
+        public static string RemoveInvalidCharacters(this string s, string valid)
+        {
+            string m = "";
+            char[] t = s.ToCharArray().Where(x => valid.Contains(x)).ToArray();
+            foreach (char c in t)
+                m += c;
+            return m;
         }
     }
 }
