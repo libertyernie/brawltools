@@ -154,7 +154,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             Box box = Box.ExpandableVolume;
             foreach (CollisionObject obj in _objects)
-                box.ExpandVolume(new Vector3(obj._boxMin._x, obj._boxMin._y, 0));
+                foreach (CollisionPlane plane in obj._planes)
+                {
+                    box.ExpandVolume(new Vector3(plane.PointLeft._x, plane.PointLeft._y, 0));
+                    box.ExpandVolume(new Vector3(plane.PointRight._x, plane.PointRight._y, 0));
+                }
             return box;
         }
         #endregion
