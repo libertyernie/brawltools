@@ -134,6 +134,14 @@ namespace BrawlBox
 
         public static bool Open(string path)
         {
+            if (path.EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
+            {
+                GCTEditor editor = new GCTEditor();
+                editor.TargetNode = editor.LoadGCT(path);
+                editor.Show();
+                return true;
+            }
+
             if (!Close())
                 return false;
 

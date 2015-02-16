@@ -93,6 +93,8 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "Wii U Texture", "ftex"),
             new SupportedFileInfo(true, "Wii U Skeletal Animation", "fska"),
 
+            new SupportedFileInfo(true, "GCT Code List", "gct"),
+
             //The following files are not for direct editing
 
             //Images
