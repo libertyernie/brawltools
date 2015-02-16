@@ -1,15 +1,29 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
+using System.Runtime.Serialization;
 
 namespace System
 {
+    [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public unsafe struct Matrix
+    public unsafe struct Matrix : ISerializable
     {
         public static readonly Matrix Identity = ScaleMatrix(1.0f, 1.0f, 1.0f);
 
+        [NonSerialized]
         fixed float _values[16];
+
+        public Matrix(SerializationInfo info, StreamingContext ctxt)
+        {
+            for (int i = 0; i < 16; i++)
+                Data[i] = info.GetSingle(String.Format("_values[{0}]", i));
+        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            for (int i = 0; i < 16; i++)
+                info.AddValue(String.Format("_values[{0}]", i), Data[i]);
+        }
 
         #region Value Management
 
@@ -819,6 +833,8 @@ namespace System
 
             return m1;
         }
+        public static Matrix OrthographicMatrix(Vector4 dimensions, Vector2 depth) { return OrthographicMatrix(dimensions, depth._x, depth._y); }
+        public static Matrix OrthographicMatrix(Vector4 dimensions, float nearZ, float farZ) { return OrthographicMatrix(dimensions._x, dimensions._y, dimensions._z, dimensions._w, nearZ, farZ); }
         public static Matrix OrthographicMatrix(float w, float h, float nearZ, float farZ) { return OrthographicMatrix(-w / 2, w / 2, h / 2, -h / 2, nearZ, farZ); }
         public static Matrix OrthographicMatrix(float left, float right, float top, float bottom, float nearZ, float farZ)
         {
@@ -830,9 +846,9 @@ namespace System
             float tb = top - bottom;
             float fn = farZ - nearZ;
 
-            p[0] = 2 / rl;
-            p[5] = 2 / tb;
-            p[10] = -2 / fn;
+            p[0] = 2.0f / rl;
+            p[5] = 2.0f / tb;
+            p[10] = -2.0f / fn;
 
             p[12] = -(right + left) / rl;
             p[13] = -(top + bottom) / tb;
@@ -840,6 +856,8 @@ namespace System
 
             return m;
         }
+        public static Matrix ReverseOrthographicMatrix(Vector4 dimensions, Vector2 depth) { return ReverseOrthographicMatrix(dimensions, depth._x, depth._y); }
+        public static Matrix ReverseOrthographicMatrix(Vector4 dimensions, float nearZ, float farZ) { return ReverseOrthographicMatrix(dimensions._x, dimensions._y, dimensions._z, dimensions._w, nearZ, farZ); }
         public static Matrix ReverseOrthographicMatrix(float w, float h, float nearZ, float farZ) { return ReverseOrthographicMatrix(-w / 2, w / 2, h / 2, -h / 2, nearZ, farZ); }
         public static Matrix ReverseOrthographicMatrix(float left, float right, float top, float bottom, float nearZ, float farZ)
         {
@@ -851,13 +869,13 @@ namespace System
             float tb = top - bottom;
             float fn = farZ - nearZ;
 
-            p[0] = rl / 2;
-            p[5] = tb / 2;
-            p[10] = fn / -2;
+            p[0] = rl / 2.0f;
+            p[5] = tb / 2.0f;
+            p[10] = fn / -2.0f;
 
-            p[12] = (right + left) / 2;
-            p[13] = (top + bottom) / 2;
-            p[14] = (farZ + nearZ) / 2;
+            p[12] = (right + left) / 2.0f;
+            p[13] = (top + bottom) / 2.0f;
+            p[14] = (farZ + nearZ) / 2.0f;
 
             return m;
         }
