@@ -74,7 +74,11 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr _rebuildAddress = null;
         public int _entryLength = 0, _childLength = 0;
-        public int _lookupCount = 0;
+
+        [Browsable(false)]
+        public int LookupCount { get { return _lookupCount; } }
+        private int _lookupCount = 0;
+
         public List<VoidPtr> _lookupOffsets;
         
         //Functions

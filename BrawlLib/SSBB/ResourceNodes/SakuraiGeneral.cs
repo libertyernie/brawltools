@@ -87,7 +87,6 @@ namespace BrawlLib.SSBBTypes
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             return _entryLength = _data.Length;
         }
 
@@ -105,9 +104,71 @@ namespace BrawlLib.SSBBTypes
     {
         public int _value = 0;
 
-        [Category("Index Entry")]
-        public int ItemIndex { get { return _value; } set { _value = value; SignalPropertyChange(); } }
+        public static bool _hexadecimal;
+        public bool HexDisplay
+        { 
+            get
+            {
+                return _hexadecimal;
+            } 
+            set
+            {
+                _hexadecimal = value;
+            }
+        }
 
+        const string _validDec = "0123456789";
+        const string _validHex = "ABCDEFabcdef";
+        
+        [Category("Index Entry")]
+        public string Value
+        {
+            get
+            {
+                if (_hexadecimal)
+                {
+                    bool neg = false;
+                    int val = _value;
+                    if (val < 0)
+                    {
+                        neg = true;
+                        val = -val;
+                    }
+                    return (neg ? "-" : "") + val.ToString("X");
+                }
+                else
+                    return _value.ToString();
+            }
+            set
+            {
+                if (_hexadecimal)
+                {
+                    bool neg = false;
+                    if (value.StartsWith("-"))
+                    {
+                        value = value.Substring(1);
+                        neg = true;
+                    }
+
+                    if (value.StartsWith("0x"))
+                        value = value.Substring(2);
+
+                    value = value.RemoveInvalidCharacters(_validDec + _validHex);
+                    _value = int.Parse(value, System.Globalization.NumberStyles.HexNumber);
+
+                    if (neg)
+                        _value = -_value;
+                }
+                else
+                {
+                    value = value.RemoveInvalidCharacters(_validDec);
+                    _value = int.Parse(value);
+                }
+
+                SignalPropertyChange();
+            }
+        }
+        
         protected override void OnParse(VoidPtr address)
         {
             _value = *(bint*)address;
@@ -115,7 +176,6 @@ namespace BrawlLib.SSBBTypes
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             return 4;
         }
 
@@ -264,9 +324,13 @@ namespace BrawlLib.SSBBTypes
                     _entries.Add(Parse<T>(DataOffset + i * _stride));
         }
 
+        protected override int OnGetLookupCount()
+        {
+            return _entries.Count > 0 ? 1 : 0;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = _entries.Count > 0 ? 1 : 0;
             return 8 + _entries.Count * _stride;
         }
 

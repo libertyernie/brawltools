@@ -62,8 +62,8 @@ namespace BrawlLib.SSBBTypes
                 //Add the size of the entry's data, and the entry itself
                 _size += entry.GetSize() + 8;
 
-                //Add the lookup count calculated in GetSize()
-                _lookupCount += entry._lookupCount;
+                //Add the lookup count
+                _lookupCount += entry.GetLookupCount();
 
                 //Add the section's name to the string table
                 _referenceStringTable.Add(entry.Name);
