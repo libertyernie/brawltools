@@ -766,38 +766,38 @@ namespace System.Windows.Forms
             Vector3 normal = new Vector3();
             float radius = CamDistance(center, ModelPanel.CurrentViewport);
 
-            switch (ControlType)
-            {
-                case TransformType.Scale:
+            //switch (ControlType)
+            //{
+                //case TransformType.Scale:
 
-                    break;
+                //    break;
 
-                case TransformType.Rotation:
-                    if (_snapX)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                    else if (_snapY)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                    else if (_snapZ)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
-                    else if (_snapCirc)
-                    {
-                        radius *= _circOrbScale;
-                        normal = camera.Normalize(center);
-                    }
-                    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
-                        return true;
-                    else
-                        normal = camera.Normalize(center);
+                //case TransformType.Rotation:
+                //    if (_snapX)
+                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
+                //    else if (_snapY)
+                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
+                //    else if (_snapZ)
+                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                //    else if (_snapCirc)
+                //    {
+                //        radius *= _circOrbScale;
+                //        normal = camera.Normalize(center);
+                //    }
+                //    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
+                //        return true;
+                //    else
+                //        normal = camera.Normalize(center);
 
-                    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-                    {
-                        point = Maths.PointAtLineDistance(center, point, radius);
-                        return true;
-                    }
+                //    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
+                //    {
+                //        point = Maths.PointAtLineDistance(center, point, radius);
+                //        return true;
+                //    }
 
-                    break;
+                //    break;
 
-                case TransformType.Translation:
+                //case TransformType.Translation:
 
                     if (_snapX && _snapY)
                         normal = new Vector3(0.0f, 0.0f, 1.0f);
@@ -812,8 +812,8 @@ namespace System.Windows.Forms
                     else if (_snapZ)
                         normal = new Vector3(0.0f, 1.0f, 0.0f);
 
-                    break;
-            }
+                    //break;
+            //}
 
             if (!Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
             {

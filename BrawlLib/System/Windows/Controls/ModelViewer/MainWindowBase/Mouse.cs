@@ -537,31 +537,31 @@ namespace System.Windows.Forms
                 float radius = VertexOrbRadius(v);
                 Vector3 center = VertexLoc().Value;
 
-                {
-                    //Point lies within axes
-                    if (diff._x < halfDist && diff._y < halfDist && diff._z < halfDist)
-                    {
-                        //Point lies inside the double drag areas
-                        if (diff._x > _axisSelectRange)
-                            _hiX = true;
-                        if (diff._y > _axisSelectRange)
-                            _hiY = true;
-                        if (diff._z > _axisSelectRange)
-                            _hiZ = true;
+                //{
+                //    //Point lies within axes
+                //    if (diff._x < halfDist && diff._y < halfDist && diff._z < halfDist)
+                //    {
+                //        //Point lies inside the double drag areas
+                //        if (diff._x > _axisSelectRange)
+                //            _hiX = true;
+                //        if (diff._y > _axisSelectRange)
+                //            _hiY = true;
+                //        if (diff._z > _axisSelectRange)
+                //            _hiZ = true;
 
-                        panel.Cursor = Cursors.Hand;
-                    }
-                    else
-                    {
-                        //Check if point lies on a specific axis
-                        float errorRange = _axisSelectRange;
+                //        panel.Cursor = Cursors.Hand;
+                //    }
+                //    else
+                //    {
+                //        //Check if point lies on a specific axis
+                //        float errorRange = _axisSelectRange;
 
-                        if (diff._x > halfDist && Math.Abs(diff._y) < errorRange && Math.Abs(diff._z) < errorRange)
-                            _hiX = true;
-                        if (diff._y > halfDist && Math.Abs(diff._x) < errorRange && Math.Abs(diff._z) < errorRange)
-                            _hiY = true;
-                        if (diff._z > halfDist && Math.Abs(diff._x) < errorRange && Math.Abs(diff._y) < errorRange)
-                            _hiZ = true;
+                //        if (diff._x > halfDist && Math.Abs(diff._y) < errorRange && Math.Abs(diff._z) < errorRange)
+                //            _hiX = true;
+                //        if (diff._y > halfDist && Math.Abs(diff._x) < errorRange && Math.Abs(diff._z) < errorRange)
+                //            _hiY = true;
+                //        if (diff._z > halfDist && Math.Abs(diff._x) < errorRange && Math.Abs(diff._y) < errorRange)
+                //            _hiZ = true;
                 {
                     Vector3 point = v.UnProject(e.X, e.Y, depth);
                     Vector3 diff = (point - center) / radius;
