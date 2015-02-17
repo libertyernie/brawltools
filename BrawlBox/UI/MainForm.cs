@@ -527,6 +527,43 @@ namespace BrawlBox
         {
             CheckUpdates();
         }
+
+        private void splitContainer_MouseDown(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = true;
+        }
+        private void splitContainer_MouseUp(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = false;
+        }
+        private void splitContainer_MouseMove(object sender, MouseEventArgs e)
+        {
+            SplitContainer splitter = (SplitContainer)sender;
+            if (splitter.IsSplitterFixed)
+            {
+                if (e.Button.Equals(MouseButtons.Left))
+                {
+                    if (splitter.Orientation.Equals(Orientation.Vertical))
+                    {
+                        if (e.X > 0 && e.X < splitter.Width)
+                        {
+                            splitter.SplitterDistance = e.X;
+                            splitter.Refresh();
+                        }
+                    }
+                    else
+                    {
+                        if (e.Y > 0 && e.Y < splitter.Height)
+                        {
+                            splitter.SplitterDistance = e.Y;
+                            splitter.Refresh();
+                        }
+                    }
+                }
+                else
+                    splitter.IsSplitterFixed = false;
+            }
+        }
     }
 
     public class RecentFileHandler : Component
