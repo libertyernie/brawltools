@@ -1062,24 +1062,24 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (p._render)
             {
-                if (dontRenderOffscreen)
-                {
-                    Vector3 min = new Vector3(float.MaxValue);
-                    Vector3 max = new Vector3(float.MinValue);
+                //if (dontRenderOffscreen)
+                //{
+                //    Vector3 min = new Vector3(float.MaxValue);
+                //    Vector3 max = new Vector3(float.MinValue);
 
-                    if (p._manager != null)
-                        foreach (Vertex3 vertex in p._manager._vertices)
-                        {
-                            Vector3 v = GLPanel.Current.Project(vertex.WeightedPosition);
+                //    if (p._manager != null)
+                //        foreach (Vertex3 vertex in p._manager._vertices)
+                //        {
+                //            Vector3 v = GLPanel.Current.Project(vertex.WeightedPosition);
 
-                            min.Min(v);
-                            max.Max(v);
-                        }
+                //            min.Min(v);
+                //            max.Max(v);
+                //        }
 
-                    if (max._x < 0 || min._x > GLPanel.Current.Size.Width ||
-                        max._y < 0 || min._y > GLPanel.Current.Size.Height)
-                        return;
-                }
+                //    if (max._x < 0 || min._x > GLPanel.Current.Size.Width ||
+                //        max._y < 0 || min._y > GLPanel.Current.Size.Height)
+                //        return;
+                //}
 
                 if (renderPolygons)
                 {
@@ -1115,8 +1115,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return;
             
             ModelRenderAttributes attrib;
-            if (!_ignoreModelViewerAttribs && args.Length > 0 && args[0] is ModelRenderAttributes)
-                attrib = args[0] as ModelRenderAttributes;
+            ModelPanelViewport v = null;
+
+            if (args.Length > 0 && args[0] is ModelPanelViewport)
+                v = args[0] as ModelPanelViewport;
+
+            if (!_ignoreModelViewerAttribs && v != null && v._renderAttrib != null)
+                attrib = v._renderAttrib;
             else
                 attrib = _renderAttribs;
 
@@ -1133,16 +1138,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Apply billboard bones before rendering meshes
             if (attrib._applyBillboardBones && _billboardBones.Count > 0)
             {
-                if (_boneList != null)
-                    foreach (MDL0BoneNode b in _boneList)
-                        b.RecalcFrameState(true);
-
-                CalcAndWeight();
+                WeightModel(v);
                 ApplySHP(_currentSHP, _currentSHPIndex);
             }
 
             if (attrib._renderPolygons || attrib._renderWireframe)
             {
+                GL.PushAttrib(AttribMask.AllAttribBits);
+
                 GL.Enable(EnableCap.Lighting);
                 GL.Enable(EnableCap.DepthTest);
 
@@ -1173,14 +1176,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     GL.UseProgram(0);
                     GL.ClientActiveTexture(TextureUnit.Texture0);
                 }
+
+                GL.PopAttrib();
             }
 
             if (attrib._renderModelBox || attrib._renderObjectBoxes || attrib._renderBoneBoxes)
             {
-                //GL.LineWidth(1.0f);
-                GL.Disable(EnableCap.Lighting);
-                //GL.Disable(EnableCap.DepthTest);
+                GL.PushAttrib(AttribMask.AllAttribBits);
 
+                GL.Disable(EnableCap.Lighting);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
                 bool bindState = _bindFrame && attrib._useBindStateBoxes;
@@ -1208,52 +1212,54 @@ namespace BrawlLib.SSBB.ResourceNodes
                     foreach (MDL0BoneNode bone in _boneList)
                         bone.DrawBox(true, bindState);
                 }
+
+                GL.PopAttrib();
             }
 
             if (attrib._renderBones)
             {
+                GL.PushAttrib(AttribMask.AllAttribBits);
+
                 GL.Enable(EnableCap.Blend);
                 GL.Disable(EnableCap.Lighting);
                 GL.Disable(EnableCap.DepthTest);
+                GL.Enable(EnableCap.LineSmooth);
+
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.LineWidth(2.0f);
+                GL.LineWidth(1.5f);
 
                 if (_boneList != null)
                     foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render(_isTargetModel);
+                        bone.Render(_isTargetModel, v);
+
+                GL.PopAttrib();
             }
 
             if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
                 GL.PopMatrix();
         }
 
-        public void RenderVertices(bool depthPass, IBoneNode weightTarget)
+        public void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera)
         {
             if (_objList != null)
-            {
-                GL.Disable(EnableCap.Lighting);
-                GL.Enable(EnableCap.DepthTest);
                 if (_selectedObjectIndex != -1)
                 {
                     MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
                     if (o._render)
                     {
-                        o._manager.RenderVertices(o._matrixNode, weightTarget, depthPass);
+                        o._manager.RenderVertices(o._matrixNode, weightTarget, depthPass, camera);
                         return;
                     }
                 }
-                foreach (MDL0ObjectNode p in _objList)
-                    if (p._render)
-                        p._manager.RenderVertices(p._matrixNode, weightTarget, depthPass);
-            }
+                else
+                    foreach (MDL0ObjectNode p in _objList)
+                        if (p._render)
+                            p._manager.RenderVertices(p._matrixNode, weightTarget, depthPass, camera);
         }
 
         public void RenderNormals()
         {
             if (_objList != null)
-            {
-                GL.Disable(EnableCap.Lighting);
-                GL.Enable(EnableCap.DepthTest);
                 if (_selectedObjectIndex != -1)
                 {
                     MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
@@ -1264,7 +1270,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     foreach (MDL0ObjectNode p in _objList)
                         if (p._render)
                             p._manager.RenderNormals();
-            }
+            
         }
 
         [Browsable(false)]
@@ -1287,18 +1293,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             //if (box.IsValid)
                 TKContext.DrawWireframeBox(box);
         }
-        
-        private void CalcAndWeight()
-        {
-            //Transform nodes
-            foreach (Influence inf in _influences._influences)
-                inf.CalcMatrix();
-
-            //Weight Vertices
-            if (_objList != null)
-                foreach (MDL0ObjectNode poly in _objList)
-                    poly.WeightVertices();
-        }
 
         bool _bindFrame = true;
         public void ApplyCHR(CHR0Node node, float index)
@@ -1307,14 +1301,25 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Transform bones
             if (_boneList != null)
-            {
                 foreach (MDL0BoneNode b in _boneList)
                     b.ApplyCHR0(node, index);
-                foreach (MDL0BoneNode b in _boneList)
-                    b.RecalcFrameState(false);
-            }
 
-            CalcAndWeight();
+            WeightModel();
+        }
+
+        public void WeightModel(ModelPanelViewport v = null)
+        {
+            //Multiply matrices
+            if (_boneList != null)
+                foreach (MDL0BoneNode b in _boneList)
+                    b.RecalcFrameState(v);
+            foreach (Influence inf in _influences._influences)
+                inf.CalcMatrix();
+
+            //Weight vertices
+            if (_objList != null)
+                foreach (MDL0ObjectNode poly in _objList)
+                    poly.WeightVertices();
         }
 
         public void ApplySRT(SRT0Node node, float index)
@@ -1386,48 +1391,56 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (node == null || index == 0)
                 return;
 
-            SHP0EntryNode n;            
+            SHP0EntryNode entry;
 
             if (_objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    if (poly._manager != null && (n = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null)
+                    if (poly._manager != null && 
+                        (entry = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null && 
+                        entry.Enabled)
                     {
-                        //Max amount of morphs allowed is technically 32
-                        float[] weights = new float[n.Children.Count];
-                        MDL0VertexNode[] nodes = new MDL0VertexNode[n.Children.Count];
-
-                        foreach (SHP0VertexSetNode shpSet in n.Children)
+                        if (entry.UpdateVertices)
                         {
-                            MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
+                            //Max amount of morphs allowed is technically 32
+                            float[] weights = new float[entry.Children.Count];
+                            MDL0VertexNode[] nodes = new MDL0VertexNode[entry.Children.Count];
 
-                            weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1) : 0;
-                            nodes[shpSet.Index] = vNode;
+                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            {
+                                MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
+
+                                weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1) : 0;
+                                nodes[shpSet.Index] = vNode;
+                            }
+
+                            float totalWeight = 0;
+                            foreach (float f in weights)
+                                totalWeight += f;
+
+                            float baseWeight = 1.0f - totalWeight;
+
+                            //Calculate barycenter per vertex and set as weighted pos
+                            for (int i = 0; i < poly._manager._vertices.Count; i++)
+                            {
+                                int x = 0;
+                                Vertex3 v3 = poly._manager._vertices[i];
+                                v3._weightedPosition *= baseWeight;
+
+                                foreach (MDL0VertexNode vNode in nodes)
+                                    if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
+                                        v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x++];
+
+                                v3._weightedPosition /= (totalWeight + baseWeight);
+
+                                v3._weights = weights;
+                                v3._nodes = nodes;
+                                v3._baseWeight = baseWeight;
+                                v3._bCenter = v3._weightedPosition;
+                            }
                         }
 
-                        float totalWeight = 0;
-                        foreach (float f in weights)
-                            totalWeight += f;
-                        
-                        float baseWeight = 1.0f - totalWeight;
-
-                        //Calculate barycenter per vertex and set as weighted pos
-                        for (int i = 0; i < poly._manager._vertices.Count; i++)
-                        {
-                            int x = 0;
-                            Vertex3 v3 = poly._manager._vertices[i]; 
-                            v3._weightedPosition *= baseWeight;
-
-                            foreach (MDL0VertexNode vNode in nodes)
-                                if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
-                                    v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x++];
-                            
-                            v3._weightedPosition /= (totalWeight + baseWeight);
-
-                            v3._weights = weights;
-                            v3._nodes = nodes;
-                            v3._baseWeight = baseWeight;
-                            v3._bCenter = v3._weightedPosition;
-                        }
+                        //TODO: update normals and colors
+                        //This will be a bit trickier since they're not stored in the Vertex3 class
                     }
         }
         #endregion

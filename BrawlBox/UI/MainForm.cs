@@ -84,8 +84,10 @@ namespace BrawlBox
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
-            modelPanel1.AllowSelection = false;
+
             _currentControl = modelPanel1;
+
+            modelPanel1.CurrentViewport._allowSelection = false;
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;

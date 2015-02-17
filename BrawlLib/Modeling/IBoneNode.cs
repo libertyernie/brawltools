@@ -23,6 +23,6 @@ namespace BrawlLib.Modeling
         IModel IModel { get; }
         List<Influence> LinkedInfluences { get; }
         bool IsRendering { get; set; }
-        void Render(params object[] args);
+        void Render(bool targetModel, GLViewport viewport);
     }
 }

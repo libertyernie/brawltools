@@ -197,7 +197,6 @@ namespace System.Windows.Forms
             this.chkSyncVis.TabIndex = 7;
             this.chkSyncVis.Text = "Sync VIS0";
             this.chkSyncVis.UseVisualStyleBackColor = false;
-            this.chkSyncVis.CheckedChanged += new System.EventHandler(this.chkSyncVis_CheckedChanged);
             // 
             // btnObjects
             // 
@@ -675,8 +674,10 @@ namespace System.Windows.Forms
             set { _mainWindow = value; }
         }
 
-        private ListViewGroup _AnimGroup = new ListViewGroup("Animations");
-        public bool _syncVis0 = false;
+        private ListViewGroup _AnimGroupBRRES = new ListViewGroup("In BRRES");
+        private ListViewGroup _AnimGroupNotBRRES = new ListViewGroup("Not In BRRES");
+        private ListViewGroup _AnimGroupExternal = new ListViewGroup("External File");
+
         public bool _syncPat0 = false;
         private bool _updating = false;
         public string _lastSelected = null;
@@ -764,15 +765,24 @@ namespace System.Windows.Forms
         public LeftPanel()
         {
             InitializeComponent();
-            listAnims.Groups.Add(_AnimGroup);
+            listAnims.Groups.Add(_AnimGroupBRRES);
+            listAnims.Groups.Add(_AnimGroupNotBRRES);
+            listAnims.Groups.Add(_AnimGroupExternal);
         }
 
-        public bool LoadAnims(ResourceNode node, NW4RAnimType type, string compare, bool contains)
+        public bool LoadAnims(
+            ResourceNode node,
+            NW4RAnimType type,
+            string compare,
+            bool contains,
+            bool external,
+            bool inBRRES)
         {
-            if (!_mainWindow.chkBRRESAnims.Checked && 
-                TargetModel != null && 
+            bool ib = !external && (inBRRES || (TargetModel != null &&
                 TargetModel is MDL0Node &&
-                node == ((MDL0Node)TargetModel).BRESNode)
+                node == ((MDL0Node)TargetModel).BRESNode));
+
+            if (!_mainWindow.chkBRRESAnims.Checked && ib)
                 return false;
 
             bool found = false;
@@ -786,7 +796,7 @@ namespace System.Windows.Forms
                 case ResourceType.BRESGroup:
                 //default:
                     foreach (ResourceNode n in node.Children)
-                        found = LoadAnims(n, type, compare, contains) || found;
+                        found = LoadAnims(n, type, compare, contains, external, ib) || found;
                     break;
 
                 case ResourceType.MDef:
@@ -804,7 +814,7 @@ namespace System.Windows.Forms
             
             Add:
             if (String.IsNullOrEmpty(compare) || (contains && node.Name.Contains(compare, StringComparison.OrdinalIgnoreCase)) || node.Name.StartsWith(compare, StringComparison.OrdinalIgnoreCase))
-                listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, _AnimGroup) { Tag = node });
+                listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, external ? _AnimGroupExternal : ib ? _AnimGroupBRRES : _AnimGroupNotBRRES) { Tag = node });
             
             return found;
         }
@@ -826,11 +836,11 @@ namespace System.Windows.Forms
             if (TargetModel != null && TargetModel is MDL0Node)
             {
                 ResourceNode node = _mainWindow.chkNonBRRESAnims.Checked ? ((MDL0Node)TargetModel).RootNode : ((MDL0Node)TargetModel).BRESNode;
-                LoadAnims(node, type, addAll ? null : text, chkContains.Checked);
+                LoadAnims(node, type, addAll ? null : text, chkContains.Checked, false, false);
             }
 
             if (_mainWindow.ExternalAnimationsNode != null && _mainWindow.chkExternalAnims.Checked)
-                LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type, addAll ? null : text, chkContains.Checked);
+                LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type, addAll ? null : text, chkContains.Checked, true, false);
 
             listAnims.EndUpdate();
 
@@ -887,7 +897,7 @@ namespace System.Windows.Forms
             chkAllTextures.CheckState = CheckState.Checked;
 
             ResourceNode n;
-            if (_selectedObject != null && _mainWindow.syncTexObjToolStripMenuItem.Checked)
+            if (_selectedObject != null && _mainWindow.SyncTexturesToObjectList)
             {
                 //Add textures the selected object uses
                 if (_selectedObject is MDL0ObjectNode)
@@ -929,15 +939,14 @@ namespace System.Windows.Forms
             chkAllTextures.CheckState = CheckState.Checked;
 
 			pnlAnims.Enabled = pnlTextures.Enabled = chkSyncVis.Enabled = (TargetCollision == null);
-			if (TargetCollision != null) {
-				foreach (CollisionObject obj in TargetCollision._objects) {
+
+			if (TargetCollision != null)
+				foreach (CollisionObject obj in TargetCollision._objects)
 					lstObjects.Items.Add(obj, obj._render);
-				}
-			} else if (TargetModel != null) {
+            else if (TargetModel != null)
+            {
                 ResourceNode n;
-
                 UpdateAnimations(TargetAnimType);
-
                 if (TargetModel is MDL0Node)
                 {
                     if ((n = ((MDL0Node)TargetModel).FindChild("Objects", false)) != null)
@@ -1047,7 +1056,7 @@ namespace System.Windows.Forms
             {
                 poly._render = e.NewValue == CheckState.Checked;
 
-                if (_syncVis0 && poly._visBoneNode != null)
+                if (chkSyncVis.Checked && poly._visBoneNode != null)
                 {
                     bool temp = false;
                     if (!_mainWindow.VIS0Updating)
@@ -1094,7 +1103,7 @@ namespace System.Windows.Forms
                 overObjPnl.Invalidate();
                 overTexPnl.Invalidate();
 
-                if (_mainWindow.syncTexObjToolStripMenuItem.Checked)
+                if (_mainWindow.SyncTexturesToObjectList)
                     _selectedTexture.ObjOnly = true;
 
                 if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject).UsableMaterialNode != null)
@@ -1195,13 +1204,10 @@ namespace System.Windows.Forms
 
         private void viewToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_selectedTexture != null)
-                using (GLTextureWindow w = new GLTextureWindow())
-                {
-                    _mainWindow.ModelPanel.Release();
-                    w.ShowDialog(this, _selectedTexture.Texture);
-                    _mainWindow.ModelPanel.Capture();
-                }
+            if (_selectedTexture == null)
+                return;
+
+            new GLTextureWindow().Show(this, _selectedTexture.Texture);
         }
 
         private void replaceTextureToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1319,13 +1325,6 @@ namespace System.Windows.Forms
                 dlg.ShowDialog(this.ParentForm, (_selectedTexture.Source as TEX0Node));
             
             _selectedTexture.Name = (_selectedTexture.Source as TEX0Node).Name;
-        }
-
-        private void chkSyncVis_CheckedChanged(object sender, EventArgs e)
-        {
-            _mainWindow.Updating = true;
-            _mainWindow.SyncVIS0 = _syncVis0 = chkSyncVis.Checked;
-            _mainWindow.Updating = false;
         }
 
         private void listAnims_SelectedIndexChanged(object sender, EventArgs e)

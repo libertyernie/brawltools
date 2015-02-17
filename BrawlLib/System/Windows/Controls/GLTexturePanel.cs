@@ -32,19 +32,29 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.DepthTest);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
 
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+
             UpdateProjection();
         }
 
-        protected internal unsafe override void OnRender(PaintEventArgs e)
+        protected override void OnRender(PaintEventArgs e)
         {
             RenderBGTexture(Width, Height, _currentTexture);
         }
 
-        public override void UpdateProjection()
+        protected override void OnResize(EventArgs e)
         {
-            if (_ctx == null)
-                return;
+            if (_ctx != null)
+                _ctx.Update();
 
+            UpdateProjection();
+
+            Invalidate();
+        }
+
+        public void UpdateProjection()
+        {
             Capture();
 
             GL.Viewport(0, 0, Width, Height);

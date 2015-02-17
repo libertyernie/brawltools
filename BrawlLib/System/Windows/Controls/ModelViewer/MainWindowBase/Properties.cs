@@ -213,14 +213,6 @@ namespace System.Windows.Forms
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color ClearColor { get { return _clearColor; } set { _clearColor = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Image BGImage
-        {
-            get { return ModelPanel.BackgroundImage; }
-            set { ModelPanel.BackgroundImage = value; }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllowZoomExtents { get { return _selectedBone != null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool EnableTransformEdit
@@ -293,22 +285,25 @@ namespace System.Windows.Forms
         }
 
         //public Vector3 CamLoc() { return ModelPanel.Camera.GetPoint(); }
-        public Vector3 CamLoc(ModelPanel panel) { return panel.Camera.GetPoint(); }
+        public Vector3 CamLoc(GLViewport panel) { return panel.Camera.GetPoint(); }
 
         //public float CamDistance(Vector3 v) { return CamDistance(v, ModelPanel._fovY); }
         //public float CamDistance(Vector3 v, float fovY) { return v.TrueDistance(CamLoc()) / _orbRadius * (fovY / 45.0f) * 0.1f; }
-        public float CamDistance(Vector3 v, ModelPanel panel) { return v.TrueDistance(CamLoc(panel)) / _orbRadius * (panel._fovY / 45.0f) * 0.1f; }
+        public float CamDistance(Vector3 v, GLViewport panel)
+        {
+            if (panel.ViewType == ViewportProjection.Perspective)
+                return v.TrueDistance(CamLoc(panel)) / _orbRadius * (panel.Camera.VerticalFieldOfView / 45.0f) * 0.1f;
+            else
+                return panel.Camera._scale._x * 80.0f;
+        }
         
         //public float OrbRadius() { return CamDistance(BoneLoc()); }
-        public float OrbRadius(IBoneNode b, ModelPanel panel) { return CamDistance(BoneLoc(b), panel); }
-        public float OrbRadius(Vector3 b, ModelPanel panel) { return CamDistance(b, panel); }
+        public float OrbRadius(IBoneNode b, GLViewport panel) { return CamDistance(BoneLoc(b), panel); }
+        public float OrbRadius(Vector3 b, GLViewport panel) { return CamDistance(b, panel); }
 
         //public float VertexOrbRadius() { return CamDistance((Vector3)VertexLoc()); }
-        public float VertexOrbRadius(ModelPanel panel) { return CamDistance((Vector3)VertexLoc(), panel); }
+        public float VertexOrbRadius(GLViewport panel) { return CamDistance((Vector3)VertexLoc(), panel); }
 
-        //public Matrix CamFacingMatrix() { return Matrix.TransformMatrix(new Vector3(OrbRadius()), BoneLoc().LookatAngles(CamLoc()) * Maths._rad2degf, BoneLoc()); }
-        public Matrix CamFacingMatrix(IBoneNode b, ModelPanel panel) { return Matrix.TransformMatrix(new Vector3(OrbRadius(b, panel)), BoneLoc(b).LookatAngles(CamLoc(panel)) * Maths._rad2degf, BoneLoc(b)); }
-        
         //public Vector3 BoneLoc() { return BoneLoc(SelectedBone); }
         public Vector3 BoneLoc(IBoneNode b) { return b == null ? new Vector3() : b.Matrix.GetPoint(); }
         public Vector3? VertexLoc()
@@ -394,6 +389,8 @@ namespace System.Windows.Forms
                 //    InterpolationEditor.Frame = CurrentFrame;
             }
         }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
+        public virtual bool RetrieveCorrespondingAnimations { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool SyncVIS0 { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
@@ -402,8 +399,8 @@ namespace System.Windows.Forms
         public virtual bool DoNotHighlightOnMouseMove { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual string ScreenCaptureFolder { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(".png")]
-        public virtual string ScreenCaptureExtension { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(ImageType.png)]
+        public virtual ImageType ScreenCaptureType { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool InterpolationFormOpen { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(TransformType.Rotation)]

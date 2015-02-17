@@ -777,8 +777,8 @@ namespace System.Windows.Forms
                 FrameState state = bone.BindState;
                 float* p = (float*)&state;
                 p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
-                bone.BindState = bone.FrameState = state;
-                bone.BindState.CalcTransforms();
+                state.CalcTransforms();
+                bone.BindState = state;
                 ((ResourceNode)bone).SignalPropertyChange();
             }
 

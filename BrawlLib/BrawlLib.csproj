@@ -196,6 +196,7 @@
     <Compile Include="Modeling\IObject.cs" />
     <None Include="Modeling\XMLExporter.cs" />
     <Compile Include="Modeling\PMDModel.cs" />
+    <Compile Include="OpenGL\GLViewport.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
@@ -483,6 +484,8 @@
     <Compile Include="System\Windows\Controls\Hex Editor\MemoryDataBlock.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\NativeMethods.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\Util.cs" />
+    <Compile Include="System\Windows\Controls\Model Panel\ModelPanelViewport.cs" />
+    <Compile Include="System\Windows\Controls\Model Panel\ScreenTextHandler.cs" />
     <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Mouse.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -555,11 +558,8 @@
     <Compile Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Controls\ModelPanel.cs">
+    <Compile Include="System\Windows\Controls\Model Panel\ModelPanel.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.cs">
       <SubType>UserControl</SubType>
@@ -957,9 +957,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.resx">
       <DependentUpon>WeightEditor.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.resx">
-      <DependentUpon>ModelViewerSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.resx">
       <DependentUpon>BonesPanel.cs</DependentUpon>

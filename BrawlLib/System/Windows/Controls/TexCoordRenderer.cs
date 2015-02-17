@@ -17,7 +17,20 @@ namespace System.Windows.Forms
 {
     public unsafe partial class TexCoordRenderer : GLPanel
     {
-        public TexCoordRenderer() { InitializeComponent(); }
+        public TexCoordRenderer()
+        {
+            InitializeComponent();
+            _camera = new GLCamera();
+        }
+
+        public GLCamera _camera;
+        public float _fovY = 45.0f, _nearZ = 1.0f, _farZ = 200000.0f, _aspect;
+        public Matrix _projectionMatrix;
+        public Matrix _projectionInverse;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ProjectionChanged { get { return _projectionChanged; } set { _projectionChanged = value; } }
+        protected bool _projectionChanged = true;
 
         internal bool _updating = false;
         Vector2 _topLeft = new Vector2();
@@ -34,7 +47,15 @@ namespace System.Windows.Forms
         BindingList<string> _uvSetNames = new BindingList<string>();
         public BindingList<string> ObjectNames { get { return _objNames; } }
         BindingList<string> _objNames = new BindingList<string>();
-        
+
+        protected override void OnContextChanged(bool isNowCurrent)
+        {
+            if (isNowCurrent)
+                UpdateProjection();
+
+            base.OnContextChanged(isNowCurrent);
+        }
+
         public MDL0MaterialRefNode TargetNode
         {
             get { return _targetMatRef; }
@@ -44,17 +65,17 @@ namespace System.Windows.Forms
         private void SetTarget(MDL0MaterialRefNode texture)
         {
             _camera.Reset();
-            
+
             if (_attached == null)
                 _attached = new List<ResourceNode>();
-            
+
             if (_targetMatRef != null)
                 _targetMatRef.Unbind();
             _targetMatRef = texture;
             _attached.Clear();
             if (_targetMatRef == null)
                 return;
-            
+
             _attached.Add(_targetMatRef);
             _targetMatRef.Bind(-1);
 
@@ -244,7 +265,7 @@ namespace System.Windows.Forms
             UpdateProjection();
         }
 
-        protected override void CalculateProjection()
+        protected void CalculateProjection()
         {
             _projectionMatrix = Matrix.OrthographicMatrix(-0.5f, 0.5f, -0.5f, 0.5f, -0.1f, 1.0f);
             _projectionInverse = Matrix.ReverseOrthographicMatrix(-0.5f, 0.5f, -0.5f, 0.5f, -0.1f, 1.0f);
@@ -307,9 +328,45 @@ namespace System.Windows.Forms
 
         Vector2 _start, _scale;
 
-        protected internal unsafe override void OnRender(PaintEventArgs e)
+        protected override void OnResize(EventArgs e)
+        {
+            _projectionChanged = true;
+            if (_ctx != null)
+                _ctx.Update();
+            _aspect = (float)Width / Height;
+            UpdateProjection();
+            Invalidate();
+        }
+
+        public void UpdateProjection()
+        {
+            if (_ctx == null)
+                return;
+            CalculateProjection();
+            Capture();
+            GL.Viewport(ClientRectangle);
+            GL.MatrixMode(MatrixMode.Projection);
+            fixed (Matrix* p = &_projectionMatrix)
+                GL.LoadMatrix((float*)p);
+        }
+
+        protected override void OnRender(PaintEventArgs e)
         {
             BeforeRender();
+
+            //Set projection
+            if (_projectionChanged)
+            {
+                UpdateProjection();
+                _projectionChanged = false;
+            }
+            //Apply camera
+            if (_camera != null)
+                fixed (Matrix* p = &_camera._matrix)
+                {
+                    GL.MatrixMode(MatrixMode.Modelview);
+                    GL.LoadMatrix((float*)p);
+                }
 
             GL.Color4(Color.White);
 
@@ -417,7 +474,7 @@ namespace System.Windows.Forms
 
                     Translate(
                         -xDiff * _transFactor * w * _camera._scale._x,
-                        -yDiff * _transFactor * h * _camera._scale._y, 
+                        -yDiff * _transFactor * h * _camera._scale._y,
                         0.0f);
                 }
 

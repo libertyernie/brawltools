@@ -30,7 +30,7 @@ namespace BrawlBox
             this.modelEditControl1.AllowDrop = true;
             this.modelEditControl1.BackColor = System.Drawing.Color.Lavender;
             this.modelEditControl1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.modelEditControl1.ImgExtIndex = 0;
+            this.modelEditControl1.ScreenCaptureType = 0;
             this.modelEditControl1.Location = new System.Drawing.Point(0, 0);
             this.modelEditControl1.Name = "modelEditControl1";
             this.modelEditControl1.Size = new System.Drawing.Size(639, 528);
@@ -75,6 +75,14 @@ namespace BrawlBox
             finally { _models = null; }
         }
 
+        public void Show(IWin32Window owner, List<IModel> models,
+            List<CollisionNode> collisions = null)
+        {
+            _models = models;
+            _collisions = collisions ?? _collisions;
+            base.Show(owner);
+        }
+
         public void Show(List<IModel> models) { Show(null, models); }
         public void Show(IWin32Window owner, List<IModel> models)
         {
@@ -92,7 +100,7 @@ namespace BrawlBox
         {
             BrawlBox.Properties.Settings settings = BrawlBox.Properties.Settings.Default;
 
-            ModelEditorSettings viewerSettings = settings.ViewerSettingsSet ? settings.ViewerSettings : ModelEditorSettings.Default;
+            ModelEditorSettings viewerSettings = settings.ViewerSettingsSet ? settings.ViewerSettings : ModelEditorSettings.Default();
 
             if (viewerSettings == null)
                 return;
@@ -102,12 +110,19 @@ namespace BrawlBox
 
             if (viewerSettings.Maximize)
                 WindowState = FormWindowState.Maximized;
+            else if (viewerSettings.SavePosition)
+            {
+                StartPosition = FormStartPosition.Manual;
+                Location = new Point(viewerSettings._posX, viewerSettings._posY);
+                if (viewerSettings._height > 0)
+                    Height = viewerSettings._height;
+                if (viewerSettings._width > 0)
+                    Width = viewerSettings._width;
+            }
         }
 
         protected override void OnShown(EventArgs e)
         {
-            base.OnShown(e);
-
             if (_models.Count != 0)
             {
                 for (int i = 0; i < _models.Count; i++)
@@ -142,11 +157,13 @@ namespace BrawlBox
                 }
             }
 
-            ReadSettings();
             modelEditControl1.ModelPanel.Capture();
+            ReadSettings();
 
             GenericWrapper._modelViewerOpen = true;
             MainForm.Instance.Visible = false;
+
+            base.OnShown(e);
         }
 
         protected override void OnClosed(EventArgs e)

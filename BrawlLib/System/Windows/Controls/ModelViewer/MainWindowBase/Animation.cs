@@ -153,7 +153,7 @@ namespace System.Windows.Forms
                 SetFrame(_animFrame + 1);
 
             if (_capture)
-                images.Add(ModelPanel.GetScreenshot(false));
+                images.Add(ModelPanel.GetScreenshot(ModelPanel.CurrentViewport.RegionNoBorder, false));
         }
 
         public virtual void PlayAnim()

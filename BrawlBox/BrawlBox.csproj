@@ -257,9 +257,6 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\ButtonClick.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\CheckedChanged.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\MiscFunctions.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -280,6 +277,9 @@
     </Compile>
     <Compile Include="UI\Model Previewer\LeftPanel.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Model Previewer\ModelViewerSettings.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\SettingsDialog.cs">
       <SubType>Form</SubType>
@@ -340,6 +340,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Model Previewer\LeftPanel.resx">
       <DependentUpon>LeftPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Model Previewer\ModelViewerSettings.resx">
+      <DependentUpon>ModelViewerSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ModelForm.resx">
       <DependentUpon>ModelForm.cs</DependentUpon>

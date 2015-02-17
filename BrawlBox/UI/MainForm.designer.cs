@@ -30,6 +30,8 @@ namespace BrawlBox
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.ModelPanelViewport modelPanelViewport1 = new System.Windows.Forms.ModelPanelViewport();
+            BrawlLib.OpenGL.GLCamera glCamera1 = new BrawlLib.OpenGL.GLCamera();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.resourceTree = new BrawlBox.ResourceTree();
@@ -106,9 +108,12 @@ namespace BrawlBox
             // 
             this.splitContainer1.Panel2.Controls.Add(this.splitContainer2);
             this.splitContainer1.Size = new System.Drawing.Size(617, 411);
-            this.splitContainer1.SplitterDistance = 214;
+            this.splitContainer1.SplitterDistance = 212;
             this.splitContainer1.TabIndex = 1;
             this.splitContainer1.TabStop = false;
+            this.splitContainer1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseDown);
+            this.splitContainer1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseMove);
+            this.splitContainer1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseUp);
             // 
             // resourceTree
             // 
@@ -121,7 +126,7 @@ namespace BrawlBox
             this.resourceTree.Name = "resourceTree";
             this.resourceTree.SelectedImageIndex = 0;
             this.resourceTree.ShowIcons = true;
-            this.resourceTree.Size = new System.Drawing.Size(214, 387);
+            this.resourceTree.Size = new System.Drawing.Size(212, 387);
             this.resourceTree.TabIndex = 0;
             this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
             // 
@@ -134,7 +139,7 @@ namespace BrawlBox
             this.helpToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(214, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(212, 24);
             this.menuStrip1.TabIndex = 2;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -389,10 +394,13 @@ namespace BrawlBox
             this.splitContainer2.Panel2.Controls.Add(this.clrControl);
             this.splitContainer2.Panel2.Controls.Add(this.soundPackControl1);
             this.splitContainer2.Panel2.Controls.Add(this.msBinEditor1);
-            this.splitContainer2.Size = new System.Drawing.Size(399, 411);
+            this.splitContainer2.Size = new System.Drawing.Size(401, 411);
             this.splitContainer2.SplitterDistance = 205;
             this.splitContainer2.TabIndex = 3;
             this.splitContainer2.TabStop = false;
+            this.splitContainer2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseDown);
+            this.splitContainer2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseMove);
+            this.splitContainer2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseUp);
             // 
             // propertyGrid1
             // 
@@ -401,7 +409,7 @@ namespace BrawlBox
             this.propertyGrid1.Location = new System.Drawing.Point(0, 0);
             this.propertyGrid1.Name = "propertyGrid1";
             this.propertyGrid1.PropertySort = System.Windows.Forms.PropertySort.Categorized;
-            this.propertyGrid1.Size = new System.Drawing.Size(399, 205);
+            this.propertyGrid1.Size = new System.Drawing.Size(401, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
             // 
@@ -433,6 +441,24 @@ namespace BrawlBox
             // 
             // modelPanel1
             // 
+            modelPanelViewport1.BackgroundColor = System.Drawing.Color.FromArgb(((int)(((byte)(0)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))), ((int)(((byte)(240)))));
+            modelPanelViewport1.BackgroundImage = null;
+            modelPanelViewport1.BackgroundImageType = BrawlLib.OpenGL.BGImageType.Stretch;
+            glCamera1.Aspect = 2.254438F;
+            glCamera1.FarDepth = 200000F;
+            glCamera1.Height = 169F;
+            glCamera1.NearDepth = 1F;
+            glCamera1.Orthographic = false;
+            glCamera1.VerticalFieldOfView = 45F;
+            glCamera1.Width = 381F;
+            modelPanelViewport1.Camera = glCamera1;
+            modelPanelViewport1.Enabled = true;
+            modelPanelViewport1.Region = new System.Drawing.Rectangle(0, 0, 381, 169);
+            modelPanelViewport1.RotationScale = 0.4F;
+            modelPanelViewport1.TranslationScale = 0.05F;
+            modelPanelViewport1.ViewType = BrawlLib.OpenGL.ViewportProjection.Perspective;
+            modelPanelViewport1.ZoomScale = 2.5F;
+            this.modelPanel1.CurrentViewport = modelPanelViewport1;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
             this.modelPanel1.Size = new System.Drawing.Size(381, 169);
@@ -450,7 +476,7 @@ namespace BrawlBox
             this.previewPanel2.Location = new System.Drawing.Point(0, 0);
             this.previewPanel2.Name = "previewPanel2";
             this.previewPanel2.RenderingTarget = null;
-            this.previewPanel2.Size = new System.Drawing.Size(368, 134);
+            this.previewPanel2.Size = new System.Drawing.Size(370, 134);
             this.previewPanel2.TabIndex = 16;
             this.previewPanel2.Visible = false;
             // 

@@ -204,6 +204,7 @@ namespace System
                 return new Vector3(p[0], p[5], p[10]);
         }
 
+        public static Matrix ScaleMatrix(Vector3 scale) { return ScaleMatrix(scale._x, scale._y, scale._z); }
         public static Matrix ScaleMatrix(float x, float y, float z)
         {
             Matrix m = new Matrix();

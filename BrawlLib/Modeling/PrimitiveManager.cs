@@ -1768,7 +1768,7 @@ namespace BrawlLib.Modeling
         public bool _render = true;
         public bool _renderNormals = true;
         
-        internal unsafe void RenderVertices(IMatrixNode singleBind, IBoneNode weightTarget, bool depthPass)
+        internal unsafe void RenderVertices(IMatrixNode singleBind, IBoneNode weightTarget, bool depthPass, GLCamera camera)
         {
             if (!_render)
                 return;
@@ -1781,9 +1781,8 @@ namespace BrawlLib.Modeling
                 else
                     GL.Color4(DefaultVertColor);
 
-                float d = GLPanel.Current.Camera.GetPoint().DistanceTo(singleBind == null ? v.WeightedPosition : singleBind.Matrix * v.WeightedPosition);
-                if (d == 0) d = 0.000000000001f;
-                GL.PointSize((5000 / d).Clamp(1.0f, !depthPass ? 5.0f : 8.0f));
+                float d = camera.GetPoint().DistanceTo(v.WeightedPosition);
+                GL.PointSize(d <= 0 ? 1 : (3000.0f / d).Clamp(1.0f, depthPass ? 8.0f : 5.0f) * (depthPass ? 1.5f : 1.2f));
 
                 GL.Begin(PrimitiveType.Points);
                 GL.Vertex3(v.WeightedPosition._x, v.WeightedPosition._y, v.WeightedPosition._z);

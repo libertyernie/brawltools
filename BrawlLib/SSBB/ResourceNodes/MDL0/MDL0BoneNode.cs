@@ -622,7 +622,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             SignalPropertyChange();
         }
-        public void RecalcFrameState(bool applyBillboardBones = false)
+        public void RecalcFrameState(ModelPanelViewport v = null)
         {
             if (_overrideBone != null)
             {
@@ -646,20 +646,22 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 }
             }
 
-            if (BillboardSetting != BillboardFlags.Off && applyBillboardBones)
-                ApplyBillboard();
+            if (BillboardSetting != BillboardFlags.Off && 
+                v != null && 
+                v.ApplyBillboardBones)
+                ApplyBillboard(v.Camera);
 
             foreach (MDL0BoneNode bone in Children)
-                bone.RecalcFrameState(applyBillboardBones);
+                bone.RecalcFrameState(v);
         }
 
-        public void ApplyBillboard()
+        public void ApplyBillboard(GLCamera camera)
         {
-            if (BillboardSetting == BillboardFlags.Off || GLPanel.Current == null)
+            if (BillboardSetting == BillboardFlags.Off)
                 return;
 
-            Vector3 camPoint = GLPanel.Current.Camera.GetPoint();
-            Vector3 camRot = GLPanel.Current.Camera._rotation;
+            Vector3 camPoint = camera.GetPoint();
+            Vector3 camRot = camera._rotation;
 
             FrameState worldState = _frameMatrix.Derive();
 
@@ -784,7 +786,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             CHR0EntryNode e;
 
             _frameState = _bindState;
-
+            
             if (node != null && index >= 1 && (e = node.FindChild(Name, false) as CHR0EntryNode) != null) //Set to anim pose
                 fixed (FrameState* v = &_frameState)
                 {
@@ -826,26 +828,24 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         //public void Refresh() { }
 
-        public void Render(params object[] args)
+        public void Render(bool targetModel, GLViewport viewport)
         {
             if (!_render)
                 return;
 
-            bool Foreground = (args.Length > 0 && args[0] is bool ? (bool)args[0] : false);
-
-            Color c = Foreground ? DefaultLineColor : DefaultLineDeselectedColor;
+            Color c = targetModel ? DefaultLineColor : DefaultLineDeselectedColor;
 
             if (_boneColor != Color.Transparent)
-                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
+                GL.Color4(_boneColor.R / 255.0f, _boneColor.G / 255.0f, _boneColor.B / 255.0f, targetModel ? 1.0f : 0.45f);
             else
-                GL.Color4(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, Foreground ? 1.0f : 0.45f);
+                GL.Color4(c.R / 255.0f, c.G / 255.0f, c.B / 255.0f, targetModel ? 1.0f : 0.45f);
 
             //Draw name if selected
-            if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
+            if (_nodeColor != Color.Transparent && viewport != null && viewport is ModelPanelViewport)
             {
                 Vector3 pt = _frameMatrix.GetPoint();
-                Vector3 v2 = GLPanel.Current.Project(pt);
-                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
+                Vector3 v2 = viewport.Camera.Project(pt);
+                ((ModelPanelViewport)viewport).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
             }
 
             Vector3 v1 = (_parent == null || !(_parent is MDL0BoneNode)) ? new Vector3(0.0f) : ((MDL0BoneNode)_parent)._frameMatrix.GetPoint();
@@ -866,19 +866,19 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 //Render node
                 GLDisplayList ndl = TKContext.FindOrCreate<GLDisplayList>("BoneNodeOrb", CreateNodeOrb);
                 if (_nodeColor != Color.Transparent)
-                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
+                    GL.Color4(_nodeColor.R / 255.0f, _nodeColor.G / 255.0f, _nodeColor.B / 255.0f, targetModel ? 1.0f : 0.45f);
                 else
-                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, Foreground ? 1.0f : 0.45f);
+                    GL.Color4(DefaultNodeColor.R / 255.0f, DefaultNodeColor.G / 255.0f, DefaultNodeColor.B / 255.0f, targetModel ? 1.0f : 0.45f);
 
                 ndl.Call();
 
-                DrawNodeOrients(Foreground);
+                DrawNodeOrients(targetModel);
             }
             GL.PopMatrix();
 
             //Render children
             foreach (MDL0BoneNode n in Children)
-                n.Render(Foreground);
+                n.Render(targetModel, viewport);
         }
 
         public static GLDisplayList CreateNodeOrb(TKContext ctx)

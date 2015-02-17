@@ -38,11 +38,8 @@
             this.modelPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
-            this.modelPanel1.RotationScale = 0.4F;
             this.modelPanel1.Size = new System.Drawing.Size(521, 439);
             this.modelPanel1.TabIndex = 0;
-            this.modelPanel1.TranslationScale = 0.05F;
-            this.modelPanel1.ZoomScale = 2.5F;
             // 
             // ModelViewerForm
             // 
