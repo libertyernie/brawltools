@@ -111,7 +111,7 @@ namespace BrawlBox
             string path;
             int index = Program.OpenFile("Animated GIF (*.gif)|*.gif", out path);
             if (index > 0)
-                ((BRESNode)_resource).ImportGIF(path);
+                ((BRRESNode)_resource).ImportGIF(path);
         }
 
         public void ImportTexture()
