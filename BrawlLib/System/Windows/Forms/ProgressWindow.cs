@@ -41,7 +41,10 @@ namespace System.Windows.Forms
             progressBar1.CurrentValue = current;
 
             if (Owner != null)
-                Owner.Enabled = false;
+                if (Owner.InvokeRequired)
+                    Invoke(new MethodInvoker(() => Owner.Enabled = false));
+                else
+                    Owner.Enabled = false;
 
             Show();
 

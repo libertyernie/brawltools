@@ -1252,14 +1252,25 @@ namespace System.Windows.Forms
 
         private void btnApplyDims_Click(object sender, EventArgs e)
         {
-            _updating = true;
             int w = (int)Math.Round(numW.Value, 0);
             int h = (int)Math.Round(numH.Value, 0);
+            ResizeImage(w, h);
+        }
+
+        public event Action<int, int> Resized;
+
+        public void ResizeImage(int w, int h)
+        {
+            _updating = true;
             if (w == _base.Width && h == _base.Height)
                 Source = _base;
             else
                 Source = ResizeImage(_base, w, h);
             UpdatePreview();
+
+            if (Resized != null)
+                Resized(w, h);
+
             _updating = false;
         }
 
