@@ -40,7 +40,8 @@ namespace BrawlBox
                 new ToolStripMenuItem("Vertex Morph", null, ImportShpAction),
                 new ToolStripMenuItem("Color Sequence", null, ImportClrAction),
                 new ToolStripMenuItem("Scene Settings", null, ImportScnAction),
-                new ToolStripMenuItem("Folder", null, ImportFolderAction)
+                new ToolStripMenuItem("Folder", null, ImportFolderAction),
+                new ToolStripMenuItem("Animated GIF", null, ImportGIFAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Preview All Models", null, PreviewAllAction));
@@ -83,7 +84,8 @@ namespace BrawlBox
         protected static void ReplaceAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ReplaceAll(); }
         protected static void EditAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().EditAll(); }
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().PreviewAll(); }
-        
+        protected static void ImportGIFAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ImportGIF(); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[12].Enabled = _menu.Items[13].Enabled = _menu.Items[15].Enabled = true;
@@ -103,6 +105,14 @@ namespace BrawlBox
         public override string ExportFilter { get { return FileFilters.BRES; } }
 
         public BRESWrapper() { ContextMenuStrip = _menu; }
+
+        public void ImportGIF()
+        {
+            string path;
+            int index = Program.OpenFile("Animated GIF (*.gif)|*.gif", out path);
+            if (index > 0)
+                ((BRESNode)_resource).ImportGIF(path);
+        }
 
         public void ImportTexture()
         {

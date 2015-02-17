@@ -344,33 +344,77 @@ namespace BrawlLib.SSBB.ResourceNodes
             _stringTable.Clear();
         }
 
-        public static BRRESNode FromGIF(string file)
+        public void ImportGIF(string file)
         {
-            string s = Path.GetFileNameWithoutExtension(file);
-            BRRESNode b = new BRRESNode() { _name = s };
-            PAT0Node p = new PAT0Node() { _name = s };
-            p.CreateEntry();
-
-            PAT0TextureNode t = p.Children[0].Children[0] as PAT0TextureNode;
-
-            GifDecoder d = new GifDecoder();
-            d.Read(file);
-
-            int f = d.GetFrameCount();
-            using (TextureConverterDialog dlg = new TextureConverterDialog())
+            Action<object, DoWorkEventArgs> work = (object sender, DoWorkEventArgs e) =>
             {
-                dlg.Source = (Bitmap)d.GetFrame(0);
-                if (dlg.ShowDialog(null, b) == DialogResult.OK)
+                GifDecoder decoder = new GifDecoder();
+                decoder.Read(file);
+                e.Result = decoder;
+            };
+            Action<object, RunWorkerCompletedEventArgs> completed = (object sender, RunWorkerCompletedEventArgs e) =>
+            {
+                GifDecoder decoder = e.Result as GifDecoder;
+
+                string s = Path.GetFileNameWithoutExtension(file);
+                PAT0Node p = CreateResource<PAT0Node>(s);
+                p._loop = true;
+                p.CreateEntry();
+
+                PAT0TextureNode textureNode = p.Children[0].Children[0] as PAT0TextureNode;
+                PAT0TextureEntryNode entry = textureNode.Children[0] as PAT0TextureEntryNode;
+
+                //Get the number of images in the file
+                int frames = decoder.GetFrameCount();
+
+                //The framecount will be created by adding up each image delay.
+                float frameCount = 0;
+
+                using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
-                    for (int i = 1; i < f; i++)
+                    for (int i = 0; i < frames; i++, entry = new PAT0TextureEntryNode())
                     {
-                        dlg.Source = (Bitmap)d.GetFrame(i);
-                        dlg.EncodeSource();
+                        string name = s + "." + i;
+
+                        dlg.ImageSource = name + ".";
+
+                        Bitmap img = (Bitmap)decoder.GetFrame(i);
+                        if (i == 0)
+                        {
+                            dlg.LoadImages(img);
+                            if (dlg.ShowDialog(null, this) != DialogResult.OK)
+                                return;
+
+                            textureNode._hasTex = dlg.TextureData != null;
+                            textureNode._hasPlt = dlg.PaletteData != null;
+                        }
+                        else
+                        {
+                            dlg.LoadImages(img);
+                            dlg.UpdatePreview();
+                            dlg.EncodeSource();
+
+                            textureNode.AddChild(entry);
+                        }
+
+                        entry._frame = frameCount;
+                        frameCount += decoder.GetDelay(i) / 1000.0f * 60.0f;
+
+                        if (textureNode._hasTex)
+                            entry.Texture = name;
+                        if (textureNode._hasPlt)
+                            entry.Palette = name;
                     }
                 }
-            }
+                p._numFrames = (ushort)(frameCount + 0.5f);
+            };
 
-            return b;
+            using (BackgroundWorker b = new BackgroundWorker())
+            {
+                b.DoWork += new DoWorkEventHandler(work);
+                b.RunWorkerCompleted += new RunWorkerCompletedEventHandler(completed);
+                b.RunWorkerAsync();
+            }
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((BRESHeader*)source.Address)->_tag == BRESHeader.Tag ? new BRRESNode() : null; }
