@@ -8,16 +8,40 @@ using System.Drawing;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.UI;
+using System.Reflection;
+using System.Globalization;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.ModelViewer
 {
     public class Scriptor
     {
         Script _script;
-        public Scriptor(Script s) { _script = s; }
+
+        public Scriptor(Script s)
+        {
+            _script = s;
+        }
+        static Scriptor()
+        {
+            var m = typeof(Scriptor).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
+            foreach (MethodInfo method in m)
+            {
+                string s = method.Name.Substring(1);
+                if (s.StartsWith("0x"))
+                    s = s.Substring(2);
+
+                uint i;
+                if (!uint.TryParse(s, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out i))
+                    continue;
+
+                _actions.Add(i, method);
+            }
+        }
+
+        private static Dictionary<uint, MethodInfo> _actions = new Dictionary<uint, MethodInfo>();
 
         public int Count { get { return _script.Count; } }
         public Event this[int i]
@@ -26,8 +50,22 @@ namespace Ikarus.ModelViewer
             set { _script[i] = value; }
         }
 
-        public MovesetNode Root { get { return _script._root; } }
-        public ArticleEntry Article { get { return _script._parentArticle; } }
+        public MovesetNode Root { get { return _script._root as MovesetNode; } }
+
+        private ArticleNode _article = null;
+        public ArticleNode Article
+        {
+            get
+            {
+                if (_article != null)
+                    return _article;
+
+                SakuraiEntryNode n = _script._parent;
+                while (!(n is ArticleNode) && n != null)
+                    n = n._parent;
+                return _article = n as ArticleNode;
+            }
+        }
 
         #region Variables
 
@@ -182,25 +220,25 @@ namespace Ikarus.ModelViewer
                 _loopTime++;
         }
 
+        //The current event being executed.
+        Event e;
+        uint eventId { get { return e.EventID; } }
+        byte eNameSpace { get { return e.NameSpace; } }
+        byte eID { get { return e.ID; } }
+        byte eCount { get { return (byte)e.Count; } }
+        byte eUnk { get { return e.Unknown; } }
+
         public void RunEvent(int eventIndex)
         {
             //Get the current event and its id
-            Event e = this[eventIndex];
-            if (e == null)
-                return;
-
-            uint eventId = e.EventID;
-            byte eNameSpace = e.NameSpace;
-            byte eID = e.ID;
-            byte eCount = (byte)e.Count;
-            byte eUnk = e.Unknown;
-
-            //Get raw parameter list
-            int[] p = e.Select(x => x.Data).ToArray();
+            e = this[eventIndex];
 
             //Run event only if allowed or if an exception
-            if (!_runEvents && !_runExceptions.Contains((eNameSpace << 8) | eID))
+            if (e == null || !_runEvents && !_runExceptions.Contains(eventId >> 16))
                 return;
+
+            if (_actions.ContainsKey(eventId))
+                _actions[eventId].Invoke(this, null);
 
             //Variables that are used often
             int id;
@@ -228,7 +266,7 @@ namespace Ikarus.ModelViewer
                     _waitFrames = Math.Max((int)(e[0].RealValue + 0.5f) - _frameIndex, 0);
                     break;
                 case 0x00040100: //Set loop data
-                    _loopCount = p[0];
+                    _loopCount = e[0];
                     _loopStartIndex = e.Index + 1;
                     _runEvents = false;
                     break;
@@ -270,7 +308,7 @@ namespace Ikarus.ModelViewer
                         _ifInfo._reqIndices.Add(index);
 
                         _ifEndIndices.Add(0);
-                        reqInfo = new RequirementInfo(p[0]);
+                        reqInfo = new RequirementInfo(e[0]);
                         for (int i = 1; i < ((eventId >> 8) & 0xFF); i++)
                             reqInfo._values.Add(e[i]);
                         _ifInfo._requirements = new List<List<RequirementInfo>>();
@@ -334,7 +372,7 @@ namespace Ikarus.ModelViewer
 
                     if (!_runEvents && _ifIndex == _currentIf + 1)
                     {
-                        reqInfo = new RequirementInfo(p[0]);
+                        reqInfo = new RequirementInfo(e[0]);
                         for (int i = 1; i < eCount; i++)
                             reqInfo._values.Add(e[i]);
                         _ifInfo._requirements.Add(new List<RequirementInfo>());
@@ -347,7 +385,7 @@ namespace Ikarus.ModelViewer
                 case 0x000B0400: //And If Comparison
                     if (!_runEvents && _ifIndex == _currentIf + 1)
                     {
-                        reqInfo = new RequirementInfo(p[0]);
+                        reqInfo = new RequirementInfo(e[0]);
                         for (int i = 1; i < eCount; i++)
                             reqInfo._values.Add(e[i]);
                         _ifInfo._requirements.Add(new List<RequirementInfo>());
@@ -427,12 +465,12 @@ namespace Ikarus.ModelViewer
                     _switchEndIndex = -1;
                     break;
                 case 0x10050200: //Article Visiblity
-                    id = p[0];
+                    id = e[0];
                     if (id < 0 || id >= RunTime._articles.Length)
                         break;
                     articleInfo = RunTime._articles[id];
                     if (articleInfo != null && articleInfo._model != null)
-                        articleInfo._model._attached = p[1] != 0;
+                        articleInfo._model.IsRendering = e[1] != 0;
                     break;
                 case 0x01010000: //Loop Rest
                     _waitFrames = 1;
@@ -440,19 +478,19 @@ namespace Ikarus.ModelViewer
                 case 0x06000D00: //Offensive Collison
                 case 0x062B0D00: //Thrown Collision
                     hitbox = new HitBox(e, Article != null ? Article.Index : -1);
-                    hitbox.HitboxID = (int)(p[0] & 0xFFFF);
-                    hitbox.HitboxSize = p[5];
+                    hitbox.HitboxID = (int)(e[0] & 0xFFFF);
+                    hitbox.HitboxSize = e[5];
                     RunTime._hitBoxes.Add(hitbox);
                     break;
                 case 0x06050100: //Body Collision
-                    _hurtBoxType = p[0];
+                    _hurtBoxType = e[0];
                     break;
                 case 0x06080200: //Bone Collision
-                    id = p[0];
+                    id = e[0];
                     if (Root.Model != null && Root.Model._linker.BoneCache.Length > id && id >= 0)
                     {
                         MDL0BoneNode bone = Root.Model._linker.BoneCache[id] as MDL0BoneNode;
-                        switch ((int)p[1])
+                        switch ((int)e[1])
                         {
                             case 0:
                                 bone._nodeColor = Color.Transparent;
@@ -477,8 +515,8 @@ namespace Ikarus.ModelViewer
                 case 0x060A0900: //Catch Collision 2
                 case 0x060A0A00: //Catch Collision 3
                     hitbox = new HitBox(e, Article != null ? Article.Index : -1);
-                    hitbox.HitboxID = p[0];
-                    hitbox.HitboxSize = p[2];
+                    hitbox.HitboxID = e[0];
+                    hitbox.HitboxSize = e[2];
                     RunTime._hitBoxes.Add(hitbox);
                     break;
                 case 0x060D0000: //Terminate Catch Collisions
@@ -493,8 +531,8 @@ namespace Ikarus.ModelViewer
                     break;
                 case 0x06150F00: //Special Offensive Collison
                     hitbox = new HitBox(e, Article != null ? Article.Index : -1);
-                    hitbox.HitboxID = (int)(p[0] & 0xFFFF);
-                    hitbox.HitboxSize = p[5];
+                    hitbox.HitboxID = (int)(e[0] & 0xFFFF);
+                    hitbox.HitboxSize = e[5];
                     RunTime._hitBoxes.Add(hitbox);
                     break;
                 case 0x06040000: //Terminate Collisions
@@ -506,7 +544,7 @@ namespace Ikarus.ModelViewer
                     for (int i = 0; i < RunTime._hitBoxes.Count; i++)
                     {
                         HitBox hbox = RunTime._hitBoxes[i];
-                        if (hbox.HitboxID == p[0] && hbox.IsOffensive(true))
+                        if (hbox.HitboxID == e[0] && hbox.IsOffensive(true))
                         {
                             RunTime._hitBoxes.RemoveAt(i--);
                             break;
@@ -517,7 +555,7 @@ namespace Ikarus.ModelViewer
                     for (int i = 0; i < RunTime._hitBoxes.Count; i++)
                     {
                         HitBox hbox = RunTime._hitBoxes[i];
-                        if (hbox.HitboxID == p[0] && hbox.IsCatch())
+                        if (hbox.HitboxID == e[0] && hbox.IsCatch())
                         {
                             RunTime._hitBoxes.RemoveAt(i--);
                             break;
@@ -526,12 +564,12 @@ namespace Ikarus.ModelViewer
                     break;
                 case 0x061B0500: //Move hitbox
                     foreach (HitBox hbox in RunTime._hitBoxes)
-                        if (hbox.HitboxID == p[0] && hbox.IsOffensive(true))
+                        if (hbox.HitboxID == e[0] && hbox.IsOffensive(true))
                         {
-                            hbox._parameters[1] = p[1];
-                            hbox._parameters[6] = p[2];
-                            hbox._parameters[7] = p[3];
-                            hbox._parameters[8] = p[4];
+                            hbox._parameters[1] = e[1];
+                            hbox._parameters[6] = e[2];
+                            hbox._parameters[7] = e[3];
+                            hbox._parameters[8] = e[4];
                             break;
                         }
                     break;
@@ -567,7 +605,7 @@ namespace Ikarus.ModelViewer
                     }
                     break;
                 case 0x0A030100: //Stop sound
-                    id = p[0];
+                    id = e[0];
                     if (RunTime._playingSounds.ContainsKey(id))
                     {
                         List<AudioInfo> aList = RunTime._playingSounds[id];
@@ -601,7 +639,7 @@ namespace Ikarus.ModelViewer
                     if (RunTime._muteSFX)
                         break;
 
-                    id = p[0];
+                    id = e[0];
                     if (Manager.SoundArchive != null)
                     {
                         RSARNode node = Manager.SoundArchive;
@@ -652,41 +690,22 @@ namespace Ikarus.ModelViewer
 
                         visNode = Root.Data._modelVis;
                     }
-
-                    //Get the target reference
-                    ModelVisReference refEntry = Root.Data._modelVis[((int)(eventId >> 16 & 1))];
-
-                    //Check if the reference and switch id is usable
-                    if (refEntry.Count == 0 || p[0] < 0 || p[0] >= refEntry.Count) break;
-
-                    //Turn off objects
-                    ModelVisBoneSwitch SwitchNode = refEntry[p[0]];
-                    foreach (ModelVisGroup grp in SwitchNode)
-                        foreach (BoneIndexValue b in grp._bones)
-                            if (b.BoneNode != null)
-                                foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
-                                    obj._render = false;
-
-                    //Check if the group id is usable
-                    if (p[1] > SwitchNode.Count || p[1] < 0) break;
-
-                    //Turn on objects
-                    ModelVisGroup group = SwitchNode[p[1]];
-                    if (group != null)
-                        foreach (BoneIndexValue b in group._bones)
-                            if (b.BoneNode != null)
-                                foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
-                                    obj._render = true;
-
+                    if (visNode != null)
+                    {
+                        int refId = ((int)((eventId >> 16) & 0xFF));
+                        int switchId = e[0];
+                        int groupId = e[1];
+                        visNode.ApplyVisibility(refId, switchId, groupId);
+                    }
                     break;
                 case 0x0B020100: //Model visibility
                     if (Article == null)
-                        Root.Model._attached = p[0] != 0;
+                        Root.Model.IsRendering = e[0] != 0;
                     else if (Article.Index < RunTime._articles.Length && RunTime._articles[Article.Index]._model != null)
-                        RunTime._articles[Article.Index]._model._attached = p[0] != 0;
+                        RunTime._articles[Article.Index]._model.IsRendering = e[0] != 0;
                     break;
                 case 0x0D000200: //Concurrent Infinite Loop
-                    index = p[0];
+                    index = e[0];
                     EventOffset off = (e[1] as EventOffset);
                     if (off._script != null)
                     {
@@ -696,12 +715,12 @@ namespace Ikarus.ModelViewer
                     }
                     break;
                 case 0x0D010100: //Terminate Concurrent Infinite Loop
-                    index = p[0];
+                    index = e[0];
                     if (RunTime._concurrentLoopScripts.ContainsKey(index))
                         RunTime._concurrentLoopScripts.Remove(index);
                     break;
                 case 0x0E000100: //Set Air/Ground
-                    RunTime._location = (RunTime.Location)(p[0]);
+                    RunTime._location = (RunTime.Location)((int)e[0]);
                     break;
                 case 0x10000100: //Generate Article 
                 case 0x10000200: //Generate Article 
@@ -720,7 +739,7 @@ namespace Ikarus.ModelViewer
                         break;
 
                     //Get the id of the article to be called and check it
-                    int aId2 = p[0];
+                    int aId2 = e[0];
                     if (aId2 < 0 || aId2 >= RunTime._articles.Length)
                         break;
 
@@ -730,50 +749,13 @@ namespace Ikarus.ModelViewer
                     if (articleInfo == null)
                         return;
 
-                    //Remove or add the article
-                    if (removeArticle)
-                    {
-                        if (!articleInfo.Running)
-                            return;
+                    articleInfo.Running = !removeArticle;
 
-                        //Remove the article's model from the scene
-                        if (articleInfo._model != null)
-                        {
-                            main.RemoveTarget(articleInfo._model);
-                            articleInfo._model._attached = false;
-                        }
-
-                        //This article is no longer available for use
-                        articleInfo.Running = false;
-                    }
-                    else
-                    {
-                        if (articleInfo.Running)
-                            return;
-
-                        //Add the article's model to the scene
-                        if (articleInfo._model != null)
-                        {
-                            main.AddTarget(articleInfo._model);
-                            articleInfo._model._attached = true;
-
-                            articleInfo._model._renderBones = RunTime.MainWindow._renderBones;
-                            articleInfo._model._renderWireframe = RunTime.MainWindow._renderWireframe;
-                            articleInfo._model._renderPolygons = RunTime.MainWindow._renderPolygons;
-                            articleInfo._model._renderVertices = RunTime.MainWindow._renderVertices;
-                            articleInfo._model._renderBox = RunTime.MainWindow._renderBox;
-                            articleInfo._model._renderNormals = RunTime.MainWindow._renderNormals;
-                            articleInfo._model._dontRenderOffscreen = RunTime.MainWindow._dontRenderOffscreen;
-                        }
-
-                        //This article is now available for use
-                        articleInfo.Running = true;
-                    }
                     break;
                 case 0x10040200: //Set Anchored Article SubAction
                 case 0x10070200: //Set Remote Article SubAction
-                    id = p[0];
-                    int sId = p[1];
+                    id = e[0];
+                    int sId = e[1];
                     if (id < 0 || id >= RunTime._articles.Length)
                         break;
 
@@ -831,8 +813,8 @@ namespace Ikarus.ModelViewer
                 case 0x02010300:
                 case 0x02010400:
                 case 0x02010500:
-                    aChangeInfo = new ActionChangeInfo(p[0]);
-                    reqInfo = new RequirementInfo(p[1]);
+                    aChangeInfo = new ActionChangeInfo(e[0]);
+                    reqInfo = new RequirementInfo(e[1]);
                     for (int i = 2; i < Count; i++)
                         reqInfo._values.Add(e[i]);
                     aChangeInfo._requirements.Add(reqInfo);
@@ -858,15 +840,32 @@ namespace Ikarus.ModelViewer
                     break;
                 case 0x04000100: //Change Subaction
                 case 0x04000200:
-                    sChangeInfo = new SubActionChangeInfo(p[0], eCount == 2 && p[1] != 0);
+                    sChangeInfo = new SubActionChangeInfo(e[0], eCount == 2 && e[1] != 0);
                     RunTime.AddSubActionChangeInfo(sChangeInfo);
                     break;
                 case 0x04010200: //Change Subaction
-                    sChangeInfo = new SubActionChangeInfo(p[0], false);
-                    sChangeInfo._requirements.Add(new RequirementInfo(p[1]));
+                    sChangeInfo = new SubActionChangeInfo(e[0], false);
+                    sChangeInfo._requirements.Add(new RequirementInfo(e[1]));
                     RunTime.AddSubActionChangeInfo(sChangeInfo);
                     break;
+                case 0x11010A00: //External Graphic Effect
+                case 0x11001000: //Same as prev but with random offset and rotation
+                    bool random = ((eventId >> 16) & 0xFF) == 0;
+
+                    break;
+                case 0x111A1000: //Graphic Effect; no file
+                    
+                    break;
             }
+        }
+
+        private void _0x01000000()
+        {
+            Application.DoEvents();
+        }
+        private void _0x00010100()
+        {
+            _waitFrames = (int)(e[0].RealValue + 0.5f);
         }
 
         /// <summary>
@@ -877,29 +876,29 @@ namespace Ikarus.ModelViewer
         {
             bool not = ((info._requirement >> 31) & 1) == 1;
             long req = info._requirement & 0x7FFFFFFF;
-            bool v = false;
+            bool value = false;
 
             switch (req)
             {
                 case 0x03: //Is On Ground
-                    v = RunTime._location == RunTime.Location.Ground;
+                    value = RunTime._location == RunTime.Location.Ground;
                     break;
 
                 case 0x04: //Is In Air
-                    v = RunTime._location == RunTime.Location.Air;
+                    value = RunTime._location == RunTime.Location.Air;
                     break;
 
                 case 0x06: //On a pass-through floor
-                    v = false;
+                    value = false;
                     break;
 
                 case 0x07: //Compare
                     if (info._values.Count == 3)
-                        v = info._values[0].Compare(info._values[2], info._values[1].Data);
+                        value = info._values[0].Compare(info._values[2], info._values[1].Data);
                     break;
 
                 case 0x08: //Bit is set
-                    v = info._values[0].RealValue != 0.0f;
+                    value = info._values[0].RealValue != 0.0f;
                     break;
 
                 case 0x0C: //Touching something
@@ -924,7 +923,7 @@ namespace Ikarus.ModelViewer
                     int aId = (int)info._values[0].RealValue;
                     if (aId < 0 || aId >= RunTime._articles.Length)
                         break;
-                    v = RunTime._articles[aId].Running;
+                    value = RunTime._articles[aId].Running;
                     break;
 
                 case 0x17: //Within distance from floor
@@ -933,7 +932,7 @@ namespace Ikarus.ModelViewer
                         Manager.Moveset.Data._misc != null)
                     {
                         Vector3 p = Manager.Moveset.Data._misc._boneRefs[4].BoneNode._frameMatrix.GetPoint();
-                        v = p._y < info._values[0].RealValue;
+                        value = p._y < info._values[0].RealValue;
                     }
                     break;
 
@@ -968,7 +967,7 @@ namespace Ikarus.ModelViewer
                     break;
             }
 
-            return not ? !v : v;
+            return not ? !value : value;
         }
     }
 }

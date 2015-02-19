@@ -296,6 +296,7 @@ namespace System.Windows.Forms
             get { return _targetRelocation; }
             set
             {
+                lstLinked.Items.Clear();
                 _targetBranch = null;
 
                 if (_targetRelocation != null)
@@ -305,7 +306,10 @@ namespace System.Windows.Forms
                 {
                     _targetRelocation._selected = true;
 
-                    lstLinked.DataSource = _targetRelocation.Linked;
+                    lstLinked.Items.AddRange(_targetRelocation.Linked.ToArray());
+                    lstLinked.Items.AddRange(_targetRelocation.Branched.ToArray());
+
+
 
                     if (_section.HasCode && ppcDisassembler1.Visible)
                     {
@@ -314,20 +318,15 @@ namespace System.Windows.Forms
 
                         Relocation r = value;
 
-                        // A method almost certainly will never return to execute instructions
-                        // at this location if the branch is not linked, so should be treated
-                        // as the end of the method.
-                        while (r.Previous != null && !(r.Previous.Code is PPCblr ||
-                            (r.Previous.Code is PPCbx && ((PPCbx)r.Previous.Code).Link == false)))
+                        // Backtrack setting the method start index until we hit a blr.
+                        while (r.Previous != null && !(r.Previous.Code is PPCblr))
                             r = r.Previous;
 
                         startIndex = r._index;
 
                         r = value;
-
-                        // See above.
-                        while (!(r.Code is PPCblr ||
-                            (r.Code is PPCbx && ((PPCbx)r.Code).Link == false)) && r.Next != null)
+                        // Now iterate down the code until we hit a blr to set the end.
+                        while (r.Next != null && !(r.Code is PPCblr))
                             r = r.Next;
 
                         endIndex = r._index;
@@ -355,6 +354,7 @@ namespace System.Windows.Forms
                             _targetRelocation.Code is PPCBranch &&
                             !(_targetRelocation.Code is PPCblr || _targetRelocation.Code is PPCbctr))
                         {
+
                             _targetBranch = (PPCBranch)_targetRelocation.Code;
                             btnGotoBranch.Visible = btnGotoBranch.Enabled = (_targetBranchOffsetRelocation = GetBranchOffsetRelocation()) != null;
                         }
@@ -710,6 +710,22 @@ namespace System.Windows.Forms
         {
             if (lstLinked.SelectedItem != null)
                 OpenRelocation(lstLinked.SelectedItem as Relocation);
+        }
+        private void lstLinked_DrawItem(object sender, DrawItemEventArgs e)
+        {
+            e.DrawBackground();
+            if (e.Index >= 0)
+            {
+                Relocation r = lstLinked.Items[e.Index] as Relocation;
+                if (r != null)
+                {
+                    Color c = r.Code is PPCBranch ? Color.DarkBlue :
+                    r.Target != null ? Color.DarkGreen : Color.Black;
+
+                    e.Graphics.DrawString(r.ToString(), lstLinked.Font, new SolidBrush(c), e.Bounds);
+                }
+            }
+            e.DrawFocusRectangle();
         }
 
         bool _updating = false;

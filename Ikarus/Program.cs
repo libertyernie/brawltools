@@ -19,7 +19,7 @@ namespace Ikarus
 
         private static OpenFileDialog _openDlg;
         private static SaveFileDialog _saveDlg;
-        private static FolderBrowserDialog _folderDlg;
+        private static FolderSelectDialog _folderDlg;
 
         static Program()
         {
@@ -32,7 +32,7 @@ namespace Ikarus
 
             _openDlg = new OpenFileDialog();
             _saveDlg = new SaveFileDialog();
-            _folderDlg = new FolderBrowserDialog();
+            _folderDlg = new FolderSelectDialog();
         }
 
         /// <summary>
@@ -58,7 +58,7 @@ namespace Ikarus
             {
                 List<ResourceNode> changed = new List<ResourceNode>();
                 foreach (ResourceNode r in OpenedFiles)
-                    if ((r.IsDirty) && (!force))
+                    if (r.IsDirty && !force)
                         changed.Add(r);
                 
                 if (changed.Count > 0)
@@ -80,7 +80,7 @@ namespace Ikarus
 
         public static string ChooseFolder(string basePath)
         {
-            _folderDlg.SelectedPath = basePath;
+            _folderDlg.InitialDirectory = basePath;
             if (_folderDlg.ShowDialog() == DialogResult.OK)
                 return _folderDlg.SelectedPath;
             return null;
@@ -89,7 +89,7 @@ namespace Ikarus
         public static string RootPath = null;
         public static bool OpenRoot(string basePath)
         {
-            _folderDlg.Description = "Choose the root folder of all Brawl files.";
+            //_folderDlg.Description = "Choose the root folder of all Brawl files.";
             return OpenRootFromPath(ChooseFolder(basePath));
         }
 
@@ -97,14 +97,18 @@ namespace Ikarus
         {
             if (!String.IsNullOrEmpty(path))
             {
+#if !DEBUG
                 try
                 {
+#endif
                     Manager.CloseRoot();
                     RootPath = path;
                     Manager.OpenRoot(path);
                     return true;
+#if !DEBUG
                 }
                 catch (Exception x) { Say(x.ToString()); }
+#endif
             }
             return false;
         }

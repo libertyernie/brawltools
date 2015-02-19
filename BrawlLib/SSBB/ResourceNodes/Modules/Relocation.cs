@@ -37,7 +37,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         private RelCommand _command;
 
         [Browsable(false)]
-        public PPCOpCode Code { get { return RawValue; } }
+        public PPCOpCode Code
+        {
+            get
+            {
+                return RawValue;
+            }
+        }
 
         [Browsable(false)]
         public Relocation Target { get { return _target; } set { SetTarget(value); } }
@@ -64,7 +70,21 @@ namespace BrawlLib.SSBB.ResourceNodes
                         hexBox1.ByteProvider.ReadByte(t + 1),
                         hexBox1.ByteProvider.ReadByte(t + 0),
                     };
-                    return BitConverter.ToUInt32(bytes, 0);
+
+                    uint val = BitConverter.ToUInt32(bytes, 0);
+                    if ((PPCOpCode)val is PPCBranch && !((PPCOpCode)val is PPCblr || (PPCOpCode)val is PPCbctr))
+                    {
+                        PPCBranch branchOp = (PPCBranch)val;
+                        int index =
+                    !branchOp.Absolute ?
+                    (_index * 4 + branchOp.DataOffset).RoundDown(4) / 4 :
+                    -1;
+                        Relocation r = _section.GetRelocationAtIndex(index);
+                        if (!r.Branched.Contains(this))
+                            r.Branched.Add(this);
+                    }
+
+                    return val;
                 }
             }
             set
@@ -118,6 +138,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _command._parentRelocation = this;
                 SetTarget(_command.GetTargetRelocation());
             }
+
         }
 
         private void SetTarget(Relocation target)
@@ -137,6 +158,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Relocation Data"), Browsable(true)]
         public BindingList<Relocation> Linked { get { return _linked; } }
         private BindingList<Relocation> _linked = new BindingList<Relocation>();
+
+        public BindingList<Relocation> Branched { get { return _branched; } }
+        private BindingList<Relocation> _branched = new BindingList<Relocation>();
 
         internal void Link(Relocation r) 
         {

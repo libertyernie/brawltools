@@ -574,7 +574,7 @@ namespace Ikarus.UI
             chkNoOutTrans.Checked = grp._flags.HasFlag(AnimationFlags.NoOutTransition);
             chkTransOutStart.Checked = grp._flags.HasFlag(AnimationFlags.TransitionOutFromStart);
             chkMovesChar.Checked = grp._flags.HasFlag(AnimationFlags.MovesCharacter);
-            chkLoop.Checked = _mainWindow.Loop = grp._flags.HasFlag(AnimationFlags.Loop);
+            chkLoop.Checked = grp._flags.HasFlag(AnimationFlags.Loop);
             chkUnk.Checked = grp._flags.HasFlag(AnimationFlags.Unknown);
             chkFixedScale.Checked = grp._flags.HasFlag(AnimationFlags.FixedScale);
             chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
@@ -595,7 +595,7 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel
         {
-            get { return _mainWindow.TargetModel; }
+            get { return _mainWindow.TargetModel as MDL0Node; }
             set { _mainWindow.TargetModel = value; }
         }
 
@@ -697,51 +697,6 @@ namespace Ikarus.UI
                     }
                     _actionIndex = comboActionEntry.SelectedIndex;
                 }
-        }
-
-        public void btnRunScript_Click(object sender, EventArgs e)
-        {
-            if (RunTime.IsRunning)
-                StopScript();
-            else
-                RunScript();
-        }
-
-        public void RunScript()
-        {
-            if (RunTime.CurrentFrame >= RunTime.MaxFrame - 1)
-                RunTime.SetFrame(0);
-
-            //RunTime.LoadSubactionScripts();
-            //RunTime.ResetSubactionVariables();
-            //RunTime.SetFrame(RunTime.CurrentFrame);
-
-            //Run the timer.
-            //This will run scripts and animations until the user stops it or everything ends itself.
-            //Then the code directly after this line will be executed.
-            RunTime.Run();
-
-            //If we have any sounds still playing, stop and dispose of them.
-            //This should only be necessary if the user manually stops the timer,
-            //as the timer will not stop automatically until all sounds are completed and disposed of.
-            if (RunTime._playingSounds.Count != 0)
-            {
-                List<int> keys = new List<int>();
-                foreach (var b in RunTime._playingSounds)
-                    foreach (AudioInfo info in b.Value)
-                        if (info._buffer != null && info._buffer.Owner != null)
-                        {
-                            info._buffer.Stop();
-                            info._buffer.Dispose();
-                            info._stream.Dispose();
-                        }
-                RunTime._playingSounds.Clear();
-            }
-        }
-
-        public void StopScript()
-        {
-            RunTime.Stop();
         }
 
         public void UpdateScriptEditor(Script a)

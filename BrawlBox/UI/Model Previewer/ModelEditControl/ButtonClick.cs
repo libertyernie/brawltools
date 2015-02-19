@@ -21,27 +21,70 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-        private void chkBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
-        private void toggleBones_Click(object sender, EventArgs e) { if (!_updating) RenderBones = !RenderBones; }
-
-        private void chkPolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
-        private void togglePolygons_Click(object sender, EventArgs e) { if (!_updating) RenderPolygons = !RenderPolygons; }
-
-        private void chkVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
-        private void toggleVertices_Click(object sender, EventArgs e) { if (!_updating) RenderVertices = !RenderVertices; }
-
-        private void chkCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
-        private void toggleCollisions_Click(object sender, EventArgs e) { if (!_updating) RenderCollisions = !RenderCollisions; }
-
-        private void chkFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
-        private void toggleFloor_Click(object sender, EventArgs e) { if (!_updating) RenderFloor = !RenderFloor; }
-
-        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderWireframe = !RenderWireframe; }
-        private void toggleNormals_Click(object sender, EventArgs e) { if (!_updating) RenderNormals = !RenderNormals; }
-        private void boundingBoxToolStripMenuItem_Click(object sender, EventArgs e) { if (!_updating) RenderBox = !RenderBox; }
+        #region Model Viewer Properties
+        private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderModelBox = !RenderModelBox;
+        }
+        private void objectsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderObjectBox = !RenderObjectBox;
+        }
+        private void visibilityBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderVisBoneBox = !RenderVisBoneBox;
+        }
+        private void displayBindBoundingBoxesOn0FrameToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                UseBindStateBoxes = !UseBindStateBoxes;
+        }
+        private void chkBillboardBones_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                ApplyBillboardBones = !ApplyBillboardBones;
+        }
+        private void toggleRenderBones_Event(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderBones = !RenderBones;
+        }
+        private void toggleRenderPolygons_Event(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderPolygons = !RenderPolygons;
+        }
+        private void toggleRenderVertices_Event(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderVertices = !RenderVertices;
+        }
+        private void toggleRenderCollisions_Event(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderCollisions = !RenderCollisions;
+        }
+        private void toggleRenderFloor_Event(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderFloor = !RenderFloor;
+        }
+        private void wireframeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderWireframe = !RenderWireframe;
+        }
+        private void toggleNormals_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderNormals = !RenderNormals;
+        }
+        #endregion
 
         #region Screen Capture
-
         private void ScreenCapBgLocText_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog d = new FolderBrowserDialog())
@@ -54,23 +97,15 @@ namespace System.Windows.Forms
             if (String.IsNullOrEmpty(ScreenCapBgLocText.Text))
                 ScreenCapBgLocText.Text = Application.StartupPath + "\\ScreenCaptures";
         }
-        private string _imgExt = ".png";
-        private int _imgExtIndex = 0;
-        public int ImgExtIndex
+        private ImageType _imgType = ImageType.png;
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ImageType ScreenCaptureType
         {
-            get { return _imgExtIndex; }
+            get { return _imgType; }
             set
             {
-                switch (_imgExtIndex = value)
-                {
-                    case 0: _imgExt = ".png"; break;
-                    case 1: _imgExt = ".tga"; break;
-                    case 2: _imgExt = ".tif"; break;
-                    case 3: _imgExt = ".bmp"; break;
-                    case 4: _imgExt = ".jpg"; break;
-                    case 5: _imgExt = ".gif"; break;
-                }
-                imageFormatToolStripMenuItem.Text = "Image Format: " + _imgExt.Substring(1).ToUpper();
+                _imgType = value;
+                imageFormatToolStripMenuItem.Text = "Image Format: " + _imgType.ToString().ToUpper();
             }
         }
         private void imageFormatToolStripMenuItem_Click(object sender, EventArgs e)
@@ -82,22 +117,19 @@ namespace System.Windows.Forms
                 d.comboBox1.Items.RemoveAt(6); //TEX0
                 if (d.ShowDialog(this) == DialogResult.OK)
                 {
-                    _imgExtIndex = d.comboBox1.SelectedIndex;
-                    _imgExt = d.SelectedExtension;
-                    imageFormatToolStripMenuItem.Text = "Image Format: " + _imgExt.Substring(1).ToUpper();
+                    _imgType = (ImageType)d.comboBox1.SelectedIndex;
+                    imageFormatToolStripMenuItem.Text = "Image Format: " + _imgType.ToString().ToUpper();
                 }
             }
         }
-
         private void btnExportToImgWithTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GetScreenshot(true), ScreenCapBgLocText.Text, _imgExt);
+            SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCapBgLocText.Text, "." + _imgType);
         }
         private void btnExportToImgNoTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GetScreenshot(false), ScreenCapBgLocText.Text, _imgExt);
+            SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCapBgLocText.Text, "." + _imgType);
         }
-
         private void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
             SetFrame(1);
@@ -108,19 +140,17 @@ namespace System.Windows.Forms
             ModelPanel.Enabled = false;
             if (InterpolationEditor != null)
                 InterpolationEditor.Enabled = false;
-            if (disableBonesWhenPlayingToolStripMenuItem.Checked)
+            if (DisableBonesWhenPlaying)
             {
                 if (RenderBones == false)
                     _bonesWereOff = true;
                 RenderBones = false;
             }
-            btnPlay_Click(null, null);
+            TogglePlay();
         }
-
         #endregion
 
         #region Model Viewer Detaching
-
         private void detachViewerToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_updating)
@@ -134,26 +164,19 @@ namespace System.Windows.Forms
 
                 _viewerForm = new ModelViewerForm(this);
 
-                //_viewerForm.modelPanel1._settings = modelPanel._settings;
-                //_viewerForm.modelPanel1._camera = modelPanel._camera;
+                _viewerForm.modelPanel1._resourceList = modelPanel._resourceList;
+                _viewerForm.modelPanel1._renderList = modelPanel._renderList;
+                foreach (ModelPanelViewport v in modelPanel)
+                    _viewerForm.modelPanel1.AddViewport(v);
 
+                _viewerForm.modelPanel1.CurrentViewport = modelPanel.CurrentViewport;
                 _viewerForm.FormClosed += _viewerForm_FormClosed;
+                _viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
 
-                //modelPanel.PreRender -= EventPreRender;
-                //modelPanel.PostRender -= EventPostRender;
-                //modelPanel.MouseDown -= EventMouseDown;
-                //modelPanel.MouseMove -= EventMouseMove;
-                //modelPanel.MouseUp -= EventMouseUp;
+                UnlinkModelPanel(modelPanel);
+                LinkModelPanel(_viewerForm.modelPanel1);
 
-                //_viewerForm.modelPanel1.PreRender += EventPreRender;
-                //_viewerForm.modelPanel1.PostRender += EventPostRender;
-                //_viewerForm.modelPanel1.MouseDown += EventMouseDown;
-                //_viewerForm.modelPanel1.MouseMove += EventMouseMove;
-                //_viewerForm.modelPanel1.MouseUp += EventMouseUp;
-                //_viewerForm.modelPanel1.EventProcessKeyMessage += ProcessKeyPreview;
-
-                //if (ModelViewerChanged != null)
-                //    ModelViewerChanged(this, null);
+                OnModelPanelChanged();
 
                 _viewerForm.Show();
                 _viewerForm.modelPanel1.Invalidate();
@@ -168,97 +191,23 @@ namespace System.Windows.Forms
             else
                 _viewerForm.Close();
         }
-
         void _viewerForm_FormClosed(object sender, FormClosedEventArgs e)
         {
             modelPanel.Visible = true;
             modelPanel.Enabled = true;
             detachViewerToolStripMenuItem.Text = "Detach";
+            
+            _viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
 
-            //_viewerForm.modelPanel1.PreRender -= EventPreRender;
-            //_viewerForm.modelPanel1.PostRender -= EventPostRender;
-            //_viewerForm.modelPanel1.MouseDown -= EventMouseDown;
-            //_viewerForm.modelPanel1.MouseMove -= EventMouseMove;
-            //_viewerForm.modelPanel1.MouseUp -= EventMouseUp;
-            //_viewerForm.modelPanel1.EventProcessKeyMessage -= ProcessKeyPreview;
+            UnlinkModelPanel(_viewerForm.modelPanel1);
+            LinkModelPanel(modelPanel);
 
-            //modelPanel.PreRender += EventPreRender;
-            //modelPanel.PostRender += EventPostRender;
-            //modelPanel.MouseDown += EventMouseDown;
-            //modelPanel.MouseMove += EventMouseMove;
-            //modelPanel.MouseUp += EventMouseUp;
+            _viewerForm = null;
+            _interpolationEditor.Visible = false;
+            interpolationEditorToolStripMenuItem.Enabled = true;
 
-            //_viewerForm = null;
-            //_interpolationEditor.Visible = false;
-            //interpolationEditorToolStripMenuItem.Enabled = true;
-
-            //if (ModelViewerChanged != null)
-            //    ModelViewerChanged(this, null);
+            OnModelPanelChanged();
         }
-
-        #endregion
-
-        #region Settings Management
-
-        private void clearSavedSettingsToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            BrawlBox.Properties.Settings.Default.ViewerSettings = null;
-            BrawlBox.Properties.Settings.Default.ViewerSettingsSet = false;
-            SetDefaultSettings();
-        }
-
-        private unsafe void exportToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            SaveFileDialog sd = new SaveFileDialog();
-            sd.Filter = "Brawlbox Settings (*.settings)|*.settings";
-            sd.FileName = Application.StartupPath;
-            if (sd.ShowDialog() == DialogResult.OK)
-            {
-                string path = sd.FileName;
-                ModelEditorSettings settings = CollectSettings();
-
-                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
-                s.SerializeObject(path, settings);
-
-                MessageBox.Show("Settings successfully saved to " + path);
-            }
-        }
-
-        private unsafe void importToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            OpenFileDialog od = new OpenFileDialog();
-            od.Filter = "Brawlbox Settings (*.settings)|*.settings";
-            od.FileName = Application.StartupPath;
-            if (od.ShowDialog() == DialogResult.OK)
-            {
-                string path = od.FileName;
-                Serializer<ModelEditorSettings> s = new Serializer<ModelEditorSettings>();
-                ModelEditorSettings settings = s.DeserializeObject(path);
-                DistributeSettings(settings);
-            }
-        }
-
-        #endregion
-
-        #region Menu Buttons
-        private void btnSaveCam_Click(object sender, EventArgs e)
-        {
-            if (btnSaveCam.Text == "Save Camera")
-            {
-                ModelPanel._settings._defaultRotate = ModelPanel.Camera._rotation;
-                ModelPanel._settings._defaultTranslate = ModelPanel.Camera._matrixInverse.Multiply(new Vector3());
-
-                btnSaveCam.Text = "Clear Camera";
-            }
-            else
-            {
-                ModelPanel._settings._defaultRotate = new Vector3();
-                ModelPanel._settings._defaultTranslate = new Vector3();
-
-                btnSaveCam.Text = "Save Camera";
-            }
-        }
-
         #endregion
 
         #region Panel Toggles
@@ -270,6 +219,51 @@ namespace System.Windows.Forms
 
         #endregion
 
+        private void btnSaveCam_Click(object sender, EventArgs e)
+        {
+            if (btnSaveCam.Text == "Save Camera")
+            {
+                ModelPanel.CurrentViewport.Camera.SaveDefaults();
+                btnSaveCam.Text = "Clear Camera";
+            }
+            else
+            {
+                ModelPanel.CurrentViewport.ClearCameraDefaults();
+                btnSaveCam.Text = "Save Camera";
+            }
+        }
+        private void leftToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ModelPanelViewport curViewport = modelPanel.CurrentViewport;
+            ModelPanelViewport newViewport = ModelPanelViewport.DefaultPerspective;
+            newViewport.BackgroundColor = curViewport.BackgroundColor;
+            ModelPanel.AddViewport(newViewport);
+
+            float xMin = curViewport.Percentages._x;
+            float yMin = curViewport.Percentages._y;
+            float xMax = curViewport.Percentages._z;
+            float yMax = curViewport.Percentages._w;
+            float averageX = (xMin + xMax) / 2.0f;
+
+            curViewport.SetPercentages(averageX, yMin, xMax, yMax);
+            newViewport.SetPercentages(xMin, yMin, averageX, yMax);
+        }
+        private void topToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            ModelPanelViewport curViewport = modelPanel.CurrentViewport;
+            ModelPanelViewport newViewport = ModelPanelViewport.DefaultPerspective;
+            newViewport.BackgroundColor = curViewport.BackgroundColor;
+            ModelPanel.AddViewport(newViewport);
+
+            float xMin = curViewport.Percentages._x;
+            float yMin = curViewport.Percentages._y;
+            float xMax = curViewport.Percentages._z;
+            float yMax = curViewport.Percentages._w;
+            float averageY = (yMin + yMax) / 2.0f;
+
+            curViewport.SetPercentages(xMin, averageY, xMax, yMax);
+            newViewport.SetPercentages(xMin, yMin, xMax, averageY);
+        }
         private void LiveTextureFolderPath_Click(object sender, EventArgs e)
         {
             using (FolderBrowserDialog d = new FolderBrowserDialog())
@@ -284,22 +278,16 @@ namespace System.Windows.Forms
 
             modelPanel.RefreshReferences();
         }
-
         private void chkZoomExtents_Click(object sender, EventArgs e)
         {
             //TODO: different handling based on if viewport is perspective, front, side, or top
-            ModelPanel.Camera.Reset();
-            ModelPanel.Camera.Translate(SelectedBone.Matrix.GetPoint() + new Vector3(0.0f, 0.0f, 27.0f));
+            ModelPanel.Camera.ZoomExtents(SelectedBone.Matrix.GetPoint(), 27.0f);
             ModelPanel.Invalidate();
-
         }
         private void chkBoundaries_Click(object sender, EventArgs e)
         {
             ModelPanel.Invalidate();
         }
-
-        private void syncTexObjToolStripMenuItem_CheckedChanged(object sender, EventArgs e) { leftPanel.UpdateTextures(); }
-
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
             OpenFileDialog d = new OpenFileDialog();
@@ -308,7 +296,6 @@ namespace System.Windows.Forms
             if (d.ShowDialog() == DialogResult.OK)
                 OpenFile(d.FileName);
         }
-
         private void newSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show(this, "Are you sure you want to clear the current scene?\nYou will lose any unsaved data.", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
@@ -318,11 +305,7 @@ namespace System.Windows.Forms
             _targetModels.Clear();
 
             ModelPanel.ClearAll();
-
-            models.Items.Clear();
-            models.Items.Add("All");
         }
-
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (this.Close()) this.ParentForm.Close();
@@ -348,7 +331,7 @@ namespace System.Windows.Forms
 
             ModelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);
-            models.Items.Remove(TargetModel);
+            //models.Items.Remove(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
                 TargetModel = _targetModels[0];
@@ -372,7 +355,6 @@ namespace System.Windows.Forms
                 {
                     _targetModels.Remove(node);
                     ModelPanel.RemoveTarget(node);
-                    models.Items.Remove(node);
                 }
 
             ModelPanel.Invalidate();
@@ -380,8 +362,15 @@ namespace System.Windows.Forms
 
         #endregion
 
-        private void helpToolStripMenuItem_Click(object sender, EventArgs e) { new ModelViewerHelp().Show(this, false); }
-        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e) { new ModelViewerSettingsDialog().Show(this); }
+        private void helpToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new ModelViewerHelp().Show(this, false);
+        }
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            new ModelViewerSettingsDialog().Show(this);
+        }
+
         private void resetCameraToolStripMenuItem_Click_1(object sender, EventArgs e) { ModelPanel.ResetCamera(); }
 
         private void interpolationEditorToolStripMenuItem_Click(object sender, EventArgs e)
@@ -403,11 +392,11 @@ namespace System.Windows.Forms
             if (TargetModel == null || !(TargetModel is MDL0Node))
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Port((MDL0Node)TargetModel);
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void mergeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -415,11 +404,11 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).MergeWith();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void appendToolStripMenuItem_Click(object sender, EventArgs e)
@@ -427,7 +416,7 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Append();
             else if (node is SRT0Node)
@@ -439,7 +428,7 @@ namespace System.Windows.Forms
             else if (node is VIS0Node)
                 (node as VIS0Node).Append();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void resizeToolStripMenuItem_Click(object sender, EventArgs e)
@@ -447,7 +436,7 @@ namespace System.Windows.Forms
             if (TargetModel == null)
                 return;
 
-            AnimationNode node = TargetAnimation;
+            NW4RAnimationNode node = TargetAnimation;
             if (node is CHR0Node)
                 (node as CHR0Node).Resize();
             else if (node is SRT0Node)
@@ -459,12 +448,12 @@ namespace System.Windows.Forms
             else if (node is VIS0Node)
                 (node as VIS0Node).Resize();
 
-            AnimChanged(TargetAnimType);
+            AnimChanged();
         }
 
         private void averageAllStartEndTangentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AnimationNode n = TargetAnimation;
+            NW4RAnimationNode n = TargetAnimation;
             if (n is CHR0Node)
                 ((CHR0Node)n).AverageKeys();
             if (n is SRT0Node)
@@ -475,13 +464,183 @@ namespace System.Windows.Forms
 
         private void averageboneStartendTangentsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            AnimationNode n = TargetAnimation;
+            NW4RAnimationNode n = TargetAnimation;
             if (n is CHR0Node && SelectedBone != null)
                 ((CHR0Node)n).AverageKeys(SelectedBone.Name);
             if (n is SRT0Node && TargetTexRef != null)
                 ((SRT0Node)n).AverageKeys(TargetTexRef.Parent.Name, TargetTexRef.Index);
             if (n is SHP0Node && SHP0Editor.VertexSet != null && SHP0Editor.VertexSetDest != null)
                 ((SHP0Node)n).AverageKeys(SHP0Editor.VertexSet.Name, SHP0Editor.VertexSetDest.Name);
+        }
+
+        public void setColorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChooseBackgroundColor();
+        }
+
+        public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ChooseOrClearBackgroundImage();
+        }
+
+        protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
+        protected void btnRedo_Click(object sender, EventArgs e) { Redo(); }
+
+        private void playCHR0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_chr0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playSRT0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_srt0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playSHP0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_shp0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playPAT0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_pat0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playVIS0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_vis0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playCLR0ToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (_clr0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        ToolStripMenuItem _currentProjBox;
+
+        private void perspectiveToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = perspectiveToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Perspective;
+        }
+
+        private void orthographicToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = orthographicToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Orthographic;
+        }
+
+        private void frontToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = frontToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Front;
+        }
+
+        private void backToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = backToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Back;
+        }
+
+        private void leftToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = leftToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Left;
+        }
+
+        private void rightToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = rightToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Right;
+        }
+
+        private void topToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = topToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Top;
+        }
+
+        private void bottomToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            _currentProjBox.Checked = false;
+            _currentProjBox = bottomToolStripMenuItem;
+            _currentProjBox.Checked = true;
+            ModelPanel.CurrentViewport.ViewType = ViewportProjection.Bottom;
+        }
+
+        private void chkEditAll_Click(object sender, EventArgs e)
+        {
+            EditingAll = !EditingAll;
+        }
+
+        private void stretchToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            centerToolStripMenuItem1.Checked = resizeToolStripMenuItem.Checked = false;
+            stretchToolStripMenuItem1.Checked = true;
+
+            ModelPanel.CurrentViewport.BackgroundImageType = BGImageType.Stretch;
+        }
+
+        private void centerToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem.Checked = false;
+            centerToolStripMenuItem1.Checked = true;
+
+            ModelPanel.CurrentViewport.BackgroundImageType = BGImageType.Center;
+        }
+
+        private void resizeToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
+            resizeToolStripMenuItem.Checked = true;
+
+            ModelPanel.CurrentViewport.BackgroundImageType = BGImageType.ResizeWithBars;
+        }
+
+        private void scaleToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlType = ControlType != TransformType.Scale ? TransformType.Scale : TransformType.None;
+        }
+
+        private void rotationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlType = ControlType != TransformType.Rotation ? TransformType.Rotation : TransformType.None;
+        }
+
+        private void translationToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ControlType = ControlType != TransformType.Translation ? TransformType.Translation : TransformType.None;
+        }
+
+        private void showCameraCoordinatesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            showCameraCoordinatesToolStripMenuItem.Checked = ModelPanel.CurrentViewport._showCamCoords = !ModelPanel.CurrentViewport._showCamCoords;
+        }
+
+        private void EnableLiveTextureFolder_Click(object sender, EventArgs e)
+        {
+            EnableLiveTextureFolder.Checked = (MDL0TextureNode._folderWatcher.EnableRaisingEvents = !MDL0TextureNode._folderWatcher.EnableRaisingEvents);
+            ModelPanel.RefreshReferences();
         }
     }
 }

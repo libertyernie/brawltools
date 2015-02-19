@@ -3,6 +3,8 @@ using System.Drawing;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
 using System.ComponentModel;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace System.Windows.Forms
 {
@@ -21,6 +23,11 @@ namespace System.Windows.Forms
         private Label lblCNoA;
         private ToolStripSeparator toolStripMenuItem1;
         private ToolStripMenuItem editToolStripMenuItem;
+        private ToolStripMenuItem selectAllToolStripMenuItem;
+        private ToolStripSeparator toolStripSeparator1;
+        private ToolStripMenuItem allToolStripMenuItem1;
+        private ToolStripMenuItem colorToolStripMenuItem1;
+        private ToolStripMenuItem alphaToolStripMenuItem1;
         private ListBox lstColors;
     
         private void InitializeComponent()
@@ -29,14 +36,19 @@ namespace System.Windows.Forms
             this.lblPrimary = new System.Windows.Forms.Label();
             this.lstColors = new System.Windows.Forms.ListBox();
             this.ctxMenu = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.selectAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
             this.copyToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pasteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripSeparator();
+            this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.editToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.lblBase = new System.Windows.Forms.Label();
             this.lblColor = new System.Windows.Forms.Label();
             this.pnlPrimary = new System.Windows.Forms.Panel();
             this.lblCNoA = new System.Windows.Forms.Label();
+            this.allToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.colorToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.alphaToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxMenu.SuspendLayout();
             this.pnlPrimary.SuspendLayout();
             this.SuspendLayout();
@@ -70,38 +82,56 @@ namespace System.Windows.Forms
             // ctxMenu
             // 
             this.ctxMenu.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.selectAllToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.copyToolStripMenuItem,
             this.pasteToolStripMenuItem,
-            this.toolStripMenuItem1,
+            this.toolStripSeparator1,
             this.editToolStripMenuItem});
             this.ctxMenu.Name = "ctxMenu";
-            this.ctxMenu.Size = new System.Drawing.Size(145, 76);
+            this.ctxMenu.Size = new System.Drawing.Size(165, 104);
+            // 
+            // selectAllToolStripMenuItem
+            // 
+            this.selectAllToolStripMenuItem.Name = "selectAllToolStripMenuItem";
+            this.selectAllToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.A)));
+            this.selectAllToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
+            this.selectAllToolStripMenuItem.Text = "Select All";
+            this.selectAllToolStripMenuItem.Click += new System.EventHandler(this.selectAllToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(161, 6);
             // 
             // copyToolStripMenuItem
             // 
             this.copyToolStripMenuItem.Name = "copyToolStripMenuItem";
             this.copyToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.C)));
-            this.copyToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.copyToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.copyToolStripMenuItem.Text = "Copy";
             this.copyToolStripMenuItem.Click += new System.EventHandler(this.copyToolStripMenuItem_Click);
             // 
             // pasteToolStripMenuItem
             // 
+            this.pasteToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.allToolStripMenuItem1,
+            this.colorToolStripMenuItem1,
+            this.alphaToolStripMenuItem1});
             this.pasteToolStripMenuItem.Name = "pasteToolStripMenuItem";
             this.pasteToolStripMenuItem.ShortcutKeys = ((System.Windows.Forms.Keys)((System.Windows.Forms.Keys.Control | System.Windows.Forms.Keys.V)));
-            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.pasteToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.pasteToolStripMenuItem.Text = "Paste";
-            this.pasteToolStripMenuItem.Click += new System.EventHandler(this.pasteToolStripMenuItem_Click);
             // 
-            // toolStripMenuItem1
+            // toolStripSeparator1
             // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(141, 6);
+            this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(161, 6);
             // 
             // editToolStripMenuItem
             // 
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(144, 22);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(164, 22);
             this.editToolStripMenuItem.Text = "Edit...";
             this.editToolStripMenuItem.Click += new System.EventHandler(this.editToolStripMenuItem_Click);
             // 
@@ -152,6 +182,27 @@ namespace System.Windows.Forms
             this.lblCNoA.TabIndex = 4;
             this.lblCNoA.Click += new System.EventHandler(this.lblBase_Click);
             // 
+            // allToolStripMenuItem1
+            // 
+            this.allToolStripMenuItem1.Name = "allToolStripMenuItem1";
+            this.allToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.allToolStripMenuItem1.Text = "All";
+            this.allToolStripMenuItem1.Click += new System.EventHandler(this.allToolStripMenuItem_Click);
+            // 
+            // colorToolStripMenuItem1
+            // 
+            this.colorToolStripMenuItem1.Name = "colorToolStripMenuItem1";
+            this.colorToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.colorToolStripMenuItem1.Text = "Color";
+            this.colorToolStripMenuItem1.Click += new System.EventHandler(this.colorToolStripMenuItem_Click);
+            // 
+            // alphaToolStripMenuItem1
+            // 
+            this.alphaToolStripMenuItem1.Name = "alphaToolStripMenuItem1";
+            this.alphaToolStripMenuItem1.Size = new System.Drawing.Size(152, 22);
+            this.alphaToolStripMenuItem1.Text = "Alpha";
+            this.alphaToolStripMenuItem1.Click += new System.EventHandler(this.alphaToolStripMenuItem_Click);
+            // 
             // CLRControl
             // 
             this.Controls.Add(this.lstColors);
@@ -159,6 +210,7 @@ namespace System.Windows.Forms
             this.DoubleBuffered = true;
             this.Name = "CLRControl";
             this.Size = new System.Drawing.Size(334, 242);
+            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.CLRControl_KeyDown);
             this.ctxMenu.ResumeLayout(false);
             this.pnlPrimary.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -168,7 +220,6 @@ namespace System.Windows.Forms
         #endregion
 
         private ARGBPixel _primaryColor;
-        private ARGBPixel _copyColor;
 
         public int _colorId = 0;
         public int ColorID { get { return _colorId; } set { _colorId = value; SourceChanged(); } }
@@ -288,22 +339,24 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 ARGBPixel p = (ARGBPixel)lstColors.Items[index];
+                int boxWidth = 40;
+                int textWidth = 275;
 
                 if ((e.State & DrawItemState.Selected) != 0)
-                    g.FillRectangle(Brushes.LightBlue, r.X, r.Y, 230, r.Height);
+                    g.FillRectangle(Brushes.LightBlue, r.X, r.Y, textWidth, r.Height);
 
                 double n = Math.Floor(Math.Log10(_colorSource.ColorCount(_colorId)) + 1);
-                g.DrawString(String.Format("[{0}]  -  {1}", index.ToString().PadLeft((int)n, ' '), p), _renderFont, Brushes.Black, 4.0f, e.Bounds.Y - 2);
+                g.DrawString(String.Format("[{0}]  -  {1}", index.ToString().PadLeft((int)n, ' '), p.ToPaddedString()), _renderFont, Brushes.Black, 4.0f, e.Bounds.Y - 2);
 
-                r.X += 250;
-                r.Width = 40;
+                r.X += textWidth;
+                r.Width = boxWidth;
 
                 using (Brush b = new SolidBrush((Color)p))
                     g.FillRectangle(b, r);
                 g.DrawRectangle(Pens.Black, r);
 
                 p.A = 255;
-                r.X += 40;
+                r.X += boxWidth;
                 using (Brush b = new SolidBrush((Color)p))
                     g.FillRectangle(b, r);
                 g.DrawRectangle(Pens.Black, r);
@@ -326,19 +379,39 @@ namespace System.Windows.Forms
 
         private void copyToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (lstColors.SelectedIndex >= 0)
-                _copyColor = (ARGBPixel)lstColors.SelectedItem;
-        }
-
-        private void pasteToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            int index = lstColors.SelectedIndex;
-            if (index >= 0)
+            if (lstColors.SelectedItems.Count != 0)
             {
-                lstColors.Items[index] = _copyColor;
-                _colorSource.SetColor(index, _colorId, _copyColor);
-                //lstColors.Invalidate();
+                string s = "";
+                foreach (ARGBPixel w in lstColors.SelectedItems)
+                    s += w.ToRGBAColorCode() + Environment.NewLine;
+                Clipboard.SetText(s);
             }
+        }
+        readonly string _allowed = "0123456789abcdefABCDEF";
+
+        private List<ARGBPixel> GetCopiedPixels()
+        {
+            List<ARGBPixel> pixels = new List<ARGBPixel>();
+            string s = Clipboard.GetText();
+            string[] str = s.Split('\r', '\n').Where(x => !string.IsNullOrEmpty(x)).ToArray();
+            for (int i = 0; i < str.Length; i++)
+            {
+                int x = 0;
+                s = "";
+                foreach (char c in str[i])
+                {
+                    if (_allowed.IndexOf(c) >= 0)
+                    {
+                        s += c;
+                        x++;
+                    }
+                    if (x >= 8)
+                        break;
+                }
+
+                pixels.Add(RGBAPixel.Parse(s));
+            }
+            return pixels;
         }
 
         private void lstColors_MouseDown(object sender, MouseEventArgs e)
@@ -347,6 +420,91 @@ namespace System.Windows.Forms
             {
                 int index = lstColors.IndexFromPoint(e.Location);
                 lstColors.SelectedIndex = index;
+            }
+        }
+
+        private void CLRControl_KeyDown(object sender, KeyEventArgs e)
+        {
+            Action<ToolStripMenuItem> test = null;
+            test = (node) =>
+            {
+                if (node.ShortcutKeys == e.KeyData)
+                    node.PerformClick();
+                foreach (ToolStripMenuItem child in node.DropDownItems)
+                    test(child);
+            };
+            foreach (ToolStripMenuItem item in ctxMenu.Items)
+                test(item);
+        }
+
+        private void selectAllToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            lstColors.BeginUpdate();
+            for (int i = 0; i < lstColors.Items.Count; i++)
+                lstColors.SetSelected(i, true);
+            lstColors.EndUpdate();
+        }
+
+        private void allToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var indices = lstColors.SelectedIndices;
+            if (indices.Count >= 0)
+            {
+                int v = 0;
+                List<ARGBPixel> pixels = GetCopiedPixels();
+                foreach (int r in indices)
+                {
+                    if (v >= pixels.Count)
+                        break;
+
+                    ARGBPixel copied = pixels[v++];
+                    lstColors.Items[r] = copied;
+                    _colorSource.SetColor(r, _colorId, copied);
+                }
+            }
+        }
+
+        private void colorToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var indices = lstColors.SelectedIndices;
+            if (indices.Count >= 0)
+            {
+                int v = 0;
+                List<ARGBPixel> pixels = GetCopiedPixels();
+                foreach (int r in indices)
+                {
+                    if (v >= pixels.Count)
+                        break;
+
+                    ARGBPixel copied = pixels[v++];
+                    ARGBPixel temp = (ARGBPixel)lstColors.Items[r];
+                    temp.R = copied.R;
+                    temp.G = copied.G;
+                    temp.B = copied.B;
+                    lstColors.Items[r] = temp;
+                    _colorSource.SetColor(r, _colorId, temp);
+                }
+            }
+        }
+
+        private void alphaToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            var indices = lstColors.SelectedIndices;
+            if (indices.Count >= 0)
+            {
+                int v = 0;
+                List<ARGBPixel> pixels = GetCopiedPixels();
+                foreach (int r in indices)
+                {
+                    if (v >= pixels.Count)
+                        break;
+
+                    ARGBPixel copied = pixels[v++];
+                    ARGBPixel temp = (ARGBPixel)lstColors.Items[r];
+                    temp.A = copied.A;
+                    lstColors.Items[r] = temp;
+                    _colorSource.SetColor(r, _colorId, temp);
+                }
             }
         }
     }

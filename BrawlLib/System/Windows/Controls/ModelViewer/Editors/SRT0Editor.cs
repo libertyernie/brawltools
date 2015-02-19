@@ -172,7 +172,10 @@ namespace System.Windows.Forms
             // numScaleY
             // 
             this.numScaleY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleY.Integral = false;
             this.numScaleY.Location = new System.Drawing.Point(154, 35);
+            this.numScaleY.MaximumValue = 3.402823E+38F;
+            this.numScaleY.MinimumValue = -3.402823E+38F;
             this.numScaleY.Name = "numScaleY";
             this.numScaleY.Size = new System.Drawing.Size(82, 20);
             this.numScaleY.TabIndex = 18;
@@ -193,7 +196,10 @@ namespace System.Windows.Forms
             // numRot
             // 
             this.numRot.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRot.Integral = false;
             this.numRot.Location = new System.Drawing.Point(235, 35);
+            this.numRot.MaximumValue = 3.402823E+38F;
+            this.numRot.MinimumValue = -3.402823E+38F;
             this.numRot.Name = "numRot";
             this.numRot.Size = new System.Drawing.Size(82, 20);
             this.numRot.TabIndex = 15;
@@ -216,7 +222,10 @@ namespace System.Windows.Forms
             // numTransX
             // 
             this.numTransX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransX.Integral = false;
             this.numTransX.Location = new System.Drawing.Point(73, 16);
+            this.numTransX.MaximumValue = 3.402823E+38F;
+            this.numTransX.MinimumValue = -3.402823E+38F;
             this.numTransX.Name = "numTransX";
             this.numTransX.Size = new System.Drawing.Size(82, 20);
             this.numTransX.TabIndex = 3;
@@ -227,7 +236,10 @@ namespace System.Windows.Forms
             // numTransY
             // 
             this.numTransY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransY.Integral = false;
             this.numTransY.Location = new System.Drawing.Point(154, 16);
+            this.numTransY.MaximumValue = 3.402823E+38F;
+            this.numTransY.MinimumValue = -3.402823E+38F;
             this.numTransY.Name = "numTransY";
             this.numTransY.Size = new System.Drawing.Size(82, 20);
             this.numTransY.TabIndex = 13;
@@ -271,7 +283,7 @@ namespace System.Windows.Forms
             this.removeAllToolStripMenuItem,
             this.addCustomAmountToolStripMenuItem});
             this.ctxBox.Name = "ctxBox";
-            this.ctxBox.Size = new System.Drawing.Size(167, 142);
+            this.ctxBox.Size = new System.Drawing.Size(167, 120);
             // 
             // addCustomAmountToolStripMenuItem
             // 
@@ -328,7 +340,10 @@ namespace System.Windows.Forms
             // numScaleX
             // 
             this.numScaleX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleX.Integral = false;
             this.numScaleX.Location = new System.Drawing.Point(73, 35);
+            this.numScaleX.MaximumValue = 3.402823E+38F;
+            this.numScaleX.MinimumValue = -3.402823E+38F;
             this.numScaleX.Name = "numScaleX";
             this.numScaleX.Size = new System.Drawing.Size(82, 20);
             this.numScaleX.TabIndex = 36;
@@ -652,8 +667,8 @@ namespace System.Windows.Forms
                 TextureFrameState state = TargetTexRef._bindState;
                 float* p = (float*)&state;
                 p[index] = float.IsNaN(box.Value) ? (index > 1 ? 0.0f : 1.0f) : box.Value;
+                state.CalcTransforms();
                 TargetTexRef._bindState = state;
-                //mr.RecalcBindState();
                 TargetTexRef.SignalPropertyChange();
             }
             

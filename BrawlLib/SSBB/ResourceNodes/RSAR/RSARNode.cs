@@ -32,7 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal INFOFooter ftr;
 
-        private List<RSARFileNode> _files;
+        private List<RSARFileNode> _files = new List<RSARFileNode>();
         [Browsable(false)]
         public List<RSARFileNode> Files { get { return _files; } }
 
@@ -134,13 +134,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 SYMBMaskHeader* hdr = (SYMBMaskHeader*)((VoidPtr)symb + 8 + offsets[i]);
 
                 _symbCache[i] = new SYMBMaskEntry[hdr->_numEntries];
-                Console.WriteLine("Root Index = " + hdr->_rootId);
+                //Console.WriteLine("Root Index = " + hdr->_rootId);
                 _rootIds[i] = hdr->_rootId;
                 for (int x = 0; x < hdr->_numEntries; x++)
                 {
                     SYMBMaskEntry* e = &hdr->Entries[x];
                     _symbCache[i][x] = *e;
-                    Console.WriteLine(String.Format("[{5}] {0}, {1}, {2} - {4}", e->_bit != -1 ? e->_bit.ToString().PadLeft(3) : "   ", e->_leftId != -1 ? e->_leftId.ToString().PadLeft(3) : "   ", e->_rightId != -1 ? e->_rightId.ToString().PadLeft(3) : "   ", e->_index != -1 ? e->_index.ToString().PadLeft(3) : "   ", new string(offset + stringOffsets[e->_stringId]), x.ToString().PadLeft(3)));
+                    //Console.WriteLine(String.Format("[{5}] {0}, {1}, {2} - {4}", e->_bit != -1 ? e->_bit.ToString().PadLeft(3) : "   ", e->_leftId != -1 ? e->_leftId.ToString().PadLeft(3) : "   ", e->_rightId != -1 ? e->_rightId.ToString().PadLeft(3) : "   ", e->_index != -1 ? e->_index.ToString().PadLeft(3) : "   ", new string(offset + stringOffsets[e->_stringId]), x.ToString().PadLeft(3)));
                 }
             }
             //Sort(true);

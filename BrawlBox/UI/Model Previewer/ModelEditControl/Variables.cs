@@ -23,8 +23,17 @@ namespace System.Windows.Forms
         private CollisionNode _targetCollision;
         public ResourceNode _externalAnimationsNode;
 
-        private bool _renderCollisions;
+        private bool _syncTexToObj;
+        public bool _maximize, _savePosition;
+        private bool _snapToCollisions;
+        private bool _renderCollisions = true;
 
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool SnapBonesToCollisions
+        {
+            get { return _snapToCollisions; }
+            set { _snapToCollisions = value; }
+        }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderCollisions
         {
@@ -52,34 +61,23 @@ namespace System.Windows.Forms
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public override bool DisableBonesWhenPlaying
+        public bool SyncTexturesToObjectList
         {
-            get { return disableBonesWhenPlayingToolStripMenuItem.Checked; }
-            set { disableBonesWhenPlayingToolStripMenuItem.Checked = value; }
+            get { return _syncTexToObj; }
+            set { _syncTexToObj = value; leftPanel.UpdateTextures(); }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool SyncVIS0
         {
-            get { return syncObjectsListToVIS0ToolStripMenuItem.Checked; }
-            set { syncObjectsListToVIS0ToolStripMenuItem.Checked = value; }
-        }
-        //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        //public override Panel AnimCtrlPnl { get { return animCtrlPnl; } }
-        //[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        //public override Panel AnimEditors { get { return animEditors; } }
-        public override bool BackgroundImageLoaded
-        {
-            get { return loadImageToolStripMenuItem.Text == "Load Image"; }
-            set { loadImageToolStripMenuItem.Text = value ? "Clear Image" : "Load Image"; }
+            get { return leftPanel.chkSyncVis.Checked; }
+            set { leftPanel.chkSyncVis.Checked = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public override bool DoNotHighlightOnMouseMove 
+        public override bool EditingAll
         {
-            get { return dontHighlightBonesAndVerticesToolStripMenuItem.Checked; }
-            set { dontHighlightBonesAndVerticesToolStripMenuItem.Checked = value; }
+            get { return base.EditingAll; }
+            set { chkEditAll.Checked = base.EditingAll = value; }
         }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public override string ScreenCaptureExtension { get { return _imgExt; } set { _imgExt = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override string ScreenCaptureFolder
         {
@@ -135,5 +133,27 @@ namespace System.Windows.Forms
         public override bool PlaySCN0 { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool PlaySHP0 { get { return playSHP0ToolStripMenuItem.Checked; } set { playSHP0ToolStripMenuItem.Checked = value; } }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CHR0Editor CHR0Editor { get { return chr0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SRT0Editor SRT0Editor { get { return srt0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SHP0Editor SHP0Editor { get { return shp0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override VIS0Editor VIS0Editor { get { return vis0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override PAT0Editor PAT0Editor { get { return pat0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override SCN0Editor SCN0Editor { get { return scn0Editor; } }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override CLR0Editor CLR0Editor { get { return clr0Editor; } }
+
+        public override ColorDialog ColorDialog { get { return dlgColor; } }
     }
 }

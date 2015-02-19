@@ -26,7 +26,8 @@ namespace Ikarus.UI
         public void _mainControl_TargetModelChanged(object sender, EventArgs e)
         {
             SelectedBone.Items.Clear();
-            SelectedBone.Items.AddRange(MainForm.Instance._mainControl.TargetModel._linker.BoneCache);
+            if (MainForm.Instance._mainControl.TargetModel != null)
+                SelectedBone.Items.AddRange(MainForm.Instance._mainControl.TargetModel.BoneCache);
         }
 
         bool _updating = false;
@@ -48,8 +49,9 @@ namespace Ikarus.UI
                     numRotZ.Value = _targetHurtbox.Stretch._z;
                     numRadius.Value = _targetHurtbox.Radius;
                     numRegion.Value = _targetHurtbox.Region;
-                    SelectedZone.SelectedIndex = (int)_targetHurtbox.Zone;
-                    SelectedBone.SelectedIndex = Array.IndexOf(MainForm.Instance._mainControl.TargetModel._linker.BoneCache, _targetHurtbox.BoneNode);
+                    int zone = (int)_targetHurtbox.Zone;
+                    SelectedZone.SelectedIndex = zone >= SelectedZone.Items.Count || zone < 0 ? -1 : zone;
+                    SelectedBone.SelectedIndex = Array.IndexOf(MainForm.Instance._mainControl.TargetModel.BoneCache, _targetHurtbox.BoneNode);
                     checkBox1.Checked = _targetHurtbox.Enabled;
 
                     _updating = false;

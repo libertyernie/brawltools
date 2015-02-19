@@ -1972,36 +1972,30 @@ namespace System.Windows.Forms
             _mainWindow.KeyframePanel.TargetSequence = cboNodeList.SelectedItem as ResourceNode;
         }
 
-        public void GetDimensions(out int animEditorHeight, out int animCtrlPnlHeight, out int animCtrlPnlWidth)
+        public void GetDimensions(out int animEditorHeight, out int animCtrlPnlWidth)
         {
             animEditorHeight = 0;
-            animCtrlPnlHeight = 0;
             animCtrlPnlWidth = 0;
             switch (tabIndex)
             {
                 case 0:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 70;
+                    animEditorHeight = 70;
                     animCtrlPnlWidth = 626;
                     break;
                 case 1:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 72;
+                    animEditorHeight = 72;
                     animCtrlPnlWidth = 566;
                     break;
                 case 2:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 128;
+                    animEditorHeight = 128;
                     animCtrlPnlWidth = 634;
                     break;
                 case 3:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 70;
+                    animEditorHeight = 70;
                     animCtrlPnlWidth = 566;
                     break;
                 case 4:
-                    animEditorHeight =
-                    animCtrlPnlHeight = 120;
+                    animEditorHeight = 120;
                     animCtrlPnlWidth = 660;
                     break;
             }
@@ -2185,10 +2179,10 @@ namespace System.Windows.Forms
                     float z = arr.GetFrameValue(CurrentFrame);
 
                     Vector3 interpRefPoint = new Vector3(x, y, z);
-                    Vector2 screenMidPt = new Vector2(panel.Width / 2, panel.Height / 2);
+                    Vector2 screenMidPt = new Vector2(panel.CurrentViewport.Region.Width / 2, panel.CurrentViewport.Region.Height / 2);
 
-                    Vector3 ray1 = panel.UnProject(new Vector3(screenMidPt._x, screenMidPt._y, 0.0f));
-                    Vector3 ray2 = panel.UnProject(new Vector3(screenMidPt._x, screenMidPt._y, 1.0f));
+                    Vector3 ray1 = panel.CurrentViewport.UnProject(screenMidPt._x, screenMidPt._y, 0.0f);
+                    Vector3 ray2 = panel.CurrentViewport.UnProject(screenMidPt._x, screenMidPt._y, 1.0f);
 
                     Vector3 u = ray2 - ray1;
                     Vector3 pq = interpRefPoint - ray1;

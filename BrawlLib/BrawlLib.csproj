@@ -27,7 +27,7 @@
     <IsWebBootstrapper>false</IsWebBootstrapper>
     <UseApplicationTrust>false</UseApplicationTrust>
     <BootstrapperEnabled>true</BootstrapperEnabled>
-    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
@@ -40,7 +40,7 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <UseVSHostingProcess>true</UseVSHostingProcess>
     <RegisterForComInterop>false</RegisterForComInterop>
     <Prefer32Bit>false</Prefer32Bit>
@@ -53,17 +53,18 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
     <DefineConstants>
     </DefineConstants>
+    <CodeAnalysisIgnoreGeneratedCode>false</CodeAnalysisIgnoreGeneratedCode>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Debug\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DebugType>none</DebugType>
+    <DebugType>full</DebugType>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
@@ -72,10 +73,10 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <OutputPath>bin\Release\</OutputPath>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>none</DebugType>
+    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>pdbonly</DebugType>
     <WarningLevel>4</WarningLevel>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
@@ -194,6 +195,8 @@
     <Compile Include="Modeling\IModel.cs" />
     <Compile Include="Modeling\IObject.cs" />
     <None Include="Modeling\XMLExporter.cs" />
+    <Compile Include="Modeling\PMDModel.cs" />
+    <Compile Include="OpenGL\GLViewport.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
@@ -203,6 +206,25 @@
     <Compile Include="SSBB\ResourceNodes\BMD\BMDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\BMD\BMDObjectNode.cs" />
     <Compile Include="SSBB\ResourceNodes\BMD\BMDMaterialNode.cs" />
+    <None Include="SSBB\ResourceNodes\Archives\BFRESNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLBoneNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLGroupNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLBufferNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLMaterialNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
+    <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
+    <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
+    <Compile Include="SSBB\SakuraiLookupManager.cs" />
+    <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
+    <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
+    <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\SCLA.cs" />
+    <None Include="SSBB\Types\Wii U\BFRES.cs" />
+    <None Include="SSBB\Types\Wii U\Embedded.cs" />
+    <None Include="SSBB\Types\Wii U\FMDL.cs" />
+    <Compile Include="SSBB\Types\SakuraiArchive.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFAnimationNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFEmitterNode9.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\REFF\REFFEmitterNode7.cs" />
@@ -210,6 +232,8 @@
     <Compile Include="SSBB\ResourceNodes\J3DNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\BTINode.cs" />
     <Compile Include="SSBB\ResourceNodes\ItmFreqNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SakuraiEntryNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SakuraiArchiveNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\ADSJNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Sound\BGMGNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Subspace\Objects\GBLKNode.cs" />
@@ -234,7 +258,11 @@
     <Compile Include="SSBB\Types\Subspace\Objects\GMPS.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\GSND.cs" />
     <Compile Include="SSBB\Types\RARC.cs" />
+    <None Include="SSBB\Types\Wii U\FSAR.cs" />
+    <None Include="SSBB\Types\Wii U\FTEX.cs" />
+    <None Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Box.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -297,7 +325,6 @@
     <Compile Include="SSBB\CompactStringTable.cs" />
     <Compile Include="SSBB\FileFilters.cs" />
     <Compile Include="SSBB\LabelBuilder.cs" />
-    <Compile Include="SSBB\NodeComparer.cs" />
     <Compile Include="SSBB\NodeDeepChecksum.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\AIPDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
@@ -457,6 +484,8 @@
     <Compile Include="System\Windows\Controls\Hex Editor\MemoryDataBlock.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\NativeMethods.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\Util.cs" />
+    <Compile Include="System\Windows\Controls\Model Panel\ModelPanelViewport.cs" />
+    <Compile Include="System\Windows\Controls\Model Panel\ScreenTextHandler.cs" />
     <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Mouse.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -483,6 +512,12 @@
     </Compile>
     <Compile Include="System\Windows\Controls\ShaderEditor.Designer.cs">
       <DependentUpon>ShaderEditor.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\TexCoordControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\TexCoordControl.Designer.cs">
+      <DependentUpon>TexCoordControl.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Windows\Controls\TexCoordRenderer.cs">
       <SubType>UserControl</SubType>
@@ -523,11 +558,8 @@
     <Compile Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Controls\ModelPanel.cs">
+    <Compile Include="System\Windows\Controls\Model Panel\ModelPanel.cs">
       <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.cs">
-      <SubType>Form</SubType>
     </Compile>
     <Compile Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.cs">
       <SubType>UserControl</SubType>
@@ -586,6 +618,9 @@
     <Compile Include="System\Windows\Controls\VideoPlaybackPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="System\Windows\Controls\GoodColorControl2.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\ObjectOptimizerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -630,7 +665,7 @@
     <Compile Include="Platform\Linux.cs" />
     <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
-    <Compile Include="SSBB\ResourceNodes\Archives\BRESNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\BRRESNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\CHR0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\CLR0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\PAT0Node.cs" />
@@ -794,6 +829,7 @@
     <Compile Include="System\Windows\Forms\TransformAttributesForm.Designer.cs">
       <DependentUpon>TransformAttributesForm.cs</DependentUpon>
     </Compile>
+    <None Include="WiiU\ElementCodec.cs" />
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
@@ -862,7 +898,6 @@
     <Compile Include="Wii\Models\ColorCodec.cs" />
     <Compile Include="Wii\Models\ElementCodec.cs" />
     <Compile Include="Wii\Models\Enum.cs" />
-    <Compile Include="Wii\Models\bMatrix43.cs" />
     <Compile Include="Wii\Models\InfluenceManager.cs" />
     <Compile Include="Wii\Models\ModelEncoder.cs" />
     <Compile Include="Wii\Models\ModelLinker.cs" />
@@ -923,9 +958,6 @@
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\WeightEditor.resx">
       <DependentUpon>WeightEditor.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\ModelViewerSettings.resx">
-      <DependentUpon>ModelViewerSettings.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\BonesPanel.resx">
       <DependentUpon>BonesPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -947,6 +979,9 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\TexCoordControl.resx">
+      <DependentUpon>TexCoordControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -955,6 +990,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\GoodColorControl2.resx">
+      <DependentUpon>GoodColorControl2.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Forms\ObjectOptimizerForm.resx">
       <DependentUpon>ObjectOptimizerForm.cs</DependentUpon>
@@ -1084,7 +1122,9 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="WiiU\Models\" />
+  </ItemGroup>
   <ItemGroup>
     <Content Include="OpenTK.dll" />
     <Content Include="System\Windows\Controls\Hex Editor\HexBox.bmp" />

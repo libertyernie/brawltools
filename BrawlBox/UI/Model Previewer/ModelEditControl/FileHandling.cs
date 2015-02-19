@@ -33,7 +33,7 @@ namespace System.Windows.Forms
                         if (!CloseExternal())
                             return false;
 
-                        if (!leftPanel.LoadAnims(node, TargetAnimType))
+                        if (!leftPanel.LoadAnims(node, TargetAnimType, null, false, true, false))
                             MessageBox.Show(this, "No animations could be found in external file.", "Error");
                         else
                         {
@@ -82,10 +82,7 @@ namespace System.Windows.Forms
                     SelectedBone.BoneColor = SelectedBone.NodeColor = Color.Transparent;
 
                 leftPanel.UpdateAnimations(TargetAnimType);
-                SetAnimation(TargetAnimType, null);
-                GetFiles(NW4RAnimType.None);
-                UpdatePropDisplay();
-                UpdateModel();
+                TargetAnimation = null;
             }
             return true;
         }
@@ -94,8 +91,10 @@ namespace System.Windows.Forms
             if ((_externalAnimationsNode == null) || ((!_externalAnimationsNode.IsDirty) && !As))
                 return true;
 
+#if !DEBUG
             try
             {
+#endif
                 if (As)
                     using (SaveFileDialog d = new SaveFileDialog())
                     {
@@ -114,9 +113,11 @@ namespace System.Windows.Forms
                     _externalAnimationsNode.Export(_externalAnimationsNode._origPath);
                 }
                 return true;
+#if !DEBUG
             }
             catch (Exception x) { MessageBox.Show(this, x.ToString()); }
             return false;
+#endif
         }
 
         public void btnOpenClose_Click(object sender, EventArgs e)
@@ -124,10 +125,10 @@ namespace System.Windows.Forms
             if (btnOpenClose.Text == "Load")
             {
                 if (LoadExternal())
-                    btnOpenClose.Text = leftPanel.Load.Text = "Close";
+                    btnOpenClose.Text = leftPanel.btnLoad.Text = "Close";
             }
             else if (btnOpenClose.Text == "Close" && CloseExternal())
-                btnOpenClose.Text = leftPanel.Load.Text = "Load";
+                btnOpenClose.Text = leftPanel.btnLoad.Text = "Load";
         }
         public void btnSave_Click(object sender, EventArgs e) { SaveExternal(false); }
         private void btnSaveAs_Click(object sender, EventArgs e) { SaveExternal(true); }
@@ -159,9 +160,6 @@ namespace System.Windows.Forms
         {
             if (!_collisions.Contains(collision))
                 _collisions.Add(collision);
-
-            if (!models.Items.Contains(collision))
-                models.Items.Add(collision);
 
             foreach (CollisionObject o in collision._objects)
                 o._render = true;

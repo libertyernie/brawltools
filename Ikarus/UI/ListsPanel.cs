@@ -13,6 +13,7 @@ using OpenTK.Graphics.OpenGL;
 using Ikarus.ModelViewer;
 using Ikarus.MovesetFile;
 using Ikarus;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.UI
 {
@@ -57,6 +58,7 @@ namespace Ikarus.UI
         private ListBox ScreenTintList;
         private ListBox ArticleList;
         private ListBox CommonSubRoutinesList;
+        private ListBox lstModules;
         private ListBox SubRoutinesList;
 
         private void InitializeComponent()
@@ -99,6 +101,7 @@ namespace Ikarus.UI
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.lstModules = new System.Windows.Forms.ListBox();
             this.pnlLists.SuspendLayout();
             this.listGroupPanel.SuspendLayout();
             this.pnlHurtboxes.SuspendLayout();
@@ -132,6 +135,7 @@ namespace Ikarus.UI
             this.listGroupPanel.Controls.Add(this.ArticleList);
             this.listGroupPanel.Controls.Add(this.attributeGridSSE);
             this.listGroupPanel.Controls.Add(this.attributeGridMain);
+            this.listGroupPanel.Controls.Add(this.lstModules);
             this.listGroupPanel.Controls.Add(this.pnlTop);
             this.listGroupPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listGroupPanel.Location = new System.Drawing.Point(0, 0);
@@ -303,6 +307,7 @@ namespace Ikarus.UI
             // 
             // attributeGridSSE
             // 
+            this.attributeGridSSE.AttributeArray = null;
             this.attributeGridSSE.Dock = System.Windows.Forms.DockStyle.Fill;
             this.attributeGridSSE.Location = new System.Drawing.Point(0, 21);
             this.attributeGridSSE.Name = "attributeGridSSE";
@@ -312,6 +317,7 @@ namespace Ikarus.UI
             // 
             // attributeGridMain
             // 
+            this.attributeGridMain.AttributeArray = null;
             this.attributeGridMain.Dock = System.Windows.Forms.DockStyle.Fill;
             this.attributeGridMain.Location = new System.Drawing.Point(0, 21);
             this.attributeGridMain.Margin = new System.Windows.Forms.Padding(0);
@@ -347,7 +353,8 @@ namespace Ikarus.UI
             "SSE Attributes",
             "Miscellaneous",
             "Articles",
-            "Common SubRoutines"});
+            "Common SubRoutines",
+            "Modules"});
             this.movesetEditor.Location = new System.Drawing.Point(0, 0);
             this.movesetEditor.Name = "movesetEditor";
             this.movesetEditor.Size = new System.Drawing.Size(374, 21);
@@ -471,6 +478,15 @@ namespace Ikarus.UI
             this.createNewToolStripMenuItem.Text = "Create New Animation";
             this.createNewToolStripMenuItem.Click += new System.EventHandler(this.createNewToolStripMenuItem_Click);
             // 
+            // lstModules
+            // 
+            this.lstModules.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstModules.FormattingEnabled = true;
+            this.lstModules.Location = new System.Drawing.Point(0, 21);
+            this.lstModules.Name = "lstModules";
+            this.lstModules.Size = new System.Drawing.Size(374, 303);
+            this.lstModules.TabIndex = 2;
+            // 
             // ListsPanel
             // 
             this.Controls.Add(this.pnlLists);
@@ -511,7 +527,7 @@ namespace Ikarus.UI
         }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone as MDL0BoneNode; } set { _mainWindow.SelectedBone = value; } }
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef
@@ -534,7 +550,7 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel
         {
-            get { return _mainWindow.TargetModel; }
+            get { return _mainWindow.TargetModel as MDL0Node; }
             set { _mainWindow.TargetModel = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -581,7 +597,7 @@ namespace Ikarus.UI
         {
             InitializeComponent();
             movesetEditor.SelectedIndex = 2;
-            _animations = new SortedList<string, Dictionary<NW4RAnimType, AnimationNode>>();
+            _animations = new SortedList<string, Dictionary<NW4RAnimType, NW4RAnimationNode>>();
             foreach (var grid in new AttributeGrid[] { attributeGridSSE, attributeGridMain }) {
                 grid.AttributeArray = Manager.AttributeArray;
                 grid.CellEdited += (o, e) => MainForm.UpdateModelPanel();
@@ -589,7 +605,7 @@ namespace Ikarus.UI
             }
         }
 
-        public SortedList<string, Dictionary<NW4RAnimType, AnimationNode>> _animations;
+        public SortedList<string, Dictionary<NW4RAnimType, NW4RAnimationNode>> _animations;
 
         public bool LoadAnims(ResourceNode node)
         {
@@ -624,8 +640,8 @@ namespace Ikarus.UI
             return found;
         Add:
             if (!_animations.ContainsKey(node.Name))
-                _animations.Add(node.Name, new Dictionary<NW4RAnimType, AnimationNode>());
-            _animations[node.Name].Add(type, node as AnimationNode);
+                _animations.Add(node.Name, new Dictionary<NW4RAnimType, NW4RAnimationNode>());
+            _animations[node.Name].Add(type, node as NW4RAnimationNode);
             return found;
         }
 
@@ -764,13 +780,13 @@ namespace Ikarus.UI
             if ((r = _mainWindow.GetAnimation(TargetAnimType)) != null)
                 switch (TargetAnimType)
                 {
-                    case NW4RAnimType.CHR: ((BRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
-                    case NW4RAnimType.SRT: ((BRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
-                    case NW4RAnimType.SHP: ((BRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
-                    case NW4RAnimType.PAT: ((BRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
-                    case NW4RAnimType.VIS: ((BRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
-                    case NW4RAnimType.SCN: ((BRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
-                    case NW4RAnimType.CLR: ((BRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
+                    case NW4RAnimType.CHR: ((BRRESNode)r.Parent.Parent).CreateResource<CHR0Node>("NewCHR"); break;
+                    case NW4RAnimType.SRT: ((BRRESNode)r.Parent.Parent).CreateResource<SRT0Node>("NewSRT"); break;
+                    case NW4RAnimType.SHP: ((BRRESNode)r.Parent.Parent).CreateResource<SHP0Node>("NewSHP"); break;
+                    case NW4RAnimType.PAT: ((BRRESNode)r.Parent.Parent).CreateResource<PAT0Node>("NewPAT"); break;
+                    case NW4RAnimType.VIS: ((BRRESNode)r.Parent.Parent).CreateResource<VIS0Node>("NewVIS"); break;
+                    case NW4RAnimType.SCN: ((BRRESNode)r.Parent.Parent).CreateResource<SCN0Node>("NewSCN"); break;
+                    case NW4RAnimType.CLR: ((BRRESNode)r.Parent.Parent).CreateResource<CLR0Node>("NewCLR"); break;
                 }
             UpdateAnimations();
             SubActionsList.SetSelected(SubActionsList.Items.Count - 1, true);
@@ -859,56 +875,85 @@ namespace Ikarus.UI
                 case 0:
                     newControl = CommonActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Actions;
+                    }
                     break;
                 case 1:
                     newControl = ActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Actions;
+                    }
                     break;
                 case 2:
                     newControl = SubActionsList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subactions;
+                    }
                     break;
                 case 3:
                     newControl = SubRoutinesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 4:
                     newControl = EntryOverridesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 5:
                     newControl = ExitOverridesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 6:
                     newControl = FlashOverlayList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 7:
                     newControl = ScreenTintList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
                     break;
                 case 8:
                     newControl = attributeGridMain;
-                    _mainWindow.scriptPanel.Visible = false;
+                    if (_mainWindow != null)
+                        _mainWindow.scriptPanel.Visible = false;
                     break;
                 case 9:
                     newControl = attributeGridSSE;
-                    _mainWindow.scriptPanel.Visible = false;
+                    if (_mainWindow != null)
+                        _mainWindow.scriptPanel.Visible = false;
                     break;
                 case 10:
                     newControl = pnlHurtboxes;
-                    _mainWindow.scriptPanel.Visible = false;
-                    if (SelectedHurtbox != null)
-                        _mainWindow.EnableHurtboxEditor();
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.Visible = false;
+                        if (SelectedHurtbox != null)
+                            _mainWindow.EnableHurtboxEditor();
+                    }
                     break;
                 case 11:
                     newControl = ArticleList;
@@ -921,7 +966,17 @@ namespace Ikarus.UI
                 case 12:
                     newControl = CommonSubRoutinesList;
                     if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.scriptPanel.Visible = true;
                         _mainWindow.MovesetPanel.ScriptType = ScriptType.Subroutines;
+                    }
+                    break;
+                case 13:
+                    newControl = lstModules;
+                    if (_mainWindow != null)
+                    {
+                        _mainWindow.scriptPanel.scriptPanel.Visible = false;
+                    }
                     break;
             }
 
@@ -944,7 +999,7 @@ namespace Ikarus.UI
         {
             MovesetNode moveset = Manager.Moveset;
 
-            if (moveset == null)
+            if (moveset == null || moveset.Data == null)
                 return;
             
             _updating = true;
@@ -1002,32 +1057,25 @@ namespace Ikarus.UI
                 string r = RunTime.CurrentSubaction._animationName;
                 if (_animations.ContainsKey(r))
                 {
-                    _mainWindow._updating = true;
-                    if (_animations[r].ContainsKey(TargetAnimType))
-                        _mainWindow.SetSelectedBRRESFile(TargetAnimType, _animations[r][TargetAnimType]);
-                    createNewToolStripMenuItem.Text = String.Format("Create New {0}", TargetAnimType.ToString() + "0");
-                    _mainWindow._updating = false;
-                    _mainWindow.GetFiles(TargetAnimType);
+                    var x = _animations[r];
+                    _mainWindow.TargetAnimation = null;
+                    _mainWindow.GetFiles(NW4RAnimType.None);
+                    foreach (var c in x)
+                        _mainWindow.SetAnimation(c.Value);
                     _mainWindow.AnimChanged(TargetAnimType);
+                    //if (_animations[r].ContainsKey(TargetAnimType))
+                    //    _mainWindow.TargetAnimation = _animations[r][TargetAnimType];
+                    createNewToolStripMenuItem.Text = String.Format("Create New {0}", TargetAnimType.ToString() + "0");
                 }
                 else
-                {
-                    _mainWindow.GetFiles(NW4RAnimType.None);
-                    _mainWindow.SetSelectedBRRESFile(TargetAnimType, null);
-                }
+                    _mainWindow.TargetAnimation = null;
             }
             else
-            {
-                _mainWindow.GetFiles(NW4RAnimType.None);
-                _mainWindow.UpdateModel();
-                _mainWindow.AnimChanged(NW4RAnimType.None);
-            }
+                _mainWindow.TargetAnimation = null;
 
-            _mainWindow.UpdatePropDisplay();
-
-            _mainWindow.Updating = true;
-            RunTime.Loop = RunTime.CurrentSubaction._flags.HasFlag(AnimationFlags.Loop);
-            _mainWindow.Updating = false;
+            //_mainWindow.Updating = true;
+            //RunTime.Loop = RunTime.CurrentSubaction._flags.HasFlag(AnimationFlags.Loop);
+            //_mainWindow.Updating = false;
         }
 
         private void List_KeyDown(object sender, KeyEventArgs e)
@@ -1037,7 +1085,7 @@ namespace Ikarus.UI
                 b.SelectedItems.Clear();
             else if (e.KeyCode == Keys.Space)
             {
-                _mainWindow.MovesetPanel.btnRunScript_Click(null, null);
+                RunTime.TogglePlay();
                 e.SuppressKeyPress = true;
             }
         }
@@ -1065,7 +1113,9 @@ namespace Ikarus.UI
             if (_closing)
                 return;
 
-            RunTime.CurrentSubRoutine = (EntryOverridesList.SelectedItem as ActionOverrideEntry)._script;
+            ActionOverrideEntry r = EntryOverridesList.SelectedItem as ActionOverrideEntry;
+            if (r != null)
+                RunTime.CurrentSubRoutine = r._script;
         }
 
         private void ExitOverridesList_SelectedIndexChanged(object sender, EventArgs e)
@@ -1073,7 +1123,9 @@ namespace Ikarus.UI
             if (_closing)
                 return;
 
-            RunTime.CurrentSubRoutine = (ExitOverridesList.SelectedItem as ActionOverrideEntry)._script;
+            ActionOverrideEntry r = ExitOverridesList.SelectedItem as ActionOverrideEntry;
+            if (r != null)
+                RunTime.CurrentSubRoutine = r._script;
         }
 
         private void FlashOverlayList_SelectedIndexChanged(object sender, EventArgs e)

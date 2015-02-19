@@ -28,7 +28,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _numEntries;
         public bint _loop;
 
-        public VIS0v3(int size, ushort frameCount, ushort numEntries, int loop)
+        public VIS0v3(int size, ushort frameCount, ushort numEntries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -39,7 +39,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = 0;
             _numFrames = frameCount;
             _numEntries = numEntries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
@@ -75,7 +75,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _numEntries;
         public bint _loop;
         
-        public VIS0v4(int size, ushort frameCount, ushort numEntries, int loop)
+        public VIS0v4(int size, ushort frameCount, ushort numEntries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -86,7 +86,7 @@ namespace BrawlLib.SSBBTypes
             _userDataOffset = _origPathOffset = 0;
             _numFrames = frameCount;
             _numEntries = numEntries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }

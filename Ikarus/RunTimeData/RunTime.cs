@@ -21,8 +21,8 @@ namespace Ikarus.ModelViewer
         public static bool _IsRoot;
         static RunTime()
         {
-            _timer.RenderFrame += RenderFrame;
-            _timer.UpdateFrame += UpdateFrame;
+            Timer.RenderFrame += RenderFrame;
+            Timer.UpdateFrame += UpdateFrame;
         }
 
         private static RunTimeAccessor _instance;
@@ -49,7 +49,7 @@ namespace Ikarus.ModelViewer
             }
             return 0.0f;
         }
-        public static void SetVar(VariableType var, VarMemType mem, int num, float value)
+        public static void SetVar(VariableType var, VarMemType mem, int num, double value)
         {
             switch (mem)
             {
@@ -98,12 +98,44 @@ namespace Ikarus.ModelViewer
 
         public static bool _muteSFX = false;
 
-        public static CoolTimer _timer = new CoolTimer();
-        public static bool IsRunning { get { return _timer.IsRunning; } }
-        public static void Run() { Playing = true; _timer.Run(0, FramesPerSecond); }
-        public static void Stop()
+        public static CoolTimer Timer { get { return MainWindow._timer; } }
+        public static bool IsRunning { get { return Timer.IsRunning; } }
+        private static void Run()
         {
-            _timer.Stop(); 
+            if (CurrentFrame >= MaxFrame)
+                SetFrame(1);
+
+            //LoadSubactionScripts();
+            //ResetSubactionVariables();
+            //SetFrame(CurrentFrame);
+
+            //Run the timer.
+            //This will run scripts and animations until the user stops it or everything ends itself.
+            //Then the code directly after this line will be executed.
+            Playing = true;
+            Timer.Run(0, FramesPerSecond);
+
+            //This next section of code will not run until the timer stops.
+            //If we have any sounds still playing, stop and dispose of them.
+            //This should only be necessary if the user manually stops the timer,
+            //as the timer will not stop automatically until all sounds are completed and disposed of.
+            if (_playingSounds.Count != 0)
+            {
+                List<int> keys = new List<int>();
+                foreach (var b in _playingSounds)
+                    foreach (AudioInfo info in b.Value)
+                        if (info._buffer != null && info._buffer.Owner != null)
+                        {
+                            info._buffer.Stop();
+                            info._buffer.Dispose();
+                            info._stream.Dispose();
+                        }
+                _playingSounds.Clear();
+            }
+        }
+        private static void Stop()
+        {
+            Timer.Stop(); 
             Playing = false; 
             if (MainWindow._capture)
             {
@@ -113,13 +145,21 @@ namespace Ikarus.ModelViewer
             }
         }
 
+        public static void TogglePlay()
+        {
+            if (IsRunning)
+                Stop();
+            else
+                Run();
+        }
+
         /// <summary>
         /// This determines how many frames should be rendered per second.
         /// </summary>
         public static double FramesPerSecond 
         {
-            get { return _timer.TargetRenderFrequency; }
-            set { _timer.TargetRenderFrequency = value; }
+            get { return Timer.TargetRenderFrequency; }
+            set { Timer.TargetRenderFrequency = value; }
         }
 
         /// <summary>
@@ -128,8 +168,8 @@ namespace Ikarus.ModelViewer
         /// </summary>
         public static double UpdatesPerSecond
         {
-            get { return _timer.TargetUpdateFrequency; }
-            set { _timer.TargetUpdateFrequency = value; }
+            get { return Timer.TargetUpdateFrequency; }
+            set { Timer.TargetUpdateFrequency = value; }
         }
 
         public static bool _passFrame = false;
@@ -258,58 +298,18 @@ namespace Ikarus.ModelViewer
                     if (i == null)
                         continue;
 
+                    i.Running = true;
                     i.SubactionIndex = -1;
-                    if (!i._etcModel)
-                    {
-                        if (i._model != null)
-                        {
-                            i._model._attached = true;
-                            i._model.ApplyCHR(null, 0);
-                        }
-                        i.Running = true;
-                    }
-                    else
-                    {
-                        if (i._model != null)
-                            i._model._attached = false;
-                        i.Running = false;
-                    }
                 }
 
             //Reset model visiblity to its default state
-            if (MainWindow.TargetModel != null && MainWindow.TargetModel._objList != null && Manager.Moveset != null)
+            if (MainWindow.TargetModel != null && 
+                MainWindow.TargetModel.Objects.Length > 0 && 
+                Manager.Moveset != null)
             {
                 ModelVisibility node = Manager.Moveset.Data._modelVis;
-                if (node.Count != 0)
-                {
-                    ModelVisReference entry = node[0] as ModelVisReference;
-
-                    //First, disable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                    {
-                        int i = 0;
-                        foreach (ModelVisGroup Group in Switch)
-                        {
-                            if (i != Switch._defaultGroup)
-                                foreach (BoneIndexValue b in Group._bones)
-                                    if (b.BoneNode != null)
-                                        foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                            p._render = false;
-                            i++;
-                        }
-                    }
-
-                    //Now, enable bones
-                    foreach (ModelVisBoneSwitch Switch in entry)
-                        if (Switch._defaultGroup >= 0 && Switch._defaultGroup < Switch.Count)
-                        {
-                            ModelVisGroup Group = Switch[Switch._defaultGroup];
-                            foreach (BoneIndexValue b in Group._bones)
-                                if (b.BoneNode != null)
-                                    foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
-                                        p._render = true;
-                        }
-                }
+                if (node != null)
+                    node.ResetVisibility(0);
             }
         }
 
@@ -340,11 +340,11 @@ namespace Ikarus.ModelViewer
 
             //Set the animation frame
             int oldFrame = CurrentFrame;
-            CurrentFrame = frame.Clamp(-1, MaxFrame - 1);
+            CurrentFrame = frame.Clamp(0, MaxFrame);
             bool forward = oldFrame == frame - 1;
 
             //Reset only if the on the first frame or the animation is going backward
-            if (frame <= 0 || (!_playing && !forward))
+            if (frame <= 1 || (!Playing && !forward))
                 ResetSubactionVariables();
 
             //The next two things work for editing, but are technically wrong for emulation.
@@ -354,7 +354,7 @@ namespace Ikarus.ModelViewer
             //will be reset and also loop.
 
             //Set the scripts to the current frame
-            UpdateScripts(frame);
+            UpdateScripts(frame - 1);
 
             //Update the article models
             //Do this after applying the scripts!
@@ -363,10 +363,10 @@ namespace Ikarus.ModelViewer
             if (RunTime._articles != null)
                 foreach (ArticleInfo a in RunTime._articles)
                     if (a != null && a.Running)
-                        a.SetFrame(frame);
+                        a.SetFrame(frame - 1);
 
-            if (MainWindow._capture && _playing)
-                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(false));
+            if (MainWindow._capture && Playing)
+                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
         }
 
         private static void UpdateScripts(int index)
@@ -375,7 +375,7 @@ namespace Ikarus.ModelViewer
             for (int i = 0; i < _runningScripts.Count; i++)
             {
                 Script a = _runningScripts[i];
-                if (a._parentArticle != null)
+                if (a.ParentArticle != null)
                     continue;
 
                 a.SetFrame(index);
@@ -386,10 +386,10 @@ namespace Ikarus.ModelViewer
             for (int i = 0; i < _runningScripts.Count; i++)
             {
                 Script a = _runningScripts[i];
-                if (a._parentArticle == null)
+                if (a.ParentArticle == null)
                     continue;
 
-                a.SetFrame(index - _articles[a._parentArticle.Index]._setAt);
+                a.SetFrame(index - _articles[a.ParentArticle.Index]._setAt);
                 
                 MainWindow.MovesetPanel.UpdateScriptEditor(a);
             }
@@ -404,25 +404,34 @@ namespace Ikarus.ModelViewer
 
         #region Rendering
 
-        public static int CurrentFrame 
+        public static int CurrentFrame
         {
-            get { return _animFrame; }
-            set { _animFrame = value; MainWindow.ApplyFrame(); }
+            get { return MainWindow.CurrentFrame; }
+            set
+            {
+                MainWindow.CurrentFrame = value;
+                MainWindow.UpdatePropDisplay();
+                MainWindow.UpdatePlaybackPanel();
+            }
         }
 
-        public static int MaxFrame { get { return _maxFrame; } set { _maxFrame = value; } }
-        public static bool Loop { get { return _loop; } set { _loop = value; } }
-        public static bool Playing { get { return _playing; } set { _playing = value; MainWindow.pnlPlayback.btnPlay.Text = _playing ? "Stop" : "Play"; } }
+        public static int MaxFrame { get { return MainWindow.MaxFrame; } set { MainWindow.MaxFrame = value; } }
+        public static bool Loop { get { return MainWindow.Loop; } set { MainWindow.Loop = value; } }
+        public static bool Playing { get { return MainWindow.Playing; } set { MainWindow.Playing = value; MainWindow.pnlPlayback.btnPlay.Text = Playing ? "Stop" : "Play"; } }
 
-        public static int _animFrame = -1, _maxFrame;
-        public static bool _loop, _playing;
+        //public static int _animFrame = -1, _maxFrame;
+        //public static bool _loop, _playing;
 
-        private static void RenderFrame(object sender, FrameEventArgs e)
+        public static void RenderFrame(object sender, FrameEventArgs e)
         {
             if (!IsRunning)
                 return;
 
-            if (CurrentFrame == MainWindow.MaxFrame - 1)
+            int i = 0;
+            if (MainWindow.TargetAnimation != null && ModelEditorBase.Interpolated.Contains(MainWindow.TargetAnimation.GetType()) && MainWindow.TargetAnimation.Loop)
+                i = 1;
+
+            if (CurrentFrame >= MainWindow.MaxFrame - i)
             {
                 if (!MainWindow.Loop)
                 {
@@ -436,7 +445,7 @@ namespace Ikarus.ModelViewer
                     //Wait for playing sounds to finish, but don't update the frame.
                 }
                 else
-                    SetFrame(0);
+                    SetFrame(1);
             }
             else
                 SetFrame(CurrentFrame + 1);

@@ -18,7 +18,7 @@ namespace BrawlLib.Wii.Audio
             int blocks;
             int sampleRate = stream.Frequency;
             int lbSamples, lbSize, lbTotal;
-            int loopPadding, loopStart, totalSamples;
+            int /*loopPadding, */loopStart, totalSamples;
             short* tPtr;
 
             int blockLen, samplesPerBlock;
@@ -44,7 +44,7 @@ namespace BrawlLib.Wii.Audio
             }
             else
             {
-                loopPadding = 0;
+                //loopPadding = 0;
                 loopStart = 2;
                 totalSamples = samples = stream.Samples;
 

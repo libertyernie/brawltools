@@ -55,12 +55,11 @@ namespace BrawlBox
 
         public static bool _modelViewerOpen = false;
 
-        public IWin32Window _owner;
         public GenericWrapper(IWin32Window owner) { _owner = owner;  ContextMenuStrip = _menu; }
         public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
 
         public void MoveUp() { MoveUp(true); }
-        public void MoveUp(bool select)
+        public virtual void MoveUp(bool select)
         {
             if (_modelViewerOpen)
                 return;
@@ -75,8 +74,7 @@ namespace BrawlBox
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                if (_resource is MDL0BoneNode)
-                    (_resource as MDL0BoneNode).Moved = true;
+                _resource.OnMoved();
                 if (select)
                     TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
@@ -84,7 +82,7 @@ namespace BrawlBox
         }
 
         public void MoveDown() { MoveDown(true); }
-        public void MoveDown(bool select)
+        public virtual void MoveDown(bool select)
         {
             if (_modelViewerOpen)
                 return;
@@ -99,8 +97,7 @@ namespace BrawlBox
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                if (_resource is MDL0BoneNode)
-                    (_resource as MDL0BoneNode).Moved = true;
+                _resource.OnMoved();
                 if (select)
                     TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
@@ -149,35 +146,10 @@ namespace BrawlBox
                 return;
 
             string inPath;
-            string FileType;
             int index = Program.OpenFile(ReplaceFilter, out inPath);
             if (index != 0)
             {
-                //string FileName = System.IO.Path.GetFileName(inPath);
-                FileType = inPath.Substring(inPath.LastIndexOf(".") + 1);
-                if (FileType.ToUpper() == "DAE" || FileType.ToUpper() == "PMD")
-                {
-                    MDL0Node node = MDL0Node.FromFile(inPath);
-                    if (node == null)
-                        return;
-
-                    if ((node as MDL0Node)._reopen == true)
-                    {
-                        string tempPath = Path.GetTempFileName();
-
-                        node.Export(tempPath);
-                        _resource.Replace(tempPath, FileMapProtect.ReadWrite, FileOptions.SequentialScan | FileOptions.DeleteOnClose);
-                        _resource.SignalPropertyChange();
-                        node.Dispose();
-                    }
-                    else
-                    {
-                        _resource.Parent.AddChild(node);
-                        Delete();
-                    }
-                }
-                else
-                    OnReplace(inPath, index);
+                OnReplace(inPath, index);
                 this.Link(_resource);
             }
         }

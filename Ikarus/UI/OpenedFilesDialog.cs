@@ -65,22 +65,46 @@ namespace System.Windows.Forms
                 listBox1.SelectedIndex = -1;
         }
 
+        private bool Save(ResourceNode r)
+        {
+            if (r._origPath == null)
+                return SaveAs(r);
+            
+            r.Merge(Control.ModifierKeys == (Keys.Control | Keys.Shift));
+            r.Export(r._origPath);
+            r.IsDirty = false;
+            return true;
+        }
+
         private void saveToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ResourceNode r = Program.OpenedFiles[listBox1.SelectedIndex];
-            r.Merge();
-            r.Export(r._origPath);
-            r.IsDirty = false;
+            if (MessageBox.Show(this, String.Format("Are you sure you want to save {0}?", Path.GetFileName(r._origPath)), "Are you sure?", MessageBoxButtons.OKCancel) != Forms.DialogResult.OK)
+                return;
+
+            Save(r);
+        }
+
+        private bool SaveAs(ResourceNode r)
+        {
+            return true;
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            SaveAs(Program.OpenedFiles[listBox1.SelectedIndex]);
         }
 
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
-
+            ResourceNode r = Program.OpenedFiles[listBox1.SelectedIndex];
+            if (r.IsDirty || r.CompressionHasChanged)
+            {
+                DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
+                if ((res == DialogResult.Yes && !Save(r)) || res == DialogResult.Cancel)
+                    return;
+            }
+            Manager.RemoveFile(Program.OpenedFiles[listBox1.SelectedIndex]);
         }
     }
 }

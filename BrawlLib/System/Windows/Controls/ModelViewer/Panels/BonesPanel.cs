@@ -30,7 +30,7 @@ namespace System.Windows.Forms
         private Panel panel1;
         private TextBox txtSearchBone;
         public CheckBox chkFlat;
-        private ListBox lstBones;
+        private CheckedListBox lstBones;
         public CheckBox chkContains;
         private ToolStripSeparator ctxBonesDivider1;
         private ToolStripMenuItem addToParentToolStripMenuItem;
@@ -50,7 +50,7 @@ namespace System.Windows.Forms
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.pnlKeyframes = new System.Windows.Forms.Panel();
             this.pnlBones = new System.Windows.Forms.Panel();
-            this.lstBones = new System.Windows.Forms.ListBox();
+            this.lstBones = new System.Windows.Forms.CheckedListBox();
             this.boneTree = new System.Windows.Forms.TreeView();
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtSearchBone = new System.Windows.Forms.TextBox();
@@ -100,24 +100,31 @@ namespace System.Windows.Forms
             // 
             this.lstBones.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstBones.FormattingEnabled = true;
+            this.lstBones.IntegralHeight = false;
             this.lstBones.Location = new System.Drawing.Point(0, 21);
             this.lstBones.Name = "lstBones";
             this.lstBones.Size = new System.Drawing.Size(160, 373);
             this.lstBones.TabIndex = 32;
+            this.lstBones.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstBones_ItemCheck);
             this.lstBones.SelectedValueChanged += new System.EventHandler(this.lstBones_SelectedValueChanged);
             this.lstBones.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstBones_KeyDown);
             this.lstBones.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBones_MouseDown);
             // 
             // boneTree
             // 
+            this.boneTree.CheckBoxes = true;
             this.boneTree.Dock = System.Windows.Forms.DockStyle.Fill;
             this.boneTree.FullRowSelect = true;
             this.boneTree.HideSelection = false;
+            this.boneTree.HotTracking = true;
+            this.boneTree.Indent = 14;
+            this.boneTree.ItemHeight = 16;
             this.boneTree.Location = new System.Drawing.Point(0, 21);
             this.boneTree.Name = "boneTree";
             this.boneTree.Size = new System.Drawing.Size(160, 373);
             this.boneTree.TabIndex = 29;
             this.boneTree.Visible = false;
+            this.boneTree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.boneTree_AfterCheck);
             this.boneTree.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.boneTree_AfterSelect);
             this.boneTree.MouseDown += new System.Windows.Forms.MouseEventHandler(this.lstBones_MouseDown);
             // 
@@ -305,6 +312,7 @@ namespace System.Windows.Forms
         public bool _updating;
         public void Reset()
         {
+            _updating = true;
             //if (!chkFlat.Checked)
             {
                 boneTree.BeginUpdate();
@@ -320,11 +328,12 @@ namespace System.Windows.Forms
                 lstBones.Items.Clear();
 
                 if (TargetModel != null)
-                    foreach (MDL0BoneNode bone in TargetModel.BoneCache)
-                        lstBones.Items.Add(bone);
+                    foreach (IBoneNode bone in TargetModel.BoneCache)
+                        lstBones.Items.Add(bone, bone.IsRendering);
 
                 lstBones.EndUpdate();
             }
+            _updating = false;
         }
 
         private void ResetList()
@@ -332,15 +341,17 @@ namespace System.Windows.Forms
             string text = txtSearchBone.Text;
             bool addAll = String.IsNullOrEmpty(text) || txtSearchBone.ForeColor == Color.Gray;
 
+            _updating = true;
             lstBones.BeginUpdate();
             lstBones.Items.Clear();
 
             if (TargetModel != null)
                 foreach (IBoneNode bone in TargetModel.BoneCache)
-                    if (addAll || (chkContains.Checked && bone.Name.Contains(text)) || bone.Name.StartsWith(text))
-                        lstBones.Items.Add(bone);
+                    if (addAll || (chkContains.Checked && bone.Name.Contains(text, StringComparison.OrdinalIgnoreCase)) || bone.Name.StartsWith(text, StringComparison.OrdinalIgnoreCase))
+                        lstBones.Items.Add(bone, bone.IsRendering);
 
             lstBones.EndUpdate();
+            _updating = false;
         }
 
         private void PopulateBoneTree()
@@ -348,7 +359,7 @@ namespace System.Windows.Forms
             if (TargetModel != null)
             {
                 _treeNodes = new TreeNode[TargetModel.BoneCache.Length];
-                foreach (MDL0BoneNode bone in TargetModel.RootBones)
+                foreach (IBoneNode bone in TargetModel.RootBones)
                     RecursivePopulate(bone, boneTree.Nodes);
             }
 
@@ -357,7 +368,7 @@ namespace System.Windows.Forms
 
         private void RecursivePopulate(IBoneNode bone, TreeNodeCollection nodes)
         {
-            TreeNode node = new TreeNode() { Tag = bone, Text = bone.Name };
+            TreeNode node = new TreeNode() { Tag = bone, Text = bone.Name, Checked = bone.IsRendering };
 
             _treeNodes[bone.BoneIndex] = node;
             nodes.Add(node);
@@ -452,7 +463,7 @@ namespace System.Windows.Forms
         private void boneTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (!chkFlat.Checked && boneTree.SelectedNode != null)
-                SetBone(boneTree.SelectedNode.Tag as MDL0BoneNode);
+                SetBone(boneTree.SelectedNode.Tag as IBoneNode);
         }
 
         public void SetSelectedBone(IBoneNode bone)
@@ -470,8 +481,8 @@ namespace System.Windows.Forms
 
         private void addToParentToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.ToParent())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.ToParent())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], parent = null;
                 if (bone != null && bone.Parent != null)
@@ -483,7 +494,7 @@ namespace System.Windows.Forms
                 bone.Remove();
                 parent.Parent.Nodes.Add(bone);
                 node.Parent = node.Parent.Parent;
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -492,8 +503,8 @@ namespace System.Windows.Forms
 
         private void addToNextUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.AddUp())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.AddUp())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevNode != null)
@@ -505,7 +516,7 @@ namespace System.Windows.Forms
                 node.Parent = node.Parent.Children[node.Index - 1];
                 bone.Remove();
                 prev.Nodes.Add(bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -514,8 +525,8 @@ namespace System.Windows.Forms
 
         private void addToNextDownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.AddDown())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.AddDown())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextNode != null)
@@ -527,7 +538,7 @@ namespace System.Windows.Forms
                 node.Parent = node.Parent.Children[node.Index + 1];
                 bone.Remove();
                 next.Nodes.Add(bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.EndUpdate();
                 bone.EnsureVisible();
                 _mainWindow.ModelPanel.Invalidate();
@@ -536,8 +547,8 @@ namespace System.Windows.Forms
 
         private void moveUpToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.MoveUp())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.MoveUp())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevVisibleNode != null)
@@ -550,7 +561,7 @@ namespace System.Windows.Forms
                 boneTree.BeginUpdate();
                 bone.Remove();
                 parent.Nodes.Insert(index, bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.SelectedNode = bone;
                 boneTree.EndUpdate();
                 _mainWindow.ModelPanel.Invalidate();
@@ -559,8 +570,8 @@ namespace System.Windows.Forms
 
         private void moveDownToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            ResourceNode node = (ResourceNode)SelectedBone;
-            if (SelectedBone != null && node.MoveDown())
+            ResourceNode node = SelectedBone as ResourceNode;
+            if (node != null && node.MoveDown())
             {
                 TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextVisibleNode != null)
@@ -573,7 +584,7 @@ namespace System.Windows.Forms
                 boneTree.BeginUpdate();
                 bone.Remove();
                 parent.Nodes.Insert(index, bone);
-                SelectedBone.Moved = true;
+                node.OnMoved();
                 boneTree.SelectedNode = bone;
                 boneTree.EndUpdate();
                 _mainWindow.ModelPanel.Invalidate();
@@ -595,6 +606,31 @@ namespace System.Windows.Forms
         private void BonesPanel_SizeChanged(object sender, EventArgs e)
         {
             UpdateListToolDisplay();
+        }
+
+        private void lstBones_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (_updating)
+                return;
+
+            int i = e.Index;
+            if (i < 0 || i >= TargetModel.BoneCache.Length)
+                return;
+
+            TargetModel.BoneCache[i].IsRendering = e.NewValue == CheckState.Checked;
+            _mainWindow.ModelPanel.Invalidate();
+        }
+
+        private void boneTree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (_updating)
+                return;
+
+            if (e.Node != null && e.Node.Tag is IBoneNode)
+            {
+                (e.Node.Tag as IBoneNode).IsRendering = e.Node.Checked;
+                _mainWindow.ModelPanel.Invalidate();
+            }
         }
     }
 }

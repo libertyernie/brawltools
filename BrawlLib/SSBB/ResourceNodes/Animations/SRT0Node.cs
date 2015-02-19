@@ -11,79 +11,39 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SRT0Node : AnimationNode
+    public unsafe class SRT0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal SRT0v4* Header4 { get { return (SRT0v4*)WorkingUncompressed.Address; } }
         internal SRT0v5* Header5 { get { return (SRT0v5*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SRT0; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(SRT0EntryNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SRT0EntryNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 4, 5 }; } }
 
+        public SRT0Node() { _version = 4; }
         const string _category = "Texture Coordinate Animation";
-        public int _loop, _version = 4, _numFrames = 1, _matrixMode;
+        int _matrixMode;
 
         [Category(_category)]
-        public int Version 
-        { 
-            get { return _version; } 
-            set 
-            {
-                if (_version == value)
-                    return;
-
-                _version = value;
-                SignalPropertyChange();
-            }
+        public override int FrameCount
+        {
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
         [Category(_category)]
         public override bool Loop
         {
-            get { return _loop != 0; }
-            set
-            {
-                _loop = value ? 1 : 0;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
+            get { return base.Loop; }
+            set { base.Loop = value; UpdateChildFrameLimits(); }
         }
-        [Category(_category)]
-        public override int FrameCount
-        {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
+        [Category(_category), Description(MDL0Node._textureMatrixModeDescription)]
+        public TexMatrixMode MatrixMode { get { return (TexMatrixMode)_matrixMode; } set { _matrixMode = (int)value; SignalPropertyChange(); } }
 
-                _numFrames = value;
-                UpdateChildFrameLimits();
-                SignalPropertyChange();
-            }
-        }
-
-        private void UpdateChildFrameLimits()
+        protected override void UpdateChildFrameLimits()
         {
             foreach (SRT0EntryNode n in Children)
                 foreach (SRT0TextureNode t in n.Children)
                     t.SetSize(_numFrames, Loop);
         }
-
-        [Category(_category)]
-        public TexMatrixMode MatrixMode { get { return (TexMatrixMode)_matrixMode; } set { _matrixMode = (int)value; SignalPropertyChange(); } }
-
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
 
         public void InsertKeyframe(int index)
         {
@@ -102,36 +62,35 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
-
             if (_version == 5)
             {
-                if ((_name == null) && (Header5->_stringOffset != 0))
-                    _name = Header5->ResourceString;
-                _loop = ((int)Header5->_loop).Clamp(0, 1); //Clamp just in case
-                _numFrames = Header5->_numFrames;
-                _matrixMode = Header5->_matrixMode;
+                SRT0v5* header = Header5;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
+                _loop = header->_loop != 0;
+                _numFrames = header->_numFrames;
+                _matrixMode = header->_matrixMode;
 
-                if (Header5->_origPathOffset > 0)
-                    _originalPath = Header5->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                (_userEntries = new UserDataCollection()).Read(Header5->UserData);
+                (_userEntries = new UserDataCollection()).Read(header->UserData);
 
-                return Header5->Group->_numEntries > 0;
+                return header->Group->_numEntries > 0;
             }
             else
             {
-                if ((_name == null) && (Header4->_stringOffset != 0))
-                    _name = Header4->ResourceString;
-                _loop = ((int)Header4->_loop).Clamp(0, 1); //Clamp just in case
-                _numFrames = Header4->_numFrames;
-                _matrixMode = Header4->_matrixMode;
+                SRT0v4* header = Header4;
+                if ((_name == null) && (header->_stringOffset != 0))
+                    _name = header->ResourceString;
+                _loop = header->_loop != 0;
+                _numFrames = header->_numFrames;
+                _matrixMode = header->_matrixMode;
 
-                if (Header4->_origPathOffset > 0)
-                    _originalPath = Header4->OrigPath;
+                if (header->_origPathOffset > 0)
+                    _originalPath = header->OrigPath;
 
-                return Header4->Group->_numEntries > 0;
+                return header->Group->_numEntries > 0;
             }
         }
 
@@ -150,12 +109,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 table.Add(n.Name);
 
             if (_version == 5)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
@@ -297,7 +251,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (SRT0EntryNode n in Children)
                 foreach (SRT0TextureNode e in n.Children)
                 {
-                    KeyframeCollection newCollection = new KeyframeCollection(5, newFrameCount, 1, 1);
+                    KeyframeCollection newCollection = new KeyframeCollection(5, newFrameCount + (Loop ? 1 : 0), 1, 1);
                     for (int x = 0; x < FrameCount; x++)
                     {
                         int newFrame = (int)((float)x * ratio + 0.5f);
@@ -418,13 +372,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal SRT0Entry* Header { get { return (SRT0Entry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SRT0Entry; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(SRT0TextureNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SRT0TextureNode) }; } }
 
         public int[] _usageIndices = new int[11];
         
@@ -492,7 +440,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_textureIndices = (int)_texIndices;
             header->_indirectIndices = (int)_indIndices;
 
-            VoidPtr entryAddress = address + 12 + (Children.Count) * 4;
+            int offset = 12 + Children.Count * 4;
+            VoidPtr entryAddress = address + offset;
 
             int prevOffset = 0;
             for (int i = 0; i < Children.Count; i++)
@@ -501,7 +450,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 n._dataAddr = _dataAddr;
 
-                header->SetOffset(i, 12 + (Children.Count) * 4 + prevOffset);
+                header->SetOffset(i, offset + prevOffset);
                 n.Rebuild(entryAddress, n._entryLen, true);
 
                 entryAddress += n._entryLen;
@@ -513,13 +462,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override int OnCalculateSize(bool force)
         {
             _texIndices = 0;
+            _indIndices = 0;
             int size = 12;
             foreach (SRT0TextureNode n in Children)
             {
                 if (n._indirect)
-                    _indIndices += 1 << n._textureIndex;
+                    _indIndices |= (IndirectTextureIndices)(1 << n._textureIndex);
                 else
-                    _texIndices += 1 << n._textureIndex;
+                    _texIndices |= (TextureIndices)(1 << n._textureIndex);
                 size += 4 + n.CalculateSize(true);
             }
             return size;

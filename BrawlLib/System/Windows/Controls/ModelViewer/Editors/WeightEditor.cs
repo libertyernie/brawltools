@@ -407,7 +407,7 @@ namespace System.Windows.Forms
 
             if (node == null)
             {
-                ((MDL0ObjectNode)vertex._parent).ConvertInf();
+                ((MDL0ObjectNode)vertex.Parent).ConvertInf();
                 node = vertex.MatrixNode;
             }
 
@@ -483,7 +483,7 @@ namespace System.Windows.Forms
             targetInf.Normalize();
             targetWeight.Locked = locked;
 
-            MDL0ObjectNode obj = vertex._parent as MDL0ObjectNode;
+            MDL0ObjectNode obj = vertex.Parent as MDL0ObjectNode;
 
             vertex.MatrixNode = obj.Model._influences.FindOrCreate(targetInf, false);
             obj.ConvertInf();

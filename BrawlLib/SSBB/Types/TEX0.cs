@@ -22,6 +22,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _minLod;
         public bfloat _maxLod;
         public bint _origPathOffset;
+        private fixed byte padding[12];
 
         internal VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
@@ -38,6 +39,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
         public VoidPtr PixelData { get { return (VoidPtr)Address + _headerLen; } }
+        public int PixelDataLength { get { return _header._size - Size; } }
         public WiiPixelFormat PixelFormat
         {
             get { return (WiiPixelFormat)(int)_pixelFormat; }
@@ -87,6 +89,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _maxLod;
         public bint _origPathOffset;
         public bint _userDataOffset;
+        private fixed byte padding[12];
 
         //User Data comes before texture data. Align to 0x20
 
@@ -111,6 +114,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
         public VoidPtr PixelData { get { return (VoidPtr)Address + _headerLen; } }
+        public int PixelDataLength { get { return _header._size - Size; } }
         public WiiPixelFormat PixelFormat
         {
             get { return (WiiPixelFormat)(int)_pixelFormat; }

@@ -10,12 +10,13 @@ using System.Runtime.Serialization;
 namespace BrawlLib.Imaging
 {
     [Serializable]
-    [EditorAttribute(typeof(GoodColorControl.ColorEditor), typeof(UITypeEditor))]
+    [EditorAttribute(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ARGBPixel : ISerializable
     {
         private const float ColorFactor = 1.0f / 255.0f;
 
+        //This struct is little-endian for PixelFormat.Format32bppArgb
         public byte B, G, R, A;
 
         public ARGBPixel(byte a, byte r, byte g, byte b) { A = a; R = r; G = g; B = b; }
@@ -86,6 +87,14 @@ namespace BrawlLib.Imaging
         public string ToPaddedString()
         {
             return String.Format("A:{0,3} R:{1,3} G:{2,3} B:{3,3}", A, R, G, B);
+        }
+        public string ToARGBColorCode()
+        {
+            return String.Format("{0:X2}{1:X2}{2:X2}{3:X2}", A, R, G, B);
+        }
+        public string ToRGBAColorCode()
+        {
+            return String.Format("{0:X2}{1:X2}{2:X2}{3:X2}", R, G, B, A);
         }
         public override int GetHashCode() { return (int)this; }
         public override bool Equals(object obj)
@@ -195,7 +204,7 @@ namespace BrawlLib.Imaging
         }
     }
 
-    [EditorAttribute(typeof(GoodColorControl.ColorEditor), typeof(UITypeEditor))]
+    [EditorAttribute(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct RGBAPixel : IComparable//, ICustomTypeDescriptor
     {
@@ -284,17 +293,15 @@ namespace BrawlLib.Imaging
 
         [Browsable(false)]
         public VoidPtr Address { get { fixed (void* p = &this)return p; } }
-    }
 
-    [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public struct ABGRPixel
-    {
-        public byte R, G, B, A;
-
-        public ABGRPixel(byte a, byte b, byte g, byte r) { A = a; B = b; G = g; R = r; }
-
-        public static explicit operator ABGRPixel(ARGBPixel p) { return new ABGRPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
-        public static explicit operator ARGBPixel(ABGRPixel p) { return new ARGBPixel() { A = p.A, B = p.B, G = p.G, R = p.R }; }
+        public static unsafe RGBAPixel Parse(string s)
+        {
+            RGBAPixel p;
+            byte* ptr = (byte*)&p;
+            for (int i = 0; i < 8; i += 2)
+                *ptr++ = s.Length >= i + 2 ? byte.Parse(s.Substring(i, 2), System.Globalization.NumberStyles.HexNumber) : (byte)(i == 6 ? 0xFF : 0);
+            return p;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -401,7 +408,7 @@ namespace BrawlLib.Imaging
         public override int GetHashCode() { return base.GetHashCode(); }
     }
 
-    [EditorAttribute(typeof(GoodColorControl.ColorEditor), typeof(UITypeEditor))]
+    [EditorAttribute(typeof(PropertyGridColorEditor), typeof(UITypeEditor))]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct GXColorS10
     {

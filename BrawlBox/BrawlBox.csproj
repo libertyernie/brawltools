@@ -54,9 +54,9 @@
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <RunCodeAnalysis>false</RunCodeAnalysis>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
@@ -64,27 +64,27 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
     <WarningLevel>4</WarningLevel>
     <Optimize>false</Optimize>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
     <RunCodeAnalysis>false</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Brawlbox.ico</ApplicationIcon>
@@ -174,8 +174,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
-    <None Include="NodeWrappers\BMDWrapper.cs" />
-    <None Include="NodeWrappers\RARCWrapper.cs" />
+    <Compile Include="NodeWrappers\BMDWrapper.cs" />
+    <Compile Include="NodeWrappers\RARCWrapper.cs" />
+    <None Include="NodeWrappers\FMDLWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
@@ -256,9 +257,6 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\ButtonClick.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\CheckedChanged.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\MiscFunctions.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -279,6 +277,9 @@
     </Compile>
     <Compile Include="UI\Model Previewer\LeftPanel.cs">
       <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\Model Previewer\ModelViewerSettings.cs">
+      <SubType>Form</SubType>
     </Compile>
     <Compile Include="UI\SettingsDialog.cs">
       <SubType>Form</SubType>
@@ -333,13 +334,15 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Model Previewer\ModelEditControl\Designer.resx">
       <DependentUpon>Designer.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Model Previewer\ModelViewerHelp.resx">
       <DependentUpon>ModelViewerHelp.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\Model Previewer\LeftPanel.resx">
       <DependentUpon>LeftPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\Model Previewer\ModelViewerSettings.resx">
+      <DependentUpon>ModelViewerSettings.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\ModelForm.resx">
       <DependentUpon>ModelForm.cs</DependentUpon>
@@ -496,7 +499,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent Condition=" '$(OS)' == 'Unix' ">cp "$(SolutionDir)/Updater/bin/$(ConfigurationName)/Updater.exe" "$(TargetDir)/Updater.exe"</PostBuildEvent>
-    <PostBuildEvent Condition=" '$(OS)' != 'Unix' " >%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
+    <PostBuildEvent Condition=" '$(OS)' != 'Unix' ">%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <PreBuildEvent>

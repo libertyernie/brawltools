@@ -101,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void MakeList()
         {
             _constant = false;
-            int entries = FrameCount + 1;
+            int entries = Scene.FrameCount;
             _numEntries = _colors.Count;
             NumEntries = entries;
         }

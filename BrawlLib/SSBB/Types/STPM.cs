@@ -8,10 +8,10 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct STPM
     {
-        public const uint Tag = 0x4D505453;
-        public const int Size = 20;
+        public const string Tag = "STPM";
+        public const int Size = 0x10;
 
-        public uint _tag;
+        public BinTag _tag;
         public bint _count;
         public int pad0;
         public int pad1;
@@ -24,7 +24,7 @@ namespace BrawlLib.SSBBTypes
         }
 
         public VoidPtr this[int index] { get { return (VoidPtr)((byte*)Address + Offsets(index)); } }
-        public uint Offsets(int index) { return *(buint*)((byte*)Address + 0x10 + (index * 4)); }
+        public uint Offsets(int index) { return *((buint*)Address + 4 + index); }
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
 

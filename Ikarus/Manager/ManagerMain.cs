@@ -27,13 +27,6 @@ namespace Ikarus
         public static string RootPath { get { return Program.RootPath; } }
 
         public static string[] _supportedCharacters = Enum.GetNames(typeof(CharName));
-        //public static CharName[] _supportedCharacters = new CharName[]
-        //{
-        //    CharName.Link,
-        //    CharName.Mario,
-        //    CharName.Pit,
-        //    CharName.ZeroSuitSamus
-        //};
 
         //This is the character that will be loaded at startup
         private static CharName _targetChar = CharName.Mario;
@@ -146,22 +139,29 @@ namespace Ikarus
 
         internal static void ModelIndexChanged()
         {
+            MainControl control = MainForm.Instance._mainControl;
+
             MDL0Node model = null;
             if (SelectedInfo != null)
             {
+                model = SelectedInfo.SelectedModel;
+
+                if (model != null)
+                    control.ModelPanel.RemoveTarget(model);
+
                 SelectedInfo.ModelIndexChanged();
                 model = SelectedInfo.SelectedModel;
             }
-            MainForm.Instance._mainControl._resetCam = false;
-            MainForm.Instance._mainControl.TargetModel = model;
-            RunTime.ResetSubactionVariables();
-            MainForm.Instance._mainControl.UpdateModel();
+            
+            control._resetCamera = false;
+            control.TargetModel = model;
+            control.UpdateModel();
         }
 
         public static TextInfo TextInfo { get { return Thread.CurrentThread.CurrentCulture.TextInfo; } }
 
         //Nodes specific to the selected character
-        public static BRESNode Animations { get { return _selected == null ? null : _selected.Animations; } }
+        public static BRRESNode Animations { get { return _selected == null ? null : _selected.Animations; } }
         public static MovesetNode Moveset { get { return _selected == null ? null : _selected.Moveset; } }
 
         public static unsafe MDL0Node TargetModel { get { return SelectedInfo == null ? null : SelectedInfo.SelectedModel; } }
@@ -290,5 +290,75 @@ namespace Ikarus
 
             return new EventInformation(id, id.ToString("X"), "No Description Available.", null, null);
         }
+
+        public const int ModuleCharMin = 91;
+
+        public static readonly int[] ModuleCharRemap = new int[]
+        {
+            9,
+            26,
+            24,
+            1,
+            17,
+            6,
+            16, //GW
+            18,
+
+        };
+
+        public static readonly object[] GFXPaths = new object[]
+        {
+            "/system/common3_en.pac /system/common3.pac",
+            CharName.Mario,
+            CharName.DonkeyKong,
+            CharName.Link,
+            CharName.Samus,
+            CharName.Yoshi,
+            CharName.Kirby,
+            CharName.Fox,
+            CharName.Pikachu,
+            CharName.Luigi,
+            CharName.CaptainFalcon,
+            CharName.Ness,
+            CharName.Bowser,
+            CharName.Peach,
+            CharName.Zelda,
+            CharName.Sheik,
+            CharName.Popo,
+            null,
+            CharName.Marth,
+            CharName.MrGameNWatch,
+            CharName.Falco,
+            CharName.Ganondorf,
+            CharName.Wario,
+            CharName.Metaknight,
+            CharName.Pit,
+            CharName.ZeroSuitSamus,
+            CharName.Olimar,
+            CharName.Lucas,
+            CharName.DiddyKong,
+            CharName.PokemonTrainer,
+            CharName.Charizard,
+            CharName.Squirtle,
+            CharName.Ivysaur,
+            CharName.KingDedede,
+            CharName.Lucario,
+            CharName.Ike,
+            CharName.ROB,
+            null,
+            CharName.Jigglypuff,
+            null,
+            null,
+            null,
+            CharName.ToonLink,
+            null,
+            null,
+            CharName.Wolf,
+            null,
+            CharName.Snake,
+            CharName.Sonic,
+            CharName.GigaBowser,
+            
+        };
     }
 }

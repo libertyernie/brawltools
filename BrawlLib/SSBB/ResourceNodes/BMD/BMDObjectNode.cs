@@ -214,5 +214,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             
         }
+
+        public Box GetBox()
+        {
+            return new Box();
+        }
     }
 }

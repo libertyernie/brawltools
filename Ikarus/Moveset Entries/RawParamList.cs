@@ -5,9 +5,62 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile
 {
+    public unsafe class BoneIndexValue : MovesetEntryNode
+    {
+        [Browsable(false)]
+        public MDL0BoneNode BoneNode
+        {
+            get
+            {
+                if (//ParentArticle == null && 
+                    Model == null)
+                    return null;
+
+                MDL0Node model;
+                //if (ParentArticle != null && ParentArticle._info != null)
+                //    model = ParentArticle._info._model;
+                //else
+                model = Model;
+
+                if (boneIndex >= model._linker.BoneCache.Length || boneIndex < 0)
+                    return null;
+
+                return (MDL0BoneNode)model._linker.BoneCache[boneIndex];
+            }
+            set
+            {
+                boneIndex = value.BoneIndex;
+                _name = value.Name;
+            }
+        }
+
+        [Category("Bone Index"), TypeConverter(typeof(DropDownListBonesMDef))]
+        public string Bone { get { return BoneNode == null ? boneIndex.ToString() : BoneNode.Name; } set { if (Model == null) { boneIndex = Convert.ToInt32(value); _name = boneIndex.ToString(); } else { BoneNode = String.IsNullOrEmpty(value) ? BoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
+        internal int boneIndex = 0;
+
+        public override string Name { get { return Bone; } }
+
+        protected override void OnParse(VoidPtr address)
+        {
+            boneIndex = *(bint*)address;
+        }
+
+        protected override int OnGetSize()
+        {
+            _lookupCount = 0;
+            return 4;
+        }
+
+        protected override void OnWrite(VoidPtr address)
+        {
+            *(bint*)(RebuildAddress = address) = boneIndex;
+        }
+    }
+
     public unsafe class RawParamList : MovesetEntryNode
     {
         public RawParamList() { }

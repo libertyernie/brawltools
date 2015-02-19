@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Ikarus Unfinished Beta")]
+[assembly: AssemblyTitle("Ikarus v0.5.0.0")]
 [assembly: AssemblyDescription("This program is provided as-is without any warranty, implied or otherwise." +
 " By using this program, the end user agrees to take full responsibility regarding its proper and lawful use." +
 " The authors/hosts/distributors cannot be held responsible for any damage resulting in the use of this program," +
@@ -13,7 +13,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Ikarus")]
-[assembly: AssemblyCopyright(@"Copyright © 2013 BlackJax96 
+[assembly: AssemblyCopyright(@"Copyright © 2015 BlackJax96 
 - Super Smash Bros. Brawl is copyrighted property - 
 © 2008 Nintendo and HAL Laboratory, Inc.")]
 [assembly: AssemblyTrademark(@"Characters are copyrighted by the following:
@@ -38,5 +38,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("0.50.*")]
-[assembly: AssemblyFileVersion("0.50.0.0")]
+[assembly: AssemblyVersion("0.5.*")]
+[assembly: AssemblyFileVersion("0.5.0.0")]

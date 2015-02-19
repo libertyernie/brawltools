@@ -13,19 +13,34 @@ using Ikarus.ModelViewer;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class ArticleEntry : MovesetEntryNode
+    public unsafe class ArticleNode : MovesetEntryNode
     {
         [Browsable(false)]
         public MDL0BoneNode CharBoneNode
         {
-            get { if (_root.Model == null) return null; if (charBone > _root.Model._linker.BoneCache.Length || charBone < 0) return null; return (MDL0BoneNode)_root.Model._linker.BoneCache[charBone]; }
+            get
+            {
+                MovesetNode node = (MovesetNode)_root;
+                if (node.Model == null)
+                    return null;
+                if (charBone > node.Model._linker.BoneCache.Length || charBone < 0)
+                    return null;
+                return (MDL0BoneNode)node.Model._linker.BoneCache[charBone];
+            }
             set { charBone = value.BoneIndex; }
         }
 
         [Browsable(false)]
         public MDL0BoneNode ArticleBoneNode
         {
-            get { if (_info == null || _info._model == null) return null; if (_info._model._linker == null || articleBone > _info._model._linker.BoneCache.Length || articleBone < 0) return null; return (MDL0BoneNode)_info._model._linker.BoneCache[articleBone]; }
+            get
+            {
+                if (_info == null || _info._model == null)
+                    return null;
+                if (articleBone >= _info._model.BoneCache.Length || articleBone < 0)
+                    return null;
+                return (MDL0BoneNode)_info._model.BoneCache[articleBone];
+            }
             set { articleBone = value.BoneIndex; }
         }
 
@@ -33,7 +48,7 @@ namespace Ikarus.MovesetFile
         public int ID { get { return Index; } }
         [Category("Article")]
         public int ARCGroupID { get { return id; } set { id = value; SignalPropertyChange(); } }
-        [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
+        [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesArticleMDef))]
         public string ArticleBone { get { return ArticleBoneNode == null ? articleBone.ToString() : ArticleBoneNode.Name; } set { if (Model == null) { articleBone = Convert.ToInt32(value); } else { ArticleBoneNode = String.IsNullOrEmpty(value) ? ArticleBoneNode : _info._model.FindBone(value); } SignalPropertyChange(); } }
         [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
         public string CharacterBone { get { return CharBoneNode == null ? charBone.ToString() : CharBoneNode.Name; } set { if (Model == null) { charBone = Convert.ToInt32(value); } else { CharBoneNode = String.IsNullOrEmpty(value) ? CharBoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
@@ -95,6 +110,7 @@ namespace Ikarus.MovesetFile
             Static = _initSize > 52 && _extraOffsets[0] < 1480 && _extraOffsets[0] >= 0;
 
             //_collisionData = Parse<CollisionData>(off1);
+            _mdlVis = Parse<ModelVisibility>(visStart);
 
             _scriptOffsets = new List<int>[4];
             for (int i = 0; i < 4; i++)
@@ -134,27 +150,31 @@ namespace Ikarus.MovesetFile
             {
                 SubActionEntry sg;
                 sSubActionFlags* sflags = (sSubActionFlags*)Address(hdr[4]);
-                size = _root.GetSize(hdr[6]);
-                count = size / 4;
-                for (int z = 0; z < count; z++)
-                {
-                    sSubActionFlags flag = sflags[z];
-                    _subActions.Add(sg = new SubActionEntry(flag, flag._stringOffset > 0 ? new String((sbyte*)Address(flag._stringOffset)) : "<null>", z));
-                }
-                for (int i = 0; i < 3; i++)
-                {
-                    int x = hdr[6 + i];
-                    if (x <= 0)
-                        continue;
 
-                    actionOffset = (bint*)Address(x);
+                if (hdr[6] > 1480)
+                {
+                    size = _root.GetSize(hdr[6]);
+                    count = size / 4;
                     for (int z = 0; z < count; z++)
                     {
-                        if (actionOffset[z] > 0)
-                            s = Parse<Script>(actionOffset[z], this);
-                        else
-                            s = new Script(this);
-                        _subActions[z].SetWithType(i, s);
+                        sSubActionFlags flag = sflags[z];
+                        _subActions.Add(sg = new SubActionEntry(flag, flag._stringOffset > 0 ? new String((sbyte*)Address(flag._stringOffset)) : "<null>", z));
+                    }
+                    for (int i = 0; i < 3; i++)
+                    {
+                        int x = hdr[6 + i];
+                        if (x <= 0)
+                            continue;
+
+                        actionOffset = (bint*)Address(x);
+                        for (int z = 0; z < count; z++)
+                        {
+                            if (actionOffset[z] > 0)
+                                s = Parse<Script>(actionOffset[z], this);
+                            else
+                                s = new Script(this);
+                            _subActions[z].SetWithType(i, s);
+                        }
                     }
                 }
             }

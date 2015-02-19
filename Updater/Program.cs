@@ -11,16 +11,15 @@ namespace Updater
 {
     class Program
     {
-        public const string baseURL = "https://github.com/libertyernie/brawltools/releases/download/";
-        public static string apppath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+        // Base url to search for in the release asset stream
+        public static readonly string BaseURL = "https://github.com/libertyernie/brawltools/releases/download/";
+        public static string AppPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public static async Task UpdateCheck() { await UpdateCheck(false); }
         public static async Task UpdateCheck(bool Overwrite)
         {
-
-
             // check to see if the user is online, and that github is up and running.
-            Console.WriteLine("Checkking connection to server.");
+            Console.WriteLine("Checking connection to server.");
             using (Ping s = new Ping())
                 Console.WriteLine(s.Send("www.github.com").Status);
 
@@ -35,8 +34,8 @@ namespace Updater
             // Check if we were passed in the overwrite paramter, and if not create a new folder to extract in.
             if (!Overwrite)
             {
-                Directory.CreateDirectory(apppath + "/" + release.TagName);
-                apppath += "/" + release.TagName;
+                Directory.CreateDirectory(AppPath + "/" + release.TagName);
+                AppPath += "/" + release.TagName;
             }
 
             using (WebClient client = new WebClient())
@@ -44,27 +43,22 @@ namespace Updater
                 // Add the user agent header, otherwise we will get access denied.
                 client.Headers.Add("User-Agent: Other");
 
-                // Base url to search for in the release asset stream
-                string baseUrl = "https://github.com/libertyernie/brawltools/releases/download/";
-
                 // Full asset streamed into a single string
                 string html = client.DownloadString(Asset.Url);
 
                 // The browser download link to the self extracting archive, hosted on github
-                string URL = html.Substring(html.IndexOf(baseUrl)).TrimEnd(new char[] { '}', '"' });
+                string URL = html.Substring(html.IndexOf(BaseURL)).TrimEnd(new char[] { '}', '"' });
 
                 Console.WriteLine("\nDownloading");
-                client.DownloadFile(URL, apppath + "/Update.exe");
+                client.DownloadFile(URL, AppPath + "/Update.exe");
                 Console.WriteLine("\nSuccess!");
 
                 Console.Clear();
                 Console.WriteLine("Starting install");
 
-
-                Process update = Process.Start(apppath + "/Update.exe", "-d\"" + apppath + "\"");
+                Process update = Process.Start(AppPath + "/Update.exe", "-d\"" + AppPath + "\"");
             }
         }
-
 
         static void Main(string[] args)
         {
@@ -84,4 +78,3 @@ namespace Updater
         }
     }
 }
-

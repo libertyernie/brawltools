@@ -87,7 +87,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public Relocation _targetRelocation { get { return GetTargetRelocation(); } set { SetTargetRelocation(value); } }
 
-        //Added is an offset relative to the start of the section
+        //Addend is an offset relative to the start of the section
         public uint _addend;
         public bool _initialized = false;
 

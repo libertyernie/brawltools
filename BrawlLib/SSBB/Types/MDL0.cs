@@ -197,16 +197,15 @@ namespace BrawlLib.SSBBTypes
         public bint _scalingRule;
         public bint _texMatrixMode;
         public bint _numVertices;
-        public bint _numFaces;
-        public bint _origPathOffset; //0x00
+        public bint _numTriangles;
+        public bint _origPathOffset;
         public bint _numNodes;
-        public byte _needNrmMtxArray; //0x01
-        public byte _needTexMtxArray; //0x01
-        public byte _enableExtents; //0x00
-        public byte _envMtxMode; //0x00
+        public byte _needNrmMtxArray;
+        public byte _needTexMtxArray;
+        public byte _enableExtents;
+        public byte _envMtxMode;
         public buint _dataOffset; //0x40
-        public BVec3 _minExtents;
-        public BVec3 _maxExtents;
+        public BBox _extents;
 
         public MDL0Props(int version, int vertices, int faces, int nodes, int scalingRule, int texMtxMode, bool needsNrmArr, bool needsTexArr, bool enableExtents, byte envMtxMode, Vector3 min, Vector3 max)
         {
@@ -218,7 +217,7 @@ namespace BrawlLib.SSBBTypes
             _scalingRule = scalingRule;
             _texMatrixMode = texMtxMode;
             _numVertices = vertices;
-            _numFaces = faces;
+            _numTriangles = faces;
             _origPathOffset = 0;
             _numNodes = nodes;
             _needNrmMtxArray = (byte)(needsNrmArr ? 1 : 0);
@@ -226,8 +225,7 @@ namespace BrawlLib.SSBBTypes
             _enableExtents = (byte)(enableExtents ? 1 : 0);
             _envMtxMode = envMtxMode;
             _dataOffset = 0x40;
-            _minExtents = min;
-            _maxExtents = max;
+            _extents = new BBox(min, max);
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
@@ -487,8 +485,7 @@ namespace BrawlLib.SSBBTypes
         public BVec3 _scale;
         public BVec3 _rotation;
         public BVec3 _translation;
-        public BVec3 _boxMin;
-        public BVec3 _boxMax;
+        public BBox _extents;
 
         public bint _parentOffset;
         public bint _firstChildOffset;
@@ -836,7 +833,7 @@ namespace BrawlLib.SSBBTypes
         
         public LightChannel Channel1 
         { 
-            get { return new LightChannel(flags0, c00, c01, _colorCtrl00, _colorCtrl01); }
+            get { return new LightChannel(false, flags0, c00, c01, _colorCtrl00, _colorCtrl01); }
             set
             {
                 flags0 = value._flags;
@@ -848,7 +845,7 @@ namespace BrawlLib.SSBBTypes
         }
         public LightChannel Channel2 
         { 
-            get { return new LightChannel(flags1, c10, c11, _colorCtrl10, _colorCtrl11); }
+            get { return new LightChannel(false, flags1, c10, c11, _colorCtrl10, _colorCtrl11); }
             set
             {
                 flags1 = value._flags;

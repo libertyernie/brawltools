@@ -79,7 +79,7 @@ namespace BrawlLib.Modeling
             int i = 0;
             _rawVertices = new Vector3[_vertices.Count];
             foreach (Vertex3 v in _vertices)
-                _rawVertices[i++] = v._position;
+                _rawVertices[i++] = v.Position;
 
             return _rawVertices;
         }
@@ -386,7 +386,7 @@ namespace BrawlLib.Modeling
                 {
                     if (newGroup == false)
                     {
-                        _primGroups.Add(group);
+                        groups.Add(group);
                         group = new PrimitiveGroup() { _offset = (uint)((pData - 1) - pStart) };
                         newGroup = true;
                     }
@@ -496,11 +496,11 @@ namespace BrawlLib.Modeling
                         for (int i = 0; i < count; i += 4)
                         {
                             p3arr[p3++] = index;
-                            p3arr[p3++] = (uint)(index + 2);
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 2;
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index;
-                            p3arr[p3++] = (uint)(index + 3);
-                            p3arr[p3++] = (uint)(index + 2);
+                            p3arr[p3++] = index + 3;
+                            p3arr[p3++] = index + 2;
                             index += 4;
                         }
                         break;
@@ -508,8 +508,8 @@ namespace BrawlLib.Modeling
                         count = *(bushort*)pData;
                         for (int i = 0; i < count; i += 3)
                         {
-                            p3arr[p3++] = (uint)(index + 2);
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 2;
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index;
                             index += 3;
                         }
@@ -520,7 +520,7 @@ namespace BrawlLib.Modeling
                         for (int i = 2; i < count; i++)
                         {
                             p3arr[p3++] = temp;
-                            p3arr[p3++] = (uint)(index + 1);
+                            p3arr[p3++] = index + 1;
                             p3arr[p3++] = index++;
                         }
                         index++;
@@ -532,7 +532,7 @@ namespace BrawlLib.Modeling
                         {
                             p3arr[p3++] = index;
                             p3arr[p3++] = (uint)(index - 1 - (i & 1));
-                            p3arr[p3++] = (uint)((index++) - 2 + (i & 1));
+                            p3arr[p3++] = (uint)(index++ - 2 + (i & 1));
                         }
                         break;
                     case GXListCommand.DrawLines:
@@ -634,7 +634,15 @@ namespace BrawlLib.Modeling
                 //Indices are written in reverse for each triangle, 
                 //so they need to be set to a triangle in reverse if not CCW
                 for (int t = 0; t < _triangles._indices.Length; t++)
-                    points[forceCCW ? t : (t - (t % 3)) + (2 - (t % 3))] = facepoints[indices[t]];
+                {
+                    uint index = indices[t];
+                    int pointIndex = forceCCW ? t : (t - (t % 3)) + (2 - (t % 3));
+                    if (pointIndex < points.Length)
+                        if (index >= facepoints.Length)
+                            points[pointIndex] = new Facepoint();
+                        else
+                            points[pointIndex] = facepoints[index];
+                }
 
                 _primGroups.AddRange(converter.GroupPrimitives(points, out newPointCount, out newFaceCount));
             }
@@ -1760,7 +1768,7 @@ namespace BrawlLib.Modeling
         public bool _render = true;
         public bool _renderNormals = true;
         
-        internal unsafe void RenderVertices(IMatrixNode singleBind, IBoneNode weightTarget, bool depthPass)
+        internal unsafe void RenderVertices(IMatrixNode singleBind, IBoneNode weightTarget, bool depthPass, GLCamera camera)
         {
             if (!_render)
                 return;
@@ -1773,9 +1781,8 @@ namespace BrawlLib.Modeling
                 else
                     GL.Color4(DefaultVertColor);
 
-                float d = GLPanel.Current.Camera.GetPoint().DistanceTo(singleBind == null ? v.WeightedPosition : singleBind.Matrix * v.WeightedPosition);
-                if (d == 0) d = 0.000000000001f;
-                GL.PointSize((5000 / d).Clamp(1.0f, !depthPass ? 5.0f : 8.0f));
+                float d = camera.GetPoint().DistanceTo(v.WeightedPosition);
+                GL.PointSize(d <= 0 ? 1 : (3000.0f / d).Clamp(1.0f, depthPass ? 8.0f : 5.0f) * (depthPass ? 1.5f : 1.2f));
 
                 GL.Begin(PrimitiveType.Points);
                 GL.Vertex3(v.WeightedPosition._x, v.WeightedPosition._y, v.WeightedPosition._z);

@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus;
 using Ikarus.MovesetFile;
+using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {
@@ -16,7 +17,7 @@ namespace System.Windows.Forms
     {
         public DialogResult status;
         public long eventEvent;
-        public MovesetNode p;
+        public SakuraiArchiveNode p;
 
         public FormEventList()
         {

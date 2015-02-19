@@ -9,6 +9,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.OpenGL;
 using Ikarus.ModelViewer;
 using BrawlLib.Modeling;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.MovesetFile
 {
@@ -89,15 +90,14 @@ namespace Ikarus.MovesetFile
             set
             {
                 _event = value;
-                string ev = Helpers.Hex8(_event);
-                _nameSpace = byte.Parse(ev.Substring(0, 2), System.Globalization.NumberStyles.HexNumber);
-                _id = byte.Parse(ev.Substring(2, 2), System.Globalization.NumberStyles.HexNumber);
-                _numArgs = byte.Parse(ev.Substring(4, 2), System.Globalization.NumberStyles.HexNumber);
-                _unknown = byte.Parse(ev.Substring(6, 2), System.Globalization.NumberStyles.HexNumber);
-                if (Manager.Events.ContainsKey(_event))
-                    _name = Manager.Events[_event]._name;
-                else
-                    _name = ev;
+                _nameSpace = (byte)((_event >> 24) & 0xFF);
+                _id = (byte)((_event >> 16) & 0xFF);
+                _numArgs = (byte)((_event >> 8) & 0xFF);
+                _unknown = (byte)((_event >> 0) & 0xFF);
+
+                _name = Manager.Events.ContainsKey(_event) ? 
+                    Manager.Events[_event]._name :
+                    Helpers.Hex8(_event);
             }
         }
 
@@ -303,12 +303,11 @@ namespace Ikarus.MovesetFile
             _numArgs = e->_numArguments;
             _unknown = e->_unk1;
 
-            //Merge values to create ID and match with events to get name
-            _event = uint.Parse(String.Format("{0:X02}{1:X02}{2:X02}{3:X02}", _nameSpace, _id, _numArgs, 0), System.Globalization.NumberStyles.HexNumber);
-            if (Manager.Events.ContainsKey(_event))
-                _name = Manager.Events[_event]._name;
-            else 
-                _name = Helpers.Hex8(_event);
+            _event = ((uint)*(buint*)address) & 0xFFFFFF00;
+            _name = Manager.Events.ContainsKey(_event) ? Manager.Events[_event]._name : Helpers.Hex8(_event);
+
+            if (_name == "FADEF00D" || _name == "FADE0D8A")
+                return;
 
             sParameter* args = (sParameter*)Address((int)e->_argumentOffset);
             for (int i = 0; i < _numArgs; i++)
@@ -361,7 +360,7 @@ namespace Ikarus.MovesetFile
 
                             //If the offset is -1, this is probably an external reference.
                             //Otherwise, check to see if the offset point to an external entry.
-                            ExternalEntryNode ext;
+                            TableEntryNode ext;
                             if (offset == -1)
                                 ext = _root.TryGetExternal((int)_eventOffset + i * 8 + 4);
                             else
@@ -375,7 +374,7 @@ namespace Ikarus.MovesetFile
                                 ext.References.Add(parameter);
                             }
                             else if (offset > 0)
-                                _root._postProcessEntries.Add(parameter);
+                                _root._postParseEntries.Add(parameter);
 
                             break;
                     }
@@ -461,7 +460,7 @@ namespace Ikarus.MovesetFile
 
                             args.Add(thisArg);
 
-                            //Check for following AND or OR if events
+                            //Check for following AND or OR 'if' events
                             if (ev.Next != null)
                             {
                                 ev = ev.Next;
@@ -497,7 +496,7 @@ namespace Ikarus.MovesetFile
 
                         case 0x0B: //And
                         case 0x0C: //Or
-                            return null; //This is handled by the parent If event above
+                            return null; //This is handled by the parent 'If' event above
                         case 0x0E: //Else
                             return "}" + n + "else" + n + "{";
                         case 0x0F: //End If
@@ -519,8 +518,7 @@ namespace Ikarus.MovesetFile
                             else
                                 mid = String.Format("case {0}:", Arg(0));
 
-                            if (Next != null)
-                                if (Next.EventID != 0x00110100)
+                            if (Next != null && Next.EventID != 0x00110100)
                                     end = n + "{";
 
                             return start + mid + end;
@@ -533,6 +531,8 @@ namespace Ikarus.MovesetFile
                                 va2 += "    }" + n; //Forced tab
 
                             return va2 + "}";
+                        case 0x18: //break
+                            return "break;";
                     }
                     break;
                 case 0x12: //Variables
@@ -628,14 +628,14 @@ namespace Ikarus.MovesetFile
         //This allows the values to be modified by other events.
         public HitBox(Event ev, int articleIndex)
         {
-            Root = ev._root;
+            Root = ev._root as MovesetNode;
             _event = ev.EventID;
             if (_event != 0x060A0800)
                 flags = ev[12] as HitboxFlagsNode;
             if (_event == 0x06150F00)
                 specialFlags = ev[14] as SpecialHitboxFlagsNode;
             if ((_articleIndex = articleIndex) < 0)
-                _model = RunTime.MainWindow.TargetModel;
+                _model = RunTime.MainWindow.TargetModel as MDL0Node;
             else
                 _model = RunTime._articles[_articleIndex]._model;
             _parameters = ev.Select(x => x.Data).ToArray();
@@ -653,7 +653,7 @@ namespace Ikarus.MovesetFile
 
         public bool IsOffensive(bool includeSpecial)
         {
-            return (_event == 0x06000D00 || _event == 0x062B0D00) || (includeSpecial ? _event == 0x06150F00 : false);
+            return (_event == 0x06000D00 || _event == 0x062B0D00) || (includeSpecial ? IsSpecialOffensive() : false);
         }
         public bool IsSpecialOffensive()
         {
@@ -664,31 +664,19 @@ namespace Ikarus.MovesetFile
             return _event == 0x060A0800 || _event == 0x060A0900 || _event == 0x060A0A00;
         }
 
-        public void Render(TKContext ctx, Vector3 cam)
+        public void Render(Vector3 cam)
         {
-            switch (_event)
-            {
-                case 0x06000D00:
-                case 0x062B0D00:
-                    RenderOffensiveCollision(ctx, cam);
-                    break;
-                case 0x06150F00:
-                    RenderSpecialOffensiveCollision(ctx, cam);
-                    break;
-                case 0x060A0800:
-                case 0x060A0900:
-                case 0x060A0A00:
-                    RenderCatchCollision(ctx, cam);
-                    break;
-            }
+            if (IsOffensive(false))
+                RenderOffensiveCollision(cam);
+            else if (IsSpecialOffensive())
+                RenderSpecialOffensiveCollision(cam);
+            else if (IsCatch())
+                RenderCatchCollision(cam);
         }
 
         #region Offensive Collision
-        private unsafe void RenderOffensiveCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderOffensiveCollision(Vector3 cam)
         {
-            if (_event != 0x06000D00) //Offensive Collision
-                return;
-
             MovesetNode node = Root;
             ResourceNode[] bl = _model._linker.BoneCache;
 
@@ -741,8 +729,8 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(flags.Type);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.5f);
-            
-            GLDisplayList spheres = c.GetSphereList();
+
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
 
             //Angle indicator
@@ -811,7 +799,7 @@ namespace Ikarus.MovesetFile
             GL.PopMatrix();
 
             // border
-            GLDisplayList rings = c.GetRingList();
+            GLDisplayList rings = TKContext.GetRingList();
             for (int i = -5; i <= 5; i++)
             {
                 GL.PushMatrix();
@@ -841,11 +829,8 @@ namespace Ikarus.MovesetFile
         #endregion
 
         #region Special Offensive Collision
-        private unsafe void RenderSpecialOffensiveCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderSpecialOffensiveCollision(Vector3 cam)
         {
-            if (_event != 0x06150F00) //Special Offensive Collision
-                return;
-
             ResourceNode[] bl = _model._linker.BoneCache;
 
             int boneindex = (int)_parameters[0] >> 16;
@@ -896,8 +881,8 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(flags.Type);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.5f);
-                
-            GLDisplayList spheres = c.GetSphereList();
+
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
             if (specialFlags.Stretches)
             {
@@ -996,7 +981,7 @@ namespace Ikarus.MovesetFile
             GL.PopMatrix();
 
             // border
-            GLDisplayList rings = c.GetRingList();
+            GLDisplayList rings = TKContext.GetRingList();
             for (int i = -5; i <= 5; i++)
             {
                 GL.PushMatrix();
@@ -1026,11 +1011,8 @@ namespace Ikarus.MovesetFile
         #endregion
 
         #region Catch Collision
-        private unsafe void RenderCatchCollision(TKContext c, Vector3 cam)
+        private unsafe void RenderCatchCollision(Vector3 cam)
         {
-            if (_event != 0x060A0800 && _event != 0x060A0900 && _event != 0x060A0A00)
-                return;
-
             ResourceNode[] bl = _model._linker.BoneCache;
 
             int boneindex = _parameters[1];
@@ -1076,7 +1058,7 @@ namespace Ikarus.MovesetFile
 
             Vector3 color = Util.GetTypeColor(Util.HitboxType.Throwing);
             GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.375f);
-            GLDisplayList spheres = c.GetSphereList();
+            GLDisplayList spheres = TKContext.GetSphereList();
             spheres.Call();
             
             GL.PopMatrix();

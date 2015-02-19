@@ -29,8 +29,6 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        protected static void MoveUpAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().MoveUp(); }
-        protected static void MoveDownAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().MoveDown(); }
         //protected static void CreateAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().CreateStruct(); }
         protected static void CreateAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().CreateStage(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
@@ -67,7 +65,7 @@ namespace BrawlBox.NodeWrappers
             }
         }
 
-        public new void MoveUp()
+        public override void MoveUp(bool select)
         {
             if (PrevNode == null)
                 return;
@@ -79,7 +77,8 @@ namespace BrawlBox.NodeWrappers
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                TreeView.SelectedNode = this;
+                if (select)
+                    TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
 
                 foreach (ResourceNode n in _resource.Parent.Children)
@@ -87,7 +86,7 @@ namespace BrawlBox.NodeWrappers
             }
         }
 
-        public new void MoveDown()
+        public override void MoveDown(bool select)
         {
             if (NextNode == null)
                 return;
@@ -99,7 +98,8 @@ namespace BrawlBox.NodeWrappers
                 TreeView.BeginUpdate();
                 Remove();
                 parent.Nodes.Insert(index, this);
-                TreeView.SelectedNode = this;
+                if (select)
+                    TreeView.SelectedNode = this;
                 TreeView.EndUpdate();
 
                 foreach (ResourceNode n in _resource.Parent.Children)

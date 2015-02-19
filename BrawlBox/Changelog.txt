@@ -1,7 +1,6 @@
 
-BrawlBox Data Viewer - Version 0.73
-Copyright © 2009 - 2013 Bryan Moulton & BlackJax96
-Copyright © 2014 libertyernie & Sammi Husky
+BrawlBox Data Viewer - Version 0.74b
+Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -14,6 +13,49 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.74c (??/??/2015) - BrawlLib v0.21c
+	. Fixed bug where MDL0 material blend mode values were read and written incorrectly
+	. Fixed bug in model viewer where setting an SRT0's matrix mode via the animation's right click menu didn't actually set it
+
+ - v0.74b - BrawlLib v0.21b
+
+ Hotfix 1 (1/7/2015): 
+	. Fixed bug where animations did not set the frame count in the model viewer
+	. Fixed bug where part of the animation edit control at the bottom of the model viewer would be cut off when the scroll bar became visible
+
+ Initial Release (1/6/2015):
+	. Fixed bug where the file's compression type was not displayed
+	. Loop frame is no longer included when playing an animation. This is how it works in-game; the loop frame is only for interpolation from the last frame to the first and therefore only included for CHR0, SRT0, SHP0, and SCN0
+	. Fixed several bugs involving the loop frame
+	. Fixed bug where IA4 alpha and intensity were swapped
+	. Fixed bug where a raw data node would appear when opening an unrecognizable file format instead of showing a message
+	. Fixed bug where the loop frame was not included in the frame count when parsing CHR0, SRT0, SHP0, and SCN0
+	. Fixed bug where detaching and reattaching the model panel as a separate window did not work
+	. Fixed bug when trying to view the interpolation of SHP0 nodes
+	. Fixed model viewer screenshot hotkeys
+	. Fixed bug where PAT0 animations did not save texture/palette names properly
+	. Fixed bug where models no longer clipped with the floor in the model viewer
+	. Fixed bug when opening the collision editor
+	. Fixed bug where isotropic animations (isotropic means all the values are the same, so this is usually scale) were not parsed correctly
+	. Fixed bug where PMD models could no longer be imported
+	. Fixed bug where the vertex editor did not appear in the model viewer when using the "J" hotkey
+	. Removed MDL0 material light channel count and instead added "enabled" to each light channel's properties
+	. Renamed MDL0 material "ZCompareLoc" property to "CompareBeforeTexture" and added it under "Z Mode".
+	. Fixed bug where MDL0 textures that aren't used by any object were written to the model (metal00 for Brawl models).
+	. Added TPL, EFLS, REFF and REFT as nodes that can be created from scratch
+	. Fixed bug where billboard bones did not apply in the model panel
+	. Added option to zoom precisely in the model viewer by pressing the middle mouse button and dragging
+	. Fixed bug where replacing an MDL0 bone node would remove its children
+	. Moved option to edit all models out of the dropdown in the model viewer and into the settings area under Options->Settings
+	. Added tool to search for animations at the top of the animation list in the model viewer
+	. Added option to MDL0 right click menu to recalculate and set bounding boxes at bind state (model and visibility bone boxes)
+	. Added options to render visibility bone boxes, model boxes, and object boxes separately under View->Model->'Bounding Boxes' in the model viewer
+	. Added option to render the bounding boxes that have been written to the model on frame 0 (the bind state) instead of rendering the auto-calculated ones. This option is located under Options->Settings in the model viewer
+	. Branch opcodes are now highlighted in purple in the module section editor.
+	. Branch offset destinations are now included in the module section editor's list box, highlighted in blue. Command destinations are highlighted in green.
+	. REL Section 5 object parser has been added back
+	. Added the option to manually set a bone's billboard reference bone.
 
  - v0.74- (12/25/2014) - BrawlLib v0.21
 	. Brawlbox can now check for updates on startup (can be enabled via Tools->Settings) or when you go to Help->"Check for updates" and automatically install that update for you, in another folder or in place of the current version.
@@ -45,10 +87,10 @@ they be held accountable for the manner in which it is used.
 	. Section editor now displays number of selected bytes, rather than length of the full section. (bottom status bar)
 	. GCT editor saves unchecked codes as disabled in .txt (pads the left side with an asterisk). Saving as GCT will not save disabled codes
 	. GCT editor now allows multiline descriptions in .txt files.
-	. Improved pixel format conversion, furthering it's acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
+	. Improved pixel format conversion, furthering its acuracy. (see details here: https://github.com/libertyernie/brawltools/pull/14)
 	. Fixed scaling of bone control in the model previewer when changing the "Y Field Of View" in the environment settings window under Menu->Options
 	. Added experimental support for orthographic projection in the viewport. Toggleable under Menu->Options->Environment Settings->Orthographic. 
-		Note: there are problems with this, such as billboard bones and the scaling of the bone edit control. Orthographic cameras look AT their origin, while perspective cameras look OUT from their origin.
+		Note: there are problems with this, such as billboard bones and the scaling of the bone edit control. Orthographic cameras look AT their origin point, while perspective cameras look OUT from their origin point.
 	. Added a live texture folder to the model previewer. Select a folder under Menu->Tools->"Live Texture Folder" and any textures with names that match the model's textures will be auto-loaded on the model when modified.
 	. Added a small dialog in the collision editor to rotate/translate/scale selected planes by specific values.
 	. Object / Method editor has been added to the module editor pending a better UI for it.
@@ -58,6 +100,8 @@ they be held accountable for the manner in which it is used.
 		- Added a button to the disassembler that is only visible when a branch command is selected, allowing you to jump to that location.
 	. Better support for MDL0 billboard bones. Can now render properly in the viewer and be properly set in the bone's properties.
 	. Added the option to view property descriptions if they are available (Can be enabled in Tools->Settings). Most currently available descriptions are located in the properties of nodes found in MDL0 (materials, shaders, bones, etc).
+	. Added property descriptions to some MDL0 material and bone properties. More descriptions coming soon.
+	. Added a texture coordinate viewer when selecting MDL0 material reference nodes and MDL0 texture nodes. Options to display only certain coords and export as a texture coming soon.
 
  - v0.73b- (8/14/2014) - BrawlLib v0.20b
 	. Model previewer now has the abiility to render the stage boundries as well as respawn and spawn areas
@@ -550,7 +594,11 @@ they be held accountable for the manner in which it is used.
 |*********** Requirements ***********|
  ====================================
  
-* Microsoft .Net Framework v4.0
+* BrawlBox: Microsoft .Net Framework v4.5.1
+	http://www.microsoft.com/en-us/download/details.aspx?id=40779 (Offline installer)
+	http://www.microsoft.com/en-us/download/details.aspx?id=40773 (Web installer)
+
+* BrawlLib: Microsoft .Net Framework v4.0
 	http://www.microsoft.com/en-us/download/details.aspx?id=17718
 	
 * A video card that supports OpenGL 1.1 or higher.

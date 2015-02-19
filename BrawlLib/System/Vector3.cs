@@ -2,12 +2,13 @@
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Globalization;
+using System.Runtime.Serialization;
 
 namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct Vector3 : IComparable
+    public unsafe struct Vector3 : IComparable, ISerializable
     {
         public float _x, _y, _z;
 
@@ -29,7 +30,18 @@ namespace System
         }
         public Vector3(float x, float y, float z) { _x = x; _y = y; _z = z; }
         public Vector3(float s) { _x = s; _y = s; _z = s; }
-
+        public Vector3(SerializationInfo info, StreamingContext context)
+        {
+            _x = info.GetSingle("_x");
+            _z = info.GetSingle("_y");
+            _y = info.GetSingle("_z");
+        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            info.AddValue("_x", _x);
+            info.AddValue("_y", _y);
+            info.AddValue("_z", _z);
+        }
         public static explicit operator Vector3(Vector4 v) { return new Vector3(v._x / v._w, v._y / v._w, v._z / v._w); }
         //public static explicit operator Vector4(Vector3 v) { return new Vector4(v._x, v._y, v._z, 1.0f); }
 
@@ -51,6 +63,11 @@ namespace System
 
         public static bool operator ==(Vector3 v1, Vector3 v2) { return (v1._x == v2._x) && (v1._y == v2._y) && (v1._z == v2._z); }
         public static bool operator !=(Vector3 v1, Vector3 v2) { return (v1._x != v2._x) || (v1._y != v2._y) || (v1._z != v2._z); }
+
+        public static bool operator <(Vector3 v1, Vector3 v2) { return (v1._x < v2._x) && (v1._y < v2._y) && (v1._z < v2._z); }
+        public static bool operator >(Vector3 v1, Vector3 v2) { return (v1._x > v2._x) && (v1._y > v2._y) && (v1._z > v2._z); }
+        public static bool operator <=(Vector3 v1, Vector3 v2) { return (v1._x <= v2._x) && (v1._y <= v2._y) && (v1._z <= v2._z); }
+        public static bool operator >=(Vector3 v1, Vector3 v2) { return (v1._x >= v2._x) && (v1._y >= v2._y) && (v1._z >= v2._z); }
 
         public void Add(Vector3* v) { _x += v->_x; _y += v->_y; _z += v->_z; }
         public void Add(float v) { _x += v; _y += v; _z += v; }
@@ -190,6 +207,20 @@ namespace System
         public void Morph(Vector3 dest, float percent) { this += ((dest - this) * percent); }
         public Vector3 ReturnMorph(Vector3 dest, float percent) { return this + ((dest - this) * percent); }
         
+        public void RemapToRange(float min, float max)
+        {
+            _x = _x.RemapToRange(-180.0f, 180.0f);
+            _y = _y.RemapToRange(-180.0f, 180.0f);
+            _z = _z.RemapToRange(-180.0f, 180.0f);
+        }
+        public Vector3 RemappedToRange(float min, float max)
+        {
+            return new Vector3(
+                _x.RemapToRange(-180.0f, 180.0f),
+                _y.RemapToRange(-180.0f, 180.0f),
+                _z.RemapToRange(-180.0f, 180.0f));
+        }
+
         public int CompareTo(object obj)
         {
             if (obj is Vector3)
@@ -233,6 +264,26 @@ namespace System
             q._w = (float)(cosX * cosY * sinZ - sinX * sinY * cosZ);
 
             return q;
+        }
+
+        public bool IsInTriangle(Vector3 triPt1, Vector3 triPt2, Vector3 triPt3)
+        {
+            Vector3 v0 = triPt2 - triPt1;
+            Vector3 v1 = triPt3 - triPt1;
+            Vector3 v2 = this - triPt1;
+
+            float dot00 = v0.Dot(v0);
+            float dot01 = v0.Dot(v1);
+            float dot02 = v0.Dot(v2);
+            float dot11 = v1.Dot(v1);
+            float dot12 = v1.Dot(v2);
+
+            //Get barycentric coordinates
+            float d = (dot00 * dot11 - dot01 * dot01);
+            float u = (dot11 * dot02 - dot01 * dot12) / d;
+            float v = (dot00 * dot12 - dot01 * dot02) / d;
+
+            return u >= 0 && v >= 0 && u + v < 1;
         }
     }
 }

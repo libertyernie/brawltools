@@ -254,7 +254,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void MakeList(int id)
         {
             _constants[id] = false;
-            int entries = ((SCN0Node)Parent._parent).FrameCount + 1;
+            int entries = Scene.FrameCount;
             _numEntries[id] = GetColors(id).Count;
             SetNumEntries(id, entries);
         }
@@ -319,7 +319,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _spotFunc = Data->_spotFunc;
 
             //Read user data
-            //(_userEntries = new UserDataCollection()).Read(Data->UserData);
+            (_userEntries = new UserDataCollection()).Read(Data->UserData);
 
             //Don't bother reading data if the entry is null
             if (Name == "<null>")
@@ -783,7 +783,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_keyframes == null)
                 {
-                    _keyframes = new KeyframeCollection(10, Scene.FrameCount);
+                    _keyframes = new KeyframeCollection(10, Scene.FrameCount + (Scene.Loop ? 1 : 0));
                     for (int i = 0, index = 0; i < 14; i++)
                         if (!(i == 3 || i == 7 || i == 9 || i == 11))
                             DecodeKeyframes(

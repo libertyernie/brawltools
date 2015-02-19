@@ -63,9 +63,9 @@ namespace BrawlLib.OpenGL
         {
             _window = window;
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
-            _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
+            _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
-            (_context as IGraphicsContextInternal).LoadAll();
+            _context.LoadAll();
             
             // Check for GLSL support
             string version = GL.GetString(StringName.Version);
@@ -112,8 +112,7 @@ namespace BrawlLib.OpenGL
             Reset();
         }
 
-        public void Capture() { Capture(false); }
-        public void Capture(bool force)
+        public void Capture(bool force = false)
         {
             try
             {
@@ -212,6 +211,39 @@ namespace BrawlLib.OpenGL
                 _context.Update(WindowInfo); 
         }
 
+        public static unsafe void DrawWireframeBox(Box value) { DrawWireframeBox(value.Min, value.Max); }
+        public static unsafe void DrawWireframeBox(Vector3 min, Vector3 max)
+        {
+            GL.Begin(PrimitiveType.LineStrip);
+
+            GL.Vertex3(max._x, max._y, max._z);
+            GL.Vertex3(max._x, max._y, min._z);
+            GL.Vertex3(min._x, max._y, min._z);
+            GL.Vertex3(min._x, min._y, min._z);
+            GL.Vertex3(min._x, min._y, max._z);
+            GL.Vertex3(max._x, min._y, max._z);
+            GL.Vertex3(max._x, max._y, max._z);
+
+            GL.End();
+
+            GL.Begin(PrimitiveType.Lines);
+
+            GL.Vertex3(min._x, max._y, max._z);
+            GL.Vertex3(max._x, max._y, max._z);
+            GL.Vertex3(min._x, max._y, max._z);
+            GL.Vertex3(min._x, min._y, max._z);
+            GL.Vertex3(min._x, max._y, max._z);
+            GL.Vertex3(min._x, max._y, min._z);
+            GL.Vertex3(max._x, min._y, min._z);
+            GL.Vertex3(min._x, min._y, min._z);
+            GL.Vertex3(max._x, min._y, min._z);
+            GL.Vertex3(max._x, max._y, min._z);
+            GL.Vertex3(max._x, min._y, min._z);
+            GL.Vertex3(max._x, min._y, max._z);
+
+            GL.End();
+        }
+        public static unsafe void DrawBox(Box value) { DrawBox(value.Min, value.Max); }
         public static unsafe void DrawBox(Vector3 p1, Vector3 p2)
         {
             GL.Begin(PrimitiveType.QuadStrip);
@@ -243,7 +275,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
         }
-
+        public static unsafe void DrawInvertedBox(Box value) { DrawInvertedBox(value.Min, value.Max); }
         public unsafe static void DrawInvertedBox(Vector3 p1, Vector3 p2)
         {
             GL.Begin(PrimitiveType.QuadStrip);

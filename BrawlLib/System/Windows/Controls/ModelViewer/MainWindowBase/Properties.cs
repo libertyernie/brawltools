@@ -22,6 +22,12 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderBones = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ApplyBillboardBones
+        {
+            get { return ModelPanel.ApplyBillboardBones; }
+            set { ModelPanel.ApplyBillboardBones = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderVertices
         {
             get { return ModelPanel.RenderVertices; }
@@ -46,10 +52,28 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderWireframe = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public bool RenderBox
+        public bool RenderModelBox
         {
-            get { return ModelPanel.RenderBox; }
-            set { ModelPanel.RenderBox = value; }
+            get { return ModelPanel.RenderModelBox; }
+            set { ModelPanel.RenderModelBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderObjectBox
+        {
+            get { return ModelPanel.RenderObjectBox; }
+            set { ModelPanel.RenderObjectBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderVisBoneBox
+        {
+            get { return ModelPanel.RenderVisBoneBox; }
+            set { ModelPanel.RenderVisBoneBox = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool UseBindStateBoxes
+        {
+            get { return ModelPanel.UseBindStateBoxes; }
+            set { ModelPanel.UseBindStateBoxes = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool DontRenderOffscreen
@@ -74,24 +98,26 @@ namespace System.Windows.Forms
         public bool Playing { get { return _playing; } set { _playing = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CHR0Editor CHR0Editor { get { return chr0Editor; } }
+        public virtual CHR0Editor CHR0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SRT0Editor SRT0Editor { get { return srt0Editor; } }
+        public virtual SRT0Editor SRT0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SHP0Editor SHP0Editor { get { return shp0Editor; } }
+        public virtual SHP0Editor SHP0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public VIS0Editor VIS0Editor { get { return vis0Editor; } }
+        public virtual VIS0Editor VIS0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public PAT0Editor PAT0Editor { get { return pat0Editor; } }
+        public virtual PAT0Editor PAT0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public SCN0Editor SCN0Editor { get { return scn0Editor; } }
+        public virtual SCN0Editor SCN0Editor { get { return null; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CLR0Editor CLR0Editor { get { return clr0Editor; } }
+        public virtual CLR0Editor CLR0Editor { get { return null; } }
 
+        //TODO: make all playback panel values individual and virtual and inherit them with the playback panel values
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPlaybackPanel PlaybackPanel { get { return pnlPlayback; } }
+        public virtual ModelPlaybackPanel PlaybackPanel { get { return null; } }
+        
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ModelPanel ModelPanel { get { return _viewerForm == null ? modelPanel : _viewerForm.modelPanel1; } }
+        public virtual ModelPanel ModelPanel { get { return _viewerForm == null ? null : _viewerForm.modelPanel1; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public ModelViewerForm ModelViewerForm { get { return _viewerForm; } }
@@ -107,11 +133,8 @@ namespace System.Windows.Forms
             {
                 _chr0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CHR);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.CHR);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -122,11 +145,8 @@ namespace System.Windows.Forms
             {
                 _srt0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SRT);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SRT);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -137,11 +157,8 @@ namespace System.Windows.Forms
             {
                 _shp0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SHP);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SHP);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -152,11 +169,8 @@ namespace System.Windows.Forms
             {
                 _pat0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.PAT);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.PAT);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -170,8 +184,8 @@ namespace System.Windows.Forms
                 if (_updating)
                     return;
 
-                AnimChanged(NW4RAnimType.VIS);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.VIS);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -182,11 +196,8 @@ namespace System.Windows.Forms
             {
                 _scn0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.SCN);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.SCN);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -197,20 +208,9 @@ namespace System.Windows.Forms
             {
                 _clr0 = value;
 
-                if (_updating)
-                    return;
-
-                AnimChanged(NW4RAnimType.CLR);
-                UpdatePropDisplay();
+                if (!_updating)
+                    AnimChanged(NW4RAnimType.CLR);
             }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Color ClearColor { get { return _clearColor; } set { _clearColor = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public Image BGImage
-        {
-            get { return ModelPanel.BackgroundImage; }
-            set { BackgroundImageLoaded = (ModelPanel.BackgroundImage = value) != null; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool AllowZoomExtents { get { return _selectedBone != null; } }
@@ -224,14 +224,23 @@ namespace System.Windows.Forms
                     return;
 
                 _enableTransform = value;
-                chr0Editor.Enabled =
-                srt0Editor.Enabled =
-                shp0Editor.Enabled =
-                vis0Editor.Enabled =
-                pat0Editor.Enabled =
-                scn0Editor.Enabled =
-                clr0Editor.Enabled =
-                KeyframePanel.Enabled = value;
+
+                if (CHR0Editor != null)
+                    CHR0Editor.Enabled = value;
+                if (SRT0Editor != null)
+                    SRT0Editor.Enabled = value;
+                if (SHP0Editor != null)
+                    SHP0Editor.Enabled = value;
+                if (VIS0Editor != null)
+                    VIS0Editor.Enabled = value;
+                if (PAT0Editor != null)
+                    PAT0Editor.Enabled = value;
+                if (SCN0Editor != null)
+                    SCN0Editor.Enabled = value;
+                if (CLR0Editor != null)
+                    CLR0Editor.Enabled = value;
+                if (KeyframePanel != null)
+                    KeyframePanel.Enabled = value;
                 if (InterpolationEditor != null && InterpolationEditor.Visible)
                     InterpolationEditor.Enabled = value;
 
@@ -253,9 +262,13 @@ namespace System.Windows.Forms
             {
                 _targetVisEntry = value;
                 UpdatePropDisplay();
-                KeyframePanel.TargetSequence = _targetVisEntry as ResourceNode;
-                KeyframePanel.chkConstant.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Constant);
-                KeyframePanel.chkEnabled.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Enabled);
+
+                if (KeyframePanel != null)
+                {
+                    KeyframePanel.TargetSequence = _targetVisEntry as ResourceNode;
+                    KeyframePanel.chkConstant.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Constant);
+                    KeyframePanel.chkEnabled.Checked = _targetVisEntry._flags.HasFlag(VIS0Flags.Enabled);
+                }
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -272,22 +285,25 @@ namespace System.Windows.Forms
         }
 
         //public Vector3 CamLoc() { return ModelPanel.Camera.GetPoint(); }
-        public Vector3 CamLoc(ModelPanel panel) { return panel.Camera.GetPoint(); }
+        public Vector3 CamLoc(GLViewport panel) { return panel.Camera.GetPoint(); }
 
         //public float CamDistance(Vector3 v) { return CamDistance(v, ModelPanel._fovY); }
         //public float CamDistance(Vector3 v, float fovY) { return v.TrueDistance(CamLoc()) / _orbRadius * (fovY / 45.0f) * 0.1f; }
-        public float CamDistance(Vector3 v, ModelPanel panel) { return v.TrueDistance(CamLoc(panel)) / _orbRadius * (panel._fovY / 45.0f) * 0.1f; }
+        public float CamDistance(Vector3 v, GLViewport panel)
+        {
+            if (panel.ViewType == ViewportProjection.Perspective)
+                return v.TrueDistance(CamLoc(panel)) / _orbRadius * (panel.Camera.VerticalFieldOfView / 45.0f) * 0.1f;
+            else
+                return panel.Camera._scale._x * 80.0f;
+        }
         
         //public float OrbRadius() { return CamDistance(BoneLoc()); }
-        public float OrbRadius(IBoneNode b, ModelPanel panel) { return CamDistance(BoneLoc(b), panel); }
-        public float OrbRadius(Vector3 b, ModelPanel panel) { return CamDistance(b, panel); }
+        public float OrbRadius(IBoneNode b, GLViewport panel) { return CamDistance(BoneLoc(b), panel); }
+        public float OrbRadius(Vector3 b, GLViewport panel) { return CamDistance(b, panel); }
 
         //public float VertexOrbRadius() { return CamDistance((Vector3)VertexLoc()); }
-        public float VertexOrbRadius(ModelPanel panel) { return CamDistance((Vector3)VertexLoc(), panel); }
+        public float VertexOrbRadius(GLViewport panel) { return CamDistance((Vector3)VertexLoc(), panel); }
 
-        //public Matrix CamFacingMatrix() { return Matrix.TransformMatrix(new Vector3(OrbRadius()), BoneLoc().LookatAngles(CamLoc()) * Maths._rad2degf, BoneLoc()); }
-        public Matrix CamFacingMatrix(IBoneNode b, ModelPanel panel) { return Matrix.TransformMatrix(new Vector3(OrbRadius(b, panel)), BoneLoc(b).LookatAngles(CamLoc(panel)) * Maths._rad2degf, BoneLoc(b)); }
-        
         //public Vector3 BoneLoc() { return BoneLoc(SelectedBone); }
         public Vector3 BoneLoc(IBoneNode b) { return b == null ? new Vector3() : b.Matrix.GetPoint(); }
         public Vector3? VertexLoc()
@@ -349,7 +365,7 @@ namespace System.Windows.Forms
                 if (BonesPanel != null)
                     BonesPanel.SetSelectedBone(_selectedBone);
 
-                if (TargetAnimType == NW4RAnimType.CHR)
+                if (TargetAnimType == NW4RAnimType.CHR && KeyframePanel != null)
                     KeyframePanel.TargetSequence =
                         _chr0 != null && _selectedBone != null ?
                         _chr0.FindChild(_selectedBone.Name, false) :
@@ -373,6 +389,8 @@ namespace System.Windows.Forms
                 //    InterpolationEditor.Frame = CurrentFrame;
             }
         }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
+        public virtual bool RetrieveCorrespondingAnimations { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool SyncVIS0 { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
@@ -381,8 +399,8 @@ namespace System.Windows.Forms
         public virtual bool DoNotHighlightOnMouseMove { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public virtual string ScreenCaptureFolder { get; set; }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(".png")]
-        public virtual string ScreenCaptureExtension { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(ImageType.png)]
+        public virtual ImageType ScreenCaptureType { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool InterpolationFormOpen { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(TransformType.Rotation)]

@@ -103,7 +103,8 @@ namespace BrawlLib.Wii.Models
 
         public MDL0Node Model;
         public int _headerLen, _tableLen, _groupLen, _texLen, _boneLen, _dataLen, _defLen, _assetLen;
-        public int _texCount, _palCount, _nodeCount;
+        public List<MDL0TextureNode> _texList, _pltList;
+        public int _nodeCount;
         public ResourceNode[] BoneCache;
         public IMatrixNode[] NodeCache;
 

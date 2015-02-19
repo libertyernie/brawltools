@@ -35,7 +35,7 @@ namespace BrawlLib.Wii.Compression
             CompressionType.RunLengthYAY0,
         };
 
-        public static bool Supports(CompressionType type) { return _supportedCompressionTypes.Contains(type); }
+        public static bool Supports(CompressionType type) { return type != CompressionType.None && _supportedCompressionTypes.Contains(type); }
         
         const string _characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         public static CompressionType GetAlgorithm(DataSource source) { return GetAlgorithm(source.Address, source.Length); }
@@ -62,6 +62,16 @@ namespace BrawlLib.Wii.Compression
 
                 return cmpr->Algorithm;
             }
+        }
+        public static uint GetExpandedLength(VoidPtr addr, int length)
+        {
+            BinTag compTag = *(BinTag*)addr;
+            if (compTag == YAZ0.Tag)
+                return (uint)((YAZ0*)addr)->_unCompDataLen;
+            else if (compTag == YAY0.Tag)
+                return (uint)((YAY0*)addr)->_unCompDataLen;
+            else
+                return ((CompressionHeader*)addr)->ExpandedSize;
         }
 
         private static bool IsTag(byte* c)
@@ -92,18 +102,16 @@ namespace BrawlLib.Wii.Compression
             return false;
         }
 
-        public static FileMap TryExpand(DataSource source)
+        public static FileMap TryExpand(ref DataSource source, bool doTest = true)
         {
             FileMap decompressedMap = null;
             CompressionType algorithm = GetAlgorithm(source);
-            if (algorithm != CompressionType.None && Supports(algorithm))
+            if (Supports(source.Compression = algorithm))
             {
                 try
                 {
-                    if (!Test(algorithm, source.Address))
+                    if (doTest && !Test(algorithm, source.Address))
                         return null;
-
-                    source.Compression = algorithm;
 
                     uint len = 0;
                     if (algorithm == CompressionType.RunLengthYAZ0)

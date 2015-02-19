@@ -14,7 +14,6 @@ namespace BrawlLib.Modeling
         bool Locked { get; set; }
         Matrix BindMatrix { get; }
         Matrix InverseBindMatrix { get; }
-        bool Moved { get; set; }
         int WeightCount { get; set; }
         FrameState BindState { get; set; }
         FrameState FrameState { get; set; }
@@ -23,5 +22,7 @@ namespace BrawlLib.Modeling
         int BoneIndex { get; }
         IModel IModel { get; }
         List<Influence> LinkedInfluences { get; }
+        bool IsRendering { get; set; }
+        void Render(bool targetModel, GLViewport viewport);
     }
 }

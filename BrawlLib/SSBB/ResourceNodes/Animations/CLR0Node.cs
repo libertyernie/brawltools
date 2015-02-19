@@ -9,61 +9,46 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class CLR0Node : AnimationNode
+    public unsafe class CLR0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal CLR0v3* Header3 { get { return (CLR0v3*)WorkingUncompressed.Address; } }
         internal CLR0v4* Header4 { get { return (CLR0v4*)WorkingUncompressed.Address; } }
-
         public override ResourceType ResourceType { get { return ResourceType.CLR0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(CLR0MaterialNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 3, 4 }; } }
 
+        public CLR0Node() { _version = 3; }
         const string _category = "Material Color Animation";
-        internal int _numFrames = 1, _loop, _version = 3;
 
-        [Category(_category)]
-        public int Version { get { return _version; } set { _version = value; SignalPropertyChange(); } }
         [Category(_category)]
         public override int FrameCount
         {
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-
-                foreach (CLR0MaterialNode n in Children)
-                    foreach (CLR0MaterialEntryNode e in n.Children)
-                        e.NumEntries = _numFrames;
-
-                SignalPropertyChange();
-            }
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
+        }
+        [Category(_category)]
+        public override bool Loop
+        {
+            get { return base.Loop; }
+            set { base.Loop = value; }
         }
 
-        [Category(_category)]
-        public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
-
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
+        protected override void UpdateChildFrameLimits()
+        {
+            foreach (CLR0MaterialNode n in Children)
+                foreach (CLR0MaterialEntryNode e in n.Children)
+                    e.NumEntries = _numFrames;
+        }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
             if (_version == 4)
             {
                 CLR0v4* header = Header4;
 
                 _numFrames = header->_frames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
@@ -80,7 +65,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 CLR0v3* header = Header3;
 
                 _numFrames = header->_frames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
@@ -133,7 +118,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (CLR0MaterialNode n in Children)
                 offset += n.Children.Count * 8;
 
-            ABGRPixel* pData = (ABGRPixel*)((VoidPtr)pMat + offset);
+            RGBAPixel* pData = (RGBAPixel*)((VoidPtr)pMat + offset);
 
             ResourceGroup* group;
             if (_version == 4)
@@ -164,12 +149,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     newFlags |= ((uint)((1 + (e._constant ? 2 : 0)) & 3) << ((int)e._target * 2));
                     if (e._numEntries == 0)
-                        *pMatEntry = new CLR0MaterialEntry((ABGRPixel)e._colorMask, (ABGRPixel)e._solidColor);
+                        *pMatEntry = new CLR0MaterialEntry((RGBAPixel)e._colorMask, (RGBAPixel)e._solidColor);
                     else
                     {
-                        *pMatEntry = new CLR0MaterialEntry((ABGRPixel)e._colorMask, (int)pData - (int)((VoidPtr)pMatEntry + 4));
+                        *pMatEntry = new CLR0MaterialEntry((RGBAPixel)e._colorMask, (int)pData - (int)((VoidPtr)pMatEntry + 4));
                         foreach (ARGBPixel p in e._colors)
-                            *pData++ = (ABGRPixel)p;
+                            *pData++ = (RGBAPixel)p;
                     }
                     pMatEntry++;
                     e._changed = false;
@@ -201,12 +186,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 table.Add(n.Name);
 
             if (_version == 4)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
@@ -368,6 +348,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         MakeSolid(_solidColor);
                     else
                         MakeList();
+                    UpdateCurrentControl();
                 }
             } 
         }
@@ -435,7 +416,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
             {
                 _numEntries = ((CLR0Node)Parent.Parent)._numFrames;
-                ABGRPixel* data = Header->Data;
+                RGBAPixel* data = Header->Data;
                 for (int i = 0; i < _numEntries; i++)
                     _colors.Add((ARGBPixel)(*data++));
             }

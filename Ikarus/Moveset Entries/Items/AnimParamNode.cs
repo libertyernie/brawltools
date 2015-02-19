@@ -13,7 +13,7 @@ using Ikarus;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class AnimParamSection : ExternalEntryNode
+    public unsafe class AnimParamSection : TableEntryNode
     {
         AnimParamHeader hdr;
 

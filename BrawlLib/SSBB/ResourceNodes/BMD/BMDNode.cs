@@ -420,9 +420,37 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Rendering
 
-        public void GetBox(out Vector3 min, out Vector3 max)
+        public bool IsTargetModel
         {
-            min = max = new Vector3(0);
+            get
+            {
+                return true;
+            }
+            set
+            {
+
+            }
+        }
+
+        public void Refresh()
+        {
+
+        }
+
+
+        public void ApplySCN(SCN0Node node, float index)
+        {
+
+        }
+
+        public void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera)
+        {
+
+        }
+
+        public Box GetBox()
+        {
+            return new Box();
         }
 
         public ModelRenderAttributes _renderAttribs = new ModelRenderAttributes();
@@ -634,25 +662,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             string j3dTag = hdr->_j3dTag;
             string nodeTag = hdr->_nodeTag;
             return j3dTag.StartsWith(J3DCommonHeader.J3DTag) && (nodeTag.StartsWith(J3DCommonHeader.BMDTag) || nodeTag.StartsWith(J3DCommonHeader.BDLTag)) ? new BMDNode() : null;
-        }
-
-
-        public bool IsTargetModel
-        {
-            get
-            {
-                return true;
-            }
-            set
-            {
-                
-            }
-        }
-
-
-        public void Refresh()
-        {
-            
         }
     }
 }

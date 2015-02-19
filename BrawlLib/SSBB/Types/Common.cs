@@ -40,9 +40,8 @@ namespace BrawlLib.SSBBTypes
         public void Set(string tag)
         {
             if (tag.Length > 4)
-                tag.Substring(0, 4);
-            for (int i = 0; i < 4; i++)
-                tag.Write(Address);
+                tag = tag.Substring(0, 4);
+            tag.Write(Address);
         }
 
         public static implicit operator BinTag(string r) { return new BinTag(r); }
@@ -323,10 +322,14 @@ namespace BrawlLib.SSBBTypes
 
         private ResourceEntry* Address { get { fixed (ResourceEntry* ptr = &this)return ptr; } }
 
-        public VoidPtr DataAddress { get { return (VoidPtr)Parent + _dataOffset; } }
+        public VoidPtr DataAddress { get { return (VoidPtr)Parent + _dataOffset; } set { _dataOffset = (int)value - (int)Parent; } }
         public VoidPtr StringAddress { get { return (VoidPtr)Parent + _stringOffset; } set { _stringOffset = (int)value - (int)Parent; } }
 
+        public VoidPtr DataAddressRelative { get { return _dataOffset.OffsetAddress; } set { _dataOffset.OffsetAddress = value; } }
+        public VoidPtr StringAddressRelative { get { return _stringOffset.OffsetAddress; } set { _stringOffset.OffsetAddress = value; } }
+        
         public string GetName() { return new String((sbyte*)StringAddress); }
+        public string GetNameRelative() { return new String((sbyte*)StringAddressRelative); }
 
         public static void Build(ResourceGroup* group, int index, VoidPtr dataAddress, BRESString* pString)
         {

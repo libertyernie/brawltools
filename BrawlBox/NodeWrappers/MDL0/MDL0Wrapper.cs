@@ -45,8 +45,10 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Colors", null, ImportColorAction),
                 new ToolStripMenuItem("UVs", null, ImportUVAction)
                 ));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Import New Object", null, ImportObjectAction, Keys.Control | Keys.I));
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction, Keys.Control | Keys.O));
+            _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption, Keys.Alt | Keys.R));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
@@ -56,8 +58,9 @@ namespace BrawlBox.NodeWrappers
         private static void OptimizeAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Optimize(); }
         protected static void PreviewAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Preview(); }
         protected static void ImportObjectAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportObject(); }
+        protected static void RecalcBBsOption(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().RecalcBoundingBoxes(); }
         //protected static void MetalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().AutoMetal(); }
-
+        
         protected static void NewShaderAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewShader(); }
         protected static void NewMaterialAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewMaterial(); }
 
@@ -73,12 +76,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[17].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[19].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[17].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[19].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
@@ -96,8 +99,7 @@ namespace BrawlBox.NodeWrappers
 
         public void Preview()
         {
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, (MDL0Node)_resource);
+            new ModelForm().Show(_owner, (MDL0Node)_resource);
         }
 
         private void Optimize()
@@ -346,12 +348,18 @@ namespace BrawlBox.NodeWrappers
             o.Filter = "MDL0 Raw Model (*.mdl0)|*.mdl0";
             o.Title = "Please select a model to import an object from.";
             if (o.ShowDialog() == DialogResult.OK)
-            {
                 if ((external = (MDL0Node)NodeFactory.FromFile(null, o.FileName)) != null)
-                {
-                    ObjectImporter i = new ObjectImporter();
-                    i.ShowDialog((MDL0Node)_resource, external);
-                }
+                    new ObjectImporter().ShowDialog((MDL0Node)_resource, external);
+        }
+
+        private void RecalcBoundingBoxes()
+        {
+            MDL0Node model = _resource as MDL0Node;
+            if (model != null)
+            {
+                model.CalculateBoundingBoxes();
+                model.SignalPropertyChange();
+                model.UpdateProperties();
             }
         }
     }

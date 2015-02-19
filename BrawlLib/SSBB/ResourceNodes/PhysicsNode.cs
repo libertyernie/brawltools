@@ -53,16 +53,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             new DataNode() { Header = Header->Types }.Initialize(this, Header->TypesData, 0);
         }
 
-        public override int OnCalculateSize(bool force)
-        {
-            return base.OnCalculateSize(force);
-        }
-
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            base.OnRebuild(address, length, force);
-        }
-
         internal static ResourceNode TryParse(DataSource source) { return ((PhysicsHeader*)source.Address)->_tag1 == PhysicsHeader.Tag1 ? new PhysicsNode() : null; }
     }
 
@@ -115,16 +105,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header += len;
                 size += len;
             }
-        }
-
-        public override int OnCalculateSize(bool force)
-        {
-            return base.OnCalculateSize(force);
-        }
-
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            base.OnRebuild(address, length, force);
         }
     }
 
@@ -240,16 +220,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //    Console.WriteLine();
                 new RawValueListNode() { _name = "Entry" + i }.Initialize(this, Base + _indices[1][i * 3], 4 * _indices[1][i * 3 + 1]);
             }
-        }
-
-        public override int OnCalculateSize(bool force)
-        {
-            return base.OnCalculateSize(force);
-        }
-
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            base.OnRebuild(address, length, force);
         }
     }
 

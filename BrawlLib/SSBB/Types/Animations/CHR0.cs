@@ -39,7 +39,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
 
-        public CHR0v4_3(int version, int size, int frames, int entries, int loop)
+        public CHR0v4_3(int version, int size, int frames, int entries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -51,7 +51,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = _scalingRule = 0;
             _numFrames = (ushort)frames;
             _numEntries = (ushort)entries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
     }
 
@@ -94,7 +94,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
 
-        public CHR0v5(int version, int size, int frames, int entries, int loop)
+        public CHR0v5(int version, int size, int frames, int entries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -107,7 +107,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = _scalingRule = 0;
             _numFrames = (ushort)frames;
             _numEntries = (ushort)entries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
     }
 

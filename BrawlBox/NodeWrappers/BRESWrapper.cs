@@ -40,7 +40,8 @@ namespace BrawlBox
                 new ToolStripMenuItem("Vertex Morph", null, ImportShpAction),
                 new ToolStripMenuItem("Color Sequence", null, ImportClrAction),
                 new ToolStripMenuItem("Scene Settings", null, ImportScnAction),
-                new ToolStripMenuItem("Folder", null, ImportFolderAction)
+                new ToolStripMenuItem("Folder", null, ImportFolderAction),
+                new ToolStripMenuItem("Animated GIF", null, ImportGIFAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Preview All Models", null, PreviewAllAction));
@@ -83,7 +84,8 @@ namespace BrawlBox
         protected static void ReplaceAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ReplaceAll(); }
         protected static void EditAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().EditAll(); }
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().PreviewAll(); }
-        
+        protected static void ImportGIFAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ImportGIF(); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[12].Enabled = _menu.Items[13].Enabled = _menu.Items[15].Enabled = true;
@@ -104,6 +106,14 @@ namespace BrawlBox
 
         public BRESWrapper() { ContextMenuStrip = _menu; }
 
+        public void ImportGIF()
+        {
+            string path;
+            int index = Program.OpenFile("Animated GIF (*.gif)|*.gif", out path);
+            if (index > 0)
+                ((BRRESNode)_resource).ImportGIF(path);
+        }
+
         public void ImportTexture()
         {
             string path;
@@ -111,13 +121,13 @@ namespace BrawlBox
             if (index == 8)
             {
                 TEX0Node node = NodeFactory.FromFile(null, path) as TEX0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<TEX0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<TEX0Node>().AddChild(node);
 
                 string palette = Path.ChangeExtension(path, ".plt0");
                 if (File.Exists(palette) && node.HasPalette)
                 {
                     PLT0Node n = NodeFactory.FromFile(null, palette) as PLT0Node;
-                    ((BRESNode)_resource).GetOrCreateFolder<PLT0Node>().AddChild(n);
+                    ((BRRESNode)_resource).GetOrCreateFolder<PLT0Node>().AddChild(n);
                 }
 
                 BaseWrapper w = this.FindResource(node, true);
@@ -128,7 +138,7 @@ namespace BrawlBox
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
                     dlg.ImageSource = path;
-                    if (dlg.ShowDialog(MainForm.Instance, ResourceNode as BRESNode) == DialogResult.OK)
+                    if (dlg.ShowDialog(MainForm.Instance, ResourceNode as BRRESNode) == DialogResult.OK)
                     {
                         BaseWrapper w = this.FindResource(dlg.TEX0TextureNode, true);
                         w.EnsureVisible();
@@ -145,21 +155,11 @@ namespace BrawlBox
                 MDL0Node node = MDL0Node.FromFile(path);
                 if (node != null)
                 {
-                    ((BRESNode)_resource).GetOrCreateFolder<MDL0Node>().AddChild(node);
+                    ((BRRESNode)_resource).GetOrCreateFolder<MDL0Node>().AddChild(node);
 
                     BaseWrapper w = this.FindResource(node, true);
                     w.EnsureVisible();
                     w.TreeView.SelectedNode = w;
-
-                    if ((node as MDL0Node)._reopen == true)
-                    {
-                        string tempPath = Path.GetTempFileName();
-
-                        node.Export(tempPath);
-                        node.Replace(tempPath, FileMapProtect.ReadWrite, FileOptions.SequentialScan | FileOptions.DeleteOnClose);
-
-                        node.SignalPropertyChange();
-                    }
                 }
             }
         }
@@ -170,7 +170,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.CHR0 + "|Raw Text (*.txt)|*.txt", out path) > 0)
             {
                 CHR0Node node = CHR0Node.FromFile(path);
-                ((BRESNode)_resource).GetOrCreateFolder<CHR0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<CHR0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -184,7 +184,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.VIS0, out path) > 0)
             {
                 VIS0Node node = NodeFactory.FromFile(null, path) as VIS0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<VIS0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<VIS0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -198,7 +198,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.SHP0, out path) > 0)
             {
                 SHP0Node node = NodeFactory.FromFile(null, path) as SHP0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<SHP0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<SHP0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -212,7 +212,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.SRT0, out path) > 0)
             {
                 SRT0Node node = NodeFactory.FromFile(null, path) as SRT0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<SRT0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<SRT0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -226,7 +226,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.PAT0, out path) > 0)
             {
                 PAT0Node node = NodeFactory.FromFile(null, path) as PAT0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<PAT0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<PAT0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -240,7 +240,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.SCN0, out path) > 0)
             {
                 SCN0Node node = NodeFactory.FromFile(null, path) as SCN0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<SCN0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<SCN0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -254,7 +254,7 @@ namespace BrawlBox
             if (Program.OpenFile(FileFilters.CLR0, out path) > 0)
             {
                 CLR0Node node = NodeFactory.FromFile(null, path) as CLR0Node;
-                ((BRESNode)_resource).GetOrCreateFolder<CLR0Node>().AddChild(node);
+                ((BRRESNode)_resource).GetOrCreateFolder<CLR0Node>().AddChild(node);
 
                 BaseWrapper w = this.FindResource(node, true);
                 w.EnsureVisible();
@@ -264,7 +264,7 @@ namespace BrawlBox
 
         public void NewChr()
         {
-            CHR0Node node = ((BRESNode)_resource).CreateResource<CHR0Node>("NewCHR");
+            CHR0Node node = ((BRRESNode)_resource).CreateResource<CHR0Node>("NewCHR");
             node.Version = 4;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -274,7 +274,7 @@ namespace BrawlBox
 
         public void NewSrt()
         {
-            SRT0Node node = ((BRESNode)_resource).CreateResource<SRT0Node>("NewSRT");
+            SRT0Node node = ((BRRESNode)_resource).CreateResource<SRT0Node>("NewSRT");
             node.Version = 4;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -284,7 +284,7 @@ namespace BrawlBox
 
         public void NewPat()
         {
-            PAT0Node node = ((BRESNode)_resource).CreateResource<PAT0Node>("NewPAT");
+            PAT0Node node = ((BRRESNode)_resource).CreateResource<PAT0Node>("NewPAT");
             node.Version = 3;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -294,7 +294,7 @@ namespace BrawlBox
 
         public void NewShp()
         {
-            SHP0Node node = ((BRESNode)_resource).CreateResource<SHP0Node>("NewSHP");
+            SHP0Node node = ((BRRESNode)_resource).CreateResource<SHP0Node>("NewSHP");
             node.Version = 3;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -304,7 +304,7 @@ namespace BrawlBox
 
         public void NewVis()
         {
-            VIS0Node node = ((BRESNode)_resource).CreateResource<VIS0Node>("NewVIS");
+            VIS0Node node = ((BRRESNode)_resource).CreateResource<VIS0Node>("NewVIS");
             node.Version = 3;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -314,7 +314,7 @@ namespace BrawlBox
 
         public void NewScn()
         {
-            SCN0Node node = ((BRESNode)_resource).CreateResource<SCN0Node>("NewSCN");
+            SCN0Node node = ((BRRESNode)_resource).CreateResource<SCN0Node>("NewSCN");
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
             res.EnsureVisible();
@@ -323,7 +323,7 @@ namespace BrawlBox
 
         public void NewClr()
         {
-            CLR0Node node = ((BRESNode)_resource).CreateResource<CLR0Node>("NewCLR");
+            CLR0Node node = ((BRRESNode)_resource).CreateResource<CLR0Node>("NewCLR");
             node.Version = 3;
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
@@ -333,7 +333,7 @@ namespace BrawlBox
 
         public void NewModel()
         {
-            MDL0Node node = ((BRESNode)_resource).CreateResource<MDL0Node>("NewModel");
+            MDL0Node node = ((BRRESNode)_resource).CreateResource<MDL0Node>("NewModel");
             BaseWrapper res = this.FindResource(node, true);
             res = res.FindResource(node, false);
             res.EnsureVisible();
@@ -359,10 +359,10 @@ namespace BrawlBox
                 ExportAllFormatDialog dialog = new ExportAllFormatDialog();
 
                 if (dialog.ShowDialog() == DialogResult.OK)
-                    ((BRESNode)_resource).ExportToFolder(path, dialog.SelectedExtension);
+                    ((BRRESNode)_resource).ExportToFolder(path, dialog.SelectedExtension);
             }
             else
-                ((BRESNode)_resource).ExportToFolder(path);
+                ((BRRESNode)_resource).ExportToFolder(path);
         }
 
         public void EditAll()
@@ -381,7 +381,7 @@ namespace BrawlBox
             dialog.label1.Text = "Input format for textures:";
 
             if (dialog.ShowDialog() == DialogResult.OK)
-                ((BRESNode)_resource).ReplaceFromFolder(path, dialog.SelectedExtension);
+                ((BRRESNode)_resource).ReplaceFromFolder(path, dialog.SelectedExtension);
         }
 
         public void ImportFolder()
@@ -390,7 +390,7 @@ namespace BrawlBox
             if (path == null)
                 return;
 
-            ((BRESNode)_resource).ImportFolder(path);
+            ((BRRESNode)_resource).ImportFolder(path);
         }
 
         private void LoadModels(ResourceNode node, List<MDL0Node> models)
@@ -414,8 +414,7 @@ namespace BrawlBox
 
         public void PreviewAll()
         {
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, ModelPanel.CollectModels(_resource));
+            new ModelForm().Show(_owner, ModelPanel.CollectModels(_resource));
         }
     }
 }

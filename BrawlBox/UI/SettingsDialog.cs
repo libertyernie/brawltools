@@ -12,13 +12,12 @@ namespace BrawlBox
         static SettingsDialog()
         {
             foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
-            {
-                foreach (string s in info._extensions)
-                {
-                    _assocList.Add(FileAssociation.Get("." + s));
-                    _typeList.Add(FileType.Get("SSBB." + s.ToUpper()));
-                }
-            }
+                if (info._forEditing)
+                    foreach (string s in info._extensions)
+                    {
+                        _assocList.Add(FileAssociation.Get("." + s));
+                        _typeList.Add(FileType.Get("SSBB." + s.ToUpper()));
+                    }
         }
 
         private static List<FileAssociation> _assocList = new List<FileAssociation>();
@@ -33,8 +32,9 @@ namespace BrawlBox
 
             listView1.Items.Clear();
             foreach (SupportedFileInfo info in SupportedFilesHandler.Files)
-                foreach (string s in info._extensions)
-                    listView1.Items.Add(new ListViewItem() { Text = String.Format("{0} (*.{1})", info._name, s) });
+                if (info._forEditing)
+                    foreach (string s in info._extensions)
+                        listView1.Items.Add(new ListViewItem() { Text = String.Format("{0} (*.{1})", info._name, s) });
         }
 
         private void Apply()
@@ -62,7 +62,7 @@ namespace BrawlBox
                     index++;
                 }
             }
-            catch (UnauthorizedAccessException e)
+            catch (UnauthorizedAccessException)
             {
                 MessageBox.Show(null, "Unable to access the registry to set file associations.\nRun the program as administrator and try again.", "Insufficient Privileges", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }

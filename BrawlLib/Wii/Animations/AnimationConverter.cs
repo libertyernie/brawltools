@@ -8,21 +8,28 @@ namespace BrawlLib.Wii.Animations
     internal static unsafe class AnimationConverter
     {
         #region Decoding
-        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, AnimationNode node)
+        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, NW4RAnimationNode node)
         {
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
-            if (node is CHR0Node)
-                return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
-            else if (node is SRT0Node)
-                return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
-            //else if (node is SHP0Node)
-            //    return DecodeSHP0Keyframes((SHP0KeyframeEntries*)entry, numFrames);
+            int type = node is CHR0Node ? 0 : node is SRT0Node ? 1 : 2;
 
-            return new KeyframeCollection(0, 1);
+            if (type != 2)
+                if (type == 0)
+                    if (entry)
+                        return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
+                    else
+                        return new KeyframeCollection(9, numFrames, 1, 1, 1);
+                else
+                    if (entry)
+                        return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
+                    else
+                        return new KeyframeCollection(5, numFrames, 1, 1);
+            else
+                return new KeyframeCollection(1, numFrames);
         }
 
         public static KeyframeArray DecodeSHP0Keyframes(SHP0KeyframeEntries* entry, SHP0Node node)
@@ -30,7 +37,7 @@ namespace BrawlLib.Wii.Animations
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
-            int numFrames = node == null ? 1 : node.FrameCount;
+            int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
             KeyframeArray kf = new KeyframeArray(numFrames);
 
@@ -211,10 +218,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I4Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I4Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->Step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I6:
@@ -224,10 +233,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        I6Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I6Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, entry->FrameIndex, vBase + (entry->_step * vStep), true)._tangent = entry->Tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.I12:
@@ -235,10 +246,12 @@ namespace BrawlLib.Wii.Animations
                         I12Header* header = (I12Header*)dataAddr;
                         fCount = header->_numFrames;
 
-                        I12Entry* entry = header->Data;
                         foreach (int x in arrays)
+                        {
+                            I12Entry* entry = header->Data;
                             for (int i = 0; i < fCount; i++, entry++)
                                 kf.SetFrameValue(x, (int)entry->_index, entry->_value, true)._tangent = entry->_tangent;
+                        }
                         break;
                     }
                 case AnimDataFormat.L1:
@@ -247,11 +260,12 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        byte* sPtr = header->Data;
                         foreach (int x in arrays)
+                        {
+                            byte* sPtr = header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L2:
@@ -260,19 +274,22 @@ namespace BrawlLib.Wii.Animations
                         vStep = header->_step;
                         vBase = header->_base;
 
-                        bushort* sPtr = (bushort*)header->Data;
                         foreach (int x in arrays)
+                        {
+                            bushort* sPtr = (bushort*)header->Data;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)/*).GenerateTangent()*/;
-
+                                (kf.SetFrameValue(x, i, vBase + (*sPtr++ * vStep), true)).GenerateTangent();
+                        }
                         break;
                     }
                 case AnimDataFormat.L4:
                     {
-                        bfloat* sPtr = (bfloat*)dataAddr;
                         foreach (int x in arrays)
+                        {
+                            bfloat* sPtr = (bfloat*)dataAddr;
                             for (int i = 0; i < kf.FrameLimit; i++)
-                                /*(*/kf.SetFrameValue(x, i, *sPtr++, true)/*).GenerateTangent()*/;
+                                (kf.SetFrameValue(x, i, *sPtr++, true)).GenerateTangent();
+                        }
 
                         break;
                     }
@@ -339,12 +356,12 @@ namespace BrawlLib.Wii.Animations
             KeyframeEntry[] roots = new KeyframeEntry[3];
 
             KeyframeEntry[][] arr = new KeyframeEntry[3][];
-            int* count = stackalloc int[3];
-            bool* isExist = stackalloc bool[3];
-            bool* isFixed = stackalloc bool[3];
-            bool* isScalable = stackalloc bool[3];
-            float* floor = stackalloc float[3];
-            float* ceil = stackalloc float[3];
+            int[] count = new int[3];
+            bool[] isExist = new bool[3];
+            bool[] isFixed = new bool[3];
+            bool[] isScalable = new bool[3];
+            float[] floor = new float[3];
+            float[] ceil = new float[3];
 
             KeyframeEntry entry;
             int eCount = 0;
@@ -474,7 +491,7 @@ namespace BrawlLib.Wii.Animations
                         {
                             for (int x = 0; x < numFrames; x++)
                             {
-                                val = kf[index + i, x];
+                                val = kf[x, index + i];
                                 distance = ((val - basev) / step) + 0.5f;
                                 distance = Math.Abs(val - (basev + ((int)distance * step)));
 
@@ -601,15 +618,15 @@ namespace BrawlLib.Wii.Animations
             //1 = rot
             //2 = trans
 
-            int index = group * 3;
+            int index = group == 0 ? 0 : group == 1 ? 2 : 3;
             int numFrames = kf.FrameLimit;
             int dataLen = 0;
             KeyframeEntry[] roots = new KeyframeEntry[2];
             bool exist = false;
             bool isotropic = group == 0;
-            int* count = stackalloc int[2];
-            bool* isExist = stackalloc bool[2];
-            bool* isFixed = stackalloc bool[2];
+            int[] count = new int[2];
+            bool[] isExist = new bool[2];
+            bool[] isFixed = new bool[2];
 
             for (int i = 0; i < (group == 1 ? 1 : 2); i++)
             {
@@ -690,13 +707,10 @@ namespace BrawlLib.Wii.Animations
 
         public static void EncodeCHR0Keyframes(KeyframeCollection kf, VoidPtr entryAddress, VoidPtr dataAddress, AnimationCode code)
         {
-            //VoidPtr dataAddr = addr + 8;
-
             CHR0Entry* header = (CHR0Entry*)entryAddress;
             header->_code = (uint)code._data;
             header->_stringOffset = 0;
 
-            //entryAddress += 8;
             bint* pOffset = (bint*)entryAddress + 2;
 
             //Write values/offset and encode groups
@@ -733,12 +747,11 @@ namespace BrawlLib.Wii.Animations
 
             bint* pOffset = (bint*)entryAddress + 1;
 
-            int r = 0;
+            int index = 0;
 
             //Write values/offset and encode groups
             for (int type = 0; type < 3; type++)
             {
-                r = type * 3; //Increment to next
                 bool has = false;
                 switch (type)
                 {
@@ -746,7 +759,7 @@ namespace BrawlLib.Wii.Animations
                     case 1: has = !code.NoRotation; break;
                     case 2: has = !code.NoTranslation; break;
                 }
-                for (int axis = 0; axis < (type == 1 ? 1 : 2); axis++)
+                for (int axis = 0; axis < (type == 1 ? 1 : 2); axis++, index++)
                 {
                     if (has)
                     {
@@ -759,48 +772,19 @@ namespace BrawlLib.Wii.Animations
                                 else
                                 {
                                     *pOffset = (int)dataAddress - (int)pOffset; pOffset++;
-                                    dataAddress += EncodeEntry(r + axis, AnimDataFormat.I12, kf, dataAddress);
+                                    dataAddress += EncodeEntry(index, AnimDataFormat.I12, kf, dataAddress);
                                 }
                             }
                         }
                         else
                         {
-                            bool fix = false;
-                            switch (type)
-                            {
-                                case 0:
-                                    switch (axis)
-                                    {
-                                        case 0:
-                                            fix = code.FixedScaleX;
-                                            break;
-                                        case 1:
-                                            fix = code.FixedScaleY;
-                                            break;
-                                    }
-                                    break;
-                                case 1:
-                                    fix = code.FixedRotation;
-                                    break;
-                                case 2:
-                                    switch (axis)
-                                    {
-                                        case 0:
-                                            fix = code.FixedX;
-                                            break;
-                                        case 1:
-                                            fix = code.FixedY;
-                                            break;
-                                    }
-                                    break;
-                            }
-
-                            if (fix)
-                                *(bfloat*)pOffset++ = kf._keyArrays[r + axis]._keyRoot._next._value;
+                            //This gets the fixed bit. Same order, so it can be indexed
+                            if (code._data[5 + index])
+                                *(bfloat*)pOffset++ = kf._keyArrays[index]._keyRoot._next._value;
                             else
                             {
-                                *pOffset = (int)((System.bint*)(dataAddress) - pOffset); pOffset++;
-                                dataAddress += EncodeEntry(r + axis, AnimDataFormat.I12, kf, dataAddress);
+                                *pOffset = (int)dataAddress - (int)pOffset; pOffset++;
+                                dataAddress += EncodeEntry(index, AnimDataFormat.I12, kf, dataAddress);
                             }
                         }
                     }
@@ -852,7 +836,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.L1)
             {
                 //Find best span
-                span = EvalSpan(255, 32, min, stride, root, true, kf._linearRot);
+                span = EvalSpan(255, 32, min, stride, root, true);
                 step = stride / span;
 
                 L1Header* header = (L1Header*)addr;
@@ -872,7 +856,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.I4)
             {
                 //Find best span
-                span = EvalSpan(4095, 32, min, stride, root, false, false);
+                span = EvalSpan(4095, 32, min, stride, root, false);
                 step = stride / span;
 
                 I4Header* header = (I4Header*)addr;
@@ -894,7 +878,7 @@ namespace BrawlLib.Wii.Animations
             if (format == AnimDataFormat.I6)
             {
                 //Find best span
-                span = EvalSpan(65535, 32, min, stride, root, false, false);
+                span = EvalSpan(65535, 32, min, stride, root, false);
                 step = stride / span;
 
                 I6Header* header = (I6Header*)addr;
@@ -920,7 +904,7 @@ namespace BrawlLib.Wii.Animations
             return 0;
         }
 
-        public static int EvalSpan(int maxSpan, int maxIterations, float valBase, float valStride, KeyframeEntry root, bool evalAll, bool linear)
+        public static int EvalSpan(int maxSpan, int maxIterations, float valBase, float valStride, KeyframeEntry root, bool evalAll)
         {
             KeyframeEntry entry;
             float bestError = float.MaxValue;
@@ -945,7 +929,7 @@ namespace BrawlLib.Wii.Animations
 
                     for (int x = 0; x < count; x++)
                     {
-                        val = entry.Interpolate(x, linear);
+                        val = entry.Interpolate(x);
                         error = (val - valBase) / step + 0.5f;
                         error = Math.Abs(val - (valBase + ((int)error * step)));
 

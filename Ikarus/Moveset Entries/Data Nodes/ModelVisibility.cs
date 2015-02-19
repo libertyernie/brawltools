@@ -6,6 +6,7 @@ using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using Ikarus;
 using System.Collections;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile
 {
@@ -263,6 +264,73 @@ namespace Ikarus.MovesetFile
 
         //    return RebuildOffset;
         //}
+
+        public void ResetVisibility(int refId)
+        {
+            if (refId < 0 || refId >= _references.Count)
+                return;
+
+            ModelVisReference entry = _references[refId];
+
+            //First, disable bones
+            foreach (ModelVisBoneSwitch Switch in entry)
+            {
+                int i = 0;
+                foreach (ModelVisGroup Group in Switch)
+                {
+                    if (i != Switch._defaultGroup)
+                        foreach (BoneIndexValue b in Group._bones)
+                            if (b.BoneNode != null)
+                                foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                                    p._render = false;
+                    i++;
+                }
+            }
+
+            //Now, enable bones
+            foreach (ModelVisBoneSwitch Switch in entry)
+                if (Switch._defaultGroup >= 0 && Switch._defaultGroup < Switch.Count)
+                {
+                    ModelVisGroup Group = Switch[Switch._defaultGroup];
+                    foreach (BoneIndexValue b in Group._bones)
+                        if (b.BoneNode != null)
+                            foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                                p._render = true;
+                }
+        }
+
+        public void ApplyVisibility(int refId, int switchID, int groupID)
+        {
+            if (refId < 0 || refId >= _references.Count)
+                return;
+
+            //Get the target reference
+            ModelVisReference refEntry = _references[refId];
+
+            //Check if the reference and switch id is usable
+            if (switchID >= refEntry.Count || switchID < 0)
+                return;
+
+            //Turn off objects
+            ModelVisBoneSwitch switchEntry = refEntry[switchID];
+            foreach (ModelVisGroup grp in switchEntry)
+                foreach (BoneIndexValue b in grp._bones)
+                    if (b.BoneNode != null)
+                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                            obj._render = false;
+
+            //Check if the group id is usable
+            if (groupID >= switchEntry.Count || groupID < 0)
+                return;
+
+            //Turn on objects
+            ModelVisGroup group = switchEntry[groupID];
+            if (group != null)
+                foreach (BoneIndexValue b in group._bones)
+                    if (b.BoneNode != null)
+                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                            obj._render = true;
+        }
     }
 
     public unsafe class ModelVisReference : OffsetValue, IEnumerable<ModelVisBoneSwitch>

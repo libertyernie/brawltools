@@ -1,26 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Text;
-using System.Windows.Forms;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
-using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlBox.Properties;
 using BrawlLib.Imaging;
-using System.Reflection;
-using BrawlLib.IO;
-using System.Audio;
-using BrawlLib.Wii.Audio;
-using BrawlLib.OpenGL;
-using System.Diagnostics;
-using BrawlBox.Properties;
-using System.Collections.Specialized;
-using BrawlLib.SSBB;
 using BrawlLib.Modeling;
+using BrawlLib.OpenGL;
+using BrawlLib.SSBB;
+using BrawlLib.SSBB.ResourceNodes;
 using Octokit;
+using System;
+using System.Audio;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.IO;
+using System.Windows.Forms;
 
 namespace BrawlBox
 {
@@ -65,10 +57,10 @@ namespace BrawlBox
             _displayPropertyDescription = BrawlBox.Properties.Settings.Default.DisplayPropertyDescriptionWhenAvailable;
             _updatesOnStartup = BrawlBox.Properties.Settings.Default.CheckUpdatesAtStartup;
 
+#if !DEBUG //Don't need to see this every time a debug build is compiled
             if (CheckUpdatesOnStartup)
-                CheckUpdates();
-
-#if DEBUG
+                CheckUpdates(false);
+#else
             Text += " DEBUG";
 #endif
             soundPackControl1._grid = propertyGrid1;
@@ -88,12 +80,14 @@ namespace BrawlBox
             previewPanel2.Dock =
             videoPlaybackPanel1.Dock =
 			attributeGrid1.Dock =
-            texCoordRenderer1.Dock =
+            texCoordControl1.Dock =
             DockStyle.Fill;
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
-            modelPanel1.AllowSelection = false;
+
             _currentControl = modelPanel1;
+
+            modelPanel1.CurrentViewport._allowSelection = false;
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
@@ -102,27 +96,50 @@ namespace BrawlBox
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
 
-        private async void CheckUpdates()
+        private async void CheckUpdates(bool manual = true)
         {
-            string version = Program.AssemblyTitle.Substring(Program.AssemblyTitle.LastIndexOf('.') - 2).TrimEnd(' ');
-
-            var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-            var release = await github.Release.GetAll("libertyernie", "brawltools");
-
-            if (release[0].TagName != version)
+            try
             {
-                DialogResult UpdateResult = MessageBox.Show("BrawlBox " + release[0].TagName + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
-                if (UpdateResult == DialogResult.Yes)
+                //I now realize that sometimes this will have to be different than the title
+                //Make sure this matches the tag name of the release on github exactly
+                string version = "v0.74b1";
+
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+                IReadOnlyList<Release> release = null;
+                try
                 {
-                    DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
-                    if (OverwriteResult == DialogResult.Yes)
-                    {
-                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
-                        this.Close();
-                    }
-                    else if (OverwriteResult == DialogResult.No)
-                        Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                    release = await github.Release.GetAll("libertyernie", "brawltools");
                 }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    if (manual)
+                        MessageBox.Show("Unable to connect to the internet.");
+                    return;
+                }
+
+                if (release != null && 
+                    release.Count > 0 && 
+                    !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
+                    release[0].Name.Contains("BrawlBox", StringComparison.InvariantCultureIgnoreCase)) //Make sure this is a BrawlBox release
+                {
+                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                    if (UpdateResult == DialogResult.Yes)
+                    {
+                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
+                        if (OverwriteResult == DialogResult.Yes)
+                        {
+                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
+                            this.Close();
+                        }
+                        else if (OverwriteResult == DialogResult.No)
+                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                if (manual)
+                    MessageBox.Show(e.Message);
             }
         }
 
@@ -234,6 +251,7 @@ namespace BrawlBox
             scN0CameraEditControl1.TargetSequence = null;
             scN0LightEditControl1.TargetSequence = null;
             scN0FogEditControl1.TargetSequence = null;
+            texCoordControl1.TargetNode = null;
             modelPanel1.ClearAll();
             
             Control newControl = null;
@@ -251,9 +269,9 @@ namespace BrawlBox
                     videoPlaybackPanel1.TargetSource = node as IVideo;
                     newControl = videoPlaybackPanel1;
                 }
-                else if (node is MDL0TextureNode || node is MDL0MaterialRefNode)
+                else if (node is MDL0MaterialRefNode)
                 {
-                    newControl = texCoordRenderer1;
+                    newControl = texCoordControl1;
                 }
                 else if (node is MSBinNode)
                 {
@@ -399,19 +417,12 @@ namespace BrawlBox
                     m.ResetToBindState();
                 }
 
-                modelPanel1.AddTarget((IRenderedObject)node);
-
-                Vector3 min, max;
-                ((IRenderedObject)node).GetBox(out min, out max);
-                modelPanel1.SetCamWithBox(min, max);
+                IRenderedObject o = node as IRenderedObject;
+                modelPanel1.AddTarget(o);
+                modelPanel1.SetCamWithBox(o.GetBox());
             }
-            else if (_currentControl is TexCoordRenderer)
-            {
-                if (node is MDL0TextureNode)
-                    texCoordRenderer1.SetTarget((MDL0TextureNode)node);
-                else
-                    texCoordRenderer1.SetTarget(((MDL0MaterialRefNode)node).TextureNode);
-            }
+            else if (_currentControl is TexCoordControl)
+                texCoordControl1.TargetNode = ((MDL0MaterialRefNode)node);
         }
 
         protected override void OnClosing(CancelEventArgs e)
@@ -433,8 +444,12 @@ namespace BrawlBox
         #region File Menu
         private void aRCArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<ARCNode>(); }
         private void u8FileArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<U8Node>(); }
-        private void brresPackToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<BRESNode>(); }
-
+        private void brresPackToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<BRRESNode>(); }
+        private void tPLTextureArchiveToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<TPLNode>(); }
+        private void eFLSEffectListToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<EFLSNode>(); }
+        private void rEFFParticlesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFFNode>(); }
+        private void rEFTParticleTexturesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFTNode>(); }
+        
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) { Program.Save(); }
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) { Program.SaveAs(); }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e) { Program.Close(); }
@@ -513,6 +528,43 @@ namespace BrawlBox
         private void checkForUpdatesToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
             CheckUpdates();
+        }
+
+        private void splitContainer_MouseDown(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = true;
+        }
+        private void splitContainer_MouseUp(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = false;
+        }
+        private void splitContainer_MouseMove(object sender, MouseEventArgs e)
+        {
+            SplitContainer splitter = (SplitContainer)sender;
+            if (splitter.IsSplitterFixed)
+            {
+                if (e.Button.Equals(MouseButtons.Left))
+                {
+                    if (splitter.Orientation.Equals(Orientation.Vertical))
+                    {
+                        if (e.X > 0 && e.X < splitter.Width)
+                        {
+                            splitter.SplitterDistance = e.X;
+                            splitter.Refresh();
+                        }
+                    }
+                    else
+                    {
+                        if (e.Y > 0 && e.Y < splitter.Height)
+                        {
+                            splitter.SplitterDistance = e.Y;
+                            splitter.Refresh();
+                        }
+                    }
+                }
+                else
+                    splitter.IsSplitterFixed = false;
+            }
         }
     }
 

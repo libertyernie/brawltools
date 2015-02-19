@@ -166,8 +166,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
             {
                 Vector3 pt = _frameMatrix.GetPoint();
-                Vector3 v2 = GLPanel.Current.Project(pt);
-                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
+                Vector3 v2 = GLPanel.Current.CurrentViewport.Project(pt);
+                ((ModelPanel)GLPanel.Current).CurrentViewport.ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
             }
 
             Vector3 v1 = (_parent == null || !(_parent is BMDBoneNode)) ? new Vector3(0.0f) : ((BMDBoneNode)_parent)._frameMatrix.GetPoint();
@@ -203,5 +203,21 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.Render();
         }
 
+        public bool IsRendering
+        {
+            get
+            {
+                return true;
+            }
+            set
+            {
+                
+            }
+        }
+
+        public void Render(bool targetModel, GLViewport viewport)
+        {
+            
+        }
     }
 }

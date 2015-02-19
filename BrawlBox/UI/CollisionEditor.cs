@@ -890,15 +890,11 @@ namespace System.Windows.Forms
             // 
             // _modelPanel
             // 
-            this._modelPanel.DefaultTranslate = new Vector3(0,0,0);
             this._modelPanel.Dock = System.Windows.Forms.DockStyle.Fill;
             this._modelPanel.Location = new System.Drawing.Point(0, 25);
             this._modelPanel.Name = "_modelPanel";
-            this._modelPanel.RotationScale = 0.4F;
             this._modelPanel.Size = new System.Drawing.Size(481, 442);
             this._modelPanel.TabIndex = 0;
-            this._modelPanel.TranslationScale = 0.05F;
-            this._modelPanel.ZoomScale = 2.5F;
             this._modelPanel.PreRender += new GLRenderEventHandler(this._modelPanel_PreRender);
             this._modelPanel.PostRender += new GLRenderEventHandler(this._modelPanel_PostRender);
             this._modelPanel.KeyDown += new System.Windows.Forms.KeyEventHandler(this._modelPanel_KeyDown);
@@ -1169,15 +1165,20 @@ namespace System.Windows.Forms
         public CollisionEditor()
         {
             InitializeComponent();
-            _modelPanel.DefaultTranslate = new Vector3(0.0f, 10.0f, 250.0f);
-            _modelPanel.AllowSelection = false;
+
+            _modelPanel.AddViewport(ModelPanelViewport.DefaultPerspective);
+
+            _modelPanel.CurrentViewport.DefaultTranslate = new Vector3(0.0f, 10.0f, 250.0f);
+            _modelPanel.CurrentViewport.AllowSelection = false;
 
             pnlObjProps.Dock = DockStyle.Fill;
             pnlPlaneProps.Dock = DockStyle.Fill;
             pnlPointProps.Dock = DockStyle.Fill;
 
+            _updating = true;
             cboMaterial.DataSource = Enum.GetValues(typeof(CollisionPlaneMaterial));
             cboType.DataSource = Enum.GetValues(typeof(CollisionPlaneType));
+            _updating = false;
         }
 
         private void TargetChanged(CollisionNode node)
@@ -1498,7 +1499,7 @@ namespace System.Windows.Forms
             if (!_hovering)
                 return;
 
-            _selectEnd = Vector3.IntersectZ(_modelPanel.UnProject(x, y, 0.0f), _modelPanel.UnProject(x, y, 1.0f), _selectLast._z);
+            _selectEnd = Vector3.IntersectZ(_modelPanel.CurrentViewport.UnProject(x, y, 0.0f), _modelPanel.CurrentViewport.UnProject(x, y, 1.0f), _selectLast._z);
             
             //Apply difference in start/end
             Vector3 diff = _selectEnd - _selectLast;
@@ -1595,7 +1596,7 @@ namespace System.Windows.Forms
                 bool move = Control.ModifierKeys == (Keys.Control | Keys.Shift);
 
                 float depth = _modelPanel.GetDepth(e.X, e.Y);
-                Vector3 target = _modelPanel.UnProject(e.X, e.Y, depth);
+                Vector3 target = _modelPanel.CurrentViewport.UnProject(e.X, e.Y, depth);
                 Vector2 point;
 
                 if (!move && (depth < 1.0f))
@@ -1715,7 +1716,7 @@ namespace System.Windows.Forms
                 //Nothing found :(
 
                 //Trace ray to Z axis
-                target = Vector3.IntersectZ(target, _modelPanel.UnProject(e.X, e.Y, 0.0f), 0.0f);
+                target = Vector3.IntersectZ(target, _modelPanel.CurrentViewport.UnProject(e.X, e.Y, 0.0f), 0.0f);
                 point = (Vector2)target;
 
                 if (create)
@@ -1822,8 +1823,8 @@ namespace System.Windows.Forms
         {
             if (_selecting) //Selection Box
             {
-                Vector3 ray1 = _modelPanel.UnProject(new Vector3(e.X, e.Y, 0.0f));
-                Vector3 ray2 = _modelPanel.UnProject(new Vector3(e.X, e.Y, 1.0f));
+                Vector3 ray1 = _modelPanel.CurrentViewport.UnProject(new Vector3(e.X, e.Y, 0.0f));
+                Vector3 ray2 = _modelPanel.CurrentViewport.UnProject(new Vector3(e.X, e.Y, 1.0f));
 
                 _selectEnd = Vector3.IntersectZ(ray1, ray2, 0.0f);
                 _selectEnd._z += SelectWidth;

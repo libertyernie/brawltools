@@ -135,6 +135,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region IRenderedObject Members
         private bool _attached = false;
+        [Browsable(false)]
         public bool Attached { get { return _attached; } }
         public void Attach() { _attached = true; }
         public void Detach() { _attached = false; }
@@ -149,10 +150,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (CollisionObject obj in _objects)
                 obj.Render();
         }
-        public void GetBox(out Vector3 min, out Vector3 max)
+        public Box GetBox()
         {
-            min = new Vector3();
-            max = new Vector3();
+            Box box = Box.ExpandableVolume;
+            foreach (CollisionObject obj in _objects)
+                foreach (CollisionPlane plane in obj._planes)
+                {
+                    box.ExpandVolume(new Vector3(plane.PointLeft._x, plane.PointLeft._y, 0));
+                    box.ExpandVolume(new Vector3(plane.PointRight._x, plane.PointRight._y, 0));
+                }
+            return box;
         }
         #endregion
 
@@ -233,6 +240,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _unk5 = entry->_unk5;
             _unk6 = entry->_unk6;
             _boneIndex = entry->_boneIndex;
+            _boxMax = entry->_boxMax;
+            _boxMin = entry->_boxMin;
 
             int pointCount = entry->_pointCount;
             int pointOffset = entry->_pointOffset;

@@ -48,14 +48,13 @@ namespace Ikarus.UI
         private ToolStripMenuItem deleteToolStripMenuItem;
         private Panel panel1;
         private TransparentPanel transparentPanel1;
-        private CheckBox chkAllBones;
         private Button button1;
-        public CheckedListBox lstBones;
         private Splitter splitter1;
         private Splitter splitter2;
         private ContextMenuStrip ctxBones;
         private ToolStripMenuItem boneIndex;
         private ToolStripMenuItem renameBoneToolStripMenuItem;
+        public BonesPanel bonesPanel1;
         private Panel pnlObjects;
 
         private void InitializeComponent()
@@ -91,20 +90,20 @@ namespace Ikarus.UI
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.lstBones = new System.Windows.Forms.CheckedListBox();
             this.transparentPanel1 = new System.Windows.Forms.TransparentPanel();
-            this.chkAllBones = new System.Windows.Forms.CheckBox();
             this.button1 = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.ctxBones = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.boneIndex = new System.Windows.Forms.ToolStripMenuItem();
             this.renameBoneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.bonesPanel1 = new System.Windows.Forms.BonesPanel();
             this.pnlObjects.SuspendLayout();
             this.ctxTextures.SuspendLayout();
             this.pnlTextures.SuspendLayout();
             this.ctxAnim.SuspendLayout();
             this.panel1.SuspendLayout();
+            this.transparentPanel1.SuspendLayout();
             this.ctxBones.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -391,9 +390,7 @@ namespace Ikarus.UI
             // panel1
             // 
             this.panel1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panel1.Controls.Add(this.lstBones);
             this.panel1.Controls.Add(this.transparentPanel1);
-            this.panel1.Controls.Add(this.chkAllBones);
             this.panel1.Controls.Add(this.button1);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(0, 0);
@@ -402,43 +399,14 @@ namespace Ikarus.UI
             this.panel1.Size = new System.Drawing.Size(156, 146);
             this.panel1.TabIndex = 4;
             // 
-            // lstBones
-            // 
-            this.lstBones.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lstBones.CausesValidation = false;
-            this.lstBones.Cursor = System.Windows.Forms.Cursors.Default;
-            this.lstBones.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstBones.IntegralHeight = false;
-            this.lstBones.Location = new System.Drawing.Point(0, 41);
-            this.lstBones.Margin = new System.Windows.Forms.Padding(0);
-            this.lstBones.Name = "lstBones";
-            this.lstBones.Size = new System.Drawing.Size(154, 103);
-            this.lstBones.TabIndex = 9;
-            this.lstBones.SelectedValueChanged += new System.EventHandler(this.lstBones_SelectedValueChanged);
-            this.lstBones.KeyDown += new System.Windows.Forms.KeyEventHandler(this.List_KeyDown);
-            // 
             // transparentPanel1
             // 
+            this.transparentPanel1.Controls.Add(this.bonesPanel1);
             this.transparentPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.transparentPanel1.Location = new System.Drawing.Point(0, 41);
+            this.transparentPanel1.Location = new System.Drawing.Point(0, 21);
             this.transparentPanel1.Name = "transparentPanel1";
-            this.transparentPanel1.Size = new System.Drawing.Size(154, 103);
+            this.transparentPanel1.Size = new System.Drawing.Size(154, 123);
             this.transparentPanel1.TabIndex = 8;
-            // 
-            // chkAllBones
-            // 
-            this.chkAllBones.Checked = true;
-            this.chkAllBones.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.chkAllBones.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkAllBones.Location = new System.Drawing.Point(0, 21);
-            this.chkAllBones.Margin = new System.Windows.Forms.Padding(0);
-            this.chkAllBones.Name = "chkAllBones";
-            this.chkAllBones.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkAllBones.Size = new System.Drawing.Size(154, 20);
-            this.chkAllBones.TabIndex = 5;
-            this.chkAllBones.Text = "All";
-            this.chkAllBones.UseVisualStyleBackColor = false;
-            this.chkAllBones.CheckedChanged += new System.EventHandler(this.chkAllBones_CheckStateChanged);
             // 
             // button1
             // 
@@ -489,6 +457,14 @@ namespace Ikarus.UI
             this.renameBoneToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
             this.renameBoneToolStripMenuItem.Text = "Rename";
             // 
+            // bonesPanel1
+            // 
+            this.bonesPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.bonesPanel1.Location = new System.Drawing.Point(0, 0);
+            this.bonesPanel1.Name = "bonesPanel1";
+            this.bonesPanel1.Size = new System.Drawing.Size(154, 123);
+            this.bonesPanel1.TabIndex = 0;
+            // 
             // ModelListsPanel
             // 
             this.Controls.Add(this.panel1);
@@ -503,8 +479,10 @@ namespace Ikarus.UI
             this.pnlTextures.ResumeLayout(false);
             this.ctxAnim.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
+            this.transparentPanel1.ResumeLayout(false);
             this.ctxBones.ResumeLayout(false);
             this.ResumeLayout(false);
+
         }
 
         #endregion
@@ -540,7 +518,7 @@ namespace Ikarus.UI
         public MDL0TextureNode SelectedTexture { get { return _selectedTexture; } set { lstTextures.SelectedItem = value; } }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone; } set { _mainWindow.SelectedBone = value; } }
+        public MDL0BoneNode TargetBone { get { return _mainWindow.SelectedBone as MDL0BoneNode; } set { _mainWindow.SelectedBone = value; } }
         
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0MaterialRefNode TargetTexRef
@@ -557,7 +535,7 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0Node TargetModel
         {
-            get { return _mainWindow.TargetModel; }
+            get { return _mainWindow.TargetModel as MDL0Node; }
             set { _mainWindow.TargetModel = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -642,13 +620,13 @@ namespace Ikarus.UI
 
         public void Reset()
         {
+            bonesPanel1.Reset();
+
             lstObjects.BeginUpdate();
             lstObjects.Items.Clear();
             lstTextures.BeginUpdate();
             lstTextures.Items.Clear();
-            lstBones.BeginUpdate();
-            lstBones.Items.Clear();
-
+            
             _selectedPolygon = null;
             _targetObject = null;
 
@@ -665,18 +643,8 @@ namespace Ikarus.UI
 
                 if ((n = TargetModel.FindChild("Textures", false)) != null)
                     foreach (MDL0TextureNode tref in n.Children)
-                    {
-                        if (tref.Name.Contains("EyeHigh"))
-                            tref.Enabled = false;
                         lstTextures.Items.Add(tref, tref.Enabled);
-                    }
-
-                if (TargetModel._linker != null)
-                    foreach (MDL0BoneNode bone in TargetModel._linker.BoneCache)
-                        lstBones.Items.Add(bone, bone._render);
             }
-
-            lstBones.EndUpdate();
             lstTextures.EndUpdate();
             lstObjects.EndUpdate();
 
@@ -798,7 +766,7 @@ namespace Ikarus.UI
                 if (!_vis0Updating)
                 {
                     _polyIndex = e.Index;
-                    _mainWindow.UpdateVis0(this, null);
+                    _mainWindow.UpdateVis0(e);
                 }
             }
 
@@ -1208,64 +1176,64 @@ namespace Ikarus.UI
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public MDL0BoneNode SelectedBone
         {
-            get { return _mainWindow.SelectedBone; }
+            get { return _mainWindow.SelectedBone as MDL0BoneNode; }
             set { _mainWindow.SelectedBone = value; }
         }
 
-        private void lstBones_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Right)
-            {
-                if (SelectedBone != null)
-                {
-                    lstBones.ContextMenuStrip = ctxBones;
-                    boneIndex.Text = "Bone Index: " + SelectedBone.BoneIndex.ToString();
-                }
-                else
-                    lstBones.ContextMenuStrip = null;
-            }
-        }
+        //private void lstBones_MouseDown(object sender, MouseEventArgs e)
+        //{
+        //    if (e.Button == MouseButtons.Right)
+        //    {
+        //        if (SelectedBone != null)
+        //        {
+        //            lstBones.ContextMenuStrip = ctxBones;
+        //            boneIndex.Text = "Bone Index: " + SelectedBone.BoneIndex.ToString();
+        //        }
+        //        else
+        //            lstBones.ContextMenuStrip = null;
+        //    }
+        //}
 
-        private void lstBones_SelectedValueChanged(object sender, EventArgs e)
-        {
-            if (SelectedBone != null)
-                SelectedBone._boneColor = SelectedBone._nodeColor = Color.Transparent;
+        //private void lstBones_SelectedValueChanged(object sender, EventArgs e)
+        //{
+        //    if (SelectedBone != null)
+        //        SelectedBone._boneColor = SelectedBone._nodeColor = Color.Transparent;
 
-            SelectedBone = lstBones.SelectedItem as MDL0BoneNode;
+        //    SelectedBone = lstBones.SelectedItem as MDL0BoneNode;
 
-            _mainWindow.ModelPanel.Invalidate();
-        }
+        //    _mainWindow.ModelPanel.Invalidate();
+        //}
 
-        private void chkAllBones_CheckStateChanged(object sender, EventArgs e)
-        {
-            if (lstBones.Items.Count == 0)
-                return;
+        //private void chkAllBones_CheckStateChanged(object sender, EventArgs e)
+        //{
+        //    if (lstBones.Items.Count == 0)
+        //        return;
 
-            _updating = true;
+        //    _updating = true;
 
-            lstBones.BeginUpdate();
-            for (int i = 0; i < lstBones.Items.Count; i++)
-                lstBones.SetItemCheckState(i, chkAllBones.CheckState);
-            lstBones.EndUpdate();
+        //    lstBones.BeginUpdate();
+        //    for (int i = 0; i < lstBones.Items.Count; i++)
+        //        lstBones.SetItemCheckState(i, chkAllBones.CheckState);
+        //    lstBones.EndUpdate();
 
-            _updating = false;
+        //    _updating = false;
 
-            _mainWindow.ModelPanel.Invalidate();
-        }
+        //    _mainWindow.ModelPanel.Invalidate();
+        //}
 
-        private void lstBones_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            MDL0BoneNode bone = lstBones.Items[e.Index] as MDL0BoneNode;
+        //private void lstBones_ItemCheck(object sender, ItemCheckEventArgs e)
+        //{
+        //    MDL0BoneNode bone = lstBones.Items[e.Index] as MDL0BoneNode;
 
-            bone._render = e.NewValue == CheckState.Checked;
+        //    bone._render = e.NewValue == CheckState.Checked;
 
-            if (!_updating)
-                _mainWindow.ModelPanel.Invalidate();
-        }
+        //    if (!_updating)
+        //        _mainWindow.ModelPanel.Invalidate();
+        //}
 
-        private void renameBoneToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            new RenameDialog().ShowDialog(this, lstBones.SelectedItem as MDL0BoneNode);
-        }
+        //private void renameBoneToolStripMenuItem_Click(object sender, EventArgs e)
+        //{
+        //    new RenameDialog().ShowDialog(this, lstBones.SelectedItem as MDL0BoneNode);
+        //}
     }
 }

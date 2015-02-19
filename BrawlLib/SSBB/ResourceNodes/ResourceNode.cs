@@ -11,6 +11,7 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
+    public delegate void SelectEventHandler(int index);
     public delegate void MoveEventHandler(ResourceNode node, bool select);
     public delegate void ResourceEventHandler(ResourceNode node);
     public delegate void ResourceChildEventHandler(ResourceNode node, ResourceNode child);
@@ -68,7 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal protected DataSource _origSource, _uncompSource;
         internal protected DataSource _replSrc, _replUncompSrc;
 
-        internal protected bool _changed, _merged, _disposed = false;
+        internal protected bool _changed, _compressionChanged, _merged, _disposed, _replaced;
         internal protected CompressionType _compression;
 
         public string _name, _origPath;
@@ -80,9 +81,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal protected ResourceNode _first, _last;
         internal protected bool _hasChildren;
 
-        public event EventHandler UpdateProps, UpdateCurrControl;
+        public event SelectEventHandler SelectChild;
+        public event EventHandler UpdateProps, UpdateControl;
         public event MoveEventHandler MovedUp, MovedDown;
-        public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored;
+        public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored, CompressionChanged;
         public event ResourceChildEventHandler ChildAdded, ChildRemoved;
         public event ResourceChildInsertEventHandler ChildInserted;
 
@@ -172,8 +174,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Index { get { return _parent == null ? -1 : _parent.Children.IndexOf(this); } }
         [Browsable(false)]
         public bool IsCompressed { get { return _compression != CompressionType.None; } }
-
-        //Properties or compression have changed
+        [Browsable(false)]
+        public bool CompressionHasChanged { get { return _compressionChanged; } set { _compressionChanged = value; } }
         [Browsable(false)]
         public bool HasChanged { get { return _changed; } set { _changed = value; } }
 
@@ -191,7 +193,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public bool HasMerged { get { return _merged; } }
 
-        //Can be any of the following: children have branched, children have changed, current has changed
+        //Can be any of the following: 
+        //Children have branched, children have changed, current has changed, compression has changed
         //Node needs to be rebuilt.
         [Browsable(false)]
         public bool IsDirty
@@ -202,7 +205,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return true;
                 if (_children != null)
                     foreach (ResourceNode n in _children)
-                        if (n.HasChanged || n.IsBranch || n.IsDirty)
+                        if (n.IsBranch || n.IsDirty)
                             return true;
                 return false;
             }
@@ -210,17 +213,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 _changed = value;
                 foreach (ResourceNode r in Children)
-                    if (r._children != null)
-                        r.IsDirty = value;
-                    else
-                        r._changed = value;
+                    r.IsDirty = value;
             }
         }
-
+        [Browsable(false)]
+        public virtual bool RetainChildrenOnReplace { get { return false; } }
         [Browsable(false)]
         public virtual Type[] AllowedChildTypes { get { return _allowedChildTypes; } }
         private Type[] _allowedChildTypes = new Type[] { };
-
         [Browsable(false), TypeConverter(typeof(DropDownListCompression))]
         public virtual string Compression 
         {
@@ -236,7 +236,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (Array.IndexOf(Compressor._supportedCompressionTypes, type) != -1)
                     {
                         _compression = type;
-                        _changed = true;
+                        _compressionChanged = true;
+                        if (CompressionChanged != null)
+                            CompressionChanged(this);
                     }
                 }
             }
@@ -285,6 +287,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        public void SelectChildAtIndex(int index)
+        {
+            if (SelectChild != null)
+                SelectChild(index);
+        }   
         public void UpdateProperties()
         {
             if (UpdateProps != null)
@@ -292,8 +299,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         }   
         public void UpdateCurrentControl()
         {
-            if (UpdateCurrControl != null)
-                UpdateCurrControl(this, null);
+            if (UpdateControl != null)
+                UpdateControl(this, null);
         }
 
         #region Moving
@@ -327,6 +334,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             Parent._changed = true;
             return true;
         }
+
+        public virtual void OnMoved() { }
 
         public virtual void DoMoveDown() { DoMoveDown(true); }
         public virtual void DoMoveDown(bool select)
@@ -450,6 +459,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_origSource != DataSource.Empty && !OnInitialize())
                 _children = new List<ResourceNode>();
 
+            _compressionChanged = false;
             _changed = false;
             if (Restored != null)
                 Restored(this);
@@ -487,6 +497,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public virtual void InsertChild(ResourceNode child, bool change, int index)
         {
+            if (index == Children.Count - 1)
+            {
+                AddChild(child, change);
+                return;
+            }
+
             Children.Insert(index, child);
             child._parent = this;
             if (ChildInserted != null)
@@ -516,7 +532,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Causes a deviation in the resource tree. This node and all child nodes will be backed by a temporary file until the tree is merged.
         //Causes parent node(s) to become dirty.
         //Replace will reference the file in a new DataSource.
-        public bool _replaced = false;
         public unsafe virtual void Replace(string fileName) { Replace(fileName, FileMapProtect.Read, FileOptions.SequentialScan); }
         public unsafe virtual void Replace(string fileName, FileMapProtect prot, FileOptions options)
         {
@@ -531,7 +546,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public unsafe virtual void ReplaceRaw(FileMap map)
         {
-            if (_children != null)
+            if (_children != null && !RetainChildrenOnReplace)
             {
                 foreach (ResourceNode node in _children)
                     node.Dispose();
@@ -542,30 +557,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             _replUncompSrc.Close();
             _replSrc.Close();
 
-            _compression = Compressor.GetAlgorithm(map.Address, map.Length);
-            if (_compression != CompressionType.None)
-            {
-                //TODO: YAZ0 and YAY0?
+            _replSrc = new DataSource(map);
 
-                CompressionHeader* cmpr = (CompressionHeader*)map.Address;
-                if (Compressor.Supports(cmpr->Algorithm))
-                {
-                    FileMap uncompMap = FileMap.FromTempFile((int)cmpr->ExpandedSize);
-                    Compressor.Expand(cmpr, uncompMap.Address, uncompMap.Length);
-                    _replSrc = new DataSource(map, cmpr->Algorithm);
-                    _replUncompSrc = new DataSource(uncompMap);
-                }
-                else
-                    _replSrc = _replUncompSrc = new DataSource(map);
-            }
-            else
-                _replSrc = _replUncompSrc = new DataSource(map);
+            FileMap uncompMap = Compressor.TryExpand(ref _replSrc, false);
+            _compression = _replSrc.Compression;
+            _replUncompSrc = uncompMap != null ? new DataSource(uncompMap) : _replSrc;
 
             _replaced = true;
-            if (!OnInitialize())
+            if (!OnInitialize() && !RetainChildrenOnReplace)
                 _children = new List<ResourceNode>();
             _replaced = false;
 
+            _compressionChanged = false;
             _changed = false;
             if (Replaced != null)
                 Replaced(this);
@@ -636,11 +639,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public virtual void Rebuild() { Rebuild(false); }
         public virtual void Rebuild(bool force)
         {
-            if (!IsDirty && !force)
+            bool mustRebuild = IsDirty || force;
+            if (!_compressionChanged && !mustRebuild)
                 return;
 
             //Get uncompressed size
-            int size = OnCalculateSize(force);
+            int size = mustRebuild ? OnCalculateSize(force) : WorkingUncompressed.Length;
 
             //Create temp map
             FileMap uncompMap = FileMap.FromTempFile(size);
@@ -679,8 +683,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _replSrc = _replUncompSrc = new DataSource(address, length);
             }
 
+            _compressionChanged = false;
             _changed = false;
-            //HasChanged = false;
         }
         //Overridden by parent nodes in order to rebuild children.
         //Size is the value returned by OnCalculateSize (or _calcSize)
@@ -690,16 +694,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             Memory.Move(address, WorkingUncompressed.Address, (uint)length);
         }
 
-        //Shouldn't this move compressed data? YES!
         internal virtual void MoveRaw(VoidPtr address, int length)
         {
-            Memory.Move(address, WorkingSource.Address, (uint)length);
+            Memory.Move(address, WorkingUncompressed.Address, (uint)length);
             DataSource newsrc = new DataSource(address, length);
             if (_compression == CompressionType.None)
             {
                 if (_children != null)
                 {
-                    int offset = address - WorkingSource.Address;
+                    int offset = address - WorkingUncompressed.Address;
                     foreach (ResourceNode n in _children)
                         n.OnParentMoved(offset);
                 }
@@ -1037,5 +1040,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             return Name;
         }
+    }
+
+    public class NodeComparer : IComparer<ResourceNode>
+    {
+        public static NodeComparer Instance = new NodeComparer();
+        public int Compare(ResourceNode x, ResourceNode y) { return String.CompareOrdinal(x.Name, y.Name); }
     }
 }

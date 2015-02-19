@@ -63,7 +63,7 @@ namespace Ikarus.MovesetFile
                 if (_externalEntry != null && _externalEntry.Name != value)
                     _externalEntry.References.Remove(this);
                 
-                foreach (ExternalEntryNode e in _root.ReferenceList)
+                foreach (TableEntryNode e in _root.ReferenceList)
                     if (e.Name == value)
                     {
                         _externalEntry = e;

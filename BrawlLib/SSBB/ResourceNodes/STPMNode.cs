@@ -19,20 +19,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.OnInitialize();
 
             if (_name == null)
-                _name = "STPM";
+                _name = "Stage Parameters";
 
             return Header->_count > 0;
         }
 
+        const int _entrySize = 260;
+
         public override void OnPopulate()
         {
             for (int i = 0; i < Header->_count; i++)
-                new STPMEntryNode().Initialize(this, new DataSource((*Header)[i], 260));
+                new STPMEntryNode().Initialize(this, new DataSource((*Header)[i], _entrySize));
         }
 
         public override int OnCalculateSize(bool force)
         {
-            return 0x10 + Children.Count * 4 + Children.Count * 260;
+            return 0x10 + Children.Count * 4 + Children.Count * _entrySize;
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -42,9 +44,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             uint offset = (uint)(0x10 + (Children.Count * 4));
             for (int i = 0; i < Children.Count; i++)
             {
-                if (i > 0) { offset += (uint)(Children[i - 1].CalculateSize(false)); }
+                ResourceNode r = Children[i];
                 *(buint*)((VoidPtr)address + 0x10 + i * 4) = offset;
-                _children[i].Rebuild((VoidPtr)address + offset, _children[i].CalculateSize(false), true);
+                r.Rebuild((VoidPtr)address + offset, _entrySize, true);
+                offset += _entrySize;
             }
         }
 
@@ -236,8 +239,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         
         public override bool OnInitialize()
         {
-            base.OnInitialize();
-
             id = Header->_id;
             echo = Header->_echo;
             id2 = Header->_id2;

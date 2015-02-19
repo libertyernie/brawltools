@@ -42,21 +42,6 @@ namespace BrawlBox.Properties {
 
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public List<ModelEditorViewportEntry> ViewportSettings
-        {
-            get
-            {
-                return ((List<ModelEditorViewportEntry>)(this["ViewportSettings"]));
-            }
-            set
-            {
-                this["ViewportSettings"] = value;
-            }
-        }
-
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("false")]
         public bool ViewerSettingsSet
         {

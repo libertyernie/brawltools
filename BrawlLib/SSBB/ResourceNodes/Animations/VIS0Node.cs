@@ -9,55 +9,35 @@ using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class VIS0Node : AnimationNode
+    public unsafe class VIS0Node : NW4RAnimationNode
     {
-        internal BRESCommonHeader* Header { get { return (BRESCommonHeader*)WorkingUncompressed.Address; } }
         internal VIS0v3* Header3 { get { return (VIS0v3*)WorkingUncompressed.Address; } }
         internal VIS0v4* Header4 { get { return (VIS0v4*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.VIS0; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(VIS0EntryNode) }; } }
+        public override int[] SupportedVersions { get { return new int[] { 3, 4 }; } }
 
+        public VIS0Node() { _version = 3; }
         const string _category = "Bone Visibility Animation";
-        internal int _numFrames = 1, _version = 3, _loop;
 
         [Category(_category)]
-        public int Version 
-        { 
-            get { return _version; } 
-            set 
-            {
-                _version = value; 
-                SignalPropertyChange(); 
-            } 
+        public override int FrameCount
+        {
+            get { return base.FrameCount; }
+            set { base.FrameCount = value; }
         }
         [Category(_category)]
-        public override int FrameCount 
-        { 
-            get { return _numFrames; }
-            set
-            {
-                if ((_numFrames == value) || (value < 1))
-                    return;
-
-                _numFrames = value;
-
-                foreach (VIS0EntryNode e in Children)
-                    e.EntryCount = FrameCount;
-
-                SignalPropertyChange();
-            }
+        public override bool Loop
+        {
+            get { return base.Loop; }
+            set { base.Loop = value; }
         }
 
-        [Category(_category)]
-        public override bool Loop { get { return _loop != 0; } set { _loop = value ? 1 : 0; SignalPropertyChange(); } }
-
-        [Category(_category)]
-        public string OriginalPath { get { return _originalPath; } set { _originalPath = value; SignalPropertyChange(); } }
-        public string _originalPath;
-
-        [Category("User Data"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public UserDataCollection UserEntries { get { return _userEntries; } set { _userEntries = value; SignalPropertyChange(); } }
-        internal UserDataCollection _userEntries = new UserDataCollection();
+        protected override void UpdateChildFrameLimits()
+        {
+            foreach (VIS0EntryNode e in Children)
+                e.EntryCount = FrameCount;
+        }
 
         public unsafe VIS0EntryNode CreateEntry()
         {
@@ -72,14 +52,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             base.OnInitialize();
-
-            _version = Header->_version;
-
             if (_version == 4)
             {
                 VIS0v4* header = Header4;
                 _numFrames = header->_numFrames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
 
@@ -94,7 +71,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 VIS0v3* header = Header3;
                 _numFrames = header->_numFrames;
-                _loop = header->_loop;
+                _loop = header->_loop != 0;
 
                 if ((_name == null) && (header->_stringOffset != 0))
                     _name = header->ResourceString;
@@ -167,12 +144,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 table.Add(n.Name);
 
             if (_version == 4)
-                foreach (UserDataClass s in _userEntries)
-                {
-                    table.Add(s._name);
-                    if (s._type == UserValueType.String && s._entries.Count > 0)
-                        table.Add(s._entries[0]);
-                }
+                _userEntries.GetStrings(table);
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);

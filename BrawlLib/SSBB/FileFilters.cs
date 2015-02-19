@@ -63,7 +63,8 @@ namespace BrawlLib
             SupportedFilesHandler.GetCompleteFilter("wav");
         public static string BLOC =
             "BLOC Adventure Archive (*.BLOC)|*.bloc";
-
+        public static string FMDL =
+            SupportedFilesHandler.GetCompleteFilter("fmdl");
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,

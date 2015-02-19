@@ -41,6 +41,7 @@ using System.Collections;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Windows.Forms;
 
 namespace Gif.Components
 {
@@ -111,7 +112,7 @@ namespace Gif.Components
 		protected byte[] pixels;
 
 		protected ArrayList frames; // frames read from current file
-		protected int frameCount;
+		protected int frameCount, currentFrame;
 
 		public class GifFrame 
 		{
@@ -221,7 +222,7 @@ namespace Gif.Components
 				if (lastDispose == 3) 
 				{
 					// use image before last
-					int n = frameCount - 2;
+					int n = currentFrame - 2;
 					if (n > 0) 
 					{
 						lastImage = GetFrame(n - 1);
@@ -360,7 +361,7 @@ namespace Gif.Components
 				if (!Error()) 
 				{
 					ReadContents();
-					if (frameCount < 0) 
+					if (currentFrame < 0 || frameCount < 0) 
 					{
 						status = STATUS_FORMAT_ERROR;
 					}
@@ -381,8 +382,9 @@ namespace Gif.Components
 		 * @param name String containing source
 		 * @return read status code (0 = no errors)
 		 */
-		public int Read(String name) 
+		public int Read(String name, Form o) 
 		{
+            owner = o;
 			status = STATUS_OK;
 			try 
 			{
@@ -396,6 +398,17 @@ namespace Gif.Components
 
 			return status;
 		}
+
+        protected void SkipImageData()
+        {
+            int data_size = Read();
+            int count = 0;
+            do
+            {
+                count = ReadBlock();
+            }
+            while (count > 0);
+        }
 
 		/**
 		 * Decodes LZW image data into pixel array.
@@ -539,7 +552,6 @@ namespace Gif.Components
 			{
 				pixels[i] = 0; // clear missing pixels
 			}
-
 		}
 
 		/**
@@ -557,6 +569,7 @@ namespace Gif.Components
 		{
 			status = STATUS_OK;
 			frameCount = 0;
+            currentFrame = 0;
 			frames = new ArrayList();
 			gct = null;
 			lct = null;
@@ -652,64 +665,125 @@ namespace Gif.Components
 			return tab;
 		}
 
+        Form owner = null;
+
 		/**
 		 * Main file parser.  Reads GIF content blocks.
 		 */
 		protected void ReadContents() 
 		{
+            long offset = inStream.Position;
+
+            //Scan through file and get the frame count
+            frameCount = 0;
+
 			// read GIF file content blocks
-			bool done = false;
-			while (!(done || Error())) 
-			{
-				int code = Read();
-				switch (code) 
-				{
+            bool done = false;
+            while (!(done || Error()))
+            {
+                int code = Read();
+                switch (code)
+                {
+                    case 0x2C: // image separator
+                        SkipImage();
+                        frameCount++;
+                        break;
+                    case 0x21:
+                        code = Read();
+                        switch (code)
+                        {
+                            case 0xf9: // graphics control extension
+                                ReadGraphicControlExt();
+                                break;
+                            case 0xff: // application extension
+                                ReadBlock();
+                                String app = "";
+                                for (int i = 0; i < 11; i++)
+                                {
+                                    app += (char)block[i];
+                                }
+                                if (app.Equals("NETSCAPE2.0"))
+                                {
+                                    ReadNetscapeExt();
+                                }
+                                else
+                                    Skip(); // don't care
+                                break;
+                            default:
+                                Skip();
+                                break;
+                        }
+                        break;
+                    case 0x3b:
+                        done = true;
+                        break;
+                    case 0x00:
+                        break;
+                    default:
+                        status = STATUS_FORMAT_ERROR;
+                        break;
+                }
+            }
 
-					case 0x2C : // image separator
-						ReadImage();
-						break;
+            inStream.Position = offset;
 
-					case 0x21 : // extension
-						code = Read();
-					switch (code) 
-					{
-						case 0xf9 : // graphics control extension
-							ReadGraphicControlExt();
-							break;
+            using (ProgressWindow p = new ProgressWindow(owner, "Decoding Image...", "Reading file, please wait...", false))
+            {
+                p.Begin(0, frameCount, 0);
+                done = false;
+                while (!(done || Error()))
+                {
+                    int code = Read();
+                    switch (code)
+                    {
+                        case 0x2C: // image separator
+                            ReadImage();
+                            p.Update(currentFrame);
+                            break;
 
-						case 0xff : // application extension
-							ReadBlock();
-							String app = "";
-							for (int i = 0; i < 11; i++) 
-							{
-								app += (char) block[i];
-							}
-							if (app.Equals("NETSCAPE2.0")) 
-							{
-								ReadNetscapeExt();
-							}
-							else
-								Skip(); // don't care
-							break;
+                        case 0x21: // extension
+                            code = Read();
+                            switch (code)
+                            {
+                                case 0xf9: // graphics control extension
+                                    ReadGraphicControlExt();
+                                    break;
 
-						default : // uninteresting extension
-							Skip();
-							break;
-					}
-						break;
+                                case 0xff: // application extension
+                                    ReadBlock();
+                                    String app = "";
+                                    for (int i = 0; i < 11; i++)
+                                    {
+                                        app += (char)block[i];
+                                    }
+                                    if (app.Equals("NETSCAPE2.0"))
+                                    {
+                                        ReadNetscapeExt();
+                                    }
+                                    else
+                                        Skip(); // don't care
+                                    break;
 
-					case 0x3b : // terminator
-						done = true;
-						break;
+                                default: // uninteresting extension
+                                    Skip();
+                                    break;
+                            }
+                            break;
 
-					case 0x00 : // bad byte, but keep going and see what happens
-						break;
+                        case 0x3b: // terminator
+                            done = true;
+                            break;
 
-					default :
-						status = STATUS_FORMAT_ERROR;
-						break;
-				}
-			}
+                        case 0x00: // bad byte, but keep going and see what happens
+                            break;
+
+                        default:
+                            status = STATUS_FORMAT_ERROR;
+                            break;
+                    }
+                }
+                p.Finish();
+            }
 		}
 
 		/**
@@ -753,6 +827,18 @@ namespace Gif.Components
 				bgColor = gct[bgIndex];
 			}
 		}
+
+        protected void SkipImage()
+        {
+            inStream.Seek(8, SeekOrigin.Current);
+            int packed = Read();
+            lctFlag = (packed & 0x80) != 0;
+            lctSize = 2 << (packed & 7);
+            if (lctFlag) 
+                inStream.Seek(lctSize * 3, SeekOrigin.Current);
+            DecodeImageData();
+            Skip();
+        }
 
 		/**
 		 * Reads next frame image
@@ -801,7 +887,7 @@ namespace Gif.Components
 
 			if (Error()) return;
 
-			frameCount++;
+            currentFrame++;
 
 			// create new image to receive frame data
 			//		image =
@@ -879,8 +965,8 @@ namespace Gif.Components
 			lastImage = image;
 			lastBgColor = bgColor;
 			//		int dispose = 0;
-			bool transparency = false;
-			int delay = 0;
+            //transparency = false;
+            //delay = 0;
 			lct = null;
 		}
 

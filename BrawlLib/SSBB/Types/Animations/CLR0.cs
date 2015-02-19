@@ -21,7 +21,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _entries;
         public bint _loop;
 
-        public CLR0v3(int size, int frames, int entries, int loop)
+        public CLR0v3(int size, int frames, int entries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -33,7 +33,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = 0;
             _frames = (ushort)frames;
             _entries = (ushort)entries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
@@ -69,7 +69,7 @@ namespace BrawlLib.SSBBTypes
         public bushort _entries;
         public bint _loop;
 
-        public CLR0v4(int size, int frames, int entries, int loop)
+        public CLR0v4(int size, int frames, int entries, bool loop)
         {
             _header._tag = Tag;
             _header._size = size;
@@ -82,7 +82,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = 0;
             _frames = (ushort)frames;
             _entries = (ushort)entries;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
@@ -166,12 +166,12 @@ namespace BrawlLib.SSBBTypes
         public bint _stringOffset;
         public buint _flags;
 
-        public CLR0Material(CLR0EntryFlags flags, ABGRPixel mask, int offset)
+        public CLR0Material(CLR0EntryFlags flags, RGBAPixel mask, int offset)
         {
             _stringOffset = 0;
             _flags = (uint)flags;
         }
-        public CLR0Material(CLR0EntryFlags flags, ABGRPixel mask, ABGRPixel color)
+        public CLR0Material(CLR0EntryFlags flags, RGBAPixel mask, RGBAPixel color)
         {
             _stringOffset = 0;
             _flags = (uint)flags;
@@ -192,19 +192,19 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential)]
     unsafe struct CLR0MaterialEntry
     {
-        public ABGRPixel _colorMask; //Used as a mask for source color before applying frames
+        public RGBAPixel _colorMask; //Used as a mask for source color before applying frames
         public bint _data;
 
-        public ABGRPixel SolidColor { get { return *(ABGRPixel*)(Address + 4); } set { *(ABGRPixel*)(Address + 4) = value; } }
-        public ABGRPixel* Data { get { return (ABGRPixel*)(Address + _data + 4); } }
+        public RGBAPixel SolidColor { get { return *(RGBAPixel*)(Address + 4); } set { *(RGBAPixel*)(Address + 4) = value; } }
+        public RGBAPixel* Data { get { return (RGBAPixel*)(Address + _data + 4); } }
 
-        public CLR0MaterialEntry(ABGRPixel mask, ABGRPixel color) 
+        public CLR0MaterialEntry(RGBAPixel mask, RGBAPixel color) 
         {
             _colorMask = mask;
             _data._data = *(int*)&color;
         }
 
-        public CLR0MaterialEntry(ABGRPixel mask, int offset)
+        public CLR0MaterialEntry(RGBAPixel mask, int offset)
         {
             _colorMask = mask;
             _data = offset;

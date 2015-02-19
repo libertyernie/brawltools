@@ -19,100 +19,109 @@ namespace Ikarus
         public CharName Name { get { return (CharName)_charId; } set { _charId = (int)value; } }
         public CharFolder Folder { get { return (CharFolder)_charId; } set { _charId = (int)value; } }
 
-        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterEtcFiles;
-        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFiles;
+        private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterEffectFiles;
+        private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterEtcFiles;
+        private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFinalFiles;
+        private Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> _characterFiles;
+        
+        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterEffectFiles
+        {
+            get
+            {
+                if (_characterEffectFiles != null)
+                    return _characterEffectFiles;
 
-        private BRESNode _animations = null;
+                ARCNode m = MovesetArc;
+                if (m == null) return null;
+                if (m.Children.Count < 2) return null;
+                ARCNode entry = m.Children[1] as ARCNode;
+                LoadArcFiles(entry, ref _characterEffectFiles);
+                return _characterEffectFiles;
+            }
+        }
+        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterFinalFiles
+        {
+            get
+            {
+                if (_characterFinalFiles != null)
+                    return _characterFinalFiles;
+
+                ARCNode m = FinalArc;
+                if (m == null) return null;
+                LoadArcFiles(m, ref _characterFinalFiles);
+                return _characterFinalFiles;
+            }
+        }
+        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterEtcFiles { get { return _characterEtcFiles; } }
+        public Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> CharacterFiles { get { return _characterFiles; } }
+        
+        private BRRESNode _animations = null;
         private MovesetNode _moveset = null;
 
-        private string RLoc(int i) { return String.Format(_Rlocs[i], Folder); }
-        private static readonly string[] _Rlocs = 
+        private string FileName(int i) { return (RunTime._IsRoot ? "/fighter/{0}/" : "/") + _fileNames[i]; }
+        private static readonly string[] _fileNames = 
         { 
-            "/fighter/{0}/Fit{0}.pac",
-            "/fighter/{0}/Fit{0}MotionEtc.pac",
-            "/fighter/{0}/Fit{0}Entry.pac",
-            "/fighter/{0}/Fit{0}Final.pac",
-            "/fighter/{0}/Fit{0}{1}.pcs",
-            "/fighter/{0}/Fit{0}{1}.pac",
-            "/fighter/{0}/Fit{0}Motion.pac",
-        };
-
-        private string CLoc(int i) { return String.Format(_Clocs[i], Folder); }
-        private static readonly string[] _Clocs = 
-        { 
-            "/Fit{0}.pac",
-            "/Fit{0}MotionEtc.pac",
-            "/Fit{0}Entry.pac",
-            "/Fit{0}Final.pac",
-            "/Fit{0}{1}.pcs",
-            "/Fit{0}{1}.pac",
-            "/Fit{0}Motion.pac",
+            "Fit{0}.pac",
+            "Fit{0}MotionEtc.pac",
+            "Fit{0}Entry.pac",
+            "Fit{0}Final.pac",
+            "Fit{0}{1}.pcs",
+            "Fit{0}{1}.pac",
+            "Fit{0}Motion.pac",
         };
         ARCNode _movesetArc, _motionEtcArc, _entryArc, _finalArc;
         ARCNode[] _modelArcs = new ARCNode[12];
 
         public ARCNode MovesetArc
         {
-            get 
+            get
             {
-                if(RunTime._IsRoot)
-                return _movesetArc == null ? _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(0), Folder)) : _movesetArc; 
-                else
-                return _movesetArc == null ? _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(0), Folder)) : _movesetArc; 
+                return _movesetArc == null ?
+                    _movesetArc = Manager.TryGet<ARCNode>(true, true, String.Format(FileName(0), Folder)) :
+                    _movesetArc; 
             }
         }
         public ARCNode MotionEtcArc
         {
-            get 
+            get
             {
-                if (RunTime._IsRoot)
-                return _motionEtcArc == null ? _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(1), Folder), String.Format(RLoc(6), Folder)) : _motionEtcArc; 
-                else
-                return _motionEtcArc == null ? _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(1), Folder), String.Format(CLoc(6), Folder)) : _motionEtcArc; 
+                return _motionEtcArc == null ?
+                    _motionEtcArc = Manager.TryGet<ARCNode>(true, true, String.Format(FileName(1), Folder), String.Format(FileName(6), Folder)) :
+                    _motionEtcArc; 
             } 
         }
         public ARCNode EntryArc
         {
-            get 
+            get
             {
-                if(RunTime._IsRoot)
-                return _entryArc == null ? _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(2), Folder)) : _entryArc; 
-                else
-                return _entryArc == null ? _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(2), Folder)) : _entryArc; 
+                return _entryArc == null ? 
+                    _entryArc = Manager.TryGet<ARCNode>(true, true, String.Format(FileName(2), Folder)) :
+                    _entryArc; 
             }
         }
         public ARCNode FinalArc
         {
-            get 
+            get
             {
-                if(RunTime._IsRoot)
-                return _finalArc == null ? _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(RLoc(3), Folder)) : _finalArc; 
-                else
-                return _finalArc == null ? _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(CLoc(3), Folder)) : _finalArc; 
+                return _finalArc == null ?
+                    _finalArc = Manager.TryGet<ARCNode>(true, true, String.Format(FileName(3), Folder)) :
+                    _finalArc; 
             }
         }
         public ARCNode GetModelArc(int index)
         {
             if (_modelArcs[index] != null) 
                 return _modelArcs[index];
-            if(RunTime._IsRoot)
-            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(_Rlocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Rlocs[5], Folder, index.ToString().PadLeft(2, '0')));
-            else
-            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(_Clocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Clocs[5], Folder, index.ToString().PadLeft(2, '0')));
-
+            return _modelArcs[index] = Manager.TryGet<ARCNode>(true, true, String.Format(FileName(4), Folder, index.ToString().PadLeft(2, '0')), String.Format(FileName(5), Folder, index.ToString().PadLeft(2, '0')));
         }
         public bool ModelArcExists(int index, bool searchDir, bool searchOpened)
         {
             if (_modelArcs[index] != null)
                 return true;
-            if(RunTime._IsRoot)
-            return Manager.FileExists(searchDir, searchOpened, String.Format(_Rlocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Rlocs[5], Folder, index.ToString().PadLeft(2, '0')));
-            else
-            return Manager.FileExists(searchDir, searchOpened, String.Format(_Clocs[4], Folder, index.ToString().PadLeft(2, '0')), String.Format(_Clocs[5], Folder, index.ToString().PadLeft(2, '0')));
-
+            return Manager.FileExists(searchDir, searchOpened, String.Format(FileName(4), Folder, index.ToString().PadLeft(2, '0')), String.Format(FileName(5), Folder, index.ToString().PadLeft(2, '0')));
         }
 
-        internal BRESNode Animations 
+        internal BRRESNode Animations 
         {
             get
             {
@@ -121,9 +130,9 @@ namespace Ikarus
 
                 ARCNode m = MotionEtcArc;
                 if (m != null && m.Children.Count >= 2 && m.Children[1].Children.Count > 0)
-                    return _animations = m.Children[1].Children[0] as BRESNode;
+                    return _animations = m.Children[1].Children[0] as BRRESNode;
                 else if (m != null && m.Children.Count == 1 && m.Children[0].Children.Count > 0)
-                    return _animations = m.Children[0] as BRESNode;
+                    return _animations = m.Children[0] as BRRESNode;
                 return _animations = null;
             }
         }
@@ -132,13 +141,15 @@ namespace Ikarus
         {
             get
             {
-                ARCNode m = MovesetArc;
                 if (_moveset != null)
                     return _moveset;
+
+                ARCNode m = MovesetArc;
                 if (m == null) return null;
                 if (m.Children.Count == 0) return null;
                 ARCEntryNode entry = m.Children[0] as ARCEntryNode;
-                (_moveset = new MovesetNode((CharName)_charId)).Initialize(null, entry.WorkingUncompressed);
+                (_moveset = new MovesetNode(Name)).Initialize(null, entry.WorkingUncompressed);
+                _moveset.Populate(0);
                 return _moveset;
             }
         }
@@ -153,7 +164,7 @@ namespace Ikarus
             LoadParameters();
 
             if (MotionEtcArc != null && MotionEtcArc.Children.Count >= 2)
-                LoadEtcFiles(MotionEtcArc.Children[0] as ARCNode, ref _characterEtcFiles);
+                LoadArcFiles(MotionEtcArc.Children[0] as ARCNode, ref _characterEtcFiles);
             
             MainForm.Instance._mainControl.comboMdl.DataSource = _usableModels;
             if (_usableModels.Count > 0 && ModelArcExists(_usableModels[0], true, true))
@@ -195,13 +206,6 @@ namespace Ikarus
         {
             get 
             {
-                //int x = MainForm.Instance._mainControl.comboMdl.SelectedIndex;
-                //if (_usableModels.Count > 0 && x < _usableModels.Count && x >= 0)
-                //{
-                //    ARCNode m = GetModelArc(_usableModels[x]);
-                //    if (m == null) return null;
-                //    return m.Children[0].Children[0].;
-                //}
                 if (_characterFiles == null)
                     ModelIndexChanged();
                 if (_characterFiles == null)
@@ -234,14 +238,16 @@ namespace Ikarus
             int i;
             _mdlIndex = MainForm.Instance._mainControl.comboMdl.SelectedIndex;
             if (_usableModels.Count > 0 && _mdlIndex < _usableModels.Count && _mdlIndex >= 0 && ModelArcExists(i = _usableModels[_mdlIndex], true, true))
-                LoadEtcFiles(GetModelArc(i), ref _characterFiles);
+                LoadArcFiles(GetModelArc(i), ref _characterFiles);
         }
 
-        private void LoadEtcFiles(ARCNode etc, ref Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> files)
+        private void LoadArcFiles(ARCNode arc, ref Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>> files)
         {
-            etc.Populate();
+            if (arc == null)
+                return;
+
             files = new Dictionary<int, Dictionary<ARCFileType, List<ARCEntryNode>>>();
-            foreach (ARCEntryNode e in etc.Children)
+            foreach (ARCEntryNode e in arc.Children)
             {
                 int grp = e.GroupID;
 

@@ -27,7 +27,8 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool NotCtrlAlt { get { return !Ctrl && !Alt; } }
 
-        public Dictionary<Keys, Func<bool>> _hotKeys;
+        private Dictionary<Keys, Func<bool>> _hotKeysDown;
+        private Dictionary<Keys, Func<bool>> _hotKeysUp;
 
         /// <summary>
         /// This handles all key input in the main control instead of through child controls.
@@ -37,34 +38,51 @@ namespace System.Windows.Forms
         protected override bool ProcessKeyPreview(ref Message m)
         {
             const int WM_KEYDOWN = 0x100;
-            //const int WM_KEYUP = 0x101;
-            //const int WM_CHAR = 0x102;
-            //const int WM_SYSCHAR = 0x106;
-            //const int WM_SYSKEYDOWN = 0x104;
-            //const int WM_SYSKEYUP = 0x105;
-            //const int WM_IME_CHAR = 0x286;
+            const int WM_KEYUP = 0x101;
+            const int WM_CHAR = 0x102;
+            const int WM_SYSCHAR = 0x106;
+            const int WM_SYSKEYDOWN = 0x104;
+            const int WM_SYSKEYUP = 0x105;
+            const int WM_IME_CHAR = 0x286;
 
-            if (m.Msg == WM_KEYDOWN)
+            bool down = m.Msg == WM_KEYDOWN || m.Msg == WM_SYSKEYDOWN;
+            bool up = m.Msg == WM_KEYUP || m.Msg == WM_SYSKEYUP;
+
+            if (down || up)
             {
-                Keys key = (Keys)m.WParam;
-                if (Ctrl)
-                    key |= Keys.Control;
-                if (Alt)
-                    key |= Keys.Alt;
-                if (Shift)
-                    key |= Keys.Shift;
+                Keys key;
+                if (m.Msg == WM_SYSKEYDOWN || m.Msg == WM_SYSKEYUP)
+                    key = ModifierKeys;
+                else
+                {
+                    key = (Keys)m.WParam;
+                    if (Ctrl)
+                        key |= Keys.Control;
+                    if (Alt)
+                        key |= Keys.Alt;
+                    if (Shift)
+                        key |= Keys.Shift;
+                }
 
-                if (_hotKeys.ContainsKey(key))
-                    if ((bool)_hotKeys[key].DynamicInvoke())
+                if (down && _hotKeysDown.ContainsKey(key))
+                {
+                    if ((bool)_hotKeysDown[key].DynamicInvoke())
                         return true;
+                }
+                else if (_hotKeysUp.ContainsKey(key))
+                {
+                    if ((bool)_hotKeysUp[key].DynamicInvoke())
+                        return true;
+                }
             }
+
             return base.ProcessKeyPreview(ref m);
         }
 
         public class HotKeyInfo
         {
             public Keys _baseKey;
-            public bool _ctrl, _alt, _shift;
+            public bool _ctrl, _alt, _shift, _keyDown, _keyUp;
             public Func<bool> _function;
 
             public Keys KeyCode
@@ -82,13 +100,15 @@ namespace System.Windows.Forms
                 }
             }
 
-            public HotKeyInfo(Keys baseKey, bool ctrl, bool alt, bool shift, Func<bool> function)
+            public HotKeyInfo(Keys baseKey, bool ctrl, bool alt, bool shift, Func<bool> function, bool keydown = true, bool keyup = false)
             {
                 _baseKey = baseKey;
                 _ctrl = ctrl;
                 _alt = alt;
                 _shift = shift;
                 _function = function;
+                _keyDown = keydown;
+                _keyUp = keyup;
             }
         }
 
@@ -117,18 +137,46 @@ namespace System.Windows.Forms
                 new HotKeyInfo(Keys.V, true, true, false, HotkeyPasteEntryFrameKeyframesOnly),
                 new HotKeyInfo(Keys.V, true, false, false, HotkeyPasteEntryFrame),
                 new HotKeyInfo(Keys.V, false, false, false, HotkeyRenderVertices),
-                new HotKeyInfo(Keys.I, true, false, true, HotkeyCaptureScreenshotTransparent),
-                new HotKeyInfo(Keys.I, true, false, false, HotkeyCaptureScreenshot),
+                new HotKeyInfo(Keys.I, true, true, false, HotkeyCaptureScreenshotTransparent),
+                new HotKeyInfo(Keys.I, true, false, true, HotkeyCaptureScreenshot),
                 new HotKeyInfo(Keys.Z, true, false, false, HotkeyUndo),
                 new HotKeyInfo(Keys.Y, true, false, false, HotkeyRedo),
+
+#if DEBUG
+                new HotKeyInfo(Keys.M, false, false, false, HotkeyRenderDepthPressed),
+                new HotKeyInfo(Keys.M, false, false, false, HotkeyRenderDepthReleased, false, true),
+#endif
             };
         }
+
+#if DEBUG
+        private bool HotkeyRenderDepthPressed()
+        {
+            if (ModelPanel.Focused)
+            {
+                _renderDepth = true;
+                ModelPanel.Invalidate();
+                return true;
+            }
+            return false; 
+        }
+        private bool HotkeyRenderDepthReleased()
+        {
+            if (ModelPanel.Focused)
+            {
+                _renderDepth = false;
+                ModelPanel.Invalidate();
+                return true;
+            }
+            return false; 
+        }
+#endif
 
         private bool HotkeyCaptureScreenshotTransparent()
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(true), ScreenCaptureFolder, ScreenCaptureExtension);
+                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
                 return true;
             }
             return false;
@@ -137,7 +185,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(false), ScreenCaptureFolder, ScreenCaptureExtension);
+                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
                 return true;
             }
             return false;
@@ -164,7 +212,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnCopyAll.PerformClick();
+                CHR0Editor.btnCopyAll.PerformClick();
                 return true;
             }
             return false;
@@ -173,7 +221,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnCopy.PerformClick();
+                CHR0Editor.btnCopy.PerformClick();
                 return true;
             }
             return false;
@@ -182,8 +230,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = true;
-                chr0Editor.btnPasteAll.PerformClick();
+                CHR0Editor._onlyKeys = true;
+                CHR0Editor.btnPasteAll.PerformClick();
                 return true;
             }
             return false;
@@ -192,8 +240,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = false;
-                chr0Editor.btnPasteAll.PerformClick();
+                CHR0Editor._onlyKeys = false;
+                CHR0Editor.btnPasteAll.PerformClick();
                 return true;
             }
             return false;
@@ -202,8 +250,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = true;
-                chr0Editor.btnPaste.PerformClick();
+                CHR0Editor._onlyKeys = true;
+                CHR0Editor.btnPaste.PerformClick();
                 return true;
             }
             return false;
@@ -212,8 +260,8 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor._onlyKeys = false;
-                chr0Editor.btnPaste.PerformClick();
+                CHR0Editor._onlyKeys = false;
+                CHR0Editor.btnPaste.PerformClick();
                 return true;
             }
             return false;
@@ -249,10 +297,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                if (_timer.IsRunning)
-                    StopAnim();
-                else
-                    PlayAnim();
+                TogglePlay();
                 return true;
             }
             return false;
@@ -288,7 +333,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnClearAll.PerformClick();
+                CHR0Editor.btnClearAll.PerformClick();
                 return true;
             }
             return false;
@@ -297,7 +342,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.ClearEntry();
+                CHR0Editor.ClearEntry();
                 return true;
             }
             return false;
@@ -306,7 +351,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused && _currentControl is CHR0Editor)
             {
-                chr0Editor.btnDelete.PerformClick();
+                CHR0Editor.btnDelete.PerformClick();
                 return true;
             }
             return false;
@@ -317,54 +362,58 @@ namespace System.Windows.Forms
             if (_rotating)
             {
                 _rotating = false;
-                chr0Editor.numRotX.Value = _oldAngles._x;
-                chr0Editor.numRotY.Value = _oldAngles._y;
-                chr0Editor.numRotZ.Value = _oldAngles._z;
-                chr0Editor.BoxChanged(chr0Editor.numRotX, null);
-                chr0Editor.BoxChanged(chr0Editor.numRotY, null);
-                chr0Editor.BoxChanged(chr0Editor.numRotZ, null);
+                CHR0Editor.numRotX.Value = _oldAngles._x;
+                CHR0Editor.numRotY.Value = _oldAngles._y;
+                CHR0Editor.numRotZ.Value = _oldAngles._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numRotX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numRotY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numRotZ, null);
             }
             if (_translating)
             {
                 _translating = false;
-                chr0Editor.numTransX.Value = _oldPosition._x;
-                chr0Editor.numTransY.Value = _oldPosition._y;
-                chr0Editor.numTransZ.Value = _oldPosition._z;
-                chr0Editor.BoxChanged(chr0Editor.numTransX, null);
-                chr0Editor.BoxChanged(chr0Editor.numTransY, null);
-                chr0Editor.BoxChanged(chr0Editor.numTransZ, null);
+                CHR0Editor.numTransX.Value = _oldPosition._x;
+                CHR0Editor.numTransY.Value = _oldPosition._y;
+                CHR0Editor.numTransZ.Value = _oldPosition._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numTransX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numTransY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numTransZ, null);
             }
             if (_scaling)
             {
                 _scaling = false;
-                chr0Editor.numScaleX.Value = _oldScale._x;
-                chr0Editor.numScaleY.Value = _oldScale._y;
-                chr0Editor.numScaleZ.Value = _oldScale._z;
-                chr0Editor.BoxChanged(chr0Editor.numScaleX, null);
-                chr0Editor.BoxChanged(chr0Editor.numScaleY, null);
-                chr0Editor.BoxChanged(chr0Editor.numScaleZ, null);
+                CHR0Editor.numScaleX.Value = _oldScale._x;
+                CHR0Editor.numScaleY.Value = _oldScale._y;
+                CHR0Editor.numScaleZ.Value = _oldScale._z;
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleX, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
+                CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
             }
-            ModelPanel.AllowSelection = true;
+            ModelPanel.CurrentViewport.AllowSelection = true;
             return false;
         }
         private bool HotkeyLastFrame()
         {
-            pnlPlayback.btnLast_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnLast_Click(this, null);
             return true;
         }
         private bool HotkeyNextFrame()
         {
-            pnlPlayback.btnNextFrame_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnNextFrame_Click(this, null);
             return true;
         }
         private bool HotkeyFirstFrame()
         {
-            pnlPlayback.btnFirst_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnFirst_Click(this, null);
             return true;
         }
         private bool HotkeyPrevFrame()
         {
-            pnlPlayback.btnPrevFrame_Click(this, null);
+            if (PlaybackPanel != null)
+                PlaybackPanel.btnPrevFrame_Click(this, null);
             return true;
         }
     }

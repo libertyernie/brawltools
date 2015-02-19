@@ -208,21 +208,21 @@ namespace System.Windows.Forms
                             _updating = false;
                         }
                     }
-                }
-                else if (node is SHP0VertexSetNode)
-                {
-                    //chkGenTans.Checked = SHP0VertexSetNode._generateTangents;
-
-                    if (_modes.Count != 1)
+                    else if (node is SHP0VertexSetNode)
                     {
-                        _updating = true;
+                        //chkGenTans.Checked = SHP0VertexSetNode._generateTangents;
 
-                        _modes.Clear();
-                        _modes.Add("Percentage");
-                        
-                        cbTransform.SelectedIndex = 0;
-                        
-                        _updating = false;
+                        if (_modes.Count != 1)
+                        {
+                            _updating = true;
+
+                            _modes.Clear();
+                            _modes.Add("Percentage");
+
+                            cbTransform.SelectedIndex = 0;
+
+                            _updating = false;
+                        }
                     }
                 }
                 if (cbTransform.Items.Count > 0)

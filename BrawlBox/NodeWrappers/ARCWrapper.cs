@@ -101,9 +101,9 @@ namespace BrawlBox
             w.TreeView.SelectedNode = w;
             return node;
         }
-        public BRESNode NewBRES()
+        public BRRESNode NewBRES()
         {
-            BRESNode node = new BRESNode() { FileType = ARCFileType.MiscData };
+            BRRESNode node = new BRRESNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
@@ -209,8 +209,7 @@ namespace BrawlBox
             List<IModel> models = new List<IModel>();
             List<CollisionNode> collisions = new List<CollisionNode>();
             LoadModels(_resource, models, collisions);
-            using (ModelForm form = new ModelForm())
-                form.ShowDialog(_owner, models, collisions);
+            new ModelForm().Show(_owner, models, collisions);
         }
 
         public void ExportAll()

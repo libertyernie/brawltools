@@ -15,12 +15,13 @@ namespace BrawlLib.SSBBTypes
         public const uint Tag = 0x30544C50;
 
         public BRESCommonHeader _bresEntry;
-        public buint _headerLen;
+        public bint _headerLen;
         public buint _stringOffset;
         public buint _pixelFormat;
         public bshort _numEntries;
         public bushort _pad;
         public bint _origPathOffset;
+        private fixed byte padding[28];
 
         private PLT0v1* Address { get { fixed (PLT0v1* ptr = &this)return ptr; } }
 
@@ -37,6 +38,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (uint)value - (uint)this.Address; }
         }
         public VoidPtr PaletteData { get { return (VoidPtr)this.Address + _headerLen; } }
+        public int PaletteDataLength { get { return _bresEntry._size - Size; } }
         public WiiPaletteFormat PaletteFormat
         {
             get { return (WiiPaletteFormat)(uint)_pixelFormat; }
@@ -50,7 +52,7 @@ namespace BrawlLib.SSBBTypes
             _bresEntry._version = 1;
             _bresEntry._bresOffset = 0;
 
-            _headerLen = 0x40;
+            _headerLen = Size;
             _stringOffset = 0;
             _pixelFormat = (uint)format;
             _numEntries = (short)length;
@@ -66,13 +68,14 @@ namespace BrawlLib.SSBBTypes
         public const uint Tag = 0x30544C50;
 
         public BRESCommonHeader _bresEntry;
-        public buint _headerLen;
+        public bint _headerLen;
         public buint _stringOffset;
         public buint _pixelFormat;
         public bshort _numEntries;
         public bushort _pad;
         public bint _origPathOffset;
         public bint _userDataOffset;
+        private fixed byte padding[28];
 
         //User Data comes before palette data. Align to 0x20
 
@@ -97,6 +100,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (uint)value - (uint)this.Address; }
         }
         public VoidPtr PaletteData { get { return (VoidPtr)this.Address + _headerLen; } }
+        public int PaletteDataLength { get { return _bresEntry._size - Size; } }
         public WiiPaletteFormat PaletteFormat
         {
             get { return (WiiPaletteFormat)(uint)_pixelFormat; }

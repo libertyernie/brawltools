@@ -21,11 +21,11 @@ namespace Ikarus.MovesetFile
 
         /// <summary>
         /// Returns the real value for use in scripting as a generic float value.
-        /// 1.0f == true, 0.0f == false.
+        /// Returns 1.0 if true, 0.0 if false.
         /// The only event type that allows you to set this is Variable.
         /// </summary>
         [Browsable(false)]
-        public virtual float RealValue { get { return _value; } set { } }
+        public virtual double RealValue { get { return _value; } set { } }
 
         [Browsable(false)]
         public virtual int Data { get { return _value; } set { _value = value; SignalPropertyChange(); } }
@@ -34,7 +34,7 @@ namespace Ikarus.MovesetFile
         public Parameter() { _value = 0; }
         public Parameter(int value) { _value = value; }
 
-        public static explicit operator int(Parameter val) { return (int)val._value; }
+        public static implicit operator int(Parameter val) { return (int)val._value; }
 
         [Browsable(false)]
         public virtual ParamType ParamType { get { return ParamType.Value; } }
@@ -297,7 +297,7 @@ namespace Ikarus.MovesetFile
                 //    SignalPropertyChange();
                 //    return;
                 //}
-                MovesetEntryNode r = _root.GetEntry(value);
+                SakuraiEntryNode r = _root.GetEntry(value);
                 if (r != null && r is Script)
                     Data = value;
                 else MessageBox.Show("An action could not be located.");
@@ -313,7 +313,7 @@ namespace Ikarus.MovesetFile
                     if (_externalEntry.Name != value)
                         _externalEntry.References.Remove(this);
 
-                foreach (ExternalEntryNode e in _root.ReferenceList)
+                foreach (TableEntryNode e in _root.ReferenceList)
                     if (e.Name == value)
                     {
                         _externalEntry = e;
@@ -329,7 +329,7 @@ namespace Ikarus.MovesetFile
         /// Use this only when parsing.
         /// </summary>
         /// <returns></returns>
-        internal Script GetScript() { return _root.GetScript(RawOffset); }
+        internal Script GetScript() { return ((MovesetNode)_root).GetScript(RawOffset); }
         public Script _script;
 
         protected override void OnParse(VoidPtr address)
@@ -363,18 +363,25 @@ namespace Ikarus.MovesetFile
             //}
         }
 
+        public override void PostParse()
+        {
+            LinkScript();
+        }
+
         internal void LinkScript()
         {
-            MovesetEntryNode e = _root.GetEntry(RawOffset);
+            MovesetNode node = (MovesetNode)_root;
+
+            SakuraiEntryNode e = _root.GetEntry(RawOffset);
             bool exist = e != null && e is Event;
 
-            _offsetInfo = _root.GetScriptLocation(RawOffset);
+            _offsetInfo = node.GetScriptLocation(RawOffset);
 
             Script a;
             if (_offsetInfo.list == ListValue.Null && !exist)
-                _root.SubRoutines.Add(a = Parse<Script>(RawOffset));
+                node.SubRoutines.Add(a = Parse<Script>(RawOffset));
             else if (_offsetInfo.list != ListValue.References)
-                a = _root.GetScript(_offsetInfo);
+                a = node.GetScript(_offsetInfo);
             else
             {
                 if (_externalEntry == null && _offsetInfo.index >= 0 && _offsetInfo.index < _root.ReferenceList.Count)
@@ -422,7 +429,7 @@ namespace Ikarus.MovesetFile
                 if (External)
                     RebuildAddress += 4;
                 else
-                    foreach (ExternalEntryNode e in _root.ReferenceList)
+                    foreach (TableEntryNode e in _root.ReferenceList)
                         if (e.Name == this.Name)
                         {
                             _externalEntry = e;
@@ -463,7 +470,7 @@ namespace Ikarus.MovesetFile
         [Category("Event Scalar Value")]
         public float Value { get { return Util.UnScalar(Data); } set { Data = Util.Scalar(value); } }
 
-        public override float RealValue { get { return Value; } }
+        public override double RealValue { get { return Value; } }
 
         public override string GetArg()
         {
@@ -490,7 +497,7 @@ namespace Ikarus.MovesetFile
 
     public unsafe class EventVariable : Parameter
     {
-        public override float RealValue
+        public override double RealValue
         {
             get { return RunTime.GetVar(type, mem, number); }
             set { RunTime.SetVar(type, mem, number, value); }
@@ -596,7 +603,7 @@ namespace Ikarus.MovesetFile
             _val = GetRequirement(Data);
         }
 
-        public override float RealValue
+        public override double RealValue
         {
             get
             {

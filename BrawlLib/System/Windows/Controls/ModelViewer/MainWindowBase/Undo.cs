@@ -70,8 +70,6 @@ namespace System.Windows.Forms
 
         public bool CanUndo { get { return _saveIndex > -1; } }
         public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
-        protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
-        protected void btnRedo_Click(object sender, EventArgs e) { Redo(); }
 
         public void Undo()
         {
@@ -121,7 +119,7 @@ namespace System.Windows.Forms
                 SelectedCHR0 = s._animation;
                 CurrentFrame = s._frameIndex;
                 SelectedBone = s._bone;
-                chr0Editor.ApplyState(s);
+                CHR0Editor.ApplyState(s);
             }
             else if (s._vertices != null)
             {
@@ -131,10 +129,10 @@ namespace System.Windows.Forms
                 Vector3 diff = _redoSaves[_saveIndex]._translation - _undoSaves[_saveIndex]._translation;
                 if (!_undoing) diff = -diff;
                 foreach (Vertex3 v in s._vertices)
-                {
-                    v._weightedPosition -= diff;
-                    v.Unweight();
-                }
+                    v.WeightedPosition -= diff;
+
+                _vertexLoc = null;
+
                 UpdateModel();
             }
         }

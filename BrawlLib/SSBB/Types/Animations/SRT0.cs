@@ -22,7 +22,7 @@ namespace BrawlLib.SSBBTypes
         public bint _matrixMode;
         public bint _loop;
         
-        public SRT0v4(ushort frames, int loop, ushort entries, int matrixMode)
+        public SRT0v4(ushort frames, bool loop, ushort entries, int matrixMode)
         {
             _header._tag = Tag;
             _header._size = Size;
@@ -33,7 +33,7 @@ namespace BrawlLib.SSBBTypes
             _origPathOffset = 0;
             _matrixMode = matrixMode;
             _numFrames = frames;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
             _stringOffset = 0;
             _numEntries = entries;
         }
@@ -72,7 +72,7 @@ namespace BrawlLib.SSBBTypes
         public bint _matrixMode;
         public bint _loop;
 
-        public SRT0v5(ushort frames, int loop, ushort entries, int matrixMode)
+        public SRT0v5(ushort frames, bool loop, ushort entries, int matrixMode)
         {
             _header._tag = Tag;
             _header._size = Size;
@@ -83,7 +83,7 @@ namespace BrawlLib.SSBBTypes
             _userDataOffset = _origPathOffset = 0;
             _matrixMode = matrixMode;
             _numFrames = frames;
-            _loop = loop;
+            _loop = loop ? 1 : 0;
             _stringOffset = 0;
             _numEntries = entries;
         }

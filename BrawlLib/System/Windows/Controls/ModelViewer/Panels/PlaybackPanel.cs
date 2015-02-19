@@ -58,7 +58,7 @@ namespace System.Windows.Forms
             this.numTotalFrames.Enabled = false;
             this.numTotalFrames.Location = new System.Drawing.Point(233, 5);
             this.numTotalFrames.Maximum = new decimal(new int[] {
-            65535,
+            65536,
             0,
             0,
             0});
@@ -230,12 +230,12 @@ namespace System.Windows.Forms
 
         public void chkLoop_CheckedChanged(object sender, EventArgs e)
         {
-            _mainWindow.chkLoop_CheckedChanged(sender, e);
+            _mainWindow.PlaybackPanel_LoopChanged();
         }
 
         public void btnPlay_Click(object sender, EventArgs e)
         {
-            _mainWindow.btnPlay_Click(sender, e);
+            _mainWindow.TogglePlay();
         }
 
         public void btnNextFrame_Click(object sender, EventArgs e)

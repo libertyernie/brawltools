@@ -431,15 +431,14 @@ namespace BrawlLib.Modeling
         #region PMD to MDL0
         public static unsafe void PMD2MDL0(MDL0Node model)
         {
-            model._version = 9;
-            model._isImport = true;
             Collada._importOptions = BrawlLib.Properties.Settings.Default.ColladaImportOptions;
             Collada._importOptions._forceCCW = true;
             Collada._importOptions._fltVerts = true;
             Collada._importOptions._fltNrms = true;
             Collada._importOptions._fltUVs = true;
 
-            model.InitGroups();
+            model.BeginImport();
+            model._version = 9;
 
             List<MDL0BoneNode> BoneCache = new List<MDL0BoneNode>();
 
@@ -508,9 +507,9 @@ namespace BrawlLib.Modeling
                         {
                             spaRef = new MDL0MaterialRefNode();
                             spaRef.Name = names[1].Substring(0, names[1].IndexOf('.'));
-                            spaRef.MapMode = MDL0MaterialRefNode.MappingMethod.EnvCamera;
-                            spaRef.UWrapMode = MDL0MaterialRefNode.WrapMode.Clamp;
-                            spaRef.VWrapMode = MDL0MaterialRefNode.WrapMode.Clamp;
+                            spaRef.MapMode = MappingMethod.EnvCamera;
+                            spaRef.UWrapMode = MatWrapMode.Clamp;
+                            spaRef.VWrapMode = MatWrapMode.Clamp;
                             spaRef.Projection = Wii.Graphics.TexProjection.STQ;
                             spaRef.InputForm = Wii.Graphics.TexInputForm.ABC1;
                             spaRef.Coordinates = Wii.Graphics.TexSourceRow.Normals;
@@ -589,7 +588,7 @@ namespace BrawlLib.Modeling
                 model._matList.Add(mn);
             }
 
-            model._numFaces = 0;
+            model._numTriangles = 0;
             model._numFacepoints = 0;
 
             int x = 0;
@@ -603,7 +602,7 @@ namespace BrawlLib.Modeling
                 p.Name = "polygon" + x++;
                 p._parent = model._objGroup;
 
-                model._numFaces += p._numFaces = manager._faceCount = manager._pointCount / 3;
+                model._numTriangles += p._numFaces = manager._faceCount = manager._pointCount / 3;
                 model._numFacepoints += p._numFacepoints = manager._pointCount;
 
                 p._manager._indices = new UnsafeBuffer((int)m._faceVertCount * 2);
@@ -681,7 +680,7 @@ namespace BrawlLib.Modeling
 
                     *Indices++ = j;
                     pTriarr[pTri++] = (uint)l;
-                    *Vertices++ = p._manager._vertices[j]._position;
+                    *Vertices++ = p._manager._vertices[j].Position;
                     *Normals++ = mv._normal;
                     *UVs++ = mv._texCoord;
                 }
@@ -697,12 +696,12 @@ namespace BrawlLib.Modeling
                     bool singlebind = true;
 
                     foreach (Vertex3 v in p._manager._vertices)
-                        if (v._matrixNode != null)
+                        if (v.MatrixNode != null)
                         {
                             if (node == null)
-                                node = v._matrixNode;
+                                node = v.MatrixNode;
 
-                            if (v._matrixNode != node)
+                            if (v.MatrixNode != node)
                             {
                                 singlebind = false;
                                 break;
@@ -712,12 +711,12 @@ namespace BrawlLib.Modeling
                     if (singlebind && p._matrixNode == null)
                     {
                         //Increase reference count ahead of time for rebuild
-                        if (p._manager._vertices[0]._matrixNode != null)
-                            p._manager._vertices[0]._matrixNode.ReferenceCount++;
+                        if (p._manager._vertices[0].MatrixNode != null)
+                            p._manager._vertices[0].MatrixNode.ReferenceCount++;
 
                         foreach (Vertex3 v in p._manager._vertices)
-                            if (v._matrixNode != null)
-                                v._matrixNode.ReferenceCount--;
+                            if (v.MatrixNode != null)
+                                v.MatrixNode.ReferenceCount--;
 
                         p._nodeId = -2; //Continued on polygon rebuild
                     }
@@ -742,8 +741,7 @@ namespace BrawlLib.Modeling
             //    if (((MDL0MaterialNode)model._matList[i])._objects.Count == 0)
             //        model._matList.RemoveAt(i--);
 
-            model.CleanGroups();
-            model.BuildFromScratch(null);
+            model.FinishImport();
         }
         public static void AssignParent(MDL0BoneNode pBone, ModelBone child, MDL0BoneNode cBone, ModelBone parent)
         {

@@ -347,7 +347,10 @@ namespace System.Windows.Forms
             }
         }
 
-        private void radioButtonsChanged(object sender, EventArgs e) {
+        private void radioButtonsChanged(object sender, EventArgs e)
+        {
+            if (dtgrdAttributes.CurrentCell == null)
+                return;
             int index = dtgrdAttributes.CurrentCell.RowIndex;
             int ntype =
                 rdoFloat.Checked ? 0

@@ -371,7 +371,7 @@ namespace System.Windows.Forms
         }
 
         private Dictionary<int, List<int>> SHP0Indices;
-        public void UpdateSHP0Indices()
+        public void AnimationChanged()
         {
             listBox1.Items.Clear();
             listBox2.Items.Clear();
