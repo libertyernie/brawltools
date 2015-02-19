@@ -211,11 +211,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void ApplyCLR(CLR0Node node, float index) { }
         public void ApplySCN(SCN0Node node, float index) { }
 
-        public void RenderVertices(bool depthPass, IBoneNode weightTarget)
-        {
-
-        }
-
         public void RenderNormals()
         {
             
@@ -236,7 +231,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             
         }
 
-        ModelRenderAttributes _attributes = null;
+        ModelRenderAttributes _attributes = new ModelRenderAttributes() { _renderBones = true };
 
         public void Render(params object[] args)
         {
@@ -262,5 +257,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((FMDL*)source.Address)->_tag == FMDL.Tag ? new FMDLNode() : null; }
+
+
+        public void RenderVertices(bool depthPass, IBoneNode weightTarget, OpenGL.GLCamera camera)
+        {
+            
+        }
     }
 }

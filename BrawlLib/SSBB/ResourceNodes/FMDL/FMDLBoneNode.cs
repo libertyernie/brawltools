@@ -147,8 +147,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (GLPanel.Current != null && GLPanel.Current is ModelPanel && _nodeColor != Color.Transparent)
             {
                 Vector3 pt = _matrix.GetPoint();
-                Vector3 v2 = GLPanel.Current.Project(pt);
-                ((ModelPanel)GLPanel.Current).ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
+                Vector3 v2 = GLPanel.Current.CurrentViewport.Camera.Project(pt);
+                ((ModelPanel)GLPanel.Current).CurrentViewport.ScreenText[Name] = new Vector3(v2._x, v2._y - 9.0f, v2._z);
             }
 
             Vector3 v1 = (_parent == null || !(_parent is FMDLBoneNode)) ? new Vector3(0.0f) : ((FMDLBoneNode)_parent)._matrix.GetPoint();
@@ -229,6 +229,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public List<Wii.Models.BoneWeight> Weights
         {
             get { return new List<Wii.Models.BoneWeight>(); }
+        }
+
+
+        public void Render(bool targetModel, GLViewport viewport)
+        {
+            
         }
     }
 }
