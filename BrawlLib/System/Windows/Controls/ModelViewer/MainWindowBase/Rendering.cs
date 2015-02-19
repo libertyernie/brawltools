@@ -128,6 +128,8 @@ namespace System.Windows.Forms
             GLDisplayList sphere = TKContext.GetCircleList();
             GLDisplayList circle = TKContext.GetRingList();
 
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
             //Orb
             GL.Color4(0.7f, 0.7f, 0.7f, 0.15f);
             sphere.Call();
