@@ -201,7 +201,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                if (HasChanged)
+                if (HasChanged || _compressionChanged)
                     return true;
                 if (_children != null)
                     foreach (ResourceNode n in _children)
@@ -212,8 +212,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             set
             {
                 _changed = value;
-                foreach (ResourceNode r in Children)
-                    r.IsDirty = value;
+
+                //Don't populate nodes - they're not dirty if they don't exist
+                if (_children != null)
+                    foreach (ResourceNode r in _children)
+                        r.IsDirty = value;
             }
         }
         [Browsable(false)]
@@ -587,12 +590,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public unsafe virtual void Export(string outPath)
         {
             Rebuild(); //Apply changes the user has made by rebuilding.
+#if !DEBUG
             try
             {
+#endif
                 using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
                     Export(stream);
+#if !DEBUG
             }
             catch { MessageBox.Show("Unable to open file for write access."); }
+#endif
         }
 
         public void Export(FileStream outStream)
@@ -639,12 +646,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public virtual void Rebuild() { Rebuild(false); }
         public virtual void Rebuild(bool force)
         {
-            bool mustRebuild = IsDirty || force;
-            if (!_compressionChanged && !mustRebuild)
+            if (!IsDirty && !force)
                 return;
 
             //Get uncompressed size
-            int size = mustRebuild ? OnCalculateSize(force) : WorkingUncompressed.Length;
+            int size = OnCalculateSize(force);
 
             //Create temp map
             FileMap uncompMap = FileMap.FromTempFile(size);
@@ -652,6 +658,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Rebuild node (uncompressed)
             Rebuild(uncompMap.Address, size, force);
             _replSrc.Map = _replUncompSrc.Map = uncompMap;
+
+            _compressionChanged = false;
 
             //If compressed, compress resulting data.
             if (_compression != CompressionType.None)
@@ -683,7 +691,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _replSrc = _replUncompSrc = new DataSource(address, length);
             }
 
-            _compressionChanged = false;
             _changed = false;
         }
         //Overridden by parent nodes in order to rebuild children.
