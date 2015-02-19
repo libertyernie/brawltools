@@ -58,7 +58,7 @@ namespace Ikarus
             {
                 List<ResourceNode> changed = new List<ResourceNode>();
                 foreach (ResourceNode r in OpenedFiles)
-                    if ((r.IsDirty) && (!force))
+                    if (r.IsDirty && !force)
                         changed.Add(r);
                 
                 if (changed.Count > 0)

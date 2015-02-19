@@ -11,6 +11,7 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
+    public delegate void SelectEventHandler(int index);
     public delegate void MoveEventHandler(ResourceNode node, bool select);
     public delegate void ResourceEventHandler(ResourceNode node);
     public delegate void ResourceChildEventHandler(ResourceNode node, ResourceNode child);
@@ -80,7 +81,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal protected ResourceNode _first, _last;
         internal protected bool _hasChildren;
 
-        public event EventHandler UpdateProps, UpdateCurrControl;
+        public event SelectEventHandler SelectChild;
+        public event EventHandler UpdateProps, UpdateControl;
         public event MoveEventHandler MovedUp, MovedDown;
         public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored, CompressionChanged;
         public event ResourceChildEventHandler ChildAdded, ChildRemoved;
@@ -285,6 +287,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        public void SelectChildAtIndex(int index)
+        {
+            if (SelectChild != null)
+                SelectChild(index);
+        }   
         public void UpdateProperties()
         {
             if (UpdateProps != null)
@@ -292,8 +299,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         }   
         public void UpdateCurrentControl()
         {
-            if (UpdateCurrControl != null)
-                UpdateCurrControl(this, null);
+            if (UpdateControl != null)
+                UpdateControl(this, null);
         }
 
         #region Moving
@@ -327,6 +334,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             Parent._changed = true;
             return true;
         }
+
+        public virtual void OnMoved() { }
 
         public virtual void DoMoveDown() { DoMoveDown(true); }
         public virtual void DoMoveDown(bool select)
@@ -488,6 +497,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public virtual void InsertChild(ResourceNode child, bool change, int index)
         {
+            if (index == Children.Count - 1)
+            {
+                AddChild(child, change);
+                return;
+            }
+
             Children.Insert(index, child);
             child._parent = this;
             if (ChildInserted != null)

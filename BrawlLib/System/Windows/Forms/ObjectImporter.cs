@@ -80,7 +80,7 @@ namespace System.Windows.Forms
             {
                 MDL0ObjectNode poly = res as MDL0ObjectNode;
                 foreach (Vertex3 v in poly._manager._vertices)
-                    if (v._matrixNode == child)
+                    if (v.MatrixNode == child)
                         v.MatrixNode = bone;
             }
             else if (res is MDL0Node)
@@ -89,7 +89,7 @@ namespace System.Windows.Forms
                 foreach (MDL0ObjectNode poly in mdl.FindChild("Objects", true).Children)
                 {
                     foreach (Vertex3 v in poly._manager._vertices)
-                        if (v._matrixNode == child)
+                        if (v.MatrixNode == child)
                             v.MatrixNode = bone;
                 }
             }
@@ -164,7 +164,7 @@ namespace System.Windows.Forms
             if (newNode.Weighted)
             {
                 foreach (Vertex3 vert in newNode._manager._vertices)
-                    if (vert._matrixNode != null)
+                    if (vert.MatrixNode != null)
                     {
                         //To do:
                         //Get difference between new and old influence matrices 
@@ -173,7 +173,7 @@ namespace System.Windows.Forms
 
                         //Matrix m = vert.MatrixNode.Matrix;
                         //Matrix invm = vert.MatrixNode.InverseMatrix;
-                        if (vert._matrixNode is Influence)
+                        if (vert.MatrixNode is Influence)
                         {
                             for (int i = 0; i < vert.MatrixNode.Weights.Count; i++)
                             {
@@ -182,7 +182,7 @@ namespace System.Windows.Forms
                                     vert.MatrixNode.Weights[i].Bone = _internalModel._boneGroup.FindChildByType(b.Name, true, ResourceType.MDL0Bone) as MDL0BoneNode;
                             }
 
-                            vert.MatrixNode = _internalModel._influences.FindOrCreate((Influence)vert._matrixNode, true);
+                            vert.MatrixNode = _internalModel._influences.FindOrCreate((Influence)vert.MatrixNode, true);
                         }
                         else
                             vert.MatrixNode = _internalModel.BoneGroup.FindChildByType(((MDL0BoneNode)vert.MatrixNode).Name, true, ResourceType.MDL0Bone) as IMatrixNode;
@@ -496,11 +496,8 @@ namespace System.Windows.Forms
             this.modelPanel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.modelPanel1.Location = new System.Drawing.Point(0, 0);
             this.modelPanel1.Name = "modelPanel1";
-            this.modelPanel1.RotationScale = 0.4F;
             this.modelPanel1.Size = new System.Drawing.Size(203, 166);
             this.modelPanel1.TabIndex = 12;
-            this.modelPanel1.TranslationScale = 0.05F;
-            this.modelPanel1.ZoomScale = 2.5F;
             // 
             // panel1
             // 

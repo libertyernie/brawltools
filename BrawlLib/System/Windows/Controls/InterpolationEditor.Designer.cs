@@ -351,13 +351,13 @@
             this.interpolationViewer.FrameIndex = 0;
             this.interpolationViewer.FrameLimit = 0;
             this.interpolationViewer.GenerateTangents = false;
-            this.interpolationViewer.IsOrthographic = false;
+            //this.interpolationViewer.IsOrthographic = false;
             this.interpolationViewer.KeyDraggingAllowed = false;
             this.interpolationViewer.Linear = false;
             this.interpolationViewer.Location = new System.Drawing.Point(0, 66);
             this.interpolationViewer.Name = "interpolationViewer";
             this.interpolationViewer.Precision = 3.75F;
-            this.interpolationViewer.ProjectionChanged = false;
+            //this.interpolationViewer.ProjectionChanged = false;
             this.interpolationViewer.Size = new System.Drawing.Size(360, 180);
             this.interpolationViewer.SyncStartEnd = false;
             this.interpolationViewer.TabIndex = 3;

@@ -52,9 +52,15 @@ namespace System.Windows.Forms
 
             InitHotkeyList();
 
-            _hotKeys = new Dictionary<Keys, Func<bool>>();
+            _hotKeysDown = new Dictionary<Keys, Func<bool>>();
+            _hotKeysUp = new Dictionary<Keys, Func<bool>>();
             foreach (HotKeyInfo key in _hotkeyList)
-                _hotKeys.Add(key.KeyCode, key._function);
+            {
+                if (key._keyDown)
+                    _hotKeysDown.Add(key.KeyCode, key._function);
+                if (key._keyUp)
+                    _hotKeysUp.Add(key.KeyCode, key._function);
+            }
         }
 
         public virtual void LinkModelPanel(ModelPanel p)
@@ -140,12 +146,12 @@ namespace System.Windows.Forms
         public virtual void ChooseBackgroundColor()
         {
             if (ColorDialog != null && ColorDialog.ShowDialog(this) == DialogResult.OK)
-                ModelPanel.BackColor = ClearColor = ColorDialog.Color;
+                ModelPanel.CurrentViewport.BackgroundColor = ColorDialog.Color;
         }
 
         public void ChooseOrClearBackgroundImage()
         {
-            if (BGImage == null)
+            if (ModelPanel.CurrentViewport.BackgroundImage == null)
             {
                 OpenFileDialog d = new OpenFileDialog();
                 d.Filter = "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +
@@ -158,10 +164,10 @@ namespace System.Windows.Forms
                 d.Title = "Select an image to load";
 
                 if (d.ShowDialog() == DialogResult.OK)
-                    BGImage = Image.FromFile(d.FileName);
+                    ModelPanel.CurrentViewport.BackgroundImage = Image.FromFile(d.FileName);
             }
             else
-                BGImage = null;
+                ModelPanel.CurrentViewport.BackgroundImage = null;
         }
 
         #endregion
@@ -257,7 +263,7 @@ namespace System.Windows.Forms
             e.Start(outPath);
             e.SetDelay(1000 / (int)PlaybackPanel.numFPS.Value);
             e.SetRepeat(0);
-            e.SetQuality(1);
+            e.SetQuality(10);
             using (ProgressWindow progress = new ProgressWindow(this, "GIF Encoder", "Encoding, please wait...", true))
             {
                 progress.TopMost = true;
@@ -267,6 +273,7 @@ namespace System.Windows.Forms
                     if (progress.Cancelled)
                         break;
 
+                    e.SetTransparent(ModelPanel.CurrentViewport.BackgroundColor);
                     e.AddFrame(images[i]);
                     progress.Update(progress.CurrentValue + 1);
                 }

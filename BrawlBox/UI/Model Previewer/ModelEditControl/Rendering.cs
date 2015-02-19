@@ -20,11 +20,9 @@ namespace System.Windows.Forms
     {
         #region Post Render
 
-        public unsafe override void modelPanel1_PostRender(GLPanel sender)
+        public unsafe override void modelPanel1_PostRender(ModelPanelViewport panel)
         {
-            base.modelPanel1_PostRender(sender);
-
-            ModelPanel panel = sender as ModelPanel;
+            base.modelPanel1_PostRender(panel);
 
             GL.Disable(EnableCap.DepthTest);
 
@@ -80,8 +78,11 @@ namespace System.Windows.Forms
                 //    GL.Vertex3(l.GetFrameValue(LightKeyframeMode.EndX, i), l.GetFrameValue(LightKeyframeMode.EndY, i), l.GetFrameValue(LightKeyframeMode.EndZ, i));
                 //GL.End();
 
-                ModelPanel.ScreenText["Light Start"] = ModelPanel.Project(start);
-                ModelPanel.ScreenText["Light End"] = ModelPanel.Project(end);
+                foreach (ModelPanelViewport v in ModelPanel)
+                {
+                    v.ScreenText["Light Start"] = v.Camera.Project(start);
+                    v.ScreenText["Light End"] = v.Camera.Project(end);
+                }
 
                 //Render these if selected
                 //if (_lightStartSelected || _lightEndSelected)
@@ -145,8 +146,11 @@ namespace System.Windows.Forms
                 //    GL.Vertex3(c.GetFrameValue(CameraKeyframeMode.AimX, i), c.GetFrameValue(CameraKeyframeMode.AimY, i), c.GetFrameValue(CameraKeyframeMode.AimZ, i));
                 //GL.End();
 
-                ModelPanel.ScreenText["Camera Position"] = ModelPanel.Project(start);
-                ModelPanel.ScreenText["Camera Aim"] = ModelPanel.Project(end);
+                foreach (ModelPanelViewport v in ModelPanel)
+                {
+                    v.ScreenText["Camera Position"] = v.Camera.Project(start);
+                    v.ScreenText["Camera Aim"] = v.Camera.Project(end);
+                }
 
                 GL.Color4(Color.Black);
 
@@ -185,7 +189,7 @@ namespace System.Windows.Forms
 
         #region Brawl Stage Data Rendering
 
-        public void RenderBrawlStageData(ModelPanel panel)
+        public void RenderBrawlStageData(ModelPanelViewport panel)
         {
             //If you ever make changes to GL attributes (enabled and disabled things)
             //and don't want to keep track of what you changed,
@@ -256,7 +260,8 @@ namespace System.Windows.Forms
             //Render boundaries if checked
             if (CamBone0 != null && CamBone1 != null && chkBoundaries.Checked)
             {
-                GL.Clear(ClearBufferMask.DepthBufferBit);
+                //GL.Clear(ClearBufferMask.DepthBufferBit);
+                GL.Disable(EnableCap.DepthTest);
                 GL.Disable(EnableCap.Lighting);
                 GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
                 GL.Enable(EnableCap.CullFace);

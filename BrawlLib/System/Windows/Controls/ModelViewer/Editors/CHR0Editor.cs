@@ -777,8 +777,8 @@ namespace System.Windows.Forms
                 FrameState state = bone.BindState;
                 float* p = (float*)&state;
                 p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
-                bone.BindState = bone.FrameState = state;
-                bone.BindState.CalcTransforms();
+                state.CalcTransforms();
+                bone.BindState = state;
                 ((ResourceNode)bone).SignalPropertyChange();
             }
 
@@ -855,9 +855,9 @@ namespace System.Windows.Forms
                             for (int x = 0; x < 9; x++)
                                 if (f.GetBool(x))
                                     dPtr[x] = sPtr[x];
-                            bone._frameState = s;
+                            s.CalcTransforms();
+                            bone._bindState = s;
                         }
-                        bone._bindState.CalcTransforms();
                         //bone.RecalcBindState();
                         bone.SignalPropertyChange();
                     }

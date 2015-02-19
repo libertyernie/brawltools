@@ -42,18 +42,20 @@ namespace BrawlLib.SSBBTypes
         public IEnumerator<VoidPtr> GetEnumerator() { return _values.GetEnumerator(); }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
 
-        internal void Sort()
+        public void Sort()
         {
             _values.Sort();
         }
 
-        public int Write(VoidPtr address)
+        public unsafe int Write(VoidPtr address)
         {
             Sort();
 
+            bint* values = (bint*)address;
+            foreach (int offset in this)
+                *values++ = offset;
 
-
-            return 0;
+            return (int)values - (int)address;
         }
         public void Write(ref VoidPtr address)
         {

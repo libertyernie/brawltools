@@ -50,7 +50,6 @@ namespace BrawlBox
 
         public void Link(ResourceNode res)
         {
-            
             Unlink();
             if (res != null)
             {
@@ -104,6 +103,7 @@ namespace BrawlBox
 
                 SelectedImageIndex = ImageIndex = (int)res.ResourceType & 0xFF;
 
+                res.SelectChild += OnSelectChild;
                 res.ChildAdded += OnChildAdded;
                 res.ChildRemoved += OnChildRemoved;
                 res.ChildInserted += OnChildInserted;
@@ -112,8 +112,8 @@ namespace BrawlBox
                 res.Renamed += OnRenamed;
                 res.MovedUp += OnMovedUp;
                 res.MovedDown += OnMovedDown;
-                res.UpdateProps += OnUpdateProps;
-                res.UpdateCurrControl += OnUpdateCurrControl;
+                res.UpdateProps += OnUpdateProperties;
+                res.UpdateControl += OnUpdateCurrentControl;
             }
             _resource = res;
         }
@@ -121,6 +121,7 @@ namespace BrawlBox
         {
             if (_resource != null)
             {
+                _resource.SelectChild -= OnSelectChild;
                 _resource.ChildAdded -= OnChildAdded;
                 _resource.ChildRemoved -= OnChildRemoved;
                 _resource.ChildInserted -= OnChildInserted;
@@ -129,19 +130,24 @@ namespace BrawlBox
                 _resource.Renamed -= OnRenamed;
                 _resource.MovedUp -= OnMovedUp;
                 _resource.MovedDown -= OnMovedDown;
-                _resource.UpdateProps -= OnUpdateProps;
-                _resource.UpdateCurrControl -= OnUpdateCurrControl;
+                _resource.UpdateProps -= OnUpdateProperties;
+                _resource.UpdateControl -= OnUpdateCurrentControl;
                 _resource = null;
             }
 
             foreach (BaseWrapper n in Nodes)
                 n.Unlink();
         }
-        internal protected virtual void OnUpdateProps(object sender, EventArgs e)
+        internal protected virtual void OnSelectChild(int index)
+        {
+            if (!(Nodes == null || index < 0 || index >= Nodes.Count))
+                TreeView.SelectedNode = Nodes[index];
+        }
+        internal protected virtual void OnUpdateProperties(object sender, EventArgs e)
         {
             MainForm.Instance.propertyGrid1.Refresh();
         }
-        internal protected virtual void OnUpdateCurrControl(object sender, EventArgs e)
+        internal protected virtual void OnUpdateCurrentControl(object sender, EventArgs e)
         {
             MainForm.Instance._currentControl = null;
             MainForm.Instance.resourceTree_SelectionChanged(this, null);

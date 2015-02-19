@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus;
 using Ikarus.MovesetFile;
+using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {

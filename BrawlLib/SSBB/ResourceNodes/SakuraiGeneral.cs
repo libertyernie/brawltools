@@ -10,15 +10,21 @@ using System.Reflection;
 
 namespace BrawlLib.SSBBTypes
 {
-    internal delegate TableEntryNode SakuraiSectionParser(string name);
+    public delegate TableEntryNode SakuraiSectionParser(string name);
 
     public unsafe class TableEntryNode : SakuraiEntryNode
     {
-        private static List<SakuraiSectionParser> _parsers = new List<SakuraiSectionParser>();
+        public static List<SakuraiSectionParser> _parsers = new List<SakuraiSectionParser>();
         static TableEntryNode()
         {
+            AddParsers(Assembly.GetExecutingAssembly());
+            AddParsers(Assembly.GetEntryAssembly());
+        }
+
+        static void AddParsers(Assembly e)
+        {
             Delegate del;
-            foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
+            foreach (Type t in e.GetTypes())
                 if (t.IsSubclassOf(typeof(TableEntryNode)))
                     if ((del = Delegate.CreateDelegate(typeof(SakuraiSectionParser), t, "TestType", false, false)) != null)
                         _parsers.Add(del as SakuraiSectionParser);
@@ -81,7 +87,6 @@ namespace BrawlLib.SSBBTypes
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             return _entryLength = _data.Length;
         }
 
@@ -97,25 +102,86 @@ namespace BrawlLib.SSBBTypes
 
     public unsafe class IndexValue : SakuraiEntryNode
     {
-        public int val = 0;
+        public int _value = 0;
 
+        public static bool _hexadecimal;
+        public bool HexDisplay
+        { 
+            get
+            {
+                return _hexadecimal;
+            } 
+            set
+            {
+                _hexadecimal = value;
+            }
+        }
+
+        const string _validDec = "0123456789";
+        const string _validHex = "ABCDEFabcdef";
+        
         [Category("Index Entry")]
-        public int ItemIndex { get { return val; } set { val = value; SignalPropertyChange(); } }
+        public string Value
+        {
+            get
+            {
+                if (_hexadecimal)
+                {
+                    bool neg = false;
+                    int val = _value;
+                    if (val < 0)
+                    {
+                        neg = true;
+                        val = -val;
+                    }
+                    return (neg ? "-" : "") + val.ToString("X");
+                }
+                else
+                    return _value.ToString();
+            }
+            set
+            {
+                if (_hexadecimal)
+                {
+                    bool neg = false;
+                    if (value.StartsWith("-"))
+                    {
+                        value = value.Substring(1);
+                        neg = true;
+                    }
 
+                    if (value.StartsWith("0x"))
+                        value = value.Substring(2);
+
+                    value = value.RemoveInvalidCharacters(_validDec + _validHex);
+                    _value = int.Parse(value, System.Globalization.NumberStyles.HexNumber);
+
+                    if (neg)
+                        _value = -_value;
+                }
+                else
+                {
+                    value = value.RemoveInvalidCharacters(_validDec);
+                    _value = int.Parse(value);
+                }
+
+                SignalPropertyChange();
+            }
+        }
+        
         protected override void OnParse(VoidPtr address)
         {
-            val = *(bint*)address;
+            _value = *(bint*)address;
         }
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             return 4;
         }
 
         protected override void OnWrite(VoidPtr address)
         {
-            *(bint*)(RebuildAddress = address) = val;
+            *(bint*)(RebuildAddress = address) = _value;
         }
     }
 
@@ -232,6 +298,11 @@ namespace BrawlLib.SSBBTypes
             for (int i = 0; i < _entries.Count; i++)
                 _entries[i].Write(address[i, _stride]);
         }
+
+        public int GetLookupCount()
+        {
+            return Count > 0 ? 1 : 0;
+        }
     }
 
     /// <summary>
@@ -253,9 +324,13 @@ namespace BrawlLib.SSBBTypes
                     _entries.Add(Parse<T>(DataOffset + i * _stride));
         }
 
+        protected override int OnGetLookupCount()
+        {
+            return _entries.Count > 0 ? 1 : 0;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = _entries.Count > 0 ? 1 : 0;
             return 8 + _entries.Count * _stride;
         }
 

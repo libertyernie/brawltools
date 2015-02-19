@@ -5,7 +5,6 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using Ikarus;
-using BrawlLib.SSBBTypes.SakuraiArchive;
 using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile

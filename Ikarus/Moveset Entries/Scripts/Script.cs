@@ -9,6 +9,7 @@ using System.Drawing;
 using System.Collections;
 using Ikarus.ModelViewer;
 using BrawlLib.SSBBTypes;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile
 {
@@ -197,6 +198,36 @@ namespace Ikarus.MovesetFile
         [Category("Script")]
         public bool ForceWrite { get { return _build; } set { _build = value; } }
 
+        [Browsable(false)]
+        public ArticleNode ParentArticle
+        {
+            get
+            {
+                SakuraiEntryNode n = _parent;
+                while (!(n is ArticleNode) && n != null)
+                    n = n._parent;
+                return n as ArticleNode;
+            }
+        }
+
+        [Browsable(false)]
+        public MDL0Node Model
+        {
+            get
+            {
+                ArticleNode article = ParentArticle;
+                if (article != null)
+                {
+                    if (article._info != null)
+                        return article._info._model;
+                }
+                else if (_root != null)
+                    return ((MovesetNode)_root).Model;
+
+                return null;
+            }
+        }
+
         public List<MovesetEntryNode> _actionRefs = new List<MovesetEntryNode>();
         public MovesetEntryNode[] ActionRefs { get { return _actionRefs.ToArray(); } }
 
@@ -223,15 +254,24 @@ namespace Ikarus.MovesetFile
             }
         }
 
+        protected override int OnGetLookupCount()
+        {
+            int i = 0;
+            foreach (Event e in _children)
+                i += e.GetLookupCount();
+            return i;
+        }
+
         protected override int OnGetSize()
         {
             _lookupCount = 0;
             int size = 8; //Terminator event size
             foreach (Event e in _children)
             {
-                if (e.EventID == 0xFADEF00D || e.EventID == 0xFADE0D8A) continue;
+                if (e.EventID == 0xFADEF00D || e.EventID == 0xFADE0D8A)
+                    continue;
+
                 size += e.GetSize();
-                _lookupCount += e._lookupCount;
             }
             return size;
         }
@@ -249,7 +289,9 @@ namespace Ikarus.MovesetFile
 
             foreach (Event e in _children)
             {
-                if (e._name == "FADEF00D" || e._name == "FADE0D8A") continue;
+                if (e._name == "FADEF00D" || e._name == "FADE0D8A")
+                    continue;
+
                 e.RebuildAddress = eventAddr;
                 *eventAddr = new sEvent() { _id = e.ID, _nameSpace = e.NameSpace, _numArguments = (byte)e.Count, _unk1 = e._unknown };
                 if (e.Count > 0)
@@ -299,5 +341,27 @@ namespace Ikarus.MovesetFile
         public void Reset() { _scriptor.Reset(); }
 
         public override string ToString() { return Name != null ? Name : String.Format("[{0}] Script", Index); }
+
+        public EventInformation FindEvent(int position)
+        {
+            int tabs = 0;
+            string str = "";
+            foreach (Event e in this)
+            {
+                string t = "";
+
+                tabs -= Util.TabDownEvents(e.EventID);
+                for (int i = 0; i < tabs; i++) t += "    ";
+                tabs += Util.TabUpEvents(e.EventID);
+
+                string f = e.GetFormattedSyntax();
+                if (!String.IsNullOrEmpty(f))
+                    str += t + f.Replace(Environment.NewLine, Environment.NewLine + t) + Environment.NewLine;
+
+                if (str.Length > position)
+                    return e.Info;
+            }
+            return null;
+        }
     }
 }

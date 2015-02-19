@@ -27,7 +27,8 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool NotCtrlAlt { get { return !Ctrl && !Alt; } }
 
-        public Dictionary<Keys, Func<bool>> _hotKeys;
+        private Dictionary<Keys, Func<bool>> _hotKeysDown;
+        private Dictionary<Keys, Func<bool>> _hotKeysUp;
 
         /// <summary>
         /// This handles all key input in the main control instead of through child controls.
@@ -37,34 +38,51 @@ namespace System.Windows.Forms
         protected override bool ProcessKeyPreview(ref Message m)
         {
             const int WM_KEYDOWN = 0x100;
-            //const int WM_KEYUP = 0x101;
-            //const int WM_CHAR = 0x102;
-            //const int WM_SYSCHAR = 0x106;
-            //const int WM_SYSKEYDOWN = 0x104;
-            //const int WM_SYSKEYUP = 0x105;
-            //const int WM_IME_CHAR = 0x286;
+            const int WM_KEYUP = 0x101;
+            const int WM_CHAR = 0x102;
+            const int WM_SYSCHAR = 0x106;
+            const int WM_SYSKEYDOWN = 0x104;
+            const int WM_SYSKEYUP = 0x105;
+            const int WM_IME_CHAR = 0x286;
 
-            if (m.Msg == WM_KEYDOWN)
+            bool down = m.Msg == WM_KEYDOWN || m.Msg == WM_SYSKEYDOWN;
+            bool up = m.Msg == WM_KEYUP || m.Msg == WM_SYSKEYUP;
+
+            if (down || up)
             {
-                Keys key = (Keys)m.WParam;
-                if (Ctrl)
-                    key |= Keys.Control;
-                if (Alt)
-                    key |= Keys.Alt;
-                if (Shift)
-                    key |= Keys.Shift;
+                Keys key;
+                if (m.Msg == WM_SYSKEYDOWN || m.Msg == WM_SYSKEYUP)
+                    key = ModifierKeys;
+                else
+                {
+                    key = (Keys)m.WParam;
+                    if (Ctrl)
+                        key |= Keys.Control;
+                    if (Alt)
+                        key |= Keys.Alt;
+                    if (Shift)
+                        key |= Keys.Shift;
+                }
 
-                if (_hotKeys.ContainsKey(key))
-                    if ((bool)_hotKeys[key].DynamicInvoke())
+                if (down && _hotKeysDown.ContainsKey(key))
+                {
+                    if ((bool)_hotKeysDown[key].DynamicInvoke())
                         return true;
+                }
+                else if (_hotKeysUp.ContainsKey(key))
+                {
+                    if ((bool)_hotKeysUp[key].DynamicInvoke())
+                        return true;
+                }
             }
+
             return base.ProcessKeyPreview(ref m);
         }
 
         public class HotKeyInfo
         {
             public Keys _baseKey;
-            public bool _ctrl, _alt, _shift;
+            public bool _ctrl, _alt, _shift, _keyDown, _keyUp;
             public Func<bool> _function;
 
             public Keys KeyCode
@@ -82,13 +100,15 @@ namespace System.Windows.Forms
                 }
             }
 
-            public HotKeyInfo(Keys baseKey, bool ctrl, bool alt, bool shift, Func<bool> function)
+            public HotKeyInfo(Keys baseKey, bool ctrl, bool alt, bool shift, Func<bool> function, bool keydown = true, bool keyup = false)
             {
                 _baseKey = baseKey;
                 _ctrl = ctrl;
                 _alt = alt;
                 _shift = shift;
                 _function = function;
+                _keyDown = keydown;
+                _keyUp = keyup;
             }
         }
 
@@ -121,14 +141,42 @@ namespace System.Windows.Forms
                 new HotKeyInfo(Keys.I, true, false, true, HotkeyCaptureScreenshot),
                 new HotKeyInfo(Keys.Z, true, false, false, HotkeyUndo),
                 new HotKeyInfo(Keys.Y, true, false, false, HotkeyRedo),
+
+#if DEBUG
+                new HotKeyInfo(Keys.M, false, false, false, HotkeyRenderDepthPressed),
+                new HotKeyInfo(Keys.M, false, false, false, HotkeyRenderDepthReleased, false, true),
+#endif
             };
         }
+
+#if DEBUG
+        private bool HotkeyRenderDepthPressed()
+        {
+            if (ModelPanel.Focused)
+            {
+                _renderDepth = true;
+                ModelPanel.Invalidate();
+                return true;
+            }
+            return false; 
+        }
+        private bool HotkeyRenderDepthReleased()
+        {
+            if (ModelPanel.Focused)
+            {
+                _renderDepth = false;
+                ModelPanel.Invalidate();
+                return true;
+            }
+            return false; 
+        }
+#endif
 
         private bool HotkeyCaptureScreenshotTransparent()
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(true), ScreenCaptureFolder, ScreenCaptureExtension);
+                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
                 return true;
             }
             return false;
@@ -137,7 +185,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(false), ScreenCaptureFolder, ScreenCaptureExtension);
+                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
                 return true;
             }
             return false;
@@ -341,7 +389,7 @@ namespace System.Windows.Forms
                 CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
                 CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
             }
-            ModelPanel.AllowSelection = true;
+            ModelPanel.CurrentViewport.AllowSelection = true;
             return false;
         }
         private bool HotkeyLastFrame()

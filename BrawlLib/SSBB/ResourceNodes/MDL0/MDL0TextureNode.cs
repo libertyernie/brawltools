@@ -318,13 +318,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                         else if (file.Name.EndsWith(".png") || file.Name.EndsWith(".tiff") || file.Name.EndsWith(".tif"))
                         {
                             Source = file.FullName;
-                            bmp = (Bitmap)Bitmap.FromFile(file.FullName);
+                            bmp = CreateIndexedImage(file.FullName);
                             break;
                         }
                     }
             }
             return bmp;
         }
+
+        public static Bitmap CreateNonIndexedImage(string path)
+        {
+            using (var sourceImage = Image.FromFile(path))
+            {
+                var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
+                  System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                using (var canvas = Graphics.FromImage(targetImage))
+                    canvas.DrawImageUnscaled(sourceImage, 0, 0);
+                return targetImage;
+            }
+        }
+
+        public static Bitmap CreateIndexedImage(string path)
+        {
+            using (var sourceImage = (Bitmap)Image.FromFile(path))
+            {
+                var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
+                  sourceImage.PixelFormat);
+                var sourceData = sourceImage.LockBits(
+                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                  ImageLockMode.ReadOnly, sourceImage.PixelFormat);
+                var targetData = targetImage.LockBits(
+                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                  ImageLockMode.WriteOnly, targetImage.PixelFormat);
+                Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
+                sourceImage.UnlockBits(sourceData);
+                targetImage.UnlockBits(targetData);
+                targetImage.Palette = sourceImage.Palette;
+                return targetImage;
+            }
+        } 
 
         public static int Compare(MDL0TextureNode t1, MDL0TextureNode t2)
         {

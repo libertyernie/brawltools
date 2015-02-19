@@ -372,13 +372,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal SRT0Entry* Header { get { return (SRT0Entry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SRT0Entry; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(SRT0TextureNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SRT0TextureNode) }; } }
 
         public int[] _usageIndices = new int[11];
         
@@ -446,7 +440,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_textureIndices = (int)_texIndices;
             header->_indirectIndices = (int)_indIndices;
 
-            VoidPtr entryAddress = address + 12 + (Children.Count) * 4;
+            int offset = 12 + Children.Count * 4;
+            VoidPtr entryAddress = address + offset;
 
             int prevOffset = 0;
             for (int i = 0; i < Children.Count; i++)
@@ -455,7 +450,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 n._dataAddr = _dataAddr;
 
-                header->SetOffset(i, 12 + (Children.Count) * 4 + prevOffset);
+                header->SetOffset(i, offset + prevOffset);
                 n.Rebuild(entryAddress, n._entryLen, true);
 
                 entryAddress += n._entryLen;
@@ -467,13 +462,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override int OnCalculateSize(bool force)
         {
             _texIndices = 0;
+            _indIndices = 0;
             int size = 12;
             foreach (SRT0TextureNode n in Children)
             {
                 if (n._indirect)
-                    _indIndices += 1 << n._textureIndex;
+                    _indIndices |= (IndirectTextureIndices)(1 << n._textureIndex);
                 else
-                    _texIndices += 1 << n._textureIndex;
+                    _texIndices |= (TextureIndices)(1 << n._textureIndex);
                 size += 4 + n.CalculateSize(true);
             }
             return size;

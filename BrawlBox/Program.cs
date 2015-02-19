@@ -46,6 +46,24 @@ namespace BrawlBox
         [STAThread]
         public static void Main(string[] args)
         {
+            if (args.Length >= 1)
+            {
+                if (args[0].Equals("/gct", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    GCTEditor editor = new GCTEditor();
+                    if (args.Length >= 2) editor.TargetNode = editor.LoadGCT(args[1]);
+                    Application.Run(editor);
+                    return;
+                }
+                else if (args[0].EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    GCTEditor editor = new GCTEditor();
+                    editor.TargetNode = editor.LoadGCT(args[0]);
+                    Application.Run(editor);
+                    return;
+                }
+            }
+
             try
             {
                 if (args.Length >= 1)
@@ -116,6 +134,14 @@ namespace BrawlBox
 
         public static bool Open(string path)
         {
+            if (path.EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
+            {
+                GCTEditor editor = new GCTEditor();
+                editor.TargetNode = editor.LoadGCT(path);
+                editor.Show();
+                return true;
+            }
+
             if (!Close())
                 return false;
 

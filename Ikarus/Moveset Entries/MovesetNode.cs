@@ -12,6 +12,16 @@ namespace Ikarus.MovesetFile
 {
     public unsafe class MovesetNode : SakuraiArchiveNode
     {
+        public MovesetNode(CharName character) { _character = character; }
+
+        /// <summary>
+        /// Returns the name of the character this moveset is for.
+        /// This can be directed converted into CharFolder for easy access to necessary files
+        /// </summary>
+        [Browsable(false)]
+        public CharName Character { get { return _character; } }
+        private CharName _character;
+
         /// <summary>
         /// The section that contains all information for a character's specific moveset.
         /// </summary>
@@ -89,9 +99,54 @@ namespace Ikarus.MovesetFile
             }
         }
 
-        protected override void ParseInternals(SakuraiArchiveHeader* hdr)
+        //protected override void ParseInternals(SakuraiArchiveHeader* hdr)
+        //{
+        //    base.ParseInternals(hdr);
+        //}
+
+        protected override TableEntryNode GetTableEntryNode(string name, int index)
         {
-            base.ParseInternals(hdr);
+            TableEntryNode section = base.GetTableEntryNode(name, index);
+            if (section != null)
+                return section;
+
+            //switch (name)
+            //{
+                //Don't parse data sections until the very end
+                //case "data":
+                //case "dataCommon":
+                //    dataIndex = i;
+                //    _sectionList.Add(null);
+                //    continue;
+                //case "animParam":
+                //    entry = _animParam = Parse<AnimParamSection>(offset);
+                //    break;
+                //case "subParam":
+                //    entry = _subParam = Parse<SubParamSection>(offset);
+                //    break;
+                //default:
+                //    if (name.Contains("AnimCmd"))
+                //    {
+                //        entry = Parse<Script>(offset);
+                //        _commonSubRoutines.Add(entry as Script);
+                //    }
+                //    else
+                //        entry = Parse<RawDataNode>(offset);
+                //    break;
+            //}
+
+            return section;
+        }
+
+        protected override void HandleSpecialSections(List<TableEntryNode> sections)
+        {
+            foreach (TableEntryNode section in sections)
+            {
+                if (section is DataSection)
+                    _data = (DataSection)section;
+                else if (section is DataCommonSection)
+                    _dataCommon = (DataCommonSection)section;
+            }
         }
 
         /// <summary>

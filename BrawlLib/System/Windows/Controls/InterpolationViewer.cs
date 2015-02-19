@@ -243,7 +243,11 @@ namespace System.Windows.Forms
             int min = GetKeyframeMinIndex();
             if (!_dragging)
             {
-                _hiKey = null;
+                if (_hiKey != null)
+                {
+                    _hiKey = null;
+                    Invalidate();
+                }
 
                 Cursor = Cursors.Default;
 
@@ -257,6 +261,7 @@ namespace System.Windows.Forms
                             {
                                 _hiKey = entry;
                                 Cursor = Cursors.Hand;
+                                Invalidate();
                                 return;
                             }
                         }
@@ -275,6 +280,7 @@ namespace System.Windows.Forms
                                 {
                                     _hiKey = SelectedKeyframe._prev;
                                     Cursor = Cursors.Hand;
+                                    Invalidate();
                                     return;
                                 }
                             }
@@ -287,6 +293,7 @@ namespace System.Windows.Forms
                             {
                                 _hiKey = SelectedKeyframe;
                                 Cursor = Cursors.Hand;
+                                Invalidate();
                                 return;
                             }
                         }
@@ -300,6 +307,7 @@ namespace System.Windows.Forms
                                 {
                                     _hiKey = SelectedKeyframe._next;
                                     Cursor = Cursors.Hand;
+                                    Invalidate();
                                     return;
                                 }
                             }
@@ -307,7 +315,7 @@ namespace System.Windows.Forms
                     }
 
                     float i1 = -(_tanLen / 2);
-                    float i2 = (_tanLen / 2);
+                    float i2 = -i1;
 
                     int xVal2 = _selKey._index;
                     float yVal = _selKey._value;
@@ -318,26 +326,25 @@ namespace System.Windows.Forms
                     Vector2 two = new Vector2((xVal2 + i2 * p - min) * _xScale, (yVal - _minVal + tan * i2 * p) * _yScale);
 
                     _slopePoint = null;
-                    if (Math.Abs(e.X - one._x) <= _pointWidth)
+                    if (Math.Abs(e.X - one._x) <= _pointWidth && Math.Abs(y - one._y) <= _pointWidth)
                     {
-                        if (Math.Abs(y - one._y) <= _pointWidth)
-                        {
-                            Cursor = Cursors.Hand;
-                            _slopePoint = new Vector2(e.X, y);
-                            _origPos = new Vector2((float)(xVal2 - min) * _xScale, (yVal - _minVal) * _yScale);
-                            _hiKey = _selKey;
-                            return;
-                        }
+                        _slopePoint = new Vector2(e.X, y);
+                        _origPos = new Vector2((float)(xVal2 - min) * _xScale, (yVal - _minVal) * _yScale);
+                        _hiKey = _selKey;
+                        Cursor = Cursors.Hand;
+                        Invalidate();
+                        return;
                     }
 
                     if (Math.Abs(e.X - two._x) <= _pointWidth)
                     {
                         if (Math.Abs(y - two._y) <= _pointWidth)
                         {
-                            Cursor = Cursors.Hand;
                             _slopePoint = new Vector2(e.X, y);
                             _origPos = new Vector2((float)(xVal2 - min) * _xScale, (yVal - _minVal) * _yScale);
                             _hiKey = _selKey;
+                            Cursor = Cursors.Hand;
+                            Invalidate();
                             return;
                         }
                     }
@@ -676,7 +683,7 @@ namespace System.Windows.Forms
             GL.End();
         }
 
-        protected internal unsafe override void OnRender(PaintEventArgs e)
+        protected override void OnRender(PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             GL.ClearColor(Color.White);
@@ -839,8 +846,14 @@ namespace System.Windows.Forms
                 GL.End();
             }
         }
-
-        public override void UpdateProjection()
+        protected override void OnResize(EventArgs e)
+        {
+            if (_ctx != null)
+                _ctx.Update();
+            UpdateProjection();
+            Invalidate();
+        }
+        public void UpdateProjection()
         {
             if (_ctx == null)
                 return;

@@ -299,10 +299,7 @@ namespace BrawlBox
 
         public void PreviewAll()
         {
-            using (ModelForm form = new ModelForm())
-            {
-                form.ShowDialog(_owner, ModelPanel.CollectModels(_resource));
-            }
+            new ModelForm().ShowDialog(_owner, ModelPanel.CollectModels(_resource));
         }
     }
 }

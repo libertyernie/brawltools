@@ -90,23 +90,29 @@ namespace Ikarus.MovesetFile
         [Category("Data Flags")]
         public int Flags2int { get { return _flags2; } set { _flags2 = value; SignalPropertyChange(); } }
         
+        //Individual entries
         public AttributeList _attributes, _sseAttributes;
-        public Miscellaneous _misc;
+        public MiscSectionNode _misc;
         public ModelVisibility _modelVis;
         public ArticleNode _entryArticle;
         public ActionInterrupts _actionInterrupts;
         public Unknown22 _unknown22;
         public Unknown24 _unknown24;
         public BoneReferences2 _boneRef2;
-        private BindingList<SubActionEntry> _subActions;
+
+        //EntryLists
         public EntryList<ActionPre> _actionPre;
         public EntryList<BoneIndexValue> _boneRef1;
         public EntryList<Unknown7Entry> _unknown7;
-        public EntryList<ItemAnchor> _anchoredItems, _gooeyBomb, _boneFloats3;
-        public ActionOverrideList _entryOverrides;
+        public EntryList<ActionFlags> _commonActionFlags;
+        public EntryList<ItemAnchor> _anchoredItems, _gooeyBomb, _samusCannon;
+
+        //Other lists
         public ActionOverrideList _exitOverrides;
-        public SortedList<int, MovesetEntryNode> _articles;
+        public ActionOverrideList _entryOverrides;
         public List<MovesetEntryNode> _extraEntries;
+        public BindingList<SubActionEntry> _subActions;
+        public SortedList<int, MovesetEntryNode> _articles;
 
         //public MoveDefStaticArticleGroupNode _staticArticles;
         ////Character Specific Nodes
@@ -120,14 +126,6 @@ namespace Ikarus.MovesetFile
         //public Wario8 warioParams8;
         //public Wario6 warioParams6;
         //public int warioSwing4StringOffset = -1;
-
-        /// <summary>
-        /// Returns the name of the character this moveset is for.
-        /// This can be directed converted into CharFolder for easy access to necessary files
-        /// </summary>
-        [Browsable(false)]
-        public CharName Character { get { return _character; } }
-        private CharName _character;
 
         public BindingList<SubActionEntry> SubActions { get { return _subActions; } }
 
@@ -146,18 +144,32 @@ namespace Ikarus.MovesetFile
             _flags2 = _hdr.Flags2;
 
             bint* v = (bint*)address;
+
+            //Calculate the size of each section using the offsets in order of data appearance
             int[] sizes = SakuraiArchiveNode.CalculateSizes(_root._dataSize, v, 27, true);
+            
+            //Parse any data related to scripts
             ParseScripts(v, sizes);
 
-            //Parse all data entries.
+            //Now parse all other data entries for this character.
             //If an offset is 0 (except for the attributes), the entry will be set to null.
+
+            //subaction flags (offset 0) are parsed in ParseScripts
             _modelVis = Parse<ModelVisibility>(v[1]);
             _attributes = Parse<AttributeList>(v[2], "Attributes");
             _sseAttributes = Parse<AttributeList>(v[3]);
-            _misc = Parse<Miscellaneous>(v[4]);
+            _misc = Parse<MiscSectionNode>(v[4]);
+            _commonActionFlags = Parse<EntryList<ActionFlags>>(v[5], 0x10);
+            //action flags (offset 6) are parsed in ParseScripts
             _unknown7 = Parse<EntryList<Unknown7Entry>>(v[7], 8);
             _actionInterrupts = Parse<ActionInterrupts>(v[8]);
+            //entry actions (offset 9) are parsed in ParseScripts
+            //exit actions (offset 10) are parsed in ParseScripts
             _actionPre = Parse<EntryList<ActionPre>>(v[11], 4);
+            //main subactions (offset 12) are parsed in ParseScripts
+            //gfx subactions (offset 13) are parsed in ParseScripts
+            //sfx subactions (offset 14) are parsed in ParseScripts
+            //other subactions (offset 15) are parsed in ParseScripts
             _anchoredItems = Parse<EntryList<ItemAnchor>>(v[16], sItemAnchor.Size);
             _gooeyBomb = Parse<EntryList<ItemAnchor>>(v[17], sItemAnchor.Size);
             _boneRef1 = Parse<EntryList<BoneIndexValue>>(v[18], 4, sizes[18] / 4);
@@ -165,14 +177,16 @@ namespace Ikarus.MovesetFile
             _entryOverrides = Parse<ActionOverrideList>(v[20]);
             _exitOverrides = Parse<ActionOverrideList>(v[21]);
             _unknown22 = Parse<Unknown22>(v[22]);
-            _boneFloats3 = Parse<EntryList<ItemAnchor>>(v[23], sItemAnchor.Size + 4);
+            _samusCannon = Parse<EntryList<ItemAnchor>>(v[23], sItemAnchor.Size + 4);
             _unknown24 = Parse<Unknown24>(v[24]);
-            
+
             //Parse extra offsets specific to this character
-            OffsetHolder o = ExtraDataOffsets.GetOffsets(Character);
+            //It appears that the module controls this data
+            OffsetHolder o = ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character);
             if (o != null)
                 o.Parse(this, address + DataHeader.Size);
 
+            //Set article indices (they are parsed as extra offsets)
             int u = 0;
             foreach (ArticleNode e in _articles.Values)
                 e._index = u++;
@@ -185,18 +199,19 @@ namespace Ikarus.MovesetFile
             bint* actionOffset;
             List<List<int>> list;
 
+            MovesetNode node = _root as MovesetNode;
+
             sSubActionFlags* sflags = (sSubActionFlags*)Address(hdr[0]);
             sActionFlags* aflags = (sActionFlags*)Address(hdr[6]);
 
             //Collect offsets first
-
             size = sizes[9];
             for (int i = 9; i < 11; i++)
             {
                 if (hdr[i] < 0) continue;
                 actionOffset = (bint*)Address(hdr[i]);
                 for (int x = 0; x < size / 4; x++)
-                    _root._scriptOffsets[0][i - 9].Add(actionOffset[x]);
+                    node._scriptOffsets[0][i - 9].Add(actionOffset[x]);
             }
             size = sizes[12];
             for (int i = 12; i < 16; i++)
@@ -204,19 +219,21 @@ namespace Ikarus.MovesetFile
                 if (hdr[i] < 0) continue;
                 actionOffset = (bint*)Address(hdr[i]);
                 for (int x = 0; x < size / 4; x++)
-                    _root._scriptOffsets[1][i - 12].Add(actionOffset[x]);
+                    node._scriptOffsets[1][i - 12].Add(actionOffset[x]);
             }
 
-            //Now parse scripts
+            //Now parse scripts using collected offsets
+            //The offsets are stored in the root in order to find scripts later
 
+            //Actions first
             ActionEntry ag;
-            list = _root._scriptOffsets[0];
+            list = node._scriptOffsets[0];
             count = list[0].Count;
-            _root._actions = new BindingList<ActionEntry>();
+            node._actions = new BindingList<ActionEntry>();
             for (int i = 0; i < count; i++)
             {
                 sActionFlags flag = aflags[i];
-                _root.Actions.Add(ag = new ActionEntry(flag, i, i + 274));
+                node.Actions.Add(ag = new ActionEntry(flag, i, i + 274));
                 for (int x = 0; x < 2; x++)
                 {
                     if (i < list[x].Count && list[x][i] > 0)
@@ -227,8 +244,9 @@ namespace Ikarus.MovesetFile
                 }
             }
 
+            //Now subactions
             SubActionEntry sg;
-            list = _root._scriptOffsets[1];
+            list = node._scriptOffsets[1];
             count = list[0].Count;
             _subActions = new BindingList<SubActionEntry>();
             for (int i = 0; i < count; i++)
@@ -635,7 +653,7 @@ namespace Ikarus.MovesetFile
         protected override int OnGetSize()
         {
             _builder = new DataBuilder(this);
-            _entryLength = 124 + ExtraDataOffsets.GetOffsets(Character).Count * 4;
+            _entryLength = 124 + ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character).Count * 4;
             _childLength = _builder.CalcSize();
             return _entryLength + _childLength;
         }

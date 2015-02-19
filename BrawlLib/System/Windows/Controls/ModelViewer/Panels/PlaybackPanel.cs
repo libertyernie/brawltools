@@ -58,7 +58,7 @@ namespace System.Windows.Forms
             this.numTotalFrames.Enabled = false;
             this.numTotalFrames.Location = new System.Drawing.Point(233, 5);
             this.numTotalFrames.Maximum = new decimal(new int[] {
-            65535,
+            65536,
             0,
             0,
             0});

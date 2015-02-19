@@ -13,6 +13,7 @@ using OpenTK.Graphics.OpenGL;
 using Ikarus.ModelViewer;
 using Ikarus.MovesetFile;
 using Ikarus;
+using BrawlLib.SSBBTypes;
 
 namespace Ikarus.UI
 {
@@ -996,9 +997,9 @@ namespace Ikarus.UI
 
         public void UpdateMoveset()
         {
-            SakuraiArchiveNode moveset = Manager.Moveset;
+            MovesetNode moveset = Manager.Moveset;
 
-            if (moveset == null)
+            if (moveset == null || moveset.Data == null)
                 return;
             
             _updating = true;

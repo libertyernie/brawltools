@@ -153,7 +153,7 @@ namespace System.Windows.Forms
                 SetFrame(_animFrame + 1);
 
             if (_capture)
-                images.Add(ModelPanel.GetScreenshot(false));
+                images.Add(ModelPanel.GetScreenshot(ModelPanel.CurrentViewport.RegionNoBorder, false));
         }
 
         public virtual void PlayAnim()
@@ -401,7 +401,7 @@ namespace System.Windows.Forms
             }
             else
             {
-                int loopBias =  node.Loop && Interpolated.Contains(node.GetType()) ? 1 : 0;
+                int loopBias = node.Loop && Interpolated.Contains(node.GetType()) ? 1 : 0;
 
                 _maxFrame = node.FrameCount;
                 EnableTransformEdit = !_playing;
@@ -496,10 +496,10 @@ namespace System.Windows.Forms
             if (!(_targetModel is MDL0Node))
                 return;
 
-            BRESNode group = null;
+            BRRESNode group = null;
             BRESEntryNode n = null;
             if ((n = TargetAnimation as BRESEntryNode) != null &&
-                (group = n.Parent.Parent as BRESNode) != null)
+                (group = n.Parent.Parent as BRRESNode) != null)
             {
                 _vis0 = group.CreateResource<VIS0Node>(SelectedCHR0.Name);
                 foreach (string s in VIS0Indices.Keys)

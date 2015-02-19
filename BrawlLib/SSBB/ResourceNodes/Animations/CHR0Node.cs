@@ -46,9 +46,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public CHR0EntryNode CreateEntry(string name)
         {
             CHR0EntryNode n = new CHR0EntryNode();
-            n.SetSize(_numFrames, Loop);
             n._name = this.FindName(name);
             AddChild(n);
+            n.SetSize(_numFrames, Loop);
             return n;
         }
 

@@ -63,6 +63,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             table.Add(Name);
 
+            _strings.Clear();
+            foreach (SHP0EntryNode entry in Children)
+            {
+                table.Add(entry.Name);
+                foreach (SHP0VertexSetNode n in entry.Children)
+                    _strings.Add(n.Name);
+            }
+
             foreach (string s in _strings)
                 table.Add(s);
 
@@ -174,19 +182,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            _strings.Clear();
             int size = (Version == 4 ? SHP0v4.Size : SHP0v3.Size) + 0x18 + Children.Count * 0x10;
             foreach (SHP0EntryNode entry in Children)
-            {
-                _strings.Add(entry.Name);
-                foreach (SHP0VertexSetNode n in entry.Children)
-                    _strings.Add(n.Name);
+                size += entry.CalculateSize(true) + entry.Children.Count * 4;
 
-                size += entry.CalculateSize(true);
-            }
-            size += _strings.Count * 4;
             if (_version == 4)
-            size += _userEntries.GetSize();
+                size += _userEntries.GetSize();
+
             return size;
         }
 
@@ -380,31 +382,16 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal SHP0Entry* Header { get { return (SHP0Entry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SHP0Entry; } }
-        public override Type[] AllowedChildTypes
-        {
-            get
-            {
-                return new Type[] { typeof(SHP0VertexSetNode) };
-            }
-        }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(SHP0VertexSetNode) }; } }
 
         List<short> _indices;
         public Bin32 _flags = 3;
         public int _indexCount, _fixedFlags;
 
-        [Flags]
-        public enum SHP0EntryFlags
-        {
-            Enabled = 1,
-            UpdatePosition = 2,
-            UpdateNormals = 4,
-            UpdateColors = 8,
-        }
-
         [Category("Vertex Morph Entry")]
         public bool Enabled { get { return _flags[0]; } set { _flags[0] = value; SignalPropertyChange(); } }
         [Category("Vertex Morph Entry")]
-        public bool UpdatePosition { get { return _flags[1]; } set { _flags[1] = value; SignalPropertyChange(); } }
+        public bool UpdateVertices { get { return _flags[1]; } set { _flags[1] = value; SignalPropertyChange(); } }
         [Category("Vertex Morph Entry")]
         public bool UpdateNormals { get { return _flags[2]; } set { _flags[2] = value; SignalPropertyChange(); } }
         [Category("Vertex Morph Entry")]

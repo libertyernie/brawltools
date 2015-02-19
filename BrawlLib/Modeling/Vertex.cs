@@ -16,14 +16,20 @@ namespace BrawlLib.Modeling
     {
         public Vector3 _position;
         public Vector3 _weightedPosition;
-        public IMatrixNode _matrixNode;
-        public IMatrixNodeUser _parent;
+        private IMatrixNode _matrixNode;
+        
+        //normals, colors and uvs aren't stored in this class
+        //because this stores a unique weighted point in space.
+        //Multiple vertices may have different normals etc but the same weighted position
 
-        public int _index = 0;
+        [Browsable(false)]
+        public IMatrixNodeUser Parent { get { return _parent; } set { _parent = value; } }
+        private IMatrixNodeUser _parent;
+
         public List<int> _faceDataIndices = new List<int>();
 
         //Contains all the facepoints with the same position and influence.
-        //Note that the normal, uv and color indices may differ per facepoint
+        //Note that the normal, etc indices may differ per facepoint
         public List<Facepoint> _facepoints = new List<Facepoint>();
         public Facepoint[] Facepoints { get { return _facepoints.ToArray(); } }
 
@@ -45,9 +51,6 @@ namespace BrawlLib.Modeling
 
             return Matrix.Identity;
         }
-
-        public Vector3 UnweightPos(Vector3 pos) { return GetInvMatrix() * pos; }
-        public Vector3 WeightPos(Vector3 pos) { return GetMatrix() * pos; }
 
         public List<BoneWeight> GetBoneWeights() { return MatrixNode == null ? _parent.MatrixNode.Weights : MatrixNode.Weights; }
         public IBoneNode[] GetBones()

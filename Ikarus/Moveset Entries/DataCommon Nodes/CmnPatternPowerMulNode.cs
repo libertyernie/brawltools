@@ -8,7 +8,7 @@ using Ikarus;
 
 namespace Ikarus.MovesetFile
 {
-    public unsafe class PatternPowerMul : MovesetEntryNode
+    public unsafe class CmnPatternPowerMulNode : MovesetEntryNode
     {
         public List<Script> _scripts;
 

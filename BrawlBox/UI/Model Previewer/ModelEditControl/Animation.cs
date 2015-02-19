@@ -80,15 +80,12 @@ namespace System.Windows.Forms
                 CameraAnimationFrame f = c.GetAnimFrame(CurrentFrame - 1);
                 Vector3 r = f.GetRotate(c.Type);
                 Vector3 t = f.Pos;
-
-                ModelPanel.Camera.Reset();
-                ModelPanel.Camera.Translate(t._x, t._y, t._z);
-                ModelPanel.Camera.Rotate(r._x, r._y, r._z);
-                ModelPanel._aspect = f.Aspect;
-                ModelPanel._farZ = f.FarZ;
-                ModelPanel._nearZ = f.NearZ;
-                ModelPanel._fovY = f.FovY;
-                ModelPanel.UpdateProjection();
+                
+                GLCamera cam = ModelPanel.CurrentViewport.Camera;
+                cam.Reset();
+                cam.Translate(t._x, t._y, t._z);
+                cam.Rotate(r._x, r._y, r._z);
+                cam.SetProjectionParams(f.Aspect, f.FovY, f.FarZ, f.NearZ);
             }
         }
 
@@ -115,7 +112,7 @@ namespace System.Windows.Forms
             averageboneStartendTangentsToolStripMenuItem.Text = String.Format("Average {0} start/end keyframes", s);
 
             averageAllStartEndTangentsToolStripMenuItem.Enabled = node != null && Array.IndexOf(Interpolated, node.GetType()) >= 0;
-            syncStartendTangentsToolStripMenuItem.Enabled = node != null && Array.IndexOf(Interpolated, node.GetType()) >= 0;
+            //syncStartendTangentsToolStripMenuItem.Enabled = node != null && Array.IndexOf(Interpolated, node.GetType()) >= 0;
         }
     }
 }

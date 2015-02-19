@@ -122,14 +122,14 @@ namespace Ikarus.UI
             //    BackgroundImage = null;
             //}
             //Invalidate();
-            SaveBitmap(modelPanel.GetScreenshot(true));
+            SaveBitmap(modelPanel.GetScreenshot(modelPanel.ClientRectangle, true));
             //GL.ClearColor(BackColor);
             //if (i != null)
             //    BackgroundImage = i;
         }
         private void btnExportToImgNoTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(modelPanel.GetScreenshot(false));
+            SaveBitmap(modelPanel.GetScreenshot(modelPanel.ClientRectangle, false));
         }
 
         private void showMoveset_Click_1(object sender, EventArgs e)
@@ -219,16 +219,12 @@ namespace Ikarus.UI
         {
             if (btnSaveCam.Text == "Save Camera")
             {
-                modelPanel.DefaultRotate = modelPanel.Camera._rotation;
-                modelPanel.DefaultTranslate = modelPanel.Camera._matrixInverse.Multiply(new Vector3());
-
+                ModelPanel.CurrentViewport.Camera.SaveDefaults();
                 btnSaveCam.Text = "Clear Camera";
             }
             else
             {
-                modelPanel.DefaultRotate = new Vector3();
-                modelPanel.DefaultTranslate = new Vector3();
-
+                ModelPanel.CurrentViewport.ClearCameraDefaults();
                 btnSaveCam.Text = "Save Camera";
             }
         }
@@ -423,13 +419,13 @@ namespace Ikarus.UI
                 d.Title = "Select an image to load";
 
                 if (d.ShowDialog() == DialogResult.OK)
-                    BGImage = Image.FromFile(d.FileName);
+                    ModelPanel.CurrentViewport.BackgroundImage = Image.FromFile(d.FileName);
 
                 loadImageToolStripMenuItem.Text = "Clear Image";
             }
             else
             {
-                BGImage = null;
+                ModelPanel.CurrentViewport.BackgroundImage = null;
                 loadImageToolStripMenuItem.Text = "Load Image";
             }
         }
@@ -458,7 +454,7 @@ namespace Ikarus.UI
         private void setColorToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (dlgColor.ShowDialog(this) == DialogResult.OK)
-                modelPanel.BackColor = ClearColor = dlgColor.Color;
+                modelPanel.CurrentViewport.BackgroundColor = dlgColor.Color;
         }
 
         private void toggleBonesToolStripMenuItem_Click(object sender, EventArgs e)

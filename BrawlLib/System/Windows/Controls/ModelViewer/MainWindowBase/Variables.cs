@@ -57,7 +57,7 @@ namespace System.Windows.Forms
 
         protected NW4RAnimType _targetAnimType;
 
-        protected Vector3 _lastPointBone, _firstPointBone, _lastPointWorld, _firstPointWorld;
+        protected Vector3 _lastPointLocal, _lastPointWorld;
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
         protected Vector3? _vertexLoc = null;
 
@@ -72,7 +72,6 @@ namespace System.Windows.Forms
         public bool _capture = false;
 
         public static Color _floorHue = Color.FromArgb(255, 128, 128, 191);
-        public Color _clearColor;
 
         public static BindingList<NW4RAnimType> _editableAnimTypes = new BindingList<NW4RAnimType>()
         {

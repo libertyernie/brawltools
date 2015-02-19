@@ -19,9 +19,21 @@ namespace System.Windows.Forms
         public DialogResult ShowDialog(IWin32Window owner, GLTexture texture)
         {
             panel.Texture = texture;
-            this.ClientSize = new Drawing.Size(texture.Width, texture.Height);
-            try { return this.ShowDialog(owner); }
-            finally { panel.Texture = null; }
+            ClientSize = new Drawing.Size(texture.Width, texture.Height);
+            return ShowDialog(owner);
+        }
+
+        public void Show(IWin32Window owner, GLTexture texture)
+        {
+            panel.Texture = texture;
+            ClientSize = new Drawing.Size(texture.Width, texture.Height);
+            base.Show(owner);
+        }
+
+        protected override void OnClosed(EventArgs e)
+        {
+            panel.Texture = null;
+            base.OnClosed(e);
         }
     }
 }

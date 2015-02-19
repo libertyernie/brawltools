@@ -75,23 +75,48 @@ namespace Ikarus.MovesetFile
         [Category("Data Offsets")]
         public int Unk25 { get { return hdr.Unknown25; } }
         
+        [Browsable(false)]
         public BindingList<CommonAction> ScreenTints { get { return _screenTints; } }
+        [Browsable(false)]
         public BindingList<CommonAction> FlashOverlays { get { return _flashOverlays; } }
+        
         private BindingList<CommonAction> _flashOverlays, _screenTints;
-        public EntryList<CommonUnk7Entry> _unknown7;
-        public CommonLegBones _legBones;
-        public PatternPowerMul _ppMul;
+        
+        public EntryList<CommonUnk7Entry> _unk7;
+        public EntryList<Unknown11EntryNode> _unk11;
 
-        public RawParamList _globalICs;
-        public RawParamList _globalsseICs;
-        public RawParamList _ICs;
-        public RawParamList _sseICs;
+        public CmnLegBonesNode _legBones;
+        public CmnPatternPowerMulNode _ppMul;
+
+        //All parameter lists
+        public RawParamList
+            _globalICs,
+            _globalsseICs,
+            _ICs,
+            _sseICs,
+            _unk8,
+            _itemSwingData,
+            _unk10,
+            _unk12,
+            _unk13,
+            _unk14,
+            _unk15,
+            _unk16,
+            _unk18,
+            _unk23,
+            _unk24;
         
         protected override void OnParse(VoidPtr address)
         {
             hdr = *(CommonHeader*)address;
             bint* v = (bint*)address;
+            int offset = 0;
+
+            //Calculate the sizes of each section using their offsets,
+            //in order of appearance
             int[] sizes = SakuraiArchiveNode.CalculateSizes(_root._dataSize, v, 26, false);
+            
+            //Parse all script-related data first
             ParseScripts(v, sizes);
 
             //These ICs need to be sorted into int and float arrays
@@ -101,64 +126,87 @@ namespace Ikarus.MovesetFile
             _globalsseICs = Parse<RawParamList>(v[1], 188);
             _ICs = Parse<RawParamList>(v[2], 2204);
             _sseICs = Parse<RawParamList>(v[3], 2204);
+            //Entry action script offsets
+            //Exit action script offsets
+            //Flash overlay script offsets/flags
+            _unk7 = Parse<EntryList<CommonUnk7Entry>>(v[7], 12);
+            _unk8 = Parse<RawParamList>(v[8], 0x1A4);
+            _itemSwingData = Parse<RawParamList>(v[9], 0x64);
+            _unk10 = Parse<RawParamList>(v[10], 0x10);
+            if ((offset = v[11]) > 0)
+            {
+                sListOffset* list = (sListOffset*)Address(offset);
+                _unk11 = Parse<EntryList<Unknown11EntryNode>>(list->_startOffset, 12, (int)list->_listCount);
+            }
+            _unk12 = Parse<RawParamList>(v[12], 0x80);
+            _unk13 = Parse<RawParamList>(v[13], 0x80);
+            _unk14 = Parse<RawParamList>(v[14], 0x40);
+            _unk15 = Parse<RawParamList>(v[15], 0x24);
+            _unk16 = Parse<RawParamList>(v[16], 0x48);
+            _ppMul = Parse<CmnPatternPowerMulNode>(v[17]);
+            _unk18 = Parse<RawParamList>(v[18], 0x10);
 
-            //_unknown7 = Parse<EntryList<CommonUnk7Entry>>(v[7], 8);
-            _legBones = Parse<CommonLegBones>(v[21]);
-            _ppMul = Parse<PatternPowerMul>(v[17]);
+            //Screen tint script offsets
+            _legBones = Parse<CmnLegBonesNode>(v[21]);
+
+            if ((offset = v[23]) > 0)
+                _unk23 = Parse<RawParamList>(*(bint*)Address(offset), 0xA8);
+            
+            _unk24 = Parse<RawParamList>(v[24], 4);
+
+            //Notes:
+
+            //Unk12 and Unk13 are copies of the same parameters
+            //with some different values
         }
 
         private void ParseScripts(bint* hdr, int[] sizes)
         {
             Script s = null;
-            int size, count;
+            int size, count, offset;
             bint* actionOffset;
-            List<List<int>> list;
+
+            MovesetNode node = _root as MovesetNode;
 
             //Collect offsets first
+            for (int i = 0; i < 2; i++)
+            {
+                if ((offset = hdr[i + 4]) < 0)
+                    continue;
 
-            size = sizes[4];
-            for (int i = 4; i < 6; i++)
-            {
-                if (hdr[i] < 0) continue;
-                actionOffset = (bint*)Address(hdr[i]);
-                for (int x = 0; x < size / 4; x++)
-                    _root._scriptOffsets[0][i - 4].Add(actionOffset[x]);
+                actionOffset = (bint*)Address(offset);
+                for (int x = 0; x < sizes[i + 4] / 4; x++)
+                    node._scriptOffsets[0][i].Add(*actionOffset++);
             }
-            List<uint> flags1 = new List<uint>(), flags2 = new List<uint>();
-            size = _root.GetSize(hdr[6]);
-            if (hdr[6] > 0)
+
+            List<uint>[] flags = new List<uint>[] { new List<uint>(), new List<uint>() };
+            for (int i = 0; i < 2; i++)
             {
-                actionOffset = (bint*)Address(hdr[6]);
-                for (int x = 0; x < size / 8; x++)
+                size = _root.GetSize(offset = hdr[i + 19]);
+                if (offset > 0)
                 {
-                    _root._scriptOffsets[3][0].Add(actionOffset[x * 2]);
-                    flags1.Add((uint)(int)actionOffset[x * 2 + 1]);
-                }
-            }
-            size = _root.GetSize(hdr[20]);
-            if (hdr[20] > 0)
-            {
-                actionOffset = (bint*)Address(hdr[20]);
-                for (int x = 0; x < size / 8; x++)
-                {
-                    _root._scriptOffsets[4][0].Add(actionOffset[x * 2]);
-                    flags2.Add((uint)(int)actionOffset[x * 2 + 1]);
+                    actionOffset = (bint*)Address(offset);
+                    for (int x = 0; x < size / 16; x++)
+                    {
+                        node._scriptOffsets[i + 3][0].Add(*actionOffset++);
+                        flags[i].Add((uint)(int)*actionOffset++);
+                    }
                 }
             }
 
             //Now parse scripts
 
             ActionEntry ag;
-            list = _root._scriptOffsets[0];
-            count = list[0].Count;
-            _root._actions = new BindingList<ActionEntry>();
+            List<List<int>> actionOffsets = node._scriptOffsets[0];
+            count = Math.Max(actionOffsets[0].Count, actionOffsets[1].Count);
+            node._actions = new BindingList<ActionEntry>();
             for (int i = 0; i < count; i++)
             {
-                _root.Actions.Add(ag = new ActionEntry(new sActionFlags(), i, i));
+                node.Actions.Add(ag = new ActionEntry(new sActionFlags(), i, i));
                 for (int x = 0; x < 2; x++)
                 {
-                    if (i < list[x].Count && list[x][i] > 0)
-                        s = Parse<Script>(list[x][i]);
+                    if (i < actionOffsets[x].Count && actionOffsets[x][i] > 0)
+                        s = Parse<Script>(actionOffsets[x][i]);
                     else
                         s = new Script();
                     ag.SetWithType(x, s);
@@ -167,29 +215,26 @@ namespace Ikarus.MovesetFile
 
             _flashOverlays = new BindingList<CommonAction>();
             _screenTints = new BindingList<CommonAction>();
+            BindingList<CommonAction>[] lists = new BindingList<CommonAction>[]
+            {
+                _flashOverlays,
+                _screenTints
+            };
 
             CommonAction ca;
-            list = _root._scriptOffsets[3];
-            count = list[0].Count;
-            for (int i = 0; i < count; i++)
+            for (int x = 0; x < 2; x++)
             {
-                if (i < list[0].Count && list[0][i] > 0)
-                    ca = Parse<CommonAction>(list[0][i], flags1[i]);
-                else
-                    ca = new CommonAction(flags1[i]);
-                ca._index = i;
-                _flashOverlays.Add(ca);
-            }
-            list = _root._scriptOffsets[4];
-            count = list[0].Count;
-            for (int i = 0; i < count; i++)
-            {
-                if (i < list[0].Count && list[0][i] > 0)
-                    ca = Parse<CommonAction>(list[0][i], flags2[i]);
-                else
-                    ca = new CommonAction(flags2[i]);
-                ca._index = i;
-                _screenTints.Add(ca);
+                List<int> offsets = node._scriptOffsets[x + 3][0];
+                count = offsets.Count;
+                for (int i = 0; i < count; i++)
+                {
+                    uint flag = flags[x][i];
+                    ca = i < offsets.Count && offsets[i] > 0 ? 
+                        Parse<CommonAction>(offsets[i], flag) :
+                        new CommonAction(flag);
+                    ca._index = i;
+                    lists[x].Add(ca);
+                }
             }
         }
 
@@ -291,24 +336,6 @@ namespace Ikarus.MovesetFile
         }
          */
     }
-    
-    public unsafe class CommonLegBones : MovesetEntryNode
-    {
-        List<string> _left, _right;
-        protected override void OnParse(VoidPtr address)
-        {
-            _left = new List<string>();
-            _right = new List<string>();
-
-            sListOffset* hdr = (sListOffset*)address;
-            bint* addr = (bint*)Address(hdr[0]._startOffset);
-            for (int i = 0; i < hdr[0]._listCount; i++)
-                _left.Add(new String((sbyte*)(Address(addr[i]))));
-            addr = (bint*)Address(hdr[1]._startOffset);
-            for (int i = 0; i < hdr[1]._listCount; i++)
-                _right.Add(new String((sbyte*)(Address(addr[i]))));
-        }
-    }
 
     public unsafe class CommonAction : Script
     {
@@ -333,13 +360,13 @@ namespace Ikarus.MovesetFile
     {
         public List<CommonUnk7EntryListEntry> _children;
 
-        public int unk1, unk2;
+        public int _dataOffset, _count;
         public short unk3, unk4;
 
         [Category("Unknown 7 Entry")]
-        public int DataOffset { get { return unk1; } }
+        public int DataOffset { get { return _dataOffset; } }
         [Category("Unknown 7 Entry")]
-        public int Count { get { return unk2; } }
+        public int Count { get { return _count; } }
         [Category("Unknown 7 Entry")]
         public short Unknown1 { get { return unk3; } set { unk3 = value; SignalPropertyChange(); } }
         [Category("Unknown 7 Entry")]
@@ -350,8 +377,8 @@ namespace Ikarus.MovesetFile
             _children = new List<CommonUnk7EntryListEntry>();
 
             sCommonUnk7Entry* hdr = (sCommonUnk7Entry*)address;
-            unk2 = hdr->_list._startOffset;
-            unk1 = hdr->_list._listCount;
+            _count = hdr->_list._startOffset;
+            _dataOffset = hdr->_list._listCount;
             unk3 = hdr->_unk3;
             unk4 = hdr->_unk4;
             for (int i = 0; i < Count; i++)
@@ -368,7 +395,7 @@ namespace Ikarus.MovesetFile
         {
             RebuildAddress = address;
             sCommonUnk7Entry* data = (sCommonUnk7Entry*)address;
-            data->_list._startOffset = unk1;
+            data->_list._startOffset = _dataOffset;
             data->_list._listCount = _children.Count;
             data->_unk3 = unk3;
             data->_unk4 = unk4;

@@ -2,9 +2,7 @@
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using BrawlLib.Imaging;
-using System.Drawing.Design;
-using System.ComponentModel;
-using System.Windows.Forms.Design;
+using System.Text;
 
 namespace System.Windows.Forms
 {
@@ -31,6 +29,7 @@ namespace System.Windows.Forms
         private Panel panel1;
         private Panel panel2;
         private Panel panel3;
+        private TextBox txtColorCode;
         private BufferedPanel pnlAlpha;
 
         private void InitializeComponent()
@@ -55,6 +54,7 @@ namespace System.Windows.Forms
             this.panel2 = new System.Windows.Forms.Panel();
             this.pnlAlpha = new System.Windows.Forms.BufferedPanel();
             this.panel3 = new System.Windows.Forms.Panel();
+            this.txtColorCode = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.numB)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numG)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numR)).BeginInit();
@@ -70,7 +70,7 @@ namespace System.Windows.Forms
             // lblR
             // 
             this.lblR.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblR.Location = new System.Drawing.Point(-1, 91);
+            this.lblR.Location = new System.Drawing.Point(3, 77);
             this.lblR.Name = "lblR";
             this.lblR.Size = new System.Drawing.Size(19, 20);
             this.lblR.TabIndex = 2;
@@ -80,7 +80,7 @@ namespace System.Windows.Forms
             // label1
             // 
             this.label1.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(-1, 129);
+            this.label1.Location = new System.Drawing.Point(3, 115);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(19, 20);
             this.label1.TabIndex = 3;
@@ -90,7 +90,7 @@ namespace System.Windows.Forms
             // label2
             // 
             this.label2.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(-1, 110);
+            this.label2.Location = new System.Drawing.Point(3, 96);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(19, 20);
             this.label2.TabIndex = 4;
@@ -101,85 +101,80 @@ namespace System.Windows.Forms
             // 
             this.numB.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numB.Location = new System.Drawing.Point(19, 130);
+            this.numB.Location = new System.Drawing.Point(23, 116);
             this.numB.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numB.Name = "numB";
-            this.numB.Size = new System.Drawing.Size(43, 20);
+            this.numB.Size = new System.Drawing.Size(47, 20);
             this.numB.TabIndex = 5;
-            this.numB.Value = new decimal(new int[] {
-            255,
-            0,
-            0,
-            0});
             // 
             // numG
             // 
             this.numG.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numG.Location = new System.Drawing.Point(19, 111);
+            this.numG.Location = new System.Drawing.Point(23, 97);
             this.numG.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numG.Name = "numG";
-            this.numG.Size = new System.Drawing.Size(43, 20);
+            this.numG.Size = new System.Drawing.Size(47, 20);
             this.numG.TabIndex = 6;
             // 
             // numR
             // 
             this.numR.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numR.Location = new System.Drawing.Point(19, 92);
+            this.numR.Location = new System.Drawing.Point(23, 78);
             this.numR.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numR.Name = "numR";
-            this.numR.Size = new System.Drawing.Size(43, 20);
+            this.numR.Size = new System.Drawing.Size(47, 20);
             this.numR.TabIndex = 7;
             // 
             // numH
             // 
             this.numH.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numH.Location = new System.Drawing.Point(19, 20);
+            this.numH.Location = new System.Drawing.Point(23, 6);
             this.numH.Maximum = new decimal(new int[] {
             360,
             0,
             0,
             0});
             this.numH.Name = "numH";
-            this.numH.Size = new System.Drawing.Size(43, 20);
+            this.numH.Size = new System.Drawing.Size(47, 20);
             this.numH.TabIndex = 13;
             // 
             // numS
             // 
             this.numS.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numS.Location = new System.Drawing.Point(19, 39);
+            this.numS.Location = new System.Drawing.Point(23, 25);
             this.numS.Name = "numS";
-            this.numS.Size = new System.Drawing.Size(43, 20);
+            this.numS.Size = new System.Drawing.Size(47, 20);
             this.numS.TabIndex = 12;
             // 
             // numV
             // 
             this.numV.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numV.Location = new System.Drawing.Point(19, 58);
+            this.numV.Location = new System.Drawing.Point(23, 44);
             this.numV.Name = "numV";
-            this.numV.Size = new System.Drawing.Size(43, 20);
+            this.numV.Size = new System.Drawing.Size(47, 20);
             this.numV.TabIndex = 11;
             // 
             // label3
             // 
             this.label3.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label3.Location = new System.Drawing.Point(-1, 38);
+            this.label3.Location = new System.Drawing.Point(3, 24);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(19, 20);
             this.label3.TabIndex = 10;
@@ -189,7 +184,7 @@ namespace System.Windows.Forms
             // label4
             // 
             this.label4.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(-1, 57);
+            this.label4.Location = new System.Drawing.Point(3, 43);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(19, 20);
             this.label4.TabIndex = 9;
@@ -199,7 +194,7 @@ namespace System.Windows.Forms
             // label5
             // 
             this.label5.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label5.Location = new System.Drawing.Point(-1, 19);
+            this.label5.Location = new System.Drawing.Point(3, 5);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(19, 20);
             this.label5.TabIndex = 8;
@@ -210,20 +205,25 @@ namespace System.Windows.Forms
             // 
             this.numA.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.numA.Location = new System.Drawing.Point(19, 149);
+            this.numA.Location = new System.Drawing.Point(23, 135);
             this.numA.Maximum = new decimal(new int[] {
             255,
             0,
             0,
             0});
             this.numA.Name = "numA";
-            this.numA.Size = new System.Drawing.Size(43, 20);
+            this.numA.Size = new System.Drawing.Size(47, 20);
             this.numA.TabIndex = 15;
+            this.numA.Value = new decimal(new int[] {
+            255,
+            0,
+            0,
+            0});
             // 
             // lblA
             // 
             this.lblA.Font = new System.Drawing.Font("Lucida Console", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblA.Location = new System.Drawing.Point(-1, 148);
+            this.lblA.Location = new System.Drawing.Point(3, 134);
             this.lblA.Name = "lblA";
             this.lblA.Size = new System.Drawing.Size(19, 20);
             this.lblA.TabIndex = 14;
@@ -289,6 +289,7 @@ namespace System.Windows.Forms
             // 
             // panel3
             // 
+            this.panel3.Controls.Add(this.txtColorCode);
             this.panel3.Controls.Add(this.numH);
             this.panel3.Controls.Add(this.lblR);
             this.panel3.Controls.Add(this.label1);
@@ -306,8 +307,19 @@ namespace System.Windows.Forms
             this.panel3.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel3.Location = new System.Drawing.Point(237, 0);
             this.panel3.Name = "panel3";
-            this.panel3.Size = new System.Drawing.Size(73, 187);
+            this.panel3.Size = new System.Drawing.Size(77, 187);
             this.panel3.TabIndex = 18;
+            // 
+            // txtColorCode
+            // 
+            this.txtColorCode.Location = new System.Drawing.Point(6, 161);
+            this.txtColorCode.Name = "txtColorCode";
+            this.txtColorCode.Size = new System.Drawing.Size(64, 20);
+            this.txtColorCode.TabIndex = 16;
+            this.txtColorCode.Text = "000000FF";
+            this.txtColorCode.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            this.txtColorCode.TextChanged += new System.EventHandler(this.txtColorCode_TextChanged);
+            this.txtColorCode.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtColorCode_KeyPress);
             // 
             // GoodColorControl
             // 
@@ -316,7 +328,7 @@ namespace System.Windows.Forms
             this.Controls.Add(this.panel1);
             this.MinimumSize = new System.Drawing.Size(310, 187);
             this.Name = "GoodColorControl";
-            this.Size = new System.Drawing.Size(310, 187);
+            this.Size = new System.Drawing.Size(314, 187);
             ((System.ComponentModel.ISupportInitialize)(this.numB)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numG)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numR)).EndInit();
@@ -327,6 +339,7 @@ namespace System.Windows.Forms
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -337,7 +350,7 @@ namespace System.Windows.Forms
         private HSVPixel _hsv = new HSVPixel(0, 100, 100);
 
         //private int _alpha = 255;
-        private ARGBPixel _rgb;
+        private ARGBPixel _rgba;
 
         bool _squareGrabbing;
         int _squareX, _squareY;
@@ -371,39 +384,13 @@ namespace System.Windows.Forms
 
         public Color Color
         {
-            get { return (Color)_rgb; }
+            get { return (Color)_rgba; }
             set 
-            { 
-                _hsv = (HSVPixel)value;
-
-                _updating = true;
-                numA.Value = value.A;
-                _updating = false;
-
-                //OnColorChanged(); 
-
-                pnlColorBox.Invalidate();
-                pnlColorBar.Invalidate();
-
-                _updating = true;
-
-                numH.Value = _hsv.H;
-                numS.Value = _hsv.S;
-                numV.Value = _hsv.V;
-
-                _rgb = (ARGBPixel)value;
-                _rgb.A = (byte)numA.Value;
-                numR.Value = _rgb.R;
-                numG.Value = _rgb.G;
-                numB.Value = _rgb.B;
-
-                _updating = false;
-
-                if (ColorChanged != null)
-                    ColorChanged(this, null);
+            {
+                _rgba = (ARGBPixel)value;
+                OnColorChanged(false);
             }
         }
-
 
         public GoodColorControl()
         {
@@ -455,54 +442,54 @@ namespace System.Windows.Forms
                 case 0: { _hsv.H = (ushort)value; break; }
                 case 1: { _hsv.S = (byte)value; break; }
                 case 2: { _hsv.V = (byte)value; break; }
-                case 3: { _rgb.R = (byte)value; break; }
-                case 4: { _rgb.G = (byte)value; break; }
-                case 5: { _rgb.B = (byte)value; break; }
+                case 3: { _rgba.R = (byte)value; break; }
+                case 4: { _rgba.G = (byte)value; break; }
+                case 5: { _rgba.B = (byte)value; break; }
                 case 6: { pnlAlpha.Invalidate(); break; }
+                default: return;
             }
 
-            if ((index > 2) && (index < 6))
-                _hsv = (HSVPixel)_rgb;
-
-            //OnColorChanged();
-
-            pnlColorBox.Invalidate();
-            pnlColorBar.Invalidate();
-
-            //_rgb = (ARGBPixel)_hsv;
-            _rgb.A = (byte)numA.Value;
-
-            if (ColorChanged != null)
-                ColorChanged(this, null);
+            if (index == 6)
+            {
+                _rgba.A = (byte)value;
+                txtColorCode.Text = _rgba.ToRGBAColorCode();
+                if (ColorChanged != null)
+                    ColorChanged(this, null);
+            }
+            else
+                OnColorChanged(index >= 0 && index < 3);
         }
 
-        protected virtual void OnColorChanged()
-        {
-            pnlColorBox.Invalidate();
-            pnlColorBar.Invalidate();
-            UpdateBoxes();
-
-            if (ColorChanged != null)
-                ColorChanged(this, null);
-        }
-
-        private void UpdateBoxes()
+        protected virtual void OnColorChanged(bool hsvToRgb)
         {
             _updating = true;
+
+            if (hsvToRgb)
+            {
+                _rgba = (ARGBPixel)_hsv;
+                _rgba.A = (byte)numA.Value;
+            }
+            else
+                _hsv = (HSVPixel)_rgba;
 
             numH.Value = _hsv.H;
             numS.Value = _hsv.S;
             numV.Value = _hsv.V;
+            numR.Value = _rgba.R;
+            numG.Value = _rgba.G;
+            numB.Value = _rgba.B;
+            numA.Value = _rgba.A;
 
-            _rgb = (ARGBPixel)_hsv;
-            _rgb.A = (byte)numA.Value;
-            numR.Value = _rgb.R;
-            numG.Value = _rgb.G;
-            numB.Value = _rgb.B;
+            txtColorCode.Text = _rgba.ToRGBAColorCode();
 
             _updating = false;
-        }
 
+            pnlColorBox.Invalidate();
+            pnlColorBar.Invalidate();
+
+            if (ColorChanged != null)
+                ColorChanged(this, null);
+        }
 
         #region ColorBox
         private void pnlColorBox_MouseDown(object sender, MouseEventArgs e)
@@ -532,7 +519,7 @@ namespace System.Windows.Forms
                     _hsv.V = (byte)((float)x / pnlColorBox.Width * 100);
                     _hsv.S = (byte)((float)(pnlColorBox.Height - y) / pnlColorBox.Height * 100);
 
-                    OnColorChanged();
+                    OnColorChanged(true);
                 }
             }
         }
@@ -557,7 +544,7 @@ namespace System.Windows.Forms
             int x = (int)(_hsv.V / 100.0f * pnlColorBox.Width);
             int y = (int)((100 - _hsv.S) / 100.0f * pnlColorBox.Height);
             Rectangle r = new Rectangle(x - 3, y - 3, 6, 6);
-            ARGBPixel p = _rgb.Inverse();
+            ARGBPixel p = _rgba.Inverse();
             p.A = 255;
 
             using (Pen pen = new Pen((Color)p))
@@ -598,7 +585,7 @@ namespace System.Windows.Forms
                     _barY = y;
 
                     _hsv.H = (ushort)((float)y / (pnlColorBar.Height - 1) * 360);
-                    OnColorChanged();
+                    OnColorChanged(true);
                 }
             }
         }
@@ -650,6 +637,11 @@ namespace System.Windows.Forms
                 {
                     _alphaY = y;
                     numA.Value = (byte)(255 - ((float)y / (pnlAlpha.Height - 1) * 255));
+                    _updating = true;
+                    txtColorCode.Text = _rgba.ToRGBAColorCode();
+                    _updating = false;
+                    if (ColorChanged != null)
+                        ColorChanged(this, null);
                 }
             }
         }
@@ -661,7 +653,7 @@ namespace System.Windows.Forms
             g.FillRectangle(_alphaBrush, pnlAlpha.ClientRectangle);
 
             //Draw indicator
-            byte col = (byte)(255 - _rgb.A);
+            byte col = (byte)(255 - _rgba.A);
             ARGBPixel p = new ARGBPixel(255, col, col, col);
             int y = (int)(col / 255.0f * (pnlAlpha.Height - 1));
             Rectangle r = new Rectangle(-1, y - 2, pnlAlpha.Width + 1, 4);
@@ -680,51 +672,64 @@ namespace System.Windows.Forms
 
         #endregion
 
-        internal class ColorEditor : UITypeEditor
+        readonly string _allowed = "0123456789abcdefABCDEF";
+        private void txtColorCode_TextChanged(object sender, EventArgs e)
         {
-            public override UITypeEditorEditStyle GetEditStyle(ITypeDescriptorContext context)
+            if (_updating)
+                return;
+
+            string s = "";
+            foreach (char c in txtColorCode.Text)
+                if (_allowed.IndexOf(c) >= 0)
+                    s += c;
+            s = s.Substring(0, s.Length.Clamp(0, 8));
+
+            bool focused = txtColorCode.Focused;
+            int start = txtColorCode.SelectionStart;
+            int len = txtColorCode.SelectionLength;
+
+            _updating = true;
+            if (txtColorCode.Text != s)
+                txtColorCode.Text = s;
+            _rgba.R = s.Length >= 2 ? byte.Parse(s.Substring(0, 2), Globalization.NumberStyles.HexNumber) : (byte)0;
+            _rgba.G = s.Length >= 4 ? byte.Parse(s.Substring(2, 2), Globalization.NumberStyles.HexNumber) : (byte)0;
+            _rgba.B = s.Length >= 6 ? byte.Parse(s.Substring(4, 2), Globalization.NumberStyles.HexNumber) : (byte)0;
+            _rgba.A = s.Length >= 8 ? byte.Parse(s.Substring(6, 2), Globalization.NumberStyles.HexNumber) : (byte)0xFF;
+            _updating = false;
+
+            OnColorChanged(false);
+
+            txtColorCode.SelectionStart = start;
+            txtColorCode.SelectionLength = len;
+            if (focused)
+                txtColorCode.Select();
+        }
+
+        private void txtColorCode_KeyPress(object sender, KeyPressEventArgs e)
+        {
+            char c = (char)e.KeyChar;
+            TextBox box = txtColorCode;
+
+            if (e.KeyChar == (char)Keys.Back && box.SelectionStart > 0)
             {
-                return UITypeEditorEditStyle.DropDown;
+                int start = box.SelectionStart;
+                StringBuilder sb = new StringBuilder(box.Text);
+                sb[start - 1] = '0';
+                box.Text = sb.ToString();
+                box.SelectionStart = start - 1;
+                e.Handled = true;
             }
-
-            public override object EditValue(
-                ITypeDescriptorContext context,
-                IServiceProvider provider,
-                object value)
+            else if ((!Char.IsControl(c) || e.KeyChar == (char)Keys.Delete) && box.SelectionStart < box.TextLength)
             {
-                IWindowsFormsEditorService editorService = null;
-                if (provider != null)
+                if (_allowed.IndexOf(c) >= 0 || e.KeyChar == (char)Keys.Delete)
                 {
-                    editorService =
-                        provider.GetService(
-                        typeof(IWindowsFormsEditorService))
-                        as IWindowsFormsEditorService;
+                    int start = box.SelectionStart;
+                    StringBuilder sb = new StringBuilder(box.Text);
+                    sb[start] = e.KeyChar == (char)Keys.Delete ? '0' : e.KeyChar;
+                    box.Text = sb.ToString();
+                    box.SelectionStart = start + 1;
                 }
-
-                if (editorService != null)
-                {
-                    GoodColorControl selectionControl = new GoodColorControl();
-
-                    Type t = value.GetType();
-
-                    if (t == typeof(ARGBPixel))
-                        selectionControl.Color = (Color)(ARGBPixel)value;
-                    else if (t == typeof(RGBAPixel))
-                        selectionControl.Color = (Color)(RGBAPixel)value;
-                    else if (t == typeof(GXColorS10))
-                        selectionControl.Color = (Color)(GXColorS10)value;
-                    
-                    editorService.DropDownControl(selectionControl);
-
-                    if (t == typeof(ARGBPixel))
-                        value = (ARGBPixel)selectionControl.Color;
-                    else if (t == typeof(RGBAPixel))
-                        value = (RGBAPixel)(ARGBPixel)selectionControl.Color;
-                    else if (t == typeof(GXColorS10))
-                        value = (GXColorS10)(ARGBPixel)selectionControl.Color;
-                }
-
-                return value;
+                e.Handled = true;
             }
         }
     }

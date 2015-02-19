@@ -9,7 +9,6 @@ using System.Linq;
 using System.Text;
 using Ikarus.UI;
 using BrawlLib.SSBBTypes;
-using BrawlLib.SSBBTypes.SakuraiArchive;
 
 namespace Ikarus.ModelViewer
 {

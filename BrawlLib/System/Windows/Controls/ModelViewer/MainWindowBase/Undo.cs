@@ -129,10 +129,10 @@ namespace System.Windows.Forms
                 Vector3 diff = _redoSaves[_saveIndex]._translation - _undoSaves[_saveIndex]._translation;
                 if (!_undoing) diff = -diff;
                 foreach (Vertex3 v in s._vertices)
-                {
-                    v._weightedPosition -= diff;
-                    v.Unweight();
-                }
+                    v.WeightedPosition -= diff;
+
+                _vertexLoc = null;
+
                 UpdateModel();
             }
         }

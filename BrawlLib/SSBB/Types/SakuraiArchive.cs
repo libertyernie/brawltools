@@ -52,6 +52,8 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sListOffset
     {
+        public const int Size = 8;
+
         public bint _startOffset;
         public bint _listCount;
 

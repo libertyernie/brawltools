@@ -24,12 +24,15 @@ namespace BrawlLib.Modeling
         public static IModel CurrentModel;
         public static ImportType ModelType;
         private static Type BoneType;
+        private static ResourceNode TempRootBone;
 
         public enum ImportType
         {
             MDL0,
             BMD,
             //LM
+            //FMDL
+            //NP3D
         }
 
         public IModel ImportModel(string filePath, ImportType type)
@@ -199,11 +202,12 @@ namespace BrawlLib.Modeling
 
                 Say("Extracting scenes...");
 
+                List<ObjectInfo> _objects = new List<ObjectInfo>();
+
                 //Extract scenes
                 foreach (SceneEntry scene in shell._scenes)
                 {
                     ResourceNode parent = null;
-                    
                     switch (type)
                     {
                         case ImportType.MDL0:
@@ -211,29 +215,47 @@ namespace BrawlLib.Modeling
                             break;
                     }
 
-                    List<ObjectInfo> _objects = new List<ObjectInfo>();
+                    //Extract bones and objects and create bone tree
                     foreach (NodeEntry node in scene._nodes)
                         EnumNode(node, parent, scene, model, shell, _objects, Matrix.Identity);
+                }
 
-                    foreach (ObjectInfo obj in _objects)
+                if (model.BoneCache.Length == 0)
+                    switch (type)
                     {
-                        NodeEntry node = obj._node;
-                        string w = obj._weighted ? "" : "un";
-                        string w2 = obj._weighted ? "\nOne or more vertices may not be weighted correctly." : "";
-                        string n =  node._name != null ? node._name : node._id;
-
-                        Error = String.Format("There was a problem decoding {0}weighted primitives for the object {1}.{2}", w, n, w2);
-
-                        Say(String.Format("Decoding {0}weighted primitives for {1}...", w, n));
-
-                        obj.Initialize(model, shell);
+                        case ImportType.MDL0:
+                            MDL0BoneNode bone = new MDL0BoneNode();
+                            bone.Scale = new Vector3(1);
+                            bone.RecalcBindState();
+                            bone._name = "TopN";
+                            TempRootBone = bone;
+                            break;
                     }
+
+                foreach (ObjectInfo obj in _objects)
+                {
+                    NodeEntry node = obj._node;
+                    string w = obj._weighted ? "" : "un";
+                    string w2 = obj._weighted ? "\nOne or more vertices may not be weighted correctly." : "";
+                    string n = node._name != null ? node._name : node._id;
+
+                    Error = String.Format("There was a problem decoding {0}weighted primitives for the object {1}.{2}", w, n, w2);
+
+                    Say(String.Format("Decoding {0}weighted primitives for {1}...", w, n));
+
+                    obj.Initialize(model, shell);
                 }
 
                 switch (type)
                 {
                     case ImportType.MDL0:
-                        FinishMDL0((MDL0Node)model);
+                        MDL0Node mdl0 = (MDL0Node)model;
+                        if (TempRootBone != null)
+                        {
+                            mdl0._boneGroup._children.Add(TempRootBone);
+                            TempRootBone._parent = mdl0._boneGroup;
+                        }
+                        FinishMDL0(mdl0);
                         break;
                 }
             }
@@ -255,54 +277,6 @@ namespace BrawlLib.Modeling
             Error = null;
 
             return model;
-        }
-
-        private class ObjectInfo
-        {
-            public bool _weighted;
-            public GeometryEntry _g;
-            public Matrix _bindMatrix;
-            public SkinEntry _skin;
-            public InstanceEntry _inst;
-            public SceneEntry _scene;
-            public ResourceNode _parent;
-            public NodeEntry _node;
-
-            public ObjectInfo(
-                bool weighted,
-                GeometryEntry g,
-                Matrix bindMatrix,
-                SkinEntry skin,
-                SceneEntry scene,
-                InstanceEntry inst,
-                ResourceNode parent,
-                NodeEntry node)
-            {
-                _weighted = weighted;
-                _g = g;
-                _bindMatrix = bindMatrix;
-                _skin = skin;
-                _scene = scene;
-                _parent = parent;
-                _node = node;
-                _inst = inst;
-            }
-
-            public void Initialize(IModel model, DecoderShell shell)
-            {
-                PrimitiveManager m;
-                if (_weighted)
-                    m = DecodePrimitivesWeighted(_bindMatrix, _g, _skin, _scene, model.Influences, BoneType);
-                else
-                    m = DecodePrimitivesUnweighted(_bindMatrix, _g);
-
-                switch (ModelType)
-                {
-                    case ImportType.MDL0:
-                        CreateMDL0Object(_inst, _node, _parent, m, (MDL0Node)model, shell);
-                        break;
-                }
-            }
         }
 
         private void EnumNode(
@@ -387,8 +361,56 @@ namespace BrawlLib.Modeling
             }
         }
 
+        private class ObjectInfo
+        {
+            public bool _weighted;
+            public GeometryEntry _g;
+            public Matrix _bindMatrix;
+            public SkinEntry _skin;
+            public InstanceEntry _inst;
+            public SceneEntry _scene;
+            public ResourceNode _parent;
+            public NodeEntry _node;
+
+            public ObjectInfo(
+                bool weighted,
+                GeometryEntry g,
+                Matrix bindMatrix,
+                SkinEntry skin,
+                SceneEntry scene,
+                InstanceEntry inst,
+                ResourceNode parent,
+                NodeEntry node)
+            {
+                _weighted = weighted;
+                _g = g;
+                _bindMatrix = bindMatrix;
+                _skin = skin;
+                _scene = scene;
+                _parent = parent;
+                _node = node;
+                _inst = inst;
+            }
+
+            public void Initialize(IModel model, DecoderShell shell)
+            {
+                PrimitiveManager m;
+                if (_weighted)
+                    m = DecodePrimitivesWeighted(_bindMatrix, _g, _skin, _scene, model.Influences, BoneType);
+                else
+                    m = DecodePrimitivesUnweighted(_bindMatrix, _g);
+
+                switch (ModelType)
+                {
+                    case ImportType.MDL0:
+                        CreateMDL0Object(_inst, _node, _parent, m, (MDL0Node)model, shell);
+                        break;
+                }
+            }
+        }
+
         private static void CreateMDL0Object(
-            InstanceEntry inst, 
+            InstanceEntry inst,
             NodeEntry node,
             ResourceNode parent,
             PrimitiveManager manager,
@@ -399,16 +421,8 @@ namespace BrawlLib.Modeling
             {
                 Error = "There was a problem creating a new object for " + (node._name != null ? node._name : node._id);
 
-                int i = 0;
-                foreach (Vertex3 v in manager._vertices)
-                    v._index = i++;
-
                 MDL0ObjectNode poly = new MDL0ObjectNode() { _manager = manager };
                 poly._name = node._name != null ? node._name : node._id;
-
-                //Attach single-bind
-                if (parent != null && parent is MDL0BoneNode)
-                    poly.MatrixNode = (MDL0BoneNode)parent;
 
                 //Attach material
                 if (inst._material != null)
@@ -421,87 +435,84 @@ namespace BrawlLib.Modeling
 
                 model._numTriangles += poly._numFaces = manager._faceCount = manager._pointCount / 3;
                 model._numFacepoints += poly._numFacepoints = manager._pointCount;
-                
+
                 poly._parent = model._objGroup;
                 model._objList.Add(poly);
+
+                model.ApplyCHR(null, 0);
+
+                //Attach single-bind
+                if (parent != null && parent is MDL0BoneNode)
+                {
+                    MDL0BoneNode bone = (MDL0BoneNode)parent;
+                    foreach (Vertex3 v in poly.Vertices)
+                        v.Position *= bone.InverseBindMatrix;
+
+                    poly.MatrixNode = bone;
+                }
+                else if (model._boneList.Count == 0)
+                {
+                    Error = String.Format("There was a problem rigging {0} to a single bone.", poly._name);
+
+                    Box box = poly.GetBox();
+
+                    MDL0BoneNode bone = new MDL0BoneNode();
+                    bone.Scale = new Vector3(1);
+                    bone.Translation = (box.Max + box.Min) / 2;
+                    bone.RecalcBindState();
+
+                    bone._name = "TransN_" + poly.Name;
+
+                    foreach (Vertex3 v in poly.Vertices)
+                        v.Position *= bone.InverseBindMatrix;
+
+                    poly.MatrixNode = bone;
+                    bone.ReferenceCount++;
+
+                    TempRootBone._children.Add(bone);
+                    bone._parent = TempRootBone;
+                }
+                else
+                {
+                    Error = String.Format("There was a problem checking if {0} is rigged to a single bone.", poly._name);
+
+                    IMatrixNode mtxNode = null;
+                    bool singlebind = true;
+
+                    foreach (Vertex3 v in poly._manager._vertices)
+                        if (v.MatrixNode != null)
+                        {
+                            if (mtxNode == null)
+                                mtxNode = v.MatrixNode;
+
+                            if (v.MatrixNode != mtxNode)
+                            {
+                                singlebind = false;
+                                break;
+                            }
+                        }
+
+                    if (singlebind && poly._matrixNode == null)
+                    {
+                        //Increase reference count ahead of time for rebuild
+                        if (poly._manager._vertices[0].MatrixNode != null)
+                            poly._manager._vertices[0].MatrixNode.ReferenceCount++;
+
+                        foreach (Vertex3 v in poly._manager._vertices)
+                            if (v.MatrixNode != null)
+                                v.MatrixNode.ReferenceCount--;
+
+                        poly._nodeId = -2; //Continued on polygon rebuild
+                    }
+                }
             }
         }
 
         private void FinishMDL0(MDL0Node model)
         {
-            //If there are no bones, rig all objects to a single bind.
-            if (model._boneGroup._children.Count == 0)
+            if (model._matList.Count == 0 && model._objList.Count != 0)
             {
-                Error = "There was a problem rigging all objects to a single bone.";
-
-                for (int i = 0; i < 2; i++)
-                {
-                    MDL0BoneNode bone = new MDL0BoneNode();
-                    bone.Scale = new Vector3(1);
-
-                    bone._bindMatrix =
-                    bone._inverseBindMatrix =
-                    Matrix.Identity;
-
-                    switch (i)
-                    {
-                        case 0:
-                            bone._name = "TopN";
-                            model._boneGroup._children.Add(bone);
-                            bone._parent = model._boneGroup;
-                            break;
-                        case 1:
-                            bone._name = "TransN";
-                            model._boneGroup._children[0]._children.Add(bone);
-                            bone._parent = model._boneGroup._children[0];
-                            bone.ReferenceCount = model._objList.Count;
-                            break;
-                    }
-                }
-                if (model._objList != null && model._objList.Count != 0)
-                    foreach (MDL0ObjectNode poly in model._objList)
-                    {
-                        poly._nodeId = 0;
-                        poly.MatrixNode = (MDL0BoneNode)model._boneGroup._children[0]._children[0];
-                    }
-            }
-            else
-            {
-                Error = "There was a problem checking if objects are rigged to a single bone.";
-
-                //Check each polygon to see if it can be rigged to a single influence
-                if (model._objList != null && model._objList.Count != 0)
-                    foreach (MDL0ObjectNode p in model._objList)
-                    {
-                        IMatrixNode node = null;
-                        bool singlebind = true;
-
-                        foreach (Vertex3 v in p._manager._vertices)
-                            if (v._matrixNode != null)
-                            {
-                                if (node == null)
-                                    node = v._matrixNode;
-
-                                if (v._matrixNode != node)
-                                {
-                                    singlebind = false;
-                                    break;
-                                }
-                            }
-
-                        if (singlebind && p._matrixNode == null)
-                        {
-                            //Increase reference count ahead of time for rebuild
-                            if (p._manager._vertices[0]._matrixNode != null)
-                                p._manager._vertices[0]._matrixNode.ReferenceCount++;
-
-                            foreach (Vertex3 v in p._manager._vertices)
-                                if (v._matrixNode != null)
-                                    v._matrixNode.ReferenceCount--;
-
-                            p._nodeId = -2; //Continued on polygon rebuild
-                        }
-                    }
+                //TODO: Add a default material
             }
 
             Error = "There was a problem removing original color buffers.";

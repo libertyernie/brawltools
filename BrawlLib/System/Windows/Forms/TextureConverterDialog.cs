@@ -32,9 +32,9 @@ namespace System.Windows.Forms
 		[Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
 		public WiiPixelFormat? InitialFormat;
 
-        private BRESNode _bresParent;
+        private BRRESNode _bresParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public BRESNode BRESParentNode { get { return _bresParent; } }
+        public BRRESNode BRESParentNode { get { return _bresParent; } }
         private TPLNode _tplParent;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public TPLNode TPLParentNode { get { return _tplParent; } }
@@ -94,7 +94,7 @@ namespace System.Windows.Forms
             cboAlgorithm.SelectedItem = QuantizationAlgorithm.MedianCut;
         }
 
-        public DialogResult ShowDialog(IWin32Window owner, BRESNode parent)
+        public DialogResult ShowDialog(IWin32Window owner, BRRESNode parent)
         {
             _bresParent = parent;
             _origTEX0 = null;
@@ -608,7 +608,7 @@ namespace System.Windows.Forms
                     }
                     else
                     {
-                        _bresParent = _origTEX0.Parent.Parent as BRESNode;
+                        _bresParent = _origTEX0.Parent.Parent as BRRESNode;
                         _origPLT0 = _bresParent.CreateResource<PLT0Node>(_origTEX0.Name);
                         _origPLT0.Name = _origTEX0.Name;
                         _origPLT0.ReplaceRaw(_paletteData);
@@ -1252,14 +1252,25 @@ namespace System.Windows.Forms
 
         private void btnApplyDims_Click(object sender, EventArgs e)
         {
-            _updating = true;
             int w = (int)Math.Round(numW.Value, 0);
             int h = (int)Math.Round(numH.Value, 0);
+            ResizeImage(w, h);
+        }
+
+        public event Action<int, int> Resized;
+
+        public void ResizeImage(int w, int h)
+        {
+            _updating = true;
             if (w == _base.Width && h == _base.Height)
                 Source = _base;
             else
                 Source = ResizeImage(_base, w, h);
             UpdatePreview();
+
+            if (Resized != null)
+                Resized(w, h);
+
             _updating = false;
         }
 

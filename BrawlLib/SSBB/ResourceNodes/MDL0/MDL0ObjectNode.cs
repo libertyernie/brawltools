@@ -394,7 +394,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     foreach (Vertex3 v in _manager._vertices)
                     {
-                        v._position *= ((MDL0BoneNode)value).InverseMatrix;
+                        v.Position *= ((MDL0BoneNode)value).InverseMatrix;
                         //v._normal *= ((MDL0BoneNode)value).InverseMatrix.GetRotationMatrix();
                     }
                     SetEditedVertices();
@@ -404,7 +404,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     foreach (Vertex3 v in _manager._vertices)
                     {
-                        v._position *= ((MDL0BoneNode)_matrixNode).Matrix;
+                        v.Position *= ((MDL0BoneNode)_matrixNode).Matrix;
                         //v._normal *= ((MDL0BoneNode)_matrixNode).Matrix.GetRotationMatrix();
                     }
                     SetEditedVertices();
@@ -680,10 +680,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 if (_manager._vertices != null)
                     foreach (Vertex3 v in _manager._vertices)
-                    {
-                        v._index = i++;
-                        v._parent = this;
-                    }
+                        v.Parent = this;
             }
 
             //Read internal object node cache and read influence list
@@ -821,8 +818,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Create node table
             HashSet<int> nodes = new HashSet<int>();
             foreach (Vertex3 v in _manager._vertices)
-                if (v._matrixNode != null)
-                    nodes.Add(v._matrixNode.NodeIndex);
+                if (v.MatrixNode != null)
+                    nodes.Add(v.MatrixNode.NodeIndex);
 
             //Copy to array and sort
             _nodeCache = new int[nodes.Count];
@@ -844,8 +841,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         if (first)
                         {
-                            if (v._matrixNode != null)
-                                MatrixNode = model._linker.NodeCache[v._matrixNode.NodeIndex];
+                            if (v.MatrixNode != null)
+                                MatrixNode = model._linker.NodeCache[v.MatrixNode.NodeIndex];
 
                             first = false;
                         }
@@ -1072,9 +1069,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public bool Attached { get { return _attached; } set { _attached = value; } }
         public bool _attached = false;
-
-        [Browsable(false)]
-        public PrimitiveManager PrimitiveManager { get { return _manager; } }
 
         public Box GetBox()
         {
@@ -1437,7 +1431,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 Vertex3 vec = _manager._vertices[i];
                 //if (vec._moved)
-                    _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.UnweightPos(vec._weightedPosition);
+                _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.GetInvMatrix() * vec.WeightedPosition;
             }
 
             _vertexNode.ForceRebuild = true; 
@@ -1463,7 +1457,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 Vertex3 vec = _manager._vertices[i];
                 //if (vec._moved)
-                    _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec._position;
+                    _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.Position;
             }
             
             _vertexNode.ForceRebuild = true;
@@ -1539,10 +1533,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (_manager != null)
                 foreach (Vertex3 v in _manager._vertices)
-                    if (v._matrixNode != null)
+                    if (v.MatrixNode != null)
                     {
-                        v._matrixNode.Users.Remove(v);
-                        v._matrixNode.ReferenceCount--;
+                        v.MatrixNode.Users.Remove(v);
+                        v.MatrixNode.ReferenceCount--;
                     }
 
             base.Remove();

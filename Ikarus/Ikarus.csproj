@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
@@ -10,14 +10,29 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Ikarus</RootNamespace>
     <AssemblyName>Ikarus</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <TargetFrameworkProfile>
     </TargetFrameworkProfile>
     <FileAlignment>512</FileAlignment>
     <ExpressionBlendVersion>5.0.40218.0</ExpressionBlendVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -26,18 +41,18 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <PlatformTarget>x86</PlatformTarget>
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
-    <Optimize>false</Optimize>
+    <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Prefer32Bit>false</Prefer32Bit>
+    <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -52,6 +67,38 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>Untitled-1.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == '_DEBUG|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\_DEBUG\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
@@ -71,8 +118,29 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Moveset Builder\BuilderBase.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk7.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\Unk12.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part3.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part2.cs" />
+    <Compile Include="Moveset Builder\DataCommon\Part1.cs" />
+    <Compile Include="Moveset Builder\Data\Part7.cs" />
+    <Compile Include="Moveset Builder\Data\Part6.cs" />
+    <Compile Include="Moveset Builder\Data\Part5.cs" />
+    <Compile Include="Moveset Builder\Data\Part4.cs" />
+    <Compile Include="Moveset Builder\Data\Part3.cs" />
+    <Compile Include="Moveset Builder\Data\Part2.cs" />
+    <Compile Include="Moveset Builder\Data\Part1.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscSoundData.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscCrawl.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscGlide.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscMultiJump.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscFinalSmashAura.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscLedgeGrab.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscHurtbox.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscUnk10.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscTether.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscUnk7.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscUnk12.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnLegBonesNode.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnUnknown11Node.cs" />
     <Compile Include="Moveset Entries\MovesetNode.cs" />
     <Compile Include="Moveset Entries\Scripts\Script.cs" />
     <Compile Include="Moveset Entries\Scripts\Event.cs" />
@@ -93,8 +161,8 @@
       <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Moveset Entries\CharacterSpecific.cs" />
-    <Compile Include="Moveset Entries\DataCommonSection.cs" />
-    <Compile Include="Moveset Entries\Common Nodes\PatternPowerMul.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\DataCommonSection.cs" />
+    <Compile Include="Moveset Entries\DataCommon Nodes\CmnPatternPowerMulNode.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionFlags.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionInterrupts.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionOverrides.cs" />
@@ -103,7 +171,7 @@
     <Compile Include="Moveset Entries\Data Nodes\AttributeList.cs" />
     <Compile Include="Moveset Entries\Data Nodes\BoneReferences2.cs" />
     <Compile Include="Moveset Entries\Data Nodes\CollisionData.cs" />
-    <Compile Include="Moveset Entries\DataSection.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\DataSection.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ItemAnchor.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Miscellaneous.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ModelVisibility.cs" />
@@ -166,8 +234,8 @@
     </Compile>
     <Compile Include="UI\SyntaxTextBox\Win32.cs" />
     <Compile Include="Utilities.cs" />
-    <Compile Include="Moveset Builder\DataCommonBuilder.cs" />
-    <Compile Include="Moveset Builder\DataBuilder.cs" />
+    <Compile Include="Moveset Builder\DataCommon\DataCommonBuilder.cs" />
+    <Compile Include="Moveset Builder\Data\DataBuilder.cs" />
     <Compile Include="Structs\ExtraDataOffsets.cs" />
     <Compile Include="Structs\FighterDefinition.cs" />
     <Compile Include="UI\Controls\ArticleAttributeGrid.cs">
@@ -222,7 +290,7 @@
     <Compile Include="UI\MainForm.designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <None Include="Moveset Builder\MoveDefStringTables.cs" />
+    <Compile Include="Moveset Builder\MoveDefStringTables.cs" />
     <Compile Include="WiimoteLib\DataTypes.cs" />
     <Compile Include="WiimoteLib\Events.cs" />
     <Compile Include="WiimoteLib\HIDImports.cs" />
@@ -342,12 +410,35 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Moveset Builder\DataCommon\notes.txt" />
+    <Content Include="Moveset Builder\Data\notes.txt" />
     <Content Include="OpenTK.dll" />
     <None Include="Resources\splash.png" />
     <Content Include="Untitled-1.ico" />
     <Content Include="WiimoteLib.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <BootstrapperPackage Include=".NETFramework,Version=v4.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft .NET Framework 4 %28x86 and x64%29</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.4.5">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 4.5</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

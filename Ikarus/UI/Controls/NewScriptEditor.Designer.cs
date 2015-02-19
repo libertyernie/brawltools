@@ -30,6 +30,7 @@
         {
             this.pnlIntel = new System.Windows.Forms.Panel();
             this.intelBox = new System.Windows.Forms.ListBox();
+            this.txtDescription = new System.Windows.Forms.RichTextBox();
             this.textBox = new UrielGuy.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox();
             this.pnlIntel.SuspendLayout();
             this.SuspendLayout();
@@ -59,6 +60,19 @@
             this.intelBox.DoubleClick += new System.EventHandler(this.intelBox_DoubleClick);
             this.intelBox.MouseDown += new System.Windows.Forms.MouseEventHandler(this.intelBox_MouseDown);
             // 
+            // txtDescription
+            // 
+            this.txtDescription.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.txtDescription.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.txtDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.txtDescription.ForeColor = System.Drawing.Color.Black;
+            this.txtDescription.Location = new System.Drawing.Point(0, 216);
+            this.txtDescription.Margin = new System.Windows.Forms.Padding(0);
+            this.txtDescription.Name = "txtDescription";
+            this.txtDescription.Size = new System.Drawing.Size(301, 59);
+            this.txtDescription.TabIndex = 6;
+            this.txtDescription.Text = "";
+            // 
             // textBox
             // 
             this.textBox.AutoWordSelection = true;
@@ -68,7 +82,7 @@
             this.textBox.Font = new System.Drawing.Font("Consolas", 10F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.textBox.Location = new System.Drawing.Point(0, 0);
             this.textBox.Name = "textBox";
-            this.textBox.Size = new System.Drawing.Size(301, 197);
+            this.textBox.Size = new System.Drawing.Size(301, 216);
             this.textBox.TabIndex = 5;
             this.textBox.Text = "";
             this.textBox.WordWrap = false;
@@ -82,8 +96,9 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.pnlIntel);
             this.Controls.Add(this.textBox);
+            this.Controls.Add(this.txtDescription);
             this.Name = "NewScriptEditor";
-            this.Size = new System.Drawing.Size(301, 197);
+            this.Size = new System.Drawing.Size(301, 275);
             this.pnlIntel.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -94,5 +109,6 @@
         private System.Windows.Forms.Panel pnlIntel;
         private System.Windows.Forms.ListBox intelBox;
         private UrielGuy.SyntaxHighlightingTextBox.SyntaxHighlightingTextBox textBox;
+        private RichTextBox txtDescription;
     }
 }

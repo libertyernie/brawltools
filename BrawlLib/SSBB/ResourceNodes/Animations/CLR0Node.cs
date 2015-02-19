@@ -118,7 +118,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (CLR0MaterialNode n in Children)
                 offset += n.Children.Count * 8;
 
-            ABGRPixel* pData = (ABGRPixel*)((VoidPtr)pMat + offset);
+            RGBAPixel* pData = (RGBAPixel*)((VoidPtr)pMat + offset);
 
             ResourceGroup* group;
             if (_version == 4)
@@ -149,12 +149,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     newFlags |= ((uint)((1 + (e._constant ? 2 : 0)) & 3) << ((int)e._target * 2));
                     if (e._numEntries == 0)
-                        *pMatEntry = new CLR0MaterialEntry((ABGRPixel)e._colorMask, (ABGRPixel)e._solidColor);
+                        *pMatEntry = new CLR0MaterialEntry((RGBAPixel)e._colorMask, (RGBAPixel)e._solidColor);
                     else
                     {
-                        *pMatEntry = new CLR0MaterialEntry((ABGRPixel)e._colorMask, (int)pData - (int)((VoidPtr)pMatEntry + 4));
+                        *pMatEntry = new CLR0MaterialEntry((RGBAPixel)e._colorMask, (int)pData - (int)((VoidPtr)pMatEntry + 4));
                         foreach (ARGBPixel p in e._colors)
-                            *pData++ = (ABGRPixel)p;
+                            *pData++ = (RGBAPixel)p;
                     }
                     pMatEntry++;
                     e._changed = false;
@@ -348,6 +348,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         MakeSolid(_solidColor);
                     else
                         MakeList();
+                    UpdateCurrentControl();
                 }
             } 
         }
@@ -415,7 +416,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
             {
                 _numEntries = ((CLR0Node)Parent.Parent)._numFrames;
-                ABGRPixel* data = Header->Data;
+                RGBAPixel* data = Header->Data;
                 for (int i = 0; i < _numEntries; i++)
                     _colors.Add((ARGBPixel)(*data++));
             }

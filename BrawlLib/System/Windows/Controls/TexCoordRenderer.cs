@@ -17,85 +17,238 @@ namespace System.Windows.Forms
 {
     public unsafe partial class TexCoordRenderer : GLPanel
     {
-        public TexCoordRenderer() { InitializeComponent(); }
+        public TexCoordRenderer()
+        {
+            InitializeComponent();
+            _camera = new GLCamera();
+        }
+
+        public GLCamera _camera;
+        public float _fovY = 45.0f, _nearZ = 1.0f, _farZ = 200000.0f, _aspect;
+        public Matrix _projectionMatrix;
+        public Matrix _projectionInverse;
+
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ProjectionChanged { get { return _projectionChanged; } set { _projectionChanged = value; } }
+        protected bool _projectionChanged = true;
 
         internal bool _updating = false;
         Vector2 _topLeft = new Vector2();
         Vector2 _bottomRight = new Vector2();
         List<ResourceNode> _attached;
-        MDL0TextureNode _currentTextureNode = null;
+        MDL0MaterialRefNode _targetMatRef = null;
         bool _remapPoints = false;
         float[] _points = new float[8];
         List<RenderInfo> _renderInfo;
-        List<int> _uvSetIndices;
+        List<int> _uvSetIndices, _objIndices;
+        public int _uvIndex = -1, _objIndex = -1;
 
         public BindingList<string> UVSetNames { get { return _uvSetNames; } }
         BindingList<string> _uvSetNames = new BindingList<string>();
+        public BindingList<string> ObjectNames { get { return _objNames; } }
+        BindingList<string> _objNames = new BindingList<string>();
 
-        public MDL0TextureNode TargetNode
+        protected override void OnContextChanged(bool isNowCurrent)
         {
-            get { return _currentTextureNode; }
+            if (isNowCurrent)
+                UpdateProjection();
+
+            base.OnContextChanged(isNowCurrent);
+        }
+
+        public MDL0MaterialRefNode TargetNode
+        {
+            get { return _targetMatRef; }
             set { SetTarget(value); }
         }
 
-        private void SetTarget(MDL0TextureNode texture)
+        private void SetTarget(MDL0MaterialRefNode texture)
         {
             _camera.Reset();
-            _currentTextureNode = texture;
 
             if (_attached == null)
                 _attached = new List<ResourceNode>();
-            else
-            {
-                foreach (MDL0MaterialRefNode m in _attached)
-                    m.Unbind();
-                _attached.Clear();
-            }
 
-            if (_currentTextureNode == null)
+            if (_targetMatRef != null)
+                _targetMatRef.Unbind();
+            _targetMatRef = texture;
+            _attached.Clear();
+            if (_targetMatRef == null)
                 return;
 
-            _attached.Clear();
-            _attached.AddRange(_currentTextureNode._references);
-
-            foreach (MDL0MaterialRefNode m in _attached)
-                m.Bind(-1);
+            _attached.Add(_targetMatRef);
+            _targetMatRef.Bind(-1);
 
             if (_renderInfo != null)
                 foreach (RenderInfo info in _renderInfo)
                     if (info._renderBuffer != null)
                         info._renderBuffer.Dispose();
 
-            _renderInfo = new List<RenderInfo>();
+            _objIndices = new List<int>();
             _uvSetIndices = new List<int>();
-            foreach (MDL0MaterialRefNode m in _attached)
-            {
-                foreach (MDL0ObjectNode obj in m.Material.Objects)
-                {
-                    bool[] ignore = new bool[8];
-                    int x = 0;
-                    foreach (MDL0UVNode o in obj._uvSet)
-                        if (o != null && !_uvSetIndices.Contains(o.Index))
-                        {
-                            _uvSetIndices.Add(o.Index);
-                            ignore[x++] = false;
-                        }
-                        else
-                            ignore[x++] = true;
+            _renderInfo = new List<RenderInfo>();
+            _objNames.Clear();
+            _uvSetNames.Clear();
 
-                    _renderInfo.Add(new RenderInfo(this, obj._manager, ignore));
-                }
+            int coordID = _targetMatRef.TextureCoordId;
+            if (coordID < 0)
+            {
+                _objNames.Add("None");
+                _uvSetNames.Add("None");
+                Invalidate();
+                return;
             }
 
-            MDL0Node model = _currentTextureNode.Model;
-            if (model != null && model._uvList != null)
+            if (_targetMatRef.Material.Objects.Length > 1)
+                _objNames.Add("All");
+
+            foreach (MDL0ObjectNode obj in _targetMatRef.Material.Objects)
             {
-                _uvSetNames = new BindingList<string>();
+                int x = 0;
+                _objNames.Add(obj.Name);
+                bool[] enabled = new bool[8];
+                foreach (MDL0UVNode uv in obj._uvSet)
+                {
+                    if (uv != null)
+                    {
+                        int index = uv.Index;
+                        if (!_uvSetIndices.Contains(index))
+                            _uvSetIndices.Add(index);
+                        enabled[x] = true;
+                    }
+                    x++;
+                }
+                _renderInfo.Add(new RenderInfo(this, obj._manager) { _enabled = enabled });
+            }
+
+            MDL0Node model = _targetMatRef.Model;
+            _uvSetNames.Add(_uvSetIndices.Count == 1 ? model._uvList[_uvSetIndices[0]].Name : "All");
+            if (model != null && model._uvList != null && _uvSetIndices.Count != 1)
                 foreach (int i in _uvSetIndices)
                     _uvSetNames.Add(model._uvList[i].Name);
-            }
 
+            //SetUVIndex(coordID);
             Invalidate();
+        }
+
+        public event EventHandler UVIndexChanged, ObjIndexChanged;
+
+        public void SetUVIndex(int index)
+        {
+            if (index >= 0)
+            {
+                _uvIndex = index.Clamp(0, _uvSetNames.Count - 1);
+                if (_objIndex >= 0)
+                {
+                    RenderInfo i = _renderInfo[_objIndex];
+                    i._isEnabled = true;
+                    i._enabled = new bool[8];
+                    i._enabled[_uvIndex] = true;
+                }
+                else
+                    foreach (RenderInfo i in _renderInfo)
+                    {
+                        i._isEnabled = true;
+                        i._enabled = new bool[8];
+                        i._enabled[_uvIndex] = true;
+                    }
+            }
+            else
+            {
+                _uvIndex = -1;
+                if (_objIndex >= 0)
+                {
+                    RenderInfo i = _renderInfo[_objIndex];
+                    i._isEnabled = false;
+                    i._enabled = new bool[8];
+                    for (int x = 4; x < 12; x++)
+                        if (i._manager._faceData[x] != null)
+                        {
+                            i._enabled[x - 4] = true;
+                            i._isEnabled = true;
+                        }
+                }
+                else
+                    foreach (RenderInfo i in _renderInfo)
+                    {
+                        i._enabled = new bool[8];
+                        i._isEnabled = false;
+                        for (int x = 4; x < 12; x++)
+                            if (i._manager._faceData[x] != null)
+                            {
+                                i._enabled[x - 4] = true;
+                                i._isEnabled = true;
+                            }
+                    }
+            }
+            //if (UVIndexChanged != null)
+            //    UVIndexChanged(this, EventArgs.Empty);
+            Invalidate();
+        }
+
+        public void SetObjectIndex(int index)
+        {
+            if (index >= 0)
+            {
+                _objIndex = index.Clamp(0, _objNames.Count - 1);
+
+                int u = 0;
+                bool[] enabled = new bool[8];
+                _uvSetIndices = new List<int>();
+                MDL0ObjectNode obj = _targetMatRef.Material.Objects[index];
+                foreach (MDL0UVNode o in obj._uvSet)
+                {
+                    if (o != null)
+                    {
+                        int r = o.Index;
+                        if (!_uvSetIndices.Contains(r))
+                            _uvSetIndices.Add(r);
+                        enabled[u] = true;
+                    }
+                    u++;
+                }
+
+                int x = 0;
+                foreach (RenderInfo i in _renderInfo)
+                    if (i._isEnabled = (x++ == index))
+                        i._enabled = enabled;
+            }
+            else
+            {
+                _objIndex = -1;
+                foreach (MDL0ObjectNode obj in _targetMatRef.Material.Objects)
+                    foreach (MDL0UVNode uv in obj._uvSet)
+                        if (uv != null)
+                        {
+                            int c = uv.Index;
+                            if (!_uvSetIndices.Contains(c))
+                                _uvSetIndices.Add(c);
+                        }
+
+                foreach (RenderInfo i in _renderInfo)
+                {
+                    i._isEnabled = true;
+                    i._enabled = new bool[8];
+                    for (int x = 4; x < 12; x++)
+                        if (i._manager._faceData[x] != null)
+                            i._enabled[x - 4] = true;
+                }
+            }
+            MDL0Node model = _targetMatRef.Model;
+            string name = null;
+            if (_uvSetNames.Count > 0 && _uvIndex >= 0 && _uvIndex < _uvSetNames.Count)
+                name = _uvSetNames[_uvIndex];
+
+            _uvSetNames.Clear();
+            _uvSetNames.Add(_uvSetIndices.Count == 1 ? model._uvList[_uvSetIndices[0]].Name : "All");
+            if (model != null && model._uvList != null && _uvSetIndices.Count != 1)
+                foreach (int i in _uvSetIndices)
+                    _uvSetNames.Add(model._uvList[i].Name);
+
+            //if (ObjIndexChanged != null)
+            //    ObjIndexChanged(this, EventArgs.Empty);
+
+            SetUVIndex(name != null ? _uvSetNames.IndexOf(name) : -1);
         }
 
         unsafe internal override void OnInit(TKContext ctx)
@@ -112,7 +265,7 @@ namespace System.Windows.Forms
             UpdateProjection();
         }
 
-        protected override void CalculateProjection()
+        protected void CalculateProjection()
         {
             _projectionMatrix = Matrix.OrthographicMatrix(-0.5f, 0.5f, -0.5f, 0.5f, -0.1f, 1.0f);
             _projectionInverse = Matrix.ReverseOrthographicMatrix(-0.5f, 0.5f, -0.5f, 0.5f, -0.1f, 1.0f);
@@ -175,18 +328,54 @@ namespace System.Windows.Forms
 
         Vector2 _start, _scale;
 
-        protected internal unsafe override void OnRender(PaintEventArgs e)
+        protected override void OnResize(EventArgs e)
+        {
+            _projectionChanged = true;
+            if (_ctx != null)
+                _ctx.Update();
+            _aspect = (float)Width / Height;
+            UpdateProjection();
+            Invalidate();
+        }
+
+        public void UpdateProjection()
+        {
+            if (_ctx == null)
+                return;
+            CalculateProjection();
+            Capture();
+            GL.Viewport(ClientRectangle);
+            GL.MatrixMode(MatrixMode.Projection);
+            fixed (Matrix* p = &_projectionMatrix)
+                GL.LoadMatrix((float*)p);
+        }
+
+        protected override void OnRender(PaintEventArgs e)
         {
             BeforeRender();
 
+            //Set projection
+            if (_projectionChanged)
+            {
+                UpdateProjection();
+                _projectionChanged = false;
+            }
+            //Apply camera
+            if (_camera != null)
+                fixed (Matrix* p = &_camera._matrix)
+                {
+                    GL.MatrixMode(MatrixMode.Modelview);
+                    GL.LoadMatrix((float*)p);
+                }
+
             GL.Color4(Color.White);
 
-            if (_currentTextureNode == null || _attached.Count < 1)
+            if (_targetMatRef == null)
                 return;
-
-            _currentTextureNode.Prepare(_attached[0] as MDL0MaterialRefNode, -1);
-            GLTexture texture = _currentTextureNode.Texture;
-
+            _targetMatRef.Bind(-1);
+            if (_targetMatRef._texture == null)
+                return;
+            GLTexture texture = _targetMatRef._texture.Texture;
             if (texture == null || texture._texId <= 0)
                 return;
 
@@ -230,7 +419,7 @@ namespace System.Windows.Forms
             GL.End();
 
             GL.Disable(EnableCap.Texture2D);
-            GL.Color4(Color.Black);
+            GL.Color4(Color.LimeGreen);
 
             _topLeft = new Vector2(_points[0], _points[1]);
             _bottomRight = new Vector2(_points[4], _points[5]);
@@ -285,7 +474,7 @@ namespace System.Windows.Forms
 
                     Translate(
                         -xDiff * _transFactor * w * _camera._scale._x,
-                        -yDiff * _transFactor * h * _camera._scale._y, 
+                        -yDiff * _transFactor * h * _camera._scale._y,
                         0.0f);
                 }
 
@@ -397,33 +586,37 @@ namespace System.Windows.Forms
 
         private class RenderInfo
         {
-            public RenderInfo(TexCoordRenderer renderer, PrimitiveManager manager, bool[] ignored)
+            public RenderInfo(TexCoordRenderer renderer, PrimitiveManager manager)
             {
                 _renderer = renderer;
                 _manager = manager;
                 for (int i = 0; i < 8; i++)
                     _enabled[i] = true;
-                _ignored = ignored;
+                _isEnabled = true;
             }
 
-            int _stride;
-            PrimitiveManager _manager;
-            internal UnsafeBuffer _renderBuffer = null;
-            bool[] _dirty = new bool[8];
-            bool[] _enabled = new bool[8];
+            public bool _isEnabled;
+            public int _stride;
+            public PrimitiveManager _manager;
+            public UnsafeBuffer _renderBuffer = null;
+            public bool[] _dirty = new bool[8];
+            public bool[] _enabled = new bool[8];
             TexCoordRenderer _renderer;
-            bool[] _ignored;
 
             public void CalcStride()
             {
                 _stride = 0;
-                for (int i = 0; i < 8; i++)
-                    if (_manager._faceData[i + 4] != null && _enabled[i] && !_ignored[i])
-                        _stride += 8;
+                if (_isEnabled)
+                    for (int i = 0; i < 8; i++)
+                        if (_manager._faceData[i + 4] != null && _enabled[i])
+                            _stride += 8;
             }
 
             public unsafe void PrepareStream()
             {
+                if (!_isEnabled)
+                    return;
+
                 CalcStride();
                 int bufferSize = _manager._pointCount * _stride;
 
@@ -433,12 +626,14 @@ namespace System.Windows.Forms
                     _renderBuffer = null;
                 }
 
+                if (bufferSize <= 0)
+                    return;
+
                 if (_renderBuffer == null)
                 {
                     _renderBuffer = new UnsafeBuffer(bufferSize);
                     for (int i = 0; i < 8; i++)
-                        if (!_ignored[i])
-                            _dirty[i] = true;
+                        _dirty[i] = true;
                 }
 
                 for (int i = 0; i < 8; i++)
@@ -449,7 +644,7 @@ namespace System.Windows.Forms
 
                 byte* pData = (byte*)_renderBuffer.Address;
                 for (int i = 4; i < _manager._faceData.Length; i++)
-                    if (_manager._faceData[i] != null)
+                    if (_manager._faceData[i] != null && _enabled[i - 4])
                     {
                         GL.VertexPointer(2, VertexPointerType.Float, _stride, (IntPtr)pData);
                         pData += 8;
@@ -465,7 +660,7 @@ namespace System.Windows.Forms
             {
                 _dirty[index] = false;
 
-                if (_manager._faceData[index + 4] == null || _ignored[index])
+                if (_manager._faceData[index + 4] == null)
                     return;
 
                 //Set starting address
