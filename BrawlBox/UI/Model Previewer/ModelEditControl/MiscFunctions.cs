@@ -266,32 +266,23 @@ namespace System.Windows.Forms
         protected override void UpdateSRT0FocusControls(SRT0Node node) { leftPanel.UpdateSRT0Selection(node); }
         protected override void UpdatePAT0FocusControls(PAT0Node node) { leftPanel.UpdatePAT0Selection(node); }
 
+        protected override unsafe void modelPanel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            base.modelPanel1_MouseMove(sender, e);
+
+            if (_translating && VertexLoc() == null && SelectedBone != null && SnapBonesToCollisions)
+                SnapYIfClose();
+        }
+
         protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == Forms.MouseButtons.Left)
-            {
-                ModelPanel.CurrentViewport.AllowSelection = true;
-
-                if (_rotating || _translating || _scaling)
-                    if (VertexLoc() == null)
-                    {
-                        BoneChange(SelectedBone);
-                        if (SnapBonesToCollisions)
-                            SnapYIfClose();
-                    }
-                    else
-                        VertexChange(_selectedVertices);
-
-                _snapX = _snapY = _snapZ = _snapCirc = false;
-                _rotating = _translating = _scaling = false;
-
+            base.modelPanel1_MouseUp(sender, e);
 #if DEBUG
-                if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
-                    weightEditor.TargetVertices = _selectedVertices;
+            if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
+                weightEditor.TargetVertices = _selectedVertices;
 #endif
-                if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
-                    vertexEditor.TargetVertices = _selectedVertices;
-            }
+            if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
+                vertexEditor.TargetVertices = _selectedVertices;
         }
 
         public override void ApplyVIS0ToInterface()
