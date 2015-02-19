@@ -26,7 +26,7 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
 
-            GL.Enable(EnableCap.PointSmooth);
+            //GL.Enable(EnableCap.PointSmooth);
             if (vp._renderAttrib._renderVertices)
                 OnRenderVertices(vp);
             if (vp._renderAttrib._renderNormals)
