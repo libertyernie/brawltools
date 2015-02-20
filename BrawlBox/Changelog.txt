@@ -1,5 +1,5 @@
 
-BrawlBox Data Viewer - Version 0.74b
+BrawlBox Data Viewer - Version 0.75
 Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
@@ -14,9 +14,43 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.74c (??/??/2015) - BrawlLib v0.21c
+ - v0.75 (2/19/2015) - BrawlLib v0.22
+ 	. Added support for multiple viewports in the model viewer! Go to View -> Viewport -> Add New Viewport and try it out!
+	. Added support for changing the current viewport's projection under View -> Viewport -> Projection
+	. Moved all settings into the one settings dialog, found under "Options -> Settings"
+	. Added support for editing the current or default camera precisely in the settings dialog
 	. Fixed bug where MDL0 material blend mode values were read and written incorrectly
 	. Fixed bug in model viewer where setting an SRT0's matrix mode via the animation's right click menu didn't actually set it
+	. Fixed bug encoding SRT0 keyframes
+	. Fixed bug writing SHP0 vertex set target names
+	. Fixed bug where framecount would be set wrong on a looped and interpolated animation in the model viewer
+	. Fixed bug that occured when changing if an animation looped or not in the viewer and then trying to view the loop frame
+	. Fixed bug when selecting an animation that has less than 2 frames when the previous animation looped
+	. Fixed bug where selecting a radio button in an attribute grid without having a cell selected caused an error
+	. Fixed bug where textures being read by the live texture folder tool in the model viewer were "in use" and could not be saved over again
+	. Fixed bug with frame count when creating a new interpolated animation node from scratch
+	. Fixed bug checking and unchecking bones in the model viewer
+	. Fixed bug with the model not updating when editing the bind state (frame 0) in the model viewer
+	. Fixed bug with the texture coordinate renderer where random lines would appear
+	. Fixed bug setting mini model previewer camera when highlighting a collision node
+	. Fixed several orthographic projection bugs, such as bone/vertex selection, billboard bones, transform tool scaling, and light recalculation
+	. Fixed bug setting the frame index in the interpolation editor
+	. Fixed bug dragging the last keyframe in the interpolation editor
+	. Fixed bug where vertex translations could not be undone
+	. Added checkboxes to bone tree view in the model viewer
+	. Added support for editing SCLA (no new entry adding yet - found in Brawl stages next to the STPM entry)
+	. Added animated GIF to PAT0 + textures converter. Right click BRRES -> Import -> Animated GIF
+	. Added support for setting BrawlBox as the default GCT editor so that you can double click a GCT to open it directly in the editor (Skips opening BrawlBox)
+	. Added support for opening GCT files directly from the File -> Open dialog or via command line (BrawlBox.exe /gct), (BrawlBox.exe /gct "<path>"), or (BrawlBox.exe "<path>.gct")
+	. Added hexadecimal color code textbox to color picker control
+	. Added helpful text that displays on the model viewer's animation playback panel to clarify if the last frame is the loop frame (this frame is not read by the game; it is used for interpolation)
+	. Updated color property grid editor to display before and after colors with alpha and okay/cancel buttons
+	. Updated the texture coordinate renderer to display lines in neon green (to stand out from the texture) and show object dropdown to change what coordinates are shown
+	. Updated color array editor right click menu paste to allow for pasting only color, only alpha, or both
+	. Updated splitters in the main BrawlBox window to update the controls as they are dragged
+	. Moved "Edit All Models" option from File -> Options -> Settings in the previous version to "Target Model -> Edit All".
+	. Updated Collada model importer to rig unrigged objects to their own bone located at the center of their mesh
+	. Updated "Snap bones to collisions" setting to snap while translating a bone instead of when the bone is released
 
  - v0.74b - BrawlLib v0.21b
 
