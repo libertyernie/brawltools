@@ -255,41 +255,50 @@ namespace System.Windows.Forms
         /// Applies animations to all models and invalidates the viewport.
         /// Also updates animation controls if not playing.
         /// </summary>
-        public virtual void UpdateModel()
+        public void UpdateModel() { UpdateModel(_animFrame); }
+        /// <summary>
+        /// Applies animations to all models and invalidates the viewport.
+        /// Also updates animation controls if not playing.
+        /// </summary>
+        public virtual void UpdateModel(float frame)
         {
             if (_updating)
                 return;
 
             if (EditingAll)
                 foreach (IModel n in _targetModels)
-                    UpdateModel(n);
+                    UpdateModel(n, frame);
             else if (TargetModel != null)
-                UpdateModel(TargetModel);
+                UpdateModel(TargetModel, frame);
 
             if (!_playing)
                 UpdatePropDisplay();
 
             ModelPanel.Invalidate();
         }
-        public virtual void UpdateModel(IModel model)
+        /// <summary>
+        /// Applies target animations to the given model at the given frame.
+        /// Does not update any controls.
+        /// </summary>
+        public virtual void UpdateModel(IModel model, float frame)
         {
             //TODO: support for applying more than one animation per type
 
-            model.ApplyCHR(PlayCHR0 ? _chr0 : null, _animFrame);
-            model.ApplySRT(PlaySRT0 ? _srt0 : null, _animFrame);
-            model.ApplySHP(PlaySHP0 ? _shp0 : null, _animFrame);
-            model.ApplyPAT(PlayPAT0 ? _pat0 : null, _animFrame);
-            model.ApplyCLR(PlayCLR0 ? _clr0 : null, _animFrame);
+            model.ApplyCHR(PlayCHR0 ? _chr0 : null, frame);
+            model.ApplySRT(PlaySRT0 ? _srt0 : null, frame);
+            model.ApplySHP(PlaySHP0 ? _shp0 : null, frame);
+            model.ApplyPAT(PlayPAT0 ? _pat0 : null, frame);
+            model.ApplyCLR(PlayCLR0 ? _clr0 : null, frame);
 
             if (_vis0 != null && PlayVIS0)
                 if (model == TargetModel)
                     ApplyVIS0ToInterface();
                 else
-                    model.ApplyVIS(_vis0, _animFrame);
+                    model.ApplyVIS(_vis0, frame);
             else
                 model.ApplyVIS(null, 0);
 
-            model.ApplySCN(PlaySCN0 ? _scn0 : null, _animFrame);
+            model.ApplySCN(PlaySCN0 ? _scn0 : null, frame);
         }
 
         public void UpdateKeyframePanel() { UpdateKeyframePanel(TargetAnimType); }
@@ -386,6 +395,8 @@ namespace System.Windows.Forms
                 _maxFrame = 0;
                 EnableTransformEdit = true;
 
+                _updating = true;
+
                 PlaybackPanel.numFrameIndex.Maximum = _maxFrame;
                 PlaybackPanel.numTotalFrames.Minimum = 0;
                 PlaybackPanel.numTotalFrames.Value = 0;
@@ -395,6 +406,8 @@ namespace System.Windows.Forms
                 PlaybackPanel.btnLast.Enabled =
                 PlaybackPanel.btnFirst.Enabled =
                 PlaybackPanel.Enabled = false;
+
+                _updating = false;
 
                 GetFiles(NW4RAnimType.None);
                 SetFrame(0);
@@ -406,13 +419,17 @@ namespace System.Windows.Forms
                 _maxFrame = node.FrameCount;
                 EnableTransformEdit = !_playing;
 
+                _updating = true;
+
                 PlaybackPanel.btnPlay.Enabled =
                 PlaybackPanel.numFrameIndex.Enabled =
                 PlaybackPanel.numTotalFrames.Enabled =
                 PlaybackPanel.Enabled = true;
-                PlaybackPanel.numTotalFrames.Value = (decimal)(_maxFrame + loopBias);
                 PlaybackPanel.numTotalFrames.Minimum = loopBias + 1;
+                PlaybackPanel.numTotalFrames.Value = (decimal)(_maxFrame + loopBias);
                 PlaybackPanel.numFrameIndex.Maximum = (decimal)(_maxFrame + loopBias);
+
+                _updating = false;
 
                 GetFiles(TargetAnimType);
                 SetFrame(1);

@@ -461,6 +461,7 @@ namespace System.Windows.Forms
             // 
             this.Controls.Add(this.grpTransAll);
             this.Controls.Add(this.grpTransform);
+            this.MinimumSize = new System.Drawing.Size(483, 78);
             this.Name = "SRT0Editor";
             this.Size = new System.Drawing.Size(483, 78);
             this.ctxBox.ResumeLayout(false);
@@ -660,6 +661,15 @@ namespace System.Windows.Forms
                         TexEntry.RemoveKeyframe(index, CurrentFrame - 1);
                     else
                         TexEntry.SetKeyframe(index, CurrentFrame - 1, box.Value);
+
+                if (_mainWindow.InterpolationEditor != null &&
+                    _mainWindow.InterpolationEditor.Visible &&
+                    _mainWindow.TargetAnimType == NW4RAnimType.SRT &&
+                    TargetTexRef != null &&
+                    SelectedAnimation != null &&
+                    CurrentFrame >= 1 &&
+                    _mainWindow.InterpolationEditor._targetNode != TexEntry)
+                    _mainWindow.InterpolationEditor.SetTarget(TexEntry);
             }
             else
             {
