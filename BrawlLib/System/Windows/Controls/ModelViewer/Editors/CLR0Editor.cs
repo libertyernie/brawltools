@@ -81,6 +81,7 @@ namespace System.Windows.Forms
             // 
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
+            this.MinimumSize = new System.Drawing.Size(256, 40);
             this.Name = "CLR0Editor";
             this.Size = new System.Drawing.Size(256, 40);
             this.panel1.ResumeLayout(false);

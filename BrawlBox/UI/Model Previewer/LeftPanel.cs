@@ -1567,18 +1567,22 @@ namespace System.Windows.Forms
             {
                 if (ModelEditControl.Interpolated.Contains(n.GetType()))
                 {
+                    _mainWindow.Updating = true;
                     bool loopPrev = n.Loop;
                     if ((n.Loop = chkLoop.Checked) != loopPrev)
                         if (n.Loop)
                         {
                             _mainWindow.PlaybackPanel.numTotalFrames.Value += 1;
                             _mainWindow.PlaybackPanel.numTotalFrames.Minimum = 2;
+                            _mainWindow.PlaybackPanel.numFrameIndex.Maximum += 1;
                         }
                         else
                         {
                             _mainWindow.PlaybackPanel.numTotalFrames.Value -= 1;
                             _mainWindow.PlaybackPanel.numTotalFrames.Minimum = 1;
+                            _mainWindow.PlaybackPanel.numFrameIndex.Maximum -= 1;
                         }
+                    _mainWindow.Updating = false;
                 }
                 else
                     n.Loop = chkLoop.Checked;

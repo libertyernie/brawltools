@@ -64,6 +64,7 @@
             this.comboUVs.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.comboUVs.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.comboUVs.Enabled = false;
             this.comboUVs.FormattingEnabled = true;
             this.comboUVs.Location = new System.Drawing.Point(144, 1);
             this.comboUVs.Name = "comboUVs";
@@ -74,12 +75,14 @@
             // btnExport
             // 
             this.btnExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnExport.Enabled = false;
             this.btnExport.Location = new System.Drawing.Point(270, -1);
             this.btnExport.Name = "btnExport";
             this.btnExport.Size = new System.Drawing.Size(109, 23);
             this.btnExport.TabIndex = 0;
             this.btnExport.Text = "Export As Image";
             this.btnExport.UseVisualStyleBackColor = true;
+            this.btnExport.Visible = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // texCoordRenderer1

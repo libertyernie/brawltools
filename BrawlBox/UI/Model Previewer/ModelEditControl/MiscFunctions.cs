@@ -103,50 +103,19 @@ namespace System.Windows.Forms
         public void CheckDimensions()
         {
             int totalWidth = animEditors.Width;
-            int w = animCtrlPnl.Width, h = animEditors.Height;
+            Size s = new Size(animCtrlPnl.Width, animEditors.Height);
             if (_currentControl != null && _currentControl.Visible)
             {
-                if (_currentControl is CHR0Editor)
-                {
-                    h = 78;
-                    w = 582;
-                }
-                else if (_currentControl is SRT0Editor)
-                {
-                    h = 78;
-                    w = 483;
-                }
-                else if (_currentControl is SHP0Editor)
-                {
-                    h = 106;
-                    w = 533;
-                }
-                else if (_currentControl is PAT0Editor)
-                {
-                    h = 78;
-                    w = 402;
-                }
-                else if (_currentControl is VIS0Editor)
-                {
-                    h = 62;
-                    w = 210;
-                }
-                else if (_currentControl is CLR0Editor)
-                {
-                    h = 62;
-                    w = 168;
-                }
-                else if (_currentControl is SCN0Editor)
-                    scn0Editor.GetDimensions(out h, out w);
-                else if (!weightEditor.Visible && !vertexEditor.Visible)
-                    w = h = 0;
+                s = _currentControl.Visible ?
+                    (_currentControl is SCN0Editor ? scn0Editor.GetDimensions() : _currentControl.MinimumSize) :
+                    (!weightEditor.Visible && !vertexEditor.Visible ? new Size(0, 0) : s);
             }
             else if (!weightEditor.Visible && !vertexEditor.Visible)
-                w = h = 0;
+                s = new Drawing.Size(0, 0);
 
             //See if the scroll bar needs to be visible
             int addedHeight = 0;
-            if (w + pnlPlayback.MinimumSize.Width > totalWidth)
+            if (s.Width + pnlPlayback.MinimumSize.Width > totalWidth)
             {
                 addedHeight = 17;
                 animEditors.HorizontalScroll.Visible = true;
@@ -155,10 +124,10 @@ namespace System.Windows.Forms
                 animEditors.HorizontalScroll.Visible = false;
 
             //Don't update the width and height every time, only if need be
-            if (animCtrlPnl.Width != w)
-                animCtrlPnl.Width = w;
-            if (animEditors.Height != h + addedHeight)
-                animEditors.Height = h + addedHeight;
+            if (animCtrlPnl.Width != s.Width)
+                animCtrlPnl.Width = s.Width;
+            if (animEditors.Height != s.Height + addedHeight)
+                animEditors.Height = s.Height + addedHeight;
 
             //Dock playback panel if it reaches its minimum size
             if (pnlPlayback.Width <= pnlPlayback.MinimumSize.Width)
@@ -224,10 +193,9 @@ namespace System.Windows.Forms
         {
             if (_currentControl is SCN0Editor)
             {
-                int x, z;
-                scn0Editor.GetDimensions(out x, out z);
-                animEditors.Height = x;
-                animCtrlPnl.Width = z;
+                Drawing.Size s = scn0Editor.GetDimensions();
+                animEditors.Height = s.Height;
+                animCtrlPnl.Width = s.Width;
             }
         }
 
@@ -266,25 +234,20 @@ namespace System.Windows.Forms
         protected override void UpdateSRT0FocusControls(SRT0Node node) { leftPanel.UpdateSRT0Selection(node); }
         protected override void UpdatePAT0FocusControls(PAT0Node node) { leftPanel.UpdatePAT0Selection(node); }
 
+        protected override unsafe void modelPanel1_MouseMove(object sender, MouseEventArgs e)
+        {
+            base.modelPanel1_MouseMove(sender, e);
+
+            if (_translating && VertexLoc() == null && SelectedBone != null && SnapBonesToCollisions)
+                SnapYIfClose();
+        }
+
         protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
+            base.modelPanel1_MouseUp(sender, e);
+
             if (e.Button == Forms.MouseButtons.Left)
             {
-                ModelPanel.CurrentViewport.AllowSelection = true;
-
-                if (_rotating || _translating || _scaling)
-                    if (VertexLoc() == null)
-                    {
-                        BoneChange(SelectedBone);
-                        if (SnapBonesToCollisions)
-                            SnapYIfClose();
-                    }
-                    else
-                        VertexChange(_selectedVertices);
-
-                _snapX = _snapY = _snapZ = _snapCirc = false;
-                _rotating = _translating = _scaling = false;
-
 #if DEBUG
                 if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
                     weightEditor.TargetVertices = _selectedVertices;

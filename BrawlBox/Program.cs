@@ -116,7 +116,7 @@ namespace BrawlBox
         {
             if (_rootNode != null)
             {
-                if ((_rootNode.IsDirty || _rootNode.CompressionHasChanged) && !force)
+                if (_rootNode.IsDirty && !force)
                 {
                     DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
                     if (((res == DialogResult.Yes) && (!Save())) || (res == DialogResult.Cancel))
@@ -219,7 +219,7 @@ namespace BrawlBox
                     return SaveAs();
 
                 bool force = Control.ModifierKeys == (Keys.Control | Keys.Shift);
-                if (!force && !_rootNode.IsDirty && !_rootNode.CompressionHasChanged)
+                if (!force && !_rootNode.IsDirty)
                 {
                     MessageBox.Show("No changes have been made.");
                     return false;

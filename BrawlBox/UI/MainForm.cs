@@ -100,9 +100,20 @@ namespace BrawlBox
         {
             try
             {
+                //TODO: move this entire function into the updater, 
+                //pass specific information as arguments
+
+                string updater = System.Windows.Forms.Application.StartupPath + "/Updater.exe";
+                if (!File.Exists(updater))
+                {
+                    if (manual)
+                        MessageBox.Show("Could not find " + updater);
+                    return;
+                }
+
                 //I now realize that sometimes this will have to be different than the title
                 //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.74b1";
+                string version = "v0.75_h2";
 
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
                 IReadOnlyList<Release> release = null;
@@ -117,8 +128,8 @@ namespace BrawlBox
                     return;
                 }
 
-                if (release != null && 
-                    release.Count > 0 && 
+                if (release != null &&
+                    release.Count > 0 &&
                     !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
                     release[0].Name.Contains("BrawlBox", StringComparison.InvariantCultureIgnoreCase)) //Make sure this is a BrawlBox release
                 {
@@ -128,13 +139,15 @@ namespace BrawlBox
                         DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
                         if (OverwriteResult == DialogResult.Yes)
                         {
-                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe", "-r");
+                            Process.Start(updater, "-r");
                             this.Close();
                         }
                         else if (OverwriteResult == DialogResult.No)
-                            Process.Start(System.Windows.Forms.Application.StartupPath + "/Updater.exe");
+                            Process.Start(updater);
                     }
                 }
+                else if (manual)
+                    MessageBox.Show("No updates found.");
             }
             catch (Exception e)
             {
