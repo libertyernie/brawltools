@@ -26,7 +26,7 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
 
-            GL.Enable(EnableCap.PointSmooth);
+            //GL.Enable(EnableCap.PointSmooth);
             if (vp._renderAttrib._renderVertices)
                 OnRenderVertices(vp);
             if (vp._renderAttrib._renderNormals)
@@ -127,6 +127,8 @@ namespace System.Windows.Forms
 
             GLDisplayList sphere = TKContext.GetCircleList();
             GLDisplayList circle = TKContext.GetRingList();
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
             //Orb
             GL.Color4(0.7f, 0.7f, 0.7f, 0.15f);

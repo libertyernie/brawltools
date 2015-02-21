@@ -159,21 +159,21 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's first texture reference for use.")]
         public bool TextureRef0 { get { return _ref0 != -1; } set { _ref0 = (sbyte)(value ? 0 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's second texture reference for use.")]
         public bool TextureRef1 { get { return _ref1 != -1; } set { _ref1 = (sbyte)(value ? 1 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's third texture reference for use.")]
         public bool TextureRef2 { get { return _ref2 != -1; } set { _ref2 = (sbyte)(value ? 2 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's fourth texture reference for use.")]
         public bool TextureRef3 { get { return _ref3 != -1; } set { _ref3 = (sbyte)(value ? 3 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's fifth texture reference for use.")]
         public bool TextureRef4 { get { return _ref4 != -1; } set { _ref4 = (sbyte)(value ? 4 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's sixth texture reference for use.")]
         public bool TextureRef5 { get { return _ref5 != -1; } set { _ref5 = (sbyte)(value ? 5 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's seventh texture reference for use.")]
         public bool TextureRef6 { get { return _ref6 != -1; } set { _ref6 = (sbyte)(value ? 6 : -1); SignalPropertyChange(); } }
-        [Category("Shader Data"), Browsable(true)]
+        [Category("Shader Data"), Browsable(true), Description("Enables the material's eighth texture reference for use.")]
         public bool TextureRef7 { get { return _ref7 != -1; } set { _ref7 = (sbyte)(value ? 7 : -1); SignalPropertyChange(); } }
 
         public bool _renderUpdate = false;

@@ -198,7 +198,7 @@ namespace BrawlLib.OpenGL
         /// <summary>
         /// Projects a screen point to world coordinates.
         /// </summary>
-        /// <returns>3D world point perpendicular to the camera with distance z</returns>
+        /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
         public Vector3 UnProject(float x, float y, float z)
         {
             //This needs to be a Vector4 converted to a Vector3 in order to work
@@ -224,7 +224,7 @@ namespace BrawlLib.OpenGL
             //Also the order of the matrix multiplication matters
             Vector4 t1 = _matrix * (Vector4)source;
             Vector4 t2 = _projectionMatrix * t1;
-            if ((t2._w = -t1._z) == 0) return new Vector3();
+            if (t2._w == 0) return new Vector3();
             Vector3 v = (Vector3)t2;
             return new Vector3(
                 (v._x / 2.0f + 0.5f) * (float)Width,

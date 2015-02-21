@@ -113,6 +113,7 @@ namespace System.Windows.Forms
             // PAT0Editor
             // 
             this.Controls.Add(this.grpEdit);
+            this.MinimumSize = new System.Drawing.Size(402, 77);
             this.Name = "PAT0Editor";
             this.Size = new System.Drawing.Size(402, 77);
             this.grpEdit.ResumeLayout(false);

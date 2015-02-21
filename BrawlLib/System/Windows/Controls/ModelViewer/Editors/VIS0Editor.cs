@@ -28,6 +28,7 @@ namespace System.Windows.Forms
             // VIS0Editor
             // 
             this.Controls.Add(this.listBox1);
+            this.MinimumSize = new System.Drawing.Size(210, 55);
             this.Name = "VIS0Editor";
             this.Padding = new System.Windows.Forms.Padding(4);
             this.Size = new System.Drawing.Size(210, 55);

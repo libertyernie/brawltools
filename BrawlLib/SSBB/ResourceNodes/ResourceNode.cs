@@ -69,7 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal protected DataSource _origSource, _uncompSource;
         internal protected DataSource _replSrc, _replUncompSrc;
 
-        internal protected bool _changed, _compressionChanged, _merged, _disposed, _replaced;
+        internal protected bool _changed, _merged, _disposed = false;
         internal protected CompressionType _compression;
 
         public string _name, _origPath;
@@ -84,7 +84,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public event SelectEventHandler SelectChild;
         public event EventHandler UpdateProps, UpdateControl;
         public event MoveEventHandler MovedUp, MovedDown;
-        public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored, CompressionChanged;
+        public event ResourceEventHandler Disposing, Renamed, PropertyChanged, Replaced, Restored;
         public event ResourceChildEventHandler ChildAdded, ChildRemoved;
         public event ResourceChildInsertEventHandler ChildInserted;
 
@@ -109,16 +109,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public virtual string TreePathAbsolute { get { return _parent == null ? Name : _parent.TreePathAbsolute + "/" + Name; } }
         [Browsable(false)]
-        public virtual string TreePath 
-        { 
-            get 
+        public virtual string TreePath
+        {
+            get
             {
                 string path = TreePathAbsolute;
                 int index = path.IndexOf('/');
                 if (index > 0)
                     path = path.Substring(index + 1);
                 return path;
-            } 
+            }
         }
         [Browsable(false)]
         public virtual int Level { get { return _parent == null ? 0 : _parent.Level + 1; } }
@@ -130,7 +130,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public virtual string Name
         {
             get { return String.IsNullOrEmpty(_name) ? _name = "<null>" : _name; }
-            set 
+            set
             {
                 if (_name == value)
                     return;
@@ -174,8 +174,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Index { get { return _parent == null ? -1 : _parent.Children.IndexOf(this); } }
         [Browsable(false)]
         public bool IsCompressed { get { return _compression != CompressionType.None; } }
-        [Browsable(false)]
-        public bool CompressionHasChanged { get { return _compressionChanged; } set { _compressionChanged = value; } }
+
+        //Properties or compression have changed
         [Browsable(false)]
         public bool HasChanged { get { return _changed; } set { _changed = value; } }
 
@@ -193,8 +193,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public bool HasMerged { get { return _merged; } }
 
-        //Can be any of the following: 
-        //Children have branched, children have changed, current has changed, compression has changed
+        //Can be any of the following: children have branched, children have changed, current has changed
         //Node needs to be rebuilt.
         [Browsable(false)]
         public bool IsDirty
@@ -205,27 +204,31 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return true;
                 if (_children != null)
                     foreach (ResourceNode n in _children)
-                        if (n.IsBranch || n.IsDirty)
+                        if (n.HasChanged || n.IsBranch || n.IsDirty)
                             return true;
                 return false;
             }
             set
             {
                 _changed = value;
-                foreach (ResourceNode r in Children)
-                    r.IsDirty = value;
+                if (_children != null)
+                    foreach (ResourceNode r in Children)
+                        if (r._children != null)
+                            r.IsDirty = value;
+                        else
+                            r._changed = value;
             }
         }
-        [Browsable(false)]
-        public virtual bool RetainChildrenOnReplace { get { return false; } }
+
         [Browsable(false)]
         public virtual Type[] AllowedChildTypes { get { return _allowedChildTypes; } }
         private Type[] _allowedChildTypes = new Type[] { };
+
         [Browsable(false), TypeConverter(typeof(DropDownListCompression))]
-        public virtual string Compression 
+        public virtual string Compression
         {
             get { return _compression.ToString(); }
-            set 
+            set
             {
                 CompressionType type;
                 if (Enum.TryParse(value, out type))
@@ -236,9 +239,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (Array.IndexOf(Compressor._supportedCompressionTypes, type) != -1)
                     {
                         _compression = type;
-                        _compressionChanged = true;
-                        if (CompressionChanged != null)
-                            CompressionChanged(this);
+                        _changed = true;
                     }
                 }
             }
@@ -296,7 +297,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             if (UpdateProps != null)
                 UpdateProps(this, null);
-        }   
+        }
         public void UpdateCurrentControl()
         {
             if (UpdateControl != null)
@@ -459,7 +460,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_origSource != DataSource.Empty && !OnInitialize())
                 _children = new List<ResourceNode>();
 
-            _compressionChanged = false;
             _changed = false;
             if (Restored != null)
                 Restored(this);
@@ -470,7 +470,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public virtual void Remove()
         {
-            if (_parent != null) 
+            if (_parent != null)
                 _parent.RemoveChild(this);
         }
 
@@ -497,12 +497,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public virtual void InsertChild(ResourceNode child, bool change, int index)
         {
-            if (index == Children.Count - 1)
-            {
-                AddChild(child, change);
-                return;
-            }
-
             Children.Insert(index, child);
             child._parent = this;
             if (ChildInserted != null)
@@ -532,6 +526,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Causes a deviation in the resource tree. This node and all child nodes will be backed by a temporary file until the tree is merged.
         //Causes parent node(s) to become dirty.
         //Replace will reference the file in a new DataSource.
+        public bool _replaced = false;
         public unsafe virtual void Replace(string fileName) { Replace(fileName, FileMapProtect.Read, FileOptions.SequentialScan); }
         public unsafe virtual void Replace(string fileName, FileMapProtect prot, FileOptions options)
         {
@@ -544,6 +539,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             Memory.Move(map.Address, address, (uint)length);
             ReplaceRaw(map);
         }
+        [Browsable(false)]
+        public virtual bool RetainChildrenOnReplace { get { return false; } }
         public unsafe virtual void ReplaceRaw(FileMap map)
         {
             if (_children != null && !RetainChildrenOnReplace)
@@ -568,17 +565,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _children = new List<ResourceNode>();
             _replaced = false;
 
-            _compressionChanged = false;
             _changed = false;
             if (Replaced != null)
                 Replaced(this);
         }
 
-		protected void ForceReplacedEvent()
+        protected void ForceReplacedEvent()
         {
-			if (Replaced != null)
-				Replaced(this);
-		}
+            if (Replaced != null)
+                Replaced(this);
+        }
 
         #endregion
 
@@ -587,12 +583,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public unsafe virtual void Export(string outPath)
         {
             Rebuild(); //Apply changes the user has made by rebuilding.
+#if !DEBUG
             try
             {
+#endif
                 using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.ReadWrite, 8, FileOptions.SequentialScan))
                     Export(stream);
+#if !DEBUG
             }
             catch { MessageBox.Show("Unable to open file for write access."); }
+#endif
         }
 
         public void Export(FileStream outStream)
@@ -614,7 +614,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
                     ExportUncompressed(stream);
-            }       
+            }
             catch { MessageBox.Show("Unable to open file for write access."); }
         }
         public void ExportUncompressed(FileStream outStream)
@@ -639,12 +639,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public virtual void Rebuild() { Rebuild(false); }
         public virtual void Rebuild(bool force)
         {
-            bool mustRebuild = IsDirty || force;
-            if (!_compressionChanged && !mustRebuild)
+            if (!IsDirty && !force)
                 return;
 
             //Get uncompressed size
-            int size = mustRebuild ? OnCalculateSize(force) : WorkingUncompressed.Length;
+            int size = OnCalculateSize(force);
 
             //Create temp map
             FileMap uncompMap = FileMap.FromTempFile(size);
@@ -683,8 +682,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _replSrc = _replUncompSrc = new DataSource(address, length);
             }
 
-            _compressionChanged = false;
             _changed = false;
+            //HasChanged = false;
         }
         //Overridden by parent nodes in order to rebuild children.
         //Size is the value returned by OnCalculateSize (or _calcSize)
@@ -694,15 +693,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             Memory.Move(address, WorkingUncompressed.Address, (uint)length);
         }
 
+        //Shouldn't this move compressed data? YES!
         internal virtual void MoveRaw(VoidPtr address, int length)
         {
-            Memory.Move(address, WorkingUncompressed.Address, (uint)length);
+            Memory.Move(address, WorkingSource.Address, (uint)length);
             DataSource newsrc = new DataSource(address, length);
             if (_compression == CompressionType.None)
             {
                 if (_children != null)
                 {
-                    int offset = address - WorkingUncompressed.Address;
+                    int offset = address - WorkingSource.Address;
                     foreach (ResourceNode n in _children)
                         n.OnParentMoved(offset);
                 }
@@ -963,80 +963,100 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region MD5
         private static MD5CryptoServiceProvider _md5provider;
-		protected static MD5CryptoServiceProvider MD5Provider {
-			get {
-				if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
-				return _md5provider;
-			}
-		}
+        protected static MD5CryptoServiceProvider MD5Provider
+        {
+            get
+            {
+                if (_md5provider == null) _md5provider = new MD5CryptoServiceProvider();
+                return _md5provider;
+            }
+        }
 
-		/// <summary>
-		/// Find the MD5 checksum of this node's data.
-		/// If this node doesn't have any data (BRESGroupNode, for example),
-		/// this method will return null.
-		/// </summary>
-		public virtual unsafe byte[] MD5() {
-			DataSource data = this.OriginalSource;
-			if (data.Address == null || data.Length == 0) {
-				return null;
-			} else {
-				UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
-				return MD5Provider.ComputeHash(stream);
-			}
-		}
+        /// <summary>
+        /// Find the MD5 checksum of this node's data.
+        /// If this node doesn't have any data (BRESGroupNode, for example),
+        /// this method will return null.
+        /// </summary>
+        public virtual unsafe byte[] MD5()
+        {
+            DataSource data = this.OriginalSource;
+            if (data.Address == null || data.Length == 0)
+            {
+                return null;
+            }
+            else
+            {
+                UnmanagedMemoryStream stream = new UnmanagedMemoryStream((byte*)data.Address, data.Length);
+                return MD5Provider.ComputeHash(stream);
+            }
+        }
 
-		/// <summary>
-		/// Determines whether all of this node's direct children are contained between the start and end of its own data.
-		/// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.
-		/// </summary>
+        /// <summary>
+        /// Determines whether all of this node's direct children are contained between the start and end of its own data.
+        /// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.
+        /// </summary>
         /// Or you could just use HasMerged...
-		public unsafe bool DataSourceContainsAllChildren() {
-			DataSource data = OriginalSource;
-			int paddr = (int)OriginalSource.Address.address;
-			int plen = OriginalSource.Length;
+        public unsafe bool DataSourceContainsAllChildren()
+        {
+            DataSource data = OriginalSource;
+            int paddr = (int)OriginalSource.Address.address;
+            int plen = OriginalSource.Length;
 
-			// initialize queue
-			Queue<ResourceNode> queue = new Queue<ResourceNode>(this.Children);
-			while (queue.Count > 0) {
-				ResourceNode c = queue.Dequeue();
-				if (c.OriginalSource.Address == null || c.OriginalSource.Length == 0) {
-					foreach (ResourceNode c2 in c.Children) {
-						queue.Enqueue(c2);
-					}
-				} else {
-					int addr = (int)c.OriginalSource.Address.address;
-					int len = c.OriginalSource.Length;
-					if (addr >= paddr && addr < paddr + plen) {
-						// nothing
-					} else {
-						return false;
-					}
-				}
-			}
-			return true;
-		}
+            // initialize queue
+            Queue<ResourceNode> queue = new Queue<ResourceNode>(this.Children);
+            while (queue.Count > 0)
+            {
+                ResourceNode c = queue.Dequeue();
+                if (c.OriginalSource.Address == null || c.OriginalSource.Length == 0)
+                {
+                    foreach (ResourceNode c2 in c.Children)
+                    {
+                        queue.Enqueue(c2);
+                    }
+                }
+                else
+                {
+                    int addr = (int)c.OriginalSource.Address.address;
+                    int len = c.OriginalSource.Length;
+                    if (addr >= paddr && addr < paddr + plen)
+                    {
+                        // nothing
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
 
-		/// <summary>
-		/// Get the result of the MD5() function as a string of hexadecimal digits.
-		/// If MD5() returns null, this method will return an empty string.
-		/// </summary>
-		[System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
-		public unsafe string MD5Str() {
-			try {
-				byte[] checksum = this.MD5();
-				if (checksum == null) return string.Empty;
-				StringBuilder sb = new StringBuilder(checksum.Length * 2);
-				for (int i = 0; i < checksum.Length; i++) {
-					sb.Append(checksum[i].ToString("X2"));
-				}
-				return sb.ToString();
-			} catch (AccessViolationException) {
-				return "----AccessViolationException----";
-			}
-		}
-		#endregion
+        /// <summary>
+        /// Get the result of the MD5() function as a string of hexadecimal digits.
+        /// If MD5() returns null, this method will return an empty string.
+        /// </summary>
+        [System.Runtime.ExceptionServices.HandleProcessCorruptedStateExceptions]
+        public unsafe string MD5Str()
+        {
+            try
+            {
+                byte[] checksum = this.MD5();
+                if (checksum == null) return string.Empty;
+                StringBuilder sb = new StringBuilder(checksum.Length * 2);
+                for (int i = 0; i < checksum.Length; i++)
+                {
+                    sb.Append(checksum[i].ToString("X2"));
+                }
+                return sb.ToString();
+            }
+            catch (AccessViolationException)
+            {
+                return "----AccessViolationException----";
+            }
+        }
+        #endregion
 
-		public override string ToString()
+        public override string ToString()
         {
             return Name;
         }

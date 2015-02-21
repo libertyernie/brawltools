@@ -720,7 +720,8 @@ namespace System.Windows.Forms
             ModelPanelViewport v = panel.HighlightedViewport;
 
 #if DEBUG
-            v.ScreenText["Depth: " + depth.ToString()] = new Vector3(5.0f, v.Height - 20.0f, 0.5f);
+            if (_renderDepth)
+                v.ScreenText["Depth: " + depth.ToString()] = new Vector3(5.0f, v.Height - 20.0f, 0.5f);
 #endif
             MouseMoveTargetBone(panel, e, depth, v);
             MouseMoveTargetVertex(panel, e, depth, v);
