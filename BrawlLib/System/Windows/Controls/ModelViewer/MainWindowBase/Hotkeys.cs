@@ -39,11 +39,11 @@ namespace System.Windows.Forms
         {
             const int WM_KEYDOWN = 0x100;
             const int WM_KEYUP = 0x101;
-            const int WM_CHAR = 0x102;
-            const int WM_SYSCHAR = 0x106;
+            //const int WM_CHAR = 0x102;
+            //const int WM_SYSCHAR = 0x106;
             const int WM_SYSKEYDOWN = 0x104;
             const int WM_SYSKEYUP = 0x105;
-            const int WM_IME_CHAR = 0x286;
+            //const int WM_IME_CHAR = 0x286;
 
             bool down = m.Msg == WM_KEYDOWN || m.Msg == WM_SYSKEYDOWN;
             bool up = m.Msg == WM_KEYUP || m.Msg == WM_SYSKEYUP;
@@ -152,7 +152,7 @@ namespace System.Windows.Forms
 #if DEBUG
         private bool HotkeyRenderDepthPressed()
         {
-            if (ModelPanel.Focused)
+            if (ModelPanel.Focused && !_renderDepth)
             {
                 _renderDepth = true;
                 ModelPanel.Invalidate();
@@ -162,7 +162,7 @@ namespace System.Windows.Forms
         }
         private bool HotkeyRenderDepthReleased()
         {
-            if (ModelPanel.Focused)
+            if (ModelPanel.Focused && _renderDepth)
             {
                 _renderDepth = false;
                 ModelPanel.Invalidate();

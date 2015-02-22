@@ -203,24 +203,21 @@ namespace BrawlLib.Modeling
                 Say("Extracting scenes...");
 
                 List<ObjectInfo> _objects = new List<ObjectInfo>();
-
-                //Extract scenes
-                foreach (SceneEntry scene in shell._scenes)
+                ResourceNode boneGroup = null;
+                switch (type)
                 {
-                    ResourceNode parent = null;
-                    switch (type)
-                    {
-                        case ImportType.MDL0:
-                            parent = ((MDL0Node)model)._boneGroup;
-                            break;
-                    }
-
-                    //Extract bones and objects and create bone tree
-                    foreach (NodeEntry node in scene._nodes)
-                        EnumNode(node, parent, scene, model, shell, _objects, Matrix.Identity);
+                    case ImportType.MDL0:
+                        boneGroup = ((MDL0Node)model)._boneGroup;
+                        break;
                 }
 
-                if (model.BoneCache.Length == 0)
+                //Extract bones and objects and create bone tree
+                foreach (SceneEntry scene in shell._scenes)
+                    foreach (NodeEntry node in scene._nodes)
+                        EnumNode(node, boneGroup, scene, model, shell, _objects, Matrix.Identity);
+
+                //Add root bone if there are no bones
+                if (boneGroup.Children.Count == 0)
                     switch (type)
                     {
                         case ImportType.MDL0:
@@ -232,6 +229,7 @@ namespace BrawlLib.Modeling
                             break;
                     }
 
+                //Create objects
                 foreach (ObjectInfo obj in _objects)
                 {
                     NodeEntry node = obj._node;
@@ -246,6 +244,7 @@ namespace BrawlLib.Modeling
                     obj.Initialize(model, shell);
                 }
 
+                //Finish
                 switch (type)
                 {
                     case ImportType.MDL0:

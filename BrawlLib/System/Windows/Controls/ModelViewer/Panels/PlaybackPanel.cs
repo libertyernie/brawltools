@@ -17,6 +17,7 @@ namespace System.Windows.Forms
         public Button btnFirst;
         private Label label15;
         private Label label1;
+        public Label lblLoopFrame;
         public Button btnLast;
     
         private void InitializeComponent()
@@ -33,6 +34,7 @@ namespace System.Windows.Forms
             this.btnLast = new System.Windows.Forms.Button();
             this.label15 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
+            this.lblLoopFrame = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.numTotalFrames)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFPS)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFrameIndex)).BeginInit();
@@ -46,7 +48,7 @@ namespace System.Windows.Forms
             this.btnPlay.Location = new System.Drawing.Point(69, 28);
             this.btnPlay.Margin = new System.Windows.Forms.Padding(1);
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(149, 21);
+            this.btnPlay.Size = new System.Drawing.Size(264, 21);
             this.btnPlay.TabIndex = 14;
             this.btnPlay.Text = "Play";
             this.btnPlay.UseVisualStyleBackColor = true;
@@ -56,7 +58,7 @@ namespace System.Windows.Forms
             // 
             this.numTotalFrames.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.numTotalFrames.Enabled = false;
-            this.numTotalFrames.Location = new System.Drawing.Point(233, 5);
+            this.numTotalFrames.Location = new System.Drawing.Point(348, 5);
             this.numTotalFrames.Maximum = new decimal(new int[] {
             65536,
             0,
@@ -112,7 +114,7 @@ namespace System.Windows.Forms
             // numFrameIndex
             // 
             this.numFrameIndex.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.numFrameIndex.Location = new System.Drawing.Point(170, 5);
+            this.numFrameIndex.Location = new System.Drawing.Point(285, 5);
             this.numFrameIndex.Maximum = new decimal(new int[] {
             0,
             0,
@@ -142,7 +144,7 @@ namespace System.Windows.Forms
             this.btnNextFrame.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnNextFrame.Enabled = false;
-            this.btnNextFrame.Location = new System.Drawing.Point(220, 28);
+            this.btnNextFrame.Location = new System.Drawing.Point(335, 28);
             this.btnNextFrame.Margin = new System.Windows.Forms.Padding(1);
             this.btnNextFrame.Name = "btnNextFrame";
             this.btnNextFrame.Size = new System.Drawing.Size(32, 21);
@@ -170,7 +172,7 @@ namespace System.Windows.Forms
             this.btnLast.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnLast.Enabled = false;
-            this.btnLast.Location = new System.Drawing.Point(253, 28);
+            this.btnLast.Location = new System.Drawing.Point(368, 28);
             this.btnLast.Margin = new System.Windows.Forms.Padding(1);
             this.btnLast.Name = "btnLast";
             this.btnLast.Size = new System.Drawing.Size(32, 21);
@@ -182,7 +184,7 @@ namespace System.Windows.Forms
             // label15
             // 
             this.label15.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label15.Location = new System.Drawing.Point(132, 4);
+            this.label15.Location = new System.Drawing.Point(247, 4);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(48, 20);
             this.label15.TabIndex = 23;
@@ -192,15 +194,28 @@ namespace System.Windows.Forms
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Location = new System.Drawing.Point(222, 4);
+            this.label1.Location = new System.Drawing.Point(337, 4);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(14, 20);
             this.label1.TabIndex = 24;
             this.label1.Text = "/";
             this.label1.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
+            // lblLoopFrame
+            // 
+            this.lblLoopFrame.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblLoopFrame.AutoSize = true;
+            this.lblLoopFrame.ForeColor = System.Drawing.Color.DarkRed;
+            this.lblLoopFrame.Location = new System.Drawing.Point(174, 8);
+            this.lblLoopFrame.Name = "lblLoopFrame";
+            this.lblLoopFrame.Size = new System.Drawing.Size(63, 13);
+            this.lblLoopFrame.TabIndex = 25;
+            this.lblLoopFrame.Text = "Loop Frame";
+            this.lblLoopFrame.Visible = false;
+            // 
             // ModelPlaybackPanel
             // 
+            this.Controls.Add(this.lblLoopFrame);
             this.Controls.Add(this.btnLast);
             this.Controls.Add(this.btnFirst);
             this.Controls.Add(this.btnPlay);
@@ -214,11 +229,12 @@ namespace System.Windows.Forms
             this.Controls.Add(this.chkLoop);
             this.Controls.Add(this.label1);
             this.Name = "ModelPlaybackPanel";
-            this.Size = new System.Drawing.Size(290, 54);
+            this.Size = new System.Drawing.Size(405, 54);
             ((System.ComponentModel.ISupportInitialize)(this.numTotalFrames)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFPS)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numFrameIndex)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -271,6 +287,7 @@ namespace System.Windows.Forms
 
         public void numFrameIndex_ValueChanged(object sender, EventArgs e)
         {
+            lblLoopFrame.Visible = numFrameIndex.Value > _mainWindow.MaxFrame;
             _mainWindow.numFrameIndex_ValueChanged(sender, e);
         }
 

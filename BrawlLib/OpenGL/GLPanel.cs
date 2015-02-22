@@ -49,7 +49,7 @@ namespace BrawlLib.OpenGL
         protected List<GLViewport> _viewports = new List<GLViewport>();
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public GLViewport HighlightedViewport { get { return _highlightedViewport; } }
+        public GLViewport HighlightedViewport { get { return _viewports.Count > 1 ? _highlightedViewport : _viewports[0]; } }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public GLViewport CurrentViewport
@@ -266,7 +266,8 @@ namespace BrawlLib.OpenGL
         
         protected override void OnMouseMove(MouseEventArgs e)
         {
-            _highlightedViewport = GetViewport(e.X, e.Y);
+            if (_viewports.Count > 1)
+                _highlightedViewport = GetViewport(e.X, e.Y);
 
             base.OnMouseMove(e);
         }

@@ -113,7 +113,7 @@ namespace BrawlBox
 
                 //I now realize that sometimes this will have to be different than the title
                 //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.75";
+                string version = "v0.75_h2";
 
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
                 IReadOnlyList<Release> release = null;

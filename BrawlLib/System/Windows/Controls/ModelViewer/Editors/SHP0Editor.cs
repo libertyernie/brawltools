@@ -242,6 +242,7 @@ namespace System.Windows.Forms
             this.Controls.Add(this.trackBar1);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label1);
+            this.MinimumSize = new System.Drawing.Size(533, 106);
             this.Name = "SHP0Editor";
             this.Size = new System.Drawing.Size(533, 106);
             ((System.ComponentModel.ISupportInitialize)(this.trackBar1)).EndInit();
@@ -432,7 +433,11 @@ namespace System.Windows.Forms
                         v.RemoveKeyframe(CurrentFrame - 1);
                     else
                         v.SetKeyframe(CurrentFrame - 1, textBox1.Value / 100.0f);
+
+                if (_mainWindow.InterpolationEditor != null && _mainWindow.InterpolationEditor._targetNode != VertexSetDest)
+                    _mainWindow.InterpolationEditor.SetTarget(VertexSetDest);
             }
+            ResetBox();
             _mainWindow.KeyframePanel.UpdateKeyframe(CurrentFrame - 1);
             _mainWindow.UpdateModel();
         }

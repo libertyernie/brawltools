@@ -48,7 +48,7 @@ namespace System.Windows.Forms
         void interpolationViewer1_FrameChanged(object sender, EventArgs e)
         {
             if (_mainWindow != null && _mainWindow.CurrentFrame - 1 != interpolationViewer.FrameIndex)
-                _mainWindow.SetFrame((interpolationViewer.FrameIndex + 1).Clamp(1, _mainWindow.MaxFrame));
+                _mainWindow.SetFrame((interpolationViewer.FrameIndex + 1).Clamp(1, (int)_mainWindow.PlaybackPanel.numTotalFrames.Value));
         }
 
         public BindingList<string> _modes = new BindingList<string>();
@@ -320,10 +320,13 @@ namespace System.Windows.Forms
 
             KeyframeEntry w = interpolationViewer._selKey;
             int prev = w._prev._index + 1;
-            if (prev < 0) prev = 0;
             int next = w._next._index - 1;
-            if (_mainWindow != null)
-                if (next < 0) next = _mainWindow.MaxFrame - 1;
+
+            if (next < 0)
+                if (_mainWindow != null)
+                    next = (int)_mainWindow.PlaybackPanel.numTotalFrames.Value - 1;
+                else
+                    next = ((IKeyframeSource)_targetNode).FrameCount - 1;
 
             int index = ((int)nibKeyFrame.Value - 1).Clamp(prev, next);
 
@@ -337,8 +340,8 @@ namespace System.Windows.Forms
                 _mainWindow.UpdateModel();
             }
 
-            if (index != nibKeyFrame.Value)
-                nibKeyFrame.Value = index;
+            if (index + 1 != nibKeyFrame.Value)
+                nibKeyFrame.Value = index + 1;
         }
 
         private void numericInputBox2_ValueChanged(object sender, EventArgs e)

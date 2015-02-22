@@ -139,40 +139,22 @@ namespace System.Windows.Forms
         }
         private bool Has3PlusVals()
         {
-            float val1 = 0, val2 = 0;
+            HashSet<float> v = new HashSet<float>();
             if (AllKeyframes)
             {
-                bool v1Set = false, v2Set = false;
                 for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
                 {
-                    if (!v1Set)
-                    {
-                        val1 = entry._value;
-                        v1Set = true;
-                    }
-                    else if (!v2Set)
-                    {
-                        if (entry._value != val1)
-                        {
-                            val2 = entry._value;
-                            v2Set = true;
-                        }
-                    }
-                    else if (entry._value != val1 && entry._value != val2)
+                    v.Add(entry._value);
+                    if (v.Count > 3)
                         return true;
                 }
             }
             else
             {
-                if (SelectedKeyframe._prev._index != -1)
-                    val1 = SelectedKeyframe._prev._value;
-
-                if (SelectedKeyframe._value != val1)
-                    val2 = SelectedKeyframe._value;
-                else
-                    return false;
-
-                if (SelectedKeyframe._next._index != -1 && SelectedKeyframe._next._value != val1 && SelectedKeyframe._next._value != val2)
+                v.Add(SelectedKeyframe._prev._value);
+                v.Add(SelectedKeyframe._value);
+                v.Add(SelectedKeyframe._next._value);
+                if (v.Count > 3)
                     return true;
             }
             return false;
@@ -404,13 +386,20 @@ namespace System.Windows.Forms
                 {
                     float yVal = y / _yScale + _minVal;
                     int xv = frameVal;
-                    int xDiff = xv - (int)_prevX;
+                    int xDiff = xv - (int)(_prevX + 0.5f);
                     float yDiff = (yVal - _prevY);
 
-                    if (_selKey._prev._index < _selKey._index + xDiff && _selKey._next._index > _selKey._index + xDiff && _selKey._next._index != -1 && _selKey._prev._index != -1)
-                        _selKey._index += xDiff;
+                    int newFrameIndex = _selKey._index + xDiff;
+                    bool frameSet = newFrameIndex >= 0 &&
+                        newFrameIndex < FrameLimit &&
+                        newFrameIndex > _selKey._prev._index &&
+                        (newFrameIndex < _selKey._next._index || _selKey._next._index < 0);
 
                     _selKey._value = (float)Math.Round(_selKey._value + yDiff, 3);
+
+                    if (frameSet)
+                        FrameIndex = _selKey._index = newFrameIndex;
+
                     _prevX = xv;
                     _prevY = yVal;
 
@@ -865,7 +854,7 @@ namespace System.Windows.Forms
             GL.LoadIdentity();
             GL.Ortho(0, Width, 0, Height, -0.1f, 1.0f);
 
-            _precision = ((float)Width / (float)384) * 4;
+            _precision = (float)Width / (float)96;
         }
     }
 }
