@@ -66,14 +66,14 @@ namespace Net
 
     public static class BugSquish
     {
-        public static async Task CreateIssue()
+        public static async Task CreateIssue(string Title, string IssueBody)
         {
             Octokit.Credentials s = new Credentials("6c6b2a56408a04a1b1a002d60202df2b520c88a4");
             GitHubClient github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
 
             // get repo, Release, and release assets
             Repository repo = await github.Repository.Get("libertyernie", "brawltools");
-            NewIssue issue = new NewIssue("Test Issue") { Body = "This is a test of an experimental brawlbox bug reporter." };
+            NewIssue issue = new NewIssue(Title) { Body = IssueBody };
             Issue x = await github.Issue.Create("libertyernie", "brawltools", issue);
         }
     }
@@ -82,19 +82,22 @@ namespace Net
     {
         static void Main(string[] args)
         {
-            // -r is the overwrite switch.
-            if (args.Length > 0 && args[0] == "-r")
-            {
-                Task t = Updater.UpdateCheck(true);
-                t.Wait();
-            }
-            else if (args.Length > 0 && args[0] != "-r")
-                Console.WriteLine("Usage: -r = Overwrite files in directory");
-            else
-            {
-                Task t = Updater.UpdateCheck();
-                t.Wait();
-            }
+            Task t = BugSquish.CreateIssue(args[0], args[1]); // Temporary. Gotta restructure this whole method.
+            t.Wait();
+            Console.ReadLine();
+            //// -r is the overwrite switch.
+            //if (args.Length > 0 && args[0] == "-r")
+            //{
+            //    Task t = Updater.UpdateCheck(true);
+            //    t.Wait();
+            //}
+            //else if (args.Length > 0 && args[0] != "-r")
+            //    Console.WriteLine("Usage: -r = Overwrite files in directory");
+            //else
+            //{
+            //    Task t = Updater.UpdateCheck();
+            //    t.Wait();
+            //}
         }
     }
 }
