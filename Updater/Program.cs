@@ -1,4 +1,8 @@
-﻿using Octokit;
+﻿//================================================================\\
+//  Simple application containing most functions for interfacing  \\
+//      with Github API, including Updater and BugSquish.         \\
+//================================================================\\
+using Octokit;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -7,11 +11,10 @@ using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace Updater
+namespace Net
 {
-    class Program
+    public static class Updater
     {
-        // Base url to search for in the release asset stream
         public static readonly string BaseURL = "https://github.com/libertyernie/brawltools/releases/download/";
         public static string AppPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
@@ -59,20 +62,37 @@ namespace Updater
                 Process update = Process.Start(AppPath + "/Update.exe", "-d\"" + AppPath + "\"");
             }
         }
+    }
 
+    public static class BugSquish
+    {
+        public static async Task CreateIssue()
+        {
+            Octokit.Credentials s = new Credentials("6c6b2a56408a04a1b1a002d60202df2b520c88a4");
+            GitHubClient github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
+
+            // get repo, Release, and release assets
+            Repository repo = await github.Repository.Get("libertyernie", "brawltools");
+            NewIssue issue = new NewIssue("Test Issue") { Body = "This is a test of an experimental brawlbox bug reporter." };
+            Issue x = await github.Issue.Create("libertyernie", "brawltools", issue);
+        }
+    }
+
+    class Program
+    {
         static void Main(string[] args)
         {
             // -r is the overwrite switch.
             if (args.Length > 0 && args[0] == "-r")
             {
-                Task t = UpdateCheck(true);
+                Task t = Updater.UpdateCheck(true);
                 t.Wait();
             }
             else if (args.Length > 0 && args[0] != "-r")
                 Console.WriteLine("Usage: -r = Overwrite files in directory");
             else
             {
-                Task t = UpdateCheck();
+                Task t = Updater.UpdateCheck();
                 t.Wait();
             }
         }
