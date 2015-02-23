@@ -142,11 +142,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                             //If the NodeTree is corrupt, the user will be informed that it needs to be rebuilt.
                             byte* pData = (byte*)p.Data;
                             bool fixCS0159 = false;
+
+                            List<ResourceNode> bones = linker.BoneCache.ToList();
+
                             STop:
                             if (*pData == 2)
                             {
                                 bone = linker.BoneCache[*(bushort*)(pData + 1)] as MDL0BoneNode;
-                                index = *(bushort*)(pData + 3);
+                                index = *(bushort*)(pData + 3); //Parent bone node index
 
                                 if (bone.Header->_parentOffset == 0)
                                 {
@@ -155,15 +158,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                                         nodeTreeError = true;
                                         continue;
                                     }
+                                    else
+                                        bones.Remove(bone);
                                 }
                                 else
                                 {
-                                    ResourceNode n = linker.NodeCache[index] as ResourceNode;
-                                    if (n == null || bone._parent != n || !n._children.Contains(bone))
+                                    MDL0BoneNode parent = linker.NodeCache[index] as MDL0BoneNode;
+                                    if (parent == null || bone._parent != parent || !parent._children.Contains(bone))
                                     {
                                         nodeTreeError = true;
                                         continue;
                                     }
+                                    else
+                                        bones.Remove(bone);
                                 }
                                 pData += 5;
                                 fixCS0159 = true;
@@ -172,9 +179,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 fixCS0159 = false;
                                 goto STop;
                             }
+
+                            if (bones.Count > 0)
+                                nodeTreeError = true;
                         }
-                        else 
-                            if (p.Name == "NodeMix")
+                        else if (p.Name == "NodeMix")
                         {
                             //Use node mix to create weight groups
                             byte* pData = (byte*)p.Data;
