@@ -12,25 +12,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
         internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0UVData hdr;
+        MDL0UVData _hdr = new MDL0UVData();
 
         [Category("UV Data")]
-        public int ID { get { return hdr._index; } }
+        public int ID { get { return _hdr._index; } }
         [Category("UV Data")]
-        public bool IsST { get { return hdr._isST != 0; } }
+        public bool IsST { get { return _hdr._isST != 0; } }
         [Category("UV Data")]
-        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)hdr._format; } }
+        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)_hdr._format; } }
         [Category("UV Data")]
-        public byte Divisor { get { return hdr._divisor; } }
+        public byte Divisor { get { return _hdr._divisor; } }
         [Category("UV Data")]
-        public byte EntryStride { get { return hdr._entryStride; } }
+        public byte EntryStride { get { return _hdr._entryStride; } }
         [Category("UV Data")]
-        public int NumEntries { get { return hdr._numEntries; } }
+        public int NumEntries { get { return _hdr._numEntries; } }
 
         [Category("UV Data")]
-        public Vector2 Min { get { return hdr._min; } }
+        public Vector2 Min { get { return _hdr._min; } }
         [Category("UV Data")]
-        public Vector2 Max { get { return hdr._max; } }
+        public Vector2 Max { get { return _hdr._max; } }
 
         public bool ForceRebuild { get { return _forceRebuild; } set { if (_forceRebuild != value) { _forceRebuild = value; SignalPropertyChange(); } } }
         public bool ForceFloat { get { return _forceFloat; } set { if (_forceFloat != value) { _forceFloat = value; } } }
@@ -48,7 +48,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             //just in case the node has been replaced.
             _points = null;
 
-            hdr = *Header;
+            _hdr = *Header;
+
+            //SetSizeInternal(_hdr._dataLen);
 
             if ((_name == null) && (Header->_stringOffset != 0))
                 _name = Header->ResourceString;

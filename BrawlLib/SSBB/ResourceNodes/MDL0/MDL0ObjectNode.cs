@@ -52,26 +52,27 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal XFVertexSpecs _vertexSpecs;
 
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix0 { get { return _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
+        public bool HasTextureMatrix0 { get { return _manager == null ? false : _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix1 { get { return _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
+        public bool HasTextureMatrix1 { get { return _manager == null ? false : _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix2 { get { return _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
+        public bool HasTextureMatrix2 { get { return _manager == null ? false : _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix3 { get { return _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
+        public bool HasTextureMatrix3 { get { return _manager == null ? false : _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix4 { get { return _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
+        public bool HasTextureMatrix4 { get { return _manager == null ? false : _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix5 { get { return _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
+        public bool HasTextureMatrix5 { get { return _manager == null ? false : _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix6 { get { return _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
+        public bool HasTextureMatrix6 { get { return _manager == null ? false : _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix7 { get { return _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
+        public bool HasTextureMatrix7 { get { return _manager == null ? false : _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
 
         private void SetTexMtx(int index, bool value)
         {
-            if (!Weighted)
+            if (!Weighted || _manager == null)
                 return;
+
             _manager.HasTextureMatrix[index] = value;
             SignalPropertyChange();
             _rebuild = true;
@@ -98,8 +99,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Vertices & Normals
 
-        internal MDL0VertexNode _vertexNode;
-        internal MDL0NormalNode _normalNode;
+        public MDL0VertexNode _vertexNode;
+        public MDL0NormalNode _normalNode;
 
         [TypeConverter(typeof(DropDownListVertices))]
         public string VertexNode
@@ -149,7 +150,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Colors
 
-        internal MDL0ColorNode[] _colorSet = new MDL0ColorNode[2];
+        public MDL0ColorNode[] _colorSet = new MDL0ColorNode[2];
         private void SetColors(int id, string value)
         {
             MDL0ColorNode oldNode = _colorSet[id];
@@ -215,7 +216,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region UVs
 
-        internal MDL0UVNode[] _uvSet = new MDL0UVNode[8];
+        public MDL0UVNode[] _uvSet = new MDL0UVNode[8];
         private void SetUVs(int id, string value)
         {
             MDL0UVNode oldNode = _uvSet[id];
@@ -573,7 +574,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void Dispose()
         {
-            if (_manager != null)
+            if (_manager != null && _parent != null && _parent._disposed)
             {
                 _manager.Dispose();
                 _manager = null;
@@ -1467,20 +1468,18 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public MDL0ObjectNode HardCopy() 
         {
-            MDL0ObjectNode o = new MDL0ObjectNode() { _manager = _manager, Name = Name };
+            MDL0ObjectNode o = new MDL0ObjectNode() { _manager = _manager.HardCopy(), Name = Name };
             o._vertexNode = _vertexNode;
             o._normalNode = _normalNode;
             for (int i = 0; i < 2; i++)
                 o._colorSet[i] = _colorSet[i];
             for (int i = 0; i < 8; i++)
                 o._uvSet[i] = _uvSet[i];
-            //o.Nodes = Nodes;
             o._opaMaterial = _opaMaterial;
             o._xluMaterial = _xluMaterial;
             o._furVecNode = _furVecNode;
             o._furPosNode = _furPosNode;
             o._visBoneNode = _visBoneNode;
-            o._manager._primGroups = _manager._primGroups;
             o._matrixNode = _matrixNode;
             o._elementIndices = _elementIndices;
             o._uncompSource = o._origSource = new DataSource(WorkingUncompressed.Address, WorkingUncompressed.Length, Wii.Compression.CompressionType.None);
@@ -1492,7 +1491,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return MemberwiseClone() as MDL0ObjectNode; 
         }
 
-        public override void Remove()
+        public void Remove(bool v, bool n, bool c1, bool c2, params bool[] uv)
         {
             MDL0Node node = Model;
 
@@ -1503,49 +1502,67 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if (_vertexNode != null)
-                if (_vertexNode._objects.Count == 1)
-                    if (MessageBox.Show("Do you want to remove this object's vertex node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        _vertexNode.Remove();
-                    else _vertexNode._objects.Remove(this);
-                else _vertexNode._objects.Remove(this);
+            {
+                _vertexNode._objects.Remove(this);
+                if (_vertexNode._objects.Count == 0 && v)
+                    _vertexNode.Remove();
+            }
 
             if (_normalNode != null)
-                if (_normalNode._objects.Count == 1)
+            {
+                _normalNode._objects.Remove(this);
+                if (_normalNode._objects.Count == 0 && n)
                     _normalNode.Remove();
-                else _normalNode._objects.Remove(this);
+            }
 
             for (int i = 0; i < 2; i++)
                 if (_colorSet[i] != null)
-                    if (_colorSet[i]._objects.Count == 1)
+                {
+                    _colorSet[i]._objects.Remove(this);
+                    if (_colorSet[i]._objects.Count == 0 && (i == 0 ? c1 : c2))
                         _colorSet[i].Remove();
-                    else _colorSet[i]._objects.Remove(this);
+                }
 
             for (int i = 0; i < 8; i++)
                 if (_uvSet[i] != null)
-                    if (_uvSet[i]._objects.Count == 1)
+                {
+                    _uvSet[i]._objects.Remove(this);
+                    if (_uvSet[i]._objects.Count == 0 && uv[i])
                         _uvSet[i].Remove();
-                    else _uvSet[i]._objects.Remove(this);
-
+                }
+            
             MatrixNode = null;
             VisibilityBoneNode = null;
             OpaMaterialNode = null;
             XluMaterialNode = null;
 
             if (_manager != null)
-                foreach (Vertex3 v in _manager._vertices)
-                    if (v.MatrixNode != null)
+                foreach (Vertex3 vertex in _manager._vertices)
+                    if (vertex.MatrixNode != null)
                     {
-                        v.MatrixNode.Users.Remove(v);
-                        v.MatrixNode.ReferenceCount--;
+                        vertex.MatrixNode.Users.Remove(vertex);
+                        vertex.MatrixNode.ReferenceCount--;
                     }
 
-            base.Remove();
-
             Dispose();
+            base.Remove();
+        }
 
-            if (node._objList != null)
-                foreach (MDL0ObjectNode p in node._objList)
-                    p.RecalcIndices();
+        public override void Remove()
+        {
+            Remove(
+                _vertexNode != null && _vertexNode._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's vertex node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _normalNode != null && _normalNode._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's normal node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _colorSet[0] != null && _colorSet[0]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's color node 1?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _colorSet[1] != null && _colorSet[1]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's color node 2?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[0] != null && _uvSet[0]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 1?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[1] != null && _uvSet[1]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 2?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[2] != null && _uvSet[2]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 3?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[3] != null && _uvSet[3]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 4?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[4] != null && _uvSet[4]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 5?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[5] != null && _uvSet[5]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 6?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[6] != null && _uvSet[6]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 7?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[7] != null && _uvSet[7]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 8?", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
         }
 
         public static int DrawCompareOpa(ResourceNode n1, ResourceNode n2)

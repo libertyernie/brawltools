@@ -51,7 +51,6 @@ namespace BrawlLib.Modeling
             }
         }
         public bool[] HasTextureMatrix = new bool[8];
-        public bool HasPosMatrix = false;
 
         //Set these in OnCalculateSize!
         public bool _isImportOrReopimized;
@@ -62,6 +61,52 @@ namespace BrawlLib.Modeling
         public XFArrayFlags _arrayFlags;
         public int _fpStride = 0;
         public List<PrimitiveGroup> _primGroups = new List<PrimitiveGroup>();
+
+        internal int[] _newClrObj = new int[2];
+
+        public int _arrayHandle;
+        public int _arrayBufferHandle;
+        public int _elementArrayBufferHandle;
+
+        /// <summary>
+        /// Returns an identical copy of this manager 
+        /// but as a completely new instance with reallocated buffers.
+        /// </summary>
+        public PrimitiveManager HardCopy()
+        {
+            PrimitiveManager p = new PrimitiveManager()
+            {
+                _vertices = _vertices,
+                _indices = new UnsafeBuffer(_indices.Length),
+                _pointCount = _pointCount,
+                _faceCount = _faceCount,
+                _faceData = new UnsafeBuffer[12],
+                _triangles = _triangles == null ? null : new GLPrimitive(_triangles._indices.Length, PrimitiveType.Triangles),
+                _lines = _lines == null ? null : new GLPrimitive(_lines._indices.Length, PrimitiveType.Lines),
+                _points = _points == null ? null : new GLPrimitive(_points._indices.Length, PrimitiveType.Points),
+                _dirty = new bool[] { true, true, true, true, true, true, true, true, true, true, true, true },
+                _primGroups = _primGroups,
+            };
+            Memory.Move(p._indices.Address, _indices.Address, (uint)_indices.Length);
+            for (int i = 0; i < 12; i++)
+            {
+                UnsafeBuffer b = _faceData[i];
+                if (b == null)
+                    continue;
+
+                p._faceData[i] = new UnsafeBuffer(b.Length);
+                Memory.Move(p._faceData[i].Address, b.Address, (uint)b.Length);
+            }
+            if (p._triangles != null)
+                _triangles._indices.CopyTo(p._triangles._indices, 0);
+            if (p._lines != null)
+                _lines._indices.CopyTo(p._lines._indices, 0);
+            if (p._points != null)
+                _points._indices.CopyTo(p._points._indices, 0);
+            p.HasTextureMatrix = new bool[8];
+            HasTextureMatrix.CopyTo(p.HasTextureMatrix, 0);
+            return p;
+        }
 
         #endregion
 
@@ -242,7 +287,6 @@ namespace BrawlLib.Modeling
             _faceCount = polygon->_numFaces;
 
             _arrayFlags = polygon->_arrayFlags;
-            HasPosMatrix = _arrayFlags.HasPosMatrix;
             for (int i = 0; i < 8; i++)
                 HasTextureMatrix[i] = _arrayFlags.GetHasTexMatrix(i);
 
@@ -1414,8 +1458,6 @@ namespace BrawlLib.Modeling
             return _facepoints;
         }
 
-        internal int[] _newClrObj = new int[2];
-
         /// <summary>
         /// Merges vertex data into facepoint indices using internal buffers.
         /// </summary>
@@ -1682,9 +1724,6 @@ namespace BrawlLib.Modeling
             GL.Disable(EnableCap.Texture2D);
         }
 
-        public int _arrayHandle;
-        public int _arrayBufferHandle;
-        public int _elementArrayBufferHandle;
         internal unsafe void DetachStreams()
         {
             GL.DisableClientState(ArrayCap.VertexArray);
@@ -1825,7 +1864,7 @@ namespace BrawlLib.Modeling
 
         #endregion
 
-        internal unsafe PrimitiveManager Clone() { return MemberwiseClone() as PrimitiveManager; }
+        public PrimitiveManager Clone() { return MemberwiseClone() as PrimitiveManager; }
     }
 
     public unsafe class GLPrimitive

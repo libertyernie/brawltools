@@ -519,6 +519,145 @@ When true, metal materials and shaders will be added and modulated as you edit y
             base.RemoveChild(child);
         }
 
+        public void ReplaceMeshes(MDL0Node replacement)
+        {
+            if (replacement == null)
+                return;
+
+            replacement.Populate();
+            replacement.ResetToBindState();
+
+            while (replacement._objList != null && replacement._objList.Count > 0)
+            {
+                MDL0ObjectNode repObj = replacement._objList[0] as MDL0ObjectNode;
+
+                //Force a rebuild, just in case.
+                //This will also avoid the rebuilder trying to copy the soure data over,
+                //which has been disposed of.
+                repObj._rebuild = true;
+
+                MDL0BoneNode visBone = null;
+                IMatrixNode inf = null;
+                MDL0MaterialNode matOpa = null;
+                MDL0MaterialNode matXlu = null;
+
+                //Find a matching object to replace using the object's name
+                bool found = false;
+                for (int i = 0; i < _objList.Count; i++)
+                {
+                    MDL0ObjectNode currObj = _objList[i] as MDL0ObjectNode;
+                    if (repObj.Name == currObj.Name)
+                    {
+                        visBone = currObj.VisibilityBoneNode;
+                        inf = currObj.MatrixNode;
+                        matOpa = currObj.OpaMaterialNode;
+                        matXlu = currObj.XluMaterialNode;
+
+                        currObj.Remove(true, true, true, true, true, true, true, true, true, true, true, true);
+
+                        found = true;
+                        break;
+                    }
+                }
+                //If not found, attempt to add the object
+                if (!found)
+                {
+
+                }
+
+                //Reassign bone influences to the current bone tree
+                if (inf == null)
+                    foreach (Vertex3 v in repObj.Vertices)
+                    {
+                        if (v.MatrixNode is Influence)
+                        {
+                            for (int x = 0; x < v.MatrixNode.Weights.Count; x++)
+                            {
+                                MDL0BoneNode bone = v.MatrixNode.Weights[x].Bone as MDL0BoneNode;
+                                if (bone != null)
+                                {
+                                    MDL0BoneNode newBone = FindBone(bone.Name);
+
+                                    //TODO: add bone if it's not found
+                                    v.MatrixNode.Weights[x].Bone = newBone;
+                                }
+                            }
+
+                            IMatrixNode m = Influences.FindOrCreate(v.MatrixNode as Influence, true);
+                            v.MatrixNode = m;
+                        }
+                        else
+                        {
+                            string n = ((MDL0BoneNode)v.MatrixNode).Name;
+                            MDL0BoneNode b = FindBone(n);
+                            v.MatrixNode = b;
+                        }
+                    }
+
+                //Make a copy of the manager so it isn't disposed of
+                repObj._manager = repObj._manager.HardCopy();
+
+                //Set copied vertices' parent object (this is so single-bound objects are updated)
+                foreach (Vertex3 v in repObj.Vertices)
+                    v.Parent = repObj;
+
+                //Set object settings
+                repObj.VisibilityBoneNode = visBone;
+                repObj.MatrixNode = inf;
+                repObj.OpaMaterialNode = matOpa;
+                repObj.XluMaterialNode = matXlu;
+
+                if (repObj._vertexNode != null && repObj._vertexNode.Parent != VertexGroup)
+                {
+                    MDL0VertexNode node = repObj._vertexNode;
+                    VertexGroup.AddChild(node);
+
+                    //Extract points from header, which will be disposed of
+                    var v = node.Vertices;
+                    node._forceRebuild = true;
+                }
+
+                if (repObj._normalNode != null && repObj._normalNode.Parent != NormalGroup)
+                {
+                    MDL0NormalNode node = repObj._normalNode;
+                    NormalGroup.AddChild(node);
+
+                    //Extract points from header, which will be disposed of
+                    var v = node.Normals;
+                    node._forceRebuild = true;
+                }
+
+                for (int x = 0; x < 2; x++)
+                    if (repObj._colorSet[x] != null && repObj._colorSet[x].Parent != ColorGroup)
+                    {
+                        MDL0ColorNode node = repObj._colorSet[x];
+                        ColorGroup.AddChild(node);
+
+                        //Extract colors from header, which will be disposed of
+                        var v = node.Colors;
+                        node._changed = true;
+                    }
+
+                for (int x = 0; x < 8; x++)
+                    if (repObj._uvSet[x] != null && repObj._uvSet[x].Parent != UVGroup)
+                    {
+                        MDL0UVNode node = repObj._uvSet[x];
+                        UVGroup.AddChild(node);
+
+                        //Extract points from header, which will be disposed of
+                        var v = node.Points;
+                        node._forceRebuild = true;
+                    }
+
+                //Remove object from external, add to internal
+                replacement._objGroup.RemoveChild(repObj);
+                _objGroup.AddChild(repObj);
+            }
+
+            Influences.Clean();
+            Influences.Sort();
+        }
+
         #endregion
 
         #region Linking
@@ -787,11 +926,9 @@ When true, metal materials and shaders will be added and modulated as you edit y
             //Create temporary file map with the string table included
             FileMap uncompMap = FileMap.FromTempFile(size + table.GetTotalSize());
 
-            //Set the sources
-            _origSource = _uncompSource = new DataSource(uncompMap);
-
-            //move the temp buffer to the end of the file map
+            //Move the temp buffer to the end of the file map
             Memory.Move(uncompMap.Address, buffer.Address, (uint)buffer.Length);
+            buffer.Dispose();
 
             //Write the string table and do final calculations
             table.WriteTable(uncompMap.Address + size);
@@ -800,6 +937,9 @@ When true, metal materials and shaders will be added and modulated as you edit y
             //Clear table and reset import bool
             table.Clear();
             _isImport = false;
+
+            //Set the sources
+            _origSource = _uncompSource = new DataSource(uncompMap);
 
             //Set replacement maps with the uncompressed map to force a reparse
             ReplaceRaw(uncompMap);
@@ -867,6 +1007,10 @@ When true, metal materials and shaders will be added and modulated as you edit y
             int i = Index;
             Parent.InsertChild(node, true, i);
             Parent.SelectChildAtIndex(i);
+
+            node._origSource = new DataSource(_origSource.Address, _origSource.Length);
+            node._uncompSource = new DataSource(_uncompSource.Address, _uncompSource.Length);
+
             Remove();
             Dispose();
         }
@@ -1247,7 +1391,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 if (_selectedObjectIndex != -1)
                 {
                     MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
-                    if (o._render)
+                    if (o._render && o._manager != null)
                     {
                         o._manager.RenderVertices(o._matrixNode, weightTarget, depthPass, camera);
                         return;
@@ -1255,7 +1399,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 }
                 else
                     foreach (MDL0ObjectNode p in _objList)
-                        if (p._render)
+                        if (p._render && p._manager != null)
                             p._manager.RenderVertices(p._matrixNode, weightTarget, depthPass, camera);
         }
 

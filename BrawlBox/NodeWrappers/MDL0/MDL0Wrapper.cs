@@ -9,6 +9,7 @@ using BrawlLib;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Models;
+using BrawlLib.Modeling;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -46,6 +47,7 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("UVs", null, ImportUVAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction, Keys.Control | Keys.G));
             _menu.Items.Add(new ToolStripMenuItem("&Import New Object", null, ImportObjectAction, Keys.Control | Keys.I));
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction, Keys.Control | Keys.O));
             _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption, Keys.Alt | Keys.R));
@@ -53,8 +55,9 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
-        }
 
+        }
+        private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
         private static void OptimizeAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Optimize(); }
         protected static void PreviewAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Preview(); }
         protected static void ImportObjectAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportObject(); }
@@ -76,12 +79,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[19].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[20].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[19].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[20].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
@@ -96,6 +99,27 @@ namespace BrawlBox.NodeWrappers
         public override string ImportFilter { get { return FileFilters.MDL0Import; } }
 
         public MDL0Wrapper() { ContextMenuStrip = _menu; }
+        
+        public void ReimportMeshes()
+        {
+            if (_modelViewerOpen)
+                return;
+
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Collada Model (*.dae)|*.dae";
+            ofd.Title = "Please select a Collada model to reimport meshes from.";
+            if (ofd.ShowDialog() == DialogResult.OK)
+                using (Collada collada = new Collada())
+                {
+                    MDL0Node replacement = collada.ShowDialog(ofd.FileName, Collada.ImportType.MDL0) as MDL0Node;
+                    ((MDL0Node)_resource).ReplaceMeshes(replacement);
+                    if (replacement != null)
+                    {
+                        replacement.Dispose();
+                        _resource.UpdateCurrentControl();
+                    }
+                }
+        }
 
         public void Preview()
         {
