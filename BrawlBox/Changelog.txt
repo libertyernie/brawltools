@@ -14,6 +14,14 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
+ - v0.75b - (??/??/2015) BrawlLib v0.22b
+	. Added new reimport meshes button to MDL0 right click menu. This allows you to update the meshes of an MDL0 without resetting any custom materials, shaders, vis bones, bone tree edits, etc.
+	. Fixed bug where textures with no object references would overwrite the node tree definition
+	. Fixed bug where if the MDL0 node tree definition didn't have any entries but the bone tree did, a mismatch would not be detected and reported to the user
+	. Fixed bug where an MDL0 replaced with an imported model could not be restored to the original
+	. Fixed bug where an imported MDL0 would allow restoring, but would crash when trying to do so because there is nothing to restore to.
+	. Added the option to delete or not delete all associated assets that are not assigned to another object when deleting an MDL0 object
+
  - v0.75 - BrawlLib v0.22
 
 Hotfix 2 (2/21/2015)
