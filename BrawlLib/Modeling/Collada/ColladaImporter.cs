@@ -29,7 +29,7 @@ namespace BrawlLib.Modeling
         public enum ImportType
         {
             MDL0,
-            BMD,
+            //BMD,
             //LM
             //FMDL
             //NP3D
@@ -55,9 +55,6 @@ namespace BrawlLib.Modeling
                     m.BeginImport();
                     model = m;
                     break;
-
-                case ImportType.BMD:
-                    break;
             }
 
             CurrentModel = model;
@@ -71,11 +68,9 @@ namespace BrawlLib.Modeling
                 //Extract images, removing duplicates
                 foreach (ImageEntry img in shell._images)
                 {
-                    string name;
-                    if (img._path != null)
-                        name = Path.GetFileNameWithoutExtension(img._path);
-                    else
-                        name = img._name != null ? img._name : img._id;
+                    string name = img._path != null ? 
+                        Path.GetFileNameWithoutExtension(img._path) :
+                        img._name != null ? img._name : img._id;
 
                     switch (type)
                     {

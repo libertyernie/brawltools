@@ -349,7 +349,7 @@ namespace System.Windows.Forms
                 List<BoneWeight> array = v.GetBoneWeights();
                 foreach (BoneWeight b in array)
                 {
-                    if (!_bones.Contains(b.Bone))
+                    if (!_totals.ContainsKey(b.Bone.Name))
                     {
                         _bones.Add(b.Bone);
                         _totals.Add(b.Bone.Name, new float[] { b.Weight, 1 });

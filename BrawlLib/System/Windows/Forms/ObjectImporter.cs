@@ -159,7 +159,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            newNode._manager = node._manager;
+            newNode._manager = node._manager.HardCopy();
 
             if (newNode.Weighted)
             {
@@ -169,7 +169,8 @@ namespace System.Windows.Forms
                         //To do:
                         //Get difference between new and old influence matrices 
                         //and add it to the weighted position
-                        //to fit the mesh to the new bones if it doesn't already.
+                        //so that the model retains its original shape
+                        //even if the bones have different transforms.
 
                         //Matrix m = vert.MatrixNode.Matrix;
                         //Matrix invm = vert.MatrixNode.InverseMatrix;
@@ -179,7 +180,7 @@ namespace System.Windows.Forms
                             {
                                 MDL0BoneNode b = vert.MatrixNode.Weights[i].Bone as MDL0BoneNode;
                                 if (b != null)
-                                    vert.MatrixNode.Weights[i].Bone = _internalModel._boneGroup.FindChildByType(b.Name, true, ResourceType.MDL0Bone) as MDL0BoneNode;
+                                    vert.MatrixNode.Weights[i].Bone = _internalModel.FindBone(b.Name);
                             }
 
                             vert.MatrixNode = _internalModel._influences.FindOrCreate((Influence)vert.MatrixNode, true);
@@ -190,9 +191,6 @@ namespace System.Windows.Forms
                         //Matrix m2 = vert.MatrixNode.Matrix * invm;
                         //vert.WeightedPosition = vert.WeightedPosition * m2;
                     }
-
-                //foreach (Vertex3 vert in newNode._manager._vertices)
-                //    vert.Unweight();
             }
             else if (newNode._matrixNode != null)
             {
@@ -206,6 +204,9 @@ namespace System.Windows.Forms
                 else
                     newNode.MatrixNode = _internalModel.BoneGroup.FindChildByType(((MDL0BoneNode)newNode.MatrixNode).Name, true, ResourceType.MDL0Bone) as IMatrixNode;
             }
+
+            foreach (Vertex3 v in newNode.Vertices)
+                v.Parent = newNode;
 
             newNode.RecalcIndices();
             newNode._visBoneNode = (MDL0BoneNode)_internalModel.BoneGroup.Children[0];
