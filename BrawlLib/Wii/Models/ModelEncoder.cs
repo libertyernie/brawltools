@@ -947,17 +947,17 @@ namespace BrawlLib.Wii.Models
                 list.Sort(); //Alphabetical order
                 if (pTexGroup != null)
                     foreach (MDL0TextureNode t in list)
-                        if (t._references.Count > 0)
-                        {
-                            offset = (int)pData;
-                            (pTexEntry++)->_dataOffset = offset - (int)pTexGroup;
-                            *pData++ = t._references.Count;
-                            foreach (MDL0MaterialRefNode mat in t._references)
+                    {
+                        offset = (int)pData;
+                        (pTexEntry++)->_dataOffset = offset - (int)pTexGroup;
+                        *pData++ = t._references.Count;
+                        foreach (MDL0MaterialRefNode mat in t._references)
+                            if (mat.Material._objects.Count != 0)
                             {
                                 *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
                                 *pData++ = (int)mat.WorkingUncompressed.Address - offset;
                             }
-                        }
+                    }
             }
 
             //Palettes
@@ -967,17 +967,17 @@ namespace BrawlLib.Wii.Models
                 list.Sort(); //Alphabetical order
                 if (pPltGroup != null)
                     foreach (MDL0TextureNode t in list)
-                        if (t._references.Count > 0)
-                        {
-                            offset = (int)pData;
-                            (pPltEntry++)->_dataOffset = offset - (int)pPltGroup;
-                            *pData++ = t._references.Count;
-                            foreach (MDL0MaterialRefNode mat in t._references)
+                    {
+                        offset = (int)pData;
+                        (pPltEntry++)->_dataOffset = offset - (int)pPltGroup;
+                        *pData++ = t._references.Count;
+                        foreach (MDL0MaterialRefNode mat in t._references)
+                            if (mat.Material._objects.Count != 0)
                             {
                                 *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
                                 *pData++ = (int)mat.WorkingUncompressed.Address - offset;
                             }
-                        }
+                    }
             }
         }
 
