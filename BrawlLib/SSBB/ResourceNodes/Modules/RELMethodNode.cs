@@ -91,16 +91,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RELExternalMethod; } }
 
-        public Relocation _rel;
+        public RelCommand _cmd;
 
         [Category("External Method")]
         [DisplayName("Target Module")]
         [Description("Name of the target module which the assembly code for this method resides")]
-        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_rel.Command._moduleID) ? RELNode._idNames[(int)_rel.Command._moduleID] : ""; } }
+        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_cmd._moduleID) ? RELNode._idNames[(int)_cmd._moduleID] : ""; } }
     
         [Category("External Method")]
         [DisplayName("Target Offset")]
         [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
-        public string TargetOffset { get { return _rel.Command.TargetOffset; } }
+        public string TargetOffset { get { return _cmd.TargetOffset; } }
     }
 }

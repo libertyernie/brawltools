@@ -2567,22 +2567,32 @@ namespace Be.Windows.Forms
 			}
 		}
 
-        void GetBrushes(Relocation r, long remainder, ref Brush foreColor, ref Brush backColor)
+        void GetBrushes(int index, long remainder, ref Brush foreColor, ref Brush backColor)
         {
-            foreColor = r.Linked.Count > 0 ? RelocationBrush :
-                r.Branched.Count > 0 ? new SolidBrush(Color.Blue) :
-                foreColor;
+            ModuleSectionNode s = _sectionEditor._section;
+            var linked = s._manager.GetLinked(index);
+            if (linked != null && linked.Count > 0)
+                foreColor = RelocationBrush;
+            else
+            {
+                var branched = s._manager.GetBranched(index);
+                if (branched != null && branched.Count > 0)
+                    foreColor = new SolidBrush(Color.Blue);
+            }
 
-            bool blr = (r._section.HasCode && r.Code is PPCblr && _sectionEditor.highlightBlr.Checked);
-            bool branch = (r._section.HasCode && r.Code is PPCBranch && !(blr || r.Code is PPCbctr));
-            bool cmd = r.Command != null && ((r.Command.IsHalf && remainder > 1) || (!r.Command.IsHalf));
+            PPCOpCode code = s._manager.GetCode(index);
+            bool returnBranch = s.HasCode && (code is PPCblr || code is PPCbctr);
+            bool branch = s.HasCode && code is PPCBranch && !returnBranch;
 
-            backColor = 
-                r._selected ? SelectedBrush :   //1st: is this selected?
-                cmd ? CommandBrush :            //2nd: is this a command?
-                blr ? BlrBrush :                //3rd: is this a blr?
-                branch ? BranchOffsetBrush :    //4th: Is this a branch?
-                null;                           //5th: this is nothing important.
+            RelCommand command = s._manager.GetCommand(index);
+            bool cmd = command != null && (command.IsHalf && remainder > 1 || !command.IsHalf);
+
+            backColor =
+                _sectionEditor.SelectedRelocationIndex == index ? SelectedBrush :
+                cmd ? CommandBrush :
+                returnBranch ? BlrBrush :
+                branch ? BranchOffsetBrush :
+                null;
         }
 
         void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Point gridPoint)
@@ -2593,45 +2603,49 @@ namespace Be.Windows.Forms
             {
                 if (_sectionEditor != null)
                 {
-                    Relocation r = _sectionEditor.GetRelocationAtOffset((int)offset);
-                    if (r != null)
+                    int index = (int)(offset.RoundDown(4) / 4);
+                    //Relocation r = _sectionEditor._manager.GetRelocationAtOffset();
+                    RelCommand cmd = _sectionEditor._manager.GetCommand(index);
+                    //if (r != null)
                     {
                         Brush backBrush = null;
                         long remainder = offset - offset.RoundDown(4);
-                        GetBrushes(r, remainder, ref foreBrush, ref backBrush);
+                        GetBrushes(index, remainder, ref foreBrush, ref backBrush);
 
-                        if (r.Command != null && _sectionEditor.displayInitialized.Checked)
-                            b = (byte)((r.RelOffset >> ((3 - ((int)remainder)) * 8)) & 0xFF);
+                        //if (r.Command != null && _sectionEditor.displayInitialized.Checked)
+                        //    b = (byte)((r.RelOffset >> ((3 - ((int)remainder)) * 8)) & 0xFF);
 
+                        bool selected = _sectionEditor.SelectedRelocationIndex == index;
                         if (backBrush != null)
                         {
-                            if (r.Command != null && r.Command.IsHalf)
+                            if (cmd != null && cmd.IsHalf)
                             {
-                                if (remainder > 1 || r._selected)
+                                if (remainder > 1 || selected)
                                 {
                                     PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
                                     return;
                                 }
-                                else if (r.Color != Color.Transparent)
-                                {
-                                    PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
-                                    return;
-                                }
+                                //else// if (r.Color != Color.Transparent)
+                                //{
+                                //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
+                                //    return;
+                                //}
                             }
                             else
                             {
-                                if ((r._prolog || r._epilog || r._unresolved) && !r._selected)
-                                    PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
-                                else
+                                //if (/*(r._prolog || r._epilog || r._unresolved) && */!selected)
+                                //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
+                                //else
+                                if (selected)
                                     PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
                                 return;
                             }
                         }
-                        else if (r.Color != Color.Transparent)
-                        {
-                            PaintHexStringSelected(g, b, foreBrush, r.ColorBrush, gridPoint);
-                            return;
-                        }
+                        //else// if (r.Color != Color.Transparent)
+                        //{
+                        //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
+                        //    return;
+                        //}
                     }
                 }
 

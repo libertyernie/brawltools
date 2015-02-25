@@ -55,12 +55,40 @@ namespace BrawlLib.SSBB.ResourceNodes
         public byte[] _itemIDs; // null if it's not an online training room .rel
 
         [Category("Relocatable Module")]
-        public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
+        public uint ModuleID
+        {
+            get { return _id; }
+            set
+            {
+                if (!_files.ContainsKey(value))
+                {
+                    //TODO: correct all opened modules that refer to this one via module id
+                    //Now won't that be entertaining to code
+
+                    _files.Remove(_id);
+                    _id = value;
+                    SignalPropertyChange();
+                    _files.Add(_id, this);
+                }
+                else
+                    MessageBox.Show("");
+            }
+        }
         [Browsable(false)]
-        public new uint ID { get { return _id; } set { _id = value; } }
+        public new uint ID
+        {
+            get
+            {
+                return _id;
+            }
+            set
+            {
+                _id = value;
+            }
+        }
 
         [Category("Relocatable Module")]
-        public string ModuleName { get { return _idNames.ContainsKey((int)ID) ? _idNames[(int)ID] : ""; } }
+        public string ModuleName { get { return _idNames.ContainsKey((int)ModuleID) ? _idNames[(int)ModuleID] : ""; } }
         
         //[Category("REL")]
         //public int NextLink { get { return _linkNext; } }
@@ -143,15 +171,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         #endregion
 
-        public Relocation
-            _prologReloc = null,
-            _epilogReloc = null,
-            _unresReloc = null;
+        //public Relocation
+        //    _prologReloc = null,
+        //    _epilogReloc = null,
+        //    _unresReloc = null;
+
+        public override void Dispose()
+        {
+            _files.Remove(ModuleID);
+            base.Dispose();
+        }
 
         public override bool OnInitialize()
         {
-            _files.Add(this);
-
             _id = Header->_info._id;
             _linkNext = Header->_info._link._linkNext; //0
             _linkPrev = Header->_info._link._linkPrev; //0
@@ -191,6 +223,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if(_name == null)
                 _name = _idNames.ContainsKey((int)_id) ? _idNames[(int)_id] : Path.GetFileName(_origPath);
+
+            _files.Add(ModuleID, this);
 
             return true;
         }
@@ -239,7 +273,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void ApplyRelocations()
         {
             foreach (ModuleSectionNode r in Sections)
-                r.ClearCommands();
+                r._manager.ClearCommands();
 
             int offset = 0;
             int i = 0;
@@ -267,53 +301,53 @@ namespace BrawlLib.SSBB.ResourceNodes
                         }
 
                         if (section != null)
-                            section.SetCommandAtOffset(offset, new RelCommand(x, section.Index, link));
+                            section._manager.SetCommand(offset.RoundDown(4) / 4, new RelCommand(x, section.Index, link));
                     }
                 i++;
             }
 
-            ModuleDataNode s;
-            if (_prologReloc == null)
-            {
-                s = _sections[Header->_prologSection];
-                offset = (int)Header->_prologOffset - (int)s.RootOffset;
-            }
-            else
-            {
-                s = _prologReloc._section;
-                offset = _prologReloc._index * 4;
-            }
-            _prologReloc = s.GetRelocationAtOffset(offset);
-            if (_prologReloc != null)
-                _prologReloc._prolog = true;
+            //ModuleDataNode s;
+            //if (_prologReloc == null)
+            //{
+            //    s = _sections[Header->_prologSection];
+            //    offset = (int)Header->_prologOffset - (int)s.RootOffset;
+            //}
+            //else
+            //{
+            //    s = _prologReloc._section;
+            //    offset = _prologReloc._index * 4;
+            //}
+            //_prologReloc = s.GetRelocationAtOffset(offset);
+            //if (_prologReloc != null)
+            //    _prologReloc._prolog = true;
 
-            if (_epilogReloc == null)
-            {
-                s = _sections[Header->_epilogSection];
-                offset = (int)Header->_epilogOffset - (int)s.RootOffset;
-            }
-            else
-            {
-                s = _epilogReloc._section;
-                offset = _epilogReloc._index * 4;
-            }
-            _epilogReloc = s.GetRelocationAtOffset(offset);
-            if (_epilogReloc != null)
-                _epilogReloc._epilog = true;
+            //if (_epilogReloc == null)
+            //{
+            //    s = _sections[Header->_epilogSection];
+            //    offset = (int)Header->_epilogOffset - (int)s.RootOffset;
+            //}
+            //else
+            //{
+            //    s = _epilogReloc._section;
+            //    offset = _epilogReloc._index * 4;
+            //}
+            //_epilogReloc = s.GetRelocationAtOffset(offset);
+            //if (_epilogReloc != null)
+            //    _epilogReloc._epilog = true;
 
-            if (_unresReloc == null)
-            {
-                s = _sections[Header->_unresolvedSection];
-                offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
-            }
-            else
-            {
-                s = _unresReloc._section;
-                offset = _unresReloc._index * 4;
-            }
-            _unresReloc = s.GetRelocationAtOffset(offset);
-            if (_unresReloc != null)
-                _unresReloc._unresolved = true;
+            //if (_unresReloc == null)
+            //{
+            //    s = _sections[Header->_unresolvedSection];
+            //    offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
+            //}
+            //else
+            //{
+            //    s = _unresReloc._section;
+            //    offset = _unresReloc._index * 4;
+            //}
+            //_unresReloc = s.GetRelocationAtOffset(offset);
+            //if (_unresReloc != null)
+            //    _unresReloc._unresolved = true;
         }
 
         class ImportData
@@ -337,66 +371,66 @@ namespace BrawlLib.SSBB.ResourceNodes
                 uint offset = 0;
                 List<RELLink> links;
 
-                //Iterate through each command in the section          
-                foreach(Relocation r in s._relocations)
+                //Iterate through each command in the section
+                var commands = s._manager.GetCommands();
+                foreach (var r in commands)
                 {
-                    if (r.Command != null)
+                    RelCommand command = r.Value;
+                    int index = r.Key;
+
+                    ImportData impData;
+                    uint moduleID = command._moduleID;
+
+                    //Check if an import has been created for the target module.
+                    if (_imports.ContainsKey(moduleID))
                     {
-                        RelCommand command = r.Command;
-                        ImportData impData;
-                        uint moduleID = command._moduleID;
-
-                        //Check if an import has been created for the target module.
-                        if (_imports.ContainsKey(moduleID))
-                        {
-                            //An import already exists, so we'll add to it.
-                            links = _imports[moduleID];
-                            impData = tempImports[moduleID];
-                        }
-                        else
-                        {
-                            //An import does not exist, so it must be made.
-                            _imports.Add(moduleID, links = new List<RELLink>());
-
-                            //Create new temporary import data
-                            tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
-                        }
-
-                        //This is true when a new section is being evaluated.
-                        if (impData._newSection)
-                        {
-                            links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
-                            impData._newSection = false;
-                        }
-
-                        //Get the offset of the command within the section.
-                        offset = (uint)command._parentRelocation._index * 4 + (command.IsHalf ? 2u : 0);
-
-                        //Get the offset to this address relative to the last written link offset.
-                        uint diff = offset - impData._lastOffset;
-
-                        //If the difference is greater than ushort allows, 
-                        //add increment links until the difference works
-                        while (diff > 0xFFFF)
-                        {
-                            impData._lastOffset += 0xFFFF;
-                            diff = offset - impData._lastOffset;
-
-                            links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
-                        }
-
-                        //Gather the link information
-                        byte targetSection = (byte)command._targetSectionId;
-                        RELLinkType type = (RELLinkType)command._command;
-                        uint val = command._addend;
-
-                        //Write command link
-                        links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
-
-                        //Don't bother adding the difference, 
-                        //just set the exact offset as the last offset
-                        impData._lastOffset = offset;
+                        //An import already exists, so we'll add to it.
+                        links = _imports[moduleID];
+                        impData = tempImports[moduleID];
                     }
+                    else
+                    {
+                        //An import does not exist, so it must be made.
+                        _imports.Add(moduleID, links = new List<RELLink>());
+
+                        //Create new temporary import data
+                        tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
+                    }
+
+                    //This is true when a new section is being evaluated.
+                    if (impData._newSection)
+                    {
+                        links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
+                        impData._newSection = false;
+                    }
+
+                    //Get the offset of the command within the section.
+                    offset = (uint)index * 4 + (command.IsHalf ? 2u : 0);
+
+                    //Get the offset to this address relative to the last written link offset.
+                    uint diff = offset - impData._lastOffset;
+
+                    //If the difference is greater than ushort allows, 
+                    //add increment links until the difference works
+                    while (diff > 0xFFFF)
+                    {
+                        impData._lastOffset += 0xFFFF;
+                        diff = offset - impData._lastOffset;
+
+                        links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
+                    }
+
+                    //Gather the link information
+                    byte targetSection = (byte)command._targetSectionId;
+                    RELLinkType type = (RELLinkType)command._command;
+                    uint val = command._addend;
+
+                    //Write command link
+                    links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
+
+                    //Don't bother adding the difference, 
+                    //just set the exact offset as the last offset
+                    impData._lastOffset = offset;
                 }
             }
 
@@ -482,38 +516,38 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
 
-            if (_prologReloc != null)
-            {
-                header->_prologSection = (byte)_prologReloc._section.Index;
-                header->_prologOffset = (uint)sections[_prologReloc._section.Index].Offset + (uint)_prologReloc._index * 4;
-            }
-            else
-            {
-                header->_prologOffset = 0;
-                header->_prologSection = 0;
-            }
+            //if (_prologReloc != null)
+            //{
+            //    header->_prologSection = (byte)_prologReloc._section.Index;
+            //    header->_prologOffset = (uint)sections[_prologReloc._section.Index].Offset + (uint)_prologReloc._index * 4;
+            //}
+            //else
+            //{
+            //    header->_prologOffset = 0;
+            //    header->_prologSection = 0;
+            //}
 
-            if (_epilogReloc != null)
-            {
-                header->_epilogSection = (byte)_epilogReloc._section.Index;
-                header->_epilogOffset = (uint)sections[_epilogReloc._section.Index].Offset + (uint)_epilogReloc._index * 4;
-            }
-            else
-            {
-                header->_epilogSection = 0;
-                header->_epilogOffset = 0;
-            }
+            //if (_epilogReloc != null)
+            //{
+            //    header->_epilogSection = (byte)_epilogReloc._section.Index;
+            //    header->_epilogOffset = (uint)sections[_epilogReloc._section.Index].Offset + (uint)_epilogReloc._index * 4;
+            //}
+            //else
+            //{
+            //    header->_epilogSection = 0;
+            //    header->_epilogOffset = 0;
+            //}
 
-            if (_unresReloc != null)
-            {
-                header->_unresolvedSection = (byte)_unresReloc._section.Index;
-                header->_unresolvedOffset = (uint)sections[_unresReloc._section.Index].Offset + (uint)_unresReloc._index * 4;
-            }
-            else
-            {
-                header->_unresolvedSection = 0;
-                header->_unresolvedOffset = 0;
-            }
+            //if (_unresReloc != null)
+            //{
+            //    header->_unresolvedSection = (byte)_unresReloc._section.Index;
+            //    header->_unresolvedOffset = (uint)sections[_unresReloc._section.Index].Offset + (uint)_unresReloc._index * 4;
+            //}
+            //else
+            //{
+            //    header->_unresolvedSection = 0;
+            //    header->_unresolvedOffset = 0;
+            //}
             
             RELImportEntry* imports = (RELImportEntry*)dataAddr;
             header->_impOffset = (uint)(dataAddr - address);
@@ -569,7 +603,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public static List<RELNode> _files = new List<RELNode>();
+        public static Dictionary<uint, RELNode> _files = new Dictionary<uint, RELNode>();
 
         #region Stage module conversion
         private unsafe static int arrayIndexOf(void* haystack, int length, byte[] needle) {

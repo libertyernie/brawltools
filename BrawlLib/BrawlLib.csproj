@@ -160,6 +160,7 @@
     <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
@@ -282,7 +283,7 @@
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
-    <Compile Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
+    <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
     <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />

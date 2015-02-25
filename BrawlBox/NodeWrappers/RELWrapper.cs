@@ -71,77 +71,77 @@ namespace BrawlBox.NodeWrappers
 
         public void Constructor()
         {
-            RELNode r = _resource as RELNode;
-            if (r._prologReloc != null)
-            {
-                ModuleDataNode s = r._prologReloc._section;
+            //RELNode r = _resource as RELNode;
+            //if (r._prologReloc != null)
+            //{
+            //    ModuleDataNode s = r._prologReloc._section;
 
-                foreach (SectionEditor l in SectionEditor._openedSections)
-                    if (l._section == s)
-                    {
-                        l.Focus();
-                        l.Position = r._prologReloc._index * 4;
-                        l.hexBox1.Focus();
-                        return;
-                    }
+            //    foreach (SectionEditor l in SectionEditor._openedSections)
+            //        if (l._section == s)
+            //        {
+            //            l.Focus();
+            //            l.Position = r._prologReloc._index * 4;
+            //            l.hexBox1.Focus();
+            //            return;
+            //        }
 
-                SectionEditor e = new SectionEditor(s as ModuleSectionNode);
-                e.Show();
-                e.Position = r._prologReloc._index * 4;
-                e.hexBox1.Focus();
-            }
-            else
-                MessageBox.Show("This module has no constructor function.");
+            //    SectionEditor e = new SectionEditor(s as ModuleSectionNode);
+            //    e.Show();
+            //    e.Position = r._prologReloc._index * 4;
+            //    e.hexBox1.Focus();
+            //}
+            //else
+            //    MessageBox.Show("This module has no constructor function.");
         }
 
         public void Destructor()
         {
-            RELNode r = _resource as RELNode;
-            if (r._epilogReloc != null)
-            {
-                ModuleDataNode s = r._epilogReloc._section;
+            //RELNode r = _resource as RELNode;
+            //if (r._epilogReloc != null)
+            //{
+            //    ModuleDataNode s = r._epilogReloc._section;
 
-                foreach (SectionEditor l in SectionEditor._openedSections)
-                    if (l._section == s)
-                    {
-                        l.Focus();
-                        l.Position = r._epilogReloc._index * 4;
-                        l.hexBox1.Focus();
-                        return;
-                    }
+            //    foreach (SectionEditor l in SectionEditor._openedSections)
+            //        if (l._section == s)
+            //        {
+            //            l.Focus();
+            //            l.Position = r._epilogReloc._index * 4;
+            //            l.hexBox1.Focus();
+            //            return;
+            //        }
 
-                SectionEditor e = new SectionEditor(s as ModuleSectionNode);
-                e.Show();
-                e.Position = r._epilogReloc._index * 4;
-                e.hexBox1.Focus();
-            }
-            else
-                MessageBox.Show("This module has no destructor function.");
+            //    SectionEditor e = new SectionEditor(s as ModuleSectionNode);
+            //    e.Show();
+            //    e.Position = r._epilogReloc._index * 4;
+            //    e.hexBox1.Focus();
+            //}
+            //else
+            //    MessageBox.Show("This module has no destructor function.");
         }
 
         public void Unresolved()
         {
-            RELNode r = _resource as RELNode;
-            if (r._unresReloc != null)
-            {
-                ModuleDataNode s = r._unresReloc._section;
+            //RELNode r = _resource as RELNode;
+            //if (r._unresReloc != null)
+            //{
+            //    ModuleDataNode s = r._unresReloc._section;
 
-                foreach (SectionEditor l in SectionEditor._openedSections)
-                    if (l._section == s)
-                    {
-                        l.Focus();
-                        l.Position = r._unresReloc._index * 4;
-                        l.hexBox1.Focus();
-                        return;
-                    }
+            //    foreach (SectionEditor l in SectionEditor._openedSections)
+            //        if (l._section == s)
+            //        {
+            //            l.Focus();
+            //            l.Position = r._unresReloc._index * 4;
+            //            l.hexBox1.Focus();
+            //            return;
+            //        }
 
-                SectionEditor e = new SectionEditor(s as ModuleSectionNode);
-                e.Show();
-                e.Position = r._unresReloc._index * 4;
-                e.hexBox1.Focus();
-            }
-            else
-                MessageBox.Show("This module has no unresolved function.");
+            //    SectionEditor e = new SectionEditor(s as ModuleSectionNode);
+            //    e.Show();
+            //    e.Position = r._unresReloc._index * 4;
+            //    e.hexBox1.Focus();
+            //}
+            //else
+            //    MessageBox.Show("This module has no unresolved function.");
         }
 
         public override string ExportFilter { get { return FileFilters.REL; } }
@@ -180,13 +180,13 @@ namespace BrawlBox.NodeWrappers
 
         public void Export2()
         {
-            if (_modelViewerOpen)
-                return;
+            //if (_modelViewerOpen)
+            //    return;
 
-            string outPath;
-            int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            if (index != 0)
-                (_resource as ModuleSectionNode).ExportInitialized(outPath);
+            //string outPath;
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //    (_resource as ModuleSectionNode).ExportInitialized(outPath);
         }
 
         public void Open()
@@ -314,13 +314,13 @@ namespace BrawlBox.NodeWrappers
 
         public void Export2()
         {
-            if (_modelViewerOpen)
-                return;
+            //if (_modelViewerOpen)
+            //    return;
 
-            string outPath;
-            int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            if (index != 0)
-                (_resource as ModuleSectionNode).ExportInitialized(outPath);
+            //string outPath;
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //    (_resource as ModuleSectionNode).ExportInitialized(outPath);
         }
 
         public void Open()
