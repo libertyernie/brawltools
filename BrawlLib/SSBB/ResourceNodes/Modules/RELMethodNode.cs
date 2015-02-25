@@ -15,7 +15,15 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class RELMethodNode : ModuleDataNode
     {
         internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.RELMethod; } }
+        public override ResourceType ResourceType
+        {
+            get
+            {
+                return WorkingUncompressed.Address ?
+                    ResourceType.RELMethod :
+                    ResourceType.RELExternalMethod;
+            }
+        }
 
         [Browsable(false)]
         public RELObjectNode Object { get { return Parent.Parent as RELObjectNode; } }
@@ -23,16 +31,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public string FullName { get { return (Object != null ? Object.Type.FullName + "." : "") + _name; } }
 
-        [Browsable(false)]
-        public string FileOffset { get; set; }
+        public RelCommand _cmd;
 
-        [Category("Module Method")]
-        [DisplayName("Section Offset")]
-        [Description("Offset of the method's assembly code relative to the target section")]
-        public string SectionOffset { get { return "0x" + ((int)Header - (int)this.Root.Children[TargetSectionID].WorkingUncompressed.Address).ToString("X"); } }
+        [Category("External Method")]
+        [DisplayName("Target Module")]
+        [Description("Name of the target module which the assembly code for this method resides")]
+        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_cmd._moduleID) ? RELNode._idNames[(int)_cmd._moduleID] : ""; } }
 
-        public int TargetSectionID;
-        
+        [Category("External Method")]
+        [DisplayName("Target Section")]
+        [Description("The section in which this method's assembly code is located")]
+        public uint TargetSection { get { return _cmd.TargetSectionID; } }
+
+        [Category("External Method")]
+        [DisplayName("Target Offset")]
+        [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
+        public string TargetOffset { get { return _cmd.TargetOffset; } }
+
         public override bool OnInitialize()
         {
             //ModuleSectionNode section = Location;
@@ -84,23 +99,5 @@ namespace BrawlLib.SSBB.ResourceNodes
         //        }
         //    }
         }
-    }
-
-    public unsafe class RELExternalMethodNode : ModuleDataNode
-    {
-        internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.RELExternalMethod; } }
-
-        public RelCommand _cmd;
-
-        [Category("External Method")]
-        [DisplayName("Target Module")]
-        [Description("Name of the target module which the assembly code for this method resides")]
-        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_cmd._moduleID) ? RELNode._idNames[(int)_cmd._moduleID] : ""; } }
-    
-        [Category("External Method")]
-        [DisplayName("Target Offset")]
-        [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
-        public string TargetOffset { get { return _cmd.TargetOffset; } }
     }
 }

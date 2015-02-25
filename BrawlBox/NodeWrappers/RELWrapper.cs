@@ -251,7 +251,7 @@ namespace BrawlBox.NodeWrappers
         public void Open()
         {
             RELMethodNode r = _resource as RELMethodNode;
-            ModuleSectionNode section = r.Root.Children[r.TargetSectionID] as ModuleSectionNode;
+            ModuleSectionNode section = r.Root.Children[(int)r.TargetSection] as ModuleSectionNode;
 
             foreach (SectionEditor l in SectionEditor._openedSections)
                 if (l._section == section)

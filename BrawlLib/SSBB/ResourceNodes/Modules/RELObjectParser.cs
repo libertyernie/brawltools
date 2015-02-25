@@ -131,10 +131,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (cmd.Apply(Manager.GetUint(rel), 0) != baseCmd.Apply(Manager.GetUint(baseRel), 0))
                 {
                     string methodName = String.Format("Function[{0}][{1}]", setIndex, methodIndex);
-                    if (t == null || t._moduleID != (_objectSection.Root as ModuleNode).ID)
-                        new RELExternalMethodNode() { _name = methodName, _cmd = cmd }.Initialize(obj.Children[1], 0, 0);
-                    else
-                        new RELMethodNode() { _name = methodName, TargetSectionID = (int)cmd.TargetSectionID }.Initialize(obj.Children[1], _objectSection.Root.Children[t._sectionID].WorkingUncompressed.Address + t._index * 4, 0);
+                    VoidPtr addr = null;
+                    if (t != null && t._moduleID == (_objectSection.Root as ModuleNode).ID)
+                        addr = _objectSection.Root.Children[t._sectionID].WorkingUncompressed.Address + t._index * 4;
+
+                    new RELMethodNode()
+                    {
+                        _name = methodName,
+                        _cmd = cmd
+                    }
+                    .Initialize(obj.Children[1], addr, 0);
+
                     methodIndex++;
                 }
                 else
