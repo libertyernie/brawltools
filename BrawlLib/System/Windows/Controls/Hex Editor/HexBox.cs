@@ -19,6 +19,8 @@ namespace Be.Windows.Forms
 	[ToolboxBitmap(typeof(HexBox), "HexBox.bmp")]
 	public class HexBox : Control
 	{
+        const bool _debug = false;
+
         private SectionEditor _sectionEditor;
         public SectionEditor SectionEditor { get { return _sectionEditor; } set { _sectionEditor = value; } }
 
@@ -164,7 +166,7 @@ namespace Be.Windows.Forms
 			#region Mouse selection methods
 			void BeginMouseSelection(object sender, MouseEventArgs e)
 			{
-				System.Diagnostics.Debug.WriteLine("BeginMouseSelection()", "KeyInterpreter");
+				if (_debug) System.Diagnostics.Debug.WriteLine("BeginMouseSelection()", "KeyInterpreter");
 
 				if (e.Button != MouseButtons.Left)
 					return;
@@ -224,7 +226,7 @@ namespace Be.Windows.Forms
 			#region PrePrcessWmKeyDown methods
 			public virtual bool PreProcessWmKeyDown(ref Message m)
 			{
-				System.Diagnostics.Debug.WriteLine("PreProcessWmKeyDown(ref Message m)", "KeyInterpreter");
+				if (_debug) System.Diagnostics.Debug.WriteLine("PreProcessWmKeyDown(ref Message m)", "KeyInterpreter");
 
 				Keys vc = (Keys)m.WParam.ToInt32();
 
@@ -754,7 +756,7 @@ namespace Be.Windows.Forms
 			#region PreProcessWmKeyUp methods
 			public virtual bool PreProcessWmKeyUp(ref Message m)
 			{
-				System.Diagnostics.Debug.WriteLine("PreProcessWmKeyUp(ref Message m)", "KeyInterpreter");
+				if (_debug) System.Diagnostics.Debug.WriteLine("PreProcessWmKeyUp(ref Message m)", "KeyInterpreter");
 
 				Keys vc = (Keys)m.WParam.ToInt32();
 
@@ -959,7 +961,7 @@ namespace Be.Windows.Forms
 
 			public virtual PointF GetCaretPointF(long byteIndex)
 			{
-				System.Diagnostics.Debug.WriteLine("GetCaretPointF()", "KeyInterpreter");
+				if (_debug) System.Diagnostics.Debug.WriteLine("GetCaretPointF()", "KeyInterpreter");
 
 				return _hexBox.GetBytePointF(byteIndex);
 			}
@@ -1088,7 +1090,7 @@ namespace Be.Windows.Forms
 			#region Misc
 			public override PointF GetCaretPointF(long byteIndex)
 			{
-				System.Diagnostics.Debug.WriteLine("GetCaretPointF()", "StringKeyInterpreter");
+				if (_debug) System.Diagnostics.Debug.WriteLine("GetCaretPointF()", "StringKeyInterpreter");
 
 				Point gp = _hexBox.GetGridBytePoint(byteIndex);
 				return _hexBox.GetByteStringPointF(gp);
@@ -1463,7 +1465,7 @@ namespace Be.Windows.Forms
 
 		void UpdateScrollSize()
 		{
-			System.Diagnostics.Debug.WriteLine("UpdateScrollSize()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("UpdateScrollSize()", "HexBox");
 
 			// calc scroll bar info
 			if (VScrollBarVisible && _byteProvider != null && _byteProvider.Length > 0 && _iHexMaxHBytes != 0)
@@ -1501,7 +1503,7 @@ namespace Be.Windows.Forms
 
 		void UpdateVScroll()
 		{
-			System.Diagnostics.Debug.WriteLine("UpdateVScroll()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("UpdateVScroll()", "HexBox");
 
 			int max = ToScrollMax(_scrollVmax);
 
@@ -1628,7 +1630,7 @@ namespace Be.Windows.Forms
 		/// </summary>
 		public void ScrollByteIntoView()
 		{
-			System.Diagnostics.Debug.WriteLine("ScrollByteIntoView()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("ScrollByteIntoView()", "HexBox");
 
 			ScrollByteIntoView(_bytePos);
 		}
@@ -1639,7 +1641,7 @@ namespace Be.Windows.Forms
 		/// <param name="index">the index of the byte</param>
 		public void ScrollByteIntoView(long index)
 		{
-			System.Diagnostics.Debug.WriteLine("ScrollByteIntoView(long index)", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("ScrollByteIntoView(long index)", "HexBox");
 
 			if (_byteProvider == null || _keyInterpreter == null)
 				return;
@@ -1661,7 +1663,7 @@ namespace Be.Windows.Forms
 		#region Selection methods
 		void ReleaseSelection()
 		{
-			System.Diagnostics.Debug.WriteLine("ReleaseSelection()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("ReleaseSelection()", "HexBox");
 
 			if (_selectionLength == 0)
 				return;
@@ -1787,7 +1789,7 @@ namespace Be.Windows.Forms
 			if (_byteProvider == null || _keyInterpreter == null || _caretVisible || !this.Focused)
 				return;
 
-			System.Diagnostics.Debug.WriteLine("CreateCaret()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("CreateCaret()", "HexBox");
 
 			// define the caret width depending on InsertActive mode
 			int caretWidth = (this.InsertActive) ? 1 : (int)_charSize.Width;
@@ -1806,7 +1808,7 @@ namespace Be.Windows.Forms
 			if (_byteProvider == null || _keyInterpreter == null)
 				return;
 
-			System.Diagnostics.Debug.WriteLine("UpdateCaret()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("UpdateCaret()", "HexBox");
 
 			long byteIndex = _bytePos - _startByte;
 			PointF p = _keyInterpreter.GetCaretPointF(byteIndex);
@@ -1819,7 +1821,7 @@ namespace Be.Windows.Forms
 			if (!_caretVisible)
 				return;
 
-			System.Diagnostics.Debug.WriteLine("DestroyCaret()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("DestroyCaret()", "HexBox");
 
 			NativeMethods.DestroyCaret();
 			_caretVisible = false;
@@ -1828,7 +1830,7 @@ namespace Be.Windows.Forms
         bool inStringArea = false;
 		void SetCaretPosition(Point p)
 		{
-			System.Diagnostics.Debug.WriteLine("SetCaretPosition()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("SetCaretPosition()", "HexBox");
 
 			if (_byteProvider == null || _keyInterpreter == null)
 				return;
@@ -1868,7 +1870,7 @@ namespace Be.Windows.Forms
 
 		BytePositionInfo GetHexBytePositionInfo(Point p)
 		{
-			System.Diagnostics.Debug.WriteLine("GetHexBytePositionInfo()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("GetHexBytePositionInfo()", "HexBox");
 
 			long bytePos;
 			int byteCharaterPos;
@@ -1896,7 +1898,7 @@ namespace Be.Windows.Forms
 
 		BytePositionInfo GetStringBytePositionInfo(Point p)
 		{
-			System.Diagnostics.Debug.WriteLine("GetStringBytePositionInfo()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("GetStringBytePositionInfo()", "HexBox");
 
 			long bytePos;
 			int byteCharacterPos;
@@ -2477,7 +2479,7 @@ namespace Be.Windows.Forms
 			if (_byteProvider == null)
 				return;
 
-			System.Diagnostics.Debug.WriteLine("OnPaint " + DateTime.Now.ToString(), "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("OnPaint " + DateTime.Now.ToString(), "HexBox");
 
 			// draw only in the content rectangle, so exclude the border and the scrollbar.
 			Region r = new Region(ClientRectangle);
@@ -2569,6 +2571,8 @@ namespace Be.Windows.Forms
 
         void GetBrushes(int index, long remainder, ref Brush foreColor, ref Brush backColor)
         {
+            //bool specialFunc = false; //_prolog || _epilog || _unresolved
+
             ModuleSectionNode s = _sectionEditor._section;
             var linked = s._manager.GetLinked(index);
             if (linked != null && linked.Count > 0)
@@ -2580,19 +2584,28 @@ namespace Be.Windows.Forms
                     foreColor = new SolidBrush(Color.Blue);
             }
 
-            PPCOpCode code = s._manager.GetCode(index);
-            bool returnBranch = s.HasCode && (code is PPCblr || code is PPCbctr);
-            bool branch = s.HasCode && code is PPCBranch && !returnBranch;
-
             RelCommand command = s._manager.GetCommand(index);
-            bool cmd = command != null && (command.IsHalf && remainder > 1 || !command.IsHalf);
+            bool cmd = command != null && ((command.IsHalf && remainder > 1) || !command.IsHalf);
 
             backColor =
                 _sectionEditor.SelectedRelocationIndex == index ? SelectedBrush :
                 cmd ? CommandBrush :
-                returnBranch ? BlrBrush :
-                branch ? BranchOffsetBrush :
                 null;
+
+            if (backColor == null && s.HasCode)
+            {
+                PPCOpCode code = s._manager.GetCode(index);
+                bool returnBranch = s.HasCode && (code is PPCblr || code is PPCbctr);
+                bool branch = s.HasCode && code is PPCBranch && !returnBranch;
+
+                backColor = 
+                    returnBranch ? BlrBrush :
+                    branch ? BranchOffsetBrush :
+                    null;
+            }
+
+            if (backColor == null)
+                backColor = _sectionEditor._manager.GetColor(index);
         }
 
         void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Point gridPoint)
@@ -2604,48 +2617,19 @@ namespace Be.Windows.Forms
                 if (_sectionEditor != null)
                 {
                     int index = (int)(offset.RoundDown(4) / 4);
-                    //Relocation r = _sectionEditor._manager.GetRelocationAtOffset();
                     RelCommand cmd = _sectionEditor._manager.GetCommand(index);
-                    //if (r != null)
+                    
+                    Brush backBrush = null;
+                    int remainder = (int)(offset - offset.RoundDown(4));
+                    GetBrushes(index, remainder, ref foreBrush, ref backBrush);
+
+                    if (cmd != null)
+                        b = (byte)((cmd.Apply((uint)(b << (3 - remainder) * 8), 0) >> ((3 - remainder) * 8)) & 0xFF);
+
+                    if (backBrush != null)
                     {
-                        Brush backBrush = null;
-                        long remainder = offset - offset.RoundDown(4);
-                        GetBrushes(index, remainder, ref foreBrush, ref backBrush);
-
-                        //if (r.Command != null && _sectionEditor.displayInitialized.Checked)
-                        //    b = (byte)((r.RelOffset >> ((3 - ((int)remainder)) * 8)) & 0xFF);
-
-                        bool selected = _sectionEditor.SelectedRelocationIndex == index;
-                        if (backBrush != null)
-                        {
-                            if (cmd != null && cmd.IsHalf)
-                            {
-                                if (remainder > 1 || selected)
-                                {
-                                    PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
-                                    return;
-                                }
-                                //else// if (r.Color != Color.Transparent)
-                                //{
-                                //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
-                                //    return;
-                                //}
-                            }
-                            else
-                            {
-                                //if (/*(r._prolog || r._epilog || r._unresolved) && */!selected)
-                                //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
-                                //else
-                                if (selected)
-                                    PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
-                                return;
-                            }
-                        }
-                        //else// if (r.Color != Color.Transparent)
-                        //{
-                        //    PaintHexStringSelected(g, b, foreBrush, new SolidBrush(Color.FromArgb(255, 200, 255, 0)), gridPoint);
-                        //    return;
-                        //}
+                        PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
+                        return;
                     }
                 }
 
@@ -4187,7 +4171,7 @@ namespace Be.Windows.Forms
 		/// <param name="e">An EventArgs that contains the event data.</param>
 		protected override void OnMouseDown(MouseEventArgs e)
 		{
-			System.Diagnostics.Debug.WriteLine("OnMouseDown()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("OnMouseDown()", "HexBox");
 
 			if (!Focused)
 				Focus();
@@ -4226,7 +4210,7 @@ namespace Be.Windows.Forms
 		/// <param name="e">An EventArgs that contains the event data.</param>
 		protected override void OnGotFocus(EventArgs e)
 		{
-			System.Diagnostics.Debug.WriteLine("OnGotFocus()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("OnGotFocus()", "HexBox");
 
 			base.OnGotFocus(e);
 
@@ -4239,7 +4223,7 @@ namespace Be.Windows.Forms
 		/// <param name="e">An EventArgs that contains the event data.</param>
 		protected override void OnLostFocus(EventArgs e)
 		{
-			System.Diagnostics.Debug.WriteLine("OnLostFocus()", "HexBox");
+			if (_debug) System.Diagnostics.Debug.WriteLine("OnLostFocus()", "HexBox");
 
 			base.OnLostFocus(e);
 

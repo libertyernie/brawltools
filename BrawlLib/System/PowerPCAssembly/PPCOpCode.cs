@@ -76,7 +76,7 @@ namespace System.PowerPcAssembly
             _names.Add(".word");
         }
 
-        public override string GetFormattedOperands() { return String.Format("0x{0:X8}", _data._data); }
+        public override string GetFormattedOperands() { return String.Format("0x{0:X8}", (uint)_data._data); }
 
     }
 

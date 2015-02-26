@@ -10,24 +10,29 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class RelocationManager
     {
         public ModuleNode _module;
-        public ModuleDataNode _section;
+        public ModuleDataNode _data;
+
+        public ModuleDataNode DataNode { get { return _reference == null ? _data : _reference; } }
 
         private Dictionary<int, List<RelocationTarget>> _linkedCommands;
         private Dictionary<int, List<RelocationTarget>> _linkedBranches;
         private Dictionary<int, RelocationTarget> _targetRelocations;
         private Dictionary<int, List<string>> _tags;
         internal Dictionary<int, RelCommand> _commands;
+        private Dictionary<int, SolidBrush> _colors;
 
+        public uint BaseOffset { get { return DataNode.Data - ((ResourceNode)_module).WorkingUncompressed.Address; } }
         public KeyValuePair<int, RelCommand>[] GetCommands() { return _commands.OrderBy(x => x.Key).ToArray(); }
 
         public int _constructorIndex, _destructorIndex, _unresolvedIndex;
 
-        public uint BaseOffset { get { return _section.Data - ((ResourceNode)_module).WorkingUncompressed.Address; } }
+        int _referenceIndex;
+        ModuleDataNode _reference = null;
         
         public RelocationManager(ModuleDataNode data)
         {
-            _section = data;
-            if (_section._manager == null)
+            _data = data;
+            if (DataNode._manager == null)
             {
                 //Initialize
                 _linkedCommands = new Dictionary<int, List<RelocationTarget>>();
@@ -35,74 +40,93 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _targetRelocations = new Dictionary<int, RelocationTarget>();
                 _tags = new Dictionary<int, List<string>>();
                 _commands = new Dictionary<int, RelCommand>();
+                _colors = new Dictionary<int, SolidBrush>();
             }
             else
             {
                 //Make a copy
-                _linkedCommands = _section._manager._linkedCommands;
-                _linkedBranches = _section._manager._linkedBranches;
-                _targetRelocations = _section._manager._targetRelocations;
-                _tags = _section._manager._tags;
-                _commands = _section._manager._commands;
+                _linkedCommands = DataNode._manager._linkedCommands;
+                _linkedBranches = DataNode._manager._linkedBranches;
+                _targetRelocations = DataNode._manager._targetRelocations;
+                _tags = DataNode._manager._tags;
+                _commands = DataNode._manager._commands;
+                _colors = DataNode._manager._colors;
             }
         }
+
+        public void UseReference(ModuleDataNode reference, int offset)
+        {
+            _reference = reference;
+            _referenceIndex = offset.RoundDown(4) / 4;
+        }
+
         public uint GetUint(int index)
         {
-            return (uint)*((buint*)_section._dataBuffer.Address + index);
+            return (uint)*((buint*)DataNode._dataBuffer.Address + index);
         }
         public int GetInt(int index)
         {
-            return (int)*((bint*)_section._dataBuffer.Address + index);
+            return (int)*((bint*)DataNode._dataBuffer.Address + index);
         }
         public float GetFloat(int index)
         {
-            return (int)*((bint*)_section._dataBuffer.Address + index);
+            return (int)*((bint*)DataNode._dataBuffer.Address + index);
         }
         public Bin32 GetBin(int index)
         {
-            return *((Bin32*)_section._dataBuffer.Address + index);
+            return *((Bin32*)DataNode._dataBuffer.Address + index);
         }
         public PPCOpCode GetCode(int index)
         {
-            return (uint)*((buint*)_section._dataBuffer.Address + index);
+            return (uint)*((buint*)DataNode._dataBuffer.Address + index);
         }
         public string GetString(int index)
         {
-            return new string((sbyte*)_section._dataBuffer.Address + index * 4);
+            return new string((sbyte*)DataNode._dataBuffer.Address + index * 4);
         }
         public void SetUint(int index, uint value)
         {
-            *((buint*)_section._dataBuffer.Address + index) = value;
+            *((buint*)DataNode._dataBuffer.Address + index) = value;
         }
         public void SetInt(int index, int value)
         {
-            *((bint*)_section._dataBuffer.Address + index) = value;
+            *((bint*)DataNode._dataBuffer.Address + index) = value;
         }
         public void SetFloat(int index, float value)
         {
-            *((bfloat*)_section._dataBuffer.Address + index) = value;
+            *((bfloat*)DataNode._dataBuffer.Address + index) = value;
         }
         public void SetBin(int index, Bin32 value)
         {
-            *((Bin32*)_section._dataBuffer.Address + index) = value;
+            *((Bin32*)DataNode._dataBuffer.Address + index) = value;
         }
         public void SetCode(int index, PPCOpCode code)
         {
-            *((buint*)_section._dataBuffer.Address + index) = (uint)code;
+            *((buint*)DataNode._dataBuffer.Address + index) = (uint)code;
         }
         public void SetString(int index, string value)
         {
-            value.Write((sbyte*)_section._dataBuffer.Address + index * 4);
+            value.Write((sbyte*)DataNode._dataBuffer.Address + index * 4);
         }
 
+        #region TargetRelocation
         public RelocationTarget GetTargetRelocation(int index)
         {
+            if (_reference != null)
+                return _reference._manager.GetTargetRelocation(index + _referenceIndex);
+
             if (_targetRelocations.ContainsKey(index))
                 return _targetRelocations[index];
             return null;
         }
         public void SetTargetRelocation(int index, RelocationTarget target)
         {
+            if (_reference != null)
+            {
+                _reference._manager.SetTargetRelocation(index + _referenceIndex, target);
+                return;
+            }
+
             if (_targetRelocations.ContainsKey(index))
             {
                 if (target != null)
@@ -114,8 +138,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _targetRelocations.Add(index, target);
         }
         public void ClearTargetRelocation(int index) { SetTargetRelocation(index, null); }
+        #endregion
+
         public RelCommand GetCommand(int index)
         {
+            if (_reference != null)
+                return _reference._manager.GetCommand(index + _referenceIndex);
+
             if (_commands.ContainsKey(index))
                 return _commands[index];
             return null;
@@ -125,14 +154,61 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_commands.ContainsKey(index))
             {
                 if (cmd != null)
+                {
+                    LinkCommand(index, false);
                     _commands[index] = cmd;
+                    LinkCommand(index, true);
+                }
                 else
                     _commands.Remove(index);
             }
             else if (cmd != null)
                 _commands.Add(index, cmd);
         }
+
+        private void LinkCommand(int index, bool isLinked)
+        {
+            if (_commands[index] == null)
+                return;
+
+            RelocationTarget cmdTarget = _commands[index].GetTargetRelocation();
+            ModuleSectionNode targetSection;
+            if (cmdTarget != null && (targetSection = cmdTarget.Section) != null)
+            {
+                RelocationTarget thisRelocation = new RelocationTarget(DataNode.ModuleID, DataNode.Index, index);
+
+                if (isLinked)
+                    targetSection._manager.AddLinked(cmdTarget._index, thisRelocation);
+                else
+                    targetSection._manager.RemoveLinked(cmdTarget._index, thisRelocation);
+            }
+        }
+
         public void ClearCommand(int index) { SetCommand(index, null); }
+        public SolidBrush GetColor(int index)
+        {
+            if (_colors.ContainsKey(index))
+                return _colors[index];
+            return null;
+        }
+        public void SetColor(int index, Color color)
+        {
+            if (_colors.ContainsKey(index))
+            {
+                if (color != Color.Transparent)
+                {
+                    if (_colors[index] == null)
+                        _colors[index] = new SolidBrush(color);
+                    else
+                        _colors[index].Color = color;
+                }
+                else
+                    _colors.Remove(index);
+            }
+            else if (color != Color.Transparent)
+                _colors.Add(index, new SolidBrush(color));
+        }
+        public void ClearColor(int index) { SetColor(index, Color.Transparent); }
         public List<RelocationTarget> GetLinked(int index)
         {
             if (_linkedCommands.ContainsKey(index))
@@ -212,17 +288,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _tags[index].Contains(tag))
                 _tags[index].Remove(tag);
         }
-        public void AddTag(int index, string target)
+        public void AddTag(int index, string tag)
         {
             if (_tags.ContainsKey(index))
             {
                 if (_tags[index] == null)
-                    _tags[index] = new List<string>() { target };
+                    _tags[index] = new List<string>() { tag };
                 else
-                    _tags[index].Add(target);
+                    _tags[index].Add(tag);
             }
             else
-                _tags.Add(index, new List<string>() { target });
+                _tags.Add(index, new List<string>() { tag });
         }
         public void ClearTags(int index)
         {
@@ -255,14 +331,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public class RelocationTarget
     {
-        public RelocationTarget(int moduleID, int sectionID, int index)
+        public RelocationTarget(uint moduleID, int sectionID, int index)
         {
             _moduleID = moduleID;
             _sectionID = sectionID;
             _index = index;
         }
 
-        public int _moduleID;
+        public uint _moduleID;
         public int _sectionID;
         public int _index;
 
@@ -273,7 +349,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int GetHashCode()
         {
-            return _moduleID ^ _sectionID ^ _index;
+            return (int)_moduleID ^ _sectionID ^ _index;
         }
 
         public override bool Equals(object obj)
@@ -282,5 +358,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return obj.GetHashCode() == GetHashCode();
             return false;
         }
+
+        public ModuleSectionNode Section { get { return RELNode._files.ContainsKey(_moduleID) ? RELNode._files[_moduleID].Sections[_sectionID] : null; } }
     }
 }

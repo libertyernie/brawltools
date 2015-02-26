@@ -14,20 +14,47 @@ namespace System.Windows.Forms
 {
     public partial class PPCDisassembler : UserControl
     {
-        internal SectionEditor _editor;
+
+        internal RelocationManager _manager;
         public int _sectionOffset;
         public List<PPCOpCode> _relocations = new List<PPCOpCode>();
 
-        public void SetTarget(List<PPCOpCode> relocations, int baseOffset)
+        public void SetTarget(RELMethodNode node)
         {
-            //foreach (Relocation r in _relocations)
-            //    r.Color = Color.Transparent;
+            if (node.ResourceType == ResourceType.RELExternalMethod)
+            {
+                _relocations = null;
+                _sectionOffset = 0;
+                return;
+            }
+
+            _relocations = node._codes;
+            _sectionOffset = 0;
+            _manager = node._manager;
+
+            Display();
+        }
+
+        public void SetTarget(List<PPCOpCode> relocations, int baseOffset, RelocationManager manager)
+        {
+            if (_relocations != null)
+            {
+                int startIndex = _sectionOffset / 4;
+                for (int i = 0; i < _relocations.Count; i++)
+                    _manager.ClearColor(startIndex + i);
+            }
 
             _relocations = relocations;
             _sectionOffset = baseOffset;
+            _manager = manager;
 
-            //foreach (Relocation r in _relocations)
-            //    r.Color = Color.FromArgb(255, 255, 200, 200);
+            if (_relocations != null)
+            {
+                Color c = Color.FromArgb(255, 255, 200, 200);
+                int startIndex = _sectionOffset / 4;
+                for (int i = 0; i < _relocations.Count; i++)
+                    _manager.SetColor(startIndex + i, c);
+            }
 
             Display();
         }
@@ -36,6 +63,9 @@ namespace System.Windows.Forms
 
         public void UpdateRow(int i)
         {
+            if (_relocations == null)
+                return;
+
             DataGridViewRow row = grdDisassembler.Rows[i];
             PPCOpCode opcode = _relocations[i];
 
@@ -43,22 +73,23 @@ namespace System.Windows.Forms
             row.Cells[1].Value = opcode.Name;
             row.Cells[2].Value = opcode.GetFormattedOperands();
 
-            row.DefaultCellStyle.BackColor = _editor._section._manager.GetStatusColorFromIndex(_sectionOffset / 4 + i);
+            row.DefaultCellStyle.BackColor = _manager.GetStatusColorFromIndex(_sectionOffset / 4 + i);
         }
 
         void Display()
         {
             grdDisassembler.Rows.Clear();
-            for (int i = 0; i < _relocations.Count; i++)
-            {
-                grdDisassembler.Rows.Add();
-                UpdateRow(i);
-            }
+            if (_relocations != null)
+                for (int i = 0; i < _relocations.Count; i++)
+                {
+                    grdDisassembler.Rows.Add();
+                    UpdateRow(i);
+                }
         }
 
         private void grdDisassembler_DoubleClick(object sender, EventArgs e)
         {
-            new PPCOpCodeEditor().ShowDialog(_relocations[grdDisassembler.SelectedRows[0].Index], _editor);
+            new PPCOpCodeEditor().ShowDialog(_relocations[grdDisassembler.SelectedRows[0].Index], null);
         }
 
         public bool _updating = false;
@@ -67,17 +98,16 @@ namespace System.Windows.Forms
 
         }
 
+        public SectionEditor _editor;
+
         private void grdDisassembler_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
-            if (_updating)
+            if (_updating || _editor == null || grdDisassembler.SelectedRows.Count == 0)
                 return;
 
-            if (grdDisassembler.SelectedRows.Count > 0)
-            {
-                _updating = true;
-                _editor.Position = _sectionOffset + grdDisassembler.SelectedRows[0].Index * 4;
-                _updating = false;
-            }
+            _updating = true;
+            _editor.Position = _sectionOffset + grdDisassembler.SelectedRows[0].Index * 4;
+            _updating = false;
         }
     }
 }

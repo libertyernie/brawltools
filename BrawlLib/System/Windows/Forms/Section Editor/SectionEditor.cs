@@ -259,12 +259,11 @@ namespace System.Windows.Forms
             if (_section.HasCode && ppcDisassembler1.Visible && !ppcDisassembler1._updating)
             {
                 int i = SelectedRelocationIndex - _startIndex;
-                if (i >= 0)
+                if (i >= 0 && i < ppcDisassembler1.grdDisassembler.Rows.Count)
                 {
-                    //ppcDisassembler1.grdDisassembler.ClearSelection();
-                    //ppcDisassembler1.grdDisassembler.Rows[i].Selected = true;
-                    //ppcDisassembler1.grdDisassembler.FirstDisplayedScrollingRowIndex = i;
-                    //ppcDisassembler1.grdDisassembler.CurrentCell = ppcDisassembler1.grdDisassembler.Rows[i].Cells[0];
+                    ppcDisassembler1.grdDisassembler.ClearSelection();
+                    ppcDisassembler1.grdDisassembler.Rows[i].Selected = true;
+                    ppcDisassembler1.grdDisassembler.FirstDisplayedScrollingRowIndex = i;
                 }
             }
 
@@ -314,7 +313,9 @@ namespace System.Windows.Forms
                 if (_section.HasCode && ppcDisassembler1.Visible)
                 {
                     //Get the method that the cursor lies in and display it
-                    if (index < _startIndex || index > _endIndex)
+                    if (index < 0 || index > _section._dataBuffer.Length / 4 - 1)
+                        ppcDisassembler1.SetTarget(null, 0, null);
+                    else if (index < _startIndex || index > _endIndex)
                     {
                         int
                             startIndex = index,
@@ -338,7 +339,7 @@ namespace System.Windows.Forms
                         for (int i = startIndex; i <= endIndex; i++)
                             w.Add(_manager.GetCode(i));
 
-                        ppcDisassembler1.SetTarget(w, startIndex * 4);
+                        ppcDisassembler1.SetTarget(w, startIndex * 4, _manager);
                     }
 
                     bool u = _updating;
@@ -699,31 +700,33 @@ namespace System.Windows.Forms
 
         private void btnOpenTarget_Click(object sender, EventArgs e)
         {
-            //if (SelectedRelocationIndex == null || SelectedRelocationIndex.Command == null)
-            //    return;
-
-            //OpenRelocation(SelectedRelocationIndex.Command.GetTargetRelocation());
+            RelCommand cmd = _manager.GetCommand(SelectedRelocationIndex);
+            if (cmd != null)
+                OpenRelocation(cmd.GetTargetRelocation());
         }
 
         private void lstLinked_DoubleClick(object sender, EventArgs e)
         {
-            //if (lstLinked.SelectedItem != null)
-            //    OpenRelocation(lstLinked.SelectedItem as Relocation);
+            if (lstLinked.SelectedItem != null)
+                OpenRelocation(lstLinked.SelectedItem as RelocationTarget);
         }
         private void lstLinked_DrawItem(object sender, DrawItemEventArgs e)
         {
             e.DrawBackground();
-            //if (e.Index >= 0)
-            //{
-            //    Relocation r = lstLinked.Items[e.Index] as Relocation;
-            //    if (r != null)
-            //    {
-            //        Color c = r.Code is PPCBranch ? Color.DarkBlue :
-            //        r.Target != null ? Color.DarkGreen : Color.Black;
+            if (e.Index >= 0)
+            {
+                RelocationTarget r = lstLinked.Items[e.Index] as RelocationTarget;
+                if (r != null && r.Section != null)
+                {
+                    PPCOpCode code = r.Section._manager.GetCode(r._index);
 
-            //        e.Graphics.DrawString(r.ToString(), lstLinked.Font, new SolidBrush(c), e.Bounds);
-            //    }
-            //}
+                    Color c = 
+                        code is PPCBranch ? Color.DarkBlue :
+                        r.Section._manager.GetTargetRelocation(r._index) != null ? Color.DarkGreen : Color.Black;
+
+                    e.Graphics.DrawString(r.ToString(), lstLinked.Font, new SolidBrush(c), e.Bounds);
+                }
+            }
             e.DrawFocusRectangle();
         }
 
@@ -1048,9 +1051,9 @@ namespace System.Windows.Forms
             if (TargetBranch != null && 
                 !(TargetBranch is PPCblr) && 
                 !(TargetBranch is PPCbctr))
-                return new RelocationTarget(0, 0, 
+                return new RelocationTarget(_section.ModuleID, _section.Index, 
                     !TargetBranch.Absolute ?
-                    SelectedRelocationIndex * 4 +(TargetBranch.DataOffset).RoundDown(4) / 4 :
+                    (SelectedRelocationIndex * 4 + (TargetBranch.DataOffset).RoundDown(4)) / 4 :
                     0 //Absolute from start of section, start of file, or start of memory?
                 );
 

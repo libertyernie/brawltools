@@ -101,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public RelocationTarget GetTargetRelocation()
         {
-            return new RelocationTarget((int)_moduleID, (int)_targetSectionId, (int)(_addend.RoundDown(4) / 4));
+            return new RelocationTarget(_moduleID, (int)_targetSectionId, (int)(_addend.RoundDown(4) / 4));
         }
 
         public void SetTargetRelocation(RelocationTarget e)
@@ -150,13 +150,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
 
                 case RELCommandType.SetBranchDestination: //0xA
-                    Console.WriteLine("SetBranchDestination");
+                    //Console.WriteLine("SetBranchDestination");
                     break;
 
                 case RELCommandType.SetBranchConditionDestination1: //0xB
                 case RELCommandType.SetBranchConditionDestination2: //0xC
                 case RELCommandType.SetBranchConditionDestination3: //0xD
-                    Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
+                    //Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
                     break;
 
                 default:

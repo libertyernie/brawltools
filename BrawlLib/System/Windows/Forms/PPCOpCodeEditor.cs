@@ -13,17 +13,19 @@ namespace System.Windows.Controls
 {
     public partial class PPCOpCodeEditor : Form
     {
+        RelocationManager _manager;
+
         uint oldValue;
-        SectionEditor _mainWindow;
         PPCOpCode _code;
+
         public PPCOpCodeEditor()
         {
             InitializeComponent();
         }
 
-        public DialogResult ShowDialog(uint index, SectionEditor mainWindow)
+        public DialogResult ShowDialog(uint index, RelocationManager mainWindow)
         {
-            _mainWindow = mainWindow;
+            //_mainWindow = mainWindow;
             //oldValue = _mainWindow.GetCommandAfter
             //oldValue = _targetRelocation.RawValue;
             //propertyGrid1.SelectedObject = _code = _targetRelocation.Code;
@@ -41,15 +43,15 @@ namespace System.Windows.Controls
         private void button2_Click(object sender, EventArgs e)
         {
             //_targetRelocation.RawValue = oldValue;
-            _mainWindow.hexBox1.Invalidate();
+            //_mainWindow.hexBox1.Invalidate();
             DialogResult = Forms.DialogResult.Cancel;
             Close();
         }
 
         private void propertyGrid1_PropertyValueChanged(object s, PropertyValueChangedEventArgs e)
         {
-            _mainWindow.Position = _mainWindow.Position;
-            _mainWindow.hexBox1.Invalidate();
+            //_mainWindow.Position = _mainWindow.Position;
+            //_mainWindow.hexBox1.Invalidate();
             //_targetRelocation.RawValue = _code;
         }
 

@@ -22,6 +22,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal VoidPtr Data { get { return WorkingUncompressed.Address; } }
 
         [Browsable(false)]
+        public uint ModuleID { get { return ((ModuleNode)Root).ID; } }
+
+        [Browsable(false)]
         public uint RootOffset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }
         public string FileOffset { get { return "0x" + RootOffset.ToString("X"); } }
 
