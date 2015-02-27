@@ -10,6 +10,7 @@ using BrawlLib.IO;
 using System.PowerPcAssembly;
 using System.Windows.Forms;
 using System.Globalization;
+using System.Diagnostics;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -254,7 +255,34 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
-            ApplyRelocations();
+            //Larger modules may take slightly longer to relocate
+            //Use a background worker so the UI thread isn't suspended
+            Action<object, DoWorkEventArgs> work = (object sender, DoWorkEventArgs e) =>
+            {
+                Stopwatch watch = Stopwatch.StartNew();
+
+                //Scan for branches
+                foreach (ModuleSectionNode s in Sections)
+                    if (s.HasCode)
+                    {
+                        PPCOpCode code;
+                        buint* opPtr = s.BufferAddress;
+                        for (int i = 0; i < s._dataBuffer.Length / 4; i++)
+                            if ((code = (uint)*opPtr++) is PPCBranch && !(code is PPCblr || code is PPCbctr))
+                                s._manager.LinkBranch(i, true);
+                    }
+
+                ApplyRelocations();
+
+                watch.Stop();
+                Console.WriteLine("Took {0} seconds to relocate {1} module", (double)watch.ElapsedMilliseconds / 1000d, Name);
+            };
+
+            using (BackgroundWorker b = new BackgroundWorker())
+            {
+                b.DoWork += new DoWorkEventHandler(work);
+                b.RunWorkerAsync();
+            }
 
             // Stage module conversion
             byte* bptr = (byte*)WorkingUncompressed.Address;
