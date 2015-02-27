@@ -26,7 +26,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public int _constructorIndex, _destructorIndex, _unresolvedIndex;
 
-        int _referenceIndex;
+        int _referenceIndex = 0;
         ModuleDataNode _reference = null;
         
         public RelocationManager(ModuleDataNode data)
@@ -56,57 +56,56 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void UseReference(ModuleDataNode reference, int offset)
         {
-            _reference = reference;
-            _referenceIndex = offset.RoundDown(4) / 4;
+            _referenceIndex = (_reference = reference) != null ? offset.RoundDown(4) / 4 : 0;
         }
 
         public uint GetUint(int index)
         {
-            return (uint)*((buint*)DataNode._dataBuffer.Address + index);
+            return (uint)*((buint*)DataNode._dataBuffer.Address + index + _referenceIndex);
         }
         public int GetInt(int index)
         {
-            return (int)*((bint*)DataNode._dataBuffer.Address + index);
+            return (int)*((bint*)DataNode._dataBuffer.Address + index + _referenceIndex);
         }
         public float GetFloat(int index)
         {
-            return (int)*((bint*)DataNode._dataBuffer.Address + index);
+            return (int)*((bint*)DataNode._dataBuffer.Address + index + _referenceIndex);
         }
         public Bin32 GetBin(int index)
         {
-            return *((Bin32*)DataNode._dataBuffer.Address + index);
+            return *((Bin32*)DataNode._dataBuffer.Address + index + _referenceIndex);
         }
         public PPCOpCode GetCode(int index)
         {
-            return (uint)*((buint*)DataNode._dataBuffer.Address + index);
+            return (uint)*((buint*)DataNode._dataBuffer.Address + index + _referenceIndex);
         }
         public string GetString(int index)
         {
-            return new string((sbyte*)DataNode._dataBuffer.Address + index * 4);
+            return new string((sbyte*)DataNode._dataBuffer.Address + (index + _referenceIndex) * 4);
         }
         public void SetUint(int index, uint value)
         {
-            *((buint*)DataNode._dataBuffer.Address + index) = value;
+            *((buint*)DataNode._dataBuffer.Address + index + _referenceIndex) = value;
         }
         public void SetInt(int index, int value)
         {
-            *((bint*)DataNode._dataBuffer.Address + index) = value;
+            *((bint*)DataNode._dataBuffer.Address + index + _referenceIndex) = value;
         }
         public void SetFloat(int index, float value)
         {
-            *((bfloat*)DataNode._dataBuffer.Address + index) = value;
+            *((bfloat*)DataNode._dataBuffer.Address + index + _referenceIndex) = value;
         }
         public void SetBin(int index, Bin32 value)
         {
-            *((Bin32*)DataNode._dataBuffer.Address + index) = value;
+            *((Bin32*)DataNode._dataBuffer.Address + index + _referenceIndex) = value;
         }
         public void SetCode(int index, PPCOpCode code)
         {
-            *((buint*)DataNode._dataBuffer.Address + index) = (uint)code;
+            *((buint*)DataNode._dataBuffer.Address + index + _referenceIndex) = (uint)code;
         }
         public void SetString(int index, string value)
         {
-            value.Write((sbyte*)DataNode._dataBuffer.Address + index * 4);
+            value.Write((sbyte*)DataNode._dataBuffer.Address + (index + _referenceIndex) * 4);
         }
 
         #region TargetRelocation
@@ -151,6 +150,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void SetCommand(int index, RelCommand cmd)
         {
+            if (_reference != null)
+            {
+                _reference._manager.SetCommand(index + _referenceIndex, cmd);
+                return;
+            }
+
             if (_commands.ContainsKey(index))
             {
                 if (cmd != null)
@@ -160,10 +165,21 @@ namespace BrawlLib.SSBB.ResourceNodes
                     LinkCommand(index, true);
                 }
                 else
+                {
+                    LinkCommand(index, false);
                     _commands.Remove(index);
+                }
             }
             else if (cmd != null)
+            {
                 _commands.Add(index, cmd);
+                LinkCommand(index, true);
+            }
+        }
+
+        public RelocationTarget CreateTarget(int index)
+        {
+            return new RelocationTarget(DataNode.ModuleID, DataNode.Index, index);
         }
 
         private void LinkCommand(int index, bool isLinked)
@@ -175,7 +191,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ModuleSectionNode targetSection;
             if (cmdTarget != null && (targetSection = cmdTarget.Section) != null)
             {
-                RelocationTarget thisRelocation = new RelocationTarget(DataNode.ModuleID, DataNode.Index, index);
+                RelocationTarget thisRelocation = CreateTarget(index);
 
                 if (isLinked)
                     targetSection._manager.AddLinked(cmdTarget._index, thisRelocation);
@@ -184,15 +200,45 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public void LinkBranch(int index, bool isLinked)
+        {
+            PPCBranch branch = (PPCBranch)GetCode(index);
+            int destIndex = -1;
+            if (!branch.Absolute)
+            {
+                //TODO: check if the branch goes outside of the section, handle accordingly
+                destIndex = (index * 4 + branch.DataOffset).RoundDown(4) / 4;
+                RelocationTarget dest = CreateTarget(destIndex);
+                if (dest.Section != null)
+                {
+                    if (isLinked)
+                        dest.Section._manager.AddBranched(dest._index, CreateTarget(index));
+                    else
+                        dest.Section._manager.AddBranched(dest._index, CreateTarget(index));
+                }
+            }
+            else
+                Console.Write("Absolute branch at " + CreateTarget(index).ToString());
+        }
+
         public void ClearCommand(int index) { SetCommand(index, null); }
         public SolidBrush GetColor(int index)
         {
+            if (_reference != null)
+                return _reference._manager.GetColor(index + _referenceIndex);
+
             if (_colors.ContainsKey(index))
                 return _colors[index];
             return null;
         }
         public void SetColor(int index, Color color)
         {
+            if (_reference != null)
+            {
+                _reference._manager.SetColor(index + _referenceIndex, color);
+                return;
+            }
+
             if (_colors.ContainsKey(index))
             {
                 if (color != Color.Transparent)
@@ -277,12 +323,21 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public List<string> GetTags(int index)
         {
+            if (_reference != null)
+                return _reference._manager.GetTags(index + _referenceIndex);
+
             if (_tags.ContainsKey(index))
                 return _tags[index];
             return null;
         }
         public void RemoveTag(int index, string tag)
         {
+            if (_reference != null)
+            {
+                _reference._manager.RemoveTag(index + _referenceIndex, tag);
+                return;
+            }
+
             if (_tags.ContainsKey(index) &&
                 _tags[index] != null &&
                 _tags[index].Contains(tag))
@@ -290,6 +345,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void AddTag(int index, string tag)
         {
+            if (_reference != null)
+            {
+                _reference._manager.AddTag(index + _referenceIndex, tag);
+                return;
+            }
             if (_tags.ContainsKey(index))
             {
                 if (_tags[index] == null)
@@ -316,6 +376,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public Color GetStatusColorFromIndex(int index)
         {
+            if (_reference != null)
+                return _reference._manager.GetStatusColorFromIndex(_referenceIndex + index);
+
             if (GetCode(index) is PPCblr)
                 return clrBlr;
             if (!_commands.ContainsKey(index))

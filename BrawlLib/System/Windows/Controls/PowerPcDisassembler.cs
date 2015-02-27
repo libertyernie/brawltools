@@ -16,43 +16,47 @@ namespace System.Windows.Forms
     {
 
         internal RelocationManager _manager;
-        public int _sectionOffset;
-        public List<PPCOpCode> _relocations = new List<PPCOpCode>();
+        public int _baseOffset, _sectionOffset;
+        public List<PPCOpCode> _codes = new List<PPCOpCode>();
 
         public void SetTarget(RELMethodNode node)
         {
             if (node.ResourceType == ResourceType.RELExternalMethod)
             {
-                _relocations = null;
+                _codes = null;
                 _sectionOffset = 0;
-                return;
+                _baseOffset = 0;
+                _manager = null;
             }
-
-            _relocations = node._codes;
-            _sectionOffset = 0;
-            _manager = node._manager;
+            else
+            {
+                _codes = node._codes;
+                _sectionOffset = 0;
+                _baseOffset = (int)node._cmd._addend;
+                _manager = node._manager;
+            }
 
             Display();
         }
 
-        public void SetTarget(List<PPCOpCode> relocations, int baseOffset, RelocationManager manager)
+        public void SetTarget(List<PPCOpCode> relocations, int sectionOffset, RelocationManager manager)
         {
-            if (_relocations != null)
+            if (_codes != null)
             {
                 int startIndex = _sectionOffset / 4;
-                for (int i = 0; i < _relocations.Count; i++)
+                for (int i = 0; i < _codes.Count; i++)
                     _manager.ClearColor(startIndex + i);
             }
 
-            _relocations = relocations;
-            _sectionOffset = baseOffset;
+            _codes = relocations;
+            _sectionOffset = sectionOffset;
             _manager = manager;
 
-            if (_relocations != null)
+            if (_codes != null)
             {
-                Color c = Color.FromArgb(255, 255, 200, 200);
+                Color c = Color.FromArgb(255, 155, 200, 200);
                 int startIndex = _sectionOffset / 4;
-                for (int i = 0; i < _relocations.Count; i++)
+                for (int i = 0; i < _codes.Count; i++)
                     _manager.SetColor(startIndex + i, c);
             }
 
@@ -63,13 +67,13 @@ namespace System.Windows.Forms
 
         public void UpdateRow(int i)
         {
-            if (_relocations == null)
+            if (_codes == null)
                 return;
 
             DataGridViewRow row = grdDisassembler.Rows[i];
-            PPCOpCode opcode = _relocations[i];
+            PPCOpCode opcode = _codes[i];
 
-            row.Cells[0].Value = PPCFormat.Offset(_sectionOffset + i * 4);
+            row.Cells[0].Value = PPCFormat.Offset(_baseOffset + _sectionOffset + i * 4);
             row.Cells[1].Value = opcode.Name;
             row.Cells[2].Value = opcode.GetFormattedOperands();
 
@@ -79,8 +83,8 @@ namespace System.Windows.Forms
         void Display()
         {
             grdDisassembler.Rows.Clear();
-            if (_relocations != null)
-                for (int i = 0; i < _relocations.Count; i++)
+            if (_codes != null)
+                for (int i = 0; i < _codes.Count; i++)
                 {
                     grdDisassembler.Rows.Add();
                     UpdateRow(i);
@@ -89,7 +93,7 @@ namespace System.Windows.Forms
 
         private void grdDisassembler_DoubleClick(object sender, EventArgs e)
         {
-            new PPCOpCodeEditor().ShowDialog(_relocations[grdDisassembler.SelectedRows[0].Index], null);
+            new PPCOpCodeEditor().ShowDialog(_codes[grdDisassembler.SelectedRows[0].Index], null);
         }
 
         public bool _updating = false;
