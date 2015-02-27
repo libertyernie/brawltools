@@ -34,17 +34,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         public RelCommand _cmd;
 
         [Category("Method")]
-        [DisplayName("Target Module")]
-        [Description("Name of the target module which the assembly code for this method resides")]
-        public string TargetModule { get { return RELNode._idNames.ContainsKey((int)_cmd._moduleID) ? RELNode._idNames[(int)_cmd._moduleID] : ""; } }
+        [DisplayName("Data Size")]
+        [Description("The data length of the code in this method")]
+        public new string DataSize { get { return base.DataSize; } }
 
         [Category("Method")]
-        [DisplayName("Target Section")]
+        [DisplayName("Module ID")]
+        [Description("Name of the target module which the assembly code for this method resides")]
+        public string TargetModule { get { return RELNode._idNames.ContainsKey(_cmd._moduleID) ? RELNode._idNames[_cmd._moduleID] : ""; } }
+
+        [Category("Method")]
+        [DisplayName("Section Index")]
         [Description("The section in which this method's assembly code is located")]
         public uint TargetSection { get { return _cmd.TargetSectionID; } }
 
         [Category("Method")]
-        [DisplayName("Target Offset")]
+        [DisplayName("Section Offset")]
         [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
         public string TargetOffset { get { return _cmd.TargetOffset; } }
 

@@ -344,7 +344,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString()
         {
-            return String.Format("m{0}[{1}] 0x{2}", _moduleID, _sectionID, (_index * 4).ToString("X"));
+            return String.Format("{0}[{1}] 0x{2}", RELNode._idNames.ContainsKey(_moduleID) ? RELNode._idNames[_moduleID] : "m" + _moduleID.ToString(), _sectionID, (_index * 4).ToString("X"));
         }
 
         public override int GetHashCode()

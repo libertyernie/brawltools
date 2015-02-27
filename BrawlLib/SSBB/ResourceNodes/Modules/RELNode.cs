@@ -88,7 +88,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Category("Relocatable Module")]
-        public string ModuleName { get { return _idNames.ContainsKey((int)ModuleID) ? _idNames[(int)ModuleID] : ""; } }
+        public string ModuleName { get { return _idNames.ContainsKey(ModuleID) ? _idNames[ModuleID] : "m" + ModuleID; } }
         
         //[Category("REL")]
         //public int NextLink { get { return _linkNext; } }
@@ -222,7 +222,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if(_name == null)
-                _name = _idNames.ContainsKey((int)_id) ? _idNames[(int)_id] : Path.GetFileName(_origPath);
+                _name = _idNames.ContainsKey(_id) ? _idNames[_id] : Path.GetFileName(_origPath);
 
             _files.Add(ModuleID, this);
 
@@ -669,7 +669,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ? new RELNode() : null; 
         }
 
-        public static SortedList<int, string> _idNames = new SortedList<int, string>()
+        public static SortedList<uint, string> _idNames = new SortedList<uint, string>()
         {
             {0, "main.dol"},
             {1, "sora_scene"},

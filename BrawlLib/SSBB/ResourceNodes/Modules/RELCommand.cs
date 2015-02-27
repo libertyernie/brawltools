@@ -69,7 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Relocation Command"), Description("The ID of the target module."), TypeConverter(typeof(DropDownListRELModuleIDs))]
         public string TargetModuleID
         {
-            get { return RELNode._idNames.ContainsKey((int)_moduleID) ? RELNode._idNames[(int)_moduleID] : _moduleID.ToString(); }
+            get { return RELNode._idNames.ContainsKey(_moduleID) ? RELNode._idNames[_moduleID] : _moduleID.ToString(); }
             set
             {
                 uint id = 0;
