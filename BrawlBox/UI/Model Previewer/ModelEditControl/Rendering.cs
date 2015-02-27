@@ -22,11 +22,13 @@ namespace System.Windows.Forms
 
         public unsafe override void modelPanel1_PostRender(ModelPanelViewport panel)
         {
+            RenderBrawlStageData(panel);
+
             base.modelPanel1_PostRender(panel);
 
             GL.Disable(EnableCap.DepthTest);
 
-            RenderBrawlStageData(panel);
+            
 
             //This should probably be moved to BrawlLib in case a 3rd party wants to use it in their program
             //Ikarus doesn't need it though
@@ -240,7 +242,7 @@ namespace System.Windows.Forms
                     }
                     else if (bone._name.Contains("Rebirth") && chkSpawns.Checked)
                     {
-                        GL.Color4(1.0f, 1.0f, 1.0f, 0.5f);
+                        GL.Color4(1.0f, 1.0f, 1.0f, 0.1f);
                         TKContext.DrawSphere(bone._frameMatrix.GetPoint(), 5.0f, 32);
                     }
                     else if (bone._name.Contains("Item"))
@@ -248,14 +250,17 @@ namespace System.Windows.Forms
                 }
 
             //Render item fields if checked
-            if (ItemBones != null && chkItems.Checked) 
+            if (ItemBones != null && chkItems.Checked)
+            {
+                GL.Color4(0.5f, 0.0f, 1.0f, 0.4f);
                 for (int i = 0; i < ItemBones.Count; i += 2)
                 {
                     Vector3 pos1 = new Vector3(ItemBones[i]._frameMatrix.GetPoint()._x, ItemBones[i]._frameMatrix.GetPoint()._y + 3.0f, 1.0f);
-                    Vector3 pos2 = new Vector3(ItemBones[i+1]._frameMatrix.GetPoint()._x, ItemBones[i+1]._frameMatrix.GetPoint()._y - 3.0f, 1.0f);
-                    GL.Color4(0.5f, 0.0f, 1.0f, 0.4f);
+                    Vector3 pos2 = new Vector3(ItemBones[i + 1]._frameMatrix.GetPoint()._x, ItemBones[i + 1]._frameMatrix.GetPoint()._y - 3.0f, 1.0f);
+
                     TKContext.DrawBox(pos1, pos2);
                 }
+            }
 
             //Render boundaries if checked
             if (CamBone0 != null && CamBone1 != null && chkBoundaries.Checked)
