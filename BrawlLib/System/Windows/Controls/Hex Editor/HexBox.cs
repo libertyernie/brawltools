@@ -24,6 +24,10 @@ namespace Be.Windows.Forms
         private SectionEditor _sectionEditor;
         public SectionEditor SectionEditor { get { return _sectionEditor; } set { _sectionEditor = value; } }
 
+        public SolidBrush BlackBrush = new SolidBrush(Color.Black);
+        public SolidBrush GrayBrush = new SolidBrush(Color.Gray);
+        public SolidBrush BlueBrush = new SolidBrush(Color.Blue);
+
 		#region IKeyInterpreter interface
 		/// <summary>
 		/// Defines a user input handler such as for mouse and keyboard input
@@ -2491,15 +2495,9 @@ namespace Be.Windows.Forms
 			if (_lineInfoVisible)
 				PaintLineInfo(e.Graphics, _startByte, _endByte);
 
-			if (!_stringViewVisible)
-				PaintHex(e.Graphics, _startByte, _endByte);
-			else
-			{
-				PaintHexAndStringView(e.Graphics, _startByte, _endByte);
-				if (_shadowSelectionVisible)
-					PaintCurrentBytesSign(e.Graphics);
-			}
-			if (_columnInfoVisible)
+            PaintHexAndStringView(e.Graphics, _startByte, _endByte);
+
+            if (_columnInfoVisible)
 				PaintHeaderRow(e.Graphics);
 			if (_groupSeparatorVisible)
 				PaintColumnSeparator(e.Graphics);
@@ -2569,7 +2567,7 @@ namespace Be.Windows.Forms
 			}
 		}
 
-        void GetBrushes(int index, long remainder, ref Brush foreColor, ref Brush backColor)
+        RelCommand GetBrushes(int index, ref Brush foreColor, ref Brush backColor)
         {
             //bool specialFunc = false; //_prolog || _epilog || _unresolved
 
@@ -2581,11 +2579,13 @@ namespace Be.Windows.Forms
             {
                 var branched = s._manager.GetBranched(index);
                 if (branched != null && branched.Count > 0)
-                    foreColor = new SolidBrush(Color.Blue);
+                    foreColor = BlueBrush;
+                else
+                    foreColor = BlackBrush;
             }
 
             RelCommand command = s._manager.GetCommand(index);
-            bool cmd = command != null && ((command.IsHalf && remainder > 1) || !command.IsHalf);
+            bool cmd = command != null && !command.IsHalf;
 
             backColor =
                 _sectionEditor.SelectedRelocationIndex == index ? SelectedBrush :
@@ -2606,57 +2606,19 @@ namespace Be.Windows.Forms
 
             if (backColor == null)
                 backColor = _sectionEditor._manager.GetColor(index);
+
+            return command;
         }
 
-        void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Point gridPoint)
+        void PaintByte(byte b, long offset, bool isSelectedByte, bool isKeyInterpreterActive, Graphics g, Brush foreBrush, Brush backBrush, Point gridPoint)
         {
             if (isSelectedByte && isKeyInterpreterActive)
                 PaintHexStringSelected(g, b, SelectionForeBrush, SelectionBackBrush, gridPoint);
+            else if (backBrush != null)
+                PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
             else
-            {
-                if (_sectionEditor != null)
-                {
-                    int index = (int)(offset.RoundDown(4) / 4);
-                    RelCommand cmd = _sectionEditor._manager.GetCommand(index);
-                    
-                    Brush backBrush = null;
-                    int remainder = (int)(offset - offset.RoundDown(4));
-                    GetBrushes(index, remainder, ref foreBrush, ref backBrush);
-
-                    if (cmd != null)
-                        b = (byte)((cmd.Apply((uint)(b << (3 - remainder) * 8), 0) >> ((3 - remainder) * 8)) & 0xFF);
-
-                    if (backBrush != null)
-                    {
-                        PaintHexStringSelected(g, b, foreBrush, backBrush, gridPoint);
-                        return;
-                    }
-                }
-
                 PaintHexString(g, b, foreBrush, gridPoint);
-            }
         }
-
-		void PaintHex(Graphics g, long startByte, long endByte)
-		{
-			Brush brush = new SolidBrush(GetDefaultForeColor());
-
-			int counter = -1;
-			long intern_endByte = Math.Min(_byteProvider.Length - 1, endByte + _iHexMaxHBytes);
-
-			bool isKeyInterpreterActive = _keyInterpreter == null || _keyInterpreter.GetType() == typeof(KeyInterpreter);
-
-			for (long i = startByte; i < intern_endByte + 1; i++)
-			{
-				counter++;
-				Point gridPoint = GetGridBytePoint(counter);
-				byte b = _byteProvider.ReadByte(i);
-
-				bool isSelectedByte = i >= _bytePos && i <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
-
-                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, gridPoint);
-			}
-		}
 
 		void PaintHexString(Graphics g, byte b, Brush brush, Point gridPoint)
 		{
@@ -2701,35 +2663,59 @@ namespace Be.Windows.Forms
 
 		void PaintHexAndStringView(Graphics g, long startByte, long endByte)
 		{
-			Brush brush = new SolidBrush(GetDefaultForeColor());
+			Brush foreBrush = GetDefaultForeColor();
+            Brush backBrush = null;
 
-			int counter = -1;
+			int counter = 0;
 			long intern_endByte = Math.Min(_byteProvider.Length - 1, endByte + _iHexMaxHBytes);
 
 			bool isKeyInterpreterActive = _keyInterpreter == null || _keyInterpreter.GetType() == typeof(KeyInterpreter);
 			bool isStringKeyInterpreterActive = _keyInterpreter != null && _keyInterpreter.GetType() == typeof(StringKeyInterpreter);
 
-			for (long i = startByte; i < intern_endByte + 1; i++)
+            long offset = startByte;
+            int index = (int)(offset / 4);
+			for (long x = startByte; x <= intern_endByte; x += 4, index++)
 			{
-				counter++;
-				Point gridPoint = GetGridBytePoint(counter);
-				PointF byteStringPointF = GetByteStringPointF(gridPoint);
-				byte b = _byteProvider.ReadByte(i);
+                uint word =
+                    ((uint)_byteProvider.ReadByte(x + 0) << 24) |
+                    ((uint)_byteProvider.ReadByte(x + 1) << 16) |
+                    ((uint)_byteProvider.ReadByte(x + 2) << 8) |
+                    ((uint)_byteProvider.ReadByte(x + 3) << 0);
 
-				bool isSelectedByte = i >= _bytePos && i <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
+                RelCommand cmd = null;
+                if (_sectionEditor != null && (cmd = GetBrushes(index, ref foreBrush, ref backBrush)) != null)
+                    word = cmd.Apply(word, 0);
 
-                PaintByte(b, i, isSelectedByte, isKeyInterpreterActive, g, brush, gridPoint);
-                
-				string s = new String(ByteCharConverter.ToChar(b), 1);
+                bool half = cmd != null && cmd.IsHalf;
+                for (int u = 0; u < 4; u++, offset++, counter++)
+                {
+                    Point gridPoint = GetGridBytePoint(counter);
+                    PointF byteStringPointF = GetByteStringPointF(gridPoint);
 
-				if (isSelectedByte && isStringKeyInterpreterActive)
-				{
-					g.FillRectangle(_selectionBackBrush, byteStringPointF.X, byteStringPointF.Y, _charSize.Width, _charSize.Height);
-					g.DrawString(s, Font, _selectionForeBrush, byteStringPointF, _stringFormat);
-				}
-				else
-					g.DrawString(s, Font, brush, byteStringPointF, _stringFormat);
+                    if (half && u > 1)
+                        backBrush = CommandBrush;
+
+                    byte b = (byte)((word >> ((3 - u) * 8)) & 0xFF);
+
+                    bool isSelectedByte = offset >= _bytePos && offset <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
+
+                    PaintByte(b, offset, isSelectedByte, isKeyInterpreterActive, g, foreBrush, backBrush, gridPoint);
+
+                    string s = new String(ByteCharConverter.ToChar(b), 1);
+
+                    if (_stringViewVisible)
+                        if (isSelectedByte && isStringKeyInterpreterActive)
+                        {
+                            g.FillRectangle(_selectionBackBrush, byteStringPointF.X, byteStringPointF.Y, _charSize.Width, _charSize.Height);
+                            g.DrawString(s, Font, _selectionForeBrush, byteStringPointF, _stringFormat);
+                        }
+                        else
+                            g.DrawString(s, Font, foreBrush, byteStringPointF, _stringFormat);
+                }
 			}
+
+            if (_shadowSelectionVisible)
+                PaintCurrentBytesSign(g);
 		}
 
 		void PaintCurrentBytesSign(Graphics g)
@@ -2913,12 +2899,12 @@ namespace Be.Windows.Forms
 			g.DrawImage(myBitmap, rec.Left, rec.Top);
 		}
 
-		Color GetDefaultForeColor()
+		SolidBrush GetDefaultForeColor()
 		{
 			if (Enabled)
-				return ForeColor;
+				return BlackBrush;
 			else
-				return Color.Gray;
+				return GrayBrush;
 		}
 		void UpdateVisibilityBytes()
 		{
