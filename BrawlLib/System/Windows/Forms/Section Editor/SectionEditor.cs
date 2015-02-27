@@ -325,12 +325,12 @@ namespace System.Windows.Forms
 
                         //Backtrack setting the method start index until we hit a branch.
                         //Do not include this branch, as it is not part of the method.
-                        while (startIndex > 0 && !(_manager.GetCode(startIndex - 1) is PPCBranch))
+                        while (startIndex > 0 && !(_manager.GetCode(startIndex - 1) is PPCblr))
                             startIndex--;
 
                         //Now iterate down the code until we hit a branch to set the end.
                         //Include this branch, because it ends the method.
-                        while (endIndex < _section._dataBuffer.Length / 4 - 1 && !(_manager.GetCode(endIndex) is PPCBranch))
+                        while (endIndex < _section._dataBuffer.Length / 4 - 1 && !(_manager.GetCode(endIndex) is PPCblr))
                             endIndex++;
 
                         _startIndex = startIndex;
@@ -339,6 +339,7 @@ namespace System.Windows.Forms
                         for (int i = startIndex; i <= endIndex; i++)
                             w.Add(_manager.GetCode(i));
 
+                        ppcDisassembler1._baseOffset = (int)_section.RootOffset;
                         ppcDisassembler1.SetTarget(w, startIndex * 4, _manager);
                     }
 
@@ -361,8 +362,7 @@ namespace System.Windows.Forms
                     else
                         btnGotoBranch.Visible = btnGotoBranch.Enabled = false;
                 }
-                    
-
+                
                 CommandChanged();
             }
         }
