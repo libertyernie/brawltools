@@ -25,17 +25,19 @@ namespace System.Windows.Forms
 
         public SectionEditor(ModuleSectionNode section)
         {
+            _startIndex = int.MaxValue;
+            _endIndex = int.MinValue;
+
             InitializeComponent();
 
             ppcDisassembler1._editor = this;
+            ppcDisassembler1.ppcOpCodeEditControl1._canFollowBranch = true;
+            ppcDisassembler1.ppcOpCodeEditControl1.OnBranchFollowed += ppcOpCodeEditControl1_OnBranchFollowed;
 
             if ((_section = section) != null)
             {
                 _section._linkedEditor = this;
                 _manager = new RelocationManager(_section);
-                //Relocation[] temp = new Relocation[_section._relocations.Count];
-                //_relocations = new List<Relocation>(_section._relocations);
-                //_firstCommand = _section._firstCommand;
             }
             _openedSections.Add(this);
 
@@ -59,6 +61,26 @@ namespace System.Windows.Forms
             }
 
             panel5.Enabled = true;
+        }
+
+        void ppcOpCodeEditControl1_OnBranchFollowed()
+        {
+            //See if the target is already in this REL
+            if (TargetBranchOffsetRelocation != null)
+                OpenRelocation(TargetBranchOffsetRelocation); //Navigate to it
+            else if (SelectedRelocationIndex >= 0)
+            {
+                //If the target module id isn't this REL nor in the opened rel list, 
+                //ask the user to open the file, add it to the list and then navigate to it.
+
+                //if (SelectedRelocationIndex.Command != null)
+                //{
+                //    if (SelectedRelocationIndex.Command.Command == RELCommandType.SetBranchDestination)
+                //    {
+
+                //    }
+                //}
+            }
         }
 
         protected override void OnClosed(EventArgs e)
@@ -232,8 +254,8 @@ namespace System.Windows.Forms
                     if (w != i)
                     {
                         txtInt.Text = i.ToString();
-                        if (_section.HasCode && ppcDisassembler1.Visible)
-                            ppcDisassembler1.UpdateRow(SelectedRelocationIndex - _startIndex);
+                        //if (_section.HasCode && ppcDisassembler1.Visible)
+                        //    ppcDisassembler1.UpdateRow(SelectedRelocationIndex - _startIndex);
                     }
                 }
                 else
@@ -259,7 +281,10 @@ namespace System.Windows.Forms
             if (_section.HasCode && ppcDisassembler1.Visible && !ppcDisassembler1._updating)
             {
                 int i = SelectedRelocationIndex - _startIndex;
-                if (i >= 0 && i < ppcDisassembler1.grdDisassembler.Rows.Count)
+                if (i >= 0 && 
+                    i < ppcDisassembler1.grdDisassembler.Rows.Count &&
+                    !(ppcDisassembler1.grdDisassembler.SelectedRows.Count > 0 && 
+                    ppcDisassembler1.grdDisassembler.SelectedRows[0].Index == i))
                 {
                     ppcDisassembler1.grdDisassembler.ClearSelection();
                     ppcDisassembler1.grdDisassembler.Rows[i].Selected = true;
@@ -276,7 +301,10 @@ namespace System.Windows.Forms
             set
             {
                 if (hexBox1.SelectionStart == value)
-                    PosChanged();
+                {
+                    if (!_updating)
+                        PosChanged();
+                }
                 else
                     hexBox1.SelectionStart = value;
             }
@@ -352,15 +380,13 @@ namespace System.Windows.Forms
 
                     //Set the target branch code
                     PPCOpCode code = _manager.GetCode(_selectedRelocationIndex);
-                    if (code is PPCBranch &&
-                        !(code is PPCblr) &&
-                        !(code is PPCbctr))
+                    if (code is PPCBranch && !(code is PPCblr))
                     {
                         _targetBranch = (PPCBranch)code;
-                        btnGotoBranch.Visible = btnGotoBranch.Enabled = (_targetBranchOffsetRelocation = GetBranchOffsetRelocation()) != null;
+                        _targetBranchOffsetRelocation = GetBranchOffsetRelocation();
                     }
-                    else
-                        btnGotoBranch.Visible = btnGotoBranch.Enabled = false;
+                    else if (_targetBranchOffsetRelocation != null)
+                        _targetBranchOffsetRelocation = null;
                 }
                 
                 CommandChanged();
@@ -719,11 +745,7 @@ namespace System.Windows.Forms
                 if (r != null && r.Section != null)
                 {
                     PPCOpCode code = r.Section._manager.GetCode(r._index);
-
-                    Color c = 
-                        code is PPCBranch ? Color.DarkBlue :
-                        r.Section._manager.GetTargetRelocation(r._index) != null ? Color.DarkGreen : Color.Black;
-
+                    Color c = code is PPCBranch ? Color.Blue : Color.Red;
                     e.Graphics.DrawString(r.ToString(), lstLinked.Font, new SolidBrush(c), e.Bounds);
                 }
             }
@@ -1058,27 +1080,6 @@ namespace System.Windows.Forms
                 );
 
             return null;
-        }
-
-        private void btnGotoBranch_Click(object sender, EventArgs e)
-        {
-            //See if the target is already in this REL
-            if (TargetBranchOffsetRelocation != null)
-                OpenRelocation(TargetBranchOffsetRelocation); //Navigate to it
-            else if (SelectedRelocationIndex >= 0)
-            {
-                //If the target module id isn't this REL nor in the opened rel list, 
-                //ask the user to open the file, add it to the list and then navigate to it.
-
-                //if (SelectedRelocationIndex.Command != null)
-                //{
-                //    if (SelectedRelocationIndex.Command.Command == RELCommandType.SetBranchDestination)
-                //    {
-
-                //    }
-                //}
-            }
-
         }
     }
 }

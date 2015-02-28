@@ -8,16 +8,16 @@ using System.Text;
 using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using System.PowerPcAssembly;
-using System.Windows.Controls;
 
 namespace System.Windows.Forms
 {
     public partial class PPCDisassembler : UserControl
     {
-
         internal RelocationManager _manager;
         public int _baseOffset, _sectionOffset;
         public List<PPCOpCode> _codes = new List<PPCOpCode>();
+        public bool _updating = false; 
+        public SectionEditor _editor;
 
         public void SetTarget(RELMethodNode node)
         {
@@ -30,7 +30,10 @@ namespace System.Windows.Forms
             }
             else
             {
-                _codes = node._codes;
+                _codes = new List<PPCOpCode>();
+                for (int i = 0; i < node._codeLen / 4; i++)
+                    _codes.Add(node._manager.GetCode(i));
+
                 _sectionOffset = 0;
                 _baseOffset = (int)node._cmd._addend;
                 _manager = node._manager;
@@ -63,7 +66,22 @@ namespace System.Windows.Forms
             Display();
         }
 
-        public PPCDisassembler() { InitializeComponent(); }
+        public PPCDisassembler()
+        {
+            InitializeComponent();
+            ppcOpCodeEditControl1.OnOpChanged += ppcOpCodeEditControl1_OnOpChanged;
+        }
+
+        void ppcOpCodeEditControl1_OnOpChanged()
+        {
+            if (_editor != null && grdDisassembler.SelectedRows.Count > 0)
+            {
+                int index = grdDisassembler.SelectedRows[0].Index;
+                PPCOpCode code = ppcOpCodeEditControl1._code;
+                _editor._manager.SetCode(_sectionOffset / 4 + index, code);
+                _editor.hexBox1.Invalidate();
+            }
+        }
 
         public void UpdateRow(int i)
         {
@@ -73,11 +91,16 @@ namespace System.Windows.Forms
             DataGridViewRow row = grdDisassembler.Rows[i];
             PPCOpCode opcode = _codes[i];
 
+            int index = _sectionOffset / 4 + i;
+
             row.Cells[0].Value = PPCFormat.Offset(_baseOffset + _sectionOffset + i * 4);
             row.Cells[1].Value = opcode.Name;
             row.Cells[2].Value = opcode.GetFormattedOperands();
 
-            row.DefaultCellStyle.BackColor = _manager.GetStatusColorFromIndex(_sectionOffset / 4 + i);
+            var s = _manager.GetTags(index);
+            row.Cells[3].Value = s == null ? "" : String.Join("; ", s);
+
+            row.DefaultCellStyle.BackColor = _manager.GetStatusColorFromIndex(index);
         }
 
         void Display()
@@ -93,16 +116,18 @@ namespace System.Windows.Forms
 
         private void grdDisassembler_DoubleClick(object sender, EventArgs e)
         {
-            new PPCOpCodeEditor().ShowDialog(_codes[grdDisassembler.SelectedRows[0].Index], null);
+            
         }
 
-        public bool _updating = false;
         private void grdDisassembler_SelectionChanged(object sender, EventArgs e)
         {
+            if (grdDisassembler.SelectedRows.Count == 0)
+                return;
 
+            int index = grdDisassembler.SelectedRows[0].Index;
+            if (index >= 0 && index < _codes.Count)
+                ppcOpCodeEditControl1.SetCode(_codes[index]);
         }
-
-        public SectionEditor _editor;
 
         private void grdDisassembler_RowEnter(object sender, DataGridViewCellEventArgs e)
         {
@@ -110,8 +135,48 @@ namespace System.Windows.Forms
                 return;
 
             _updating = true;
-            _editor.Position = _sectionOffset + grdDisassembler.SelectedRows[0].Index * 4;
+            int index = grdDisassembler.SelectedRows[0].Index;
+            long offset = (long)_sectionOffset + index * 4;
+            if (_editor.Position.RoundDown(4) != offset)
+                _editor.Position = offset;
             _updating = false;
+        }
+
+        private void splitContainer_MouseDown(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = true;
+        }
+        private void splitContainer_MouseUp(object sender, MouseEventArgs e)
+        {
+            ((SplitContainer)sender).IsSplitterFixed = false;
+        }
+        private void splitContainer_MouseMove(object sender, MouseEventArgs e)
+        {
+            SplitContainer splitter = (SplitContainer)sender;
+            if (splitter.IsSplitterFixed)
+            {
+                if (e.Button.Equals(MouseButtons.Left))
+                {
+                    if (splitter.Orientation.Equals(Orientation.Vertical))
+                    {
+                        if (e.X > 0 && e.X < splitter.Width)
+                        {
+                            splitter.SplitterDistance = e.X;
+                            splitter.Refresh();
+                        }
+                    }
+                    else
+                    {
+                        if (e.Y > 0 && e.Y < splitter.Height)
+                        {
+                            splitter.SplitterDistance = e.Y;
+                            splitter.Refresh();
+                        }
+                    }
+                }
+                else
+                    splitter.IsSplitterFixed = false;
+            }
         }
     }
 }

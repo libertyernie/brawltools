@@ -12,9 +12,9 @@ using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class RELMethodNode : ModuleDataNode
+    public unsafe class RELMethodNode : RELEntryNode
     {
-        internal buint* Header { get { return (buint*)WorkingUncompressed.Address; } }
+        internal VoidPtr Header { get { return WorkingUncompressed.Address; } }
         public override ResourceType ResourceType
         {
             get
@@ -36,7 +36,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Method")]
         [DisplayName("Data Size")]
         [Description("The data length of the code in this method")]
-        public new string DataSize { get { return base.DataSize; } }
+        public string DataSize { get { return "0x" + _codeLen.ToString("X"); } }
 
         [Category("Method")]
         [DisplayName("Module ID")]
@@ -53,28 +53,33 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Description("Offset of the method's asssembly code within the target module, relative to the target section")]
         public string TargetOffset { get { return _cmd.TargetOffset; } }
 
-        public List<PPCOpCode> _codes = new List<PPCOpCode>();
-
-        public int _sectionOffset = 0;
+        public int _codeStart, _codeLen;
+        public RelocationManager _manager;
 
         public override bool OnInitialize()
         {
             ModuleSectionNode section = Location;
-            if (section == null || !((VoidPtr)Header))
+            if (section == null || !Header)
                 return false;
 
-            buint* sPtr = Header;
-            PPCOpCode code = null;
-            do _codes.Add(code = PowerPC.Disassemble(*sPtr++));
-            while (!(code is PPCBranch));
+            //Don't make a copy buffer here.
+            //Use the original buffer to save memory
 
-            InitBuffer((uint)sPtr - (uint)Header, Header);
-            _manager.UseReference(section, _sectionOffset = (int)Header - (int)section.Header);
+            buint* sPtr = (buint*)Header;
+            VoidPtr ceil = section.Header + section._dataSize;
 
-            if (_dataBuffer.Length > 0)
+            while (!(PowerPC.Disassemble(*sPtr++) is PPCblr) && (int)sPtr < (int)ceil);
+            
+            _codeStart = (int)Header - (int)section.Header;
+            _codeLen = (int)sPtr - (int)Header;
+
+            _manager = new RelocationManager(null);
+            _manager.UseReference(section, _codeStart);
+
+            if (_codeLen > 0)
             {
                 _manager.AddTag(0, FullName + " Start");
-                _manager.AddTag(_dataBuffer.Length / 4 - 1, FullName + " End");
+                _manager.AddTag(_codeLen / 4 - 1, FullName + " End");
             }
 
             return false;
@@ -82,12 +87,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override unsafe void Export(string outPath)
         {
-            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
-            {
-                stream.SetLength(_dataBuffer.Length);
-                using (FileMap map = FileMap.FromStream(stream))
-                    Memory.Move(map.Address, _dataBuffer.Address, (uint)_dataBuffer.Length);
-            }
+            //using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            //{
+            //    stream.SetLength(_dataBuffer.Length);
+            //    using (FileMap map = FileMap.FromStream(stream))
+            //        Memory.Move(map.Address, _dataBuffer.Address, (uint)_dataBuffer.Length);
+            //}
         }
     }
 }

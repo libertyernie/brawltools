@@ -261,7 +261,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 Stopwatch watch = Stopwatch.StartNew();
 
-                //Scan for branches
+                ApplyRelocations();
+
+                //Scan for branches, add extra tags
                 foreach (ModuleSectionNode s in Sections)
                     if (s.HasCode)
                     {
@@ -270,9 +272,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                         for (int i = 0; i < s._dataBuffer.Length / 4; i++)
                             if ((code = (uint)*opPtr++) is PPCBranch && !(code is PPCblr || code is PPCbctr))
                                 s._manager.LinkBranch(i, true);
+
+                        var cmds = s._manager.GetCommands();
+                        foreach (var x in cmds)
+                        {
+                            RelocationTarget target = x.Value.GetTargetRelocation();
+                            string value = null;
+                            if (target.Section != null && target._sectionID == 5 && !String.IsNullOrEmpty(value = target.Section._manager.GetString(target._index)))
+                                s._manager.AddTag(x.Key, value);
+                        }
                     }
 
-                ApplyRelocations();
+                Sections[5].Populate();
 
                 watch.Stop();
                 Console.WriteLine("Took {0} seconds to relocate {1} module", (double)watch.ElapsedMilliseconds / 1000d, Name);

@@ -27,6 +27,7 @@ namespace Be.Windows.Forms
         public SolidBrush BlackBrush = new SolidBrush(Color.Black);
         public SolidBrush GrayBrush = new SolidBrush(Color.Gray);
         public SolidBrush BlueBrush = new SolidBrush(Color.Blue);
+        public SolidBrush GreenBrush = new SolidBrush(Color.Green);
 
 		#region IKeyInterpreter interface
 		/// <summary>
@@ -2573,11 +2574,17 @@ namespace Be.Windows.Forms
 
             ModuleSectionNode s = _sectionEditor._section;
             var linked = s._manager.GetLinked(index);
+            var branched = s._manager.GetBranched(index);
+
             if (linked != null && linked.Count > 0)
-                foreColor = RelocationBrush;
+            {
+                if (branched != null && branched.Count > 0)
+                    foreColor = new SolidBrush(Color.FromArgb(127, 50, 200));
+                else
+                    foreColor = RelocationBrush;
+            }
             else
             {
-                var branched = s._manager.GetBranched(index);
                 if (branched != null && branched.Count > 0)
                     foreColor = BlueBrush;
                 else
@@ -2595,10 +2602,14 @@ namespace Be.Windows.Forms
             if (backColor == null && s.HasCode)
             {
                 PPCOpCode code = s._manager.GetCode(index);
-                bool returnBranch = s.HasCode && (code is PPCblr || code is PPCbctr);
-                bool branch = s.HasCode && code is PPCBranch && !returnBranch;
+                bool returnBranch = code is PPCblr;
+                bool branch = code is PPCBranch && !returnBranch;
+                bool linkedBranch = 
+                    _sectionEditor.TargetBranchOffsetRelocation != null && 
+                    _sectionEditor.TargetBranchOffsetRelocation._index == index;
 
                 backColor = 
+                    linkedBranch ? LinkedBranchBrush :
                     returnBranch ? BlrBrush :
                     branch ? BranchOffsetBrush :
                     null;
@@ -3631,6 +3642,26 @@ namespace Be.Windows.Forms
             }
         }
         Brush _blrBrush = null;
+
+        /// <summary>
+        /// Gets or sets the color for code branch relocations.
+        /// </summary>
+        [Category("Hex"), Description("Gets or sets the color for linked branch relocations.")]
+        public Color LinkedBranchColor
+        {
+            get { return _linkedBranchColor; }
+            set { _linkedBranchColor = value; Invalidate(); }
+        }  Color _linkedBranchColor = Color.Orange;
+        [Browsable(false)]
+        public Brush LinkedBranchBrush
+        {
+            get
+            {
+                return _linkedBranchBrush ??
+                    (_linkedBranchBrush = new SolidBrush(_linkedBranchColor));
+            }
+        }
+        Brush _linkedBranchBrush = null;
 
         /// <summary>
         /// Gets or sets the color for relocations that are branched to.
