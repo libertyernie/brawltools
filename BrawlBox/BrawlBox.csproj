@@ -121,7 +121,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Octokit">
-      <HintPath>..\packages\Octokit.0.6.1\lib\net45\Octokit.dll</HintPath>
+      <HintPath>..\packages\Octokit.0.7.1\lib\net45\Octokit.dll</HintPath>
     </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
