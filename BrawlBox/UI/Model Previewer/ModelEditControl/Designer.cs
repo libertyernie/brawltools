@@ -432,7 +432,7 @@ namespace System.Windows.Forms
             this.kinectToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(395, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(303, 24);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -1759,6 +1759,7 @@ namespace System.Windows.Forms
             // 
             this.vis0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.vis0Editor.Location = new System.Drawing.Point(0, 0);
+            this.vis0Editor.MinimumSize = new System.Drawing.Size(210, 55);
             this.vis0Editor.Name = "vis0Editor";
             this.vis0Editor.Padding = new System.Windows.Forms.Padding(4);
             this.vis0Editor.Size = new System.Drawing.Size(264, 60);
@@ -1769,8 +1770,9 @@ namespace System.Windows.Forms
             // 
             this.pat0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pat0Editor.Location = new System.Drawing.Point(0, 0);
+            this.pat0Editor.MinimumSize = new System.Drawing.Size(402, 77);
             this.pat0Editor.Name = "pat0Editor";
-            this.pat0Editor.Size = new System.Drawing.Size(264, 60);
+            this.pat0Editor.Size = new System.Drawing.Size(402, 77);
             this.pat0Editor.TabIndex = 27;
             this.pat0Editor.Visible = false;
             // 
@@ -1778,8 +1780,9 @@ namespace System.Windows.Forms
             // 
             this.shp0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.shp0Editor.Location = new System.Drawing.Point(0, 0);
+            this.shp0Editor.MinimumSize = new System.Drawing.Size(533, 106);
             this.shp0Editor.Name = "shp0Editor";
-            this.shp0Editor.Size = new System.Drawing.Size(264, 60);
+            this.shp0Editor.Size = new System.Drawing.Size(533, 106);
             this.shp0Editor.TabIndex = 28;
             this.shp0Editor.Visible = false;
             // 
@@ -1787,8 +1790,9 @@ namespace System.Windows.Forms
             // 
             this.srt0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.srt0Editor.Location = new System.Drawing.Point(0, 0);
+            this.srt0Editor.MinimumSize = new System.Drawing.Size(483, 78);
             this.srt0Editor.Name = "srt0Editor";
-            this.srt0Editor.Size = new System.Drawing.Size(264, 60);
+            this.srt0Editor.Size = new System.Drawing.Size(483, 78);
             this.srt0Editor.TabIndex = 20;
             this.srt0Editor.Visible = false;
             // 
@@ -1796,8 +1800,9 @@ namespace System.Windows.Forms
             // 
             this.chr0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chr0Editor.Location = new System.Drawing.Point(0, 0);
+            this.chr0Editor.MinimumSize = new System.Drawing.Size(582, 78);
             this.chr0Editor.Name = "chr0Editor";
-            this.chr0Editor.Size = new System.Drawing.Size(264, 60);
+            this.chr0Editor.Size = new System.Drawing.Size(582, 78);
             this.chr0Editor.TabIndex = 19;
             this.chr0Editor.Visible = false;
             // 
@@ -1814,6 +1819,7 @@ namespace System.Windows.Forms
             // 
             this.clr0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.clr0Editor.Location = new System.Drawing.Point(0, 0);
+            this.clr0Editor.MinimumSize = new System.Drawing.Size(256, 40);
             this.clr0Editor.Name = "clr0Editor";
             this.clr0Editor.Size = new System.Drawing.Size(264, 60);
             this.clr0Editor.TabIndex = 30;
