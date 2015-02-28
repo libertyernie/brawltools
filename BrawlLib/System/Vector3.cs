@@ -33,8 +33,8 @@ namespace System
         public Vector3(SerializationInfo info, StreamingContext context)
         {
             _x = info.GetSingle("_x");
-            _z = info.GetSingle("_y");
-            _y = info.GetSingle("_z");
+            _y = info.GetSingle("_y");
+            _z = info.GetSingle("_z");
         }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
         {
