@@ -609,6 +609,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
                 if (repObj._vertexNode != null && repObj._vertexNode.Parent != VertexGroup)
                 {
+                    if (VertexGroup == null)
+                    {
+                        LinkGroup(new MDL0GroupNode(MDLResourceType.Vertices));
+                        _vertGroup._parent = this;
+                    }
+
                     MDL0VertexNode node = repObj._vertexNode;
                     VertexGroup.AddChild(node);
 
@@ -619,6 +625,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
                 if (repObj._normalNode != null && repObj._normalNode.Parent != NormalGroup)
                 {
+                    if (NormalGroup == null)
+                    {
+                        LinkGroup(new MDL0GroupNode(MDLResourceType.Normals));
+                        _normGroup._parent = this;
+                    }
+
                     MDL0NormalNode node = repObj._normalNode;
                     NormalGroup.AddChild(node);
 
@@ -630,6 +642,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 for (int x = 0; x < 2; x++)
                     if (repObj._colorSet[x] != null && repObj._colorSet[x].Parent != ColorGroup)
                     {
+                        if (ColorGroup == null)
+                        {
+                            LinkGroup(new MDL0GroupNode(MDLResourceType.Colors));
+                            _colorGroup._parent = this;
+                        }
+
                         MDL0ColorNode node = repObj._colorSet[x];
                         ColorGroup.AddChild(node);
 
@@ -641,6 +659,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 for (int x = 0; x < 8; x++)
                     if (repObj._uvSet[x] != null && repObj._uvSet[x].Parent != UVGroup)
                     {
+                        if (UVGroup == null)
+                        {
+                            LinkGroup(new MDL0GroupNode(MDLResourceType.UVs));
+                            _uvGroup._parent = this;
+                        }
+
                         MDL0UVNode node = repObj._uvSet[x];
                         UVGroup.AddChild(node);
 
@@ -651,8 +675,36 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
                 //Remove object from external, add to internal
                 replacement._objGroup.RemoveChild(repObj);
+
+                if (_objGroup == null)
+                {
+                    LinkGroup(new MDL0GroupNode(MDLResourceType.Objects));
+                    _objGroup._parent = this;
+                }
+
                 _objGroup.AddChild(repObj);
             }
+
+            if (_objGroup != null && _objGroup.Children.Count > 0)
+                _children.Add(_objGroup);
+            else
+                UnlinkGroup(_objGroup);
+            if (_vertGroup != null && _vertGroup.Children.Count > 0)
+                _children.Add(_vertGroup);
+            else
+                UnlinkGroup(_vertGroup);
+            if (_normGroup != null && _normGroup.Children.Count > 0)
+                _children.Add(_normGroup);
+            else
+                UnlinkGroup(_normGroup);
+            if (_uvGroup != null && _uvGroup.Children.Count > 0)
+                _children.Add(_uvGroup);
+            else
+                UnlinkGroup(_uvGroup);
+            if (_colorGroup != null && _colorGroup.Children.Count > 0)
+                _children.Add(_colorGroup);
+            else
+                UnlinkGroup(_colorGroup);
 
             Influences.Clean();
             Influences.Sort();
