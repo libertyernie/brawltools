@@ -378,7 +378,7 @@ namespace BrawlLib.Wii.Models
                         break;
 
                     case MDLResourceType.Shaders:
-                        if ((entryList = model.GetUsedShaders()) != null && model._matList != null)
+                        if (model._matList != null && (entryList = model.GetUsedShaders()) != null)
                             entries = model._matList.Count;
                         break;
 
