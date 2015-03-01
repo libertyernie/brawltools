@@ -160,6 +160,7 @@
     <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
@@ -282,7 +283,7 @@
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
     <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
-    <Compile Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
+    <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
     <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />
@@ -452,6 +453,12 @@
     <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Undo.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.Designer.cs">
+      <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Controls\ShaderEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -577,12 +584,6 @@
     </Compile>
     <Compile Include="System\Windows\Forms\ModelViewerForm.Designer.cs">
       <DependentUpon>ModelViewerForm.cs</DependentUpon>
-    </Compile>
-    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.Designer.cs">
-      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Windows\Controls\PowerPcDisassembler.cs">
       <SubType>UserControl</SubType>
@@ -915,6 +916,9 @@
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.resx">
       <DependentUpon>RightPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\PPCOpCodeEditControl.resx">
+      <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\PreviewPanel.resx">
       <DependentUpon>PreviewPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -944,9 +948,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Forms\ModelViewerForm.resx">
       <DependentUpon>ModelViewerForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Forms\PPCOpCodeEditor.resx">
-      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\PowerPcDisassembler.resx">
       <DependentUpon>PowerPcDisassembler.cs</DependentUpon>

@@ -391,9 +391,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         #endregion
 
         #region Child Population
+        public bool _isPopulating;
         public void Populate() { Populate(-1); }
         public void Populate(int levels)
         {
+            _isPopulating = true;
             if (levels > 0)
                 foreach (ResourceNode r in Children)
                     r.Populate(levels - 1);
@@ -406,6 +408,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (WorkingSource != DataSource.Empty)
                     OnPopulate();
             }
+            _isPopulating = false;
         }
         //Called when children are first requested. Allows node to cache child nodes.
         public virtual void OnPopulate() { }

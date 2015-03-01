@@ -30,7 +30,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public string DataAlign { get { return "0x" + _dataAlign.ToString("X"); } }
 
         [Category("REL Section")]
-        public bool HasCommands { get { return First != null; } }
+        public bool HasCommands { get { return _manager._commands.Count > 0; } }
         [Category("REL Section"), Browsable(true)]
         public override bool HasCode { get { return _isCodeSection; } }
         [Category("REL Section")]
@@ -51,7 +51,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 _isBSSSection = true;
                 InitBuffer(_dataSize);
-
             }
             else
             {
@@ -86,19 +85,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.Dispose();
         }
 
-        public unsafe void ExportInitialized(string outPath)
-        {
-            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
-            {
-                stream.SetLength(_dataBuffer.Length);
-                using (FileMap map = FileMap.FromStream(stream))
-                {
-                    buint* addr = (buint*)map.Address;
-                    foreach (Relocation loc in Relocations)
-                        *addr++ = loc.SectionOffset;
-                }
-            }
-        }
+        //public unsafe void ExportInitialized(string outPath)
+        //{
+        //    using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+        //    {
+        //        stream.SetLength(_dataBuffer.Length);
+        //        using (FileMap map = FileMap.FromStream(stream))
+        //        {
+        //            buint* addr = (buint*)map.Address;
+        //            foreach (Relocation loc in Relocations)
+        //                *addr++ = loc.SectionOffset;
+        //        }
+        //    }
+        //}
 
         public override unsafe void Export(string outPath)
         {
