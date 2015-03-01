@@ -527,6 +527,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
             replacement.Populate();
             replacement.ResetToBindState();
 
+            bool[] addGroup = new bool[5];
             while (replacement._objList != null && replacement._objList.Count > 0)
             {
                 MDL0ObjectNode repObj = replacement._objList[0] as MDL0ObjectNode;
@@ -559,10 +560,9 @@ When true, metal materials and shaders will be added and modulated as you edit y
                         break;
                     }
                 }
-                //If not found, attempt to add the object
                 if (!found)
                 {
-
+                    //Return if the user doesn't want to add objects that don't replace anything
                 }
 
                 //Reassign bone influences to the current bone tree
@@ -606,11 +606,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 repObj.MatrixNode = inf;
                 repObj.OpaMaterialNode = matOpa;
                 repObj.XluMaterialNode = matXlu;
-
+                
                 if (repObj._vertexNode != null && repObj._vertexNode.Parent != VertexGroup)
                 {
                     if (VertexGroup == null)
                     {
+                        addGroup[0] = true;
                         LinkGroup(new MDL0GroupNode(MDLResourceType.Vertices));
                         _vertGroup._parent = this;
                     }
@@ -627,6 +628,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 {
                     if (NormalGroup == null)
                     {
+                        addGroup[1] = true;
                         LinkGroup(new MDL0GroupNode(MDLResourceType.Normals));
                         _normGroup._parent = this;
                     }
@@ -644,6 +646,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     {
                         if (ColorGroup == null)
                         {
+                            addGroup[2] = true;
                             LinkGroup(new MDL0GroupNode(MDLResourceType.Colors));
                             _colorGroup._parent = this;
                         }
@@ -661,6 +664,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     {
                         if (UVGroup == null)
                         {
+                            addGroup[3] = true;
                             LinkGroup(new MDL0GroupNode(MDLResourceType.UVs));
                             _uvGroup._parent = this;
                         }
@@ -678,6 +682,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
                 if (_objGroup == null)
                 {
+                    addGroup[4] = true;
                     LinkGroup(new MDL0GroupNode(MDLResourceType.Objects));
                     _objGroup._parent = this;
                 }
@@ -685,26 +690,35 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 _objGroup.AddChild(repObj);
             }
 
-            if (_objGroup != null && _objGroup.Children.Count > 0)
-                _children.Add(_objGroup);
-            else
-                UnlinkGroup(_objGroup);
-            if (_vertGroup != null && _vertGroup.Children.Count > 0)
-                _children.Add(_vertGroup);
-            else
-                UnlinkGroup(_vertGroup);
-            if (_normGroup != null && _normGroup.Children.Count > 0)
-                _children.Add(_normGroup);
-            else
-                UnlinkGroup(_normGroup);
-            if (_uvGroup != null && _uvGroup.Children.Count > 0)
-                _children.Add(_uvGroup);
-            else
-                UnlinkGroup(_uvGroup);
-            if (_colorGroup != null && _colorGroup.Children.Count > 0)
-                _children.Add(_colorGroup);
-            else
-                UnlinkGroup(_colorGroup);
+            if (addGroup[0])
+                if (_vertGroup != null && _vertGroup.Children.Count > 0)
+                    _children.Add(_vertGroup);
+                else
+                    UnlinkGroup(_vertGroup);
+
+            if (addGroup[1])
+                if (_normGroup != null && _normGroup.Children.Count > 0)
+                    _children.Add(_normGroup);
+                else
+                    UnlinkGroup(_normGroup);
+
+            if (addGroup[2])
+                if (_colorGroup != null && _colorGroup.Children.Count > 0)
+                    _children.Add(_colorGroup);
+                else
+                    UnlinkGroup(_colorGroup);
+
+            if (addGroup[3])
+                if (_uvGroup != null && _uvGroup.Children.Count > 0)
+                    _children.Add(_uvGroup);
+                else
+                    UnlinkGroup(_uvGroup);
+
+            if (addGroup[4])
+                if (_objGroup != null && _objGroup.Children.Count > 0)
+                    _children.Add(_objGroup);
+                else
+                    UnlinkGroup(_objGroup);
 
             Influences.Clean();
             Influences.Sort();
