@@ -679,16 +679,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 OnRebuild(address, length, force);
 
+                IsDirty = false;
+
                 //Code has been moved here, because all overrides are doing the same thing.
                 _replSrc.Close();
                 _replUncompSrc.Close();
                 _replSrc = _replUncompSrc = new DataSource(address, length);
             }
-
-            _changed = false;
-            //HasChanged = false;
         }
-        //Overridden by parent nodes in order to rebuild children.
+        //Overridden by derived nodes in order to rebuild children.
         //Size is the value returned by OnCalculateSize (or _calcSize)
         //Node MUST dispose of and assign both repl sources before exiting. (Not exactly, see Rebuild())
         public virtual void OnRebuild(VoidPtr address, int length, bool force)
