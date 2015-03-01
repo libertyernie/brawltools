@@ -51,15 +51,15 @@ namespace BrawlBox
                 if (args[0].Equals("/gct", StringComparison.InvariantCultureIgnoreCase))
                 {
                     GCTEditor editor = new GCTEditor();
-                    if (args.Length >= 2) editor.TargetNode = editor.LoadGCT(args[1]);
                     Application.Run(editor);
+                    if (args.Length >= 2) editor.TargetNode = editor.LoadGCT(args[1]);
                     return;
                 }
                 else if (args[0].EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
                 {
                     GCTEditor editor = new GCTEditor();
-                    editor.TargetNode = editor.LoadGCT(args[0]);
                     Application.Run(editor);
+                    editor.TargetNode = editor.LoadGCT(args[0]);
                     return;
                 }
             }
@@ -137,8 +137,8 @@ namespace BrawlBox
             if (path.EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
             {
                 GCTEditor editor = new GCTEditor();
-                editor.TargetNode = editor.LoadGCT(path);
                 editor.Show();
+                editor.TargetNode = editor.LoadGCT(path);
                 return true;
             }
 
