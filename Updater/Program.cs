@@ -82,22 +82,19 @@ namespace Net
     {
         static void Main(string[] args)
         {
-            Task t = BugSquish.CreateIssue(args[0], args[1]); // Temporary. Gotta restructure this whole method.
-            t.Wait();
-            Console.ReadLine();
-            //// -r is the overwrite switch.
-            //if (args.Length > 0 && args[0] == "-r")
-            //{
-            //    Task t = Updater.UpdateCheck(true);
-            //    t.Wait();
-            //}
-            //else if (args.Length > 0 && args[0] != "-r")
-            //    Console.WriteLine("Usage: -r = Overwrite files in directory");
-            //else
-            //{
-            //    Task t = Updater.UpdateCheck();
-            //    t.Wait();
-            //}
+            // -r is the overwrite switch.
+            if (args.Length > 0 && args[0] == "-r")
+            {
+                Task t = Updater.UpdateCheck(true);
+                t.Wait();
+            }
+            else if (args.Length > 0 && args[0] != "-r")
+                Console.WriteLine("Usage: -r = Overwrite files in directory");
+            else
+            {
+                Task t = Updater.UpdateCheck();
+                t.Wait();
+            }
         }
     }
 }
