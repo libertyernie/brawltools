@@ -1198,8 +1198,10 @@ namespace System.Windows.Forms
                         (FrameRot.Checked && i >= 3 && i < 6) ||
                         (FrameTrans.Checked && i >= 6))
                         if (_transBoxes[i].Value != p[i] && (!_onlyKeys || frame.GetBool(i)))
+                        {
                             _transBoxes[i].Value = p[i];
-                    BoxChanged(_transBoxes[i], null);
+                            BoxChanged(_transBoxes[i], null);
+                        }
                 }
             }
         }
@@ -1213,7 +1215,7 @@ namespace System.Windows.Forms
             _mainWindow.UpdateModel();
 
             _mainWindow.Updating = true;
-            _mainWindow.PlaybackPanel.numTotalFrames.Value = SelectedAnimation.FrameCount;
+            _mainWindow.PlaybackPanel.numTotalFrames.Value++;
             _mainWindow.Updating = false;
         }
 
@@ -1226,7 +1228,7 @@ namespace System.Windows.Forms
             _mainWindow.UpdateModel();
 
             _mainWindow.Updating = true;
-            _mainWindow.PlaybackPanel.numTotalFrames.Value = SelectedAnimation.FrameCount;
+            _mainWindow.PlaybackPanel.numTotalFrames.Value--;
             _mainWindow.Updating = false;
         }
 

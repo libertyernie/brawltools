@@ -72,7 +72,6 @@
             this.displayStringsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlLeft = new System.Windows.Forms.Panel();
             this.ppcDisassembler1 = new System.Windows.Forms.PPCDisassembler();
-            this.btnGotoBranch = new System.Windows.Forms.Button();
             this.splitter2 = new System.Windows.Forms.Splitter();
             this.pnlHexEditor = new System.Windows.Forms.Panel();
             this.hexBox1 = new Be.Windows.Forms.HexBox();
@@ -182,16 +181,16 @@
             // lstLinked
             // 
             this.lstLinked.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.lstLinked.DrawMode = DrawMode.OwnerDrawFixed;
             this.lstLinked.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lstLinked.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
             this.lstLinked.FormattingEnabled = true;
             this.lstLinked.IntegralHeight = false;
             this.lstLinked.Location = new System.Drawing.Point(0, 18);
             this.lstLinked.Name = "lstLinked";
             this.lstLinked.Size = new System.Drawing.Size(165, 82);
             this.lstLinked.TabIndex = 10;
-            this.lstLinked.DoubleClick += new System.EventHandler(this.lstLinked_DoubleClick);
             this.lstLinked.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstLinked_DrawItem);
+            this.lstLinked.DoubleClick += new System.EventHandler(this.lstLinked_DoubleClick);
             // 
             // label1
             // 
@@ -528,7 +527,6 @@
             // pnlLeft
             // 
             this.pnlLeft.Controls.Add(this.ppcDisassembler1);
-            this.pnlLeft.Controls.Add(this.btnGotoBranch);
             this.pnlLeft.Controls.Add(this.splitter2);
             this.pnlLeft.Controls.Add(this.pnlHexEditor);
             this.pnlLeft.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -542,20 +540,8 @@
             this.ppcDisassembler1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.ppcDisassembler1.Location = new System.Drawing.Point(0, 0);
             this.ppcDisassembler1.Name = "ppcDisassembler1";
-            this.ppcDisassembler1.Size = new System.Drawing.Size(277, 574);
+            this.ppcDisassembler1.Size = new System.Drawing.Size(277, 597);
             this.ppcDisassembler1.TabIndex = 11;
-            // 
-            // btnGotoBranch
-            // 
-            this.btnGotoBranch.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.btnGotoBranch.Location = new System.Drawing.Point(0, 574);
-            this.btnGotoBranch.Name = "btnGotoBranch";
-            this.btnGotoBranch.Size = new System.Drawing.Size(277, 23);
-            this.btnGotoBranch.TabIndex = 12;
-            this.btnGotoBranch.Text = "Go to branch location";
-            this.btnGotoBranch.UseVisualStyleBackColor = true;
-            this.btnGotoBranch.Visible = false;
-            this.btnGotoBranch.Click += new System.EventHandler(this.btnGotoBranch_Click);
             // 
             // splitter2
             // 
@@ -578,6 +564,11 @@
             this.pnlHexEditor.TabIndex = 11;
             // 
             // hexBox1
+            // 
+            this.hexBox1.BlrColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(100)))));
+            this.hexBox1.BranchOffsetColor = System.Drawing.Color.Plum;
+            // 
+            // 
             // 
             this.hexBox1.BuiltInContextMenu.CopyMenuItemText = "Copy";
             this.hexBox1.BuiltInContextMenu.CutMenuItemText = "Cut";
@@ -1019,6 +1010,5 @@
         private CheckBox chkDestructor;
         private CheckBox chkConstructor;
         private Splitter splitter3;
-        private Button btnGotoBranch;
     }
 }

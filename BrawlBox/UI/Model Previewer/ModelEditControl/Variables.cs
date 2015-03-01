@@ -114,6 +114,12 @@ namespace System.Windows.Forms
             get { return _targetAnimType; }
             set
             {
+                if (_targetAnimType == value)
+                {
+                    SetCurrentControl();
+                    return;
+                }
+
                 _targetAnimType = value;
                 leftPanel.TargetAnimType = TargetAnimType;
                 SetCurrentControl();

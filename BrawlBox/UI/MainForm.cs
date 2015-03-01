@@ -65,23 +65,11 @@ namespace BrawlBox
 #endif
             soundPackControl1._grid = propertyGrid1;
             soundPackControl1.lstSets.SmallImageList = ResourceTree.Images;
-            msBinEditor1.Dock =
-            animEditControl.Dock =
-            texAnimEditControl.Dock =
-            shpAnimEditControl.Dock =
-            soundPackControl1.Dock =
-            audioPlaybackPanel1.Dock =
-            clrControl.Dock =
-            visEditor.Dock =
-            scN0CameraEditControl1.Dock =
-            scN0LightEditControl1.Dock =
-            scN0FogEditControl1.Dock =
-            modelPanel1.Dock =
-            previewPanel2.Dock =
-            videoPlaybackPanel1.Dock =
-			attributeGrid1.Dock =
-            texCoordControl1.Dock =
-            DockStyle.Fill;
+            foreach (Control c in splitContainer2.Panel2.Controls)
+            {
+                c.Visible = false;
+                c.Dock = DockStyle.Fill;
+            }
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
 
@@ -265,6 +253,7 @@ namespace BrawlBox
             scN0LightEditControl1.TargetSequence = null;
             scN0FogEditControl1.TargetSequence = null;
             texCoordControl1.TargetNode = null;
+            ppcDisassembler1.SetTarget(null, 0, null);
             modelPanel1.ClearAll();
             
             Control newControl = null;
@@ -277,7 +266,12 @@ namespace BrawlBox
             {
                 propertyGrid1.SelectedObject = node;
 
-                if (node is IVideo)
+                if (node is RELMethodNode)
+                {
+                    ppcDisassembler1.SetTarget((RELMethodNode)node);
+                    newControl = ppcDisassembler1;
+                }
+                else if (node is IVideo)
                 {
                     videoPlaybackPanel1.TargetSource = node as IVideo;
                     newControl = videoPlaybackPanel1;

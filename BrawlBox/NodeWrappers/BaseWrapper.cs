@@ -212,6 +212,10 @@ namespace BrawlBox
             if (!_discovered)
             {
                 Nodes.Clear();
+
+                if (_resource._isPopulating)
+                    while (_resource._isPopulating) { Application.DoEvents(); }
+
                 foreach (ResourceNode n in _resource.Children)
                     Nodes.Add(Wrap(_owner, n));
                 _discovered = true;

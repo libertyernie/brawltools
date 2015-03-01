@@ -398,10 +398,12 @@ Those properties can use this color as an argument. This color is referred to as
 //If this number is 1, only Light Channel 1 is applied. 
 //If this number is 2, both channels are applied.")]
 //        public int ActiveLightChannels { get { return _numLights; } set { if (!CheckIfMetal()) _numLights = (byte)value.Clamp(0, 2); } }
-        [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public LightChannel LightChannel1 { get { return _chan1; } set { if (!CheckIfMetal()) _chan1 = value; } }
-        [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public LightChannel LightChannel2 { get { return _chan2; } set { if (!CheckIfMetal()) _chan2 = value; } }
+        [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter)), Description(
+@"Takes light input from the SCN0 and blends it with color input taken from the Material Source (if register) or from color nodes attached to the object (if vertex), then passes it to ColorChannel0 in each shader stage.")]
+        public LightChannel LightChannel0 { get { return _chan1; } set { if (!CheckIfMetal()) _chan1 = value; } }
+        [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter)), Description(
+@"Takes light input from the SCN0 and blends it with color input taken from the Material Source (if register) or from color nodes attached to the object (if vertex), then passes it to ColorChannel1 in each shader stage.")]
+        public LightChannel LightChannel1 { get { return _chan2; } set { if (!CheckIfMetal()) _chan2 = value; } }
 
         [Category("Lighting Channel 1"), Browsable(false)]
         public LightingChannelFlags C1Flags { get { return _chan1.Flags; } set { if (!CheckIfMetal()) _chan1.Flags = value; } }
@@ -1456,7 +1458,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             _alpha = new LightChannelControl(alpha) { _parent = this };
         }
 
-        [Category("Lighting Channel")]
+        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the ColorChannel property in shader stages.")]
         public bool Enabled { get { return _enabled; } set { _enabled = value; _parent.SignalPropertyChange(); } }
 
         [Category("Lighting Channel")]

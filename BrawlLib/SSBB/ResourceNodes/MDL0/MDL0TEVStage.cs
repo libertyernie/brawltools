@@ -85,24 +85,147 @@ namespace BrawlLib.SSBB.ResourceNodes
         //        UpdateProperties();
         //    }
         //}
-        
-        [Category("c TEV Color Env")]
+
+        const string eqClr =
+@"Shader stages run this equation to blend colors and create the final color of each pixel fragment on a mesh.
+Think of it like texture pixels: each pixel has an R, G, B and A channel (red, green, blue and alpha transparency, respectively).
+
+Each shader stage processes color as 3 individual channels: RGB.
+This equation is applied to each channel (R, G and B) individually.
+
+Use this equation to predict the output for each channel (resulting in the final color for this stage).
+'a' uses input selected by ColorSelectionA.
+'b' uses input selected by ColorSelectionB.
+'c' uses input selected by ColorSelectionC.
+'d' uses input selected by ColorSelectionD.
+If clamped, output is restrained to the range [0.0, 1.0].
+
+Note that input is not limited to color values; you can use alpha for all three channels as well.
+
+If you're having a hard time visualizing the output of this equation, think in terms of 0 and 1, where 0 is black and 1 is white.
+If the input is 0, nothing multiplied by it passes through. If input is 1, any value multiplied by it will pass through.";
+
+        const string eqAlpha =
+@"Shader stages run this equation to blend alpha values and create the final transparency value of each pixel fragment on a mesh.
+Think of it like texture pixels: each pixel has an R, G, B and A channel (red, green, blue and alpha transparency, respectively).
+
+Each shader stage processes alpha separately as one channel, 
+as you will want to blend transparency differently than color.
+
+Use this equation to predict the output for each channel (resulting in the final color for this stage).
+'a' uses input selected by AlphaSelectionA.
+'b' uses input selected by AlphaSelectionB.
+'c' uses input selected by AlphaSelectionC.
+'d' uses input selected by AlphaSelectionD.
+If clamped, output is restrained to the range [0.0, 1.0].
+
+Note that input is not limited to alpha; you can use Red, Green or Blue as well (separately).
+
+If you're having a hard time visualizing the output of this equation, think in terms of 0 and 1, where 0 is invisible and 1 is fully visible.
+If the input is 0, nothing multiplied by it can affect transparency. If input is 1, any value multiplied by it will affect transparency.";
+
+        [Category("c TEV Color Env"), Description(eqClr)]
         public string ColorOutput { get { return (ColorClamp ? "clamp(" : "") + "(d " + (ColorSubtract ? "-" : "+") + " ((1 - c) * a + c * b)" + ((int)ColorBias == 1 ? " + 0.5" : (int)ColorBias == 2 ? " - 0.5" : "") + ") * " + ((int)ColorScale == 3 ? "0.5" : (int)ColorScale == 0 ? "1" : ((int)ColorScale * 2).ToString()) + (ColorClamp ? ");" : ";"); } }
-        [Category("d TEV Alpha Env")]
+        [Category("d TEV Alpha Env"), Description(eqAlpha)]
         public string AlphaOutput { get { return (AlphaClamp ? "clamp(" : "") + "(d " + (AlphaSubtract ? "-" : "+") + " ((1 - c) * a + c * b)" + ((int)AlphaBias == 1 ? " + 0.5" : (int)AlphaBias == 2 ? " - 0.5" : "") + ") * " + ((int)AlphaScale == 3 ? "0.5" : (int)AlphaScale == 0 ? "1" : ((int)AlphaScale * 2).ToString()) + (AlphaClamp ? ");" : ";"); } }
 
-        [Category("a TEV KSel")]
+        const string konst =
+@"Constant1_1 equals 1/1 (1.000).
+Constant7_8 equals 7/8 (0.875).
+Constant3_4 equals 3/4 (0.750).
+Constant5_8 equals 5/8 (0.625).
+Constant1_2 equals 1/2 (0.500).
+Constant3_8 equals 3/8 (0.375).
+Constant1_4 equals 1/4 (0.250).
+Constant1_8 equals 1/8 (0.125).";
+
+        const string kColor =
+@"This option provides a value to the 'KonstantColorSelection' option in each ColorSelection(A,B,C,D).
+You can choose a preset constant or pull a constant value from the material's 'TEV Konstant Block'.
+Each color fragment has 4 values: R, G, B, and A. Each shader stage processes color as 3 individual channels: RGB (alpha is separate).
+
+The constants set all 3 channels with the same constant value:
+" + konst + @"
+
+The registers ('registers' are just RGBA colors) in the material's  'TEV Konstant Block' can be pulled as well.
+You can also swap the channels here, for example, if it says (RGB = GGG), then Red = Green, Blue = Green, and Green = Green.
+
+KSel_0_Value = KReg0Color (RGB = RGB)
+KSel_1_Value = KReg1Color (RGB = RGB)
+KSel_2_Value = KReg2Color (RGB = RGB)
+KSel_3_Value = KReg3Color (RGB = RGB)
+
+KSel_0_Red = KReg0Color (RGB = RRR)
+KSel_1_Red = KReg1Color (RGB = RRR)
+KSel_2_Red = KReg2Color (RGB = RRR)
+KSel_3_Red = KReg3Color (RGB = RRR)
+
+KSel_0_Green = KReg0Color (RGB = GGG)
+KSel_1_Green = KReg1Color (RGB = GGG)
+KSel_2_Green = KReg2Color (RGB = GGG)
+KSel_3_Green = KReg3Color (RGB = GGG)
+
+KSel_0_Blue = KReg0Color (RGB = BBB)
+KSel_1_Blue = KReg1Color (RGB = BBB)
+KSel_2_Blue = KReg2Color (RGB = BBB)
+KSel_3_Blue = KReg3Color (RGB = BBB)
+
+KSel_0_Alpha = KReg0Color (RGB = AAA)
+KSel_1_Alpha = KReg1Color (RGB = AAA)
+KSel_2_Alpha = KReg2Color (RGB = AAA)
+KSel_3_Alpha = KReg3Color (RGB = AAA)";
+
+const string kAlpha =
+@"This option provides a value to the 'KonstantColorSelection' option in each ColorSelection(A,B,C,D).
+You can choose a preset constant or pull a constant value from the material's 'TEV Konstant Block'.
+Each color fragment has 4 values: R, G, B, and A. Each shader stage processes color as 3 individual channels: RGB (alpha is separate).
+
+The constants set all 3 channels with the same constant value:
+" + konst + @"
+
+
+You can also use a different channel as alpha here, for example, for example, if it says (A = R), then the alpha value is set to the value stored in the red channel.
+
+KSel_0_Red = KReg0Color (A = R)
+KSel_1_Red = KReg1Color (A = R)
+KSel_2_Red = KReg2Color (A = R)
+KSel_3_Red = KReg3Color (A = R)
+
+KSel_0_Green = KReg0Color (A = G)
+KSel_1_Green = KReg1Color (A = G)
+KSel_2_Green = KReg2Color (A = G)
+KSel_3_Green = KReg3Color (A = G)
+
+KSel_0_Blue = KReg0Color (A = B)
+KSel_1_Blue = KReg1Color (A = B)
+KSel_2_Blue = KReg2Color (A = B)
+KSel_3_Blue = KReg3Color (A = B)
+
+KSel_0_Alpha = KReg0Color (A = A)
+KSel_1_Alpha = KReg1Color (A = A)
+KSel_2_Alpha = KReg2Color (A = A)
+KSel_3_Alpha = KReg3Color (A = A)";
+
+        [Category("a TEV KSel"), Description(kColor)]
         public TevKColorSel KonstantColorSelection { get { return _kcSel; } set { _kcSel = value; SignalPropertyChange(); } }
-        [Category("a TEV KSel")]
+        [Category("a TEV KSel"), Description(kAlpha)]
         public TevKAlphaSel KonstantAlphaSelection { get { return _kaSel; } set { _kaSel = value; SignalPropertyChange(); } }
         
-        [Category("b TEV RAS1 TRef")]
+        [Category("b TEV RAS1 TRef"), Description("This is the index of the texture reference in the material to use as texture input.")]
         public TexMapID TextureMapID { get { return _texMapID; } set { _texMapID = value; SignalPropertyChange(); } }
-        [Category("b TEV RAS1 TRef")]
+        [Category("b TEV RAS1 TRef"), Description("This is the index of the texture coordinate to map the texture on the model.")]
         public TexCoordID TextureCoord { get { return _texCoord; } set { _texCoord = value; SignalPropertyChange(); } }
-        [Category("b TEV RAS1 TRef")]
+        [Category("b TEV RAS1 TRef"), Description(
+@"Determines if a texture can be used as color input. 
+This stage will grab a pixel fragment from the selected texture reference mapped on the model with the selected coordinates.")]
         public bool TextureEnabled { get { return _texEnabled; } set { _texEnabled = value; SignalPropertyChange(); } }
-        [Category("b TEV RAS1 TRef")]
+        [Category("b TEV RAS1 TRef"), Description(
+@"Retrieves a color outputted from the material. This DOES NOT get a color straight from color nodes!
+ColorChannel0 retrieves the color from the material's LightChannel0.
+ColorChannel1 retrieves the color from the material's LightChannel1.
+BumpAlpha retrieves a color from ???
+NormalizedBumpAlpha is the same as Bump Alpha, but normalized to the range [0.0, 1.0].
+Zero returns a color with all channels set to 0.")]
         public ColorSelChan ColorChannel { get { return _colorChan; } set { _colorChan = value; SignalPropertyChange(); } }
         
         [Category("c TEV Color Env")]
@@ -119,7 +242,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [Category("c TEV Color Env")]
         public bool ColorSubtract { get { return _colorEnv.Sub; } set { _colorEnv.Sub = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env")]
+        [Category("c TEV Color Env"), Description("")]
         public bool ColorClamp { get { return _colorEnv.Clamp; } set { _colorEnv.Clamp = value; SignalPropertyChange(); } }
 
         [Category("c TEV Color Env")]

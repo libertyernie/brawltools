@@ -504,9 +504,28 @@ namespace BrawlLib.Modeling
 
         private void FinishMDL0(MDL0Node model)
         {
+            Error = "There was a problem creating a default material and shader.";
             if (model._matList.Count == 0 && model._objList.Count != 0)
             {
-                //TODO: Add a default material
+                MDL0MaterialNode mat = new MDL0MaterialNode();
+                MDL0ShaderNode shad = new MDL0ShaderNode();
+
+                mat.Name = "Default";
+                mat.LightChannel0.Enabled = true;
+                mat.LightChannel0.MaterialColor = new RGBAPixel(128, 128, 128, 255);
+
+                TEVStageNode stage = new TEVStageNode();
+                stage.ColorChannel = ColorSelChan.ColorChannel0;
+                stage.AlphaSelectionD = AlphaArg.RasterAlpha;
+                stage.ColorSelectionD = ColorArg.RasterColor;
+                shad.AddChild(stage);
+
+                model._shadGroup.AddChild(shad);
+                model._matGroup.AddChild(mat);
+
+                mat.ShaderNode = shad;
+                foreach (MDL0ObjectNode obj in model._objList)
+                    obj.OpaMaterialNode = mat;
             }
 
             Error = "There was a problem removing original color buffers.";
@@ -546,51 +565,68 @@ namespace BrawlLib.Modeling
 
             //Apply defaults to materials
             if (model._matList != null)
-                foreach (MDL0MaterialNode p in model._matList)
+                foreach (MDL0MaterialNode mat in model._matList)
                 {
                     if (_importOptions._mdlType == 0)
                     {
-                        p._lightSetIndex = 20;
-                        p._fogIndex = 4;
-                        p._activeStages = 3;
+                        mat._lightSetIndex = 20;
+                        mat._fogIndex = 4;
+                        mat._activeStages = mat.ShaderNode.Stages;
 
-                        p.C1ColorEnabled = true;
-                        p.C1AlphaMaterialSource = GXColorSrc.Vertex;
-                        p.C1ColorMaterialSource = GXColorSrc.Vertex;
-                        p.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-                        p.C1ColorAttenuation = GXAttnFn.Spotlight;
-                        p.C1AlphaEnabled = true;
-                        p.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-                        p.C1AlphaAttenuation = GXAttnFn.Spotlight;
+                        mat.C1ColorEnabled = true;
+                        mat.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
+                        mat.C1ColorAttenuation = GXAttnFn.Spotlight;
+                        mat.C1AlphaEnabled = true;
+                        mat.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
+                        mat.C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                        p.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-                        p.C2ColorAttenuation = GXAttnFn.None;
-                        p.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-                        p.C2AlphaAttenuation = GXAttnFn.None;
+                        mat.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
+                        mat.C2ColorAttenuation = GXAttnFn.None;
+                        mat.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
+                        mat.C2AlphaAttenuation = GXAttnFn.None;
                     }
                     else
                     {
-                        p._lightSetIndex = 0;
-                        p._fogIndex = 0;
-                        p._activeStages = 1;
+                        mat._lightSetIndex = 0;
+                        mat._fogIndex = 0;
+                        mat._activeStages = 1;
 
-                        p._chan1.Color = new LightChannelControl(1795);
-                        p._chan1.Alpha = new LightChannelControl(1795);
-                        p._chan2.Color = new LightChannelControl(1795);
-                        p._chan2.Alpha = new LightChannelControl(1795);
+                        mat._chan1.Color = new LightChannelControl(1795);
+                        mat._chan1.Alpha = new LightChannelControl(1795);
+                        mat._chan2.Color = new LightChannelControl(1795);
+                        mat._chan2.Alpha = new LightChannelControl(1795);
                     }
                 }
 
-            //Set materials to use register color if option set
-            if (_importOptions._useReg && model._objList != null)
-                foreach (MDL0ObjectNode p in model._objList)
+            Error = "There was a problem setting material color sources.";
+            if (model._objList != null)
+                foreach (MDL0ObjectNode obj1 in model._objList)
                 {
-                    MDL0MaterialNode m = p.OpaMaterialNode;
-                    if (m != null && p._manager._faceData[2] == null && p._manager._faceData[3] == null)
+                    MDL0MaterialNode p = obj1.UsableMaterialNode;
+
+                    //Set materials to use register color if option set
+                    if (_importOptions._useReg)
                     {
-                        m.C1MaterialColor = _importOptions._dfltClr;
-                        m.C1ColorMaterialSource = GXColorSrc.Register;
-                        m.C1AlphaMaterialSource = GXColorSrc.Register;
+                        p.LightChannel0.Enabled = true;
+                        p.LightChannel1.Enabled = false;
+                        p.C1MaterialColor = _importOptions._dfltClr;
+                        p.C1ColorMaterialSource = GXColorSrc.Register;
+                        p.C1AlphaMaterialSource = GXColorSrc.Register;
+                    }
+                    else
+                    {
+                        if (obj1._colorSet[0] != null)
+                        {
+                            p.LightChannel0.Enabled = true;
+                            p.C1AlphaMaterialSource = GXColorSrc.Vertex;
+                            p.C1ColorMaterialSource = GXColorSrc.Vertex;
+                        }
+                        if (obj1._colorSet[1] != null)
+                        {
+                            p.LightChannel1.Enabled = true;
+                            p.C2AlphaMaterialSource = GXColorSrc.Vertex;
+                            p.C2ColorMaterialSource = GXColorSrc.Vertex;
+                        }
                     }
                 }
 
@@ -599,17 +635,17 @@ namespace BrawlLib.Modeling
             //Remap materials if option set
             if (_importOptions._rmpMats && model._matList != null && model._objList != null)
             {
-                foreach (MDL0ObjectNode p in model._objList)
+                foreach (MDL0ObjectNode obj3 in model._objList)
                     foreach (MDL0MaterialNode m in model._matList)
                         if (m.Children.Count > 0 &&
                             m.Children[0] != null &&
-                            p.OpaMaterialNode != null &&
-                            p.OpaMaterialNode.Children.Count > 0 &&
-                            p.OpaMaterialNode.Children[0] != null &&
-                            m.Children[0].Name == p.OpaMaterialNode.Children[0].Name &&
-                            m.C1ColorMaterialSource == p.OpaMaterialNode.C1ColorMaterialSource)
+                            obj3.OpaMaterialNode != null &&
+                            obj3.OpaMaterialNode.Children.Count > 0 &&
+                            obj3.OpaMaterialNode.Children[0] != null &&
+                            m.Children[0].Name == obj3.OpaMaterialNode.Children[0].Name &&
+                            m.C1ColorMaterialSource == obj3.OpaMaterialNode.C1ColorMaterialSource)
                         {
-                            p.OpaMaterialNode = m;
+                            obj3.OpaMaterialNode = m;
                             break;
                         }
 

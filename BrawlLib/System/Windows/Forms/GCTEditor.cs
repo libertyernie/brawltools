@@ -490,6 +490,9 @@ namespace System.Windows.Forms
 
         private void lstCodes_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
+            if (_updating || TargetNode == null)
+                return;
+
             TargetNode.SignalPropertyChange();
         }
     }

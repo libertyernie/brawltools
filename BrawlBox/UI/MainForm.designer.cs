@@ -66,6 +66,7 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.ppcDisassembler1 = new System.Windows.Forms.PPCDisassembler();
             this.texCoordControl1 = new System.Windows.Forms.TexCoordControl();
             this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
             this.videoPlaybackPanel1 = new System.Windows.Forms.VideoPlaybackPanel();
@@ -378,6 +379,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.ppcDisassembler1);
             this.splitContainer2.Panel2.Controls.Add(this.texCoordControl1);
             this.splitContainer2.Panel2.Controls.Add(this.attributeGrid1);
             this.splitContainer2.Panel2.Controls.Add(this.videoPlaybackPanel1);
@@ -412,6 +414,14 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(401, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
+            // 
+            // ppcDisassembler1
+            // 
+            this.ppcDisassembler1.Location = new System.Drawing.Point(0, 0);
+            this.ppcDisassembler1.Name = "ppcDisassembler1";
+            this.ppcDisassembler1.Size = new System.Drawing.Size(398, 199);
+            this.ppcDisassembler1.TabIndex = 20;
+            this.ppcDisassembler1.Visible = false;
             // 
             // texCoordControl1
             // 
@@ -655,6 +665,7 @@ namespace BrawlBox
         private ToolStripMenuItem rEFFParticlesToolStripMenuItem;
         private ToolStripMenuItem rEFTParticleTexturesToolStripMenuItem;
         private TexCoordControl texCoordControl1;
+        private PPCDisassembler ppcDisassembler1;
     }
 }
 
