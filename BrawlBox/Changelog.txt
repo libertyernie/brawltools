@@ -14,13 +14,21 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.75b - (??/??/2015) BrawlLib v0.22b
+ - v0.75b - (2/28/2015) BrawlLib v0.22b
 	. Added new reimport meshes button to MDL0 right click menu. This allows you to update the meshes of an MDL0 without resetting any custom materials, shaders, vis bones, bone tree edits, etc.
 	. Fixed bug where textures with no object references would overwrite the node tree definition
 	. Fixed bug where if the MDL0 node tree definition didn't have any entries but the bone tree did, a mismatch would not be detected and reported to the user
 	. Fixed bug where an MDL0 replaced with an imported model could not be restored to the original
 	. Fixed bug where an imported MDL0 would allow restoring, but would crash when trying to do so because there is nothing to restore to.
 	. Added the option to delete or not delete all associated assets that are not assigned to another object when deleting an MDL0 object
+	. Fixed bug where some controls in the collision editor were missing.
+	. Fixed bug where pasting a bone frame would swap the Y and Z values.
+	. Fixed bug where when pasting a bone frame in the CHR0 editor, everything would be keyframed even if only one of the paste options was unchecked
+	. Updated the module editor to parse and run faster and use less RAM. Editing and saving is a work in progress! You cannot save any changes, and DOL files do not load correctly.
+	. Added several more property descriptions to materials and shaders. More to come later.
+	. Fixed bug importing a model with no materials
+	. Fixed bug where no editor would be visible next to the playback panel in the model editor upon first opening the window and opening the bottom panel
+	. Fixed bug where the loop frame would not be retained after inserting or removing a frame in the model editor
 
  - v0.75 - BrawlLib v0.22
 
