@@ -8,28 +8,19 @@ namespace BrawlLib.Wii.Animations
     internal static unsafe class AnimationConverter
     {
         #region Decoding
-        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, NW4RAnimationNode node)
+        public static KeyframeCollection DecodeKeyframes(VoidPtr entry, NW4RAnimationNode node, int arrayCount, params float[] defaults)
         {
             //If the node is null, assume the programmer has created a new entry and accessed
             //the keyframe collection for the first time before assigning the parent and will
             //set the frame count later manually.
             int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
-            int type = node is CHR0Node ? 0 : node is SRT0Node ? 1 : 2;
-
-            if (type != 2)
-                if (type == 0)
-                    if (entry)
-                        return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
-                    else
-                        return new KeyframeCollection(9, numFrames, 1, 1, 1);
-                else
-                    if (entry)
-                        return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
-                    else
-                        return new KeyframeCollection(5, numFrames, 1, 1);
+            if (node is CHR0Node && entry)
+                return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
+            else if (node is SRT0Node && entry)
+                return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
             else
-                return new KeyframeCollection(1, numFrames);
+                return new KeyframeCollection(arrayCount, numFrames, defaults);
         }
 
         public static KeyframeArray DecodeSHP0Keyframes(SHP0KeyframeEntries* entry, SHP0Node node)

@@ -866,10 +866,9 @@ namespace System.Windows.Forms
                             for (int x = 0; x < 9; x++)
                                 if (f.GetBool(x))
                                     dPtr[x] = sPtr[x];
-                            s.CalcTransforms();
                             bone._bindState = s;
                         }
-                        //bone.RecalcBindState();
+                        bone._bindState.CalcTransforms();
                         bone.SignalPropertyChange();
                     }
             }
@@ -881,8 +880,8 @@ namespace System.Windows.Forms
                     if ((entry = SelectedAnimation.FindChild(name, false) as CHR0EntryNode) == null)
                     {
                         entry = new CHR0EntryNode() { Name = name };
-                        entry.SetSize(SelectedAnimation.FrameCount, SelectedAnimation.Loop);
                         SelectedAnimation.AddChild(entry);
+                        entry.SetSize(SelectedAnimation.FrameCount, SelectedAnimation.Loop);
                     }
 
                     CHRAnimationFrame f = _copyAllState[entry._name];
