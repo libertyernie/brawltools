@@ -389,6 +389,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public static Color clrRelocated = Color.FromArgb(200, 255, 200);
         public static Color clrBadRelocate = Color.FromArgb(255, 200, 200);
         public static Color clrBlr = Color.FromArgb(255, 255, 100);
+        public static Color clrBranch = Color.FromArgb(241, 180, 241);
 
         public Color GetStatusColorFromIndex(int index)
         {
@@ -397,8 +398,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (GetCode(index) is PPCblr)
                 return clrBlr;
+            if (GetCode(index) is PPCBranch && !_commands.ContainsKey(index))
+                return clrBranch;
             if (!_commands.ContainsKey(index))
                 return clrNotRelocated;
+
             return clrRelocated;
         }
 

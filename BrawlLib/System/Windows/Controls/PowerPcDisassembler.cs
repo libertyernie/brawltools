@@ -16,7 +16,7 @@ namespace System.Windows.Forms
         internal RelocationManager _manager;
         public int _baseOffset, _sectionOffset;
         public List<PPCOpCode> _codes = new List<PPCOpCode>();
-        public bool _updating = false; 
+        public bool _updating = false;
         public SectionEditor _editor;
 
         public void SetTarget(RELMethodNode node)
@@ -116,7 +116,7 @@ namespace System.Windows.Forms
 
         private void grdDisassembler_DoubleClick(object sender, EventArgs e)
         {
-            
+
         }
 
         private void grdDisassembler_SelectionChanged(object sender, EventArgs e)
@@ -177,6 +177,26 @@ namespace System.Windows.Forms
                 else
                     splitter.IsSplitterFixed = false;
             }
+        }
+
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            bool handled = false;
+            if (keyData == (Keys.Control | Keys.C))
+            {
+                StringBuilder b = new StringBuilder();
+                for (int i = 0; i < grdDisassembler.SelectedRows.Count; i++)
+                {
+                    b.Append(grdDisassembler.Rows[i].Cells[1].Value+" ");
+                    b.Append(grdDisassembler.Rows[i].Cells[2].Value + "\n");
+                }
+                Clipboard.SetText(b.ToString());
+                handled = true;
+            }
+            if(!handled)
+                return base.ProcessCmdKey(ref msg, keyData);
+
+            return handled;
         }
     }
 }
