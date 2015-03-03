@@ -29,9 +29,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (int rel = 0; rel < _objectSection._dataBuffer.Length / 4; rel++)
                 ParseDeclaration(rel);
-
             for (int rel = 0; rel < _objectSection._dataBuffer.Length / 4; rel++)
-                ParseObject(rel);
+                ParseObject(ref rel);
         }
 
         private unsafe RELType ParseDeclaration(int index)
@@ -84,7 +83,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return type;
         }
 
-        private unsafe RELObjectNode ParseObject(int rel)
+        private unsafe RELObjectNode ParseObject(ref int rel)
         {
             RelCommand cmd = Manager.GetCommand(rel);
             if (cmd == null)
@@ -130,6 +129,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 RelocationTarget t = cmd.GetTargetRelocation();
                 if (cmd.Apply(Manager.GetUint(rel), 0) != baseCmd.Apply(Manager.GetUint(baseRel), 0))
                 {
+
                     string methodName = String.Format("Function[{0}][{1}]", setIndex, methodIndex);
                     VoidPtr addr = null;
                     if (t != null && t._moduleID == (_objectSection.Root as ModuleNode).ID)
