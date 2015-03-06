@@ -36,6 +36,8 @@ namespace BrawlLib.OpenGL
             _fovY = fovy;
             _farZ = farz;
             _nearZ = nearz;
+
+            CalculateProjection();
         }
 
         public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
