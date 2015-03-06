@@ -380,11 +380,7 @@ namespace BrawlBox.NodeWrappers
         {
             MDL0Node model = _resource as MDL0Node;
             if (model != null)
-            {
                 model.CalculateBoundingBoxes();
-                model.SignalPropertyChange();
-                model.UpdateProperties();
-            }
         }
     }
 }

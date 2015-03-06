@@ -195,9 +195,6 @@ When true, metal materials and shaders will be added and modulated as you edit y
             return box;
         }
 
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
         public void CalculateBoundingBoxes()
         {
             ApplyCHR(null, 0);
@@ -205,6 +202,9 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if (_boneList != null)
                 foreach (MDL0BoneNode b in _boneList)
                     b.SetBox();
+
+            SignalPropertyChange();
+            UpdateProperties();
         }
 
         public void RemoveBone(MDL0BoneNode bone)
