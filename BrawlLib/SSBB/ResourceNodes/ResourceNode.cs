@@ -665,7 +665,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     Compressor.Compact(_compression, uncompMap.Address, uncompMap.Length, stream, this);
                     _replSrc = new DataSource(FileMap.FromStreamInternal(stream, FileMapProtect.Read, 0, (int)stream.Length), _compression);
                 }
-                catch (Exception x) { stream.Dispose(); throw x; }
+                catch (Exception x) { stream.Dispose(); throw; }
             }
         }
 
