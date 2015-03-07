@@ -109,19 +109,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Scale { get { return _bindState.Scale; } set { if (!CheckIfMetal()) { _bindState.Scale = value; } } }
+        public Vector2 Scale { get { return _bindState.Scale; } set { if (!CheckIfMetal()) { _bindState.Scale = value; UpdateCurrentControl(); } } }
         [Category("Texture Coordinates")]
-        public float Rotation { get { return _bindState.Rotate; } set { if (!CheckIfMetal()) { _bindState.Rotate = value; } } }
+        public float Rotation { get { return _bindState.Rotate; } set { if (!CheckIfMetal()) { _bindState.Rotate = value; UpdateCurrentControl(); } } }
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Translation { get { return _bindState.Translate; } set { if (!CheckIfMetal()) { _bindState.Translate = value; } } }
+        public Vector2 Translation { get { return _bindState.Translate; } set { if (!CheckIfMetal()) { _bindState.Translate = value; UpdateCurrentControl(); } } }
 
         [Category("Texture Matrix Effect")]
         public sbyte SCN0RefCamera { get { return _texMatrixEffect.SCNCamera; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNCamera = value; } }
         [Category("Texture Matrix Effect")]
         public sbyte SCN0RefLight { get { return _texMatrixEffect.SCNLight; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNLight = value; } }
         [Category("Texture Matrix Effect")]
-        public MappingMethod MapMode { get { return _texMatrixEffect.MapMode; } set { if (!CheckIfMetal()) _texMatrixEffect.MapMode = value; } }
-        [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter))]
+        public MappingMethod MapMode { get { return _texMatrixEffect.MapMode; } set { if (!CheckIfMetal()) _texMatrixEffect.MapMode = value; UpdateCurrentControl(); } }
+        [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter)), Browsable(false)]
         public Matrix43 EffectMatrix { get { return _texMatrixEffect.TextureMatrix; } set { if (!CheckIfMetal()) { _texMatrixEffect.TextureMatrix = value; } } }
         
         [Category("XF TexGen Flags")]
@@ -131,7 +131,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("XF TexGen Flags")]
         public TexTexgenType Type { get { return (TexTexgenType)_texGenType; } set { if (!CheckIfMetal()) { _texGenType = (int)value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
-        public TexSourceRow Coordinates { get { return (TexSourceRow)_sourceRow; } set { if (!CheckIfMetal()) { _sourceRow = (int)value; SetTextMtxData(); } } }
+        public TexSourceRow Coordinates { get { return (TexSourceRow)_sourceRow; } set { if (!CheckIfMetal()) { _sourceRow = (int)value; SetTextMtxData(); UpdateCurrentControl(); } } }
         [Category("XF TexGen Flags")]
         public int EmbossSource { get { return _embossSource; } set { if (!CheckIfMetal()) { _embossSource = value; SetTextMtxData(); } } }
         [Category("XF TexGen Flags")]
@@ -140,15 +140,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool Normalize { get { return _dualTexFlags._normalEnable != 0; } set { if (!CheckIfMetal()) { _dualTexFlags._normalEnable = (byte)(value ? 1 : 0); } } }
 
         [Category("Texture Reference")]
-        public MatWrapMode UWrapMode { get { return (MatWrapMode)_uWrap; } set { if (!CheckIfMetal()) _uWrap = (int)value; } }
+        public MatWrapMode UWrapMode { get { return (MatWrapMode)_uWrap; } set { if (!CheckIfMetal()) { _uWrap = (int)value; UpdateCurrentControl(); } } }
         [Category("Texture Reference")]
-        public MatWrapMode VWrapMode { get { return (MatWrapMode)_vWrap; } set { if (!CheckIfMetal()) _vWrap = (int)value; } }
+        public MatWrapMode VWrapMode { get { return (MatWrapMode)_vWrap; } set { if (!CheckIfMetal()) { _vWrap = (int)value; UpdateCurrentControl(); } } }
         [Category("Texture Reference")]
-        public MatTextureMinFilter MinFilter { get { return (MatTextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) _minFltr = (int)value; } }
+        public MatTextureMinFilter MinFilter { get { return (MatTextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) { _minFltr = (int)value; UpdateCurrentControl(); } } }
         [Category("Texture Reference")]
-        public MatTextureMagFilter MagFilter { get { return (MatTextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) _magFltr = (int)value; } }
+        public MatTextureMagFilter MagFilter { get { return (MatTextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) { _magFltr = (int)value; UpdateCurrentControl(); } } }
         [Category("Texture Reference")]
-        public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) _lodBias = value; } }
+        public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) { _lodBias = value; UpdateCurrentControl(); } } }
         [Category("Texture Reference")]
         public MatAnisotropy MaxAnisotropy { get { return (MatAnisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
         [Category("Texture Reference")]
@@ -194,7 +194,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public string Texture
         {
             get { return _texture == null ? null : _texture.Name; }
-            set { TextureNode = String.IsNullOrEmpty(value) ? null : Model.FindOrCreateTexture(value); SignalPropertyChange(); }
+            set { TextureNode = String.IsNullOrEmpty(value) ? null : Model.FindOrCreateTexture(value); SignalPropertyChange(); UpdateCurrentControl(); }
         }
         #endregion
 
@@ -222,7 +222,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public string Palette
         {
             get { return _palette == null ? null : _palette.Name; }
-            set { PaletteNode = String.IsNullOrEmpty(value) ? null : Model.FindOrCreatePalette(value); SignalPropertyChange(); }
+            set { PaletteNode = String.IsNullOrEmpty(value) ? null : Model.FindOrCreatePalette(value); SignalPropertyChange(); UpdateCurrentControl(); }
         }
         #endregion
 

@@ -959,6 +959,11 @@ namespace System.Windows.Forms
                 return p;
             }
         }
+        public override Vector3 GetDefaultScale()
+        {
+            float f = _camera._ortho ? 0.035f : 1.0f;
+            return new Vector3(f);
+        }
         #endregion
     }
 

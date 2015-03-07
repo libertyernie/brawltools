@@ -163,7 +163,7 @@ namespace BrawlLib.OpenGL
                 Camera._ortho = true;
                 Camera._restrictXRot = 
                 Camera._restrictYRot = _type != ViewportProjection.Orthographic;
-                Camera._defaultScale = new Vector3(0.035f);
+                Camera._defaultScale = GetDefaultScale();
                 Camera._defaultRotate = GetDefaultRotate();
             }
             if (!diff)
@@ -290,12 +290,11 @@ namespace BrawlLib.OpenGL
             }
         }
 
-        public Vector3 GetDefaultScale()
+        public virtual Vector3 GetDefaultScale()
         {
-            float f = _camera._ortho ? 0.035f : 1.0f;
-            return new Vector3(f);
+            return new Vector3(1.0f);
         }
-        public Vector3 GetDefaultRotate()
+        public virtual Vector3 GetDefaultRotate()
         {
             switch (ViewType)
             {
