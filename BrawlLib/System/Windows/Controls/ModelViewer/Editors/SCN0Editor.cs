@@ -1865,8 +1865,11 @@ namespace System.Windows.Forms
             _mainWindow.SetFrame(CurrentFrame);
         }
 
+        bool _updating = false;
+
         public void UpdateSelectedLightSets()
         {
+            _updating = true;
             cboAmb.SelectedIndex = _lightSet._ambient != null ? _lightSet._ambient.Index + 1 : 0;
             cboLight0.SelectedIndex = _lightSet._lights[0] != null ? _lightSet._lights[0].Index + 1 : 0;
             cboLight1.SelectedIndex = _lightSet._lights[1] != null ? _lightSet._lights[1].Index + 1 : 0;
@@ -1876,6 +1879,7 @@ namespace System.Windows.Forms
             cboLight5.SelectedIndex = _lightSet._lights[5] != null ? _lightSet._lights[5].Index + 1 : 0;
             cboLight6.SelectedIndex = _lightSet._lights[6] != null ? _lightSet._lights[6].Index + 1 : 0;
             cboLight7.SelectedIndex = _lightSet._lights[7] != null ? _lightSet._lights[7].Index + 1 : 0;
+            _updating = false;
         }
 
         private void nodeList_SelectedIndexChanged(object sender, EventArgs e)
@@ -1895,10 +1899,12 @@ namespace System.Windows.Forms
                 case 0:
                     _lightSet = cboNodeList.SelectedItem as SCN0LightSetNode;
 
+                    SCN0GroupNode amb = SelectedAnimation.GetFolder<SCN0AmbientLightNode>();
+
                     cboAmb.Items.Clear();
                     cboAmb.Items.Add("<null>");
-                    foreach (SCN0AmbientLightNode s in SelectedAnimation.GetFolder<SCN0AmbientLightNode>().Children)
-                        cboAmb.Items.Add(s);
+                    if (amb != null && amb.Children != null)
+                        cboAmb.Items.AddRange(amb.Children.ToArray());
 
                     SCN0GroupNode lights = SelectedAnimation.GetFolder<SCN0LightNode>();
 
@@ -2077,46 +2083,73 @@ namespace System.Windows.Forms
 
         private void lstAmb_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Ambience = cboAmb.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight0_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light0 = cboLight0.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light1 = cboLight1.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight2_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light2 = cboLight2.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight3_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light3 = cboLight3.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight4_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light4 = cboLight4.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight5_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light5 = cboLight5.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight6_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light6 = cboLight6.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 
         private void lstLight7_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             _lightSet.Light7 = cboLight7.SelectedItem.ToString(); UpdateSelectedLightSets();
         }
 

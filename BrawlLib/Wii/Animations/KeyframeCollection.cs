@@ -378,7 +378,9 @@ namespace BrawlLib.Wii.Animations
                 {
                     //And this when parsing
                     _keyCount++;
-                    entry.InsertAfter(entry = new KeyframeEntry(index, value));
+                    KeyframeEntry temp = new KeyframeEntry(index, value);
+                    entry.InsertAfter(temp);
+                    entry = temp;
                 }
             }
 

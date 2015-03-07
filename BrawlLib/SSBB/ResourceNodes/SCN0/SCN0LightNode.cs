@@ -14,7 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0LightNode : SCN0EntryNode, IBoolArraySource, IColorSource, IKeyframeSource
     {
         internal SCN0Light* Data { get { return (SCN0Light*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.SCN0Light; } }
 
         #region Variables
 
