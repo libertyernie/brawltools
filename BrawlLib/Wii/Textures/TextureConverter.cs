@@ -350,7 +350,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;
@@ -372,7 +372,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;
@@ -389,7 +389,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;

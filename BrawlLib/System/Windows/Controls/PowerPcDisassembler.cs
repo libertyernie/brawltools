@@ -93,7 +93,7 @@ namespace System.Windows.Forms
 
             int index = _sectionOffset / 4 + i;
 
-            row.Cells[0].Value = PPCFormat.Offset(_baseOffset + _sectionOffset + i * 4);
+            row.Cells[0].Value = PPCFormat.Offset(_baseOffset + _sectionOffset + (i * 4));
             row.Cells[1].Value = opcode.Name;
             row.Cells[2].Value = opcode.GetFormattedOperands();
 

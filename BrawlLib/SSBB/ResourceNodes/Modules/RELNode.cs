@@ -708,6 +708,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ? new RELNode() : null; 
         }
 
+        #region Module ID Names
         public static SortedList<uint, string> _idNames = new SortedList<uint, string>()
         {
             {0, "main.dol"},
@@ -838,5 +839,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             {125, "ft_wolf"},
             {126, "ft_zako"},
         };
+        #endregion
     }
 }
