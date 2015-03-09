@@ -27,7 +27,7 @@ namespace System.Windows.Forms
         internal bool _updating = false;
 
         private List<ResourceNode> _attached;
-       
+        
         private List<RenderInfo> _renderInfo;
         private List<int> _uvSetIndices, _objIndices;
         public int _uvIndex = -1, _objIndex = -1;
@@ -110,6 +110,14 @@ namespace System.Windows.Forms
                 _renderInfo.Add(info);
                 min.Min(info._min);
                 max.Max(info._max);
+            }
+
+            if (_objNames.Count == 0)
+            {
+                _objNames.Add("None");
+                _uvSetNames.Add("None");
+                Invalidate();
+                return;
             }
 
             //TODO: zoom the camera out to the nearest whole texture repetition
