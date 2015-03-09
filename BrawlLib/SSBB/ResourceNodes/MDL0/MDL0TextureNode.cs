@@ -120,8 +120,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0TextureNode(string name) 
         {
             _name = name;
-            if (Name == "TShadow1")
-                Enabled = false;
+            //if (Name == "TShadow1")
+            //    Enabled = false;
         }
 
         public PLT0Node palette = null;
@@ -377,8 +377,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind()
         {
-            if (Name == "TShadow1")
-                Enabled = false;
+            //if (Name == "TShadow1")
+            //    Enabled = false;
 
             Selected = false;
             //Enabled = true;
