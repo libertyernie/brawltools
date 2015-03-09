@@ -45,6 +45,9 @@ namespace System
         public static explicit operator Vector3(Vector4 v) { return new Vector3(v._x / v._w, v._y / v._w, v._z / v._w); }
         //public static explicit operator Vector4(Vector3 v) { return new Vector4(v._x, v._y, v._z, 1.0f); }
 
+        public static explicit operator Vector3(OpenTK.Vector3 v) { return new Vector3(v.X, v.Y, v.Z); }
+        public static explicit operator OpenTK.Vector3(Vector3 v) { return new OpenTK.Vector3(v._x, v._y, v._z); }
+
         private const float _colorFactor = 1.0f / 255.0f;
         public static explicit operator Vector3(Color c) { return new Vector3(c.R * _colorFactor, c.G * _colorFactor, c.B * _colorFactor); }
         public static explicit operator Color(Vector3 v) { return Color.FromArgb((int)(v._x / _colorFactor), (int)(v._y / _colorFactor), (int)(v._z / _colorFactor)); }

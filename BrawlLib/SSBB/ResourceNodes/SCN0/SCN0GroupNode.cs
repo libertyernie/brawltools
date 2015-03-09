@@ -312,7 +312,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             SCN0KeyframesHeader* header = (SCN0KeyframesHeader*)dataAddr;
             SCN0KeyframeStruct* entry = header->Data;
             for (int i = 0; i < header->_numFrames; i++, entry++)
-                kf.SetFrameValue((int)entry->_index, entry->_value)._tangent = entry->_tangent;
+                kf.SetFrameValue((int)entry->_index, entry->_value, true)._tangent = entry->_tangent;
         }
         public static int EncodeKeyframes(KeyframeArray kf, VoidPtr dataAddr, VoidPtr offset, ref int flags, int fixedBit)
         {

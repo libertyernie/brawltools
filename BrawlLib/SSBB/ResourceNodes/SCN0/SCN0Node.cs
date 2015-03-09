@@ -155,8 +155,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     r.Initialize(g, new DataSource(addr + offset, size));
                 }
             }
-            foreach (SCN0LightSetNode t in lightsets.Children)
-                t.AttachNodes();
+
+            if (lightsets != null)
+                foreach (SCN0LightSetNode t in lightsets.Children)
+                    t.AttachNodes();
         }
 
         public SCN0GroupNode GetOrCreateFolder<T>() where T : SCN0EntryNode

@@ -1337,6 +1337,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                     _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
 
+            if (_render && 
+                XluMaterialNode != null && 
+                XluMaterialNode.Children.Count != 0 && 
+                XluMaterialNode.Children[0].Name == "TShadow1")
+                _render = false;
+
             //if (ctx != null && ctx._shadersEnabled)
             //{
             //    vertexShaderHandle = GL.CreateShader(OpenTK.Graphics.OpenGL.ShaderType.VertexShader);

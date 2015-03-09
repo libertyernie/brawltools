@@ -14,6 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0FogNode : SCN0EntryNode, IColorSource, IKeyframeSource
     {
         internal SCN0Fog* Data { get { return (SCN0Fog*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.SCN0Fog; } }
 
         private FogType _type = FogType.PerspectiveLinear;
         public SCN0FogFlags _flags = (SCN0FogFlags)0xE0;

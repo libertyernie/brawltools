@@ -149,8 +149,9 @@ namespace BrawlBox
         }
         internal protected virtual void OnUpdateCurrentControl(object sender, EventArgs e)
         {
-            MainForm.Instance._currentControl = null;
-            MainForm.Instance.resourceTree_SelectionChanged(this, null);
+            MainForm form = MainForm.Instance;
+            form._currentControl = null;
+            form.resourceTree_SelectionChanged(this, null);
         }
         internal protected virtual void OnChildAdded(ResourceNode parent, ResourceNode child)
         {

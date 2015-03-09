@@ -38,7 +38,7 @@ namespace BrawlLib.Wii.Animations
             int fCount = entry->_numEntries;
             BVec3* vec = entry->Entries;
             for (int i = 0; i < fCount; i++, vec++)
-                kf.SetFrameValue((int)vec->_y, vec->_z)._tangent = vec->_x;
+                kf.SetFrameValue((int)vec->_y, vec->_z, true)._tangent = vec->_x;
 
             return kf;
         }

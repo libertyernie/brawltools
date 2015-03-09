@@ -81,11 +81,20 @@ namespace System.Windows.Forms
                 Vector3 r = f.GetRotate(c.Type);
                 Vector3 t = f.Pos;
                 
-                GLCamera cam = ModelPanel.CurrentViewport.Camera;
+                ModelPanelViewport v = ModelPanel.CurrentViewport;
+
+                ViewportProjection proj = (ViewportProjection)(int)c.ProjectionType;
+                if (v.ViewType != proj)
+                    v.SetProjectionType(proj);
+
+                GLCamera cam = v.Camera;
                 cam.Reset();
                 cam.Translate(t._x, t._y, t._z);
                 cam.Rotate(r._x, r._y, r._z);
-                cam.SetProjectionParams(f.Aspect, f.FovY, f.FarZ, f.NearZ);
+
+                bool retainAspect = true;
+                float aspect = retainAspect ? cam.Aspect : f.Aspect;
+                cam.SetProjectionParams(aspect, f.FovY, f.FarZ, f.NearZ);
             }
         }
 

@@ -120,15 +120,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0TextureNode(string name) 
         {
             _name = name;
-            if (Name == "TShadow1")
-                Enabled = false;
+            //if (Name == "TShadow1")
+            //    Enabled = false;
         }
 
         public PLT0Node palette = null;
         internal unsafe void Prepare(MDL0MaterialRefNode mRef, int shaderProgramHandle)
         {
-            if (mRef.PaletteNode != null && palette == null)
-                palette = mRef.RootNode.FindChild("Palettes(NW4R)/" + mRef.Palette, true) as PLT0Node;
+            if (mRef.PaletteNode != null)
+            {
+                if (palette == null || palette.Name != mRef.Palette)
+                    palette = mRef.RootNode.FindChild("Palettes(NW4R)/" + mRef.Palette, true) as PLT0Node;
+            }
+            else
+                palette = null;
 
             try
             {
@@ -281,10 +286,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if ((tNode = node.FindChild("Textures(NW4R)/" + Name, true) as TEX0Node) != null)
                     {
                         Source = tNode;
-                        if (palette != null)
+                        //if (palette != null)
                             Texture.Attach(tNode, palette);
-                        else
-                            Texture.Attach(tNode);
+                        //else
+                        //    Texture.Attach(tNode);
                         return;
                     }
                     else
@@ -372,8 +377,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind()
         {
-            if (Name == "TShadow1")
-                Enabled = false;
+            //if (Name == "TShadow1")
+            //    Enabled = false;
 
             Selected = false;
             //Enabled = true;
