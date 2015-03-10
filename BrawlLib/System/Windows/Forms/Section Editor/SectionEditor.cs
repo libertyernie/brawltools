@@ -367,7 +367,7 @@ namespace System.Windows.Forms
                         for (int i = startIndex; i <= endIndex; i++)
                             w.Add(_manager.GetCode(i));
 
-                        ppcDisassembler1._baseOffset = (int)_section.RootOffset;
+                        //ppcDisassembler1._baseOffset = (int)_section.RootOffset;
                         ppcDisassembler1.SetTarget(w, startIndex * 4, _manager);
                     }
 

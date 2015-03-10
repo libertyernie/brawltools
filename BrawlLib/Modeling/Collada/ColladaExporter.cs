@@ -101,7 +101,6 @@ namespace BrawlLib.Modeling
                 }
                 writer.WriteEndElement(); //scene
 
-                writer.Close();
             }
         }
 
@@ -1439,7 +1438,6 @@ namespace BrawlLib.Modeling
                         writer.WriteEndElement(); //animation
                     }
                     writer.WriteEndElement(); //library_animations
-                    writer.Close();
                 }
             }
         }

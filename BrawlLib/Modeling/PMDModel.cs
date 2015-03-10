@@ -41,7 +41,6 @@ namespace BrawlLib.Modeling
                     Read(reader, CoordinateType.LeftHanded); //Will flip model backwards if right handed
                     PMD2MDL0(model);
                 }
-                fs.Close();
             }
             return model;
         }
@@ -58,7 +57,6 @@ namespace BrawlLib.Modeling
                 writer.Write(1.0f); //Version
                 PMDModel.MDL02PMD(model);
                 PMDModel.Write(writer);
-                fs.Close();
             }
         }
         #endregion
