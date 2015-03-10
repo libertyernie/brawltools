@@ -43,7 +43,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ResourceGroup* group = data->Group;
             ResourceEntry* pEntry = &group->_first + 1;
             int count = group->_numEntries;
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++, pEntry++)
             {
                 UserDataEntry* entry = (UserDataEntry*)((VoidPtr)group + pEntry->_dataOffset);
                 UserDataClass d = new UserDataClass() { _name = new String((sbyte*)group + pEntry->_stringOffset) };
