@@ -1215,6 +1215,7 @@ namespace System.Windows.Forms
 
             _mainWindow.Updating = true;
             _mainWindow.PlaybackPanel.numTotalFrames.Value++;
+            _mainWindow._maxFrame++;
             _mainWindow.Updating = false;
         }
 
@@ -1228,6 +1229,7 @@ namespace System.Windows.Forms
 
             _mainWindow.Updating = true;
             _mainWindow.PlaybackPanel.numTotalFrames.Value--;
+            _mainWindow._maxFrame--;
             _mainWindow.Updating = false;
         }
 
