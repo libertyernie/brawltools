@@ -52,7 +52,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (Forced.ContainsKey(ext))
                     {
                         node = Activator.CreateInstance(Forced[ext]) as ResourceNode;
-                        FileMap uncomp = Compressor.TryExpand(ref source);
+                        FileMap uncomp = Compressor.TryExpand(ref source, false);
                         if (uncomp != null)
                             node.Initialize(parent, source, new DataSource(uncomp));
                         else
