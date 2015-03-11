@@ -103,7 +103,7 @@ namespace BrawlLib.SSBBTypes
         }
         public UserData* UserData
         {
-            get { return (UserData*)(Address + _userDataOffset); }
+            get { return _userDataOffset == 0 ? null : (UserData*)(Address + _userDataOffset); }
             set { _userDataOffset = (int)(VoidPtr)value - (int)Address; }
         }
 
