@@ -120,37 +120,37 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         const string KonstDesc = @"
 This color is used by the linked shader. 
-In each shader stage, there are properties called KonstantColorSelection and KonstantAlphaSelection.
+In each shader stage, there are properties called ConstantColorSelection and ConstantAlphaSelection.
 Those properties can use this color as an argument. This color is referred to as ";
 
-        [Category("TEV Konstant Block"), 
+        [Category("Shader Constant Color Block"), DisplayName("Constant Color 0"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(KonstDesc + "KSel_0.")]
-        public GXColorS10 KReg0Color
+        public GXColorS10 ConstantColor0
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg0Lo.RB, A = _tevKonstBlock.TevReg0Lo.AG, B = _tevKonstBlock.TevReg0Hi.RB, G = _tevKonstBlock.TevReg0Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg0Lo.RB = value.R; _tevKonstBlock.TevReg0Lo.AG = value.A; _tevKonstBlock.TevReg0Hi.RB = value.B; _tevKonstBlock.TevReg0Hi.AG = value.G; k1 = value; } } 
         }
-        [Category("TEV Konstant Block"),
+        [Category("Shader Constant Color Block"), DisplayName("Constant Color 1"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(KonstDesc + "KSel_1.")]
-        public GXColorS10 KReg1Color 
+        public GXColorS10 ConstantColor1
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg1Lo.RB, A = _tevKonstBlock.TevReg1Lo.AG, B = _tevKonstBlock.TevReg1Hi.RB, G = _tevKonstBlock.TevReg1Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg1Lo.RB = value.R; _tevKonstBlock.TevReg1Lo.AG = value.A; _tevKonstBlock.TevReg1Hi.RB = value.B; _tevKonstBlock.TevReg1Hi.AG = value.G; k2 = value; } } 
         }
-        [Category("TEV Konstant Block"),
+        [Category("Shader Constant Color Block"), DisplayName("Constant Color 2"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(KonstDesc + "KSel_2.")]
-        public GXColorS10 KReg2Color 
+        public GXColorS10 ConstantColor2
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg2Lo.RB, A = _tevKonstBlock.TevReg2Lo.AG, B = _tevKonstBlock.TevReg2Hi.RB, G = _tevKonstBlock.TevReg2Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg2Lo.RB = value.R; _tevKonstBlock.TevReg2Lo.AG = value.A; _tevKonstBlock.TevReg2Hi.RB = value.B; _tevKonstBlock.TevReg2Hi.AG = value.G; k3 = value; } } 
         }
-        [Category("TEV Konstant Block"),
+        [Category("Shader Constant Color Block"), DisplayName("Constant Color 3"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(KonstDesc + "KSel_3.")]
-        public GXColorS10 KReg3Color 
+        public GXColorS10 ConstantColor3
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg3Lo.RB, A = _tevKonstBlock.TevReg3Lo.AG, B = _tevKonstBlock.TevReg3Hi.RB, G = _tevKonstBlock.TevReg3Hi.AG }; }
             set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg3Lo.RB = value.R; _tevKonstBlock.TevReg3Lo.AG = value.A; _tevKonstBlock.TevReg3Hi.RB = value.B; _tevKonstBlock.TevReg3Hi.AG = value.G; k4 = value; } } 
@@ -165,10 +165,10 @@ This color is used by the linked shader.
 In each shader stage, there are properties called Color/Alpha Selection A, B, C and D.
 Those properties can use this color as an argument. This color is referred to as ";
 
-        [Category("TEV Color Block"),
+        [Category("Shader Color Block"), DisplayName("Color 0"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(ColorDesc + "Color0 and Alpha0.")]
-        public GXColorS10 CReg0Color 
+        public GXColorS10 Color0
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg1Lo.RB, A = _tevColorBlock.TevReg1Lo.AG, B = _tevColorBlock.TevReg1Hi0.RB, G = _tevColorBlock.TevReg1Hi0.AG }; }
             set
@@ -190,10 +190,10 @@ Those properties can use this color as an argument. This color is referred to as
                 }
             }
         }
-        [Category("TEV Color Block"),
+        [Category("Shader Color Block"), DisplayName("Color 1"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(ColorDesc + "Color1 and Alpha1.")]
-        public GXColorS10 CReg1Color 
+        public GXColorS10 Color1
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg2Lo.RB, A = _tevColorBlock.TevReg2Lo.AG, B = _tevColorBlock.TevReg2Hi0.RB, G = _tevColorBlock.TevReg2Hi0.AG }; }
             set
@@ -215,10 +215,10 @@ Those properties can use this color as an argument. This color is referred to as
                 }
             }
         }
-        [Category("TEV Color Block"),
+        [Category("Shader Color Block"), DisplayName("Color 2"),
         TypeConverter(typeof(GXColorS10StringConverter)),
         Description(ColorDesc + "Color2 and Alpha2.")]
-        public GXColorS10 CReg2Color 
+        public GXColorS10 Color2
         {
             get { return new GXColorS10() { R = _tevColorBlock.TevReg3Lo.RB, A = _tevColorBlock.TevReg3Lo.AG, B = _tevColorBlock.TevReg3Hi0.RB, G = _tevColorBlock.TevReg3Hi0.AG }; } 
             set
@@ -1339,13 +1339,13 @@ For example, if the shader has two stages but this number is 1, the second stage
                 clr2 = C2MaterialColor;
                 amb1 = C1AmbientColor;
                 amb2 = C2AmbientColor;
-                c1 = CReg0Color;
-                c2 = CReg1Color;
-                c3 = CReg2Color;
-                k1 = KReg0Color;
-                k2 = KReg1Color;
-                k3 = KReg2Color;
-                k4 = KReg3Color;
+                c1 = Color0;
+                c2 = Color1;
+                c3 = Color2;
+                k1 = ConstantColor0;
+                k2 = ConstantColor1;
+                k3 = ConstantColor2;
+                k4 = ConstantColor3;
                 return;
             }
 

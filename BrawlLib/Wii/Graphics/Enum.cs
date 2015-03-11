@@ -97,7 +97,7 @@ namespace BrawlLib.Wii.Graphics
         RasterAlpha,//GX_CC_RASA,
         One,//GX_CC_ONE, //1
         Half,//GX_CC_HALF, //0.5
-        KonstantColorSelection,//GX_CC_KONST,
+        ConstantColorSelection,//GX_CC_KONST,
         Zero//GX_CC_ZERO //0
     }
 
@@ -109,7 +109,7 @@ namespace BrawlLib.Wii.Graphics
         Alpha2,//GX_CA_A2,
         TextureAlpha,//GX_CA_TEXA,
         RasterAlpha,//GX_CA_RASA,
-        KonstantAlphaSelection,//GX_CA_KONST,
+        ConstantAlphaSelection,//GX_CA_KONST,
         Zero//GX_CA_ZERO //0
     }
 
@@ -157,12 +157,19 @@ namespace BrawlLib.Wii.Graphics
         Stage15,
     }
 
-    public enum TevRegID
+    public enum TevColorRegID
     {
-        PreviousRegister,//GX_TEVPREV,
-        Register0,//GX_TEVREG0,
-        Register1,//GX_TEVREG1,
-        Register2,//GX_TEVREG2
+        PreviousColor,
+        Color0,
+        Color1,
+        Color2,
+    }
+    public enum TevAlphaRegID
+    {
+        PreviousAlpha,
+        Alpha0,
+        Alpha1,
+        Alpha2,
     }
 
     public enum TevOp
@@ -331,22 +338,22 @@ namespace BrawlLib.Wii.Graphics
         //GX_TEV_KASEL_1_2  = GX_TEV_KASEL_4_8,
         //GX_TEV_KASEL_1_4  = GX_TEV_KASEL_2_8,
 
-        KSel_0_Red/*GX_TEV_KASEL_K0_R*/ = 0x10,
-        KSel_1_Red/*GX_TEV_KASEL_K1_R*/ = 0x11,
-        KSel_2_Red/*GX_TEV_KASEL_K2_R*/ = 0x12,
-        KSel_3_Red/*GX_TEV_KASEL_K3_R*/ = 0x13,
-        KSel_0_Green/*GX_TEV_KASEL_K0_G*/ = 0x14,
-        KSel_1_Green/*GX_TEV_KASEL_K1_G*/ = 0x15,
-        KSel_2_Green/*GX_TEV_KASEL_K2_G*/ = 0x16,
-        KSel_3_Green/*GX_TEV_KASEL_K3_G*/ = 0x17,
-        KSel_0_Blue/*GX_TEV_KASEL_K0_B*/ = 0x18,
-        KSel_1_Blue/*GX_TEV_KASEL_K1_B*/ = 0x19,
-        KSel_2_Blue/*GX_TEV_KASEL_K2_B*/ = 0x1A,
-        KSel_3_Blue/*GX_TEV_KASEL_K3_B*/ = 0x1B,
-        KSel_0_Alpha/*GX_TEV_KASEL_K0_A*/ = 0x1C,
-        KSel_1_Alpha/*GX_TEV_KASEL_K1_A*/ = 0x1D,
-        KSel_2_Alpha/*GX_TEV_KASEL_K2_A*/ = 0x1E,
-        KSel_3_Alpha/*GX_TEV_KASEL_K3_A*/ = 0x1F
+        ConstantColor0_Red/*GX_TEV_KASEL_K0_R*/ = 0x10,
+        ConstantColor1_Red/*GX_TEV_KASEL_K1_R*/ = 0x11,
+        ConstantColor2_Red/*GX_TEV_KASEL_K2_R*/ = 0x12,
+        ConstantColor3_Red/*GX_TEV_KASEL_K3_R*/ = 0x13,
+        ConstantColor0_Green/*GX_TEV_KASEL_K0_G*/ = 0x14,
+        ConstantColor1_Green/*GX_TEV_KASEL_K1_G*/ = 0x15,
+        ConstantColor2_Green/*GX_TEV_KASEL_K2_G*/ = 0x16,
+        ConstantColor3_Green/*GX_TEV_KASEL_K3_G*/ = 0x17,
+        ConstantColor0_Blue/*GX_TEV_KASEL_K0_B*/ = 0x18,
+        ConstantColor1_Blue/*GX_TEV_KASEL_K1_B*/ = 0x19,
+        ConstantColor2_Blue/*GX_TEV_KASEL_K2_B*/ = 0x1A,
+        ConstantColor3_Blue/*GX_TEV_KASEL_K3_B*/ = 0x1B,
+        ConstantColor0_Alpha/*GX_TEV_KASEL_K0_A*/ = 0x1C,
+        ConstantColor1_Alpha/*GX_TEV_KASEL_K1_A*/ = 0x1D,
+        ConstantColor2_Alpha/*GX_TEV_KASEL_K2_A*/ = 0x1E,
+        ConstantColor3_Alpha/*GX_TEV_KASEL_K3_A*/ = 0x1F
     }
 
     public enum TevKColorSel
@@ -365,26 +372,26 @@ namespace BrawlLib.Wii.Graphics
         //GX_TEV_KCSEL_1_2  = GX_TEV_KCSEL_4_8,
         //GX_TEV_KCSEL_1_4  = GX_TEV_KCSEL_2_8,
         
-        KSel_0_Value/*GX_TEV_KCSEL_K0*/   = 0x0C,
-        KSel_1_Value/*GX_TEV_KCSEL_K1*/   = 0x0D,
-        KSel_2_Value/*GX_TEV_KCSEL_K2*/   = 0x0E,
-        KSel_3_Value/*GX_TEV_KCSEL_K3*/   = 0x0F,
-        KSel_0_Red/*GX_TEV_KCSEL_K0_R*/ = 0x10,
-        KSel_1_Red/*GX_TEV_KCSEL_K1_R*/ = 0x11,
-        KSel_2_Red/*GX_TEV_KCSEL_K2_R*/ = 0x12,
-        KSel_3_Red/*GX_TEV_KCSEL_K3_R*/ = 0x13,
-        KSel_0_Green/*GX_TEV_KCSEL_K0_G*/ = 0x14,
-        KSel_1_Green/*GX_TEV_KCSEL_K1_G*/ = 0x15,
-        KSel_2_Green/*GX_TEV_KCSEL_K2_G*/ = 0x16,
-        KSel_3_Green/*GX_TEV_KCSEL_K3_G*/ = 0x17,
-        KSel_0_Blue/*GX_TEV_KCSEL_K0_B*/ = 0x18,
-        KSel_1_Blue/*GX_TEV_KCSEL_K1_B*/ = 0x19,
-        KSel_2_Blue/*GX_TEV_KCSEL_K2_B*/ = 0x1A,
-        KSel_3_Blue/*GX_TEV_KCSEL_K3_B*/ = 0x1B,
-        KSel_0_Alpha/*GX_TEV_KCSEL_K0_A*/ = 0x1C,
-        KSel_1_Alpha/*GX_TEV_KCSEL_K1_A*/ = 0x1D,
-        KSel_2_Alpha/*GX_TEV_KCSEL_K2_A*/ = 0x1E,
-        KSel_3_Alpha/*GX_TEV_KCSEL_K3_A*/ = 0x1F
+        ConstantColor0_Value/*GX_TEV_KCSEL_K0*/   = 0x0C,
+        ConstantColor1_Value/*GX_TEV_KCSEL_K1*/   = 0x0D,
+        ConstantColor2_Value/*GX_TEV_KCSEL_K2*/   = 0x0E,
+        ConstantColor3_Value/*GX_TEV_KCSEL_K3*/   = 0x0F,
+        ConstantColor0_Red/*GX_TEV_KCSEL_K0_R*/ = 0x10,
+        ConstantColor1_Red/*GX_TEV_KCSEL_K1_R*/ = 0x11,
+        ConstantColor2_Red/*GX_TEV_KCSEL_K2_R*/ = 0x12,
+        ConstantColor3_Red/*GX_TEV_KCSEL_K3_R*/ = 0x13,
+        ConstantColor0_Green/*GX_TEV_KCSEL_K0_G*/ = 0x14,
+        ConstantColor1_Green/*GX_TEV_KCSEL_K1_G*/ = 0x15,
+        ConstantColor2_Green/*GX_TEV_KCSEL_K2_G*/ = 0x16,
+        ConstantColor3_Green/*GX_TEV_KCSEL_K3_G*/ = 0x17,
+        ConstantColor0_Blue/*GX_TEV_KCSEL_K0_B*/ = 0x18,
+        ConstantColor1_Blue/*GX_TEV_KCSEL_K1_B*/ = 0x19,
+        ConstantColor2_Blue/*GX_TEV_KCSEL_K2_B*/ = 0x1A,
+        ConstantColor3_Blue/*GX_TEV_KCSEL_K3_B*/ = 0x1B,
+        ConstantColor0_Alpha/*GX_TEV_KCSEL_K0_A*/ = 0x1C,
+        ConstantColor1_Alpha/*GX_TEV_KCSEL_K1_A*/ = 0x1D,
+        ConstantColor2_Alpha/*GX_TEV_KCSEL_K2_A*/ = 0x1E,
+        ConstantColor3_Alpha/*GX_TEV_KCSEL_K3_A*/ = 0x1F
     }
 
     public enum IndTexStageID

@@ -111,19 +111,19 @@ namespace BrawlLib.Modeling
                                     switch (i)
                                     {
                                         case 0:
-                                            shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                            shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
                                             break;
                                         case 1:
-                                            shadNode.AddChild(new TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.KSel_1_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.ColorChannel0, false));
+                                            shadNode.AddChild(new TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.ConstantColor1_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.ColorChannel0, false));
                                             break;
                                         case 2:
-                                            shadNode.AddChild(new TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
+                                            shadNode.AddChild(new TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
                                             break;
                                     }
                                 }
                                 break;
                             case ImportOptions.MDLType.Stage:
-                                shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.KSel_0_Value, TevKAlphaSel.KSel_0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
                                 break;
                         }
 
@@ -515,7 +515,7 @@ namespace BrawlLib.Modeling
                 mat.LightChannel0.MaterialColor = new RGBAPixel(128, 128, 128, 255);
 
                 TEVStageNode stage = new TEVStageNode();
-                stage.ColorChannel = ColorSelChan.ColorChannel0;
+                stage.RasterColor = ColorSelChan.ColorChannel0;
                 stage.AlphaSelectionD = AlphaArg.RasterAlpha;
                 stage.ColorSelectionD = ColorArg.RasterColor;
                 shad.AddChild(stage);

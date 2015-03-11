@@ -129,32 +129,48 @@ If the input is 0, nothing multiplied by it can affect transparency. If input is
         //[Category("d TEV Alpha Env"), Description(eqAlpha)]
         //public string AlphaOutput { get { return (AlphaClamp ? "clamp(" : "") + "(d " + (AlphaSubtract ? "-" : "+") + " ((1 - c) * a + c * b)" + ((int)AlphaBias == 1 ? " + 0.5" : (int)AlphaBias == 2 ? " - 0.5" : "") + ") * " + ((int)AlphaScale == 3 ? "0.5" : (int)AlphaScale == 0 ? "1" : ((int)AlphaScale * 2).ToString()) + (AlphaClamp ? ");" : ";"); } }
 
-        [Category("c TEV Color Env"), Description(eqClr)]
+        [Category("b TEV Color Output"), DisplayName("Output Function"), Description(eqClr)]
         public string ColorOutput
         {
             get
             {
+                string s = ColorRegister.ToString() + (ColorClamp ? " = clamp(" : " = ");
+
                 int op = (int)ColorOperation;
                 if (op < 2)
-                    return (ColorClamp ? "clamp(" : "") + "(d " + (op == 1 ? "-" : "+") + " ((1 - c) * a + c * b) + " + ((int)ColorBias == 1 ? "0.5" : (int)ColorBias == 2 ? "-0.5" : "0") + ") * " + ((int)ColorScale == 3 ? "0.5" : (int)ColorScale == 0 ? "1" : ((int)ColorScale * 2).ToString()) + (ColorClamp ? ");" : ";");
+                    s += String.Format("{1}d {0} ((1 - c) * a + c * b){2}{3}", 
+                        op == 1 ? "-" : "+",
+                        (int)ColorScale != 0 ? "(" : "",
+                        (int)ColorBias == 1 ? " + 0.5)" : (int)ColorBias == 2 ? " - 0.5)" : "",
+                        (int)ColorScale == 3 ? " / 2" : (int)ColorScale != 0 ? " * " + ((int)ColorScale * 2).ToString() : "");
                 else if (op > 13)
-                    return (ColorClamp ? "clamp(" : "") + "d[x] + ((a[x] " + (op % 2 == 0 ? ">" : "==") + " b[x]) ? c[x] : 0 )" + (ColorClamp ? ");" : ";");
+                    s += String.Format("d[x] + ((a[x] {0} b[x]) ? c[x] : 0)", op % 2 == 0 ? ">" : "==");
                 else
-                    return (ColorClamp ? "clamp(" : "") + "d + ((a[" + (op < 10 ? "R" : op < 12 ? "GR" : "BGR") + "] " + (op % 2 == 0 ? ">" : "==") + " b[" + (op < 10 ? "R" : op < 12 ? "GR" : "BGR") + "]) ? c : 0 )" + (ColorClamp ? ");" : ";");
+                    s += String.Format("d + ((a[{1}] {0} b[{1}]) ? c : 0)", op % 2 == 0 ? ">" : "==", op < 10 ? "R" : op < 12 ? "GR" : "BGR");
+                
+                return s + (ColorClamp ? ");" : ";");
             }
         }
-        [Category("d TEV Alpha Env"), Description(eqAlpha)]
+        [Category("c TEV Alpha Output"), DisplayName("Output Function"), Description(eqAlpha)]
         public string AlphaOutput
         {
             get
             {
+                string s = AlphaRegister.ToString() + (AlphaClamp ? " = clamp(" : " = ");
+
                 int op = (int)AlphaOperation;
                 if (op < 2)
-                    return (AlphaClamp ? "clamp(" : "") + "(d " + (op == 1 ? "-" : "+") + " ((1 - c) * a + c * b) + " + ((int)AlphaBias == 1 ? "0.5" : (int)AlphaBias == 2 ? "-0.5" : "0") + ") * " + ((int)AlphaScale == 3 ? "0.5" : (int)AlphaScale == 0 ? "1" : ((int)AlphaScale * 2).ToString()) + (AlphaClamp ? ");" : ";");
+                    s += String.Format("{1}d {0} ((1 - c) * a + c * b){2}{3}",
+                        op == 1 ? "-" : "+",
+                        (int)AlphaScale != 0 ? "(" : "",
+                        (int)AlphaBias == 1 ? " + 0.5)" : (int)AlphaBias == 2 ? " - 0.5)" : "",
+                        (int)AlphaScale == 3 ? " / 2" : (int)AlphaScale != 0 ? " * " + ((int)AlphaScale * 2).ToString() : "");
                 else if (op > 13)
-                    return (AlphaClamp ? "clamp(" : "") + "d[A] + ((a[A] " + (op % 2 == 0 ? ">" : "==") + " b[A]) ? c[A] : 0 )" + (AlphaClamp ? ");" : ";");
+                    s += String.Format("d + ((a {0} b) ? c : 0)", op % 2 == 0 ? ">" : "==");
                 else
-                    return (AlphaClamp ? "clamp(" : "") + "d + ((a[" + (op < 10 ? "R" : op < 12 ? "GR" : "BGR") + "] " + (op % 2 == 0 ? ">" : "==") + " b[" + (op < 10 ? "R" : op < 12 ? "GR" : "BGR") + "]) ? c : 0 )" + (AlphaClamp ? ");" : ";");
+                    s += String.Format("d + ((a[{1}] {0} b[{1}]) ? c : 0)", op % 2 == 0 ? ">" : "==", op < 10 ? "R" : op < 12 ? "GR" : "BGR");
+
+                return s + (AlphaClamp ? ");" : ";");
             }
         }
 
@@ -176,33 +192,8 @@ Each color fragment has 4 values: R, G, B, and A. Each shader stage processes co
 The constants set all 3 channels with the same constant value:
 " + konst + @"
 
-The registers ('registers' are just RGBA colors) in the material's  'TEV Konstant Block' can be pulled as well.
-You can also swap the channels here, for example, if it says (RGB = GGG), then Red = Green, Blue = Green, and Green = Green.
-
-KSel_0_Value = KReg0Color (RGB = RGB)
-KSel_1_Value = KReg1Color (RGB = RGB)
-KSel_2_Value = KReg2Color (RGB = RGB)
-KSel_3_Value = KReg3Color (RGB = RGB)
-
-KSel_0_Red = KReg0Color (RGB = RRR)
-KSel_1_Red = KReg1Color (RGB = RRR)
-KSel_2_Red = KReg2Color (RGB = RRR)
-KSel_3_Red = KReg3Color (RGB = RRR)
-
-KSel_0_Green = KReg0Color (RGB = GGG)
-KSel_1_Green = KReg1Color (RGB = GGG)
-KSel_2_Green = KReg2Color (RGB = GGG)
-KSel_3_Green = KReg3Color (RGB = GGG)
-
-KSel_0_Blue = KReg0Color (RGB = BBB)
-KSel_1_Blue = KReg1Color (RGB = BBB)
-KSel_2_Blue = KReg2Color (RGB = BBB)
-KSel_3_Blue = KReg3Color (RGB = BBB)
-
-KSel_0_Alpha = KReg0Color (RGB = AAA)
-KSel_1_Alpha = KReg1Color (RGB = AAA)
-KSel_2_Alpha = KReg2Color (RGB = AAA)
-KSel_3_Alpha = KReg3Color (RGB = AAA)";
+The registers ('registers' are just RGBA colors) in the material's 'TEV Konstant Block' can be pulled as well.
+You can also fill all channels with one value here, for example, if the value says Red, then RGB = RRR.";
 
 const string kAlpha =
 @"This option provides a value to the 'KonstantColorSelection' option in each ColorSelection(A,B,C,D).
@@ -212,51 +203,33 @@ Each color fragment has 4 values: R, G, B, and A. Each shader stage processes co
 The constants set all 3 channels with the same constant value:
 " + konst + @"
 
+You can also use a different channel as alpha here, for example, for example, if the value says Red, then the alpha value is set to the value stored in the red channel.";
 
-You can also use a different channel as alpha here, for example, for example, if it says (A = R), then the alpha value is set to the value stored in the red channel.
+        [Category("b TEV Color Output"), DisplayName("Constant Selection"), Description(kColor)]
+        public TevKColorSel ConstantColorSelection { get { return _kcSel; } set { _kcSel = value; SignalPropertyChange(); } }
+        [Category("c TEV Alpha Output"), DisplayName("Constant Selection"), Description(kAlpha)]
+        public TevKAlphaSel ConstantAlphaSelection { get { return _kaSel; } set { _kaSel = value; SignalPropertyChange(); } }
 
-KSel_0_Red = KReg0Color (A = R)
-KSel_1_Red = KReg1Color (A = R)
-KSel_2_Red = KReg2Color (A = R)
-KSel_3_Red = KReg3Color (A = R)
-
-KSel_0_Green = KReg0Color (A = G)
-KSel_1_Green = KReg1Color (A = G)
-KSel_2_Green = KReg2Color (A = G)
-KSel_3_Green = KReg3Color (A = G)
-
-KSel_0_Blue = KReg0Color (A = B)
-KSel_1_Blue = KReg1Color (A = B)
-KSel_2_Blue = KReg2Color (A = B)
-KSel_3_Blue = KReg3Color (A = B)
-
-KSel_0_Alpha = KReg0Color (A = A)
-KSel_1_Alpha = KReg1Color (A = A)
-KSel_2_Alpha = KReg2Color (A = A)
-KSel_3_Alpha = KReg3Color (A = A)";
-
-        [Category("a TEV KSel"), Description(kColor)]
-        public TevKColorSel KonstantColorSelection { get { return _kcSel; } set { _kcSel = value; SignalPropertyChange(); } }
-        [Category("a TEV KSel"), Description(kAlpha)]
-        public TevKAlphaSel KonstantAlphaSelection { get { return _kaSel; } set { _kaSel = value; SignalPropertyChange(); } }
-
-        [Category("b TEV Raster Sources"), Description("This is the index of the texture reference in the material to use as texture input.")]
-        public TexMapID TextureMapID { get { return _texMapID; } set { _texMapID = value; SignalPropertyChange(); } }
-        [Category("b TEV Raster Sources"), Description("This is the index of the texture coordinate to map the texture on the model.")]
-        public TexCoordID TextureCoord { get { return _texCoord; } set { _texCoord = value; SignalPropertyChange(); } }
-        [Category("b TEV Raster Sources"), Description(
+        [Category("a TEV Fragment Sources"), DisplayName("Texture Enabled"), Description(
 @"Determines if a texture can be used as color input. 
 This stage will grab a pixel fragment from the selected texture reference mapped on the model with the selected coordinates.")]
         public bool TextureEnabled { get { return _texEnabled; } set { _texEnabled = value; SignalPropertyChange(); } }
-        [Category("b TEV Raster Sources"), Description(
+        [Category("a TEV Fragment Sources"), DisplayName("Texture Map ID"), Description("This is the index of the texture reference in the material to use as texture input.")]
+        public TexMapID TextureMapID { get { return _texMapID; } set { _texMapID = value; SignalPropertyChange(); } }
+        [Category("a TEV Fragment Sources"), DisplayName("Texture Coordinates ID"), Description("This is the index of the texture coordinate to map the texture on the model.")]
+        public TexCoordID TextureCoordID { get { return _texCoord; } set { _texCoord = value; SignalPropertyChange(); } }
+        [Category("a TEV Fragment Sources"), DisplayName("Texture Swap Selection")]
+        public TevSwapSel TextureSwap { get { return _alphaEnv.TSwap; } set { _alphaEnv.TSwap = value; SignalPropertyChange(); } }
+        [Category("a TEV Fragment Sources"), DisplayName("Color Source"), Description(
 @"Retrieves a color outputted from the material. This DOES NOT get a color straight from color nodes!
 ColorChannel0 retrieves the color from the material's LightChannel0.
 ColorChannel1 retrieves the color from the material's LightChannel1.
 BumpAlpha retrieves a color from ???
 NormalizedBumpAlpha is the same as Bump Alpha, but normalized to the range [0.0, 1.0].
 Zero returns a color with all channels set to 0.")]
-        public ColorSelChan ColorChannel { get { return _colorChan; } set { _colorChan = value; SignalPropertyChange(); } }
-
+        public ColorSelChan RasterColor { get { return _colorChan; } set { _colorChan = value; SignalPropertyChange(); } }
+        [Category("a TEV Fragment Sources"), DisplayName("Color Swap Selection")]
+        public TevSwapSel RasterSwap { get { return _alphaEnv.RSwap; } set { _alphaEnv.RSwap = value; SignalPropertyChange(); } }
         const string _colorArgDesc =
 @"
 
@@ -293,85 +266,80 @@ Zero: returns 0 (transparent). This alpha multiplied by another will return full
 
 Note that CLR0 animations can stream RGBA colors into the material's Color and Konstant registers! You can use this property to input new alpha values into this shader every frame of an animation.";
 
-        [Category("c TEV Color Env"), Description("This is color source for 'a' in the ColorOutput formula." + _colorArgDesc)]
+        [Category("b TEV Color Output"), DisplayName("Selection A"), Description("This is color source for 'a' in the ColorOutput formula." + _colorArgDesc)]
         public ColorArg ColorSelectionA { get { return _colorEnv.SelA; } set { _colorEnv.SelA = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env"), Description("This is color source for 'b' in the ColorOutput formula." + _colorArgDesc)]
+        [Category("b TEV Color Output"), DisplayName("Selection B"), Description("This is color source for 'b' in the ColorOutput formula." + _colorArgDesc)]
         public ColorArg ColorSelectionB { get { return _colorEnv.SelB; } set { _colorEnv.SelB = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env"), Description("This is color source for 'c' in the ColorOutput formula." + _colorArgDesc)]
+        [Category("b TEV Color Output"), DisplayName("Selection C"), Description("This is color source for 'c' in the ColorOutput formula." + _colorArgDesc)]
         public ColorArg ColorSelectionC { get { return _colorEnv.SelC; } set { _colorEnv.SelC = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env"), Description("This is color source for 'd' in the ColorOutput formula." + _colorArgDesc)]
+        [Category("b TEV Color Output"), DisplayName("Selection D"), Description("This is color source for 'd' in the ColorOutput formula." + _colorArgDesc)]
         public ColorArg ColorSelectionD { get { return _colorEnv.SelD; } set { _colorEnv.SelD = value; SignalPropertyChange(); } }
 
-        [Category("c TEV Color Env"), Description("Refer to the ColorOutput property to see effect.")]
+        [Category("b TEV Color Output"), DisplayName("Bias"), Description("Refer to the ColorOutput property to see effect.")]
         public Bias ColorBias { get { return _colorEnv.Bias; } set { _colorEnv.Bias = value; SignalPropertyChange(); } }
-        
-        [Category("c TEV Color Env"), Description("Refer to the ColorOutput property to see effect.")]
+
+        [Category("b TEV Color Output"), DisplayName("Operation"), Description("Refer to the ColorOutput property to see effect.")]
         public TevOp ColorOperation { get { return _colorEnv.Operation; } set { _colorEnv.Operation = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env"), Description("If true, the final output color channels will be clamped to the range [0, 1].")]
+        [Category("b TEV Color Output"), DisplayName("Clamp"), Description("If true, the final output color channels will be clamped to the range [0, 1].")]
         public bool ColorClamp { get { return _colorEnv.Clamp; } set { _colorEnv.Clamp = value; SignalPropertyChange(); } }
 
-        [Category("c TEV Color Env"), Description("Refer to the ColorOutput property to see effect. This will make the color brighter when multiplying, and darker when dividing.")]
+        [Category("b TEV Color Output"), DisplayName("Scale"), Description("Refer to the ColorOutput property to see effect. This will make the color brighter when multiplying, and darker when dividing.")]
         public TevScale ColorScale { get { return _colorEnv.Shift; } set { _colorEnv.Shift = value; SignalPropertyChange(); } }
-        [Category("c TEV Color Env"), Description(
+        [Category("b TEV Color Output"), DisplayName("Destination"), Description(
 @"This property dictates where the results of the ColorOutput formula should be stored.
 
 PreviousRegister: sets the final output color of this fragment on the model. This is the color that will be seen in-game after the execution of the last shader stage.
 Register0: sets the color of the 1st color register in the material's TEV Color Block. This can be used to store a color temporarily for use in one of the ColorSelection properties in a later shader stage.
 Register1: sets the color of the 2nd color register in the material's TEV Color Block. This can be used to store a color temporarily for use in one of the ColorSelection properties in a later shader stage.
 Register2: sets the color of the 3rd color register in the material's TEV Color Block. This can be used to store a color temporarily for use in one of the ColorSelection properties in a later shader stage.")]
-        public TevRegID ColorRegister { get { return _colorEnv.Dest; } set { _colorEnv.Dest = value; SignalPropertyChange(); } }
-        
-        [Category("d TEV Alpha Env")]
-        public TevSwapSel AlphaRasterSwap { get { return _alphaEnv.RSwap; } set { _alphaEnv.RSwap = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Env")]
-        public TevSwapSel AlphaTextureSwap { get { return _alphaEnv.TSwap; } set { _alphaEnv.TSwap = value; SignalPropertyChange(); } }
+        public TevColorRegID ColorRegister { get { return _colorEnv.Dest; } set { _colorEnv.Dest = value; SignalPropertyChange(); } }
 
-        [Category("d TEV Alpha Output"), Description("This is alpha source for 'a' in the AlphaOutput formula." + _alphaArgDesc)]
+        [Category("c TEV Alpha Output"), DisplayName("Selection A"), Description("This is alpha source for 'a' in the AlphaOutput formula." + _alphaArgDesc)]
         public AlphaArg AlphaSelectionA { get { return _alphaEnv.SelA; } set { _alphaEnv.SelA = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Output"), Description("This is alpha source for 'b' in the AlphaOutput formula." + _alphaArgDesc)]
+        [Category("c TEV Alpha Output"), DisplayName("Selection B"), Description("This is alpha source for 'b' in the AlphaOutput formula." + _alphaArgDesc)]
         public AlphaArg AlphaSelectionB { get { return _alphaEnv.SelB; } set { _alphaEnv.SelB = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Output"), Description("This is alpha source for 'c' in the AlphaOutput formula." + _alphaArgDesc)]
+        [Category("c TEV Alpha Output"), DisplayName("Selection C"), Description("This is alpha source for 'c' in the AlphaOutput formula." + _alphaArgDesc)]
         public AlphaArg AlphaSelectionC { get { return _alphaEnv.SelC; } set { _alphaEnv.SelC = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Output"), Description("This is alpha source for 'd' in the AlphaOutput formula." + _alphaArgDesc)]
+        [Category("c TEV Alpha Output"), DisplayName("Selection D"), Description("This is alpha source for 'd' in the AlphaOutput formula." + _alphaArgDesc)]
         public AlphaArg AlphaSelectionD { get { return _alphaEnv.SelD; } set { _alphaEnv.SelD = value; SignalPropertyChange(); } }
 
-        [Category("d TEV Alpha Output"), Description("Refer to the AlphaOutput property to see effect.")]
+        [Category("c TEV Alpha Output"), DisplayName("Bias"), Description("Refer to the AlphaOutput property to see effect.")]
         public Bias AlphaBias { get { return _alphaEnv.Bias; } set { _alphaEnv.Bias = value; SignalPropertyChange(); } }
 
-        [Category("d TEV Alpha Output"), Description("Refer to the AlphaOutput property to see effect.")]
+        [Category("c TEV Alpha Output"), DisplayName("Operation"), Description("Refer to the AlphaOutput property to see effect.")]
         public TevOp AlphaOperation { get { return _alphaEnv.Operation; } set { _alphaEnv.Operation = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Output"), Description("If true, the final output alpha will be clamped to the range [0, 1].")]
+        [Category("c TEV Alpha Output"), DisplayName("Clamp"), Description("If true, the final output alpha will be clamped to the range [0, 1].")]
         public bool AlphaClamp { get { return _alphaEnv.Clamp; } set { _alphaEnv.Clamp = value; SignalPropertyChange(); } }
 
-        [Category("d TEV Alpha Output"), Description("Refer to the AlphaOutput property to see effect.")]
+        [Category("c TEV Alpha Output"), DisplayName("Scale"), Description("Refer to the AlphaOutput property to see effect.")]
         public TevScale AlphaScale { get { return _alphaEnv.Shift; } set { _alphaEnv.Shift = value; SignalPropertyChange(); } }
-        [Category("d TEV Alpha Output"), Description(
+        [Category("c TEV Alpha Output"), DisplayName("Destination"), Description(
 @"This property dictates where the results of the AlphaOutput formula should be stored.
 
 PreviousRegister: sets the final output alpha of this fragment on the model. This is the transparency that will be seen in-game after the execution of the last shader stage.
 Register0: sets the alpha of the 1st color register in the material's TEV Color Block. This can be used to store an alpha value temporarily for use in one of the AlphaSelection properties in a later shader stage.
 Register1: sets the alpha of the 2nd color register in the material's TEV Color Block. This can be used to store an alpha value temporarily for use in one of the AlphaSelection properties in a later shader stage.
 Register2: sets the alpha of the 3rd color register in the material's TEV Color Block. This can be used to store an alpha value temporarily for use in one of the AlphaSelection properties in a later shader stage.")]
-        public TevRegID AlphaRegister { get { return _alphaEnv.Dest; } set { _alphaEnv.Dest = value; SignalPropertyChange(); } }
+        public TevAlphaRegID AlphaRegister { get { return _alphaEnv.Dest; } set { _alphaEnv.Dest = value; SignalPropertyChange(); } }
         
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexStageID TexStage { get { return _cmd.StageID; } set { _cmd.StageID = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexFormat TexFormat { get { return _cmd.Format; } set { _cmd.Format = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexBiasSel Bias { get { return _cmd.Bias; } set { _cmd.Bias = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexAlphaSel Alpha { get { return _cmd.Alpha; } set { _cmd.Alpha = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexMtxID Matrix { get { return _cmd.Matrix; } set { _cmd.Matrix = value; SignalPropertyChange(); } }
 
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexWrap SWrap { get { return _cmd.SWrap; } set { _cmd.SWrap = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public IndTexWrap TWrap { get { return _cmd.TWrap; } set { _cmd.TWrap = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public bool UsePrevStage { get { return _cmd.UsePrevStage; } set { _cmd.UsePrevStage = value; SignalPropertyChange(); } }
-        [Category("e TEV Indirect Texturing")]
+        [Category("d TEV Indirect Texturing")]
         public bool UnmodifiedLOD { get { return _cmd.UnmodifiedLOD; } set { _cmd.UnmodifiedLOD = value; SignalPropertyChange(); } }
 
         public void Default() { Default(true); }
@@ -405,10 +373,10 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x28F8AF;
                 _alphaEnv = 0x08F2F0;
-                KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)0;
-                TextureCoord = TexCoordID.TexCoord0 + texIndex;
+                TextureCoordID = TexCoordID.TexCoord0 + texIndex;
                 TextureMapID = TexMapID.TexMap0 + texIndex;
                 TextureEnabled = true;
             }
@@ -416,10 +384,10 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x08AFF0;
                 _alphaEnv = 0x08FF80;
-                KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)1;
-                TextureCoord = TexCoordID.TexCoord7;
+                TextureCoordID = TexCoordID.TexCoord7;
                 TextureMapID = TexMapID.TexMap7;
                 TextureEnabled = false;
             }
@@ -427,10 +395,10 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x08FEB0;
                 _alphaEnv = 0x081FF0;
-                KonstantColorSelection = TevKColorSel.KSel_1_Value;
-                KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)0;
-                TextureCoord = TexCoordID.TexCoord7;
+                TextureCoordID = TexCoordID.TexCoord7;
                 TextureMapID = TexMapID.TexMap7;
                 TextureEnabled = false;
             }
@@ -438,10 +406,10 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x0806EF;
                 _alphaEnv = 0x081FF0;
-                KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)7;
-                TextureCoord = TexCoordID.TexCoord7;
+                TextureCoordID = TexCoordID.TexCoord7;
                 TextureMapID = TexMapID.TexMap7;
                 TextureEnabled = false;
             }

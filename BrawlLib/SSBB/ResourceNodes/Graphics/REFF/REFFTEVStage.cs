@@ -91,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("c TEV Color Env"), Browsable(true)]
         public TevScale ColorScale { get { return (TevScale)cshift; } set { cshift = (int)value; SignalPropertyChange(); } }
         [Category("c TEV Color Env"), Browsable(true)]
-        public TevRegID ColorRegister { get { return (TevRegID)cdest; } set { cdest = (int)value; SignalPropertyChange(); } }
+        public TevColorRegID ColorRegister { get { return (TevColorRegID)cdest; } set { cdest = (int)value; SignalPropertyChange(); } }
 
         [Category("d TEV Alpha Env"), Browsable(true)]
         public AlphaArg AlphaSelectionA { get { return (AlphaArg)asela; } set { asela = (int)value; SignalPropertyChange(); } }
@@ -113,7 +113,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("d TEV Alpha Env"), Browsable(true)]
         public TevScale AlphaScale { get { return (TevScale)ashift; } set { ashift = (int)value; SignalPropertyChange(); } }
         [Category("d TEV Alpha Env"), Browsable(true)]
-        public TevRegID AlphaRegister { get { return (TevRegID)adest; } set { adest = (int)value; SignalPropertyChange(); } }
+        public TevAlphaRegID AlphaRegister { get { return (TevAlphaRegID)adest; } set { adest = (int)value; SignalPropertyChange(); } }
 
         public void Default()
         {
