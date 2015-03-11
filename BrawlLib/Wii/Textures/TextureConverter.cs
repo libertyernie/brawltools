@@ -202,7 +202,7 @@ namespace BrawlLib.Wii.Textures
                 tex->_minFilter = 1;
                 tex->_magFilter = 1;
                 tex->_minLOD = 0;
-                tex->_maxLOD = (short)(mipLevels - 1);
+                tex->_maxLOD = (byte)(mipLevels - 1);
                 tex->PixelFormat = RawFormat;
                 tex->_width = (ushort)w;
                 tex->_height = (ushort)h;
