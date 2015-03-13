@@ -39,6 +39,14 @@ namespace BrawlLib.SSBBTypes
         private BindingList<SakuraiEntryNode> _changedEntries = new BindingList<SakuraiEntryNode>();
 
         /// <summary>
+        /// Returns all entries in the moveset that have have had a data size change
+        /// A rebuild is needed. Can perform an inject, or can rebuild entire moveset.
+        /// </summary>
+        [Browsable(false)]
+        public BindingList<SakuraiEntryNode> RebuildEntries { get { return _rebuildEntries; } }
+        private BindingList<SakuraiEntryNode> _rebuildEntries = new BindingList<SakuraiEntryNode>();
+
+        /// <summary>
         /// True if the moveset file has had something added or removed and must be rebuilt.
         /// </summary>
         [Browsable(false)]
@@ -84,6 +92,8 @@ namespace BrawlLib.SSBBTypes
             //Start initializing. 
             //This enables some functions for use.
             _initializing = true;
+            _changedEntries = new BindingList<SakuraiEntryNode>();
+            _rebuildEntries = new BindingList<SakuraiEntryNode>();
 
             SakuraiArchiveHeader* hdr = (SakuraiArchiveHeader*)WorkingUncompressed.Address;
 
@@ -103,13 +113,14 @@ namespace BrawlLib.SSBBTypes
             //Get header values
             _dataSize = hdr->_fileSize;
 
-            //Debug
+#if DEBUG
             for (int i = 0; i < 3; i++)
             {
                 int value = (&hdr->_pad1)[i];
                 if (value != 0)
                     Console.WriteLine("MovesetNode InitData " + i);
             }
+#endif
 
             //Create lists
             _referenceList = new BindingList<TableEntryNode>();
@@ -315,7 +326,10 @@ namespace BrawlLib.SSBBTypes
             _builder.Write(this, address, length);
             _currentlyBuilding = null;
             _builder = null;
+            _changedEntries.Clear();
+            _rebuildEntries.Clear();
         }
+
         #endregion
 
         #region Parse functions
@@ -324,8 +338,10 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public int Offset(VoidPtr address) 
         {
-            if (!_initializing && _currentlyBuilding != this) //DEBUG
+#if DEBUG
+            if (!_initializing && _currentlyBuilding != this)
                 throw new Exception("Not initializing or rebuilding."); 
+#endif
             return (int)(address - BaseAddress);
         }
         /// <summary>
@@ -333,8 +349,10 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public VoidPtr Address(int offset)
         {
-            if (!_initializing && _currentlyBuilding != this) //DEBUG
+#if DEBUG
+            if (!_initializing && _currentlyBuilding != this)
                 throw new Exception("Not initializing or rebuilding.");
+#endif
             return BaseAddress + offset;
         }
         /// <summary>
@@ -342,8 +360,10 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public int GetSize(int offset)
         {
-            if (!_initializing) //DEBUG
+#if DEBUG
+            if (!_initializing)
                 throw new Exception("Not initializing.");
+#endif
             if (_lookupSizes.ContainsKey(offset))
             {
                 int size = _lookupSizes[offset];
@@ -357,8 +377,10 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public TableEntryNode TryGetExternal(int offset)
         {
-            if (!_initializing) //DEBUG
+#if DEBUG
+            if (!_initializing)
                 throw new Exception("Not initializing."); 
+#endif
             foreach (TableEntryNode e in _referenceList)
                 foreach (int i in e.DataOffsets)
                     if (i == offset)
@@ -373,8 +395,10 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public SakuraiEntryNode GetEntry(int offset)
         {
-            if (!_initializing) //DEBUG
+#if DEBUG
+            if (!_initializing)
                 throw new Exception("Not initializing."); 
+#endif
             if (_entryCache.ContainsKey(offset))
                 return _entryCache[offset];
             return null;

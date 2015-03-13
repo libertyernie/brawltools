@@ -86,9 +86,10 @@ namespace Ikarus.MovesetBuilder
         {
             if (entry != null)
             {
-                //DEBUG
+#if DEBUG
                 if (entry._calcSize == 0 || entry._calcSize != entry.TotalSize)
                     throw new Exception("Entry size issues");
+#endif
 
                 int offset = entry.Write(_currentAddress);
                 _currentAddress += incAmt > 0 ? incAmt : entry._calcSize;
