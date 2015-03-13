@@ -38,6 +38,7 @@ namespace BrawlLib.OpenGL
         }
         private static GLPanel _currentPanel = null;
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public TKContext Context { get { return _ctx; } }
         protected TKContext _ctx;
 
@@ -48,10 +49,10 @@ namespace BrawlLib.OpenGL
         protected GLViewport _highlightedViewport;
         protected List<GLViewport> _viewports = new List<GLViewport>();
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public GLViewport HighlightedViewport { get { return _viewports.Count > 1 ? _highlightedViewport : _viewports[0]; } }
 
-        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), Browsable(false)]
         public GLViewport CurrentViewport
         {
             get

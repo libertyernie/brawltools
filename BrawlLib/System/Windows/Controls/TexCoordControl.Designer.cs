@@ -44,7 +44,7 @@
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(382, 28);
+            this.panel1.Size = new System.Drawing.Size(429, 28);
             this.panel1.TabIndex = 1;
             // 
             // comboObj
@@ -74,13 +74,12 @@
             // btnExport
             // 
             this.btnExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExport.Location = new System.Drawing.Point(270, -1);
+            this.btnExport.Location = new System.Drawing.Point(307, -1);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(109, 23);
+            this.btnExport.Size = new System.Drawing.Size(119, 23);
             this.btnExport.TabIndex = 0;
-            this.btnExport.Text = "Export As Image";
+            this.btnExport.Text = "Export UV template";
             this.btnExport.UseVisualStyleBackColor = true;
-            this.btnExport.Visible = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
             // texCoordRenderer1
@@ -88,7 +87,7 @@
             this.texCoordRenderer1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.texCoordRenderer1.Location = new System.Drawing.Point(0, 28);
             this.texCoordRenderer1.Name = "texCoordRenderer1";
-            this.texCoordRenderer1.Size = new System.Drawing.Size(382, 274);
+            this.texCoordRenderer1.Size = new System.Drawing.Size(429, 274);
             this.texCoordRenderer1.TabIndex = 0;
             this.texCoordRenderer1.TargetNode = null;
             // 
@@ -97,7 +96,7 @@
             this.Controls.Add(this.texCoordRenderer1);
             this.Controls.Add(this.panel1);
             this.Name = "TexCoordControl";
-            this.Size = new System.Drawing.Size(382, 302);
+            this.Size = new System.Drawing.Size(429, 302);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 

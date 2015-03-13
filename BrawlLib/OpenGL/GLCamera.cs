@@ -7,10 +7,10 @@ namespace BrawlLib.OpenGL
 {
     public unsafe class GLCamera
     {
-        public Matrix _matrix;
-        public Matrix _matrixInverse;
-        public Matrix _projectionMatrix;
-        public Matrix _projectionInverse;
+        public Matrix _matrix = Matrix.Identity;
+        public Matrix _matrixInverse = Matrix.Identity;
+        public Matrix _projectionMatrix = Matrix.Identity;
+        public Matrix _projectionInverse = Matrix.Identity;
 
         public Vector3 _rotation;
         public Vector3 _scale;
@@ -85,12 +85,6 @@ namespace BrawlLib.OpenGL
         public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
         public void Translate(float x, float y, float z)
         {
-            if (_ortho)
-            {
-                x *= 20.0f;
-                y *= 20.0f;
-            }
-
             _matrix = Matrix.TranslationMatrix(-x, -y, -z) * _matrix;
             _matrixInverse.Translate(x, y, z);
 

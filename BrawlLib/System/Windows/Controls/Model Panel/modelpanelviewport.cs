@@ -687,7 +687,7 @@ namespace System.Windows.Forms
             }
         }
 
-        internal bool ProcessKeys(Keys keys, Keys mod)
+        public bool ProcessKeys(Keys keys, Keys mod)
         {
             bool ctrl = (mod & Keys.Control) != 0;
             bool shift = (mod & Keys.Shift) != 0;
@@ -797,6 +797,12 @@ namespace System.Windows.Forms
             x *= _multiplier;
             y *= _multiplier;
             z *= _multiplier;
+
+            if (Camera._ortho)
+            {
+                x *= 20.0f;
+                y *= 20.0f;
+            }
 
             Camera.Translate(x, y, z);
 

@@ -18,23 +18,44 @@ namespace System.Windows.Forms
 {
     public unsafe partial class TexCoordRenderer : GLPanel
     {
+        public event EventHandler UVIndexChanged, ObjIndexChanged;
+
         public TexCoordRenderer()
         {
             InitializeComponent();
             CurrentViewport.ViewType = ViewportProjection.Front;
         }
 
+        #region Variables
+
         internal bool _updating = false;
 
         private List<ResourceNode> _attached;
-        
-        private List<RenderInfo> _renderInfo;
+        private List<UVRenderInfo> _renderInfo;
         private List<int> _uvSetIndices, _objIndices;
         public int _uvIndex = -1, _objIndex = -1;
 
         private MDL0MaterialRefNode _targetMatRef = null;
-        private MDL0TextureNode Tex0 { get { return _targetMatRef == null ? null : _targetMatRef.TextureNode; } }
-        private GLTexture GLTex { get { return Tex0 == null ? null : Tex0.Texture; } }
+
+        Vector2 _averageTexTranslation = new Vector2();
+
+        //topLeft and bottomRight are used to match up the UV overlay to the texture underneath
+        //These all must be recalculated when the window is resized
+        public Vector2 _topLeft, _bottomRight;
+        public float[] _texCoord = new float[8];
+        public Vector2 _correct = new Vector2(1.0f);
+        public float _width, _height, _halfW, _halfH;
+        public int _xScale, _yScale;
+
+        #endregion
+
+        #region Properties
+
+        public int UVWidth { get { return GLTex == null ? 0 : _xScale * GLTex.Width; } }
+        public int UVHeight { get { return GLTex == null ? 0 : _yScale * GLTex.Height; } }
+
+        public MDL0TextureNode Tex0 { get { return _targetMatRef == null ? null : _targetMatRef.TextureNode; } }
+        public GLTexture GLTex { get { return Tex0 == null ? null : Tex0.Texture; } }
         
         public BindingList<string> UVSetNames { get { return _uvSetNames; } }
         private BindingList<string> _uvSetNames = new BindingList<string>();
@@ -46,6 +67,10 @@ namespace System.Windows.Forms
             get { return _targetMatRef; }
             set { SetTarget(value); }
         }
+
+        #endregion
+
+        #region Functions
 
         private void SetTarget(MDL0MaterialRefNode texture)
         {
@@ -60,10 +85,10 @@ namespace System.Windows.Forms
 
             _attached.Clear();
 
-            _targetMatRef = texture;
-            if (_targetMatRef == null)
+            if (texture == null)
                 return;
 
+            _targetMatRef = texture;
             _attached.Add(_targetMatRef);
 
             if (Tex0 != null)
@@ -71,14 +96,14 @@ namespace System.Windows.Forms
 
             //Dispose of all old UV buffers
             if (_renderInfo != null)
-                foreach (RenderInfo info in _renderInfo)
+                foreach (UVRenderInfo info in _renderInfo)
                     if (info._renderBuffer != null)
                         info._renderBuffer.Dispose();
 
             //Recreate lists
             _objIndices = new List<int>();
             _uvSetIndices = new List<int>();
-            _renderInfo = new List<RenderInfo>();
+            _renderInfo = new List<UVRenderInfo>();
             _objNames.Clear();
             _uvSetNames.Clear();
 
@@ -87,6 +112,8 @@ namespace System.Windows.Forms
             {
                 _objNames.Add("None");
                 _uvSetNames.Add("None");
+                CalcScaleTrans(coordID);
+                ResizeData(Width, Height);
                 Invalidate();
                 return;
             }
@@ -94,71 +121,32 @@ namespace System.Windows.Forms
             if (_targetMatRef.Material.Objects.Length > 1)
             {
                 _objNames.Add("All");
-
-                //TODO: need to change the UV dropdown box to show only texcoords 0-7 that exist
-                //not the uv set names
                 coordID = -1;
             }
-
-            Vector2 min = new Vector2(float.MaxValue);
-            Vector2 max = new Vector2(float.MinValue);
 
             foreach (MDL0ObjectNode obj in _targetMatRef.Material.Objects)
             {
                 _objNames.Add(obj.Name);
-                RenderInfo info = new RenderInfo(obj._manager);
+                UVRenderInfo info = new UVRenderInfo(obj._manager);
                 _renderInfo.Add(info);
-                min.Min(info._min);
-                max.Max(info._max);
             }
 
             if (_objNames.Count == 0)
             {
                 _objNames.Add("None");
                 _uvSetNames.Add("None");
+                CalcScaleTrans(coordID);
+                ResizeData(Width, Height);
                 Invalidate();
                 return;
             }
 
-            //TODO: zoom the camera out to the nearest whole texture repetition
-            //to display all texture coordinates.
-
-            //Change from [0, 1] to [-0.5, 0.5]
-            //min -= 0.5f;
-            //max -= 0.5f;
-
-            //float xCorrect = 1.0f, yCorrect = 1.0f;
-            //GLTexture t = _targetMatRef.TextureNode.Texture;
-            //float texWidth = t.Width;
-            //float texHeight = t.Height;
-            //float tAspect = (float)texWidth / texHeight;
-            //float wAspect = (float)Width / Height;
-
-            //int minXmult = (int)(min._x + (min._x < 0 ? -1 : 0));
-            //int maxXmult = (int)(max._x + (max._x < 0 ? 0 : 1));
-            //int minYmult = (int)(min._y + (min._y < 0 ? -1 : 0));
-            //int maxYmult = (int)(max._y + (max._y < 0 ? 0 : 1));
-
-            //if (tAspect > wAspect)
-            //{
-            //    yCorrect = tAspect / wAspect;
-            //}
-            //else
-            //{
-            //    xCorrect = wAspect / tAspect;
-            //}
-
-            //CurrentViewport.Camera.Translate(
-            //    ((float)(minXmult + maxXmult) / 2.0f - 0.5f) / xCorrect * Width,
-            //    ((float)(minYmult + maxYmult) / 2.0f - 0.5f) / yCorrect * -Height, 0);
-            //float scale = Math.Max(maxXmult - minXmult, maxYmult - minYmult);
-            //CurrentViewport.Camera.Scale(scale, scale, scale);
+            CalcScaleTrans(coordID);
+            ResizeData(Width, Height);
 
             SetObjectIndex(-1);
             SetUVIndex(coordID);
         }
-
-        public event EventHandler UVIndexChanged, ObjIndexChanged;
 
         public void SetUVIndex(int index)
         {
@@ -212,7 +200,7 @@ namespace System.Windows.Forms
             int r = 0;
             for (int i = 0; i < _renderInfo.Count; i++)
             {
-                RenderInfo info = _renderInfo[i];
+                UVRenderInfo info = _renderInfo[i];
                 info._dirty = true;
                 if (singleObj)
                 {
@@ -242,6 +230,155 @@ namespace System.Windows.Forms
             Invalidate();
         }
 
+        #endregion
+
+        #region MATH
+
+        public void CalcScaleTrans(int coordID)
+        {
+            _averageTexTranslation = new Vector2();
+            _xScale = 1;
+            _yScale = 1;
+            if (_renderInfo.Count == 0)
+                return;
+
+            //Find the nearest whole texture repetition to display all texture coordinates
+
+            Vector2 min = new Vector2(float.MaxValue);
+            Vector2 max = new Vector2(float.MinValue);
+            foreach (UVRenderInfo info in _renderInfo)
+            {
+                if (coordID < 0)
+                {
+                    foreach (Vector2 v in info._minVals)
+                        min.Min(v);
+                    foreach (Vector2 v in info._maxVals)
+                        max.Max(v);
+                }
+                else if (info._manager._faceData[coordID + 4] != null)
+                {
+                    min.Min(info._minVals[coordID]);
+                    max.Max(info._maxVals[coordID]);
+                }
+            }
+
+            //Get the ranges for each dimension
+            Vector2 xMult = new Vector2(
+                (decimal)min._x % 1.0m == 0.0m || min._x >= 0 ? (int)min._x : (int)min._x - 1,
+                (decimal)max._x % 1.0m == 0.0m || max._x < 0 ? (int)max._x : (int)max._x + 1);
+
+            Vector2 yMult = new Vector2(
+                (decimal)min._y % 1.0m == 0.0m || min._y >= 0 ? (int)min._y : (int)min._y - 1,
+                (decimal)max._y % 1.0m == 0.0m || max._y < 0 ? (int)max._y : (int)max._y + 1);
+
+            //Get the number of texture repetitions to display
+            _xScale = (int)(xMult._y - xMult._x);
+            _yScale = (int)(yMult._y - yMult._x);
+
+            //Change from [0, 1] to [-0.5, 0.5] to fit window range
+            xMult -= 0.5f;
+            yMult -= 0.5f;
+
+            //Get the average translation
+            _averageTexTranslation = new Vector2((xMult._y + xMult._x) / 2.0f, (yMult._y + yMult._x) / 2.0f);
+        }
+
+        public void ResizeData(float w, float h)
+        {
+            _width = w;
+            _height = h;
+            _halfW = w / 2.0f;
+            _halfH = h / 2.0f;
+
+            float
+                texWidth = UVWidth,
+                texHeight = UVHeight,
+                tAspect = (float)UVWidth / (float)UVHeight,
+                wAspect = w / h;
+
+            //These are used to compensate for padding added on an axis
+            _correct = new Vector2(1.0f);
+
+            if (tAspect > wAspect)
+            {
+                //Texture is wider, use horizontal fit
+                //X touches the edges of the window, Y has top and bottom padding
+
+                //X
+                _texCoord[0] = _texCoord[6] = 0.0f;
+                _texCoord[2] = _texCoord[4] = 1.0f;
+
+                //Y
+                _texCoord[1] = _texCoord[3] = (_correct._y = tAspect / wAspect) / 2.0f + 0.5f;
+                _texCoord[5] = _texCoord[7] = 1.0f - _texCoord[1];
+
+                _bottomRight = new Vector2(_halfW, ((h - (w / texWidth * texHeight)) / h / 2.0f - 0.5f) * h);
+                _topLeft = new Vector2(-_halfW, -_bottomRight._y);
+            }
+            else
+            {
+                //Window is wider, use vertical fit
+                //Y touches the edges of the window, X has left and right padding
+
+                //Y
+                _texCoord[1] = _texCoord[3] = 1.0f;
+                _texCoord[5] = _texCoord[7] = 0.0f;
+
+                //X
+                _texCoord[2] = _texCoord[4] = (_correct._x = wAspect / tAspect) / 2.0f + 0.5f;
+                _texCoord[0] = _texCoord[6] = 1.0f - _texCoord[2];
+
+                _bottomRight = new Vector2(1.0f - ((w - (h / texHeight * texWidth)) / w / 2.0f - 0.5f) * w, -_halfH);
+                _topLeft = new Vector2(-_bottomRight._x, _halfH);
+            }
+        }
+
+        void AlignTexture(GLCamera cam)
+        {
+            //The scale origin is the top left of the texture on the window (not of the window itself),
+            //so we need to translate the center of the texture to that origin, 
+            //scale the texture, then translate it back to where it was.
+            OpenTK.Vector3 origin = new OpenTK.Vector3(-_topLeft._x / _width * _correct._x, _topLeft._y / _height * _correct._y, 0.0f);
+
+            //First, apply window corrections to the texture
+
+            //Translate to the average point before scaling the texture
+            GL.Translate((OpenTK.Vector3)(Vector3)_averageTexTranslation);
+
+            //Now scale the texture by the calculated values
+            GL.Translate(origin);
+            GL.Scale(_xScale, _yScale, 1.0f);
+            GL.Translate(-origin);
+            
+            //Second, apply the texcoord bind transform
+            TextureFrameState state = _targetMatRef._bindState;
+            GL.MultMatrix((float*)&state._transform);
+
+            //Lastly, apply the camera transform
+
+            //Translate the texture coordinates to match where the user dragged the camera
+            //Divide by width and height to convert window units (0 to w, 0 to h) to texcoord units (0 to 1)
+            //Then multiply by the correction value if the window is bigger than the texture on an axis
+            Vector3 point = cam.GetPoint();
+            GL.Translate(point._x / _width * _correct._x, -point._y / _height * _correct._y, 0);
+
+            //Scale the texture by the camera scale
+            GL.Translate(origin);
+            GL.Scale((OpenTK.Vector3)cam._scale);
+            GL.Translate(-origin);
+        }
+
+        void AlignUVs()
+        {
+            GL.Translate(_averageTexTranslation._x / _correct._x * _width, _averageTexTranslation._y / _correct._y * _height, 0.0f);
+            GL.Translate(_topLeft._x, _topLeft._y, 0.0f);
+            GL.Scale((_bottomRight._x - _topLeft._x) / _xScale, (_bottomRight._y - _topLeft._y) / _yScale, 1.0f);
+        }
+
+        #endregion
+
+        #region Rendering
+
         unsafe internal override void OnInit(TKContext ctx)
         {
             //Set caps
@@ -254,56 +391,40 @@ namespace System.Windows.Forms
             ctx._states["_Node_Refs"] = _attached;
         }
 
-        public void Render(GLCamera cam, bool renderBG)
+        void RenderBackground()
         {
-            cam.LoadProjection();
+            GL.PushAttrib(AttribMask.TextureBit);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-            GL.Color4(Color.White);
-            GL.Enable(EnableCap.Texture2D);
+            GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
+            bgTex.Bind();
+
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
 
             float
-                halfW = (float)Width / 2.0f,
-                halfH = (float)Height / 2.0f;
+                s = (float)_width / (float)bgTex.Width,
+                t = (float)_height / (float)bgTex.Height;
 
-            GL.MatrixMode(MatrixMode.Modelview);
-            GL.LoadIdentity();
-            GL.MatrixMode(MatrixMode.Texture);
-            GL.LoadIdentity();
+            GL.Begin(PrimitiveType.Quads);
 
-            if (renderBG)
-            {
-                GL.PushAttrib(AttribMask.TextureBit);
+            GL.TexCoord2(0.0f, 0.0f);
+            GL.Vertex2(-_halfW, -_halfH);
+            GL.TexCoord2(s, 0.0f);
+            GL.Vertex2(_halfW, -_halfH);
+            GL.TexCoord2(s, t);
+            GL.Vertex2(_halfW, _halfH);
+            GL.TexCoord2(0.0f, t);
+            GL.Vertex2(-_halfW, _halfH);
 
-                GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
-                bgTex.Bind();
+            GL.End();
 
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
-                GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            GL.PopAttrib();
+        }
 
-                float
-                    s = (float)Width / (float)bgTex.Width,
-                    t = (float)Height / (float)bgTex.Height;
-
-                GL.Begin(PrimitiveType.Quads);
-
-                GL.TexCoord2(0.0f, 0.0f);
-                GL.Vertex2(-halfW, -halfH);
-                GL.TexCoord2(s, 0.0f);
-                GL.Vertex2(halfW, -halfH);
-                GL.TexCoord2(s, t);
-                GL.Vertex2(halfW, halfH);
-                GL.TexCoord2(0.0f, t);
-                GL.Vertex2(-halfW, halfH);
-
-                GL.End();
-
-                GL.PopAttrib();
-            }
-
+        void RenderTexture(GLCamera cam)
+        {
             if (Tex0 == null)
                 return;
             Tex0.Prepare(_targetMatRef, -1);
@@ -352,71 +473,7 @@ namespace System.Windows.Forms
                 case 2: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
             }
 
-            //These are used to match up the UV overlay to the texture underneath
-            Vector2 topLeft = new Vector2();
-            Vector2 bottomRight = new Vector2();
-
-            float texWidth = texture.Width;
-            float texHeight = texture.Height;
-
-            float tAspect = (float)texWidth / texHeight;
-            float wAspect = (float)Width / Height;
-
-            float[] texCoord = new float[8];
-
-            //These are used to compensate for padding added on an axis
-            float xCorrect = 1.0f, yCorrect = 1.0f;
-            if (tAspect > wAspect)
-            {
-                //Texture is wider, use horizontal fit
-                //X touches the edges of the window, Y has top and bottom padding
-
-                //X
-                texCoord[0] = texCoord[6] = 0.0f;
-                texCoord[2] = texCoord[4] = 1.0f;
-
-                //Y
-                texCoord[1] = texCoord[3] = (yCorrect = tAspect / wAspect) / 2.0f + 0.5f;
-                texCoord[5] = texCoord[7] = 1.0f - texCoord[1];
-
-                bottomRight = new Vector2(halfW, (((float)Height - ((float)Width / texWidth * texHeight)) / (float)Height / 2.0f - 0.5f) * (float)Height);
-                topLeft = new Vector2(-halfW, -bottomRight._y);
-            }
-            else
-            {
-                //Window is wider, use vertical fit
-                //Y touches the edges of the window, X has left and right padding
-
-                //Y
-                texCoord[1] = texCoord[3] = 1.0f;
-                texCoord[5] = texCoord[7] = 0.0f;
-
-                //X
-                texCoord[2] = texCoord[4] = (xCorrect = wAspect / tAspect) / 2.0f + 0.5f;
-                texCoord[0] = texCoord[6] = 1.0f - texCoord[2];
-
-                bottomRight = new Vector2(1.0f - (((float)Width - ((float)Height / texHeight * texWidth)) / Width / 2.0f - 0.5f) * (float)Width, -halfH);
-                topLeft = new Vector2(-bottomRight._x, halfH);
-            }
-
-            //Apply the texcoord bind transform first
-            TextureFrameState state = _targetMatRef._bindState;
-            GL.MultMatrix((float*)&state._transform);
-
-            //Translate the texture coordinates to match where the user dragged the camera
-            //Divide by width and height to convert window units (0 to w, 0 to h) to texcoord units (0 to 1)
-            //Then multiply by the correction value if the window is bigger than the texture on an axis
-            Vector3 point = cam.GetPoint();
-            GL.Translate(point._x / Width * xCorrect, -point._y / Height * yCorrect, 0);
-
-            //Now to scale the texture after translating.
-            //The scale origin is the top left of the texture on the window (not of the window itself),
-            //so we need to translate the center of the texture to that origin, 
-            //scale it up or down, then translate it back to where it was.
-            OpenTK.Vector3 trans = new OpenTK.Vector3(-topLeft._x / Width * xCorrect, topLeft._y / Height * yCorrect, 0.0f);
-            GL.Translate(trans);
-            GL.Scale((OpenTK.Vector3)cam._scale);
-            GL.Translate(-trans);
+            AlignTexture(cam);
 
             //Bind the material ref's texture
             GL.BindTexture(TextureTarget.Texture2D, texture._texId);
@@ -424,17 +481,43 @@ namespace System.Windows.Forms
             //Draw a quad across the screen and render the texture with the calculated texcoords
             GL.Begin(PrimitiveType.Quads);
 
-            GL.TexCoord2(texCoord[0], texCoord[1]);
-            GL.Vertex2(-halfW, -halfH);
-            GL.TexCoord2(texCoord[2], texCoord[3]);
-            GL.Vertex2(halfW, -halfH);
-            GL.TexCoord2(texCoord[4], texCoord[5]);
-            GL.Vertex2(halfW, halfH);
-            GL.TexCoord2(texCoord[6], texCoord[7]);
-            GL.Vertex2(-halfW, halfH);
+            GL.TexCoord2(_texCoord[0], _texCoord[1]);
+            GL.Vertex2(-_halfW, -_halfH);
+            GL.TexCoord2(_texCoord[2], _texCoord[3]);
+            GL.Vertex2(_halfW, -_halfH);
+            GL.TexCoord2(_texCoord[4], _texCoord[5]);
+            GL.Vertex2(_halfW, _halfH);
+            GL.TexCoord2(_texCoord[6], _texCoord[7]);
+            GL.Vertex2(-_halfW, _halfH);
 
             GL.End();
             GL.Disable(EnableCap.Texture2D);
+        }
+
+        public void Render(GLCamera cam, bool renderUVs, bool renderBG, bool renderTexture)
+        {
+            cam.LoadProjection();
+
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.Color4(Color.White);
+            GL.Enable(EnableCap.Texture2D);
+            //GL.Enable(EnableCap.LineSmooth);
+
+            //Reset matrices
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+            GL.MatrixMode(MatrixMode.Texture);
+            GL.LoadIdentity();
+
+            if (renderBG)
+                RenderBackground();
+
+            if (renderTexture)
+                RenderTexture(cam);
+
+            if (!renderUVs)
+                return;
 
             //Now load the camera transform and draw the UV overlay over the texture
             cam.LoadModelView();
@@ -442,15 +525,13 @@ namespace System.Windows.Forms
             //Color the lines limegreen, a bright color that probably won't be in a texture
             GL.Color4(Color.LimeGreen);
 
-            Vector2 mdlScale = new Vector2(bottomRight._x - topLeft._x, bottomRight._y - topLeft._y);
-            GL.Translate(topLeft._x, topLeft._y, 0.0f);
-            GL.Scale(mdlScale._x, mdlScale._y, 1.0f);
+            AlignUVs();
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-            GL.LineWidth(1);
+            GL.LineWidth(1.0f);
 
             //Render texture coordinates as vertex points
-            foreach (RenderInfo info in _renderInfo)
+            foreach (UVRenderInfo info in _renderInfo)
                 info.PrepareStream();
         }
 
@@ -462,10 +543,14 @@ namespace System.Windows.Forms
             GL.Enable(EnableCap.ScissorTest);
             GL.Scissor(r.X, r.Y, r.Width, r.Height);
 
-            Render(CurrentViewport.Camera, true);
+            Render(CurrentViewport.Camera, true, true, true);
 
             GL.Disable(EnableCap.ScissorTest);
         }
+
+        #endregion
+
+        #region Mouse
 
         bool _grabbing = false;
         int _lastX = 0, _lastY = 0;
@@ -491,8 +576,8 @@ namespace System.Windows.Forms
                     int yDiff = e.Y - _lastY;
 
                     Translate(
-                        -xDiff * _transFactor,
-                        yDiff * _transFactor,
+                        -xDiff * _transFactor * 20.0f,
+                        yDiff * _transFactor * 20.0f,
                         0.0f);
                 }
 
@@ -590,9 +675,17 @@ namespace System.Windows.Forms
             return base.ProcessKeyMessage(ref m);
         }
 
-        private class RenderInfo
+        #endregion
+
+        protected override void OnResize(EventArgs e)
         {
-            public RenderInfo(PrimitiveManager manager)
+            ResizeData(Width, Height);
+            base.OnResize(e);
+        }
+
+        private class UVRenderInfo
+        {
+            public UVRenderInfo(PrimitiveManager manager)
             {
                 _manager = manager;
                 for (int i = 0; i < 8; i++)
@@ -608,19 +701,21 @@ namespace System.Windows.Forms
             public bool[] _enabled = new bool[8];
             public bool _dirty;
 
-            public Vector2 _min, _max;
+            public Vector2[] _minVals, _maxVals;
             public void CalcMinMax()
             {
-                _min = new Vector2(float.MaxValue);
-                _max = new Vector2(float.MinValue);
+                Vector2 min = new Vector2(float.MinValue);
+                Vector2 max = new Vector2(float.MaxValue);
+                _minVals = new Vector2[] { max, max, max, max, max, max, max, max };
+                _maxVals = new Vector2[] { min, min, min, min, min, min, min, min };
                 for (int i = 4; i < _manager._faceData.Length; i++)
                     if (_manager._faceData[i] != null && _enabled[i - 4])
                     {
                         Vector2* pSrc = (Vector2*)_manager._faceData[i].Address;
                         for (int x = 0; x < _manager._pointCount; x++, pSrc++)
                         {
-                            _min.Min(*pSrc);
-                            _max.Max(*pSrc);
+                            _minVals[i - 4].Min(*pSrc);
+                            _maxVals[i - 4].Max(*pSrc);
                         }
                     }
             }
@@ -648,6 +743,7 @@ namespace System.Windows.Forms
                     _renderBuffer = null;
                 }
 
+                //Nothing to render if no buffer
                 if (bufferSize <= 0)
                     return;
 
@@ -694,6 +790,7 @@ namespace System.Windows.Forms
                     if (_manager._faceData[i] != null && _enabled[i - 4])
                         pDst += 8;
 
+                //Copy UVs
                 Vector2* pSrc = (Vector2*)_manager._faceData[index].Address;
                 for (int i = 0; i < _manager._pointCount; i++, pDst += _stride)
                     *(Vector2*)pDst = *pSrc++;

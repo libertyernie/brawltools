@@ -124,11 +124,11 @@ namespace System.Windows.Forms
         }
         private void btnExportToImgWithTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCapBgLocText.Text, "." + _imgType);
+            SaveScreenCapture(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCapBgLocText.Text, "." + _imgType, this);
         }
         private void btnExportToImgNoTransparency_Click(object sender, EventArgs e)
         {
-            SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCapBgLocText.Text, "." + _imgType);
+            SaveScreenCapture(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCapBgLocText.Text, "." + _imgType, this);
         }
         private void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {

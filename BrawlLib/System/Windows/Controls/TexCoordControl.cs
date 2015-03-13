@@ -9,6 +9,7 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.OpenGL;
+using System.Drawing.Imaging;
 
 namespace System.Windows.Forms
 {
@@ -67,10 +68,8 @@ namespace System.Windows.Forms
 
         private unsafe void btnExport_Click(object sender, EventArgs e)
         {
-            //TODO: get this working
-
-            int height = 512; //temporary - need to calculate width
-            int width = 512; //temporary - need to calculate height
+            int height = texCoordRenderer1._yScale * 1024;
+            int width = texCoordRenderer1._xScale * 1024;
 
             uint bufferHandle;
             uint colorTex;
@@ -83,7 +82,7 @@ namespace System.Windows.Forms
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Clamp);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Clamp);
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, height, width, 0, PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba8, height, width, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, IntPtr.Zero);
 
             GL.BindTexture(TextureTarget.Texture2D, 0);
 
@@ -94,21 +93,32 @@ namespace System.Windows.Forms
             GL.DrawBuffer((DrawBufferMode)FramebufferAttachment.ColorAttachment0Ext);
 
             GL.PushAttrib(AttribMask.ViewportBit);
-            GL.Viewport(0, 0, height, width);
-
-            //TODO: Make a copy of the renderer camera here, but with no transformations
-            GLCamera cam = new GLCamera()
             {
-                _projectionMatrix = texCoordRenderer1.CurrentViewport.Camera._projectionMatrix,
-                _projectionInverse = texCoordRenderer1.CurrentViewport.Camera._projectionInverse,
-                _matrix = Matrix.Identity,
-                _matrixInverse = Matrix.Identity,
-            };
-            texCoordRenderer1.Render(cam, false);
+                GL.Viewport(0, 0, height, width);
+                GLCamera cam = new GLCamera() { _ortho = true, _nearZ = -1.0f, _farZ = 1.0f };
+                texCoordRenderer1.ResizeData(width, height);
+                cam.SetDimensions(width, height);
+                cam.Reset();
+                texCoordRenderer1.Render(cam, true, false, false);
 
+                Bitmap bmp = new Bitmap(width, height);
+                BitmapData data = bmp.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                GL.ReadPixels(0, 0, width, height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
+
+                bmp.UnlockBits(data);
+                bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+
+                ModelEditorBase.SaveBitmap(bmp, Application.StartupPath + "\\UVs\\test.png", this);
+            }
             GL.PopAttrib();
+
             GL.Ext.BindFramebuffer(FramebufferTarget.FramebufferExt, 0);
             GL.DrawBuffer(DrawBufferMode.Back);
+
+            if (bufferHandle != 0)
+                GL.Ext.DeleteFramebuffers(1, ref bufferHandle);
+
+            texCoordRenderer1.ResizeData(texCoordRenderer1.Width, texCoordRenderer1.Height);
         }
 
         private void comboObj_SelectedIndexChanged(object sender, EventArgs e)

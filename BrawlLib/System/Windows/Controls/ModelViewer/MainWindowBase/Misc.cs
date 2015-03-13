@@ -283,55 +283,68 @@ namespace System.Windows.Forms
 
             MessageBox.Show("Animated GIF successfully saved to " + outPath.Replace("\\", "/"));
         }
-        protected void SaveBitmap(Bitmap bmp, string path, string extension)
+
+        public static void SaveScreenCapture(Bitmap bmp, string folderPath, string extension, IWin32Window window = null)
         {
-            if (String.IsNullOrEmpty(path))
-                path = Application.StartupPath + "\\ScreenCaptures";
+            if (String.IsNullOrEmpty(folderPath))
+                folderPath = Application.StartupPath + "\\ScreenCaptures";
 
             if (String.IsNullOrEmpty(extension))
                 extension = ".png";
 
-            if (!String.IsNullOrEmpty(path) && !String.IsNullOrEmpty(extension))
-            {
-                try
-                {
-                    string outPath = path;
-                    if (!Directory.Exists(outPath))
-                        Directory.CreateDirectory(outPath);
+            string outPath = folderPath;
+            if (!Directory.Exists(outPath))
+                Directory.CreateDirectory(outPath);
 
-                    DirectoryInfo dir = new DirectoryInfo(outPath);
-                    FileInfo[] files = dir.GetFiles();
-                    int i = 0;
-                    string name = "ScreenCapture";
-                Top:
-                    foreach (FileInfo f in files)
-                        if (f.Name == name + i + extension)
-                        {
-                            i++;
-                            goto Top;
-                        }
-                outPath += "\\" + name + i + extension;
-                    bool okay = true;
-                    if (extension.Equals(".png"))
-                        bmp.Save(outPath, ImageFormat.Png);
-                    else if (extension.Equals(".tga"))
-                        bmp.SaveTGA(outPath);
-                    else if (extension.Equals(".tiff") || extension.Equals(".tif"))
-                        bmp.Save(outPath, ImageFormat.Tiff);
-                    else if (extension.Equals(".bmp"))
-                        bmp.Save(outPath, ImageFormat.Bmp);
-                    else if (extension.Equals(".jpg") || outPath.EndsWith(".jpeg"))
-                        bmp.Save(outPath, ImageFormat.Jpeg);
-                    else if (extension.Equals(".gif"))
-                        bmp.Save(outPath, ImageFormat.Gif);
-                    else { okay = false; }
-                    if (okay)
-                        if (MessageBox.Show(this, "Screenshot successfully saved to \"" + outPath.Replace("\\", "/") + "\".\nOpen the folder containing the screenshot now?", "Screenshot saved", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                            Process.Start("explorer.exe", path);
+            DirectoryInfo dir = new DirectoryInfo(outPath);
+            FileInfo[] files = dir.GetFiles();
+            int i = 0;
+            string name = "ScreenCapture";
+        Top:
+            foreach (FileInfo f in files)
+                if (f.Name == name + i + extension)
+                {
+                    i++;
+                    goto Top;
                 }
-                catch { }
+            outPath += "\\" + name + i + extension;
+            SaveBitmap(bmp, outPath, window);
+        }
+
+        public static void SaveBitmap(Bitmap bmp, string outPath, IWin32Window window = null)
+        {
+            if (String.IsNullOrEmpty(outPath))
+                return;
+
+            string folder = Path.GetDirectoryName(outPath);
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            try
+            {
+                string extension = Path.GetExtension(outPath).ToLower();
+                bool okay = true;
+                if (extension.Equals(".png"))
+                    bmp.Save(outPath, ImageFormat.Png);
+                else if (extension.Equals(".tga"))
+                    bmp.SaveTGA(outPath);
+                else if (extension.Equals(".tiff") || extension.Equals(".tif"))
+                    bmp.Save(outPath, ImageFormat.Tiff);
+                else if (extension.Equals(".bmp"))
+                    bmp.Save(outPath, ImageFormat.Bmp);
+                else if (extension.Equals(".jpg") || outPath.EndsWith(".jpeg"))
+                    bmp.Save(outPath, ImageFormat.Jpeg);
+                else if (extension.Equals(".gif"))
+                    bmp.Save(outPath, ImageFormat.Gif);
+                else { okay = false; }
+
+                if (okay)
+                    if (MessageBox.Show(window, "Image successfully saved to \"" + outPath.Replace("\\", "/") + "\".\nOpen the folder containing the image now?", "Image saved", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        Process.Start("explorer.exe", outPath);
+                    }
             }
-            bmp.Dispose();
+            catch { }
         }
     }
 }

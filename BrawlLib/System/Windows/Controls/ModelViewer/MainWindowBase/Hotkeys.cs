@@ -176,7 +176,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
+                SaveScreenCapture(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, true), ScreenCaptureFolder, "." + ScreenCaptureType.ToString(), this);
                 return true;
             }
             return false;
@@ -185,7 +185,7 @@ namespace System.Windows.Forms
         {
             if (ModelPanel.Focused)
             {
-                SaveBitmap(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCaptureFolder, "." + ScreenCaptureType.ToString());
+                SaveScreenCapture(ModelPanel.GetScreenshot(ModelPanel.ClientRectangle, false), ScreenCaptureFolder, "." + ScreenCaptureType.ToString(), this);
                 return true;
             }
             return false;
