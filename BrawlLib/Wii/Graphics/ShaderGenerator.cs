@@ -20,7 +20,7 @@ namespace BrawlLib.Wii.Graphics
             MDL0MaterialNode mat = obj.UsableMaterialNode;
             MDL0ShaderNode shader = mat.ShaderNode;
 
-            //w("#version 330\n");
+            w("#version 120\n");
 
             bool[] data = new bool[12];
             for (int i = 0; i < 12; i++)
