@@ -182,6 +182,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem SCameraToolStripMenuItem;
         private ToolStripMenuItem RCameraToolStripMenuItem;
         private ToolStripMenuItem TCameraToolStripMenuItem;
+        private ToolStripMenuItem shadersToolStripMenuItem;
+        private ToolStripMenuItem playSCN0ToolStripMenuItem;
         private RightPanel rightPanel;
 
         private void InitializeComponent()
@@ -271,6 +273,7 @@ namespace System.Windows.Forms
             this.chkBBObjects = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBBVisBones = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBillboardBones = new System.Windows.Forms.ToolStripMenuItem();
+            this.shadersToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playCHR0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -279,6 +282,7 @@ namespace System.Windows.Forms
             this.playPAT0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playVIS0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playCLR0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.playSCN0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sCN0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayAmbienceToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.displayLightsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -1009,7 +1013,8 @@ namespace System.Windows.Forms
             this.wireframeToolStripMenuItem,
             this.toggleNormals,
             this.boundingBoxToolStripMenuItem,
-            this.chkBillboardBones});
+            this.chkBillboardBones,
+            this.shadersToolStripMenuItem});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
             this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.modelToolStripMenuItem.Text = "Model";
@@ -1108,6 +1113,15 @@ namespace System.Windows.Forms
             this.chkBillboardBones.Text = "Billboard Bones";
             this.chkBillboardBones.Click += new System.EventHandler(this.chkBillboardBones_Click);
             // 
+            // shadersToolStripMenuItem
+            // 
+            this.shadersToolStripMenuItem.Checked = true;
+            this.shadersToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.shadersToolStripMenuItem.Name = "shadersToolStripMenuItem";
+            this.shadersToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.shadersToolStripMenuItem.Text = "Shaders";
+            this.shadersToolStripMenuItem.Click += new System.EventHandler(this.shadersToolStripMenuItem_Click);
+            // 
             // fileTypesToolStripMenuItem
             // 
             this.fileTypesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1125,7 +1139,8 @@ namespace System.Windows.Forms
             this.playSHP0ToolStripMenuItem,
             this.playPAT0ToolStripMenuItem,
             this.playVIS0ToolStripMenuItem,
-            this.playCLR0ToolStripMenuItem});
+            this.playCLR0ToolStripMenuItem,
+            this.playSCN0ToolStripMenuItem});
             this.playToolStripMenuItem.Name = "playToolStripMenuItem";
             this.playToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
             this.playToolStripMenuItem.Text = "Play";
@@ -1188,6 +1203,15 @@ namespace System.Windows.Forms
             this.playCLR0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
             this.playCLR0ToolStripMenuItem.Text = "CLR0";
             this.playCLR0ToolStripMenuItem.Click += new System.EventHandler(this.playCLR0ToolStripMenuItem_Click);
+            // 
+            // playSCN0ToolStripMenuItem
+            // 
+            this.playSCN0ToolStripMenuItem.Checked = true;
+            this.playSCN0ToolStripMenuItem.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.playSCN0ToolStripMenuItem.Name = "playSCN0ToolStripMenuItem";
+            this.playSCN0ToolStripMenuItem.Size = new System.Drawing.Size(104, 22);
+            this.playSCN0ToolStripMenuItem.Text = "SCN0";
+            this.playSCN0ToolStripMenuItem.Click += new System.EventHandler(this.playSCN0ToolStripMenuItem1_Click);
             // 
             // sCN0ToolStripMenuItem
             // 
@@ -1704,6 +1728,7 @@ namespace System.Windows.Forms
             this.modelPanel.RenderWireframeChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_RenderWireframeChanged);
             this.modelPanel.UseBindStateBoxesChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_UseBindStateBoxesChanged);
             this.modelPanel.ApplyBillboardBonesChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_ApplyBillboardBonesChanged);
+            this.modelPanel.RenderShadersChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_RenderShadersChanged);
             this.modelPanel.OnCurrentViewportChanged += new BrawlLib.OpenGL.ViewportAction(this.modelPanel_OnCurrentViewportChanged);
             // 
             // label1
@@ -1954,6 +1979,8 @@ namespace System.Windows.Forms
             chkZoomExtents.Enabled = false;
 
             _currentProjBox = perspectiveToolStripMenuItem;
+
+            shadersToolStripMenuItem.Enabled = ModelPanel.Context._shadersEnabled;
         }
 
         #endregion

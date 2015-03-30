@@ -150,13 +150,13 @@ namespace System
     {
         private static char[] delims = new char[] { ',', '(', ')', ' ' };
 
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) { return destinationType == typeof(Matrix43); }
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType) { return destinationType == typeof(Matrix34); }
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType) { return value.ToString(); }
 
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) { return sourceType == typeof(string); }
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            Matrix43 m = new Matrix43();
+            Matrix34 m = new Matrix34();
 
             string s = value.ToString();
             string[] arr = s.Split(delims, StringSplitOptions.RemoveEmptyEntries);

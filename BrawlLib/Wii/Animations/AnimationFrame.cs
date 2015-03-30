@@ -1,4 +1,5 @@
 ﻿using BrawlLib.SSBBTypes;
+using BrawlLib.Wii.Graphics;
 using System;
 using System.Runtime.InteropServices;
 
@@ -262,6 +263,8 @@ namespace BrawlLib.Wii.Animations
 
         public float Start;
         public float End;
+        public Vector3 Color;
+        public FogType Type;
 
         public bool hasS;
         public bool hasE;
@@ -305,22 +308,91 @@ namespace BrawlLib.Wii.Animations
             }
         }
 
-        public FogAnimationFrame(float start, float end)
+        public FogAnimationFrame(float start, float end, Vector3 color, FogType type)
         {
             Start = start;
             End = end;
+            Color = color;
+            Type = type;
             Index = 0;
             hasS = hasE = false;
         }
 
-        public int Index;
+        public float Index;
         const int len = 6;
         static string empty = new String('_', len);
+
         public override string ToString()
         {
             return String.Format("[{0}] StartZ={1}, EndZ={2}", (Index + 1).ToString().PadLeft(5),
             !hasS ? empty : Start.ToString().TruncateAndFill(len, ' '),
             !hasE ? empty : End.ToString().TruncateAndFill(len, ' '));
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public struct GLSLLightFrame
+    {
+        public static readonly GLSLLightFrame Empty = new GLSLLightFrame();
+
+        public LightType Type;
+
+        //These three vars are used by both specular and diffuse
+        public int Enabled; //Don't apply this light if 0
+        public Vector3 Position;
+        public Vector3 Direction;
+
+        //Diffuse
+        public Vector4 DiffColor;
+        public Vector3 DiffA; //Attenuation A
+        public Vector3 DiffK; //Attenuation K
+
+        //Specular (a different light, but uses the same start, direction, enable, and color/alpha enable)
+        public int SpecEnabled;
+        //public Vector3 SpecA; //Attenuation A = constant 0,0,1
+        public Vector3 SpecK; //Attenuation K
+        public Vector4 SpecColor;
+
+        public GLSLLightFrame(
+            bool enabled, 
+            LightType type, 
+            Vector3 pos, 
+            Vector3 aim,
+            Vector4 color, 
+            Vector3 distCoefs, 
+            Vector3 spotCoefs, 
+            bool specEnabled, 
+            Vector4 specColor,
+            Vector3 distCoefsSpec)
+        {
+            Enabled = enabled ? 1 : 0;
+            switch (Type = type)
+            {
+                case LightType.Point:
+                    Position = pos;
+                    Direction = new Vector3();
+                    break;
+                case LightType.Directional:
+                    Position = (pos - aim) * 1e10f;
+                    Direction = new Vector3();
+                    break;
+                case LightType.Spotlight:
+                    Position = pos;
+                    Direction = (aim - pos).Normalize();
+                    break;
+                default:
+                    Position = new Vector3();
+                    Direction = new Vector3();
+                    break;
+            }
+
+            DiffColor = color;
+            DiffK = distCoefs;
+            DiffA = spotCoefs;
+            
+            SpecEnabled = specEnabled ? 1 : 0;
+            SpecColor = specColor;
+            SpecK = distCoefsSpec;
         }
     }
 
@@ -337,6 +409,9 @@ namespace BrawlLib.Wii.Animations
         public float SpotBright;
 
         public bool Enabled;
+
+        public Vector4 Color;
+        public Vector4 SpecularColor;
 
         public bool hasSx;
         public bool hasSy;
@@ -426,10 +501,12 @@ namespace BrawlLib.Wii.Animations
             RefDist = rd;
             RefBright = rb;
             Enabled = enabled;
+            Color = new Vector4();
+            SpecularColor = new Vector4();
             Index = 0;
             hasSx = hasSy = hasSz = hasEx = hasEy = hasEz = hasSC = hasSB = hasRD = hasRB = false;
         }
-        public int Index;
+        public float Index;
         const int len = 6;
         static string empty = new String('_', len);
         public override string ToString()
@@ -596,7 +673,7 @@ namespace BrawlLib.Wii.Animations
             hasT = hasF = hasH =
             hasA = hasNz = hasFz = false;
         }
-        public int Index;
+        public float Index;
         const int len = 6;
         static string empty = new String('_', len);
         public override string ToString()

@@ -31,8 +31,14 @@ namespace System.Windows.Forms
         public SHP0Node _shp0;
         public PAT0Node _pat0;
         public VIS0Node _vis0;
-        public SCN0Node _scn0;
         public CLR0Node _clr0;
+        public SCN0Node _scn0;
+
+        public SCN0LightSetNode _SCN0LightSet;
+        public SCN0FogNode _SCN0Fog;
+        public SCN0CameraNode _SCN0Camera;
+        public Point _lightStartPoint, _lightEndPoint, _cameraStartPoint, _cameraEndPoint;
+        public bool _lightEndSelected = false, _lightStartSelected = false;
 
         public MDL0MaterialRefNode _targetTexRef = null;
         public VIS0EntryNode _targetVisEntry;

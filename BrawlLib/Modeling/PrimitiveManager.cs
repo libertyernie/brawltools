@@ -1517,31 +1517,6 @@ namespace BrawlLib.Modeling
             _dirty[1] = true;
         }
 
-        public void Bind()
-        {
-            //GL.GenBuffers(1, out _arrayBufferHandle);
-            //GL.GenBuffers(1, out _elementArrayBufferHandle);
-
-            //GL.GenVertexArrays(1, out _arrayHandle);
-            //GL.BindVertexArray(_arrayHandle);
-
-            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementArrayBufferHandle);
-            //VoidPtr ptr = _triangles._indices.Address;
-            //GL.BufferData(BufferTarget.ElementArrayBuffer, (IntPtr)(_triangles._indices.Length),
-            //    ptr, BufferUsageHint.StaticDraw);
-            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-        }
-
-        public void Unbind()
-        {
-            //if (_arrayHandle != -1) 
-            //    GL.DeleteVertexArrays(1, ref _arrayHandle);
-            //if (_arrayBufferHandle != -1) 
-            //    GL.DeleteBuffers(1, ref _arrayBufferHandle);
-            //if (_elementArrayBufferHandle != -1) 
-            //    GL.DeleteBuffers(1, ref _elementArrayBufferHandle);
-        }
-
         internal void UpdateStream(int index)
         {
             _dirty[index] = false;
@@ -1591,7 +1566,7 @@ namespace BrawlLib.Modeling
             }
         }
 
-        internal unsafe void PrepareStream()
+        public void PrepareStream()
         {
             CalcStride();
             int bufferSize = _renderStride * _pointCount;
@@ -1615,7 +1590,10 @@ namespace BrawlLib.Modeling
             for (int i = 0; i < 12; i++)
                 if (_dirty[i])
                     UpdateStream(i);
+        }
 
+        public unsafe void BindStream()
+        {
             byte* pData = (byte*)_graphicsBuffer.Address;
             for (int i = 0; i < 12; i++)
                 if (_faceData[i] != null)
@@ -1633,12 +1611,12 @@ namespace BrawlLib.Modeling
                             break;
                         case 2:
                             GL.EnableClientState(ArrayCap.ColorArray);
-                            GL.ColorPointer(4, ColorPointerType.Byte, _renderStride, (IntPtr)pData);
+                            GL.ColorPointer(4, ColorPointerType.UnsignedByte, _renderStride, (IntPtr)pData);
                             pData += 4;
                             break;
                         case 3:
                             GL.EnableClientState(ArrayCap.SecondaryColorArray);
-                            GL.SecondaryColorPointer(4, ColorPointerType.Byte, _renderStride, (IntPtr)pData);
+                            GL.SecondaryColorPointer(4, ColorPointerType.UnsignedByte, _renderStride, (IntPtr)pData);
                             pData += 4;
                             break;
                         default:
@@ -1647,90 +1625,21 @@ namespace BrawlLib.Modeling
                     }
         }
 
-        internal unsafe void PrepareStreamNew(int programHandle)
-        {
-            CalcStride();
-            int bufferSize = _renderStride * _pointCount;
-
-            //Dispose of buffer if size doesn't match
-            if ((_graphicsBuffer != null) && (_graphicsBuffer.Length != bufferSize))
-            {
-                _graphicsBuffer.Dispose();
-                _graphicsBuffer = null;
-            }
-
-            //Create data buffer
-            if (_graphicsBuffer == null)
-            {
-                _graphicsBuffer = new UnsafeBuffer(bufferSize);
-                for (int i = 0; i < 12; i++)
-                    _dirty[i] = true;
-            }
-
-            //Update streams before binding
-            for (int i = 0; i < 12; i++)
-                if (_dirty[i])
-                    UpdateStream(i);
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _arrayBufferHandle);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementArrayBufferHandle);
-
-            VoidPtr ptr = _graphicsBuffer.Address;
-            GL.BufferData(BufferTarget.ArrayBuffer, (IntPtr)(_graphicsBuffer.Length),
-                ptr, BufferUsageHint.StreamCopy);
-
-            GL.BindVertexArray(_arrayHandle);
-
-            int offset = 0;
-            int index = 0;
-            for (int i = 0; i < 12; i++)
-                if (_faceData[i] != null)
-                {
-                    GL.EnableVertexAttribArray(index);
-                    switch (i)
-                    {
-                        case 0:
-                        case 1:
-                            GL.VertexAttribPointer(index, 3, VertexAttribPointerType.Float, false, _renderStride, offset);
-                            GL.BindAttribLocation(programHandle, index++, i == 0 ? "Position" : "Normal");
-                            offset += 12;
-                            break;
-                        case 2:
-                        case 3:
-                            GL.VertexAttribPointer(index, 4, VertexAttribPointerType.UnsignedByte, false, _renderStride, offset);
-                            GL.BindAttribLocation(programHandle, index++, String.Format("Color{0}", i - 2));
-                            offset += 4;
-                            break;
-                        default:
-                            GL.VertexAttribPointer(index, 2, VertexAttribPointerType.Float, false, _renderStride, offset);
-                            GL.BindAttribLocation(programHandle, index++, String.Format("UV{0}", i - 4));
-                            offset += 8;
-                            break;
-                    }
-                }
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-            GL.BindVertexArray(0);
-        }
-
-        internal unsafe void DetachStreamsNew()
-        {
-            int index = 0;
-            for (int i = 0; i < 12; i++)
-                if (_faceData[i] != null)
-                    GL.DisableVertexAttribArray(index++);
-
-            GL.Disable(EnableCap.Texture2D);
-        }
-
         internal unsafe void DetachStreams()
         {
+            for (int i = 0; i < 8; i++)
+            {
+                GL.ActiveTexture(TextureUnit.Texture0 + i);
+                GL.ClientActiveTexture(TextureUnit.Texture0 + i);
+                GL.DisableClientState(ArrayCap.TextureCoordArray);
+                GL.Disable(EnableCap.Texture2D);
+            }
+
+            GL.ActiveTexture(TextureUnit.Texture0);
+            GL.ClientActiveTexture(TextureUnit.Texture0);
             GL.DisableClientState(ArrayCap.VertexArray);
             GL.DisableClientState(ArrayCap.NormalArray);
             GL.DisableClientState(ArrayCap.ColorArray);
-            GL.DisableClientState(ArrayCap.TextureCoordArray);
-            GL.Disable(EnableCap.Texture2D);
         }
         
         public void DisableTextures()
@@ -1742,14 +1651,12 @@ namespace BrawlLib.Modeling
         public void ApplyTexture(TexSourceRow source)
         {
             int texId = source >= TexSourceRow.TexCoord0 ? (int)(source - TexSourceRow.TexCoord0) : -1 - (int)source;
-            
-            //Other coordinate types than texture coordinates are not supported yet, so clamp id to only coordinates
             texId = texId < 0 ? 0 : texId;
 
-            if ((texId >= 0) && (_faceData[texId += 4] != null))
+            if ((texId >= 0) && (_faceData[texId + 4] != null))
             {
                 byte* pData = (byte*)_graphicsBuffer.Address;
-                for (int i = 0; i < texId; i++)
+                for (int i = 0; i < texId + 4; i++)
                     if (_faceData[i] != null)
                         if (i < 2)
                             pData += 12;
@@ -1758,28 +1665,8 @@ namespace BrawlLib.Modeling
                         else
                             pData += 8;
 
-                GL.Enable(EnableCap.Texture2D);
                 GL.EnableClientState(ArrayCap.TextureCoordArray);
                 GL.TexCoordPointer(2, TexCoordPointerType.Float, _renderStride, (IntPtr)pData);
-                //GL.EnableVertexAttribArray(texId);
-                //GL.VertexAttribPointer(texId, 2, VertexAttribPointerType.Float, true, _stride, pData);
-                //GL.BindAttribLocation(_polygon.shaderProgramHandle, texId - 4, "tex" + (texId - 4));
-            }
-            else
-            {
-                if (texId < 0)
-                {
-                    switch (texId)
-                    {
-                        case -1: //Vertex coords
-                        case -2: //Normal coords
-                        case -3: //Color coords
-                        case -4: //Binormal B coords
-                        case -5: //Binormal T coords
-                        default:
-                            break;
-                    }
-                }
             }
         }
 

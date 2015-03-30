@@ -8,6 +8,8 @@ using BrawlLib.Imaging;
 using BrawlLib.Wii.Graphics;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Animations;
+using System.Windows.Forms;
+using BrawlLib.OpenGL;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -144,9 +146,50 @@ namespace BrawlLib.SSBB.ResourceNodes
             SCN0CameraFlags.OrthoHeightConstant,
         };
 
+        public void SetCamera(ModelPanelViewport v, float frame, bool retainAspect)
+        {
+            ViewportProjection proj = (ViewportProjection)(int)ProjectionType;
+            if (v.ViewType != proj)
+                v.SetProjectionType(proj);
+
+            GLCamera cam = v.Camera;
+            CameraAnimationFrame f = GetAnimFrame(frame);
+            cam.Reset();
+            cam.Translate(f.Pos);
+            cam.Rotate(f.GetRotate(Type));
+
+            float aspect = retainAspect ? cam.Aspect : f.Aspect;
+            cam.SetProjectionParams(aspect, f.FovY, f.FarZ, f.NearZ);
+        }
+
+        public void GetModelViewMatrix(float frame, out Matrix mtx, out Matrix inverse)
+        {
+            CameraAnimationFrame f = GetAnimFrame(frame);
+            Vector3 r = f.GetRotate(Type);
+            Vector3 t = f.Pos;
+
+            mtx = Matrix.ReverseTransformMatrix(new Vector3(1.0f), r, t);
+            inverse = Matrix.TransformMatrix(new Vector3(1.0f), r, t);
+        }
+
+        public Vector3 GetStart(float frame)
+        {
+            return new Vector3(
+                PosX.GetFrameValue(frame),
+                PosY.GetFrameValue(frame),
+                PosZ.GetFrameValue(frame));
+        }
+        public Vector3 GetEnd(float frame)
+        {
+            return new Vector3(
+                AimX.GetFrameValue(frame),
+                AimY.GetFrameValue(frame),
+                AimZ.GetFrameValue(frame));
+        }
+
         public static bool _generateTangents = true;
 
-        public CameraAnimationFrame GetAnimFrame(int index)
+        public CameraAnimationFrame GetAnimFrame(float index)
         {
             CameraAnimationFrame frame;
             float* dPtr = (float*)&frame;
@@ -201,7 +244,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Browsable(false)]
-        public KeyframeArray Posx { get { return Keyframes[0]; } }
+        public KeyframeArray PosX { get { return Keyframes[0]; } }
         [Browsable(false)]
         public KeyframeArray PosY { get { return Keyframes[1]; } }
         [Browsable(false)]
@@ -258,6 +301,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal void SetSize(int numFrames, bool looped)
         {
             Keyframes.FrameLimit = numFrames + (looped ? 1 : 0);
+        }
+
+        internal unsafe Vector3 GetPosition(float index)
+        {
+            return new Vector3(PosX.GetFrameValue(index), PosY.GetFrameValue(index), PosZ.GetFrameValue(index));
         }
     }
 

@@ -732,13 +732,13 @@ namespace BrawlLib.SSBBTypes
 
         public MappingMethod MapMode { get { return (MappingMethod)_mapMode; } set { _mapMode = (byte)value; } }
         private bool IdentityMatrix { get { return _identity == 0 ? false : true; } set { _identity = (byte)(value ? 1 : 0); } }
-        public Matrix43 TextureMatrix
+        public Matrix34 TextureMatrix
         {
             get { return _texMtx; }
             set
             {
                 _texMtx = value;
-                IdentityMatrix = value == Matrix43.Identity;
+                IdentityMatrix = value == Matrix34.Identity;
             }
         }
 
@@ -748,7 +748,7 @@ namespace BrawlLib.SSBBTypes
             SCNLight = -1,
             _mapMode = 0, //TexCoord
             _identity = 1,
-            _texMtx = Matrix43.Identity
+            _texMtx = Matrix34.Identity
         };
     }
 
@@ -891,7 +891,7 @@ namespace BrawlLib.SSBBTypes
         public bint _cull;
 
         //MiscData
-        public byte _enableAlphaTest;
+        public byte _depthTestBeforeTexture;
         public sbyte _lightSet;
         public sbyte _fogSet;
         public byte _pad; //Use this as a temporary location to store the model version
@@ -1425,9 +1425,9 @@ namespace BrawlLib.SSBBTypes
         public bint _mdl0Offset;
         public bint _index;
         public byte _stages;
-        public byte _res0, _res1, _res2; //Always 0. Reserved?
+        public byte _pad0, _pad1, _pad2;
         public sbyte _ref0, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-        public int _pad0, _pad1; //Always 0
+        public int _pad3, _pad4;
         
         public KSelSwapBlock* SwapBlock { get { return (KSelSwapBlock*)(Address + Size); } }
 

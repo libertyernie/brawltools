@@ -54,7 +54,6 @@ namespace BrawlLib.OpenGL
             _states.Clear();
         }
 
-        public bool bSupportsGLSLBinding, bSupportsGLSLUBO, bSupportsGLSLATTRBind, bSupportsGLSLCache;
         public bool _shadersEnabled = true;
         public int _version = 0;
 
@@ -70,21 +69,18 @@ namespace BrawlLib.OpenGL
             // Check for GLSL support
             string version = GL.GetString(StringName.Version);
             _version = int.Parse(version[0].ToString());
-            //if (_version < 2)
+            if (_version < 2)
                 _shadersEnabled = false;
 
             if (_shadersEnabled)
             {
                 //Now check extensions
-                string extensions = GL.GetString(StringName.Extensions);
-                if (extensions.Contains("GL_ARB_shading_language_420pack"))
-                    bSupportsGLSLBinding = true;
-                if (extensions.Contains("GL_ARB_uniform_buffer_object"))
-                    bSupportsGLSLUBO = true;
-                if ((bSupportsGLSLBinding || bSupportsGLSLUBO) && extensions.Contains("GL_ARB_explicit_attrib_location"))
-                    bSupportsGLSLATTRBind = true;
-                if (extensions.Contains("GL_ARB_get_program_binary"))
-                    bSupportsGLSLCache = true;
+                string[] extensions = GL.GetString(StringName.Extensions).Split(' ');
+                _shadersEnabled = 
+                    extensions.Contains("GL_ARB_shading_language_100") &&
+                    extensions.Contains("GL_ARB_shader_objects") &&
+                    extensions.Contains("GL_ARB_vertex_shader") &&
+                    extensions.Contains("GL_ARB_fragment_shader");
             }
             BoundContexts.Add(this);
         }
@@ -172,24 +168,6 @@ namespace BrawlLib.OpenGL
             Update();
             (_context as IGraphicsContextInternal).LoadAll();
 
-            // Check for GLSL support
-            //_version = int.Parse(GL.GetString(StringName.Version)[0].ToString());
-            //if (_version < 2)
-            _shadersEnabled = false;
-
-            if (_shadersEnabled)
-            {
-                //Now check extensions
-                string extensions = GL.GetString(StringName.Extensions);
-                if (extensions.Contains("GL_ARB_shading_language_420pack"))
-                    bSupportsGLSLBinding = true;
-                if (extensions.Contains("GL_ARB_uniform_buffer_object"))
-                    bSupportsGLSLUBO = true;
-                if ((bSupportsGLSLBinding || bSupportsGLSLUBO) && extensions.Contains("GL_ARB_explicit_attrib_location"))
-                    bSupportsGLSLATTRBind = true;
-                if (extensions.Contains("GL_ARB_get_program_binary"))
-                    bSupportsGLSLCache = true;
-            }
             _resetting = false;
             if (ResetOccured != null)
                 ResetOccured(this, EventArgs.Empty);

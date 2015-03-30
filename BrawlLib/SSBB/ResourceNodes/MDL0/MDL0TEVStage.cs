@@ -142,7 +142,7 @@ If the input is 0, nothing multiplied by it can affect transparency. If input is
                         op == 1 ? "-" : "+",
                         (int)ColorScale != 0 ? "(" : "",
                         (int)ColorBias == 1 ? " + 0.5)" : (int)ColorBias == 2 ? " - 0.5)" : "",
-                        (int)ColorScale == 3 ? " / 2" : (int)ColorScale != 0 ? " * " + ((int)ColorScale * 2).ToString() : "");
+                        (int)ColorScale == 3 ? ") / 2" : (int)ColorScale != 0 ? ") * " + ((int)ColorScale * 2).ToString() : "");
                 else if (op > 13)
                     s += String.Format("d[x] + ((a[x] {0} b[x]) ? c[x] : 0)", op % 2 == 0 ? ">" : "==");
                 else
@@ -164,7 +164,7 @@ If the input is 0, nothing multiplied by it can affect transparency. If input is
                         op == 1 ? "-" : "+",
                         (int)AlphaScale != 0 ? "(" : "",
                         (int)AlphaBias == 1 ? " + 0.5)" : (int)AlphaBias == 2 ? " - 0.5)" : "",
-                        (int)AlphaScale == 3 ? " / 2" : (int)AlphaScale != 0 ? " * " + ((int)AlphaScale * 2).ToString() : "");
+                        (int)AlphaScale == 3 ? ") / 2" : (int)AlphaScale != 0 ? ") * " + ((int)AlphaScale * 2).ToString() : "");
                 else if (op > 13)
                     s += String.Format("d + ((a {0} b) ? c : 0)", op % 2 == 0 ? ">" : "==");
                 else
@@ -421,7 +421,7 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
         public new void SignalPropertyChange()
         {
             if (Parent != null)
-                ((MDL0ShaderNode)Parent)._renderUpdate = true;
+                ((MDL0ShaderNode)Parent)._fragShaderSource = null;
             base.SignalPropertyChange();
         }
     }

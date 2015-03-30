@@ -34,11 +34,187 @@ namespace System.Windows.Forms
             if (RenderLightDisplay && vp == ModelPanel.CurrentViewport)
                 OnRenderLightDisplay(vp.LightPosition);
 
+            if (TargetAnimType == NW4RAnimType.SCN)
+                RenderSCN0Controls();
+
             GL.Enable(EnableCap.DepthTest);
             GL.Clear(ClearBufferMask.DepthBufferBit);
             RenderTransformControl(vp);
             RenderDepth(vp);
         }
+
+        #region SCN0 Controls
+        public unsafe void RenderSCN0Controls()
+        {
+            if (_scn0 == null)
+                return;
+
+            int frame = CurrentFrame - 1;
+            if (frame < 0)
+                return;
+
+            GL.Color4(Color.Blue);
+            GL.Disable(EnableCap.Lighting);
+
+            if (_SCN0LightSet != null)
+            {
+                int i = 0;
+                foreach (SCN0LightNode l in _SCN0LightSet._lights)
+                {
+                    if (l == null)
+                    {
+                        i++;
+                        continue;
+                    }
+
+                    Vector3 start = l.GetStart(frame);
+                    Vector3 end = l.GetEnd(frame);
+
+                    //TODO: draw line, sphere, and cone for respective light types
+                    //switch (l.LightType)
+                    //{
+                    //    case BrawlLib.SSBBTypes.LightType.Directional: 
+                            GL.Begin(PrimitiveType.Lines);
+                            GL.Color4((Color)l.GetColor(frame, 0));
+                            GL.Vertex3((OpenTK.Vector3)start);
+                            if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
+                            GL.Vertex3((OpenTK.Vector3)end);
+                            GL.End();
+                    //        break;
+                    //    case BrawlLib.SSBBTypes.LightType.Point:
+                            
+                    //        GL.Begin(PrimitiveType.Lines);
+                    //        GL.Color4((Color)l.GetColor(frame, 0));
+                    //        GL.Vertex3((OpenTK.Vector3)start);
+                    //        if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
+                    //        GL.Vertex3((OpenTK.Vector3)end);
+                    //        GL.End();
+                    //        break;
+                    //    case BrawlLib.SSBBTypes.LightType.Spotlight:
+                    //        GL.Begin(PrimitiveType.Lines);
+                    //        GL.Color4((Color)l.GetColor(frame, 0));
+                    //        GL.Vertex3((OpenTK.Vector3)start);
+                    //        if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
+                    //        GL.Vertex3((OpenTK.Vector3)end);
+                    //        GL.End();
+                    //        break;
+                    //}
+
+                    foreach (ModelPanelViewport v in ModelPanel)
+                    {
+                        v.ScreenText[l.Name] = v.Camera.Project(start);
+                        //v.ScreenText[l.Name] = v.Camera.Project(end);
+                    }
+
+                    //GL.Color4(Color.MediumPurple);
+                    //GL.Begin(BeginMode.LineStrip);
+                    //for (int i = 0; i < MaxFrame; i++)
+                    //    GL.Vertex3(l.GetFrameValue(LightKeyframeMode.StartX, i), l.GetFrameValue(LightKeyframeMode.StartY, i), l.GetFrameValue(LightKeyframeMode.StartZ, i));
+                    //GL.End();
+
+                    //GL.Color4(Color.ForestGreen);
+                    //GL.Begin(BeginMode.LineStrip);
+                    //for (int i = 0; i < MaxFrame; i++)
+                    //    GL.Vertex3(l.GetFrameValue(LightKeyframeMode.EndX, i), l.GetFrameValue(LightKeyframeMode.EndY, i), l.GetFrameValue(LightKeyframeMode.EndZ, i));
+                    //GL.End();
+
+                    //Render these if selected
+                    //if ((_lightStartSelected || _lightEndSelected) && l == scn0Editor._light)
+                    //{
+                    //    Matrix m;
+                    //    float s1 = start.TrueDistance(CamLoc) / _orbRadius * 0.1f;
+                    //    float e1 = end.TrueDistance(CamLoc) / _orbRadius * 0.1f;
+                    //    GLDisplayList axis = GetAxes();
+                    //    if (_lightStartSelected)
+                    //    {
+                    //        m = Matrix.TransformMatrix(new Vector3(s1), new Vector3(), start);
+
+                    //        GL.PushMatrix();
+                    //        GL.MultMatrix((float*)&m);
+
+                    //        axis.Call();
+                    //        GL.PopMatrix();
+                    //    }
+                    //    if (_lightEndSelected)
+                    //    {
+                    //        m = Matrix.TransformMatrix(new Vector3(e1), new Vector3(), end);
+
+                    //        GL.PushMatrix();
+                    //        GL.MultMatrix((float*)&m);
+
+                    //        axis.Call();
+                    //        GL.PopMatrix();
+                    //    }
+                    //}
+                    i++;
+                }
+            }
+
+            if (_SCN0Camera != null)
+            {
+                Vector3 start = _SCN0Camera.GetStart(frame);
+                Vector3 end = _SCN0Camera.GetEnd(frame);
+
+                GL.Color4(Color.Black);
+                GL.Begin(PrimitiveType.Lines);
+
+                GL.Vertex3((OpenTK.Vector3)start);
+                GL.Vertex3((OpenTK.Vector3)end);
+
+                GL.End();
+
+                foreach (ModelPanelViewport v in ModelPanel)
+                {
+                    v.ScreenText["Camera Position"] = v.Camera.Project(start);
+                    //v.ScreenText["Camera Aim"] = v.Camera.Project(end);
+                }
+
+                //GL.Color4(Color.OrangeRed);
+                //GL.Begin(BeginMode.LineStrip);
+                //for (int i = 0; i < MaxFrame; i++)
+                //    GL.Vertex3(c.GetFrameValue(CameraKeyframeMode.PosX, i), c.GetFrameValue(CameraKeyframeMode.PosY, i), c.GetFrameValue(CameraKeyframeMode.PosZ, i));
+                //GL.End();
+
+                //GL.Color4(Color.SkyBlue);
+                //GL.Begin(BeginMode.LineStrip);
+                //for (int i = 0; i < MaxFrame; i++)
+                //    GL.Vertex3(c.GetFrameValue(CameraKeyframeMode.AimX, i), c.GetFrameValue(CameraKeyframeMode.AimY, i), c.GetFrameValue(CameraKeyframeMode.AimZ, i));
+                //GL.End();
+
+                GL.Color4(Color.Black);
+
+                //Render these if selected
+                //if (_lightStartSelected || _lightEndSelected)
+                //{
+                //    Matrix m;
+                //    float s = start.TrueDistance(CamLoc) / _orbRadius * 0.1f;
+                //    float e = end.TrueDistance(CamLoc) / _orbRadius * 0.1f;
+                //    GLDisplayList axis = GetAxes();
+                //    if (_lightStartSelected)
+                //    {
+                //        m = Matrix.TransformMatrix(new Vector3(s), new Vector3(), start);
+
+                //        GL.PushMatrix();
+                //        GL.MultMatrix((float*)&m);
+
+                //        axis.Call();
+                //        GL.PopMatrix();
+                //    }
+                //    if (_lightEndSelected)
+                //    {
+                //        m = Matrix.TransformMatrix(new Vector3(e), new Vector3(), end);
+
+                //        GL.PushMatrix();
+                //        GL.MultMatrix((float*)&m);
+
+                //        axis.Call();
+                //        GL.PopMatrix();
+                //    }
+                //}
+            }
+        }
+
+        #endregion
 
         public virtual void OnRenderVertices(ModelPanelViewport vp)
         {

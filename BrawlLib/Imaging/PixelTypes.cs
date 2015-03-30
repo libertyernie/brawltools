@@ -219,6 +219,9 @@ namespace BrawlLib.Imaging
             ARGBPixel a = (ARGBPixel)p;
             return Color.FromArgb((int)a); 
         }
+        public static implicit operator RGBAPixel(Vector4 p) { return new RGBAPixel((byte)(p._x * 255.0f), (byte)(p._y * 255.0f), (byte)(p._z * 255.0f), (byte)(p._w * 255.0f)); }
+        public static implicit operator Vector4(RGBAPixel p) { return new Vector4(p.R / 255.0f, p.G / 255.0f, p.B / 255.0f, p.A / 255.0f); }
+        public static implicit operator Vector3(RGBAPixel p) { return new Vector3(p.R / 255.0f, p.G / 255.0f, p.B / 255.0f); }
 
         public RGBAPixel(byte r, byte g, byte b, byte a) { R = r; G = g; B = b; A = a; }
 
@@ -471,6 +474,9 @@ namespace BrawlLib.Imaging
             G = (short)(G & 0xFF);
             B = (short)(B & 0xFF);
         }
+
+        [Browsable(false)]
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
 
         public override bool Equals(object obj)
         {

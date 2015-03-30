@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 
@@ -166,5 +167,8 @@ namespace System
                 (float)Math.Asin(2 * (_x * _z - _w * _y)),
                 (float)Math.Atan2(2 * (_x * _w + _y * _z), 1 - 2 * (_z * _z + _w * _w)));
         }
+
+        [Browsable(false)]
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
     }
 }

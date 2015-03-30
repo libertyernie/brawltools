@@ -47,7 +47,8 @@ namespace BrawlLib.Modeling
         public bool _renderBoneBoxes = false;
         public bool _useBindStateBoxes = true;
         public bool _applyBillboardBones = true;
-
+        public bool _renderShaders = true;
+        
         public ModelRenderAttributes() { }
         public ModelRenderAttributes(SerializationInfo info, StreamingContext ctxt)
         {

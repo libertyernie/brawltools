@@ -79,12 +79,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public static FileSystemWatcher _folderWatcher;
 
-        public override bool OnInitialize()
-        {
-            //_entries = new string[NumEntries];
+        //public override bool OnInitialize()
+        //{
+        //    //_entries = new string[NumEntries];
 
-            return false;
-        }
+        //    return false;
+        //}
 
         //public void DoStuff()
         //{
@@ -120,70 +120,37 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0TextureNode(string name) 
         {
             _name = name;
-            //if (Name == "TShadow1")
-            //    Enabled = false;
         }
 
-        public PLT0Node palette = null;
-        internal unsafe void Prepare(MDL0MaterialRefNode mRef, int shaderProgramHandle)
+        public void SetPalette(PLT0Node plt)
         {
-            if (mRef.PaletteNode != null)
+            _palette = plt;
+            if (Texture != null)
+                Texture.SetPalette(_palette);
+        }
+
+        public PLT0Node _palette = null;
+        internal unsafe void Prepare(MDL0MaterialRefNode mRef, int shaderProgramHandle, string palette = null)
+        {
+            string plt = !String.IsNullOrEmpty(palette) ? palette : mRef.Palette;
+            if (!String.IsNullOrEmpty(plt))
             {
-                if (palette == null || palette.Name != mRef.Palette)
-                    palette = mRef.RootNode.FindChild("Palettes(NW4R)/" + mRef.Palette, true) as PLT0Node;
+                if (_palette == null || _palette.Name != plt)
+                    SetPalette(mRef.RootNode.FindChild("Palettes(NW4R)/" + plt, true) as PLT0Node);
             }
+            else if (_palette != null)
+                SetPalette(null);
+
+            if (Texture != null)
+                Texture.Bind(mRef.Index, shaderProgramHandle);
             else
-                palette = null;
+                Load(mRef.Index, shaderProgramHandle);
 
-            try
-            {
-                if (Texture != null)
-                    Texture.Bind(mRef.Index, shaderProgramHandle, TKContext.CurrentContext);
-                else
-                    Load(mRef.Index, shaderProgramHandle, palette);
-            }
-            catch { }
-
-            int filter = 0;
-            switch (mRef.MagFilter)
-            {
-                case MatTextureMagFilter.Nearest:
-                    filter = (int)TextureMagFilter.Nearest; break;
-                case MatTextureMagFilter.Linear:
-                    filter = (int)TextureMagFilter.Linear; break;
-            }
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, filter);
-            switch (mRef.MinFilter)
-            {
-                case MatTextureMinFilter.Nearest:
-                    filter = (int)TextureMinFilter.Nearest; break;
-                case MatTextureMinFilter.Linear:
-                    filter = (int)TextureMinFilter.Linear; break;
-                case MatTextureMinFilter.Nearest_Mipmap_Nearest:
-                    filter = (int)TextureMinFilter.NearestMipmapNearest; break;
-                case MatTextureMinFilter.Nearest_Mipmap_Linear:
-                    filter = (int)TextureMinFilter.NearestMipmapLinear; break;
-                case MatTextureMinFilter.Linear_Mipmap_Nearest:
-                    filter = (int)TextureMinFilter.LinearMipmapNearest; break;
-                case MatTextureMinFilter.Linear_Mipmap_Linear:
-                    filter = (int)TextureMinFilter.LinearMipmapLinear; break;
-            }
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, filter);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureLodBias, mRef.LODBias);
-
-            switch ((int)mRef.UWrapMode)
-            {
-                case 0: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge); break;
-                case 1: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat); break;
-                case 2: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat); break;
-            }
-
-            switch ((int)mRef.VWrapMode)
-            {
-                case 0: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge); break;
-                case 1: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat); break;
-                case 2: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
-            }
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)mRef.MagFilter]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)mRef.MinFilter]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)mRef.UWrapMode]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)mRef.VWrapMode]);
 
             float* p = stackalloc float[4];
             p[0] = p[1] = p[2] = p[3] = 1.0f;
@@ -194,51 +161,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             GL.Light(LightName.Light0, LightParameter.Diffuse, p);
         }
 
+        public TextureMagFilter[] _magFilters = { TextureMagFilter.Nearest, TextureMagFilter.Linear };
+        public TextureMinFilter[] _minFilters = { TextureMinFilter.Nearest, TextureMinFilter.Linear, TextureMinFilter.NearestMipmapNearest, TextureMinFilter.NearestMipmapLinear, TextureMinFilter.LinearMipmapNearest, TextureMinFilter.LinearMipmapLinear, };
+        public TextureWrapMode[] _wraps = { TextureWrapMode.ClampToEdge, TextureWrapMode.Repeat, TextureWrapMode.MirroredRepeat };
+
         public void GetSource()
         {
             Source = BRESNode.FindChild("Textures(NW4R)/" + Name, true) as TEX0Node;
         }
-
-        //public void AddTexture(string name)
-        //{
-        //    _context.Capture();
-        //    if (!PAT0Textures.ContainsKey(name))
-        //    {
-        //        TEX0Node texture = RootNode.FindChild("Textures(NW4R)/" + name, true) as TEX0Node;
-        //        PAT0Textures[name] = new GLTexture(_context, 0, 0);
-        //        Bitmap bmp = texture.GetImage(0);
-        //        if (bmp != null)
-        //        {
-        //            int w = bmp.Width, h = bmp.Height, size = w * h;
-
-        //            PAT0Textures[name]._width = w;
-        //            PAT0Textures[name]._height = h;
-        //            BitmapData data = bmp.LockBits(new Rectangle(0, 0, w, h), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-        //            try
-        //            {
-        //                using (UnsafeBuffer buffer = new UnsafeBuffer(size << 2))
-        //                {
-        //                    ARGBPixel* sPtr = (ARGBPixel*)data.Scan0;
-        //                    ABGRPixel* dPtr = (ABGRPixel*)buffer.Address;
-
-        //                    for (int i = 0; i < size; i++)
-        //                        *dPtr++ = (ABGRPixel)(*sPtr++);
-
-        //                    int res = _context.gluBuild2DMipmaps(GLTextureTarget.Texture2D, GLInternalPixelFormat._4, w, h, GLPixelDataFormat.RGBA, GLPixelDataType.UNSIGNED_BYTE, buffer.Address);
-        //                    if (res != 0)
-        //                    {
-        //                    }
-        //                }
-        //            }
-        //            finally
-        //            {
-        //                bmp.UnlockBits(data);
-        //                bmp.Dispose();
-        //            }
-        //        }
-        //        PAT0Textures[name].Bind();
-        //    }
-        //}
 
         public void Reload()
         {
@@ -249,8 +179,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             Load();
         }
 
-        private unsafe void Load() { Load(-1, -1, null); }
-        private unsafe void Load(int index, int program, PLT0Node palette)
+        private unsafe void Load() { Load(-1, -1); }
+        private unsafe void Load(int index, int program)
         {
             if (TKContext.CurrentContext == null)
                 return;
@@ -260,9 +190,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (Texture != null)
                 Texture.Delete();
             Texture = new GLTexture();
-            Texture.Bind(index, program, TKContext.CurrentContext);
-
-            //ctx._states[String.Format("{0}_TexRef", Name)] = Texture;
+            Texture.Bind(index, program);
 
             Bitmap bmp = null;
 
@@ -287,7 +215,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         Source = tNode;
                         //if (palette != null)
-                            Texture.Attach(tNode, palette);
+                            Texture.Attach(tNode, _palette);
                         //else
                         //    Texture.Attach(tNode);
                         return;
@@ -323,7 +251,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         else if (file.Name.EndsWith(".png") || file.Name.EndsWith(".tiff") || file.Name.EndsWith(".tif"))
                         {
                             Source = file.FullName;
-                            bmp = CreateIndexedImage(file.FullName);
+                            bmp = CopyImage(file.FullName);
                             break;
                         }
                     }
@@ -331,37 +259,37 @@ namespace BrawlLib.SSBB.ResourceNodes
             return bmp;
         }
 
-        public static Bitmap CreateNonIndexedImage(string path)
-        {
-            using (var sourceImage = Image.FromFile(path))
-            {
-                var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
-                  System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                using (var canvas = Graphics.FromImage(targetImage))
-                    canvas.DrawImageUnscaled(sourceImage, 0, 0);
-                return targetImage;
-            }
-        }
-
-        public static Bitmap CreateIndexedImage(string path)
+        public static Bitmap CopyImage(string path)
         {
             using (var sourceImage = (Bitmap)Image.FromFile(path))
             {
-                var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
-                  sourceImage.PixelFormat);
-                var sourceData = sourceImage.LockBits(
-                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-                  ImageLockMode.ReadOnly, sourceImage.PixelFormat);
-                var targetData = targetImage.LockBits(
-                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-                  ImageLockMode.WriteOnly, targetImage.PixelFormat);
-                Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
-                sourceImage.UnlockBits(sourceData);
-                targetImage.UnlockBits(targetData);
-                targetImage.Palette = sourceImage.Palette;
-                return targetImage;
+                if (sourceImage.Palette.Entries.Length > 0)
+                {
+                    //Indexed
+                    var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
+                      sourceImage.PixelFormat);
+                    var sourceData = sourceImage.LockBits(
+                      new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                      ImageLockMode.ReadOnly, sourceImage.PixelFormat);
+                    var targetData = targetImage.LockBits(
+                      new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                      ImageLockMode.WriteOnly, targetImage.PixelFormat);
+                    Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
+                    sourceImage.UnlockBits(sourceData);
+                    targetImage.UnlockBits(targetData);
+                    targetImage.Palette = sourceImage.Palette;
+                    return targetImage;
+                }
+                else
+                {
+                    //Non-indexed
+                    var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                    using (var canvas = Graphics.FromImage(targetImage))
+                        canvas.DrawImageUnscaled(sourceImage, 0, 0);
+                    return targetImage;
+                }
             }
-        } 
+        }  
 
         public static int Compare(MDL0TextureNode t1, MDL0TextureNode t2)
         {
@@ -377,11 +305,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind()
         {
-            //if (Name == "TShadow1")
-            //    Enabled = false;
-
             Selected = false;
-            //Enabled = true;
         }
         internal override void Unbind()
         {

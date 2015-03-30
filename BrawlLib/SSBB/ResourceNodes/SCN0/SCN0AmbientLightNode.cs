@@ -139,6 +139,24 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #endregion
 
+        public Vector4 GetAmbientColorFrame(float index)
+        {
+            if (Constant)
+                return (Vector4)_solidColor;
+            else
+            {
+                int colorIndex = (int)Math.Truncate(index);
+                Vector4 color = (Vector4)_colors[colorIndex];
+                if (colorIndex + 1 < _colors.Count)
+                {
+                    float frac = index - colorIndex;
+                    Vector4 interp = (Vector4)_colors[colorIndex + 1];
+                    color += (interp - color) * frac;
+                }
+                return color;
+            }
+        }
+
         [Browsable(false)]
         public int FrameCount { get { return Scene.FrameCount; } }
 

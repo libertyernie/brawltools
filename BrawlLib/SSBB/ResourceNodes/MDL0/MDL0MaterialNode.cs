@@ -15,6 +15,7 @@ using BrawlLib.IO;
 using OpenTK.Graphics.OpenGL;
 using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
+using BrawlLib.Wii.Animations;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -74,7 +75,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _indirectMethod4,
             _activeStages,
             _activeIndStages,
-            _zCompLoc;
+            _DepthTestBeforeTexture;
         public sbyte
             _normMapRefLight1,
             _normMapRefLight2,
@@ -301,7 +302,7 @@ Those properties can use this color as an argument. This color is referred to as
         #region Depth Func
 
         [Category("Z Mode"), Description("Generally this should be false if using alpha function (transparency), as transparent pixels will change the depth.")]
-        public bool CompareBeforeTexture { get { return _zCompLoc != 0; } set { if (!CheckIfMetal()) _zCompLoc = (byte)(value ? 1 : 0); } }
+        public bool CompareBeforeTexture { get { return _DepthTestBeforeTexture != 0; } set { if (!CheckIfMetal()) _DepthTestBeforeTexture = (byte)(value ? 1 : 0); } }
         [Category("Z Mode"), Description("Determines if this material's pixels should be compared to other pixels in order to obscure or be obscured.")]
         public bool EnableDepthTest { get { return _zMode.EnableDepthTest; } set { if (!CheckIfMetal()) _zMode.EnableDepthTest = value;  } }
         [Category("Z Mode")]
@@ -340,10 +341,10 @@ Those properties can use this color as an argument. This color is referred to as
 
         #region Constant Alpha
 
-        [Category("Constant Alpha")]
-        public bool Enabled { get { return _constantAlpha.Enable != 0; } set { if (!CheckIfMetal()) _constantAlpha.Enable = (byte)(value ? 1 : 0); } }
-        [Category("Constant Alpha")]
-        public byte Value { get { return _constantAlpha.Value; } set { if (!CheckIfMetal()) _constantAlpha.Value = value; } }
+        [Category("Constant Alpha"), DisplayName("Enabled")]
+        public bool ConstantAlphaEnabled { get { return _constantAlpha.Enable != 0; } set { if (!CheckIfMetal()) _constantAlpha.Enable = (byte)(value ? 1 : 0); } }
+        [Category("Constant Alpha"), DisplayName("Value")]
+        public byte ConstantAlphaValue { get { return _constantAlpha.Value; } set { if (!CheckIfMetal()) _constantAlpha.Value = value; } }
 
         #endregion
 
@@ -733,9 +734,19 @@ For example, if the shader has two stages but this number is 1, the second stage
                         mr._index1 = mr._index2 = i;
 
                         mr._bindState = TextureFrameState.Neutral;
-                        mr._texMatrixEffect.TextureMatrix = Matrix43.Identity;
+                        mr._texMatrixEffect.TextureMatrix = Matrix34.Identity;
                         mr._texMatrixEffect.SCNCamera = -1;
                         mr._texMatrixEffect.SCNLight = -1;
+
+                        XFTexMtxInfo info = new XFTexMtxInfo()
+                        {
+                            Projection = TexProjection.STQ,
+                            InputForm = TexInputForm.ABC1,
+                            TexGenType = TexTexgenType.Regular,
+                            SourceRow = TexSourceRow.Normals,
+                            EmbossSource = 4,
+                            EmbossLight = 2,
+                        };
 
                         if (i == MetalMaterial.Children.Count)
                         {
@@ -743,26 +754,26 @@ For example, if the shader has two stages but this number is 1, the second stage
                             mr._magFltr = 1;
                             mr._lodBias = -2;
                             mr.HasTextureMatrix = true;
-                            mr._projection = (int)TexProjection.STQ;
-                            mr._inputForm = (int)TexInputForm.ABC1;
-                            mr._sourceRow = (int)TexSourceRow.Normals;
+                            info.Projection = TexProjection.STQ;
+                            info.InputForm = TexInputForm.ABC1;
+                            info.SourceRow = TexSourceRow.Normals;
                             mr.Normalize = true;
                             mr.MapMode = MappingMethod.EnvCamera;
                         }
                         else
                         {
-                            mr._projection = (int)TexProjection.ST;
-                            mr._inputForm = (int)TexInputForm.AB11;
-                            mr._sourceRow = (int)TexSourceRow.TexCoord0 + i;
+                            info.Projection = TexProjection.ST;
+                            info.InputForm = TexInputForm.AB11;
+                            info.SourceRow = TexSourceRow.TexCoord0 + i;
                             mr.Normalize = false;
                             mr.MapMode = MappingMethod.TexCoord;
                         }
 
-                        mr._texGenType = (int)TexTexgenType.Regular;
-                        mr._embossSource = 4;
-                        mr._embossLight = 2;
+                        info.TexGenType = TexTexgenType.Regular;
+                        info.EmbossSource = 4;
+                        info.EmbossLight = 2;
 
-                        mr.SetTextMtxData();
+                        mr._texMtxFlags = info;
                     }
 
                     _chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
@@ -866,7 +877,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
             _activeStages = header->_activeTEVStages;
             _activeIndStages = header->_numIndTexStages;
-            _zCompLoc = header->_enableAlphaTest;
+            _DepthTestBeforeTexture = header->_depthTestBeforeTexture;
 
             _lightSetIndex = header->_lightSet;
             _fogIndex = header->_fogSet;
@@ -998,38 +1009,39 @@ For example, if the shader has two stages but this number is 1, the second stage
             if (Model._isImport)
             {
                 //Set default texgen flags
-                for (int i = 0; i < Children.Count; i++)
+                for (int i = 0; i < Children.Count; i++, mtx += 3, i1++, i2++)
                 {
                     MDL0MaterialRefNode node = ((MDL0MaterialRefNode)Children[i]);
 
-                    //Tex Mtx
-                    XFData dat = new XFData();
-                    dat._addr = (XFMemoryAddr)i1++;
-                    XFTexMtxInfo tex = new XFTexMtxInfo();
-                    tex._data = (uint)(0 |
-                        ((int)TexProjection.ST << 1) |
-                        ((int)TexInputForm.AB11 << 2) |
-                        ((int)TexTexgenType.Regular << 4) |
-                        ((int)(0x5) << 7) |
-                        (4 << 10) |
-                        (2 << 13));
-                    dat._values.Add(tex._data);
-                    XFCmds.Add(dat);
-                    node._texMtxFlags = tex;
-
-                    //Dual Tex
-                    dat = new XFData();
-                    dat._addr = (XFMemoryAddr)i2++;
-                    XFDualTex dtex = new XFDualTex(mtx, 0); mtx += 3;
-                    dat._values.Add(dtex.Value);
-                    XFCmds.Add(dat);
-                    node._dualTexFlags = dtex;
-                    node.GetTexMtxValues();
                     node._bindState = TextureFrameState.Neutral;
-                    node._texMatrixEffect.TextureMatrix = Matrix43.Identity;
+                    node._texMatrixEffect.TextureMatrix = Matrix34.Identity;
                     node._texMatrixEffect.SCNCamera = -1;
                     node._texMatrixEffect.SCNLight = -1;
                     node._texMatrixEffect.MapMode = MappingMethod.TexCoord;
+
+                    //Tex Mtx
+                    node._texMtxFlags = new XFTexMtxInfo()
+                    {
+                        Projection = TexProjection.ST,
+                        InputForm = TexInputForm.AB11,
+                        TexGenType = TexTexgenType.Regular,
+                        SourceRow = TexSourceRow.TexCoord0,
+                        EmbossSource = 4,
+                        EmbossLight = 2
+                    };
+                    XFCmds.Add(new XFData()
+                    {
+                        _addr = (XFMemoryAddr)i1,
+                        _values = new List<uint>() { node._texMtxFlags._data }
+                    });
+
+                    //Dual Tex
+                    node._dualTexFlags = new XFDualTex(mtx, 0);
+                    XFCmds.Add(new XFData()
+                    {
+                        _addr = (XFMemoryAddr)i2,
+                        _values = new List<uint>() { node._dualTexFlags.Value }
+                    });
                 }
             }
 
@@ -1039,17 +1051,19 @@ For example, if the shader has two stages but this number is 1, the second stage
             header->_index = Index;
             header->_activeTEVStages = (byte)_activeStages;
             header->_numIndTexStages = _activeIndStages;
-            header->_enableAlphaTest = _zCompLoc;
+            header->_depthTestBeforeTexture = _DepthTestBeforeTexture;
 
             byte lights = 0;
             bool c1 = _chan1._enabled, c2 = _chan2._enabled;
-            if (c2 && !c1)
-            {
-                //Swap channels. First must be enabled before second
-                LightChannel temp = _chan1;
-                _chan1 = _chan2;
-                _chan2 = temp;
-            }
+            //Don't swap, not necessary
+            //Still strange to not use the first before the second though
+            //if (c2 && !c1)
+            //{
+            //    //Swap channels. First must be enabled before second
+            //    LightChannel temp = _chan1;
+            //    _chan1 = _chan2;
+            //    _chan2 = temp;
+            //}
             if (c1) lights++;
             if (c2) lights++;
             header->_numLightChans = lights;
@@ -1146,7 +1160,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 *xfData++ = 0x10;
                 *(bushort*)xfData = 0; xfData += 2;
                 *(bushort*)xfData = (ushort)i1++;  xfData += 2;
-                *(buint*)xfData = mr._texMtxFlags._data; xfData += 4;
+                *(buint*)xfData = mr._texMtxFlags._data._data; xfData += 4;
 
                 //Dual Tex
                 *xfData++ = 0x10;
@@ -1193,101 +1207,163 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         #region Rendering
 
-        public bool _renderUpdate = false;
+        #region GLSL
+
         public new void SignalPropertyChange()
         {
-            _renderUpdate = true;
+            _fragShaderSource = null;
+            _vertexShaderSource = null;
             base.SignalPropertyChange();
         }
 
-        public bool written = false;
+        public string _vertexShaderSource;
+        public int _vertexShaderHandle = 0;
+        public string _fragShaderSource;
+        public int _fragShaderHandle = 0;
+        public int _programHandle = 0;
 
-        public SCN0FogNode _fog;
-        public SCN0LightSetNode _lightSet;
-        public int _animFrame;
-
-        public void Render()
+        public void UseProgram(MDL0ObjectNode node, bool forceRemake = false)
         {
-            foreach (MDL0ObjectNode p in _objects)
-                p.Render(false);
+            //If a rendering property has been changed, the shaders need to be regenerated
+            bool updateVert = String.IsNullOrEmpty(_vertexShaderSource) || forceRemake;
+            bool updateMatFrag = String.IsNullOrEmpty(_fragShaderSource) || forceRemake;
+            bool updateShaderFrag = (ShaderNode != null && String.IsNullOrEmpty(ShaderNode._fragShaderSource)) || forceRemake;
+            bool updateProgram = _programHandle <= 0 ||
+                updateVert || _vertexShaderHandle <= 0 ||
+                updateMatFrag || updateShaderFrag || _fragShaderHandle <= 0;
 
-            #region Old
+            if (updateProgram)
+            {
+#if !DEBUG
+                try
+                {
+#endif
+                    if (_programHandle > 0)
+                    {
+                        if (_vertexShaderHandle > 0)
+                            DeleteShader(ref _vertexShaderHandle);
+                        if (_fragShaderHandle > 0)
+                            DeleteShader(ref _fragShaderHandle);
+                        GL.DeleteProgram(_programHandle);
+                        _programHandle = 0;
+                    }
 
-            //if (Model._mainWindow != null && Model._mainWindow._scn0 != null && (LightSet >= 0 || FogSet >= 0))
-            //{
-            //    ModelEditControl m = Model._mainWindow;
-            //    SCN0Node scn = m._scn0;
-            //    int animFrame = m._animFrame;
-            //    SCN0GroupNode fog;
-            //    if (FogSet >= 0 && (fog = scn.GetFolder<SCN0FogNode>()) != null && fog.Children.Count > FogSet)
-            //    {
-            //        SCN0FogNode f = fog.Children[FogSet] as SCN0FogNode;
-            //        GL.Enable(EnableCap.Fog);
-            //        uint mode = 0;
-            //        switch (f.Type)
-            //        {
-            //            case FogType.OrthographicExp:
-            //            case FogType.PerspectiveExp:
-            //                mode = (uint)OpenTK.Graphics.OpenGL.FogMode.Exp;
-            //                break;
-            //            case FogType.OrthographicExp2:
-            //            case FogType.PerspectiveExp2:
-            //                mode = (uint)OpenTK.Graphics.OpenGL.FogMode.Exp2;
-            //                break;
-            //            case FogType.OrthographicLinear:
-            //            case FogType.PerspectiveLinear:
-            //                mode = (uint)OpenTK.Graphics.OpenGL.FogMode.Linear;
-            //                break;
-            //            case FogType.OrthographicRevExp:
-            //            case FogType.PerspectiveRevExp:
-            //                mode = (uint)OpenTK.Graphics.OpenGL.FogMode.Linear;
-            //                break;
-            //            case FogType.OrthographicRevExp2:
-            //            case FogType.PerspectiveRevExp2:
-            //                mode = (uint)OpenTK.Graphics.OpenGL.FogMode.Linear;
-            //                break;
-            //        }
-            //        GL.Fog(OpenTK.Graphics.OpenGL.FogParameter.FogMode, mode);
-            //        float* l = stackalloc float[4];
-            //        if (f.Colors.Count == 1)
-            //        {
-            //            l[0] = (float)f.Colors[0].R / 255f;
-            //            l[1] = (float)f.Colors[0].G / 255f;
-            //            l[2] = (float)f.Colors[0].B / 255f;
-            //            l[3] = (float)f.Colors[0].A / 255f;
-            //        }
-            //        else if (animFrame - 1 < f.Colors.Count)
-            //        {
-            //            l[0] = (float)f.Colors[animFrame - 1].R / 255f;
-            //            l[1] = (float)f.Colors[animFrame - 1].G / 255f;
-            //            l[2] = (float)f.Colors[animFrame - 1].B / 255f;
-            //            l[3] = (float)f.Colors[animFrame - 1].A / 255f;
-            //        }
-            //        GL.Fog(OpenTK.Graphics.OpenGL.FogParameter.FogColor, l);
-            //        //ctx.glFog(FogParameter.FogDensity, 0.05f);
-            //        GL.Hint(HintTarget.FogHint, HintMode.Nicest);
-            //        GL.Fog(OpenTK.Graphics.OpenGL.FogParameter.FogStart, f._startKeys.GetFrameValue(animFrame - 1));
-            //        GL.Fog(OpenTK.Graphics.OpenGL.FogParameter.FogEnd, f._endKeys.GetFrameValue(animFrame - 1));
-            //    }
-            //    else
-            //        GL.Disable(EnableCap.Fog);
-            //}
-            //else
-            //    GL.Disable(EnableCap.Fog);
+                    ShaderGenerator.Set(node, this);
 
-            #endregion
+                    if (updateShaderFrag)
+                    {
+                        ShaderGenerator.BuildSwapModeTable(ShaderNode);
+                        ShaderNode._fragShaderSource = ShaderGenerator.GenTEVFragShader();
+                    }
+                    if (updateVert)
+                        _vertexShaderSource = ShaderGenerator.GenVertexShader();
+                    if (updateMatFrag)
+                        _fragShaderSource = ShaderGenerator.GenMaterialFragShader();
+
+                    string[] fragSplit = _fragShaderSource.Split('%');
+
+                    //Inject the tev operations into the material shader
+                    string combineFrag = fragSplit[0];
+                    if (fragSplit.Length == 3)
+                    {
+                        if (ShaderNode != null)
+                        {
+                            //Get base tabs
+                            string tabs = "";
+                            if (fragSplit.Length == 3)
+                            {
+                                int tabCount = int.Parse(fragSplit[1]);
+                                for (int i = 0; i < tabCount; i++)
+                                    tabs += "\t";
+                            }
+
+                            string[] shadSplit = ShaderNode._fragShaderSource.Split(new string[] { ShaderGenerator.NewLine }, StringSplitOptions.None);
+                            foreach (string line in shadSplit)
+                                combineFrag += tabs + line + ShaderGenerator.NewLine;
+                        }
+                        combineFrag += fragSplit[2];
+                    }
+                    GenShader(ref _vertexShaderHandle, _vertexShaderSource, true);
+                    GenShader(ref _fragShaderHandle, combineFrag, false);
+
+                    ShaderGenerator.Clear();
+
+                    _programHandle = GL.CreateProgram();
+
+                    GL.AttachShader(_programHandle, _vertexShaderHandle);
+                    GL.AttachShader(_programHandle, _fragShaderHandle);
+
+                    GL.LinkProgram(_programHandle);
+
+#if DEBUG
+                    int status;
+                    GL.GetProgram(_programHandle, GetProgramParameterName.LinkStatus, out status);
+                    if (status == 0)
+                    {
+                        string log = GL.GetProgramInfoLog(_programHandle);
+                        Console.WriteLine(log);
+                    }
+#else
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.ToString());
+                }
+#endif
+            }
+
+            GL.UseProgram(_programHandle);
+            ShaderGenerator.SetUniforms(this);
+        }
+
+        private void GenShader(ref int shaderHandle, string source, bool vertexShader)
+        {
+            shaderHandle = GL.CreateShader(vertexShader ? ShaderType.VertexShader : ShaderType.FragmentShader);
+            ShaderGenerator.TryCompile(_programHandle, shaderHandle, source);
+        }
+
+        private void DeleteShader(ref int handle)
+        {
+            if (handle <= 0)
+                return;
+
+            GL.DetachShader(_programHandle, handle);
+            GL.DeleteShader(handle);
+
+            handle = 0;
         }
 
         internal override void Bind()
         {
-            _renderUpdate = true;
+
         }
 
         internal override void Unbind() 
         {
+            DeleteShader(ref _vertexShaderHandle);
+            DeleteShader(ref _fragShaderHandle);
+
+            if (_programHandle > 0)
+                GL.DeleteProgram(_programHandle);
+            _programHandle = 0;
+
             foreach (MDL0MaterialRefNode m in Children) 
                 m.Unbind();
         }
+
+        //public override void Dispose()
+        //{
+        //    DeleteShader(ref _vertexShaderHandle);
+        //    DeleteShader(ref _fragShaderHandle);
+
+        //    if (_programHandle > 0)
+        //        GL.DeleteProgram(_programHandle);
+        //    _programHandle = 0;
+
+        //    base.Dispose();
+        //}
+
+        #endregion
 
         public TextureFrameState[] _indirectFrameStates = new TextureFrameState[3];
 
@@ -1388,21 +1464,110 @@ For example, if the shader has two stages but this number is 1, the second stage
                 foreach (MDL0MaterialRefNode r in Children)
                     r.ApplyPAT0Texture(null, 0);
         }
-        public float _renderFrame = 0;
+
+        public bool _scn0Applied = false;
+        public Vector4 _ambientLight;
+        public FogAnimationFrame _fog;
+
+        public GLSLLightFrame[] _lights = new GLSLLightFrame[8];
+        
+        //One for each texture map
+        //public Vector3[] _refCams = new Vector3[8];
+
+        //First 8 are for each texture map, last 4 are for normal maps
+        //public GLSLLightFrame[] _refLights = new GLSLLightFrame[12];
+
         internal unsafe void ApplySCN(SCN0Node node, float index)
         {
-            _renderFrame = index;
-            if (node == null)
+            if (node == null || index == 0)
             {
-                _lightSet = null;
-                _fog = null;
+                _scn0Applied = false;
+
+                //Substitute fixed pipeline lighting
+                _ambientLight = new Vector4();
+                _fog = new FogAnimationFrame();
+                _lights = new GLSLLightFrame[8];
+                //_refCams = new Vector3[8];
+                //_refLights = new GLSLLightFrame[8];
             }
             else
             {
-                SCN0GroupNode g = node.GetFolder<SCN0LightSetNode>();
-                _lightSet = LightSetIndex < g.Children.Count && LightSetIndex >= 0 ? g.Children[LightSetIndex] as SCN0LightSetNode : null;
-                g = node.GetFolder<SCN0FogNode>();
-                _fog = FogIndex < g.Children.Count && FogIndex >= 0 ? g.Children[FogIndex] as SCN0FogNode : null;
+                index--;
+
+                _scn0Applied = true;
+
+                SCN0GroupNode lightSetGroup = node.LightSetGroup;
+                SCN0GroupNode lightGroup = node.LightGroup;
+                SCN0GroupNode fogGroup = node.FogGroup;
+                SCN0GroupNode cameraGroup = node.CameraGroup;
+
+                if (lightSetGroup != null)
+                {
+                    SCN0LightSetNode lightSet = LightSetIndex < lightSetGroup.Children.Count && LightSetIndex >= 0 ? lightSetGroup.Children[LightSetIndex] as SCN0LightSetNode : null;
+                    if (lightSet != null)
+                    {
+                        SCN0AmbientLightNode ambLight = lightSet._ambient;
+                        if (ambLight != null)
+                            _ambientLight = ambLight.GetAmbientColorFrame(index);
+                        for (int i = 0; i < lightSet._lights.Length; i++)
+                        {
+                            SCN0LightNode light = lightSet._lights[i];
+                            if (light != null)
+                                _lights[i] = light.GetGLSLAnimFrame(index);
+                        }
+                    }
+                }
+                
+                if (fogGroup != null)
+                {
+                    SCN0FogNode fog = FogIndex < fogGroup.Children.Count && FogIndex >= 0 ? fogGroup.Children[FogIndex] as SCN0FogNode : null;
+                    if (fog != null)
+                        _fog = fog.GetAnimFrame(index);
+                }
+
+                //for (int i = 0; i < Children.Count; i++)
+                //{
+                //    MDL0MaterialRefNode mr = (MDL0MaterialRefNode)Children[i];
+                //    if (cameraGroup != null)
+                //    {
+                //        int camIndex = mr.SCN0RefCamera;
+                //        if (camIndex >= 0 && camIndex < cameraGroup.Children.Count)
+                //        {
+                //            SCN0CameraNode camera = camIndex < cameraGroup.Children.Count && camIndex >= 0 ? cameraGroup.Children[camIndex] as SCN0CameraNode : null;
+                //            if (camera != null)
+                //                _refCams[i] = camera.GetPosition(index);
+                //        }
+                //    }
+                //    if (lightGroup != null)
+                //    {
+                //        int lightIndex = mr.SCN0RefLight;
+                //        if (lightIndex >= 0 && lightIndex < lightGroup.Children.Count)
+                //        {
+                //            SCN0LightNode light = lightIndex < lightGroup.Children.Count && lightIndex >= 0 ? lightGroup.Children[lightIndex] as SCN0LightNode : null;
+                //            if (light != null)
+                //                _refLights[i] = light.GetGLSLAnimFrame(index);
+                //        }
+                //    }
+                //}
+            }
+        }
+
+        public void ApplyViewportLighting(ModelPanelViewport viewport)
+        {
+            if (!_scn0Applied)
+            {
+                _lights[0] = new GLSLLightFrame(
+                    true,
+                    LightType.Directional, 
+                    new Vector3(viewport._posLight._x, viewport._posLight._y, viewport._posLight._z),
+                    new Vector3(),
+                    viewport.Diffuse,
+                    new Vector3(1.0f, 0.0f, 0.0f),
+                    new Vector3(1.0f, 0.0f, 0.0f),
+                    true,
+                    viewport.Specular,
+                    SCN0LightNode.GetSpecShineDistCoefs(128.0f));
+                _ambientLight = viewport.Ambient;
             }
         }
 
@@ -1660,7 +1825,9 @@ For example, if the shader has two stages but this number is 1, the second stage
                     _parent._parent.SignalPropertyChange();
             }
         }
-        [Category("Lighting Control")]
+
+        //These bits are dynamically set at runtime by the SCN0
+        [Category("Lighting Control"), Browsable(false)]
         public MatChanLights Lights
         {
             get { return (MatChanLights)(_binary[11, 4] | (_binary[2, 4] << 4)); }

@@ -324,14 +324,14 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevKAlphaSel
     {
-        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //1.0f
+        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //0.875f
+        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //0.75f
+        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //0.625f
+        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //0.5f
+        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //0.375f
+        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //0.25f
+        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //0.125f
         
         //GX_TEV_KASEL_1    = GX_TEV_KASEL_8_8,
         //GX_TEV_KASEL_3_4  = GX_TEV_KASEL_6_8,
@@ -358,14 +358,14 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevKColorSel
     {
-        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //1.0f, 1.0f, 1.0f
+        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //0.875f, 0.875f, 0.875f
+        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //0.75f, 0.75f, 0.75f
+        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //0.625f, 0.625f, 0.625f
+        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //0.5f, 0.5f, 0.5f
+        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //0.375f, 0.375f, 0.375f
+        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //0.25f, 0.25f, 0.25f
+        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //0.125f, 0.125f, 0.125f
 
         //GX_TEV_KCSEL_1    = GX_TEV_KCSEL_8_8,
         //GX_TEV_KCSEL_3_4  = GX_TEV_KCSEL_6_8,

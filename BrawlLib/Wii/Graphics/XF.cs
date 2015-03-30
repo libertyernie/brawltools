@@ -71,25 +71,25 @@ namespace BrawlLib.Wii.Graphics
     }
 
     //TexMtxInfo
-    //0000 0000 0000 0001   Unk (None)
+    //0000 0000 0000 0001   Padding
     //0000 0000 0000 0010   Projection
     //0000 0000 0000 1100   Input Form
     //0000 0000 0111 0000   Texgen Type
-    //0000 0011 1000 0000   Source Row
-    //0001 1100 0000 0000   Emboss Source
-    //1110 0000 0000 0000   Emboss Light
+    //0000 1111 1000 0000   Source Row
+    //0111 0000 0000 0000   Emboss Source
+    //1000 0000 0000 0000   Emboss Light (all remaining bits)
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct XFTexMtxInfo
     {
-        internal uint _data;
+        internal Bin32 _data;
 
-        public TexProjection Projection { get { return (TexProjection)((_data >> 1) & 1); } }
-        public TexInputForm InputForm { get { return (TexInputForm)((_data >> 2) & 3); } }
-        public TexTexgenType TexGenType { get { return (TexTexgenType)((_data >> 4) & 7); } }
-        public TexSourceRow SourceRow { get { return (TexSourceRow)((_data >> 7) & 7); } }
-        public int EmbossSource { get { return (int)((_data >> 10) & 7); } }
-        public int EmbossLight { get { return (int)((_data >> 13) & 7); } }
+        public TexProjection Projection { get { return (TexProjection)(_data[1] ? 1 : 0); } set { _data[1] = (uint)value != 0; } }
+        public TexInputForm InputForm { get { return (TexInputForm)_data[2, 2]; } set { _data[2, 2] = (uint)value; } }
+        public TexTexgenType TexGenType { get { return (TexTexgenType)_data[4, 3]; } set { _data[4, 3] = (uint)value; } }
+        public TexSourceRow SourceRow { get { return (TexSourceRow)_data[7, 5]; } set { _data[7, 5] = (uint)value; } }
+        public int EmbossSource { get { return (int)_data[12, 3]; } set { _data[12, 3] = (uint)value; } }
+        public int EmbossLight { get { return (int)_data[15, 17]; } set { _data[15, 17] = (uint)value; } }
 
         public XFTexMtxInfo(uint value) { _data = value; }
 
