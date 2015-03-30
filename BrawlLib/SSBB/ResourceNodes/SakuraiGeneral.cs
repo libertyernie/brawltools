@@ -103,6 +103,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe class IndexValue : SakuraiEntryNode
     {
         public int _value = 0;
+        public static explicit operator int(IndexValue val) { return val._value; }
 
         public static bool _hexadecimal;
         public bool HexDisplay
