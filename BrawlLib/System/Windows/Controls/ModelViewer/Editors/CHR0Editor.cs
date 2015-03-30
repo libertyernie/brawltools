@@ -708,7 +708,7 @@ namespace System.Windows.Forms
             }
             
         }
-        public unsafe void ApplyState(SaveState save)
+        public unsafe void ApplyState(BoneState save)
         {
             FrameState state = (FrameState)save._frameState;
             float* p = (float*)&state;

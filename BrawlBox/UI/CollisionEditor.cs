@@ -974,9 +974,9 @@ namespace System.Windows.Forms
         private Vector3 _selectStart, _selectLast, _selectEnd;
         private bool _creating;
 
-        private SaveState save;
-        private List<SaveState> undoSaves = new List<SaveState>();
-        private List<SaveState> redoSaves = new List<SaveState>();
+        private CollisionState save;
+        private List<CollisionState> undoSaves = new List<CollisionState>();
+        private List<CollisionState> redoSaves = new List<CollisionState>();
         private int saveIndex = 0;
         private bool hasMoved = false;
 
@@ -2058,7 +2058,7 @@ namespace System.Windows.Forms
                 redoSaves.Clear();
             }
 
-            save = new SaveState();
+            save = new CollisionState();
             save._collisionLinks = new List<CollisionLink>();
             save._linkVectors = new List<Vector2>();
 
@@ -2091,8 +2091,8 @@ namespace System.Windows.Forms
         private void Undo(object sender, EventArgs e)
         {
             _selectedLinks.Clear();
-            
-            save = new SaveState();
+
+            save = new CollisionState();
 
             if (undoSaves[saveIndex - 1]._linkVectors != null)     //XY Positions changed.
             {

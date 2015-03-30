@@ -90,12 +90,6 @@ namespace System.Windows.Forms
         public Control _currentControl = null;
         protected OpenFileDialog dlgOpen = new OpenFileDialog();
 
-        public uint _allowedUndos = 50;
-        public List<SaveState> _undoSaves = new List<SaveState>();
-        public List<SaveState> _redoSaves = new List<SaveState>();
-        public int _saveIndex = -1;
-        bool _undoing = true;
-
         #region Events
 
         public event GLRenderEventHandler EventPostRender, EventPreRender;

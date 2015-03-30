@@ -45,6 +45,11 @@ namespace BrawlLib.Modeling
             set { _scale = value; CalcTransforms(); }
         }
 
+        public FrameState Invert()
+        {
+            return new FrameState(1.0f / Scale, -Rotate, -Translate);
+        }
+
         public FrameState(CHRAnimationFrame frame)
         {
             _scale = frame.Scale;
