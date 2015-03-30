@@ -31,11 +31,7 @@ namespace Ikarus.MovesetFile
             _buffer = new UnsafeBuffer(0x2E4);
             Memory.Move(_buffer.Address, address, 0x2E4);
         }
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 0x2E4;
-        }
+        protected override int OnGetSize() { return 0x2E4; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

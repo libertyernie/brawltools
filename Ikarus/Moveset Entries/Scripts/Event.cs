@@ -140,7 +140,7 @@ namespace Ikarus.MovesetFile
                 if (p.ParamType == ParamType.Offset)
                 {
                     EventOffset o = p as EventOffset;
-                    s += o._offsetInfo.list + "," + o._offsetInfo.type + "," + o._offsetInfo.index;
+                    s += o._offsetInfo._list + "," + o._offsetInfo_typee + "," + o._offsetInf_indexex;
                 }
                 else s += p.Data;
                 s += "|";
@@ -383,16 +383,19 @@ namespace Ikarus.MovesetFile
                 _children.Add(parameter);
             }
         }
+        protected override int OnGetLookupCount()
+        {
+            int i = _children.Count > 0 ? 1 : 0;
+            foreach (Parameter p in _children)
+                i += p.GetLookupCount();
+            return i;
+        }
 
         protected override int OnGetSize()
         {
             int size = 8;
-            _lookupCount = (_children.Count > 0 ? 1 : 0);
             foreach (Parameter p in _children)
-            {
                 size += p.GetSize();
-                _lookupCount += p._lookupCount;
-            }
             return size;
         }
         #endregion
@@ -719,7 +722,8 @@ namespace Ikarus.MovesetFile
             Vector3 resultPos = m.GetPoint();
 
             int id = (int)_parameters[0] & 0xFFFF;
-            RunTime.MainWindow.ModelPanel.ScreenText[id.ToString()] = RunTime.MainWindow.ModelPanel.Project(resultPos);
+            RunTime.MainWindow.ModelPanel.CurrentViewport.ScreenText[id.ToString()] = 
+                RunTime.MainWindow.ModelPanel.CurrentViewport.Camera.Project(resultPos);
 
             m = Matrix.TransformMatrix(new Vector3(Util.UnScalar(size)), new Vector3(), resultPos);
             GL.PushMatrix();
@@ -871,7 +875,7 @@ namespace Ikarus.MovesetFile
             Vector3 resultPos = m.GetPoint();
 
             int id = (int)_parameters[0] & 0xFFFF;
-            RunTime.MainWindow.ModelPanel.ScreenText[id.ToString()] = RunTime.MainWindow.ModelPanel.Project(resultPos);
+            RunTime.MainWindow.ModelPanel.CurrentViewport.ScreenText[id.ToString()] = RunTime.MainWindow.ModelPanel.CurrentViewport.Project(resultPos);
 
             m = Matrix.TransformMatrix(new Vector3(Util.UnScalar(size)), new Vector3(), resultPos);
             GL.PushMatrix();

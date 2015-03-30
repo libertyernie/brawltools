@@ -196,11 +196,11 @@ namespace System.Windows.Forms
                 "Null"});
             }
 
-            listBox.SelectedIndex = (int)_targetNode._offsetInfo.list;
-            if (_targetNode._offsetInfo.type != TypeValue.None)
-                typeBox.SelectedIndex = (int)_targetNode._offsetInfo.type;
-            if (_targetNode._offsetInfo.index != -1 && indexBox.Items.Count > _targetNode._offsetInfo.index)
-                indexBox.SelectedIndex = _targetNode._offsetInfo.index;
+            listBox.SelectedIndex = (int)_targetNode._offsetInfo._list;
+            if (_targetNode._offsetInfo._type != TypeValue.None)
+                typeBox.SelectedIndex = (int)_targetNode._offsetInfo._type;
+            if (_targetNode._offsetInfo._index != -1 && indexBox.Items.Count > _targetNode._offsetInfo._index)
+                indexBox.SelectedIndex = _targetNode._offsetInfo._index;
 
             //if (_targetNode.list < 3)
             //{

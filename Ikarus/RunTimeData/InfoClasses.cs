@@ -85,10 +85,14 @@ namespace Ikarus.ModelViewer
             //Reset model visiblity to its default state
             if (_model != null && _model._objList != null)
                 if (_article._mdlVis != null)
-                    _article._mdlVis.ResetVisibility(0);
+                    _article._mdlVis.ResetVisibility();
                 else
                     foreach (MDL0ObjectNode o in _model._objList)
                         o._render = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+
+            _running = false;
+            if (_model != null)
+                _model.IsRendering = false;
         }
 
         private bool _running = false;
@@ -100,8 +104,8 @@ namespace Ikarus.ModelViewer
             {
                 _animFrame = value;
 
-                if (_animFrame <= 0)
-                    ResetSubactionVariables();
+                //if (_animFrame <= 0)
+                //    ResetSubactionVariables();
 
                 UpdateModel();
             }
@@ -161,14 +165,7 @@ namespace Ikarus.ModelViewer
                 _running = value;
                 if (_model != null)
                     _model.IsRendering = _running;
-                ResetSubactionVariables();
             }
-        }
-
-        public void ResetRunning()
-        {
-            //Anchored articles are visible by default
-            Running = _article.ArticleBoneNode != null && _article.CharBoneNode != null;
         }
 
         public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }
@@ -336,16 +333,16 @@ namespace Ikarus.ModelViewer
 
     public class ScriptOffsetInfo
     {
-        public ListValue list;
-        public TypeValue type;
-        public int index;
+        public ListValue _list;
+        public TypeValue _type;
+        public int _index;
 
-        public ScriptOffsetInfo() { list = ListValue.Null; type = TypeValue.None; index = -1; }
+        public ScriptOffsetInfo() { _list = ListValue.Null; _type = TypeValue.None; _index = -1; }
         public ScriptOffsetInfo(ListValue l, TypeValue t, int i)
         {
-            list = l;
-            type = t;
-            index = i;
+            _list = l;
+            _type = t;
+            _index = i;
         }
     }
 }

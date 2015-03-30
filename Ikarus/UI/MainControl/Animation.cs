@@ -76,20 +76,23 @@ namespace Ikarus.UI
             OnModelChanged();
         }
 
-        public override void UpdateModel()
+        public override void UpdateModel(float frame)
         {
             if (_updating)
                 return;
 
-            if (TargetModel != null)
-                UpdateModel(TargetModel);
+            if (EditingAll)
+                foreach (IModel n in _targetModels)
+                    UpdateModel(n, frame);
+            else if (TargetModel != null)
+                UpdateModel(TargetModel, frame);
 
             if (RunTime._articles != null)
                 foreach (ArticleInfo a in RunTime._articles)
                     if (a != null && a.Running)
                         a.UpdateModel();
 
-            if (!_playing) 
+            if (!_playing)
                 UpdatePropDisplay();
 
             ModelPanel.Invalidate();
@@ -256,9 +259,9 @@ namespace Ikarus.UI
 
             if (_capture)
             {
-                RenderToGIF(images.ToArray());
+                RenderToGIF(_images.ToArray());
 
-                images.Clear();
+                _images.Clear();
                 _capture = false;
 
                 if (InterpolationEditor != null)

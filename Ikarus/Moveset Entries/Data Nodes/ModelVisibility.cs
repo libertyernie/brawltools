@@ -264,7 +264,11 @@ namespace Ikarus.MovesetFile
 
         //    return RebuildOffset;
         //}
-
+        public void ResetVisibility()
+        {
+            for (int i = 0; i < _references.Count; i++)
+                ResetVisibility(i);
+        }
         public void ResetVisibility(int refId)
         {
             if (refId < 0 || refId >= _references.Count)

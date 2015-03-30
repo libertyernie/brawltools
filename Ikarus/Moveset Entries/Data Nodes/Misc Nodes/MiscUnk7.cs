@@ -46,13 +46,7 @@ namespace Ikarus.MovesetFile
         {
             hdr = *(sMiscUnknown7*)address;
         }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 32;
-        }
-
+        protected override int OnGetSize() { return 32; }
         protected override void OnWrite(VoidPtr address)
         {
             *(sMiscUnknown7*)(RebuildAddress = address) = hdr;

@@ -115,11 +115,7 @@ namespace Ikarus.MovesetFile
             _rot = hdr->_rotation;
         }
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 0x1C;
-        }
+        protected override int OnGetSize() { return 0x1C; }
 
         protected override void OnWrite(VoidPtr address)
         {

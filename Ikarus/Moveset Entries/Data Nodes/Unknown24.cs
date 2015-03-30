@@ -21,9 +21,13 @@ namespace Ikarus.MovesetFile
                 _indices.Add(Parse<IndexValue>(entry++));
         }
 
+        protected override int OnGetLookupCount()
+        {
+            return _indices.Count > 0 ? 1 : 0;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = (_indices.Count > 0 ? 1 : 0);
             return _indices.Count * 4 + 8;
         }
 
@@ -33,7 +37,7 @@ namespace Ikarus.MovesetFile
             foreach (IndexValue b in _indices)
             {
                 b.RebuildAddress = addr;
-                *addr++ = b.ItemIndex;
+                *addr++ = (int)b;
             }
 
             sListOffset* header = (sListOffset*)addr;

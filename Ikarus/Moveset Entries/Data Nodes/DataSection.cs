@@ -110,9 +110,10 @@ namespace Ikarus.MovesetFile
         //Other lists
         public ActionOverrideList _exitOverrides;
         public ActionOverrideList _entryOverrides;
-        public List<MovesetEntryNode> _extraEntries;
+        public List<RawParamList> _paramLists;
         public BindingList<SubActionEntry> _subActions;
-        public SortedList<int, MovesetEntryNode> _articles;
+        public List<ArticleNode> _articles;
+        public List<ArticleNode> _staticArticles;
 
         //public MoveDefStaticArticleGroupNode _staticArticles;
         ////Character Specific Nodes
@@ -132,8 +133,8 @@ namespace Ikarus.MovesetFile
         protected override void OnParse(VoidPtr address)
         {
             //Initialize lists
-            _extraEntries = new List<MovesetEntryNode>();
-            _articles = new SortedList<int, MovesetEntryNode>();
+            _paramLists = new List<RawParamList>();
+            _articles = new List<ArticleNode>();
             _subActions = new BindingList<SubActionEntry>();
 
             //Get header values
@@ -182,13 +183,12 @@ namespace Ikarus.MovesetFile
 
             //Parse extra offsets specific to this character
             //It appears that the module controls this data
-            OffsetHolder o = ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character);
-            if (o != null)
-                o.Parse(this, address + DataHeader.Size);
+            ExtraDataOffsets.ParseCharacter(((MovesetNode)_root).Character, this, address + DataHeader.Size);
 
-            //Set article indices (they are parsed as extra offsets)
+            //Sort and set article indices (they are parsed as extra offsets)
             int u = 0;
-            foreach (ArticleNode e in _articles.Values)
+            _articles = _articles.OrderBy(x => x._offset).ToList();
+            foreach (ArticleNode e in _articles)
                 e._index = u++;
         }
 
@@ -653,7 +653,7 @@ namespace Ikarus.MovesetFile
         protected override int OnGetSize()
         {
             _builder = new DataBuilder(this);
-            _entryLength = 124 + ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character).Count * 4;
+            _entryLength = 124 + ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character).Size;
             _childLength = _builder.CalcSize();
             return _entryLength + _childLength;
         }

@@ -23,13 +23,13 @@ namespace Ikarus.UI
 {
     public partial class MainControl : ModelEditorBase
     {
-        public unsafe override void modelPanel1_PreRender(GLPanel sender)
+        public unsafe override void modelPanel1_PreRender(ModelPanelViewport sender)
         {
             base.modelPanel1_PreRender(sender);
             Attributes.PreRender();
         }
 
-        public unsafe override void modelPanel1_PostRender(GLPanel sender)
+        public unsafe override void modelPanel1_PostRender(ModelPanelViewport sender)
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

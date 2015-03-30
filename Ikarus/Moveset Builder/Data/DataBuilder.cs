@@ -17,31 +17,12 @@ namespace Ikarus.MovesetBuilder
 
     public unsafe partial class DataBuilder : BuilderBase
     {
-        SakuraiEntryNode[] _orderedData;
-        SakuraiEntryNode[] _orderedMisc;
-
         DataSection _data;
         MiscSectionNode _misc;
 
         public DataBuilder(DataSection data)
         {
             _moveset = (_data = data)._root as MovesetNode;
-            _orderedData = new SakuraiEntryNode[]
-            {
-                _data._attributes,
-                _data._sseAttributes,
-                _data._commonActionFlags,
-                _data._unknown7,
-            };
-            if (_data._misc != null)
-            {
-                _misc = _data._misc;
-                _orderedMisc = new SakuraiEntryNode[]
-                {
-                    _misc._finalSmashAura,
-                    
-                };
-            }
             _getPartSize = new Action[]
             {
                 GetSizePart1,
@@ -62,6 +43,96 @@ namespace Ikarus.MovesetBuilder
                 BuildPart6,
                 BuildPart7,
             };
+        }
+
+        enum ArticleType
+        {
+            Entry,
+            Static,
+            Extra,
+        }
+
+        private int CalcSize(ArticleNode d, ArticleType type, bool subactions, int index)
+        {
+            int size = 0;
+
+            switch (type)
+            {
+                case ArticleType.Static:
+                case ArticleType.Entry:
+                    if (!subactions)
+                    {
+                        if (d._actions != null)
+                            foreach (MoveDefActionNode a in d._actions)
+                                if (a.Children.Count > 0)
+                                    size += GetSize(a, ref lookupCount);
+                    }
+                    else
+                    {
+                        if (d._subActions != null)
+                            foreach (MoveDefSubActionGroupNode grp in d.subActions.Children)
+                                if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
+                                    size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
+                    }
+                    break;
+            }
+
+            return size;
+        }
+
+        public int CalcSizeArticleActions(bool subactions, int index)
+        {
+            int size = 0;
+            if (_data._staticArticles != null)
+                foreach (ArticleNode d in _data._staticArticles)
+                    size += CalcSize(d, ArticleType.Static, subactions, index);
+
+            if (_data._entryArticle != null)
+                size += CalcSize(_data._entryArticle, ArticleType.Entry, subactions, index);
+
+            foreach (ArticleNode d in _data._articles)
+                if (!subactions)
+                {
+                    if (d._actions != null)
+                    {
+                        //if (d._pikmin)
+                        //{
+                        //    foreach (MoveDefActionGroupNode grp in d.actions.Children)
+                        //        foreach (MoveDefActionNode a in grp.Children)
+                        //            if (a.Children.Count > 0)
+                        //                size += GetSize(a, ref lookupCount);
+                        //}
+                        //else
+                            foreach (ActionEntry a in d._actions)
+                                if (a.Children.Count > 0)
+                                    size += GetSize(a, ref lookupCount);
+                    }
+                }
+                else
+                {
+                    if (d._subActions != null)
+                    {
+                        var e = d._subActions;
+                        int populateCount = 1;
+                        bool children = false;
+                        if (e.Children[0] is MoveDefActionListNode)
+                        {
+                            populateCount = d.subActions.Children.Count;
+                            children = true;
+                        }
+                        for (int i = 0; i < populateCount; i++)
+                        {
+                            if (children)
+                                e = d.subActions.Children[i] as MoveDefEntryNode;
+
+                            foreach (MoveDefSubActionGroupNode grp in e.Children)
+                                if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
+                                    size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
+                        }
+                    }
+                }
+
+            return size;
         }
     }
 }

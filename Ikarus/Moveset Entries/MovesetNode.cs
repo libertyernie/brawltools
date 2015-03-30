@@ -184,58 +184,58 @@ namespace Ikarus.MovesetFile
             if (offset <= 0)
                 return info;
 
-            info.list = ListValue.Actions;
+            info._list = ListValue.Actions;
 
             //Search action offsets
-            for (info.type = 0; (int)info.type < 2; info.type++)
-                if ((info.index = _scriptOffsets[(int)info.list][(int)info.type].IndexOf(offset)) != -1)
+            for (info._type = 0; (int)info._type < 2; info._type++)
+                if ((info._index = _scriptOffsets[(int)info._list][(int)info_typee].IndexOf(offset)) != -1)
                     return info;
 
-            info.list++;
+            info._list++;
 
             //Search subaction offsets
-            for (info.type = 0; (int)info.type < 4; info.type++)
-                if ((info.index = _scriptOffsets[(int)info.list][(int)info.type].IndexOf(offset)) != -1)
+            for (info._type = 0; (int)info._type < 4; info._type++)
+                if ((info._index = _scriptOffsets[(int)info._list][(int)info_typee].IndexOf(offset)) != -1)
                     return info;
 
-            info.type = TypeValue.None;
-            info.list++;
+            info._type = TypeValue.None;
+            info._list++;
 
             //Search subroutine offsets
-            if ((info.index = _scriptOffsets[(int)info.list][0].IndexOf(offset)) != -1)
+            if ((info._index = _scriptOffsets[(int)info._list][0].IndexOf(offset)) != -1)
                 return info;
 
-            info.list++;
+            info._list++;
 
             //Search reference entry offsets
             SakuraiEntryNode e = GetEntry(offset);
             if (e is TableEntryNode && e != null)
             {
-                info.index = e.Index;
+                info._index = e.Index;
                 return info;
             }
 
             //Set values to null
-            info.list++;
-            info.type = TypeValue.None;
-            info.index = -1;
+            info._list++;
+            info._type = TypeValue.None;
+            info._index = -1;
 
             //Continue searching dataCommon
             if (_dataCommon != null)
             {
-                info.list++;
+                info._list++;
 
                 //Search screen tint offsets
-                if ((info.index = _scriptOffsets[3][0].IndexOf(offset)) != -1)
+                if ((info._index = _scriptOffsets[3][0].IndexOf(offset)) != -1)
                     return info;
 
-                info.list++;
+                info._list++;
 
                 //Search flash overlay offsets
-                if ((info.index = _scriptOffsets[4][0].IndexOf(offset)) != -1)
+                if ((info._index = _scriptOffsets[4][0].IndexOf(offset)) != -1)
                     return info;
 
-                info.list = ListValue.Null;
+                info._list = ListValue.Null;
             }
             return info;
         }
@@ -245,9 +245,9 @@ namespace Ikarus.MovesetFile
         /// </summary>
         public Script GetScript(ScriptOffsetInfo info)
         {
-            ListValue list = info.list;
-            TypeValue type = info.type;
-            int index = info.index;
+            ListValue list = info._list;
+            TypeValue type = info._type;
+            int index = info._index;
 
             if ((list > ListValue.References && _dataCommon == null) || list == ListValue.Null || index == -1)
                 return null;

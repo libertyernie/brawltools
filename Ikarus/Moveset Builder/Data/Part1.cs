@@ -16,25 +16,26 @@ namespace Ikarus.MovesetBuilder
             GetSize(_data._commonActionFlags);
             GetSize(_data._unknown7);
 
+            //Add subaction data size (not including offset arrays to the data)
+            foreach (SubActionEntry g in _data._subActions)
+                if (g.Name != "<null>")
+                    foreach (Script c in g.GetScriptArray())
+                        GetScriptSize(c);
+
+            CalcSizeArticleActions(true, 0); //Main
+            CalcSizeArticleActions(true, 1); //GFX
+            CalcSizeArticleActions(true, 2); //SFX
+
             GetSize(_misc._finalSmashAura);
 
-            foreach (SubActionEntry g in _data._subActions)
-            {
-                //Don't add size if subaction is null
-                if (g.Name != "<null>")
-                    foreach (Script a in g.GetScriptArray())
-                    {
-                        if (a.Count > 0 || a._actionRefs.Count > 0 || a._build)
-                        {
-                            GetSize(a);
-                            _lookup++;
-                        }
-                    }
-            }
-
             if (_misc._soundData != null)
-            {
+                foreach (var r in _misc._soundData._entries)
+                    AddSize(r._entries.Count * 4);
 
+            foreach (ActionEntry a in _moveset._actions)
+            {
+                GetScriptSize(a._entry);
+                GetScriptSize(a._exit);
             }
         }
 

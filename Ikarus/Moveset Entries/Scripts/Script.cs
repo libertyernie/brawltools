@@ -194,9 +194,9 @@ namespace Ikarus.MovesetFile
 
         #endregion
 
-        public bool _build = false;
         [Category("Script")]
-        public bool ForceWrite { get { return _build; } set { _build = value; } }
+        public bool ForceWrite { get { return _forceBuild; } set { _forceBuild = value; } }
+        public bool _forceBuild = false;
 
         [Browsable(false)]
         public ArticleNode ParentArticle
@@ -233,18 +233,18 @@ namespace Ikarus.MovesetFile
 
         public Script(ArticleNode article)
         {
-            _build = false;
+            _forceBuild = false;
             _scriptor = new Scriptor(this);
         }
         public Script()
         {
-            _build = false;
+            _forceBuild = false;
             _scriptor = new Scriptor(this);
         }
 
         protected override void OnParse(VoidPtr address)
         {
-            _build = true;
+            _forceBuild = true;
             sEvent* ev = (sEvent*)address;
             while (ev->_nameSpace != 0 || ev->_id != 0)
             {
@@ -264,7 +264,6 @@ namespace Ikarus.MovesetFile
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             int size = 8; //Terminator event size
             foreach (Event e in _children)
             {

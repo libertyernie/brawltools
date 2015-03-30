@@ -29,13 +29,7 @@ namespace Ikarus.MovesetFile
             flags3 = new Bin32((uint)hdr->_flags3);
             flags4 = new Bin32((uint)hdr->_flags4);
         }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 16;
-        }
-
+        protected override int OnGetSize() { return 16; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

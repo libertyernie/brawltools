@@ -143,7 +143,7 @@ namespace Ikarus.UI
         public void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
             SetFrame(1);
-            images = new List<Image>();
+            _images = new List<Image>();
             Loop = false;
             _capture = true;
             Enabled = false;
@@ -533,7 +533,10 @@ namespace Ikarus.UI
 
             modelPanel.Invalidate();
         }
-        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e) { new ModelViewerSettingsDialog().Show(this); }
+        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //new ModelViewerSettingsDialog().Show(this);
+        }
         private void hitboxesOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
             chkHitboxes.Checked = !chkHitboxes.Checked;

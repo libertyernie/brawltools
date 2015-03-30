@@ -139,8 +139,8 @@ namespace Ikarus.ModelViewer
             Playing = false; 
             if (MainWindow._capture)
             {
-                MainWindow.RenderToGIF(MainWindow.images.ToArray());
-                MainWindow.images.Clear();
+                MainWindow.RenderToGIF(MainWindow._images.ToArray());
+                MainWindow._images.Clear();
                 MainWindow._capture = false;
             }
         }
@@ -298,8 +298,10 @@ namespace Ikarus.ModelViewer
                     if (i == null)
                         continue;
 
-                    i.Running = true;
-                    i.SubactionIndex = -1;
+                    i.ResetSubactionVariables();
+
+                    //i.SubactionIndex = -1;
+                    //i.Running = true;
                 }
 
             //Reset model visiblity to its default state
@@ -309,7 +311,7 @@ namespace Ikarus.ModelViewer
             {
                 ModelVisibility node = Manager.Moveset.Data._modelVis;
                 if (node != null)
-                    node.ResetVisibility(0);
+                    node.ResetVisibility();
             }
         }
 
@@ -366,7 +368,7 @@ namespace Ikarus.ModelViewer
                         a.SetFrame(frame - 1);
 
             if (MainWindow._capture && Playing)
-                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
+                MainWindow._images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
         }
 
         private static void UpdateScripts(int index)

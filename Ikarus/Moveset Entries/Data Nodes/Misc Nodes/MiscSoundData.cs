@@ -72,7 +72,7 @@ namespace Ikarus.MovesetFile
                 foreach (IndexValue b in r._entries)
                 {
                     b.RebuildAddress = indices;
-                    *indices++ = b.ItemIndex;
+                    *indices++ = (int)b;
                 }
             }
         }

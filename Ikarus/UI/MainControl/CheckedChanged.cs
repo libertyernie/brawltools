@@ -64,12 +64,12 @@ namespace Ikarus.UI
             _updating = true;
             if (orthographicToolStripMenuItem.Checked)
             {
-                modelPanel.SetProjectionType(true);
+                //modelPanel.SetProjectionType(true);
                 perspectiveToolStripMenuItem.Checked = false;
             }
             else
             {
-                modelPanel.SetProjectionType(false);
+                //modelPanel.SetProjectionType(false);
                 perspectiveToolStripMenuItem.Checked = true;
             }
             _updating = false;
@@ -83,12 +83,12 @@ namespace Ikarus.UI
             _updating = true;
             if (perspectiveToolStripMenuItem.Checked)
             {
-                modelPanel.SetProjectionType(false);
+                //modelPanel.SetProjectionType(false);
                 orthographicToolStripMenuItem.Checked = false;
             }
             else
             {
-                modelPanel.SetProjectionType(true);
+                //modelPanel.SetProjectionType(true);
                 orthographicToolStripMenuItem.Checked = true;
             }
             _updating = false;
@@ -100,7 +100,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -113,7 +113,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -126,7 +126,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -154,17 +154,17 @@ namespace Ikarus.UI
 
         private void showCameraCoordinatesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel._showCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
+            //modelPanel._showCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
         }
 
         private void enableTextOverlaysToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
+            //modelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
         }
 
         private void enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+            //modelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
         }
 
         private void stPersonToolStripMenuItem_CheckedChanged(object sender, EventArgs e)

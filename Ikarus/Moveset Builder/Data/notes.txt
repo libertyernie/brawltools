@@ -8,7 +8,7 @@
 //SSE Attributes
 //Common Action Flags
 //Unknown 7
-//Subaction Other Data - includes articles (at end)
+//Subaction Other Data
 //Subaction GFX Data - includes articles (at end)
 //Misc Bone Section
 //Subaction SFX Data - includes articles (at end)

@@ -131,16 +131,20 @@ namespace Ikarus.MovesetFile
                 _children.Add(Parse<ActionOverrideEntry>(entry++));
         }
 
+        protected override int OnGetLookupCount()
+        {
+            int i = 0;
+            foreach (ActionOverrideEntry e in _children)
+                if (e._script != null && e._script.Count > 0)
+                    i++;
+            return i;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             int size = 8;
             foreach (ActionOverrideEntry e in _children)
-            {
                 size += 8;
-                if (e._script != null && e._script.Count > 0)
-                    _lookupCount++;
-            }
             return _entryLength = size;
         }
 

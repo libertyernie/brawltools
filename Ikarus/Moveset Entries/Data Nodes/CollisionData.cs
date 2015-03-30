@@ -156,19 +156,26 @@ namespace Ikarus.MovesetFile
             }
         }
 
-        protected override int OnGetSize()
+        protected override int OnGetLookupCount()
         {
             switch (_type)
             {
                 case CollisionType.Type0:
-                    _lookupCount = (_bones.Count > 0 ? 1 : 0);
-                    return 24 + _bones.Count * 4;
+                    return (_bones.Count > 0 ? 1 : 0);
                 case CollisionType.Type1:
-                    _lookupCount = 0;
-                    return 16;
                 case CollisionType.Type2:
-                    _lookupCount = 0;
-                    return ((_flags & 2) == 2 ? 24 : 20);
+                    return 0;
+            }
+            throw new Exception("Unsupported collision type");
+        }
+
+        protected override int OnGetSize()
+        {
+            switch (_type)
+            {
+                case CollisionType.Type0: return 24 + _bones.Count * 4;
+                case CollisionType.Type1: return 16;
+                case CollisionType.Type2: return ((_flags & 2) == 2 ? 24 : 20);
             }
             throw new Exception("Unsupported collision type");
         }

@@ -28,12 +28,7 @@ namespace Ikarus.MovesetFile
             _unk4 = hdr->_unk4;
         }
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 16;
-        }
-
+        protected override int OnGetSize() { return 16; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

@@ -43,12 +43,8 @@ namespace Ikarus.MovesetFile
                 _bones.Add(Parse<BoneIndexValue>(EntryOffset + i * 4));
         }
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = (_bones.Count > 0 ? 1 : 0);
-            return 24 + _bones.Count * 4;
-        }
-
+        protected override int OnGetLookupCount() { return _bones.Count > 0 ? 1 : 0; }
+        protected override int OnGetSize() { return 24 + _bones.Count * 4; }
         protected override void OnWrite(VoidPtr address)
         {
             bint* addr = (bint*)address;

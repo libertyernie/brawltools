@@ -31,16 +31,16 @@ namespace Ikarus.MovesetFile
                 _script = Parse<Script>(_actionOffset);
         }
 
+        protected override int OnGetLookupCount()
+        {
+            return _script != null && _script.Count > 0 ? _script.GetLookupCount() + 1 : 0;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             int size = 12;
-            if (_script != null)
-            {
-                //size += _script.GetSize();
-                if (_script.Count > 0)
-                    _lookupCount = _script._lookupCount + 1;
-            }
+            //if (_script != null)
+            //    size += _script.GetSize();
             return size;
         }
 
