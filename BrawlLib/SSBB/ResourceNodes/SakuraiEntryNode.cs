@@ -213,7 +213,12 @@ namespace BrawlLib.SSBBTypes
             //Reset list of lookup offsets
             //Addresses will be added in OnWrite.
             _lookupOffsets = new List<VoidPtr>();
-            
+
+            //Reset the rebuild address to be set in OnWrite
+            //Set to 'address' instead? I just don't want to forget to set this 
+            //in nodes that don't use the start address
+            RebuildAddress = null;
+
             //Write this node's data to the address.
             //Sets RebuildAddress to the location of the header.
             //The header is often not the first thing written to the given address.
@@ -246,6 +251,11 @@ namespace BrawlLib.SSBBTypes
         //DO NOT send the offset itself as the address!
         protected void Lookup(VoidPtr address)
         {
+#if DEBUG
+            if ((int)address < (int)BaseAddress)
+                throw new Exception("Offset value set in lookup, not the address of the offset value.");
+#endif
+
             _lookupOffsets.Add(Offset(address));
         }
 

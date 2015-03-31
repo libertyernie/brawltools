@@ -97,7 +97,7 @@ namespace BrawlLib.OpenGL
             for (int i = 0; i < tex.LevelOfDetail; i++)
                 _textures[i] = tex.GetImage(i, plt);
 
-            if (_textures.Length != 0)
+            if (_textures.Length != 0 && _textures[0] != null)
             {
                 _width = _textures[0].Width;
                 _height = _textures[0].Height;

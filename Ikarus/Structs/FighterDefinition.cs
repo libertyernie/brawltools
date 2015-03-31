@@ -311,6 +311,21 @@ namespace Ikarus.MovesetFile
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct sAddAreaDataSet
+    {
+        public bshort _unk1; //5
+        public bshort _unk2; //5
+        public buint _offset;
+        public buint _boneIndex;
+        public bfloat _unk3;
+        
+        public bfloat unk4;
+        public bfloat unk5;
+        public bfloat unk6;
+        public bfloat unk7;
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sMiscUnknown12
     {
         public bint _unk1; //0x2B

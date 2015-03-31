@@ -143,7 +143,7 @@ namespace Ikarus.UI
         public void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
             SetFrame(1);
-            _images = new List<Image>();
+            images = new List<Image>();
             Loop = false;
             _capture = true;
             Enabled = false;

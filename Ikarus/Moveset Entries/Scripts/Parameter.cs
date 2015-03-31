@@ -440,7 +440,7 @@ namespace Ikarus.MovesetFile
             if ((int)_offsetInfo._list < 2)
             {
                 string v = _offsetInfo._type.ToString();
-                if (_offsetInfo._list == ListValue.SubActions && (int)_offsetInfo_typee < 2)
+                if (_offsetInfo._list == ListValue.SubActions && (int)_offsetInfo._type < 2)
                     if (_offsetInfo._type == TypeValue.Entry) v = "Main"; else v = "GFX";
                 add += String.Format(".{0}", v);
             }

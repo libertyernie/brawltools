@@ -153,7 +153,17 @@ namespace Ikarus.MovesetFile
             [StructLayout(LayoutKind.Sequential, Pack = 1)]
             public struct Offsets
             {
-
+                buint _params0;
+                buint _params1;
+                buint _params2;
+                buint _params3;
+                sListOffset _params4;
+                sListOffset _article2;
+                sListOffset _article0;
+                sListOffset _article1;
+                sListOffset _article3;
+                buint _article4;
+                buint _addAreaDataSet0; //points to ListOffset (8 bytes)
             }
         }
 
@@ -282,12 +292,10 @@ namespace Ikarus.MovesetFile
                 buint _params0;
                 buint _params6;
                 sListOffset _hitDataList;
-                uint _count2;
-                buint _count3;
-                buint _article0;
-                buint _article0Count;
-                buint _article1;
-                buint _article1Count;
+                uint _unk1; //0x90
+                buint _unkCount;
+                sListOffset _article0;
+                sListOffset _article1;
                 buint _article2;
                 buint _article3;
                 buint _article4;
@@ -521,7 +529,16 @@ namespace Ikarus.MovesetFile
             [StructLayout(LayoutKind.Sequential, Pack = 1)]
             public struct Offsets
             {
-
+                buint _params0;
+                buint _params1;
+                buint _params2;
+                buint _params3;
+                sListOffset _params4;
+                sListOffset _article0;
+                sListOffset _article1;
+                sListOffset _article2;
+                buint _article3;
+                buint _article4;
             }
         }
 
@@ -532,7 +549,21 @@ namespace Ikarus.MovesetFile
             [StructLayout(LayoutKind.Sequential, Pack = 1)]
             public struct Offsets
             {
-
+                buint _params0;
+                buint _params1;
+                buint _params2;
+                buint _params3;
+                buint _params4;
+                buint _params5;
+                sListOffset _params6;
+                sListOffset _article0;
+                sListOffset _article1;
+                sListOffset _article2;
+                sListOffset _article3;
+                sListOffset _article4;
+                sListOffset _article5;
+                buint _article6;
+                buint _article7;
             }
         }
 
@@ -641,10 +672,8 @@ namespace Ikarus.MovesetFile
                 buint _unkCount0;
                 uint _unk; //0x90
                 buint _unkCount1;
-                buint _article0;
-                buint _article0Count;
-                buint _article1;
-                buint _article1Count;
+                sListOffset _article0;
+                sListOffset _article1;
                 buint _article2;
                 buint _article3;
                 buint _article4;
@@ -703,8 +732,7 @@ namespace Ikarus.MovesetFile
                 buint _params3;
                 buint _params6;
                 buint _params4;
-                buint _params5;
-                buint _params5Count;
+                sListOffset _params5;
                 buint _article0;
                 buint _article1;
                 buint _article2;

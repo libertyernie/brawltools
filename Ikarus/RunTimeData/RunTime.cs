@@ -139,8 +139,8 @@ namespace Ikarus.ModelViewer
             Playing = false; 
             if (MainWindow._capture)
             {
-                MainWindow.RenderToGIF(MainWindow._images.ToArray());
-                MainWindow._images.Clear();
+                MainWindow.RenderToGIF(MainWindow.images.ToArray());
+                MainWindow.images.Clear();
                 MainWindow._capture = false;
             }
         }
@@ -368,7 +368,7 @@ namespace Ikarus.ModelViewer
                         a.SetFrame(frame - 1);
 
             if (MainWindow._capture && Playing)
-                MainWindow._images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
+                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
         }
 
         private static void UpdateScripts(int index)

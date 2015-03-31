@@ -140,7 +140,7 @@ namespace Ikarus.MovesetFile
                 if (p.ParamType == ParamType.Offset)
                 {
                     EventOffset o = p as EventOffset;
-                    s += o._offsetInfo._list + "," + o._offsetInfo_typee + "," + o._offsetInf_indexex;
+                    s += o._offsetInfo._list + "," + o._offsetInfo._type + "," + o._offsetInfo._index;
                 }
                 else s += p.Data;
                 s += "|";

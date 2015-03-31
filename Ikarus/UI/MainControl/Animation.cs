@@ -259,9 +259,9 @@ namespace Ikarus.UI
 
             if (_capture)
             {
-                RenderToGIF(_images.ToArray());
+                RenderToGIF(images.ToArray());
 
-                _images.Clear();
+                images.Clear();
                 _capture = false;
 
                 if (InterpolationEditor != null)

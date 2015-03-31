@@ -9,8 +9,12 @@ namespace Ikarus.MovesetBuilder
 {
     public abstract class BuilderBase
     {
-        int GetOffset(VoidPtr address) { return (int)address - (int)_baseAddress; }
-        VoidPtr GetAddress(int offset) { return _baseAddress + offset; }
+        protected int GetOffset(VoidPtr address) { return (int)address - (int)_baseAddress; }
+        protected VoidPtr GetAddress(int offset) { return _baseAddress + offset; }
+
+        /// <summary>
+        /// _currentAddress as an offset from the moveset base address (header + 0x20)
+        /// </summary>
         public int CurrentOffset { get { return GetOffset(_currentAddress); } }
 
         //Split size calculations up into sections to make debugging easier
@@ -21,6 +25,8 @@ namespace Ikarus.MovesetBuilder
         public int _partIndex, _lookup = 0;
         public MovesetNode _moveset;
         public int _size;
+
+        public List<Script> _subroutines = new List<Script>();
 
         //This calculates the size of child data only
         //The entry size is calculated in the node's OnGetSize() function
@@ -63,6 +69,37 @@ namespace Ikarus.MovesetBuilder
                 _lookup += entry.GetLookupCount();
             }
         }
+        /// <summary>
+        /// If the entry isn't null,
+        /// adds the size of the entry to the current part length
+        /// and adds the entry's lookup count to the main lookup count.
+        /// </summary>
+        protected void GetScriptSize(Script script)
+        {
+            //Build if it has data, if it's referenced, or if forced
+            if (script.Count > 0 || script._actionRefs.Count > 0 || script._forceBuild)
+            {
+                //Collect script size
+                //Order: all parameters (of every event, in order) then event array
+                GetSize(script);
+
+                //Add offset to script, because it is used
+                //DO NOT add these lookup entries when calculating offset array size!
+                //It's being done here ahead of time
+                _lookup++;
+
+                foreach (Event e in script)
+                    foreach (Parameter p in e)
+                        if (p is EventOffset)
+                        {
+                            EventOffset o = (EventOffset)p;
+                            if (o._offsetInfo._list == ListValue.SubRoutines)
+                            {
+                                
+                            }
+                        }
+            }
+        }
         public virtual void Build(VoidPtr address)
         {
             _baseAddress = address;
@@ -75,7 +112,7 @@ namespace Ikarus.MovesetBuilder
                 //This function will increment _currentAddress
                 _buildPart[i]();
 
-                //Add the previously calculated sizes for debug purposes
+                //Add the previously calculated sizes for debugging purposes
                 calcOffset += _lengths[i];
 
                 if (CurrentOffset != calcOffset)

@@ -188,14 +188,14 @@ namespace Ikarus.MovesetFile
 
             //Search action offsets
             for (info._type = 0; (int)info._type < 2; info._type++)
-                if ((info._index = _scriptOffsets[(int)info._list][(int)info_typee].IndexOf(offset)) != -1)
+                if ((info._index = _scriptOffsets[(int)info._list][(int)info._type].IndexOf(offset)) != -1)
                     return info;
 
             info._list++;
 
             //Search subaction offsets
             for (info._type = 0; (int)info._type < 4; info._type++)
-                if ((info._index = _scriptOffsets[(int)info._list][(int)info_typee].IndexOf(offset)) != -1)
+                if ((info._index = _scriptOffsets[(int)info._list][(int)info._type].IndexOf(offset)) != -1)
                     return info;
 
             info._type = TypeValue.None;

@@ -62,17 +62,17 @@ namespace Ikarus.MovesetBuilder
                 case ArticleType.Entry:
                     if (!subactions)
                     {
-                        if (d._actions != null)
-                            foreach (MoveDefActionNode a in d._actions)
-                                if (a.Children.Count > 0)
-                                    size += GetSize(a, ref lookupCount);
+                        //if (d._actions != null)
+                        //    foreach (MoveDefActionNode a in d._actions)
+                        //        if (a.Children.Count > 0)
+                        //            size += GetSize(a, ref lookupCount);
                     }
                     else
                     {
-                        if (d._subActions != null)
-                            foreach (MoveDefSubActionGroupNode grp in d.subActions.Children)
-                                if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
-                                    size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
+                        //if (d._subActions != null)
+                        //    foreach (MoveDefSubActionGroupNode grp in d.subActions.Children)
+                        //        if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
+                        //            size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
                     }
                     break;
             }
@@ -103,32 +103,32 @@ namespace Ikarus.MovesetBuilder
                         //                size += GetSize(a, ref lookupCount);
                         //}
                         //else
-                            foreach (ActionEntry a in d._actions)
-                                if (a.Children.Count > 0)
-                                    size += GetSize(a, ref lookupCount);
+                            //foreach (ActionEntry a in d._actions)
+                            //    if (a.Children.Count > 0)
+                            //        size += GetSize(a, ref lookupCount);
                     }
                 }
                 else
                 {
                     if (d._subActions != null)
                     {
-                        var e = d._subActions;
-                        int populateCount = 1;
-                        bool children = false;
-                        if (e.Children[0] is MoveDefActionListNode)
-                        {
-                            populateCount = d.subActions.Children.Count;
-                            children = true;
-                        }
-                        for (int i = 0; i < populateCount; i++)
-                        {
-                            if (children)
-                                e = d.subActions.Children[i] as MoveDefEntryNode;
+                        //var e = d._subActions;
+                        //int populateCount = 1;
+                        //bool children = false;
+                        //if (e.Children[0] is MoveDefActionListNode)
+                        //{
+                        //    populateCount = d.subActions.Children.Count;
+                        //    children = true;
+                        //}
+                        //for (int i = 0; i < populateCount; i++)
+                        //{
+                        //    if (children)
+                        //        e = d.subActions.Children[i] as MoveDefEntryNode;
 
-                            foreach (MoveDefSubActionGroupNode grp in e.Children)
-                                if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
-                                    size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
-                        }
+                        //    foreach (MoveDefSubActionGroupNode grp in e.Children)
+                        //        if (grp.Children[index].Children.Count > 0 || (grp.Children[index] as MoveDefActionNode)._actionRefs.Count > 0 || (grp.Children[index] as MoveDefActionNode)._build)
+                        //            size += GetSize((grp.Children[index] as MoveDefActionNode), ref lookupCount);
+                        //}
                     }
                 }
 
