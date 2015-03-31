@@ -519,6 +519,12 @@ namespace System.Windows.Forms
 
         private void Translate(float x, float y, float z)
         {
+            if (CurrentViewport.Camera._ortho)
+            {
+                x *= 20.0f;
+                y *= 20.0f;
+            }
+
             CurrentViewport.Camera.Translate(x, y, z);
             Invalidate();
         }

@@ -153,7 +153,7 @@ namespace System.Windows.Forms
                 SetFrame(_animFrame + 1);
 
             if (_capture)
-                images.Add(ModelPanel.GetScreenshot(ModelPanel.CurrentViewport.RegionNoBorder, false));
+                _images.Add(ModelPanel.GetScreenshot(ModelPanel.CurrentViewport.RegionNoBorder, false));
         }
 
         public virtual void PlayAnim()
@@ -213,9 +213,9 @@ namespace System.Windows.Forms
 
             if (_capture)
             {
-                RenderToGIF(images, ScreenCaptureFolder);
+                RenderToGIF(_images, ScreenCaptureFolder);
 
-                images.Clear();
+                _images.Clear();
                 _capture = false;
 
                 if (InterpolationEditor != null)

@@ -285,8 +285,11 @@ namespace System.Windows.Forms
         {
             //Reset the cursor to default first, then override it later
             //Parent control mouse move functions are called after this one
-            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling)
+            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling && Cursor != Cursors.Default)
+            {
+                Invalidate();
                 Cursor = Cursors.Default;
+            }
 
             if (!Enabled)
                 return;

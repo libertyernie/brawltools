@@ -42,7 +42,7 @@ namespace System.Windows.Forms
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
         public List<HotKeyInfo> _hotkeyList;
         public List<ResourceNode> _animationSearchNodes = new List<ResourceNode>();
-        public List<Image> images = new List<Image>();
+        public List<Image> _images = new List<Image>();
 
         //Bone Name - Attached Polygon Indices
         public Dictionary<string, List<int>> VIS0Indices

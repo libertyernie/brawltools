@@ -129,11 +129,8 @@ namespace BrawlBox
                     if (_models[i] != null)
                         modelEditControl1.AppendTarget(_models[i]);
 
-                if (_models.Count > 1)
-                    modelEditControl1.models.SelectedIndex = 0;
-                else
-                    modelEditControl1.TargetModel = _models[0];
-
+                modelEditControl1.TargetModel = _models[0];
+                modelEditControl1.EditingAll = _models.Count > 1;
                 modelEditControl1.ResetBoneColors();
             }
             else

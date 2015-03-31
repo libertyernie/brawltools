@@ -653,6 +653,12 @@ namespace System.Windows.Forms
                     bool shift = (mod & Keys.Shift) != 0;
                     bool alt = (mod & Keys.Alt) != 0;
 
+                    if (ViewType != ViewportProjection.Perspective && !ctrl)
+                    {
+                        xDiff *= 20;
+                        yDiff *= 20;
+                    }
+
                     if (shift)
                     {
                         xDiff *= 16;

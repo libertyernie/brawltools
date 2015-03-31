@@ -82,14 +82,14 @@ namespace System.Windows.Forms
                 return;
 
             //Leave the target model and collision alone if just switching to edit all
-            if (!EditingAll)
-            {
+            //if (!EditingAll)
+            //{
                 object item = models.SelectedItem;
 
                 _resetCamera = false;
                 TargetModel = item is IModel ? (IModel)item : null;
                 TargetCollision = item is CollisionNode ? (CollisionNode)item : null;
-            }
+            //}
             _undoSaves.Clear();
             _redoSaves.Clear();
             _saveIndex = -1;
