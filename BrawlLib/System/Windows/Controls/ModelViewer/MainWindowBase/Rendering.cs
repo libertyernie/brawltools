@@ -76,9 +76,14 @@ namespace System.Windows.Forms
             }
 
             //Render vertex transform control
-            if (VertexLoc() != null)
+            else if (VertexLoc() != null)
             {
-                    RenderTranslationControl(((Vector3)VertexLoc()), VertexOrbRadius(panel), panel);
+                if (ControlType == TransformType.Rotation)
+                    RenderRotationControl(VertexLoc().Value, VertexOrbRadius(panel), new Vector3(), panel);
+                else if (ControlType == TransformType.Translation)
+                    RenderTranslationControl(VertexLoc().Value, VertexOrbRadius(panel), panel);
+                else if (ControlType == TransformType.Scale)
+                    RenderScaleControl(VertexOrbRadius(panel), VertexLoc().Value, panel);
             }
         }
         public unsafe void RenderTranslationControl(Vector3 position, float radius, ModelPanelViewport panel)
@@ -751,7 +756,7 @@ namespace System.Windows.Forms
                         normal = new Vector3(1.0f, 0.0f, 0.0f);
                     else if (_snapZ)
                         normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (ControlType == TransformType.Scale && _snapX && _snapY && _snapZ)
+                    else
                         normal = camera.Normalize(center);
 
                     break;
@@ -768,38 +773,35 @@ namespace System.Windows.Forms
             Vector3 normal = new Vector3();
             float radius = CamDistance(center, ModelPanel.CurrentViewport);
 
-            //switch (ControlType)
-            //{
-                //case TransformType.Scale:
+            switch (ControlType)
+            {
+                case TransformType.Rotation:
+                    if (_snapX)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
+                    else if (_snapY)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
+                    else if (_snapZ)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                    else if (_snapCirc)
+                    {
+                        radius *= _circOrbScale;
+                        normal = camera.Normalize(center);
+                    }
+                    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
+                        return true;
+                    else
+                        normal = camera.Normalize(center);
 
-                //    break;
+                    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
+                    {
+                        point = Maths.PointAtLineDistance(center, point, radius);
+                        return true;
+                    }
 
-                //case TransformType.Rotation:
-                //    if (_snapX)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                //    else if (_snapY)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                //    else if (_snapZ)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
-                //    else if (_snapCirc)
-                //    {
-                //        radius *= _circOrbScale;
-                //        normal = camera.Normalize(center);
-                //    }
-                //    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
-                //        return true;
-                //    else
-                //        normal = camera.Normalize(center);
+                    break;
 
-                //    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-                //    {
-                //        point = Maths.PointAtLineDistance(center, point, radius);
-                //        return true;
-                //    }
-
-                //    break;
-
-                //case TransformType.Translation:
+                case TransformType.Scale:
+                case TransformType.Translation:
 
                     if (_snapX && _snapY)
                         normal = new Vector3(0.0f, 0.0f, 1.0f);
@@ -813,9 +815,11 @@ namespace System.Windows.Forms
                         normal = new Vector3(1.0f, 0.0f, 0.0f);
                     else if (_snapZ)
                         normal = new Vector3(0.0f, 1.0f, 0.0f);
+                    else
+                        normal = camera.Normalize(center);
 
-                    //break;
-            //}
+                    break;
+            }
 
             if (!Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
             {
@@ -997,8 +1001,9 @@ namespace System.Windows.Forms
 
             //So that the model clips with the floor
             GL.Enable(EnableCap.DepthTest);
-
             GL.Enable(EnableCap.Texture2D);
+            //GL.MatrixMode(MatrixMode.Texture);
+            //GL.LoadIdentity();
 
             GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
             bgTex.Bind();

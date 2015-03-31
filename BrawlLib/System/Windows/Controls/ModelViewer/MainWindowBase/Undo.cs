@@ -77,7 +77,7 @@ namespace System.Windows.Forms
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
-        public void VertexChange(List<Vertex3> vertices, FrameState transform)
+        public void VertexChange(List<Vertex3> vertices, Matrix transform)
         {
             SaveState state = new VertexState()
             {
@@ -157,13 +157,13 @@ namespace System.Windows.Forms
                 TargetModel = state._targetModel;
             }
 
-            FrameState transform;
+            Matrix transform;
             Vector3 center = new Vector3();
 
             if (state._isUndo)
             {
                 transform = ((VertexState)RedoSave)._transform.Invert();
-                center = ((VertexState)RedoSave)._origin;
+                center = state._origin;
             }
             else
             {
@@ -171,10 +171,8 @@ namespace System.Windows.Forms
                 center = ((VertexState)UndoSave)._origin;
             }
 
-            Matrix invTransMs = Matrix.TranslationMatrix(-center);
-            Matrix transMs = Matrix.TranslationMatrix(center);
             foreach (Vertex3 vertex in _selectedVertices)
-                vertex.WeightedPosition = (vertex.WeightedPosition * invTransMs) * transform._transform * transMs;
+                vertex.WeightedPosition = Maths.TransformAboutPoint(vertex.WeightedPosition, center, transform);
 
             _vertexLoc = null;
 

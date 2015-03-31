@@ -29,9 +29,27 @@ namespace System
             return (float)Math.Acos((a * a + b * b - c * c) / (2 * a * b));
         }
 
-        public static Vector3 PivotPoint(Vector3 center, Vector3 point, Vector3 angles)
+        public static Vector3 RotateAboutPoint(Vector3 point, Vector3 center, Vector3 angles)
         {
-            return center + Matrix.RotationMatrix(angles) * (point - center);
+            return point * Matrix.TranslationMatrix(-center) * Matrix.RotationMatrix(angles) * Matrix.TranslationMatrix(center);
+        }
+        public static Vector2 RotateAboutPoint(Vector2 point, Vector2 center, float angle)
+        {
+            return (Vector2)((Vector3)point * Matrix.TranslationMatrix((Vector3)(-center)) * Matrix.RotationAboutZ(angle) * Matrix.TranslationMatrix((Vector3)center));
+        }
+
+        public static Vector3 ScaleAboutPoint(Vector3 point, Vector3 center, Vector3 scale)
+        {
+            return point * Matrix.TranslationMatrix(-center) * Matrix.ScaleMatrix(scale) * Matrix.TranslationMatrix(center);
+        }
+        public static Vector2 ScaleAboutPoint(Vector2 point, Vector2 center, Vector2 scale)
+        {
+            return (Vector2)((Vector3)point * Matrix.TranslationMatrix((Vector3)(-center)) * Matrix.ScaleMatrix(scale._x, scale._y, 1.0f) * Matrix.TranslationMatrix((Vector3)center));
+        }
+
+        public static Vector3 TransformAboutPoint(Vector3 point, Vector3 center, Matrix transform)
+        {
+            return point * Matrix.TranslationMatrix(-center) * transform * Matrix.TranslationMatrix(center);
         }
 
         public static bool LineSphereIntersect(Vector3 start, Vector3 end, Vector3 center, float radius, out Vector3 result)

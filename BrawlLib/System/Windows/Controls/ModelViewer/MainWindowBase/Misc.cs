@@ -134,6 +134,7 @@ namespace System.Windows.Forms
         {
             //Force the average vertex location to be recalculated
             _vertexLoc = null;
+            ModelPanel.Invalidate();
         }
         protected virtual void OnSelectedBoneChanged() { }
 

@@ -30,7 +30,7 @@ namespace BrawlLib.Modeling
     public class VertexState : SaveState
     {
         public List<Vertex3> _vertices = null;
-        public FrameState _transform;
+        public Matrix _transform;
         public Vector3 _origin;
         public IModel _targetModel;
     }

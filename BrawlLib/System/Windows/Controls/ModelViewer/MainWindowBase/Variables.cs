@@ -59,6 +59,7 @@ namespace System.Windows.Forms
 
         protected Vector3 _lastPointLocal, _lastPointWorld;
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
+        protected Matrix _newVertexTransform;
         protected Vector3? _vertexLoc = null;
 
         protected bool _rotating, _translating, _scaling;
