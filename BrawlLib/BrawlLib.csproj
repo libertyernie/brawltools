@@ -280,9 +280,6 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\GDORNode.cs" />
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
     <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
     <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
@@ -459,6 +456,12 @@
     <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.Designer.cs">
       <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
     </Compile>
+    <None Include="System\Windows\Controls\MaterialEditor.cs">
+      <SubType>UserControl</SubType>
+    </None>
+    <None Include="System\Windows\Controls\MaterialEditor.Designer.cs">
+      <DependentUpon>MaterialEditor.cs</DependentUpon>
+    </None>
     <Compile Include="System\Windows\Controls\ShaderEditor.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -928,6 +931,9 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <None Include="System\Windows\Controls\MaterialEditor.resx">
+      <DependentUpon>MaterialEditor.cs</DependentUpon>
+    </None>
     <EmbeddedResource Include="System\Windows\Controls\TexCoordControl.resx">
       <DependentUpon>TexCoordControl.cs</DependentUpon>
     </EmbeddedResource>

@@ -167,7 +167,7 @@ namespace BrawlLib.Wii.Graphics
                 //wl("{0} = gl_ModelViewMatrix;", _vModelViewMtxName);
                 wl("vec4 tempPos = gl_ModelViewMatrix * gl_Vertex;");
                 wl("{0} = vec3(tempPos);", _vPositionName);
-                wl("{0} = gl_NormalMatrix * gl_Normal;", _vNormalName);
+                wl("{0} = normalize(gl_NormalMatrix * gl_Normal);", _vNormalName);
                 wl("{0} = gl_Color;", _vVtxColorsName[0]);
                 wl("{0} = gl_SecondaryColor;", _vVtxColorsName[1]);
 
@@ -524,11 +524,13 @@ namespace BrawlLib.Wii.Graphics
             string lightFuncName = "lightFunc" + index;
             string illumName = "illum" + index;
 
-            wl("vec4 {0}, {1}, {2};", matColorName, lightFuncName, illumName);
+            wl("vec4 {0}, {1}, {2} = {3};", matColorName, lightFuncName, illumName, vec4One);
 
             if (color.Enabled || alpha.Enabled)
             {
-                wl("{0} = {1};", illumName, _uSCNLightSetAmbLightName);
+                //Set SCN0 ambient color 
+                //TODO: Ignore alpha? Why would ambient light have an alpha enable if it isn't used?
+                wl("{0}.rgb = {1}.rgb;", illumName, _uSCNLightSetAmbLightName);
 
                 //Set material base color
                 GXColorSrc cAmbSrc = color.AmbientSource;
@@ -589,9 +591,8 @@ namespace BrawlLib.Wii.Graphics
                         wl();
 
                         //Create variables used by both attenuation passes only if either is used
-                        if (color.Attenuation != GXAttnFn.None// ||
-                            //    alpha.Attenuation != GXAttnFn.None
-                            )
+                        if (color.Attenuation != GXAttnFn.None ||
+                            alpha.Attenuation != GXAttnFn.None)
                         {
                             //Distance and angular quadratic coefficients
                             wl("float k0 = 1.0, k1 = 0.0, k2 = 0.0;");
@@ -605,8 +606,8 @@ namespace BrawlLib.Wii.Graphics
 
                         wl();
                         CalcAttn(color.Attenuation, true, illumName);
-                        //wl();
-                        //CalcAttn(alpha.Attenuation, false, illumName);
+                        wl();
+                        CalcAttn(alpha.Attenuation, false, illumName);
                     } //End if light enabled
                     CloseBracket();
                 } //End light loop
@@ -712,6 +713,8 @@ namespace BrawlLib.Wii.Graphics
 
                         break;
                     case GXAttnFn.Specular:
+
+                        //TODO: this doesn't work right
 
                         wl("k0 = {0}.{1}[0];", lightName, LightDistCoefsSpecName);
                         wl("k1 = {0}.{1}[1];", lightName, LightDistCoefsSpecName);
