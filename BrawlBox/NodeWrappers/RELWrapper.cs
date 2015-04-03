@@ -124,7 +124,7 @@ namespace BrawlBox.NodeWrappers
             RELNode r = _resource as RELNode;
             if (r._unresSect != -1)
             {
-                ModuleDataNode s = r._sections[r._unresIndex];
+                ModuleDataNode s = r._sections[r._unresSect];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
