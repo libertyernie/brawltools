@@ -833,10 +833,10 @@ namespace BrawlLib.SSBBTypes
         
         public LightChannel Channel1 
         { 
-            get { return new LightChannel(false, flags0, c00, c01, _colorCtrl00, _colorCtrl01); }
+            get { return new LightChannel(flags0, c00, c01, _colorCtrl00, _colorCtrl01, null); }
             set
             {
-                flags0 = value._flags;
+                flags0 = (uint)value._flags;
                 c00 = value.MaterialColor;
                 c01 = value.AmbientColor;
                 _colorCtrl00 = value._color._binary._data;
@@ -845,10 +845,10 @@ namespace BrawlLib.SSBBTypes
         }
         public LightChannel Channel2 
         { 
-            get { return new LightChannel(false, flags1, c10, c11, _colorCtrl10, _colorCtrl11); }
+            get { return new LightChannel(flags1, c10, c11, _colorCtrl10, _colorCtrl11, null); }
             set
             {
-                flags1 = value._flags;
+                flags1 = (uint)value._flags;
                 c10 = value.MaterialColor;
                 c11 = value.AmbientColor;
                 _colorCtrl10 = value._color._binary._data;

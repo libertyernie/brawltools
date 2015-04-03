@@ -54,10 +54,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         //internal int _embossSource;
         //internal int _embossLight;
 
-        internal int _texPtr;
-        internal int _pltPtr;
-        internal int _index1;
-        internal int _index2;
         internal int _uWrap;
         internal int _vWrap;
         internal int _minFltr;
@@ -250,10 +246,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             MDL0TextureRef* header = Header;
 
-            _texPtr = header->_texPtr;
-            _pltPtr = header->_pltPtr;
-            _index1 = header->_index1;
-            _index2 = header->_index2;
             _uWrap = header->_uWrap;
             _vWrap = header->_vWrap;
             _minFltr = header->_minFltr;
@@ -506,8 +498,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 InputForm = TexInputForm.AB11,
                 TexGenType = TexTexgenType.Regular,
                 SourceRow = TexSourceRow.TexCoord0,
-                EmbossSource = 4,
-                EmbossLight = 2
+                EmbossSource = 5,
+                EmbossLight = 0
             };
 
             _texture = Model.FindOrCreateTexture(_name);
@@ -540,8 +532,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             Parent.Children.Insert(index, this);
             Parent._changed = true;
 
-            _index1 = _index2 = index;
-
             return true;
         }
 
@@ -560,8 +550,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             Parent.Children.Remove(this);
             Parent.Children.Insert(index, this);
             Parent._changed = true;
-
-            _index1 = _index2 = index;
 
             return true;
         }

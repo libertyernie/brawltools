@@ -35,7 +35,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _ref6 = -1,
             _ref7 = -1;
 
-        public string _fragShaderSource = null;
+        public string[] _fragShaderSource = null;
 
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap0Red { get { return (ColorChannel)_swapBlock._Value01.XRB; } set { _swapBlock._Value01.XRB = value; SignalPropertyChange(); } }

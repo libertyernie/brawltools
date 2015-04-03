@@ -111,10 +111,10 @@ namespace BrawlLib.Modeling
                                     switch (i)
                                     {
                                         case 0:
-                                            shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                            shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
                                             break;
                                         case 1:
-                                            shadNode.AddChild(new TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.ConstantColor1_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.ColorChannel0, false));
+                                            shadNode.AddChild(new TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.ConstantColor1_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.LightChannel0, false));
                                             break;
                                         case 2:
                                             shadNode.AddChild(new TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
@@ -123,7 +123,7 @@ namespace BrawlLib.Modeling
                                 }
                                 break;
                             case ImportOptions.MDLType.Stage:
-                                shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.ColorChannel0, true));
+                                shadNode.AddChild(new TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_Value, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
                                 break;
                         }
 
@@ -188,7 +188,6 @@ namespace BrawlLib.Modeling
                                 matNode._children.Add(mr);
                                 mr._parent = matNode;
                                 mr._minFltr = mr._magFltr = 1;
-                                mr._index1 = mr._index2 = mr.Index;
                                 mr._uWrap = mr._vWrap = (int)_importOptions._wrap;
                             }
                             break;
@@ -507,23 +506,17 @@ namespace BrawlLib.Modeling
             Error = "There was a problem creating a default material and shader.";
             if (model._matList.Count == 0 && model._objList.Count != 0)
             {
-                MDL0MaterialNode mat = new MDL0MaterialNode();
-                MDL0ShaderNode shad = new MDL0ShaderNode();
+                MDL0MaterialNode mat = new MDL0MaterialNode() { Name = "Default", };
+                (mat.ShaderNode = new MDL0ShaderNode()).AddChild(new TEVStageNode()
+                {
+                    RasterColor = ColorSelChan.LightChannel0,
+                    AlphaSelectionD = AlphaArg.RasterAlpha,
+                    ColorSelectionD = ColorArg.RasterColor,
+                });
 
-                mat.Name = "Default";
-                mat.LightChannel0.Enabled = true;
-                mat.LightChannel0.MaterialColor = new RGBAPixel(128, 128, 128, 255);
-
-                TEVStageNode stage = new TEVStageNode();
-                stage.RasterColor = ColorSelChan.ColorChannel0;
-                stage.AlphaSelectionD = AlphaArg.RasterAlpha;
-                stage.ColorSelectionD = ColorArg.RasterColor;
-                shad.AddChild(stage);
-
-                model._shadGroup.AddChild(shad);
+                model._shadGroup.AddChild(mat.ShaderNode);
                 model._matGroup.AddChild(mat);
 
-                mat.ShaderNode = shad;
                 foreach (MDL0ObjectNode obj in model._objList)
                     obj.OpaMaterialNode = mat;
             }
@@ -607,8 +600,10 @@ namespace BrawlLib.Modeling
                     //Set materials to use register color if option set
                     if (_importOptions._useReg)
                     {
-                        p.LightChannel0.Enabled = true;
-                        p.LightChannel1.Enabled = false;
+                        p.LightChannel0.RasterColorEnabled = true;
+                        p.LightChannel0.RasterAlphaEnabled = true;
+                        p.LightChannel1.RasterColorEnabled = false;
+                        p.LightChannel1.RasterAlphaEnabled = false;
                         p.C1MaterialColor = _importOptions._dfltClr;
                         p.C1ColorMaterialSource = GXColorSrc.Register;
                         p.C1AlphaMaterialSource = GXColorSrc.Register;
@@ -617,13 +612,15 @@ namespace BrawlLib.Modeling
                     {
                         if (obj1._colorSet[0] != null)
                         {
-                            p.LightChannel0.Enabled = true;
+                            p.LightChannel0.RasterColorEnabled = true;
+                            p.LightChannel0.RasterAlphaEnabled = true;
                             p.C1AlphaMaterialSource = GXColorSrc.Vertex;
                             p.C1ColorMaterialSource = GXColorSrc.Vertex;
                         }
                         if (obj1._colorSet[1] != null)
                         {
-                            p.LightChannel1.Enabled = true;
+                            p.LightChannel1.RasterColorEnabled = true;
+                            p.LightChannel1.RasterAlphaEnabled = true;
                             p.C2AlphaMaterialSource = GXColorSrc.Vertex;
                             p.C2ColorMaterialSource = GXColorSrc.Vertex;
                         }
@@ -731,7 +728,7 @@ namespace BrawlLib.Modeling
             public bool _useReg = true;
             public bool _ignoreColors = false;
             public CullMode _culling = CullMode.Cull_None;
-            public RGBAPixel _dfltClr = new RGBAPixel(100, 100, 100, 255);
+            public RGBAPixel _dfltClr = new RGBAPixel(128, 128, 128, 255);
             public uint _cacheSize = 52;
             public uint _minStripLen = 2;
             public bool _pushCacheHits = true;

@@ -35,8 +35,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _normMapRefLight4 = -1;
             //_numLights = 1;
 
-            _chan1 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
-            _chan2 = new LightChannel(false, 15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
+            _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
+            _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
         }
 
         //Just settings some extra, more brawl-specific defaults here
@@ -68,14 +68,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal UserDataCollection _userEntries = new UserDataCollection();
 
         public byte
-            //_numLights,
             _indirectMethod1,
             _indirectMethod2,
             _indirectMethod3,
             _indirectMethod4,
             _activeStages,
             _activeIndStages,
-            _DepthTestBeforeTexture;
+            _depthTestBeforeTexture;
         public sbyte
             _normMapRefLight1,
             _normMapRefLight2,
@@ -87,29 +86,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public CullMode _cull = CullMode.Cull_None;
         public uint _texMtxFlags;
 
-        public LightChannel 
-            _chan1 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0),
-            _chan2 = new LightChannel(false, 15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0);
+        public LightChannel _chan1, _chan2;
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<XFData> XFCmds = new List<XFData>();
 
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
-        internal List<XFData> XFCmds = new List<XFData>();
-
-        //In order of appearance in display list:
-        //Mode block
-        internal GXAlphaFunction _alphaFunc = GXAlphaFunction.Default;
-        internal ZMode _zMode = ZMode.Default;
-        //Mask, does not allow changing the dither/update bits
-        internal Wii.Graphics.BlendMode _blendMode = Wii.Graphics.BlendMode.Default;
-        internal ConstantAlpha _constantAlpha = ConstantAlpha.Default;
-        //Tev Color Block
-        internal MatTevColorBlock _tevColorBlock = MatTevColorBlock.Default;
-        //Pad 4
-        //Tev Konstant Block
-        internal MatTevKonstBlock _tevKonstBlock = MatTevKonstBlock.Default;
-        //Pad 24
-        //Indirect texture scale for CMD stages
-        internal MatIndMtxBlock _indMtx = MatIndMtxBlock.Default;
-        //XF Texture matrix info
+        public GXAlphaFunction _alphaFunc = GXAlphaFunction.Default;
+        public ZMode _zMode = ZMode.Default;
+        public Wii.Graphics.BlendMode _blendMode = Wii.Graphics.BlendMode.Default;
+        public ConstantAlpha _constantAlpha = ConstantAlpha.Default;
+        public MatTevColorBlock _tevColorBlock = MatTevColorBlock.Default;
+        public MatTevKonstBlock _tevKonstBlock = MatTevKonstBlock.Default;
+        public MatIndMtxBlock _indMtx = MatIndMtxBlock.Default;
 
         #endregion
 
@@ -302,7 +289,7 @@ Those properties can use this color as an argument. This color is referred to as
         #region Depth Func
 
         [Category("Z Mode"), Description("Generally this should be false if using alpha function (transparency), as transparent pixels will change the depth.")]
-        public bool CompareBeforeTexture { get { return _DepthTestBeforeTexture != 0; } set { if (!CheckIfMetal()) _DepthTestBeforeTexture = (byte)(value ? 1 : 0); } }
+        public bool CompareBeforeTexture { get { return _depthTestBeforeTexture != 0; } set { if (!CheckIfMetal()) _depthTestBeforeTexture = (byte)(value ? 1 : 0); } }
         [Category("Z Mode"), Description("Determines if this material's pixels should be compared to other pixels in order to obscure or be obscured.")]
         public bool EnableDepthTest { get { return _zMode.EnableDepthTest; } set { if (!CheckIfMetal()) _zMode.EnableDepthTest = value;  } }
         [Category("Z Mode")]
@@ -731,7 +718,6 @@ For example, if the shader has two stages but this number is 1, the second stage
 
                         AddChild(mr);
                         mr.Texture = "metal00";
-                        mr._index1 = mr._index2 = i;
 
                         mr._bindState = TextureFrameState.Neutral;
                         mr._texMatrixEffect.TextureMatrix = Matrix34.Identity;
@@ -744,8 +730,8 @@ For example, if the shader has two stages but this number is 1, the second stage
                             InputForm = TexInputForm.ABC1,
                             TexGenType = TexTexgenType.Regular,
                             SourceRow = TexSourceRow.Normals,
-                            EmbossSource = 4,
-                            EmbossLight = 2,
+                            EmbossSource = 5,
+                            EmbossLight = 0,
                         };
 
                         if (i == MetalMaterial.Children.Count)
@@ -770,13 +756,13 @@ For example, if the shader has two stages but this number is 1, the second stage
                         }
 
                         info.TexGenType = TexTexgenType.Regular;
-                        info.EmbossSource = 4;
-                        info.EmbossLight = 2;
+                        info.EmbossSource = 5;
+                        info.EmbossLight = 0;
 
                         mr._texMtxFlags = info;
                     }
 
-                    _chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
+                    _chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
                     C1ColorEnabled = true;
                     C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
                     C1ColorAttenuation = GXAttnFn.Spotlight;
@@ -784,7 +770,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                     C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
                     C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                    _chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, this);
+                    _chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, this);
                     C2ColorEnabled = true;
                     C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
                     C2ColorAttenuation = GXAttnFn.Specular;
@@ -877,7 +863,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
             _activeStages = header->_activeTEVStages;
             _activeIndStages = header->_numIndTexStages;
-            _DepthTestBeforeTexture = header->_depthTestBeforeTexture;
+            _depthTestBeforeTexture = header->_depthTestBeforeTexture;
 
             _lightSetIndex = header->_lightSet;
             _fogIndex = header->_fogSet;
@@ -907,10 +893,6 @@ For example, if the shader has two stages but this number is 1, the second stage
 
             (_chan1 = Light->Channel1)._parent = this;
             (_chan2 = Light->Channel2)._parent = this;
-
-            int lightCount = header->_numLightChans;
-            _chan1._enabled = lightCount != 0;
-            _chan2._enabled = lightCount == 2;
 
             (_userEntries = new UserDataCollection()).Read(header->UserData(_initVersion));
             
@@ -1019,29 +1001,16 @@ For example, if the shader has two stages but this number is 1, the second stage
                     node._texMatrixEffect.SCNLight = -1;
                     node._texMatrixEffect.MapMode = MappingMethod.TexCoord;
 
-                    //Tex Mtx
-                    node._texMtxFlags = new XFTexMtxInfo()
-                    {
-                        Projection = TexProjection.ST,
-                        InputForm = TexInputForm.AB11,
-                        TexGenType = TexTexgenType.Regular,
-                        SourceRow = TexSourceRow.TexCoord0,
-                        EmbossSource = 4,
-                        EmbossLight = 2
-                    };
-                    XFCmds.Add(new XFData()
-                    {
-                        _addr = (XFMemoryAddr)i1,
-                        _values = new List<uint>() { node._texMtxFlags._data }
-                    });
-
-                    //Dual Tex
                     node._dualTexFlags = new XFDualTex(mtx, 0);
-                    XFCmds.Add(new XFData()
-                    {
-                        _addr = (XFMemoryAddr)i2,
-                        _values = new List<uint>() { node._dualTexFlags.Value }
-                    });
+                    node._texMtxFlags = new XFTexMtxInfo(
+                        TexProjection.ST,
+                        TexInputForm.AB11,
+                        TexTexgenType.Regular,
+                        TexSourceRow.TexCoord0,
+                        5, 0);
+                    
+                    XFCmds.Add(new XFData(i1, node._texMtxFlags._data));
+                    XFCmds.Add(new XFData(i2, node._dualTexFlags.Value));
                 }
             }
 
@@ -1051,21 +1020,11 @@ For example, if the shader has two stages but this number is 1, the second stage
             header->_index = Index;
             header->_activeTEVStages = (byte)_activeStages;
             header->_numIndTexStages = _activeIndStages;
-            header->_depthTestBeforeTexture = _DepthTestBeforeTexture;
+            header->_depthTestBeforeTexture = _depthTestBeforeTexture;
 
             byte lights = 0;
-            bool c1 = _chan1._enabled, c2 = _chan2._enabled;
-            //Don't swap, not necessary
-            //Still strange to not use the first before the second though
-            //if (c2 && !c1)
-            //{
-            //    //Swap channels. First must be enabled before second
-            //    LightChannel temp = _chan1;
-            //    _chan1 = _chan2;
-            //    _chan2 = temp;
-            //}
-            if (c1) lights++;
-            if (c2) lights++;
+            if (_chan1.RasterColorEnabled || _chan1.RasterAlphaEnabled) lights++;
+            if (_chan2.RasterColorEnabled || _chan2.RasterAlphaEnabled) lights++;
             header->_numLightChans = lights;
 
             header->_lightSet = _lightSetIndex;
@@ -1566,7 +1525,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                     new Vector3(1.0f, 0.0f, 0.0f),
                     true,
                     viewport.Specular,
-                    SCN0LightNode.GetSpecShineDistCoefs(128.0f));
+                    SCN0LightNode.GetSpecShineDistCoefs(64.0f));
                 _ambientLight = viewport.Ambient;
             }
         }
@@ -1611,23 +1570,110 @@ For example, if the shader has two stages but this number is 1, the second stage
     public class LightChannel
     {
         public MDL0MaterialNode _parent = null;
+        public LightingChannelFlags _flags;
+        public RGBAPixel _matColor, _ambColor;
+        public LightChannelControl _color, _alpha;
 
-        public LightChannel(bool enabled, uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material) : this(enabled, flags, mat, amb, color, alpha) { _parent = material; }
-        public LightChannel(bool enabled, uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha)
+        public LightChannel(uint flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material)
+            : this((LightingChannelFlags)flags, mat, amb, color, alpha, material) { }
+        
+        public LightChannel(LightingChannelFlags flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material)
         {
-            _enabled = enabled;
+            _parent = material;
             _flags = flags;
             _matColor = mat;
             _ambColor = amb;
-            _color = new LightChannelControl(color) { _parent = this };
-            _alpha = new LightChannelControl(alpha) { _parent = this };
+            _color = new LightChannelControl(color, this);
+            _alpha = new LightChannelControl(alpha, this);
         }
 
         [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the ColorChannel property in shader stages.")]
-        public bool Enabled { get { return _enabled; } set { _enabled = value; _parent.SignalPropertyChange(); } }
+        public bool RasterColorEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseChanColor); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseChanColor;
+                else
+                    _flags &= LightingChannelFlags.UseChanColor;
 
-        [Category("Lighting Channel")]
-        public LightingChannelFlags Flags { get { return (LightingChannelFlags)_flags; } set { _flags = (uint)value; _parent.SignalPropertyChange(); } }
+                _parent.SignalPropertyChange();
+            }
+        }
+        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the ColorChannel property in shader stages.")]
+        public bool RasterAlphaEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseChanAlpha); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseChanAlpha;
+                else
+                    _flags &= LightingChannelFlags.UseChanAlpha;
+
+                _parent.SignalPropertyChange();
+            }
+        }
+        [Category("Lighting Channel"), Description("Determines if this channel should multiply the ambient color by the attached SCN0 lightset's ambient color.")]
+        public bool AmbientColorEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseAmbColor); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseAmbColor;
+                else
+                    _flags &= LightingChannelFlags.UseAmbColor;
+
+                _parent.SignalPropertyChange();
+            }
+        }
+        [Category("Lighting Channel"), Description("Determines if this channel should multiply the ambient alpha by the attached SCN0 lightset's ambient alpha.")]
+        public bool AmbientAlphaEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseAmbAlpha); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseAmbAlpha;
+                else
+                    _flags &= LightingChannelFlags.UseAmbAlpha;
+
+                _parent.SignalPropertyChange();
+            }
+        }
+        [Category("Lighting Channel"), Description("Determines if this channel should multiply the material color by the attached SCN0 lightset's final lighting color.")]
+        public bool MaterialColorEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseMatColor); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseMatColor;
+                else
+                    _flags &= LightingChannelFlags.UseMatColor;
+
+                _parent.SignalPropertyChange();
+            }
+        }
+        [Category("Lighting Channel"), Description("Determines if this channel should multiply the material alpha by the attached SCN0 lightset's final lighting alpha.")]
+        public bool MaterialAlphaEnabled
+        {
+            get { return _flags.HasFlag(LightingChannelFlags.UseMatAlpha); }
+            set
+            {
+                if (value)
+                    _flags |= LightingChannelFlags.UseMatAlpha;
+                else
+                    _flags &= LightingChannelFlags.UseMatAlpha;
+
+                _parent.SignalPropertyChange();
+            }
+        }
+
+        [Category("Lighting Channel"), Browsable(false)]
+        public LightingChannelFlags Flags { get { return _flags; } set { _flags = value; _parent.SignalPropertyChange(); } }
 
         [Category("Lighting Channel"), TypeConverter(typeof(RGBAStringConverter))]
         public RGBAPixel MaterialColor { get { return _matColor; } set { _matColor = value; _parent.SignalPropertyChange(); } }
@@ -1721,11 +1767,6 @@ For example, if the shader has two stages but this number is 1, the second stage
             get { return _alpha.Lights; }
             set { _alpha.Lights = value; _parent.SignalPropertyChange(); }
         }
-
-        public bool _enabled;
-        public uint _flags;
-        public RGBAPixel _matColor, _ambColor;
-        public LightChannelControl _color, _alpha;
     }
 
     public enum GXColorSrc
@@ -1775,9 +1816,18 @@ For example, if the shader has two stages but this number is 1, the second stage
 
     public class LightChannelControl
     {
-        public LightChannel _parent;
+        internal LightChannel _parent;
 
-        public LightChannelControl(uint ctrl) { _binary = new Bin32(ctrl); }
+        public LightChannelControl(uint ctrl)
+        {
+            _parent = null;
+            _binary = new Bin32(ctrl);
+        }
+        public LightChannelControl(uint ctrl, LightChannel parent)
+        {
+            _parent = parent;
+            _binary = new Bin32(ctrl);
+        }
 
         public Bin32 _binary;
 

@@ -30,6 +30,27 @@ namespace BrawlLib.Wii.Graphics
 
         public XFData() { }
         public XFData(XFMemoryAddr mem) { _addr = mem; }
+        public XFData(ushort mem) { _addr = (XFMemoryAddr)mem; }
+        public XFData(XFMemoryAddr mem, List<uint> values)
+        {
+            _addr = mem;
+            _values = values;
+        }
+        public XFData(ushort mem, List<uint> values)
+        {
+            _addr = (XFMemoryAddr)mem;
+            _values = values;
+        }
+        public XFData(XFMemoryAddr mem, params uint[] values)
+        {
+            _addr = mem;
+            _values = values.ToList();
+        }
+        public XFData(ushort mem, params uint[] values)
+        {
+            _addr = (XFMemoryAddr)mem;
+            _values = values.ToList();
+        }
 
         public unsafe static List<XFData> Parse(VoidPtr address)
         {
@@ -92,6 +113,22 @@ namespace BrawlLib.Wii.Graphics
         public int EmbossLight { get { return (int)_data[15, 17]; } set { _data[15, 17] = (uint)value; } }
 
         public XFTexMtxInfo(uint value) { _data = value; }
+        public XFTexMtxInfo(
+            TexProjection projection,
+            TexInputForm inputForm,
+            TexTexgenType genType,
+            TexSourceRow sourceRow,
+            int embossSource,
+            int embossLight)
+        {
+            _data = 0;
+            Projection = projection;
+            InputForm = inputForm;
+            TexGenType = genType;
+            SourceRow = sourceRow;
+            EmbossSource = embossSource;
+            EmbossLight = embossLight;
+        }
 
         public override string ToString()
         {
