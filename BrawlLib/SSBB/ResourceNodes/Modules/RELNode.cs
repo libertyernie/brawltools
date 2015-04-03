@@ -340,7 +340,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         }
 
                         if (section != null)
-                            section._manager.SetCommand(offset.RoundDown(4) / 4, new RelCommand(x, section.Index, link));
+                            section._manager.SetCommand(offset.RoundDown(4) / 4, new RelCommand(x, section, link));
                     }
                 i++;
             }

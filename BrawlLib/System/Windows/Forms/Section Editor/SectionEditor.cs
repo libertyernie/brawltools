@@ -652,7 +652,7 @@ namespace System.Windows.Forms
         {
             RelCommand cmd = new RelCommand(
                 (_section.Root as ModuleNode).ID,
-                _section.Index,
+                _section,
                 new RELLink());
 
             _manager.SetCommand(SelectedRelocationIndex, cmd);
