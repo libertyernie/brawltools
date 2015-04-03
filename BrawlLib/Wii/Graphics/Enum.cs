@@ -172,7 +172,7 @@ namespace BrawlLib.Wii.Graphics
         Alpha2,
     }
 
-    public enum TevOp
+    public enum TevColorOp
     {
         Add = 0,
         Subtract = 1,
@@ -190,6 +190,14 @@ namespace BrawlLib.Wii.Graphics
         //GX_TEV_COMP_A8_EQ = GX_TEV_COMP_RGB8_EQ  // for alpha channel
     }
 
+    public enum TevAlphaOp
+    {
+        Add = 0,
+        Subtract = 1,
+        
+        CompA8Greater = 14,
+        CompA8Equal = 15,
+    }
     public enum BlendFactor
     {
         //GX_BL_ZERO,
@@ -287,8 +295,8 @@ namespace BrawlLib.Wii.Graphics
     public enum ColorSelChan
     {
         //Rasterized color selections
-        ColorChannel0,//RAS1_CC_0 = 0, // Color channel 0 
-        ColorChannel1,//RAS1_CC_1 = 1, // Color channel 1 
+        LightChannel0,//RAS1_CC_0 = 0, // Color channel 0 
+        LightChannel1,//RAS1_CC_1 = 1, // Color channel 1 
         BumpAlpha = 5,//RAS1_CC_B = 5, // Indirect texture bump alpha 
         NormalizedBumpAlpha = 6,//RAS1_CC_BN = 6, // Indirect texture bump alpha, normalized 0-255 
         Zero = 7,//RAS1_CC_Z = 7 // Set color value to zero 

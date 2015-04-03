@@ -220,15 +220,13 @@ This stage will grab a pixel fragment from the selected texture reference mapped
         public TexCoordID TextureCoordID { get { return _texCoord; } set { _texCoord = value; SignalPropertyChange(); } }
         [Category("a TEV Fragment Sources"), DisplayName("Texture Swap Selection")]
         public TevSwapSel TextureSwap { get { return _alphaEnv.TSwap; } set { _alphaEnv.TSwap = value; SignalPropertyChange(); } }
-        [Category("a TEV Fragment Sources"), DisplayName("Color Source"), Description(
-@"Retrieves a color outputted from the material. This DOES NOT get a color straight from color nodes!
-ColorChannel0 retrieves the color from the material's LightChannel0.
-ColorChannel1 retrieves the color from the material's LightChannel1.
+        [Category("a TEV Fragment Sources"), DisplayName("Raster Color"), Description(
+@"Retrieves a color outputted from the material's light channels. This DOES NOT get a color straight from color nodes!
 BumpAlpha retrieves a color from ???
 NormalizedBumpAlpha is the same as Bump Alpha, but normalized to the range [0.0, 1.0].
 Zero returns a color with all channels set to 0.")]
         public ColorSelChan RasterColor { get { return _colorChan; } set { _colorChan = value; SignalPropertyChange(); } }
-        [Category("a TEV Fragment Sources"), DisplayName("Color Swap Selection")]
+        [Category("a TEV Fragment Sources"), DisplayName("Raster Swap Selection")]
         public TevSwapSel RasterSwap { get { return _alphaEnv.RSwap; } set { _alphaEnv.RSwap = value; SignalPropertyChange(); } }
         const string _colorArgDesc =
 @"
@@ -279,7 +277,7 @@ Note that CLR0 animations can stream RGBA colors into the material's Color and K
         public Bias ColorBias { get { return _colorEnv.Bias; } set { _colorEnv.Bias = value; SignalPropertyChange(); } }
 
         [Category("b TEV Color Output"), DisplayName("Operation"), Description("Refer to the ColorOutput property to see effect.")]
-        public TevOp ColorOperation { get { return _colorEnv.Operation; } set { _colorEnv.Operation = value; SignalPropertyChange(); } }
+        public TevColorOp ColorOperation { get { return _colorEnv.Operation; } set { _colorEnv.Operation = value; SignalPropertyChange(); } }
         [Category("b TEV Color Output"), DisplayName("Clamp"), Description("If true, the final output color channels will be clamped to the range [0, 1].")]
         public bool ColorClamp { get { return _colorEnv.Clamp; } set { _colorEnv.Clamp = value; SignalPropertyChange(); } }
 
@@ -307,7 +305,7 @@ Register2: sets the color of the 3rd color register in the material's TEV Color 
         public Bias AlphaBias { get { return _alphaEnv.Bias; } set { _alphaEnv.Bias = value; SignalPropertyChange(); } }
 
         [Category("c TEV Alpha Output"), DisplayName("Operation"), Description("Refer to the AlphaOutput property to see effect.")]
-        public TevOp AlphaOperation { get { return _alphaEnv.Operation; } set { _alphaEnv.Operation = value; SignalPropertyChange(); } }
+        public TevAlphaOp AlphaOperation { get { return _alphaEnv.Operation; } set { _alphaEnv.Operation = value; SignalPropertyChange(); } }
         [Category("c TEV Alpha Output"), DisplayName("Clamp"), Description("If true, the final output alpha will be clamped to the range [0, 1].")]
         public bool AlphaClamp { get { return _alphaEnv.Clamp; } set { _alphaEnv.Clamp = value; SignalPropertyChange(); } }
 
@@ -423,6 +421,114 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             if (Parent != null)
                 ((MDL0ShaderNode)Parent)._fragShaderSource = null;
             base.SignalPropertyChange();
+        }
+
+        public bool AnyTextureSourceUsed()
+        {
+            return 
+                ColorSelectionA == ColorArg.TextureColor ||
+                ColorSelectionA == ColorArg.TextureAlpha ||
+                ColorSelectionB == ColorArg.TextureColor ||
+                ColorSelectionB == ColorArg.TextureAlpha ||
+                ColorSelectionC == ColorArg.TextureColor ||
+                ColorSelectionC == ColorArg.TextureAlpha ||
+                ColorSelectionD == ColorArg.TextureColor ||
+                ColorSelectionD == ColorArg.TextureAlpha ||
+                AlphaSelectionA == AlphaArg.TextureAlpha ||
+                AlphaSelectionB == AlphaArg.TextureAlpha ||
+                AlphaSelectionC == AlphaArg.TextureAlpha ||
+                AlphaSelectionD == AlphaArg.TextureAlpha;
+        }
+
+        public bool AnyRasterSourceUsed()
+        {
+            return
+                ColorSelectionA == ColorArg.RasterColor ||
+                ColorSelectionA == ColorArg.RasterAlpha ||
+                ColorSelectionB == ColorArg.RasterColor ||
+                ColorSelectionB == ColorArg.RasterAlpha ||
+                ColorSelectionC == ColorArg.RasterColor ||
+                ColorSelectionC == ColorArg.RasterAlpha ||
+                ColorSelectionD == ColorArg.RasterColor ||
+                ColorSelectionD == ColorArg.RasterAlpha ||
+                AlphaSelectionA == AlphaArg.RasterAlpha ||
+                AlphaSelectionB == AlphaArg.RasterAlpha ||
+                AlphaSelectionC == AlphaArg.RasterAlpha ||
+                AlphaSelectionD == AlphaArg.RasterAlpha;
+        }
+
+        public bool AnyConstantColorSourceUsed()
+        {
+            return
+                ColorSelectionA == ColorArg.ConstantColorSelection ||
+                ColorSelectionB == ColorArg.ConstantColorSelection ||
+                ColorSelectionC == ColorArg.ConstantColorSelection ||
+                ColorSelectionD == ColorArg.ConstantColorSelection;
+        }
+        public bool AnyConstantAlphaSourceUsed()
+        {
+            return
+                AlphaSelectionA == AlphaArg.ConstantAlphaSelection ||
+                AlphaSelectionB == AlphaArg.ConstantAlphaSelection ||
+                AlphaSelectionC == AlphaArg.ConstantAlphaSelection ||
+                AlphaSelectionD == AlphaArg.ConstantAlphaSelection;
+        }
+
+        public bool AnyReg0Used()
+        {
+            return
+                ColorSelectionA == ColorArg.Color0 ||
+                ColorSelectionA == ColorArg.Alpha0 ||
+                ColorSelectionB == ColorArg.Color0 ||
+                ColorSelectionB == ColorArg.Alpha0 ||
+                ColorSelectionC == ColorArg.Color0 ||
+                ColorSelectionC == ColorArg.Alpha0 ||
+                ColorSelectionD == ColorArg.Color0 ||
+                ColorSelectionD == ColorArg.Alpha0 ||
+                AlphaSelectionA == AlphaArg.Alpha0 ||
+                AlphaSelectionB == AlphaArg.Alpha0 ||
+                AlphaSelectionC == AlphaArg.Alpha0 ||
+                AlphaSelectionD == AlphaArg.Alpha0 ||
+                ColorRegister == TevColorRegID.Color0 ||
+                AlphaRegister == TevAlphaRegID.Alpha0;
+        }
+
+        public bool AnyReg1Used()
+        {
+            return
+                ColorSelectionA == ColorArg.Color1 ||
+                ColorSelectionA == ColorArg.Alpha1 ||
+                ColorSelectionB == ColorArg.Color1 ||
+                ColorSelectionB == ColorArg.Alpha1 ||
+                ColorSelectionC == ColorArg.Color1 ||
+                ColorSelectionC == ColorArg.Alpha1 ||
+                ColorSelectionD == ColorArg.Color1 ||
+                ColorSelectionD == ColorArg.Alpha1 ||
+                AlphaSelectionA == AlphaArg.Alpha1 ||
+                AlphaSelectionB == AlphaArg.Alpha1 ||
+                AlphaSelectionC == AlphaArg.Alpha1 ||
+                AlphaSelectionD == AlphaArg.Alpha1 ||
+                ColorRegister == TevColorRegID.Color1 ||
+                AlphaRegister == TevAlphaRegID.Alpha1;
+        }
+
+        public bool AnyReg2Used()
+        {
+            return
+                ColorSelectionA == ColorArg.Color2 ||
+                ColorSelectionA == ColorArg.Alpha2 ||
+                ColorSelectionB == ColorArg.Color2 ||
+                ColorSelectionB == ColorArg.Alpha2 ||
+                ColorSelectionC == ColorArg.Color2 ||
+                ColorSelectionC == ColorArg.Alpha2 ||
+                ColorSelectionD == ColorArg.Color2 ||
+                ColorSelectionD == ColorArg.Alpha2 ||
+                AlphaSelectionA == AlphaArg.Alpha2 ||
+                AlphaSelectionB == AlphaArg.Alpha2 ||
+                AlphaSelectionC == AlphaArg.Alpha2 ||
+                AlphaSelectionD == AlphaArg.Alpha2 ||
+                ColorRegister == TevColorRegID.Color2 ||
+                AlphaRegister == TevAlphaRegID.Alpha2;
         }
     }
 }

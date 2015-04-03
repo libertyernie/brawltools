@@ -19,7 +19,7 @@ namespace BrawlLib.Wii.Graphics
         //Determines if the final shader should be written to the console for review
         static bool AlwaysOutputShader = false;
 
-        static bool DoTrunc = true;
+        static bool DoTrunc = false;
 
         //The GLSL version to be used.
         //120 is the only supported version right now because it's the most compatible version
@@ -167,7 +167,7 @@ namespace BrawlLib.Wii.Graphics
                 //wl("{0} = gl_ModelViewMatrix;", _vModelViewMtxName);
                 wl("vec4 tempPos = gl_ModelViewMatrix * gl_Vertex;");
                 wl("{0} = vec3(tempPos);", _vPositionName);
-                wl("{0} = normalize(gl_NormalMatrix * gl_Normal);", _vNormalName);
+                wl("{0} = gl_NormalMatrix * gl_Normal;", _vNormalName);
                 wl("{0} = gl_Color;", _vVtxColorsName[0]);
                 wl("{0} = gl_SecondaryColor;", _vVtxColorsName[1]);
 
@@ -529,8 +529,15 @@ namespace BrawlLib.Wii.Graphics
             if (color.Enabled || alpha.Enabled)
             {
                 //Set SCN0 ambient color 
-                //TODO: Ignore alpha? Why would ambient light have an alpha enable if it isn't used?
-                wl("{0}.rgb = {1}.rgb;", illumName, _uSCNLightSetAmbLightName);
+                if (color.Enabled && alpha.Enabled)
+                    wl("{0} = {1};", illumName, _uSCNLightSetAmbLightName);
+                else
+                {
+                    if (color.Enabled)
+                        wl("{0}.rgb = {1}.rgb;", illumName, _uSCNLightSetAmbLightName);
+                    if (alpha.Enabled)
+                        wl("{0}.a = {1}.a;", illumName, _uSCNLightSetAmbLightName);
+                }
 
                 //Set material base color
                 GXColorSrc cAmbSrc = color.AmbientSource;
@@ -604,10 +611,16 @@ namespace BrawlLib.Wii.Graphics
                             wl("vec3 {0} = gl_NormalMatrix * {1}.{2};", lightDirName, lightName, LightDirName);
                         }
 
-                        wl();
-                        CalcAttn(color.Attenuation, true, illumName);
-                        wl();
-                        CalcAttn(alpha.Attenuation, false, illumName);
+                        if (color.Enabled)
+                        {
+                            wl();
+                            CalcAttn(color.Attenuation, true, illumName);
+                        }
+                        if (alpha.Enabled)
+                        {
+                            wl();
+                            CalcAttn(alpha.Attenuation, false, illumName);
+                        }
                     } //End if light enabled
                     CloseBracket();
                 } //End light loop
@@ -714,29 +727,23 @@ namespace BrawlLib.Wii.Graphics
                         break;
                     case GXAttnFn.Specular:
 
-                        //TODO: this doesn't work right
-
                         wl("k0 = {0}.{1}[0];", lightName, LightDistCoefsSpecName);
                         wl("k1 = {0}.{1}[1];", lightName, LightDistCoefsSpecName);
                         wl("k2 = {0}.{1}[2];", lightName, LightDistCoefsSpecName);
-                        wl("a0 = 1.0;");
+                        wl("a0 = 0.0;");
                         wl("a1 = 0.0;");
-                        wl("a2 = 0.0;");
+                        wl("a2 = 1.0;");
 
                         //Use specular color
                         wl("{0}{3} = {1}.{2}{3};", lightColorName, lightName, LightSpecColorName, part);
 
-                        //Get half vector
-                        string viewDir = "viewDir";
                         string halfVecName = "halfVec";
-
-                        //Set view direction
-                        wl("vec3 {0} = normalize(-{1});",
-                            viewDir, _vPositionName);
-
-                        //Make half vector
-                        wl("vec3 {0} = normalize({1} + {2});",
-                            halfVecName, lightDirName, viewDir);
+                        //wl("vec3 {0} = vec3(-{1}.x, -{1}.y, -{1}.z + 1.0);",
+                        //    halfVecName, lightVecName);
+                        //wl("{0} = normalize({0} / length({0}));",
+                        //    halfVecName);
+                        wl("vec3 {0} = normalize({1} + normalize(-{2}));",
+                            halfVecName, lightVecName, _vPositionName);
 
                         //Set dist
                         wl("{0}{4} = {1} > 0.0 ? satlf(dot(normalize({2}), {3})): 0.0;",
@@ -763,27 +770,54 @@ namespace BrawlLib.Wii.Graphics
             wl("{0}{4} += ({3}{4} * {1}{2});", illumName, attnName, suffix, lightColorName, part);
         }
 
-        public static string GenTEVFragShader()
+        public static string[] GenTEVFragShader()
         {
+            BuildSwapModeTable(_shaderNode);
+
             _vertex = false;
             Reset();
 
-            //TODO: find out which of these are actually needed later
-            for (int i = 1; i < 4; i++)
-                wl("vec4 {0} = {1};", _outReg[i], _defaultRegisterValues[i]);
-            wl("vec4 {0}, {1}, {2};", _texColorName, _rasColorName, _constColorName);
-            wl();
+            string[] arr = new string[_shaderNode.Children.Count + 1];
 
+            bool usesTex = false;
+            bool usesRas = false;
+            bool usesConst = false;
+            bool[] usesReg = new bool[3];
+            
+            int x = 1;
             foreach (TEVStageNode stage in _shaderNode.Children)
             {
+                if (!usesTex) usesTex = stage.AnyTextureSourceUsed();
+                if (!usesRas) usesRas = stage.AnyRasterSourceUsed();
+                if (!usesConst) usesConst = stage.AnyConstantColorSourceUsed() || stage.AnyConstantAlphaSourceUsed();
+                if (!usesReg[0]) usesReg[0] = stage.AnyReg0Used();
+                if (!usesReg[1]) usesReg[1] = stage.AnyReg1Used();
+                if (!usesReg[2]) usesReg[2] = stage.AnyReg2Used();
+
                 string error = WriteStage(stage);
                 if (error != null)
-                    return error;
+                    return new string[] { error };
 
                 wl();
+
+                arr[x++] = _shaderCode;
+                Reset();
             }
 
-            return _shaderCode;
+            for (int i = 1; i < 4; i++)
+                if (usesReg[i - 1])
+                    wl("vec4 {0} = {1};", _outReg[i], _defaultRegisterValues[i]);
+
+            if (usesTex) wl("vec4 {0};", _texColorName);
+            if (usesRas) wl("vec4 {0};", _rasColorName);
+            if (usesConst) wl("vec4 {0};", _constColorName);
+
+            wl();
+
+            arr[0] = _shaderCode;
+            Reset();
+
+            return arr;
         }
 
         public static string WriteStage(TEVStageNode stage)
@@ -796,57 +830,42 @@ namespace BrawlLib.Wii.Graphics
             string rswap = swapModeTable[(int)stage.RasterSwap];
             string tswap = swapModeTable[(int)stage.TextureSwap];
 
-            //Set constant values
-            wl(_constColorName + ".rgb = {0};", _cConst[(int)stage.ConstantColorSelection]);
-            wl(_constColorName + ".a = {0};", _aConst[(int)stage.ConstantAlphaSelection]);
+            if (stage.AnyConstantColorSourceUsed())
+                wl(_constColorName + ".rgb = {0};", _cConst[(int)stage.ConstantColorSelection]);
+            if (stage.AnyConstantAlphaSourceUsed())
+                wl(_constColorName + ".a = {0};", _aConst[(int)stage.ConstantAlphaSelection]);
 
-            bool anyTexUsed =
-                stage.ColorSelectionA == ColorArg.TextureColor ||
-                stage.ColorSelectionA == ColorArg.TextureAlpha ||
-                stage.ColorSelectionB == ColorArg.TextureColor ||
-                stage.ColorSelectionB == ColorArg.TextureAlpha ||
-                stage.ColorSelectionC == ColorArg.TextureColor ||
-                stage.ColorSelectionC == ColorArg.TextureAlpha ||
-                stage.ColorSelectionD == ColorArg.TextureColor ||
-                stage.ColorSelectionD == ColorArg.TextureAlpha ||
-                stage.AlphaSelectionA == AlphaArg.TextureAlpha ||
-                stage.AlphaSelectionB == AlphaArg.TextureAlpha ||
-                stage.AlphaSelectionC == AlphaArg.TextureAlpha ||
-                stage.AlphaSelectionD == AlphaArg.TextureAlpha;
-
-            //Set texture and raster colors.
-            //Don't bother if texture isn't used, and can't continue it usage isn't enabled
-            if (stage.TextureEnabled && anyTexUsed)
+            if (stage.AnyTextureSourceUsed())
             {
-                int mapID = (int)stage.TextureMapID;
-                int coordID = (int)stage.TextureCoordID;
+                if (stage.TextureEnabled)
+                {
+                    int mapID = (int)stage.TextureMapID;
+                    int coordID = (int)stage.TextureCoordID;
 
-                //int objectCoordID = ((MDL0MaterialRefNode)_material.Children[mapID]).TextureCoordId;
-                //if (objectCoordID >= 0 && _object._manager._faceData[objectCoordID + 4] == null)
-                //    return HandleProblem(String.Format("Error in {0}: TextureCoordID refers to coordinate {2} which does not exist in object '{1}'.", identifier, _object.Name, objectCoordID));
-                //if (mapID >= _material.Children.Count)
-                //    return HandleProblem(String.Format("Error in {0}: TextureMapID refers to map {2} which does not exist in material '{1}'.", identifier, _material.Name, mapID));
-
-                wl(_texColorName + " = texture2D(texture{0}, gl_TexCoord[{1}].st).{2};",
-                    mapID.ToString(), coordID.ToString(), tswap);
+                    wl(_texColorName + " = texture2D(texture{0}, gl_TexCoord[{1}].st).{2};",
+                        mapID.ToString(), coordID.ToString(), tswap);
+                }
+                else
+                    wl(_texColorName + " = {0};", vec4Zero);
             }
 
-            switch (stage.RasterColor)
-            {
-                case ColorSelChan.ColorChannel0:
-                case ColorSelChan.ColorChannel1:
-                    int id = (int)stage.RasterColor - (int)ColorSelChan.ColorChannel0;
-                    wl(_rasColorName + " = {0}{1}.{2};", LightChannelName, id.ToString(), rswap);
-                    break;
-                case ColorSelChan.BumpAlpha:
-                case ColorSelChan.NormalizedBumpAlpha:
-                //WHAT DO?
-                //break;
-                case ColorSelChan.Zero:
-                default:
-                    wl(_rasColorName + " = {0};", vec4Zero);
-                    break;
-            }
+            if (stage.AnyRasterSourceUsed())
+                switch (stage.RasterColor)
+                {
+                    case ColorSelChan.LightChannel0:
+                    case ColorSelChan.LightChannel1:
+                        int id = (int)stage.RasterColor - (int)ColorSelChan.LightChannel0;
+                        wl(_rasColorName + " = {0}{1}.{2};", LightChannelName, id.ToString(), rswap);
+                        break;
+                    case ColorSelChan.BumpAlpha:
+                    case ColorSelChan.NormalizedBumpAlpha:
+                    //WHAT DO?
+                    //break;
+                    case ColorSelChan.Zero:
+                    default:
+                        wl(_rasColorName + " = {0};", vec4Zero);
+                        break;
+                }
 
             string reg, a, b, c, d;
 
@@ -861,15 +880,15 @@ namespace BrawlLib.Wii.Graphics
             c = TruncCSel((int)color.SelC);
             d = TruncCSel((int)color.SelD);
 
-            TevOp operation = color.Operation;
-            if ((int)operation <= 1)
+            TevColorOp cOp = color.Operation;
+            if ((int)cOp <= 1)
             {
                 int bias = (int)color.Bias;
                 int scale = (int)color.Shift;
 
                 wl(String.Format("{0} = ({4} {5} (mix({1},{2},{3})){6}){7};",
                     reg, a, b, c, d,
-                    operation == TevOp.Add ? "+" : "-",
+                    cOp == TevColorOp.Add ? "+" : "-",
                     _tevBiasName[bias],
                     _tevScaleName[scale]));
                 if (color.Clamp)
@@ -891,15 +910,15 @@ namespace BrawlLib.Wii.Graphics
             c = TruncASel((int)alpha.SelC);
             d = TruncASel((int)alpha.SelD);
 
-            operation = alpha.Operation;
-            if ((int)operation <= 1)
+            TevAlphaOp aOp = alpha.Operation;
+            if ((int)aOp <= 1)
             {
                 int bias = (int)alpha.Bias;
                 int scale = (int)alpha.Shift;
 
                 wl(String.Format("{0} = ({4} {5} (mix({1},{2},{3})){6}){7};",
                     reg, a, b, c, d,
-                    operation == TevOp.Add ? "+" : "-",
+                    aOp == TevAlphaOp.Add ? "+" : "-",
                     _tevBiasName[bias],
                     _tevScaleName[scale]));
                 if (alpha.Clamp)
@@ -1198,18 +1217,18 @@ namespace BrawlLib.Wii.Graphics
         };
         static readonly string[] _defaultRegisterValues =
         {
-            vec4Zero,
+            vec4One,
             _uaMatColorName[2] + "[0]",
             _uaMatColorName[2] + "[1]",
             _uaMatColorName[2] + "[2]"
         };
         static string TruncCSel(int i)
         {
-            return i < 8 ? String.Format("{0}({1})", Trunc3Name, _cSel[i]) : _cSel[i];
+            return DoTrunc && i < 8 ? String.Format("{0}({1})", Trunc3Name, _cSel[i]) : _cSel[i];
         }
         static string TruncASel(int i)
         {
-            return i < 4 ? String.Format("{0}({1})", Trunc1Name, _aSel[i]) : _aSel[i];
+            return DoTrunc && i < 4 ? String.Format("{0}({1})", Trunc1Name, _aSel[i]) : _aSel[i];
         }
         static readonly string[] _cSel =
         {

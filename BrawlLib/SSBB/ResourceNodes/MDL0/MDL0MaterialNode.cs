@@ -1186,7 +1186,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             //If a rendering property has been changed, the shaders need to be regenerated
             bool updateVert = String.IsNullOrEmpty(_vertexShaderSource) || forceRemake;
             bool updateMatFrag = String.IsNullOrEmpty(_fragShaderSource) || forceRemake;
-            bool updateShaderFrag = (ShaderNode != null && String.IsNullOrEmpty(ShaderNode._fragShaderSource)) || forceRemake;
+            bool updateShaderFrag = (ShaderNode != null && ShaderNode._fragShaderSource == null) || forceRemake;
             bool updateProgram = _programHandle <= 0 ||
                 updateVert || _vertexShaderHandle <= 0 ||
                 updateMatFrag || updateShaderFrag || _fragShaderHandle <= 0;
@@ -1210,10 +1210,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                     ShaderGenerator.Set(node, this);
 
                     if (updateShaderFrag)
-                    {
-                        ShaderGenerator.BuildSwapModeTable(ShaderNode);
                         ShaderNode._fragShaderSource = ShaderGenerator.GenTEVFragShader();
-                    }
                     if (updateVert)
                         _vertexShaderSource = ShaderGenerator.GenVertexShader();
                     if (updateMatFrag)
@@ -1236,9 +1233,24 @@ For example, if the shader has two stages but this number is 1, the second stage
                                     tabs += "\t";
                             }
 
-                            string[] shadSplit = ShaderNode._fragShaderSource.Split(new string[] { ShaderGenerator.NewLine }, StringSplitOptions.None);
-                            foreach (string line in shadSplit)
-                                combineFrag += tabs + line + ShaderGenerator.NewLine;
+                            for (int i = 0, stageIndex = 0; i < ShaderNode._fragShaderSource.Length; i++)
+                            {
+                                if (i > 0)
+                                {
+                                    //Don't write stages that aren't active
+                                    if (stageIndex >= ActiveShaderStages)
+                                        break;
+
+                                    stageIndex++;
+                                }
+
+                                string[] shadSplit = ShaderNode._fragShaderSource[i].Split(
+                                    new string[] { ShaderGenerator.NewLine },
+                                    StringSplitOptions.None);
+
+                                foreach (string line in shadSplit)
+                                    combineFrag += tabs + line + ShaderGenerator.NewLine;
+                            }
                         }
                         combineFrag += fragSplit[2];
                     }
