@@ -846,7 +846,7 @@ namespace System.Windows.Forms
                 {
                     RELNode r = _section.Root as RELNode;
 
-                    if (r._prologIndex != _manager._constructorIndex)
+                    if (r._prologSect == _section.Index && r._prologIndex != _manager._constructorIndex)
                     {
                         //if (r._prologReloc != null)
                         //    r._prologReloc._prolog = false;
@@ -855,7 +855,7 @@ namespace System.Windows.Forms
                         r.SignalPropertyChange();
                     }
 
-                    if (r._epilogIndex != _manager._destructorIndex)
+                    if (r._prologSect == _section.Index && r._epilogIndex != _manager._destructorIndex)
                     {
                         //if (r._epilogReloc != null)
                         //    r._epilogReloc._epilog = false;
@@ -864,7 +864,7 @@ namespace System.Windows.Forms
                         r.SignalPropertyChange();
                     }
 
-                    if (r._unresIndex != _manager._unresolvedIndex)
+                    if (r._prologSect == _section.Index && r._unresIndex != _manager._unresolvedIndex)
                     {
                         //if (r._unresReloc != null)
                         //    r._unresReloc._unresolved = false;
