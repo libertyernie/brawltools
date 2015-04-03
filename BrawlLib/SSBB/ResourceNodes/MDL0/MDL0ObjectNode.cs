@@ -1140,6 +1140,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!_render || _manager == null)
                 return;
 
+            if (!TKContext._shadersSupported)
+                useShaders = false;
+
             _manager.PrepareStream();
 
             if (wireframe)
@@ -1365,13 +1368,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Refresh() { if (Model != null) Model.Refresh(); }
 
+        ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
+        
         public void Render(params object[] args)
         {
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            Render(false, false, UsableMaterialNode);
+            ModelRenderAttributes attrib = 
+                args != null && args.Length > 0 && args[0] is ModelRenderAttributes ? 
+                (ModelRenderAttributes)args[0] :
+                _renderAttrib;
+
+            Render(false, attrib._renderShaders, UsableMaterialNode);
         }
 
         #endregion

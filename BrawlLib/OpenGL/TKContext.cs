@@ -54,8 +54,10 @@ namespace BrawlLib.OpenGL
             _states.Clear();
         }
 
-        public bool _shadersEnabled = true;
-        public int _version = 0;
+        public static bool _shadersSupported = true;
+        public static int _versionMax = 0;
+        public static int _versionMin = 0;
+        public static bool _anyContextInitialized = false;
 
         private Control _window;
         public TKContext(Control window)
@@ -65,23 +67,19 @@ namespace BrawlLib.OpenGL
             _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
-            
-            // Check for GLSL support
-            string version = GL.GetString(StringName.Version);
-            _version = int.Parse(version[0].ToString());
-            if (_version < 2)
-                _shadersEnabled = false;
 
-            if (_shadersEnabled)
+            if (!_anyContextInitialized)
             {
-                //Now check extensions
-                string[] extensions = GL.GetString(StringName.Extensions).Split(' ');
-                _shadersEnabled = 
-                    extensions.Contains("GL_ARB_shading_language_100") &&
-                    extensions.Contains("GL_ARB_shader_objects") &&
-                    extensions.Contains("GL_ARB_vertex_shader") &&
-                    extensions.Contains("GL_ARB_fragment_shader");
+                // Check for GLSL support
+                string[] version = GL.GetString(StringName.Version).Split('.');
+                _versionMax = int.Parse(version[0].ToString());
+                _versionMin = int.Parse(version[1].ToString());
+
+                //Need OpenGL 2.1 to use GLSL 120
+                _shadersSupported = !(_versionMax < 2 || (_versionMax == 2 && _versionMin < 1));
+                _anyContextInitialized = true;
             }
+            
             BoundContexts.Add(this);
         }
 
@@ -162,15 +160,17 @@ namespace BrawlLib.OpenGL
             _resetting = true;
             _window.Reset();
             Dispose();
+
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
             _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
             Capture(true);
+            _context.LoadAll();
             Update();
-            (_context as IGraphicsContextInternal).LoadAll();
 
-            _resetting = false;
             if (ResetOccured != null)
                 ResetOccured(this, EventArgs.Empty);
+
+            _resetting = false;
         }
         public void Release()
         {

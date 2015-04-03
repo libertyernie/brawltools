@@ -1980,7 +1980,7 @@ namespace System.Windows.Forms
 
             _currentProjBox = perspectiveToolStripMenuItem;
 
-            shadersToolStripMenuItem.Enabled = ModelPanel.Context._shadersEnabled;
+            shadersToolStripMenuItem.Enabled = TKContext._shadersSupported;
         }
 
         #endregion
