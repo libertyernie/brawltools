@@ -172,10 +172,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         #endregion
 
-        //public Relocation
-        //    _prologReloc = null,
-        //    _epilogReloc = null,
-        //    _unresReloc = null;
+        public int
+            _prologSect = -1,
+            _epilogSect = -1,
+            _unresSect = -1;
+
+        public int
+            _prologIndex = -1,
+            _epilogIndex = -1,
+            _unresIndex = -1;
 
         public override void Dispose()
         {
@@ -345,45 +350,51 @@ namespace BrawlLib.SSBB.ResourceNodes
                 i++;
             }
 
-            //ModuleDataNode s;
-            //if (_prologReloc == null)
-            //{
-            //    s = _sections[Header->_prologSection];
-            //    offset = (int)Header->_prologOffset - (int)s.RootOffset;
-            //}
-            //else
-            //{
-            //    s = _prologReloc._section;
-            //    offset = _prologReloc._index * 4;
-            //}
+            ModuleDataNode s;
+            if (_prologSect == -1)
+            {
+                s = _sections[Header->_prologSection];
+                offset = (int)Header->_prologOffset - (int)s.RootOffset;
+            }
+            else
+            {
+                s = _sections[_prologSect];
+                offset = _prologIndex * 4;
+            }
+            _prologSect = s.Index;
+            _prologIndex = offset.RoundDown(4) / 4;
             //_prologReloc = s.GetRelocationAtOffset(offset);
             //if (_prologReloc != null)
             //    _prologReloc._prolog = true;
 
-            //if (_epilogReloc == null)
-            //{
-            //    s = _sections[Header->_epilogSection];
-            //    offset = (int)Header->_epilogOffset - (int)s.RootOffset;
-            //}
-            //else
-            //{
-            //    s = _epilogReloc._section;
-            //    offset = _epilogReloc._index * 4;
-            //}
+            if (_epilogSect == -1)
+            {
+                s = _sections[Header->_epilogSection];
+                offset = (int)Header->_epilogOffset - (int)s.RootOffset;
+            }
+            else
+            {
+                s = _sections[_epilogSect];
+                offset = _epilogIndex * 4;
+            }
+            _epilogSect = s.Index;
+            _epilogIndex = offset.RoundDown(4) / 4;
             //_epilogReloc = s.GetRelocationAtOffset(offset);
             //if (_epilogReloc != null)
             //    _epilogReloc._epilog = true;
 
-            //if (_unresReloc == null)
-            //{
-            //    s = _sections[Header->_unresolvedSection];
-            //    offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
-            //}
-            //else
-            //{
-            //    s = _unresReloc._section;
-            //    offset = _unresReloc._index * 4;
-            //}
+            if (_unresSect == -1)
+            {
+                s = _sections[Header->_unresolvedSection];
+                offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
+            }
+            else
+            {
+                s = _sections[_unresSect];
+                offset = _unresIndex * 4;
+            }
+            _unresSect = s.Index;
+            _unresIndex = offset.RoundDown(4) / 4;
             //_unresReloc = s.GetRelocationAtOffset(offset);
             //if (_unresReloc != null)
             //    _unresReloc._unresolved = true;
@@ -555,38 +566,38 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
 
-            //if (_prologReloc != null)
-            //{
-            //    header->_prologSection = (byte)_prologReloc._section.Index;
-            //    header->_prologOffset = (uint)sections[_prologReloc._section.Index].Offset + (uint)_prologReloc._index * 4;
-            //}
-            //else
-            //{
-            //    header->_prologOffset = 0;
-            //    header->_prologSection = 0;
-            //}
+            if (_prologSect != -1)
+            {
+                header->_prologSection = (byte)_prologSect;
+                header->_prologOffset = (uint)sections[_prologSect].Offset + (uint)_prologIndex * 4;
+            }
+            else
+            {
+                header->_prologOffset = 0;
+                header->_prologSection = 0;
+            }
 
-            //if (_epilogReloc != null)
-            //{
-            //    header->_epilogSection = (byte)_epilogReloc._section.Index;
-            //    header->_epilogOffset = (uint)sections[_epilogReloc._section.Index].Offset + (uint)_epilogReloc._index * 4;
-            //}
-            //else
-            //{
-            //    header->_epilogSection = 0;
-            //    header->_epilogOffset = 0;
-            //}
+            if (_epilogSect != -1)
+            {
+                header->_epilogSection = (byte)_epilogSect;
+                header->_epilogOffset = (uint)sections[_epilogSect].Offset + (uint)_epilogIndex * 4;
+            }
+            else
+            {
+                header->_epilogSection = 0;
+                header->_epilogOffset = 0;
+            }
 
-            //if (_unresReloc != null)
-            //{
-            //    header->_unresolvedSection = (byte)_unresReloc._section.Index;
-            //    header->_unresolvedOffset = (uint)sections[_unresReloc._section.Index].Offset + (uint)_unresReloc._index * 4;
-            //}
-            //else
-            //{
-            //    header->_unresolvedSection = 0;
-            //    header->_unresolvedOffset = 0;
-            //}
+            if (_unresSect != -1)
+            {
+                header->_unresolvedSection = (byte)_unresSect;
+                header->_unresolvedOffset = (uint)sections[_unresSect].Offset + (uint)_unresIndex * 4;
+            }
+            else
+            {
+                header->_unresolvedSection = 0;
+                header->_unresolvedOffset = 0;
+            }
             
             RELImportEntry* imports = (RELImportEntry*)dataAddr;
             header->_impOffset = (uint)(dataAddr - address);
