@@ -371,12 +371,19 @@ namespace System.Windows.Forms
                         ppcDisassembler1.SetTarget(w, startIndex * 4, _manager);
                     }
 
-                    bool u = _updating;
-                    _updating = true;
-                    chkConstructor.Checked = _selectedRelocationIndex == _manager._constructorIndex;
-                    chkDestructor.Checked = _selectedRelocationIndex == _manager._destructorIndex;
-                    chkUnresolved.Checked = _selectedRelocationIndex == _manager._unresolvedIndex;
-                    _updating = u;
+                    if (_section.Root is RELNode)
+                    {
+                        RELNode r = (RELNode)_section.Root;
+                        bool u = _updating;
+                        _updating = true;
+                        chkConstructor.Checked =
+                            _selectedRelocationIndex == _manager._constructorIndex && _section.Index == r._prologSect;
+                        chkDestructor.Checked =
+                            _selectedRelocationIndex == _manager._destructorIndex && _section.Index == r._epilogSect;
+                        chkUnresolved.Checked =
+                            _selectedRelocationIndex == _manager._unresolvedIndex && _section.Index == r._unresSect;
+                        _updating = u;
+                    }
 
                     //Set the target branch code
                     PPCOpCode code = _manager.GetCode(_selectedRelocationIndex);
