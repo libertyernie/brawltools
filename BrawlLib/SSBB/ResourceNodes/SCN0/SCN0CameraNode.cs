@@ -250,29 +250,29 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public KeyframeArray PosZ { get { return Keyframes[2]; } }
         [Browsable(false)]
-        public KeyframeArray RotX { get { return Keyframes[3]; } }
+        public KeyframeArray Aspect { get { return Keyframes[3]; } }
         [Browsable(false)]
-        public KeyframeArray RotY { get { return Keyframes[4]; } }
+        public KeyframeArray NearZ { get { return Keyframes[4]; } }
         [Browsable(false)]
-        public KeyframeArray RotZ { get { return Keyframes[5]; } }
+        public KeyframeArray FarZ { get { return Keyframes[5]; } }
         [Browsable(false)]
-        public KeyframeArray AimX { get { return Keyframes[6]; } }
+        public KeyframeArray RotX { get { return Keyframes[6]; } }
         [Browsable(false)]
-        public KeyframeArray AimY { get { return Keyframes[7]; } }
+        public KeyframeArray RotY { get { return Keyframes[7]; } }
         [Browsable(false)]
-        public KeyframeArray AimZ { get { return Keyframes[8]; } }
+        public KeyframeArray RotZ { get { return Keyframes[8]; } }
         [Browsable(false)]
-        public KeyframeArray Twist { get { return Keyframes[9]; } }
+        public KeyframeArray AimX { get { return Keyframes[9]; } }
         [Browsable(false)]
-        public KeyframeArray FovY { get { return Keyframes[10]; } }
+        public KeyframeArray AimY { get { return Keyframes[10]; } }
         [Browsable(false)]
-        public KeyframeArray Height { get { return Keyframes[11]; } }
+        public KeyframeArray AimZ { get { return Keyframes[11]; } }
         [Browsable(false)]
-        public KeyframeArray Aspect { get { return Keyframes[12]; } }
+        public KeyframeArray Twist { get { return Keyframes[12]; } }
         [Browsable(false)]
-        public KeyframeArray NearZ { get { return Keyframes[13]; } }
+        public KeyframeArray FovY { get { return Keyframes[13]; } }
         [Browsable(false)]
-        public KeyframeArray FarZ { get { return Keyframes[14]; } }
+        public KeyframeArray Height { get { return Keyframes[14]; } }
 
         private KeyframeCollection _keyframes = null;
         [Browsable(false)]

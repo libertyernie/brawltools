@@ -616,7 +616,6 @@ namespace BrawlLib.Wii.Animations
                     case 12: return Twist;
                     case 13: return FovY;
                     case 14: return Height;
-
                     default: return float.NaN;
                 }
             }

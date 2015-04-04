@@ -1930,50 +1930,58 @@ namespace System.Windows.Forms
 
                     cboAmb.Items.Clear();
                     cboAmb.Items.Add("<null>");
-                    if (amb != null && amb.Children != null)
+                    if (amb != null)
                         cboAmb.Items.AddRange(amb.Children.ToArray());
 
                     SCN0GroupNode lights = SelectedAnimation.GetFolder<SCN0LightNode>();
 
                     cboLight0.Items.Clear();
                     cboLight0.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight0.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight0.Items.Add(s);
                     
                     cboLight1.Items.Clear();
                     cboLight1.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight1.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight1.Items.Add(s);
                     
                     cboLight2.Items.Clear();
                     cboLight2.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight2.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight2.Items.Add(s);
                     
                     cboLight3.Items.Clear();
                     cboLight3.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight3.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight3.Items.Add(s);
                     
                     cboLight4.Items.Clear();
                     cboLight4.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight4.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight4.Items.Add(s);
                     
                     cboLight5.Items.Clear();
                     cboLight5.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight5.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight5.Items.Add(s);
 
                     cboLight6.Items.Clear();
                     cboLight6.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight6.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight6.Items.Add(s);
 
                     cboLight7.Items.Clear();
                     cboLight7.Items.Add("<null>");
-                    foreach (SCN0LightNode s in lights.Children)
-                        cboLight7.Items.Add(s);
+                    if (lights != null)
+                        foreach (SCN0LightNode s in lights.Children)
+                            cboLight7.Items.Add(s);
 
                     UpdateSelectedLightSets();
 
