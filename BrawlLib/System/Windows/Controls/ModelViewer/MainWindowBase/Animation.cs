@@ -638,7 +638,9 @@ namespace System.Windows.Forms
 
         protected void VISIndexChanged(object sender, EventArgs e)
         {
-            SetFrame((KeyframePanel.visEditor.listBox1.SelectedIndex + 1).Clamp(0, MaxFrame));
+            int i = (KeyframePanel.visEditor.listBox1.SelectedIndex + 1).Clamp(0, MaxFrame);
+            if (i != CurrentFrame)
+                SetFrame(i);
         }
     }
 }
