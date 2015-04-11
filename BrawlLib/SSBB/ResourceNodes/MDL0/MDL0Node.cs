@@ -1275,7 +1275,8 @@ When true, metal materials and shaders will be added and modulated as you edit y
             {
                 if (attrib._renderPolygons)
                 {
-                    if (attrib._renderShaders && !mat._scn0Applied)
+                    bool shaders = attrib._renderShaders && mat != null;
+                    if (shaders && !mat._scn0Applied)
                         mat.ApplyViewportLighting(viewport);
 
                     float polyOffset = obj.DrawPriority;
@@ -1289,7 +1290,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     else
                         GL.Disable(EnableCap.PolygonOffsetFill);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    obj.Render(false, attrib._renderShaders, mat);
+                    obj.Render(false, shaders, mat);
                 }
                 if (attrib._renderWireframe)
                 {

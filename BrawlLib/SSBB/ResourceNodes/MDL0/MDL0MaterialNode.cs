@@ -396,9 +396,9 @@ Those properties can use this color as an argument. This color is referred to as
         [Category("Lighting Channel 1"), Browsable(false)]
         public LightingChannelFlags C1Flags { get { return _chan1.Flags; } set { if (!CheckIfMetal()) _chan1.Flags = value; } }
         [Category("Lighting Channel 1"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C1MaterialColor { get { return _chan1.MaterialColor; } set { if (!CheckIfMetal()) clr1 = _chan1.MaterialColor = value; } }
+        public RGBAPixel C1MaterialColor { get { return _chan1.MaterialColor; } set { if (!CheckIfMetal()) _chan1.MaterialColor = value; } }
         [Category("Lighting Channel 1"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C1AmbientColor { get { return _chan1.AmbientColor; } set { if (!CheckIfMetal()) amb1 = _chan1.AmbientColor = value; } }
+        public RGBAPixel C1AmbientColor { get { return _chan1.AmbientColor; } set { if (!CheckIfMetal()) _chan1.AmbientColor = value; } }
 
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXColorSrc C1ColorMaterialSource
@@ -477,9 +477,9 @@ Those properties can use this color as an argument. This color is referred to as
         [Category("Lighting Channel 2"), Browsable(false)]
         public LightingChannelFlags C2Flags { get { return _chan2.Flags; } set { if (!CheckIfMetal()) _chan2.Flags = value; } }
         [Category("Lighting Channel 2"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C2MaterialColor { get { return _chan2.MaterialColor; } set { if (!CheckIfMetal()) clr2 = _chan2.MaterialColor = value; } }
+        public RGBAPixel C2MaterialColor { get { return _chan2.MaterialColor; } set { if (!CheckIfMetal()) _chan2.MaterialColor = value; } }
         [Category("Lighting Channel 2"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C2AmbientColor { get { return _chan2.AmbientColor; } set { if (!CheckIfMetal()) amb2 = _chan2.AmbientColor = value; } }
+        public RGBAPixel C2AmbientColor { get { return _chan2.AmbientColor; } set { if (!CheckIfMetal()) _chan2.AmbientColor = value; } }
 
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXColorSrc C2ColorMaterialSource
@@ -1375,8 +1375,7 @@ For example, if the shader has two stages but this number is 1, the second stage
         }
 
         //Use these for streaming values into the shader
-        public RGBAPixel amb1, amb2, clr1, clr2;
-        public GXColorS10 k1, k2, k3, k4, c1, c2, c3;
+        public Vector4 amb1, amb2, clr1, clr2, k1, k2, k3, k4, c1, c2, c3;
 
         internal void ApplyCLR0(CLR0Node node, float index)
         {
@@ -1400,20 +1399,22 @@ For example, if the shader has two stages but this number is 1, the second stage
             if (mat != null)
                 foreach (CLR0MaterialEntryNode e in mat.Children)
                 {
-                    ARGBPixel p = e.Colors.Count > index ? e.Colors[(int)index] : new ARGBPixel();
+                    int colorIndex = (int)Math.Truncate(index - 1);
+                    RGBAPixel color = e.Colors[colorIndex];
+                    RGBAPixel mask = e.ColorMask;
                     switch (e.Target)
                     {
-                        case EntryTarget.Ambient0: amb1 = (RGBAPixel)p; break;
-                        case EntryTarget.Ambient1: amb2 = (RGBAPixel)p; break;
-                        case EntryTarget.Color0: clr1 = (RGBAPixel)p; break;
-                        case EntryTarget.Color1: clr2 = (RGBAPixel)p; break;
-                        case EntryTarget.TevColorReg0: c1 = (GXColorS10)p; break;
-                        case EntryTarget.TevColorReg1: c2 = (GXColorS10)p; break;
-                        case EntryTarget.TevColorReg2: c3 = (GXColorS10)p; break;
-                        case EntryTarget.TevKonstReg0: k1 = (GXColorS10)p; break;
-                        case EntryTarget.TevKonstReg1: k2 = (GXColorS10)p; break;
-                        case EntryTarget.TevKonstReg2: k3 = (GXColorS10)p; break;
-                        case EntryTarget.TevKonstReg3: k4 = (GXColorS10)p; break;
+                        case EntryTarget.Ambient0: amb1 = (C1AmbientColor & mask) | color; break;
+                        case EntryTarget.Ambient1: amb2 = (C2AmbientColor & mask) | color; break;
+                        case EntryTarget.Color0: clr1 = (C1MaterialColor & mask) | color; break;
+                        case EntryTarget.Color1: clr2 = (C2MaterialColor & mask) | color; break;
+                        case EntryTarget.TevColorReg0: c1 = ((RGBAPixel)Color0 & mask) | color; break;
+                        case EntryTarget.TevColorReg1: c2 = ((RGBAPixel)Color1 & mask) | color; break;
+                        case EntryTarget.TevColorReg2: c3 = ((RGBAPixel)Color2 & mask) | color; break;
+                        case EntryTarget.TevKonstReg0: k1 = ((RGBAPixel)ConstantColor0 & mask) | color; break;
+                        case EntryTarget.TevKonstReg1: k2 = ((RGBAPixel)ConstantColor1 & mask) | color; break;
+                        case EntryTarget.TevKonstReg2: k3 = ((RGBAPixel)ConstantColor2 & mask) | color; break;
+                        case EntryTarget.TevKonstReg3: k4 = ((RGBAPixel)ConstantColor3 & mask) | color; break;
                     }
                 }
         }
@@ -1450,7 +1451,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         internal unsafe void ApplySCN(SCN0Node node, float index)
         {
-            if (node == null || index == 0)
+            if (node == null || index <= 0)
             {
                 _scn0Applied = false;
 

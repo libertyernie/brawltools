@@ -1062,28 +1062,6 @@ namespace BrawlLib.Wii.Graphics
         #endregion
 
         #region Uniform Types
-        private static void Uniform(int pHandle, string name, params RGBAPixel[] p)
-        {
-            int u = GL.GetUniformLocation(pHandle, name);
-            if (u > -1)
-            {
-                float[] values = new float[p.Length * 4];
-                for (int i = 0; i < values.Length; i++)
-                    values[i] = (float)((byte*)p[i >> 2].Address)[i & 3] / 255.0f;
-                GL.Uniform4(u, p.Length, values);
-            }
-        }
-        private static void Uniform(int pHandle, string name, params GXColorS10[] p)
-        {
-            int u = GL.GetUniformLocation(pHandle, name);
-            if (u > -1)
-            {
-                float[] values = new float[p.Length * 4];
-                for (int i = 0; i < values.Length; i++)
-                    values[i] = (float)((short*)p[i >> 2].Address)[i & 3] / 255.0f;
-                GL.Uniform4(u, p.Length, values);
-            }
-        }
         private static void Uniform(int pHandle, string name, params Vector4[] p)
         {
             int u = GL.GetUniformLocation(pHandle, name);
