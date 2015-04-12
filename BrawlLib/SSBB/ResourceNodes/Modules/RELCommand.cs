@@ -90,10 +90,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _addend;
         public bool _initialized = false;
 
-        public RelCommand(uint fileId, int section, RELLink link)
+        public RelCommand(uint fileId, ModuleDataNode section, RELLink link)
         {
             _moduleID = fileId;
-            _modifiedSectionId = section;
+            _section = section;
+            _modifiedSectionId = section.Index;
             _targetSectionId = link._section;
             _command = (RELCommandType)(int)link._type;
             _addend = link._value;
@@ -117,6 +118,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             uint addend = _addend + baseOffset;
             switch (_command)
             {
+                case RELCommandType.Nop: // 0x0
+                    break;
                 case RELCommandType.WriteWord: //0x1
                     newValue = addend;
                     break;

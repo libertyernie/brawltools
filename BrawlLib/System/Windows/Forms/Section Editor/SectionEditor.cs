@@ -49,13 +49,13 @@ namespace System.Windows.Forms
 
             if (section.Root is RELNode)
             {
-                //RELNode r = (RELNode)section.Root;
-                //if (r._prologReloc != null && r._prologReloc._section == section)
-                //    _prologReloc = r._prologReloc;
-                //if (r._epilogReloc != null && r._epilogReloc._section == section)
-                //    _epilogReloc = r._epilogReloc;
-                //if (r._unresReloc != null && r._unresReloc._section == section)
-                //    _unresReloc = r._unresReloc;
+                RELNode r = (RELNode)section.Root;
+                if (r._prologSect != -1 && r._prologSect == section.Index)
+                    _manager._constructorIndex = r._prologIndex;
+                if (r._epilogSect != -1 && r._epilogSect == section.Index)
+                    _manager._destructorIndex = r._epilogIndex;
+                if (r._unresSect != -1 && r._unresSect == section.Index)
+                    _manager._unresolvedIndex = r._unresIndex;
                 //if (r._nameReloc != null && r._nameReloc._section == section)
                 //    _nameReloc = r._nameReloc;
             }
@@ -371,12 +371,19 @@ namespace System.Windows.Forms
                         ppcDisassembler1.SetTarget(w, startIndex * 4, _manager);
                     }
 
-                    bool u = _updating;
-                    _updating = true;
-                    chkConstructor.Checked = _selectedRelocationIndex == _manager._constructorIndex;
-                    chkDestructor.Checked = _selectedRelocationIndex == _manager._destructorIndex;
-                    chkUnresolved.Checked = _selectedRelocationIndex == _manager._unresolvedIndex;
-                    _updating = u;
+                    if (_section.Root is RELNode)
+                    {
+                        RELNode r = (RELNode)_section.Root;
+                        bool u = _updating;
+                        _updating = true;
+                        chkConstructor.Checked =
+                            _selectedRelocationIndex == _manager._constructorIndex && _section.Index == r._prologSect;
+                        chkDestructor.Checked =
+                            _selectedRelocationIndex == _manager._destructorIndex && _section.Index == r._epilogSect;
+                        chkUnresolved.Checked =
+                            _selectedRelocationIndex == _manager._unresolvedIndex && _section.Index == r._unresSect;
+                        _updating = u;
+                    }
 
                     //Set the target branch code
                     PPCOpCode code = _manager.GetCode(_selectedRelocationIndex);
@@ -652,7 +659,7 @@ namespace System.Windows.Forms
         {
             RelCommand cmd = new RelCommand(
                 (_section.Root as ModuleNode).ID,
-                _section.Index,
+                _section,
                 new RELLink());
 
             _manager.SetCommand(SelectedRelocationIndex, cmd);
@@ -842,37 +849,37 @@ namespace System.Windows.Forms
                     _section.SignalPropertyChange();
                 }
 
-                //if (_section.Root is RELNode)
-                //{
-                //    RELNode r = _section.Root as RELNode;
+                if (_section.Root is RELNode)
+                {
+                    RELNode r = _section.Root as RELNode;
 
-                //    if (r._prologReloc != _prologReloc && _prologReloc != null)
-                //    {
-                //        if (r._prologReloc != null)
-                //            r._prologReloc._prolog = false;
+                    if (r._prologSect == _section.Index && r._prologIndex != _manager._constructorIndex)
+                    {
+                        //if (r._prologReloc != null)
+                        //    r._prologReloc._prolog = false;
 
-                //        r._prologReloc = _prologReloc;
-                //        r.SignalPropertyChange();
-                //    }
+                        r._prologIndex = _manager._constructorIndex;
+                        r.SignalPropertyChange();
+                    }
 
-                //    if (r._epilogReloc != _epilogReloc && _epilogReloc != null)
-                //    {
-                //        if (r._epilogReloc != null)
-                //            r._epilogReloc._epilog = false;
+                    if (r._prologSect == _section.Index && r._epilogIndex != _manager._destructorIndex)
+                    {
+                        //if (r._epilogReloc != null)
+                        //    r._epilogReloc._epilog = false;
 
-                //        r._epilogReloc = _epilogReloc;
-                //        r.SignalPropertyChange();
-                //    }
+                        r._epilogIndex = _manager._destructorIndex;
+                        r.SignalPropertyChange();
+                    }
 
-                //    if (r._unresReloc != _unresReloc && _unresReloc != null)
-                //    {
-                //        if (r._unresReloc != null)
-                //            r._unresReloc._unresolved = false;
+                    if (r._prologSect == _section.Index && r._unresIndex != _manager._unresolvedIndex)
+                    {
+                        //if (r._unresReloc != null)
+                        //    r._unresReloc._unresolved = false;
 
-                //        r._unresReloc = _unresReloc;
-                //        r.SignalPropertyChange();
-                //    }
-                //}
+                        r._unresIndex = _manager._unresolvedIndex;
+                        r.SignalPropertyChange();
+                    }
+                }
 
                 DynamicFileByteProvider d = hexBox1.ByteProvider as DynamicFileByteProvider;
                 if (!d.HasChanges())
@@ -1007,21 +1014,20 @@ namespace System.Windows.Forms
             if (_updating || SelectedRelocationIndex == null)
                 return;
 
-            //if (SelectedRelocationIndex == _prologReloc)
-            //{
-            //    if (!(_prologReloc._prolog = chkConstructor.Checked))
-            //        _prologReloc = null;
-            //}
-            //else
-            //{
-            //    if (chkConstructor.Checked)
-            //    {
-            //        if (_prologReloc != null)
-            //            _prologReloc._prolog = false;
-            //        _prologReloc = SelectedRelocationIndex;
-            //        _prologReloc._prolog = true;
-            //    }
-            //}
+            if (SelectedRelocationIndex == _manager._constructorIndex)
+            {
+                if (!chkConstructor.Checked)
+                    _manager._constructorIndex = -1;
+            }
+            else
+            {
+                if (chkConstructor.Checked)
+                {
+                    if (_manager._constructorIndex != -1)
+                        _manager._constructorIndex = -1;
+                    _manager._constructorIndex = SelectedRelocationIndex;
+                }
+            }
         }
 
         private void chkDestructor_CheckedChanged(object sender, EventArgs e)
@@ -1029,21 +1035,20 @@ namespace System.Windows.Forms
             if (_updating || SelectedRelocationIndex == null)
                 return;
 
-            //if (SelectedRelocationIndex == _epilogReloc)
-            //{
-            //    if (!(_epilogReloc._epilog = chkDestructor.Checked))
-            //        _epilogReloc = null;
-            //}
-            //else
-            //{
-            //    if (chkDestructor.Checked)
-            //    {
-            //        if (_epilogReloc != null)
-            //            _epilogReloc._epilog = false;
-            //        _epilogReloc = SelectedRelocationIndex;
-            //        _epilogReloc._epilog = true;
-            //    }
-            //}
+            if (SelectedRelocationIndex == _manager._destructorIndex)
+            {
+                if (!chkDestructor.Checked)
+                    _manager._destructorIndex = -1;
+            }
+            else
+            {
+                if (chkDestructor.Checked)
+                {
+                    if (_manager._destructorIndex != -1)
+                       _manager._destructorIndex = -1;
+                    _manager._destructorIndex = SelectedRelocationIndex;
+                }
+            }
         }
 
         private void chkUnresolved_CheckedChanged(object sender, EventArgs e)
@@ -1051,21 +1056,20 @@ namespace System.Windows.Forms
             if (_updating || SelectedRelocationIndex == null)
                 return;
 
-            //if (SelectedRelocationIndex == _unresReloc)
-            //{
-            //    if (!(_unresReloc._unresolved = chkUnresolved.Checked))
-            //        _unresReloc = null;
-            //}
-            //else
-            //{
-            //    if (chkUnresolved.Checked)
-            //    {
-            //        if (_unresReloc != null)
-            //            _unresReloc._unresolved = false;
-            //        _unresReloc = SelectedRelocationIndex;
-            //        _unresReloc._unresolved = true;
-            //    }
-            //}
+            if (SelectedRelocationIndex == _manager._unresolvedIndex)
+            {
+                if (!chkUnresolved.Checked)
+                    _manager._unresolvedIndex = -1;
+            }
+            else
+            {
+                if (chkUnresolved.Checked)
+                {
+                    if (_manager._unresolvedIndex != -1)
+                        _manager._unresolvedIndex = -1;
+                    _manager._unresolvedIndex = SelectedRelocationIndex;
+                }
+            }
         }
 
         public RelocationTarget GetBranchOffsetRelocation()
