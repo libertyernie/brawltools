@@ -81,7 +81,7 @@ namespace System.Windows.Forms
             //Draw BG
             float s = (float)width / (float)bgTex.Width, t = (float)height / (float)bgTex.Height;
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.TexCoord2(0.0f, 0.0f);
             GL.Vertex2(0.0f, 0.0f);
@@ -119,7 +119,7 @@ namespace System.Windows.Forms
 
                 GL.BindTexture(TextureTarget.Texture2D, texture._texId);
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
 
                 GL.TexCoord2(0.0f, 0.0f);
                 GL.Vertex2(points[0], points[1]);
@@ -135,7 +135,7 @@ namespace System.Windows.Forms
         }
 
         public static RGBAPixel _left = new RGBAPixel(192, 192, 192, 255), _right = new RGBAPixel(240, 240, 240, 255);
-        public static unsafe GLTexture CreateBG(TKContext ctx)
+        public static unsafe GLTexture CreateBG()
         {
             GLTexture tex = new GLTexture(16, 16);
             tex._texId = GL.GenTexture();

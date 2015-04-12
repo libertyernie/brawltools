@@ -130,7 +130,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _normalNode == null ? null : _normalNode._name; }
             set
             {
-                if (!String.IsNullOrEmpty(value))
+                MDL0NormalNode oldNode = _normalNode;
+                if (String.IsNullOrEmpty(value))
+                    if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Do you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    {
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
+
+                        _normalNode = null;
+                        _elementIndices[1] = -1;
+                        _rebuild = true;
+                    }
+                    else return;
+                else
                 {
                     MDL0NormalNode node = Model.FindChild(String.Format("Normals/{0}", value), false) as MDL0NormalNode;
                     if (node != null && _normalNode != null && node.NumEntries >= _normalNode.NumEntries)
@@ -674,15 +686,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             _elementIndices[13] = (short)(_furPosNode != null ? _furPosNode.Index : -1);
 
             //Create primitive manager
-            if (_parent != null)
-            {
-                int i = 0;
-                _manager = new PrimitiveManager(header, Model._assets, linker.NodeCache);
-
-                if (_manager._vertices != null)
-                    foreach (Vertex3 v in _manager._vertices)
-                        v.Parent = this;
-            }
+            if (_parent != null && (_manager = new PrimitiveManager(header, Model._assets, linker.NodeCache))._vertices != null)
+                foreach (Vertex3 v in _manager._vertices)
+                    v.Parent = this;
 
             //Read internal object node cache and read influence list
             if (Model._linker.NodeCache != null && _matrixNode == null)
@@ -1085,19 +1091,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         BlendingFactorSrc[] _blendSrc = 
         {
-            BlendingFactorSrc.Zero, BlendingFactorSrc.One, 
-            BlendingFactorSrc.SrcColor, BlendingFactorSrc.OneMinusSrcColor,
+            BlendingFactorSrc.Zero, BlendingFactorSrc.One,
+            BlendingFactorSrc.DstColor, BlendingFactorSrc.OneMinusDstColor,
             BlendingFactorSrc.SrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, 
-            BlendingFactorSrc.DstAlpha, BlendingFactorSrc.OneMinusDstAlpha,
-            BlendingFactorSrc.DstColor, BlendingFactorSrc.OneMinusDstColor
+            BlendingFactorSrc.DstAlpha, BlendingFactorSrc.OneMinusDstAlpha
         };
         BlendingFactorDest[] _blendDst =
         {
             BlendingFactorDest.Zero, BlendingFactorDest.One, 
             BlendingFactorDest.SrcColor, BlendingFactorDest.OneMinusSrcColor,
             BlendingFactorDest.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
-            BlendingFactorDest.DstAlpha, BlendingFactorDest.OneMinusDstAlpha,
-            BlendingFactorDest.DstColor, BlendingFactorDest.OneMinusDstColor
+            BlendingFactorDest.DstAlpha, BlendingFactorDest.OneMinusDstAlpha
         };
         LogicOp[] _logicOp =
         {

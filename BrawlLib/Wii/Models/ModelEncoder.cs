@@ -388,15 +388,8 @@ namespace BrawlLib.Wii.Models
                             List<MDL0TextureNode> texNodes = new List<MDL0TextureNode>();
                             foreach (MDL0TextureNode tex in model._texList)
                             {
-                                int trefs = 0;
-                                foreach (MDL0MaterialRefNode r in tex._references)
-                                    if (r.Material._objects.Count != 0)
-                                        trefs++;
-                                if (trefs != 0)
-                                {
-                                    texLen += (trefs * 8) + 4;
-                                    texNodes.Add(tex);
-                                }
+                                texNodes.Add(tex);
+                                texLen += (tex._references.Count * 8) + 4; 
                             }
                             entries = (linker._texList = texNodes).Count;
                         }
@@ -408,15 +401,8 @@ namespace BrawlLib.Wii.Models
                             List<MDL0TextureNode> pltNodes = new List<MDL0TextureNode>();
                             foreach (MDL0TextureNode plt in model._pltList)
                             {
-                                int prefs = 0;
-                                foreach (MDL0MaterialRefNode r in plt._references)
-                                    if (r.Material._objects.Count != 0)
-                                        prefs++;
-                                if (prefs != 0)
-                                {
-                                    texLen += (prefs * 8) + 4;
-                                    pltNodes.Add(plt);
-                                }
+                                pltNodes.Add(plt);
+                                texLen += (plt._references.Count * 8) + 4; 
                             }
                             entries = (linker._pltList = pltNodes).Count;
                         }
@@ -915,7 +901,7 @@ namespace BrawlLib.Wii.Models
         //Materials must already be written. Do this last!
         private static void WriteTextures(ModelLinker linker, ref byte* pGroup)
         {
-            //Note: Brawl models don't write the metal00 texture!
+            //metal00 is apparently built last
 
             ResourceGroup* pTexGroup = null;
             ResourceEntry* pTexEntry = null;
@@ -952,11 +938,10 @@ namespace BrawlLib.Wii.Models
                         (pTexEntry++)->_dataOffset = offset - (int)pTexGroup;
                         *pData++ = t._references.Count;
                         foreach (MDL0MaterialRefNode mat in t._references)
-                            if (mat.Material._objects.Count != 0)
-                            {
-                                *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
-                                *pData++ = (int)mat.WorkingUncompressed.Address - offset;
-                            }
+                        {
+                            *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
+                            *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                        }
                     }
             }
 
@@ -972,11 +957,10 @@ namespace BrawlLib.Wii.Models
                         (pPltEntry++)->_dataOffset = offset - (int)pPltGroup;
                         *pData++ = t._references.Count;
                         foreach (MDL0MaterialRefNode mat in t._references)
-                            if (mat.Material._objects.Count != 0)
-                            {
-                                *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
-                                *pData++ = (int)mat.WorkingUncompressed.Address - offset;
-                            }
+                        {
+                            *pData++ = (int)mat.Material.WorkingUncompressed.Address - offset;
+                            *pData++ = (int)mat.WorkingUncompressed.Address - offset;
+                        }
                     }
             }
         }

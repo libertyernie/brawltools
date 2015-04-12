@@ -15,8 +15,18 @@ namespace System.Windows.Forms
     {
         public unsafe virtual void modelPanel1_PreRender(ModelPanelViewport viewport)
         {
-            if (viewport != null && viewport._renderFloor)
-                OnRenderFloor();
+            if (viewport != null)
+            {
+                if (viewport._renderFloor)
+                    OnRenderFloor();
+
+                if (viewport._renderAttrib._applyBillboardBones)
+                    if (EditingAll && _targetModels != null)
+                        foreach (IModel m in _targetModels)
+                            m.UpdateBillboards(viewport);
+                    else if (TargetModel != null)
+                        TargetModel.UpdateBillboards(viewport);
+            }
         }
 
         public unsafe virtual void modelPanel1_PostRender(ModelPanelViewport vp)
@@ -26,12 +36,11 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
 
-            //GL.Enable(EnableCap.PointSmooth);
-            if (vp._renderAttrib._renderVertices)
-                OnRenderVertices(vp);
-            if (vp._renderAttrib._renderNormals)
-                OnRenderNormals();
-            if (RenderLightDisplay && vp == ModelPanel.CurrentViewport)
+            if (_targetModels != null)
+                foreach (IModel m in _targetModels)
+                    PostRender(m, vp);
+
+            if (RenderLightDisplay/* && vp == ModelPanel.CurrentViewport*/)
                 OnRenderLightDisplay(vp.LightPosition);
 
             if (TargetAnimType == NW4RAnimType.SCN)
@@ -74,7 +83,7 @@ namespace System.Windows.Forms
                     //switch (l.LightType)
                     //{
                     //    case BrawlLib.SSBBTypes.LightType.Directional: 
-                            GL.Begin(PrimitiveType.Lines);
+                            GL.Begin(BeginMode.Lines);
                             GL.Color4((Color)l.GetColor(frame, 0));
                             GL.Vertex3((OpenTK.Vector3)start);
                             if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
@@ -156,7 +165,7 @@ namespace System.Windows.Forms
                 Vector3 end = _SCN0Camera.GetEnd(frame);
 
                 GL.Color4(Color.Black);
-                GL.Begin(PrimitiveType.Lines);
+                GL.Begin(BeginMode.Lines);
 
                 GL.Vertex3((OpenTK.Vector3)start);
                 GL.Vertex3((OpenTK.Vector3)end);
@@ -216,22 +225,20 @@ namespace System.Windows.Forms
 
         #endregion
 
-        public virtual void OnRenderVertices(ModelPanelViewport vp)
+        public virtual void PostRender(IModel model, ModelPanelViewport vp)
         {
-            if (EditingAll && _targetModels != null)
-                foreach (IModel m in _targetModels)
-                    m.RenderVertices(false, SelectedBone, vp.Camera);
-            else if (TargetModel != null)
-                TargetModel.RenderVertices(false, SelectedBone, vp.Camera);
-        }
+            if (vp._renderAttrib._renderVertices)
+                model.RenderVertices(false, SelectedBone, vp.Camera);
+            if (vp._renderAttrib._renderNormals)
+                model.RenderNormals();
+            if (vp._renderAttrib._renderBones)
+                model.RenderBones(vp);
 
-        public virtual void OnRenderNormals()
-        {
-            if (EditingAll && _targetModels != null)
-                foreach (IModel m in _targetModels)
-                    m.RenderNormals();
-            else if (TargetModel != null)
-                TargetModel.RenderNormals();
+            model.RenderBoxes(
+                vp._renderAttrib._renderModelBox,
+                vp._renderAttrib._renderObjectBoxes,
+                vp._renderAttrib._renderBoneBoxes, 
+                vp._renderAttrib._useBindStateBoxes);
         }
 
         #region Bone Control Rendering
@@ -240,21 +247,37 @@ namespace System.Windows.Forms
             if (_playing)
                 return;
 
-            //Render bone transform control
-            if (SelectedBone != null) 
+            bool hasBone = SelectedBone != null;
+            if (hasBone || VertexLoc().HasValue)
             {
-                if (ControlType == TransformType.Rotation)
-                    RenderRotationControl(BoneLoc(SelectedBone), OrbRadius(SelectedBone, panel), SelectedBone.Matrix.GetAngles(), panel);
-                else if (ControlType == TransformType.Translation)
-                    RenderTranslationControl(BoneLoc(SelectedBone), OrbRadius(SelectedBone, panel), panel);
-                else if (ControlType == TransformType.Scale)
-                    RenderScaleControl(OrbRadius(SelectedBone, panel), BoneLoc(SelectedBone), panel);
-            }
+                Vector3 pos, rot;
+                float radius;
 
-            //Render vertex transform control
-            if (VertexLoc() != null)
-            {
-                    RenderTranslationControl(((Vector3)VertexLoc()), VertexOrbRadius(panel), panel);
+                if (hasBone)
+                {
+                    pos = BoneLoc(SelectedBone);
+                    radius = OrbRadius(SelectedBone, panel.Camera);
+                    rot = SelectedBone.Matrix.GetAngles();
+                }
+                else
+                {
+                    pos = VertexLoc().Value;
+                    radius = VertexOrbRadius(panel.Camera);
+                    rot = new Vector3();
+                }
+
+                switch (ControlType)
+                {
+                    case TransformType.Translation:
+                        RenderTranslationControl(pos, radius, panel);
+                        break;
+                    case TransformType.Rotation:
+                        RenderRotationControl(pos, radius, rot, panel);
+                        break;
+                    case TransformType.Scale:
+                        RenderScaleControl(pos, radius, panel);
+                        break;
+                }
             }
         }
         public unsafe void RenderTranslationControl(Vector3 position, float radius, ModelPanelViewport panel)
@@ -274,7 +297,7 @@ namespace System.Windows.Forms
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Z"] = panel.Camera.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderScaleControl(float radius, Vector3 pos, ModelPanelViewport panel)
+        public unsafe void RenderScaleControl(Vector3 pos, float radius, ModelPanelViewport panel)
         {
             GLDisplayList axis = GetScaleControl();
 
@@ -295,7 +318,7 @@ namespace System.Windows.Forms
         {
             Matrix m = Matrix.TransformMatrix(
                 new Vector3(radius), 
-                panel.ViewType == ViewportProjection.Perspective ? position.LookatAngles(CamLoc(panel)) * Maths._rad2degf : panel.Camera._rotation, 
+                panel.ViewType == ViewportProjection.Perspective ? position.LookatAngles(CamLoc(panel.Camera)) * Maths._rad2degf : panel.Camera._rotation, 
                 position);
 
             GL.PushMatrix();
@@ -386,7 +409,7 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.CullFace);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //X
 
@@ -413,7 +436,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(_axisLDist, 0.0f, 0.0f);
             GL.Vertex3(_dst, _apthm, -_apthm);
@@ -433,7 +456,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //Y
 
@@ -460,7 +483,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(0.0f, _axisLDist, 0.0f);
             GL.Vertex3(_apthm, _dst, -_apthm);
@@ -480,7 +503,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //Z
 
@@ -507,7 +530,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(0.0f, 0.0f, _axisLDist);
             GL.Vertex3(_apthm, -_apthm, _dst);
@@ -543,7 +566,7 @@ namespace System.Windows.Forms
             GL.Disable(EnableCap.CullFace);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //X
             if ((_snapY && _snapZ) || (_hiY && _hiZ))
@@ -565,7 +588,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(_axisLDist, 0.0f, 0.0f);
             GL.Vertex3(_dst, _apthm, -_apthm);
@@ -585,7 +608,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //Y
             if ((_snapZ && _snapX) || (_hiZ && _hiX))
@@ -606,7 +629,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(0.0f, _axisLDist, 0.0f);
             GL.Vertex3(_apthm, _dst, -_apthm);
@@ -626,7 +649,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             //Z
             if ((_snapX && _snapY) || (_hiX && _hiY))
@@ -647,7 +670,7 @@ namespace System.Windows.Forms
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Triangles);
+            GL.Begin(BeginMode.Triangles);
 
             GL.Vertex3(0.0f, 0.0f, _axisLDist);
             GL.Vertex3(_apthm, -_apthm, _dst);
@@ -701,21 +724,22 @@ namespace System.Windows.Forms
             {
                 //Render invisible depth orbs
                 GLDisplayList list = TKContext.GetSphereList();
+                bool doScale = v._renderAttrib._scaleBones;
                 if (EditingAll)
                 {
                     foreach (IModel m in _targetModels)
                         foreach (IBoneNode bone in m.BoneCache)
                             if (bone != SelectedBone)
-                                RenderOrb(bone, list);
+                                RenderOrb(bone, list, v, doScale);
                 }
                 else if (TargetModel != null)
                     foreach (IBoneNode bone in _targetModel.BoneCache)
                         if (bone != SelectedBone)
-                            RenderOrb(bone, list);
+                            RenderOrb(bone, list, v, doScale);
             }
 
             //Render invisible depth planes for translation and scale controls
-            if ((ControlType != TransformType.Rotation && SelectedBone != null) || VertexLoc() != null)
+            if ((ControlType != TransformType.Rotation && SelectedBone != null) || VertexLoc().HasValue)
             {
                 #region Axis Selection Display List
 
@@ -723,7 +747,7 @@ namespace System.Windows.Forms
 
                 selList.Begin();
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
 
                 //X Axis
                 //XY quad
@@ -777,7 +801,7 @@ namespace System.Windows.Forms
 
                     if (ControlType == TransformType.Translation)
                     {
-                        GL.Begin(PrimitiveType.Quads);
+                        GL.Begin(BeginMode.Quads);
 
                         //XY
                         GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
@@ -801,7 +825,7 @@ namespace System.Windows.Forms
                     }
                     else
                     {
-                        GL.Begin(PrimitiveType.Triangles);
+                        GL.Begin(BeginMode.Triangles);
 
                         //XY
                         GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
@@ -824,7 +848,7 @@ namespace System.Windows.Forms
                     GL.PopMatrix();
                 }
 
-                if (VertexLoc() != null && v._renderAttrib._renderVertices)
+                if (VertexLoc().HasValue && v._renderAttrib._renderVertices)
                 {
                     Matrix m = Matrix.TransformMatrix(new Vector3(VertexOrbRadius(v)), new Vector3(), ((Vector3)VertexLoc()));
                     GL.PushMatrix();
@@ -832,7 +856,7 @@ namespace System.Windows.Forms
 
                     selList.Call();
 
-                    GL.Begin(PrimitiveType.Quads);
+                    GL.Begin(BeginMode.Quads);
 
                     //XY
                     GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
@@ -927,7 +951,7 @@ namespace System.Windows.Forms
                         normal = new Vector3(1.0f, 0.0f, 0.0f);
                     else if (_snapZ)
                         normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (ControlType == TransformType.Scale && _snapX && _snapY && _snapZ)
+                    else
                         normal = camera.Normalize(center);
 
                     break;
@@ -944,38 +968,35 @@ namespace System.Windows.Forms
             Vector3 normal = new Vector3();
             float radius = CamDistance(center, ModelPanel.CurrentViewport);
 
-            //switch (ControlType)
-            //{
-                //case TransformType.Scale:
+            switch (ControlType)
+            {
+                case TransformType.Rotation:
+                    if (_snapX)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
+                    else if (_snapY)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
+                    else if (_snapZ)
+                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                    else if (_snapCirc)
+                    {
+                        radius *= _circOrbScale;
+                        normal = camera.Normalize(center);
+                    }
+                    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
+                        return true;
+                    else
+                        normal = camera.Normalize(center);
 
-                //    break;
+                    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
+                    {
+                        point = Maths.PointAtLineDistance(center, point, radius);
+                        return true;
+                    }
 
-                //case TransformType.Rotation:
-                //    if (_snapX)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                //    else if (_snapY)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                //    else if (_snapZ)
-                //        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
-                //    else if (_snapCirc)
-                //    {
-                //        radius *= _circOrbScale;
-                //        normal = camera.Normalize(center);
-                //    }
-                //    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
-                //        return true;
-                //    else
-                //        normal = camera.Normalize(center);
+                    break;
 
-                //    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-                //    {
-                //        point = Maths.PointAtLineDistance(center, point, radius);
-                //        return true;
-                //    }
-
-                //    break;
-
-                //case TransformType.Translation:
+                case TransformType.Scale:
+                case TransformType.Translation:
 
                     if (_snapX && _snapY)
                         normal = new Vector3(0.0f, 0.0f, 1.0f);
@@ -989,9 +1010,11 @@ namespace System.Windows.Forms
                         normal = new Vector3(1.0f, 0.0f, 0.0f);
                     else if (_snapZ)
                         normal = new Vector3(0.0f, 1.0f, 0.0f);
+                    else
+                        normal = camera.Normalize(center);
 
-                    //break;
-            //}
+                    break;
+            }
 
             if (!Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
             {
@@ -1036,27 +1059,27 @@ namespace System.Windows.Forms
                         }
             return null;
         }
-        private static bool CompareDistanceRecursive(IBoneNode bone, Vector3 point, ref IBoneNode match)
+        private bool CompareDistanceRecursive(IBoneNode bone, Vector3 point, ref IBoneNode match, ModelPanelViewport v, bool doScale)
         {
-            Vector3 center = bone.Matrix.GetPoint();
-            float dist = center.TrueDistance(point);
-
-            if (Math.Abs(dist - MDL0BoneNode._nodeRadius) < 0.01)
+            float dist = bone.Matrix.GetPoint().TrueDistance(point) / (doScale ? OrbRadius(bone, v) : 1.0f);
+            if (Math.Abs(dist - MDL0BoneNode._nodeRadius) < 0.01f)
             {
                 match = bone;
                 return true;
             }
 
             foreach (IBoneNode b in ((ResourceNode)bone).Children)
-                if (CompareDistanceRecursive(b, point, ref match))
+                if (CompareDistanceRecursive(b, point, ref match, v, doScale))
                     return true;
 
             return false;
         }
 
-        public static unsafe void RenderOrb(IBoneNode bone, GLDisplayList list)
+        public unsafe void RenderOrb(IBoneNode bone, GLDisplayList list, ModelPanelViewport v, bool doScale)
         {
-            Matrix m = Matrix.TransformMatrix(new Vector3(MDL0BoneNode._nodeRadius), new Vector3(), bone.Matrix.GetPoint());
+            float radius = MDL0BoneNode._nodeRadius * (doScale ? OrbRadius(bone, v) : 1.0f);
+
+            Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), bone.Matrix.GetPoint());
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
@@ -1104,7 +1127,7 @@ namespace System.Windows.Forms
             float f = (float)((int)e);
             float diff = (float)Math.Round(e - f, 1);
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
             for (i = 0; i < f; i++)
             {
                 GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -1135,7 +1158,7 @@ namespace System.Windows.Forms
             f = (float)((int)e);
             diff = (float)Math.Round(e - f, 1);
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
             for (i = 0; i < f; i++)
             {
                 GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
@@ -1165,6 +1188,8 @@ namespace System.Windows.Forms
             float s = 10.0f, t = 10.0f;
             float e = 30.0f;
 
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
             GL.Disable(EnableCap.CullFace);
             GL.Disable(EnableCap.Blend);
             GL.Disable(EnableCap.Lighting);
@@ -1173,8 +1198,9 @@ namespace System.Windows.Forms
 
             //So that the model clips with the floor
             GL.Enable(EnableCap.DepthTest);
-
             GL.Enable(EnableCap.Texture2D);
+            //GL.MatrixMode(MatrixMode.Texture);
+            //GL.LoadIdentity();
 
             GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
             bgTex.Bind();
@@ -1186,7 +1212,7 @@ namespace System.Windows.Forms
 
             GL.Color4(_floorHue);
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.TexCoord2(0.0f, 0.0f);
             GL.Vertex3(-e, 0.0f, -e);
@@ -1200,6 +1226,8 @@ namespace System.Windows.Forms
             GL.End();
 
             GL.Disable(EnableCap.Texture2D);
+
+            GL.PopAttrib();
         }
     }
 }

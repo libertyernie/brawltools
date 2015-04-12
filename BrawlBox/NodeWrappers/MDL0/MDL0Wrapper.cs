@@ -10,6 +10,8 @@ using BrawlLib.SSBBTypes;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Models;
 using BrawlLib.Modeling;
+using BrawlLib.SSBB;
+using System.IO;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -106,19 +108,18 @@ namespace BrawlBox.NodeWrappers
                 return;
 
             OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Collada Model (*.dae)|*.dae";
-            ofd.Title = "Please select a Collada model to reimport meshes from.";
+            ofd.Filter = SupportedFilesHandler.GetCompleteFilter("mdl0", "dae");
+            ofd.Title = "Please select a model to reimport meshes from.";
             if (ofd.ShowDialog() == DialogResult.OK)
-                using (Collada collada = new Collada())
+            {
+                MDL0Node replacement = MDL0Node.FromFile(ofd.FileName);
+                if (replacement != null)
                 {
-                    MDL0Node replacement = collada.ShowDialog(ofd.FileName, Collada.ImportType.MDL0) as MDL0Node;
                     ((MDL0Node)_resource).ReplaceMeshes(replacement);
-                    if (replacement != null)
-                    {
-                        replacement.Dispose();
-                        _resource.UpdateCurrentControl();
-                    }
+                    replacement.Dispose();
+                    _resource.UpdateCurrentControl();
                 }
+            }
         }
 
         public void Preview()

@@ -55,6 +55,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem toolStripMenuItem6;
         private ToolStripMenuItem toolStripMenuItem8;
         private ToolStripMenuItem removeAllToolStripMenuItem;
+        private ContextMenuStrip ctxTools;
+        private ToolStripMenuItem bakeVertexPositionsToolStripMenuItem;
         private ToolStripMenuItem addCustomAmountToolStripMenuItem;
         private void InitializeComponent()
         {
@@ -66,6 +68,15 @@ namespace System.Windows.Forms
             this.btnCopy = new System.Windows.Forms.Button();
             this.FrameTrans = new System.Windows.Forms.CheckBox();
             this.btnCut = new System.Windows.Forms.Button();
+            this.numScaleX = new System.Windows.Forms.NumericInputBox();
+            this.numScaleY = new System.Windows.Forms.NumericInputBox();
+            this.numScaleZ = new System.Windows.Forms.NumericInputBox();
+            this.numRotX = new System.Windows.Forms.NumericInputBox();
+            this.numRotY = new System.Windows.Forms.NumericInputBox();
+            this.numRotZ = new System.Windows.Forms.NumericInputBox();
+            this.numTransX = new System.Windows.Forms.NumericInputBox();
+            this.numTransY = new System.Windows.Forms.NumericInputBox();
+            this.numTransZ = new System.Windows.Forms.NumericInputBox();
             this.lblTrans = new System.Windows.Forms.Label();
             this.lblRot = new System.Windows.Forms.Label();
             this.lblScale = new System.Windows.Forms.Label();
@@ -92,18 +103,12 @@ namespace System.Windows.Forms
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addCustomAmountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.numScaleX = new System.Windows.Forms.NumericInputBox();
-            this.numScaleY = new System.Windows.Forms.NumericInputBox();
-            this.numScaleZ = new System.Windows.Forms.NumericInputBox();
-            this.numRotX = new System.Windows.Forms.NumericInputBox();
-            this.numRotY = new System.Windows.Forms.NumericInputBox();
-            this.numRotZ = new System.Windows.Forms.NumericInputBox();
-            this.numTransX = new System.Windows.Forms.NumericInputBox();
-            this.numTransY = new System.Windows.Forms.NumericInputBox();
-            this.numTransZ = new System.Windows.Forms.NumericInputBox();
+            this.ctxTools = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.bakeVertexPositionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.grpTransform.SuspendLayout();
             this.grpTransAll.SuspendLayout();
             this.ctxBox.SuspendLayout();
+            this.ctxTools.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpTransform
@@ -203,6 +208,132 @@ namespace System.Windows.Forms
             this.btnCut.UseVisualStyleBackColor = true;
             this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
             // 
+            // numScaleX
+            // 
+            this.numScaleX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleX.Integral = false;
+            this.numScaleX.Location = new System.Drawing.Point(73, 54);
+            this.numScaleX.MaximumValue = 3.402823E+38F;
+            this.numScaleX.MinimumValue = -3.402823E+38F;
+            this.numScaleX.Name = "numScaleX";
+            this.numScaleX.Size = new System.Drawing.Size(82, 20);
+            this.numScaleX.TabIndex = 18;
+            this.numScaleX.Text = "0";
+            this.numScaleX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numScaleY
+            // 
+            this.numScaleY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleY.Integral = false;
+            this.numScaleY.Location = new System.Drawing.Point(154, 54);
+            this.numScaleY.MaximumValue = 3.402823E+38F;
+            this.numScaleY.MinimumValue = -3.402823E+38F;
+            this.numScaleY.Name = "numScaleY";
+            this.numScaleY.Size = new System.Drawing.Size(82, 20);
+            this.numScaleY.TabIndex = 19;
+            this.numScaleY.Text = "0";
+            this.numScaleY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numScaleZ
+            // 
+            this.numScaleZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleZ.Integral = false;
+            this.numScaleZ.Location = new System.Drawing.Point(235, 54);
+            this.numScaleZ.MaximumValue = 3.402823E+38F;
+            this.numScaleZ.MinimumValue = -3.402823E+38F;
+            this.numScaleZ.Name = "numScaleZ";
+            this.numScaleZ.Size = new System.Drawing.Size(82, 20);
+            this.numScaleZ.TabIndex = 20;
+            this.numScaleZ.Text = "0";
+            this.numScaleZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numRotX
+            // 
+            this.numRotX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotX.Integral = false;
+            this.numRotX.Location = new System.Drawing.Point(73, 35);
+            this.numRotX.MaximumValue = 3.402823E+38F;
+            this.numRotX.MinimumValue = -3.402823E+38F;
+            this.numRotX.Name = "numRotX";
+            this.numRotX.Size = new System.Drawing.Size(82, 20);
+            this.numRotX.TabIndex = 15;
+            this.numRotX.Text = "0";
+            this.numRotX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numRotY
+            // 
+            this.numRotY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotY.Integral = false;
+            this.numRotY.Location = new System.Drawing.Point(154, 35);
+            this.numRotY.MaximumValue = 3.402823E+38F;
+            this.numRotY.MinimumValue = -3.402823E+38F;
+            this.numRotY.Name = "numRotY";
+            this.numRotY.Size = new System.Drawing.Size(82, 20);
+            this.numRotY.TabIndex = 16;
+            this.numRotY.Text = "0";
+            this.numRotY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numRotZ
+            // 
+            this.numRotZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotZ.Integral = false;
+            this.numRotZ.Location = new System.Drawing.Point(235, 35);
+            this.numRotZ.MaximumValue = 3.402823E+38F;
+            this.numRotZ.MinimumValue = -3.402823E+38F;
+            this.numRotZ.Name = "numRotZ";
+            this.numRotZ.Size = new System.Drawing.Size(82, 20);
+            this.numRotZ.TabIndex = 17;
+            this.numRotZ.Text = "0";
+            this.numRotZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numTransX
+            // 
+            this.numTransX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransX.Integral = false;
+            this.numTransX.Location = new System.Drawing.Point(73, 16);
+            this.numTransX.MaximumValue = 3.402823E+38F;
+            this.numTransX.MinimumValue = -3.402823E+38F;
+            this.numTransX.Name = "numTransX";
+            this.numTransX.Size = new System.Drawing.Size(82, 20);
+            this.numTransX.TabIndex = 3;
+            this.numTransX.Text = "0";
+            this.numTransX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numTransY
+            // 
+            this.numTransY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransY.Integral = false;
+            this.numTransY.Location = new System.Drawing.Point(154, 16);
+            this.numTransY.MaximumValue = 3.402823E+38F;
+            this.numTransY.MinimumValue = -3.402823E+38F;
+            this.numTransY.Name = "numTransY";
+            this.numTransY.Size = new System.Drawing.Size(82, 20);
+            this.numTransY.TabIndex = 13;
+            this.numTransY.Text = "0";
+            this.numTransY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numTransZ
+            // 
+            this.numTransZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransZ.Integral = false;
+            this.numTransZ.Location = new System.Drawing.Point(235, 16);
+            this.numTransZ.MaximumValue = 3.402823E+38F;
+            this.numTransZ.MinimumValue = -3.402823E+38F;
+            this.numTransZ.Name = "numTransZ";
+            this.numTransZ.Size = new System.Drawing.Size(82, 20);
+            this.numTransZ.TabIndex = 14;
+            this.numTransZ.Text = "0";
+            this.numTransZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
             // lblTrans
             // 
             this.lblTrans.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
@@ -235,6 +366,7 @@ namespace System.Windows.Forms
             // 
             // grpTransAll
             // 
+            this.grpTransAll.ContextMenuStrip = this.ctxTools;
             this.grpTransAll.Controls.Add(this.btnInsert);
             this.grpTransAll.Controls.Add(this.btnClean);
             this.grpTransAll.Controls.Add(this.btnPasteAll);
@@ -451,131 +583,19 @@ namespace System.Windows.Forms
             this.addCustomAmountToolStripMenuItem.Text = "Edit All...";
             this.addCustomAmountToolStripMenuItem.Click += new System.EventHandler(this.addCustomAmountToolStripMenuItem_Click);
             // 
-            // numScaleX
+            // ctxTools
             // 
-            this.numScaleX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleX.Integral = false;
-            this.numScaleX.Location = new System.Drawing.Point(73, 54);
-            this.numScaleX.MaximumValue = 3.402823E+38F;
-            this.numScaleX.MinimumValue = -3.402823E+38F;
-            this.numScaleX.Name = "numScaleX";
-            this.numScaleX.Size = new System.Drawing.Size(82, 20);
-            this.numScaleX.TabIndex = 18;
-            this.numScaleX.Text = "0";
-            this.numScaleX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            this.ctxTools.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bakeVertexPositionsToolStripMenuItem});
+            this.ctxTools.Name = "ctxBox";
+            this.ctxTools.Size = new System.Drawing.Size(186, 26);
             // 
-            // numScaleY
+            // bakeVertexPositionsToolStripMenuItem
             // 
-            this.numScaleY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleY.Integral = false;
-            this.numScaleY.Location = new System.Drawing.Point(154, 54);
-            this.numScaleY.MaximumValue = 3.402823E+38F;
-            this.numScaleY.MinimumValue = -3.402823E+38F;
-            this.numScaleY.Name = "numScaleY";
-            this.numScaleY.Size = new System.Drawing.Size(82, 20);
-            this.numScaleY.TabIndex = 19;
-            this.numScaleY.Text = "0";
-            this.numScaleY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numScaleZ
-            // 
-            this.numScaleZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleZ.Integral = false;
-            this.numScaleZ.Location = new System.Drawing.Point(235, 54);
-            this.numScaleZ.MaximumValue = 3.402823E+38F;
-            this.numScaleZ.MinimumValue = -3.402823E+38F;
-            this.numScaleZ.Name = "numScaleZ";
-            this.numScaleZ.Size = new System.Drawing.Size(82, 20);
-            this.numScaleZ.TabIndex = 20;
-            this.numScaleZ.Text = "0";
-            this.numScaleZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotX
-            // 
-            this.numRotX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotX.Integral = false;
-            this.numRotX.Location = new System.Drawing.Point(73, 35);
-            this.numRotX.MaximumValue = 3.402823E+38F;
-            this.numRotX.MinimumValue = -3.402823E+38F;
-            this.numRotX.Name = "numRotX";
-            this.numRotX.Size = new System.Drawing.Size(82, 20);
-            this.numRotX.TabIndex = 15;
-            this.numRotX.Text = "0";
-            this.numRotX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotY
-            // 
-            this.numRotY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotY.Integral = false;
-            this.numRotY.Location = new System.Drawing.Point(154, 35);
-            this.numRotY.MaximumValue = 3.402823E+38F;
-            this.numRotY.MinimumValue = -3.402823E+38F;
-            this.numRotY.Name = "numRotY";
-            this.numRotY.Size = new System.Drawing.Size(82, 20);
-            this.numRotY.TabIndex = 16;
-            this.numRotY.Text = "0";
-            this.numRotY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotZ
-            // 
-            this.numRotZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotZ.Integral = false;
-            this.numRotZ.Location = new System.Drawing.Point(235, 35);
-            this.numRotZ.MaximumValue = 3.402823E+38F;
-            this.numRotZ.MinimumValue = -3.402823E+38F;
-            this.numRotZ.Name = "numRotZ";
-            this.numRotZ.Size = new System.Drawing.Size(82, 20);
-            this.numRotZ.TabIndex = 17;
-            this.numRotZ.Text = "0";
-            this.numRotZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransX
-            // 
-            this.numTransX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransX.Integral = false;
-            this.numTransX.Location = new System.Drawing.Point(73, 16);
-            this.numTransX.MaximumValue = 3.402823E+38F;
-            this.numTransX.MinimumValue = -3.402823E+38F;
-            this.numTransX.Name = "numTransX";
-            this.numTransX.Size = new System.Drawing.Size(82, 20);
-            this.numTransX.TabIndex = 3;
-            this.numTransX.Text = "0";
-            this.numTransX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransY
-            // 
-            this.numTransY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransY.Integral = false;
-            this.numTransY.Location = new System.Drawing.Point(154, 16);
-            this.numTransY.MaximumValue = 3.402823E+38F;
-            this.numTransY.MinimumValue = -3.402823E+38F;
-            this.numTransY.Name = "numTransY";
-            this.numTransY.Size = new System.Drawing.Size(82, 20);
-            this.numTransY.TabIndex = 13;
-            this.numTransY.Text = "0";
-            this.numTransY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransZ
-            // 
-            this.numTransZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransZ.Integral = false;
-            this.numTransZ.Location = new System.Drawing.Point(235, 16);
-            this.numTransZ.MaximumValue = 3.402823E+38F;
-            this.numTransZ.MinimumValue = -3.402823E+38F;
-            this.numTransZ.Name = "numTransZ";
-            this.numTransZ.Size = new System.Drawing.Size(82, 20);
-            this.numTransZ.TabIndex = 14;
-            this.numTransZ.Text = "0";
-            this.numTransZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            this.bakeVertexPositionsToolStripMenuItem.Name = "bakeVertexPositionsToolStripMenuItem";
+            this.bakeVertexPositionsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.bakeVertexPositionsToolStripMenuItem.Text = "Bake Vertex Positions";
+            this.bakeVertexPositionsToolStripMenuItem.Click += new System.EventHandler(this.bakeVertexPositionsToolStripMenuItem_Click);
             // 
             // CHR0Editor
             // 
@@ -589,6 +609,7 @@ namespace System.Windows.Forms
             this.grpTransAll.ResumeLayout(false);
             this.grpTransAll.PerformLayout();
             this.ctxBox.ResumeLayout(false);
+            this.ctxTools.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -708,7 +729,7 @@ namespace System.Windows.Forms
             }
             
         }
-        public unsafe void ApplyState(SaveState save)
+        public unsafe void ApplyState(BoneState save)
         {
             FrameState state = (FrameState)save._frameState;
             float* p = (float*)&state;
@@ -1110,7 +1131,7 @@ namespace System.Windows.Forms
                 return;
 
             EditAllKeyframesDialog ed = new EditAllKeyframesDialog();
-            //ed.ShowDialog(null, type, SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
+            ed.ShowDialog(this, type, SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
             ResetBox(type);
             _mainWindow.UpdateModel();
         }
@@ -1231,6 +1252,26 @@ namespace System.Windows.Forms
             _mainWindow.PlaybackPanel.numTotalFrames.Value--;
             _mainWindow._maxFrame--;
             _mainWindow.Updating = false;
+        }
+
+        private void bakeVertexPositionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TargetModel != null && TargetModel is MDL0Node && TargetModel.Objects != null)
+            {
+                foreach (MDL0ObjectNode o in TargetModel.Objects)
+                {
+                    for (int i = 0; i < o._manager._vertices.Count; i++)
+                    {
+                        Vertex3 vec = o._manager._vertices[i];
+                        o._vertexNode.Vertices[o._manager._vertices[i]._facepoints[0]._vertexIndex] = vec.WeightedPosition;
+                    }
+
+                    o._vertexNode.ForceRebuild = true;
+                    if (o._vertexNode.Format == WiiVertexComponentType.Float)
+                        o._vertexNode.ForceFloat = true;
+                }
+                _mainWindow.UpdateModel();
+            }
         }
 
         //private void chkLinear_CheckedChanged(object sender, EventArgs e)

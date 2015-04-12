@@ -4,8 +4,20 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        private void AddUndo(SaveState save)
+        public uint _allowedUndos = 50;
+        public List<SaveState> _undoSaves = new List<SaveState>();
+        public List<SaveState> _redoSaves = new List<SaveState>();
+        public int _saveIndex = 0;
+        public bool _awaitingRedoSave = false;
+        public bool _undoing = false;
+
+        void AddUndo(SaveState save)
         {
+            if (_awaitingRedoSave)
+            {
+                throw new Exception("Waiting for redo save to be added");
+            }
+
             int i = _saveIndex + 1;
             if (_undoSaves.Count > i)
             {
@@ -13,62 +25,72 @@ namespace System.Windows.Forms
                 _redoSaves.RemoveRange(i, _redoSaves.Count - i);
             }
 
+            save._isUndo = true;
             _undoSaves.Add(save);
-            _undoing = true;
+            _awaitingRedoSave = true;
+        }
+        void AddRedo(SaveState save)
+        {
+            if (!_awaitingRedoSave)
+            {
+                throw new Exception("Waiting for undo save to be added");
+            }
 
+            save._isUndo = false;
+            _redoSaves.Add(save);
+            
             if (_undoSaves.Count > _allowedUndos)
             {
                 _undoSaves.RemoveAt(0);
                 _redoSaves.RemoveAt(0);
-                _saveIndex--;
             }
-        }
-        private void AddRedo(SaveState save)
-        {
-            _redoSaves.Add(save);
-            _saveIndex++;
+            else
+                _saveIndex++;
+
+            _awaitingRedoSave = false;
             UpdateUndoButtons();
         }
 
-        bool _before = true;
+        void AddState(SaveState state)
+        {
+            if (!_awaitingRedoSave)
+                AddUndo(state);
+            else
+                AddRedo(state);
+        }
 
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
         public void BoneChange(IBoneNode bone)
         {
-            SaveState state = new SaveState();
-            state._bone = bone;
-            state._frameState = bone.FrameState;
-            state._animation = SelectedCHR0;
-            state._frameIndex = CurrentFrame;
+            SaveState state = new BoneState()
+            {
+                _bone = bone,
+                _frameState = bone.FrameState,
+                _animation = SelectedCHR0,
+                _frameIndex = CurrentFrame,
+            };
 
-            if (_before)
-                AddUndo(state);
-            else
-                AddRedo(state);
-
-            _before = !_before;
+            AddState(state);
         }
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
-        public void VertexChange(List<Vertex3> vertices)
+        public void VertexChange(List<Vertex3> vertices, Matrix transform)
         {
-            SaveState state = new SaveState();
-            state._vertices = vertices;
-            state._targetModel = TargetModel;
-            state._translation = (Vector3)VertexLoc();
+            SaveState state = new VertexState()
+            {
+                _vertices = vertices,
+                _targetModel = TargetModel,
+                _origin = VertexLoc().Value,
+                _transform = transform,
+            };
 
-            if (_before)
-                AddUndo(state);
-            else
-                AddRedo(state);
-
-            _before = !_before;
+            AddState(state);
         }
 
-        public bool CanUndo { get { return _saveIndex > -1; } }
+        public bool CanUndo { get { return _saveIndex >= 0; } }
         public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
 
         public void Undo()
@@ -81,7 +103,8 @@ namespace System.Windows.Forms
                     _saveIndex--;
                 _undoing = true;
 
-                Apply(_undoSaves[_saveIndex]);
+                if (_saveIndex < _undoSaves.Count && _saveIndex >= 0)
+                    ApplyState();
 
                 //Decrement index after applying save
                 _saveIndex--;
@@ -101,7 +124,8 @@ namespace System.Windows.Forms
                     _saveIndex++;
                 _undoing = false;
 
-                Apply(_redoSaves[_saveIndex]);
+                if (_saveIndex < _redoSaves.Count && _saveIndex >= 0)
+                    ApplyState();
 
                 //Increment index after applying save
                 _saveIndex++;
@@ -112,29 +136,60 @@ namespace System.Windows.Forms
             }
         }
 
-        private void Apply(SaveState s)
+        void ApplyBoneState(BoneState state)
         {
-            if (s._frameState != null)
+            if (TargetModel != state._targetModel)
             {
-                SelectedCHR0 = s._animation;
-                CurrentFrame = s._frameIndex;
-                SelectedBone = s._bone;
-                CHR0Editor.ApplyState(s);
+                _resetCamera = false;
+                TargetModel = state._targetModel;
             }
-            else if (s._vertices != null)
+            SelectedCHR0 = state._animation;
+            CurrentFrame = state._frameIndex;
+            SelectedBone = state._bone;
+            CHR0Editor.ApplyState(state);
+        }
+
+        void ApplyVertexState(VertexState state)
+        {
+            if (TargetModel != state._targetModel)
             {
-                if (TargetModel != s._targetModel)
-                    TargetModel = s._targetModel;
-
-                Vector3 diff = _redoSaves[_saveIndex]._translation - _undoSaves[_saveIndex]._translation;
-                if (!_undoing) diff = -diff;
-                foreach (Vertex3 v in s._vertices)
-                    v.WeightedPosition -= diff;
-
-                _vertexLoc = null;
-
-                UpdateModel();
+                _resetCamera = false;
+                TargetModel = state._targetModel;
             }
+
+            Matrix transform;
+            Vector3 center = new Vector3();
+
+            if (state._isUndo)
+            {
+                transform = ((VertexState)RedoSave)._transform.Invert();
+                center = state._origin;
+            }
+            else
+            {
+                transform = state._transform;
+                center = ((VertexState)UndoSave)._origin;
+            }
+
+            foreach (Vertex3 vertex in _selectedVertices)
+                vertex.WeightedPosition = Maths.TransformAboutPoint(vertex.WeightedPosition, center, transform);
+
+            _vertexLoc = null;
+
+            UpdateModel();
+        }
+
+        public SaveState RedoSave { get { return _saveIndex < _redoSaves.Count && _saveIndex >= 0 ? _redoSaves[_saveIndex] : null; } }
+        public SaveState UndoSave { get { return _saveIndex < _undoSaves.Count && _saveIndex >= 0 ? _undoSaves[_saveIndex] : null; } }
+        
+        private void ApplyState()
+        {
+            SaveState current = _undoing ? UndoSave : RedoSave;
+
+            if (current is BoneState)
+                ApplyBoneState((BoneState)current);
+            else if (current is VertexState)
+                ApplyVertexState((VertexState)current);
         }
 
         public virtual void UpdateUndoButtons() { }

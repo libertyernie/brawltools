@@ -27,6 +27,11 @@ namespace System.Windows.Forms
             if (!_updating)
                 RenderShaders = !RenderShaders;
         }
+        private void scaleBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                ScaleBones = !ScaleBones;
+        }
         private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (!_updating)
@@ -137,11 +142,11 @@ namespace System.Windows.Forms
         }
         private void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
-            SetFrame(1);
-            images = new List<Image>();
+            //SetFrame(1);
+            _images = new List<Image>();
             _loop = false;
             _capture = true;
-            Enabled = false;
+            //Enabled = false;
             ModelPanel.Enabled = false;
             if (InterpolationEditor != null)
                 InterpolationEditor.Enabled = false;

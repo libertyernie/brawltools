@@ -1385,6 +1385,7 @@ namespace Be.Windows.Forms
 		{
 			this._vScrollBar = new VScrollBar();
 			this._vScrollBar.Scroll += new ScrollEventHandler(_vScrollBar_Scroll);
+            this._vScrollBar.Cursor = Cursors.Default;
 
 			this._builtInContextMenu = new BuiltInContextMenu(this);
 
@@ -2603,7 +2604,7 @@ namespace Be.Windows.Forms
             {
                 PPCOpCode code = s._manager.GetCode(index);
                 bool returnBranch = code is PPCblr;
-                bool branch = code is PPCBranch && !returnBranch;
+                bool branch = code is PPCBranch && !returnBranch; 
                 bool linkedBranch = 
                     _sectionEditor.TargetBranchOffsetRelocation != null && 
                     _sectionEditor.TargetBranchOffsetRelocation._index == index;

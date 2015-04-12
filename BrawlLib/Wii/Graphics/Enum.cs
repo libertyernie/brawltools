@@ -221,8 +221,8 @@ namespace BrawlLib.Wii.Graphics
         DestinationAlpha,
         InverseDestinationAlpha,
 
-        DestinationColor = SourceColor,
-        InverseDestinationColor = InverseSourceColor
+        //DestinationColor = SourceColor,
+        //InverseDestinationColor = InverseSourceColor
     }
 
     public enum AlphaCompare

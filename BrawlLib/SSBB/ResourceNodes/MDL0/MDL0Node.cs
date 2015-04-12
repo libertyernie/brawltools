@@ -1304,148 +1304,87 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
         float _scn0Frame;
         SCN0Node _scn0;
+
+        /// <summary>
+        /// Call this before rendering meshes or bones if applying billboards
+        /// This can be optimized by only being called when the camera moves
+        /// or when a CHR0 frame is applied
+        /// </summary>
+        public void UpdateBillboards(ModelPanelViewport v)
+        {
+            if (_billboardBones.Count > 0)
+            {
+                WeightModel(v);
+                ApplySHP(_currentSHP, _currentSHPIndex);
+            }
+        }
+
         public Matrix _matrixOffset = Matrix.Identity;
         public void Render(params object[] args)
         {
             if (!_render || TKContext.CurrentContext == null)
                 return;
-            
-            ModelRenderAttributes attrib;
-            ModelPanelViewport v = null;
 
+            ModelPanelViewport v = null;
             if (args.Length > 0 && args[0] is ModelPanelViewport)
                 v = args[0] as ModelPanelViewport;
 
-            if (!_ignoreModelViewerAttribs && v != null && v._renderAttrib != null)
-                attrib = v._renderAttrib;
-            else
-                attrib = _renderAttribs;
+            ModelRenderAttributes attrib = 
+                !_ignoreModelViewerAttribs && v != null && v._renderAttrib != null ?
+                v._renderAttrib :
+                _renderAttribs;
+
+            if ((!attrib._renderPolygons && !attrib._renderWireframe) || _objList == null || _objList.Count == 0)
+                return;
 
             bool renderShaders = attrib._renderShaders;
 
-            GL.Color4(Color.White);
+            GL.PushAttrib(AttribMask.AllAttribBits);
+            GL.MatrixMode(MatrixMode.Modelview);
+
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Lighting);
+            GL.Enable(EnableCap.DepthTest);
 
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
+            bool usesOffset = _matrixOffset != Matrix.Identity && _matrixOffset != new Matrix();
+            if (usesOffset)
             {
                 GL.PushMatrix();
                 Matrix m = _matrixOffset;
                 GL.MultMatrix((float*)&m);
             }
 
-            //Apply billboard bones before rendering meshes
-            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
-            {
-                WeightModel(v);
-                ApplySHP(_currentSHP, _currentSHPIndex);
-            }
+            if (_matList != null)
+                foreach (MDL0MaterialNode m in _matList)
+                    foreach (MDL0MaterialRefNode mr in m.Children)
+                        mr.SetEffectMatrix(_scn0, (ModelPanelViewport)GLPanel.Current.CurrentViewport, _scn0Frame);
 
-            if (attrib._renderPolygons || attrib._renderWireframe)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-                GL.MatrixMode(MatrixMode.Modelview);
-                GL.PushMatrix();
-                GL.MatrixMode(MatrixMode.Texture);
-                GL.LoadIdentity();
-                GL.PushMatrix();
-
-                GL.Enable(EnableCap.Lighting);
-                GL.Enable(EnableCap.DepthTest);
-
-                if (_matList != null)
-                    foreach (MDL0MaterialNode m in _matList)
-                        foreach (MDL0MaterialRefNode mr in m.Children)
-                            mr.SetEffectMatrix(_scn0, (ModelPanelViewport)GLPanel.Current.CurrentViewport, _scn0Frame);
-
-                if (_objList != null)
-                {
-                    var objects = _objList.Select(x => (MDL0ObjectNode)x);
-                    var xlu = objects.Where(x => x.XluMaterialNode != null).OrderBy(x => x.XluMaterialNode.Index);
-                    var opa = objects.Where(x => x.OpaMaterialNode != null).OrderBy(x => x.OpaMaterialNode.Index);
+            var objects = _objList.Select(x => (MDL0ObjectNode)x);
+            var xlu = objects.Where(x => x.XluMaterialNode != null).OrderBy(x => x.XluMaterialNode.Index);
+            var opa = objects.Where(x => x.OpaMaterialNode != null).OrderBy(x => x.OpaMaterialNode.Index);
                     
-                    //Render opaque first
-                    foreach (MDL0ObjectNode obj in opa)
-                        RenderObject(obj, obj.OpaMaterialNode, attrib, v);
+            //Render opaque first
+            foreach (MDL0ObjectNode obj in opa)
+                RenderObject(obj, obj.OpaMaterialNode, attrib, v);
 
-                    //Render translucent second
-                    foreach (MDL0ObjectNode obj in xlu)
-                        RenderObject(obj, obj.XluMaterialNode, attrib, v);
+            //Render translucent second
+            foreach (MDL0ObjectNode obj in xlu)
+                RenderObject(obj, obj.XluMaterialNode, attrib, v);
 
-                    //Render objects with no material, just in case
-                    foreach (MDL0ObjectNode obj in objects)
-                        if (obj.UsableMaterialNode == null)
-                            RenderObject(obj, null, attrib, v);
-                }
+            //Render objects with no material
+            foreach (MDL0ObjectNode obj in objects)
+                if (obj.UsableMaterialNode == null)
+                    RenderObject(obj, null, attrib, v);
 
-                //Turn off the last bound shader program.
-                if (renderShaders)
-                    GL.UseProgram(0);
+            //Turn off the last bound shader program.
+            if (renderShaders)
+                GL.UseProgram(0);
 
-                GL.MatrixMode(MatrixMode.Modelview);
+            if (usesOffset)
                 GL.PopMatrix();
-                GL.MatrixMode(MatrixMode.Texture);
-                GL.PopMatrix();
-                GL.PopAttrib();
-            }
 
-            if (attrib._renderModelBox || attrib._renderObjectBoxes || attrib._renderBoneBoxes)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Disable(EnableCap.Lighting);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                bool bindState = _bindFrame && attrib._useBindStateBoxes;
-
-                if (attrib._renderModelBox)
-                {
-                    GL.Color4(Color.Gray);
-                    DrawBox(bindState);
-                }
-
-                if (attrib._renderObjectBoxes && _objList != null)
-                {
-                    GL.Color4(Color.Purple);
-                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
-                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
-                    else
-                        foreach (MDL0ObjectNode p in _objList)
-                            if (p._render)
-                                p.DrawBox();
-                }
-
-                if (attrib._renderBoneBoxes)
-                {
-                    GL.Color4(Color.Orange);
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.DrawBox(true, bindState);
-                }
-
-                GL.PopAttrib();
-            }
-
-            if (attrib._renderBones)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.Lighting);
-                GL.Disable(EnableCap.DepthTest);
-                //GL.Enable(EnableCap.LineSmooth);
-
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.LineWidth(1.5f);
-
-                if (_boneList != null)
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render(_isTargetModel, v);
-
-                GL.PopAttrib();
-            }
-
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
-                GL.PopMatrix();
+            GL.PopAttrib();
         }
 
         public void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera)
@@ -1481,6 +1420,62 @@ When true, metal materials and shaders will be added and modulated as you edit y
                             p._manager.RenderNormals();
             
         }
+        public void RenderBoxes(bool model, bool obj, bool bone, bool bindState)
+        {
+            if (model || obj || bone)
+            {
+                GL.PushAttrib(AttribMask.AllAttribBits);
+
+                GL.Disable(EnableCap.Lighting);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                bindState = _bindFrame && bindState;
+
+                if (model)
+                {
+                    GL.Color4(Color.Gray);
+                    DrawBox(bindState);
+                }
+
+                if (obj && _objList != null)
+                {
+                    GL.Color4(Color.Purple);
+                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
+                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
+                    else
+                        foreach (MDL0ObjectNode p in _objList)
+                            if (p._render)
+                                p.DrawBox();
+                }
+
+                if (bone)
+                {
+                    GL.Color4(Color.Orange);
+                    foreach (MDL0BoneNode b in _boneList)
+                        b.DrawBox(true, bindState);
+                }
+
+                GL.PopAttrib();
+            }
+        }
+
+        public void RenderBones(ModelPanelViewport v)
+        {
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
+            GL.Enable(EnableCap.Blend);
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.LineWidth(1.5f);
+
+            if (_boneList != null)
+                foreach (MDL0BoneNode bone in _boneList)
+                    bone.Render(_isTargetModel, v);
+
+            GL.PopAttrib();
+        }
 
         [Browsable(false)]
         public int SelectedObjectIndex { get { return _selectedObjectIndex; } set { _selectedObjectIndex = value; } }
@@ -1494,6 +1489,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
             ApplyVIS(null, 0);
             ApplyPAT(null, 0);
             ApplyCLR(null, 0);
+            ApplySCN(null, 0);
         }
 
         public void DrawBox(bool bindState)

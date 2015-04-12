@@ -139,13 +139,13 @@ namespace System.Windows.Forms
 
             _boxes[21] = numPosSX;
             _boxes[22] = numPosSY;
-            _boxes[23] = numPosSX;
+            _boxes[23] = numPosSZ;
             _boxes[24] = numPosRX;
             _boxes[25] = numPosRY;
-            _boxes[26] = numPosRX;
+            _boxes[26] = numPosRZ;
             _boxes[27] = numPosTX;
             _boxes[28] = numPosTY;
-            _boxes[29] = numPosTX;
+            _boxes[29] = numPosTZ;
 
             _boxes[30] = maxUndoCount;
 

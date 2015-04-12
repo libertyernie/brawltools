@@ -14,13 +14,13 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        protected const float _orbRadius = 1.0f;
-        protected const float _circRadius = 1.2f;
-        protected const float _axisSnapRange = 7.0f;
-        protected const float _selectRange = 0.03f; //Selection error range for orb and circ
-        protected const float _axisSelectRange = 0.15f; //Selection error range for axes
-        protected const float _selectOrbScale = _selectRange / _orbRadius;
-        protected const float _circOrbScale = _circRadius / _orbRadius;
+        public const float _orbRadius = 1.0f;
+        public const float _circRadius = 1.2f;
+        public const float _axisSnapRange = 7.0f;
+        public const float _selectRange = 0.03f; //Selection error range for orb and circ
+        public const float _axisSelectRange = 0.15f; //Selection error range for axes
+        public const float _selectOrbScale = _selectRange / _orbRadius;
+        public const float _circOrbScale = _circRadius / _orbRadius;
 
         public int _animFrame = 0, _maxFrame;
         public bool _updating, _loop;
@@ -48,7 +48,7 @@ namespace System.Windows.Forms
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
         public List<HotKeyInfo> _hotkeyList;
         public List<ResourceNode> _animationSearchNodes = new List<ResourceNode>();
-        public List<Image> images = new List<Image>();
+        public List<Image> _images = new List<Image>();
 
         //Bone Name - Attached Polygon Indices
         public Dictionary<string, List<int>> VIS0Indices
@@ -65,6 +65,7 @@ namespace System.Windows.Forms
 
         protected Vector3 _lastPointLocal, _lastPointWorld;
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
+        protected Matrix _newVertexTransform;
         protected Vector3? _vertexLoc = null;
 
         protected bool _rotating, _translating, _scaling;
@@ -95,12 +96,6 @@ namespace System.Windows.Forms
         public InterpolationForm _interpolationForm = null;
         public Control _currentControl = null;
         protected OpenFileDialog dlgOpen = new OpenFileDialog();
-
-        public uint _allowedUndos = 50;
-        public List<SaveState> _undoSaves = new List<SaveState>();
-        public List<SaveState> _redoSaves = new List<SaveState>();
-        public int _saveIndex = -1;
-        bool _undoing = true;
 
         #region Events
 

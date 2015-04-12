@@ -341,6 +341,16 @@ namespace System.Windows.Forms
                 Invalidate();
             }
         }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ScaleBones
+        {
+            get { return _renderAttrib._scaleBones; }
+            set
+            {
+                _renderAttrib._scaleBones = value;
+                Invalidate();
+            }
+        }
         #endregion
 
         #region Render Functions
@@ -397,7 +407,7 @@ namespace System.Windows.Forms
                             if (!only)
                             {
                                 GL.Color4(current ? Color.DarkOrange : Color.Gray);
-                                GL.Begin(PrimitiveType.LineLoop);
+                                GL.Begin(BeginMode.LineLoop);
                                 GL.Vertex2(0, 0);
                                 GL.Vertex2(0, Height);
                                 GL.Vertex2(Width, Height);
@@ -434,7 +444,7 @@ namespace System.Windows.Forms
                 GL.Enable(EnableCap.LineStipple);
                 GL.LineStipple(1, 0x0F0F);
                 GL.Color4(Color.Blue);
-                GL.Begin(PrimitiveType.LineLoop);
+                GL.Begin(BeginMode.LineLoop);
                 GL.Vertex2(_selStart.X, _selStart.Y);
                 GL.Vertex2(_selEnd.X, _selStart.Y);
                 GL.Vertex2(_selEnd.X, _selEnd.Y);
@@ -544,7 +554,7 @@ namespace System.Windows.Forms
                             break;
                     }
 
-                    GL.Begin(PrimitiveType.Quads);
+                    GL.Begin(BeginMode.Quads);
 
                     GL.TexCoord2(0.0f, 0.0f);
                     GL.Vertex2(&points[0]);
@@ -656,6 +666,12 @@ namespace System.Windows.Forms
                     bool ctrl = (mod & Keys.Control) != 0;
                     bool shift = (mod & Keys.Shift) != 0;
                     bool alt = (mod & Keys.Alt) != 0;
+
+                    if (ViewType != ViewportProjection.Perspective && !ctrl)
+                    {
+                        xDiff *= 20;
+                        yDiff *= 20;
+                    }
 
                     if (shift)
                     {

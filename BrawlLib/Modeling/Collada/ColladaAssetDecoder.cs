@@ -302,7 +302,7 @@ namespace BrawlLib.Modeling
             foreach (PrimitiveEntry prim in geo._primitives)
             {
                 //Get face/line count
-                if (prim._type == PrimitiveType.lines || prim._type == PrimitiveType.linestrips)
+                if (prim._type == ColladaPrimitiveType.lines || prim._type == ColladaPrimitiveType.linestrips)
                     lines += prim._faceCount;
                 else
                     faces += prim._faceCount;
@@ -334,12 +334,12 @@ namespace BrawlLib.Modeling
             //Create primitives
             if (faces > 0)
             {
-                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.PrimitiveType.Triangles);
+                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.BeginMode.Triangles);
                 pTriarr = manager._triangles._indices;
             }
             if (lines > 0)
             {
-                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
+                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.BeginMode.Lines);
                 pLinarr = manager._lines._indices;
             }
 
@@ -392,14 +392,14 @@ namespace BrawlLib.Modeling
                 //Process point indices
                 switch (prim._type)
                 {
-                    case PrimitiveType.triangles:
+                    case ColladaPrimitiveType.triangles:
                         count = prim._faceCount * 3;
                         while (count-- > 0)
                             pTriarr[pTri++] = fIndex++;
                         break;
-                    case PrimitiveType.trifans:
-                    case PrimitiveType.polygons:
-                    case PrimitiveType.polylist:
+                    case ColladaPrimitiveType.trifans:
+                    case ColladaPrimitiveType.polygons:
+                    case ColladaPrimitiveType.polylist:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount - 2;
@@ -413,7 +413,7 @@ namespace BrawlLib.Modeling
                             }
                         }
                         break;
-                    case PrimitiveType.tristrips:
+                    case ColladaPrimitiveType.tristrips:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount;
@@ -436,7 +436,7 @@ namespace BrawlLib.Modeling
                         }
                         break;
 
-                    case PrimitiveType.linestrips:
+                    case ColladaPrimitiveType.linestrips:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount - 1;
@@ -449,7 +449,7 @@ namespace BrawlLib.Modeling
                         }
                         break;
 
-                    case PrimitiveType.lines:
+                    case ColladaPrimitiveType.lines:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount;

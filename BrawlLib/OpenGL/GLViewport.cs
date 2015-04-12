@@ -1,5 +1,4 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
@@ -111,12 +110,18 @@ namespace BrawlLib.OpenGL
         public Vector3 Project(Vector3 source)
         {
             Vector3 vec = Camera.Project(source);
-            vec._x += _region.X;
-            vec._y = LocalToWorldYf(vec._y);
+            //No need to correct, the screen texture is relative to the viewport
+            //vec._x += _region.X;
+            //vec._y = LocalToWorldYf(vec._y);
             return vec;
         }
         public Vector3 UnProject(Vector3 source) { return UnProject(source._x, source._y, source._z); }
-        public Vector3 UnProject(float x, float y, float z) { return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z); }
+        public Vector3 UnProject(float x, float y, float z)
+        {
+            //No need to correct, the screen texture is relative to the viewport
+            //return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z);
+            return Camera.UnProject(x, y, z);
+        }
 
         public void Invalidate()
         {

@@ -524,7 +524,7 @@ namespace BrawlLib.Wii.Graphics
             string lightFuncName = "lightFunc" + index;
             string illumName = "illum" + index;
 
-            wl("vec4 {0}, {1}, {2} = {3};", matColorName, lightFuncName, illumName, vec4One);
+            wl("vec4 {0} = {3}, {1}, {2} = {3};", matColorName, lightFuncName, illumName, vec4One);
 
             if (color.Enabled || alpha.Enabled)
             {
@@ -542,15 +542,17 @@ namespace BrawlLib.Wii.Graphics
                 //Set material base color
                 GXColorSrc cAmbSrc = color.AmbientSource;
                 GXColorSrc aAmbSrc = alpha.AmbientSource;
-                if (cAmbSrc == aAmbSrc)
+                if (color.Enabled && alpha.Enabled && cAmbSrc == aAmbSrc)
                     wl("{0} *= {1};", illumName,
                         cAmbSrc == GXColorSrc.Register ? amb : _vVtxColorsName[index]);
                 else
                 {
-                    wl("{0}.rgb *= {1}.rgb;", illumName,
-                        cAmbSrc == GXColorSrc.Register ? amb : _vVtxColorsName[index]);
-                    wl("{0}.a *= {1}.a;", illumName,
-                        aAmbSrc == GXColorSrc.Register ? amb : _vVtxColorsName[index]);
+                    if (color.Enabled)
+                        wl("{0}.rgb *= {1}.rgb;", illumName,
+                            cAmbSrc == GXColorSrc.Register ? amb : _vVtxColorsName[index]);
+                    if (alpha.Enabled)
+                        wl("{0}.a *= {1}.a;", illumName,
+                            aAmbSrc == GXColorSrc.Register ? amb : _vVtxColorsName[index]);
                 }
 
                 //Add each light's color and attenuation to the illumination, on top of the ambient
@@ -642,15 +644,17 @@ namespace BrawlLib.Wii.Graphics
             //Set material base color
             GXColorSrc colorSrc = color.MaterialSource;
             GXColorSrc alphaSrc = alpha.MaterialSource;
-            if (colorSrc == alphaSrc)
+            if (color.Enabled && alpha.Enabled && colorSrc == alphaSrc)
                 wl("{0} = {1};", matColorName,
                     colorSrc == GXColorSrc.Register ? clr : _vVtxColorsName[index]);
             else
             {
-                wl("{0}.rgb = {1}.rgb;", matColorName,
-                    colorSrc == GXColorSrc.Register ? clr : _vVtxColorsName[index]);
-                wl("{0}.a = {1}.a;", matColorName,
-                    alphaSrc == GXColorSrc.Register ? clr : _vVtxColorsName[index]);
+                if (color.Enabled)
+                    wl("{0}.rgb = {1}.rgb;", matColorName,
+                        colorSrc == GXColorSrc.Register ? clr : _vVtxColorsName[index]);
+                if (alpha.Enabled)
+                    wl("{0}.a = {1}.a;", matColorName,
+                        alphaSrc == GXColorSrc.Register ? clr : _vVtxColorsName[index]);
             }
 
             //Multiply material base color by the light function value to get the light channel value

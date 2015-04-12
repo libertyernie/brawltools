@@ -67,9 +67,12 @@ namespace System.Windows.Forms
                 //Calculate lengths
                 Vector3 extents = max - min;
                 Vector3 halfExtents = extents / 2.0f;
-                float ratio = halfExtents._x / halfExtents._y;
-                distY = halfExtents._y / tan; //The camera's distance from the model's midpoint in respect to Y
-                distX = distY * ratio;
+                if (halfExtents._y != 0.0f)
+                {
+                    float ratio = halfExtents._x / halfExtents._y;
+                    distY = halfExtents._y / tan; //The camera's distance from the model's midpoint in respect to Y
+                    distX = distY * ratio;
+                }
             }
 
             cam.Reset();
@@ -285,8 +288,11 @@ namespace System.Windows.Forms
         {
             //Reset the cursor to default first, then override it later
             //Parent control mouse move functions are called after this one
-            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling)
+            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling && Cursor != Cursors.Default)
+            {
+                Invalidate();
                 Cursor = Cursors.Default;
+            }
 
             if (!Enabled)
                 return;
@@ -563,7 +569,8 @@ namespace System.Windows.Forms
             RenderWireframeChanged,
             UseBindStateBoxesChanged,
             ApplyBillboardBonesChanged,
-            RenderShadersChanged;
+            RenderShadersChanged,
+            ScaleBonesChanged;
 
         #endregion
 
@@ -750,6 +757,20 @@ namespace System.Windows.Forms
 
                 if (ApplyBillboardBonesChanged != null)
                     ApplyBillboardBonesChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ScaleBones
+        {
+            get { return CurrentViewport._renderAttrib._scaleBones; }
+            set
+            {
+                CurrentViewport._renderAttrib._scaleBones = value;
+
+                Invalidate();
+
+                if (ScaleBonesChanged != null)
+                    ScaleBonesChanged(this, value);
             }
         }
 

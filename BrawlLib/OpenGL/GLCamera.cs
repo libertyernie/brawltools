@@ -85,12 +85,6 @@ namespace BrawlLib.OpenGL
         public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
         public void Translate(float x, float y, float z)
         {
-            if (_ortho)
-            {
-                x *= 20.0f;
-                y *= 20.0f;
-            }
-
             _matrix = Matrix.TranslationMatrix(-x, -y, -z) * _matrix;
             _matrixInverse.Translate(x, y, z);
 
@@ -99,6 +93,10 @@ namespace BrawlLib.OpenGL
         public void Rotate(float x, float y, float z) { Rotate(new Vector3(x, y, z)); }
         public void Rotate(Vector3 v)
         {
+            //Fix for left and right dragging when the camera is upside down
+            if (_rotation._x < -90.0f || _rotation._x > 90.0f)
+                v._y = -v._y;
+
             if (_restrictXRot)
                 v._x = 0;
             if (_restrictYRot)
