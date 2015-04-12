@@ -22,6 +22,11 @@ namespace System.Windows.Forms
     public partial class ModelEditControl : ModelEditorBase
     {
         #region Model Viewer Properties
+        private void scaleBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                ScaleBones = !ScaleBones;
+        }
         private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (!_updating)

@@ -771,7 +771,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_UseBindStateBoxesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -782,7 +781,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_ApplyBillboardBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -793,7 +791,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -804,7 +801,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderVerticesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -815,7 +811,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderPolygonsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -826,7 +821,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderOffscreenChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -837,7 +831,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderNormalsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -848,7 +841,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderFloorChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -859,7 +851,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderModelBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -869,7 +860,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderObjectBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -879,7 +869,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderVisBoneBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -890,11 +879,19 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
                 toggleBones.Checked = chkBones.Checked = value;
+                _updating = false;
+            }
+        }
+        private void ModelPanel_ScaleBonesChanged(ModelPanel panel, bool value)
+        {
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                scaleBonesToolStripMenuItem.Checked = value;
                 _updating = false;
             }
         }

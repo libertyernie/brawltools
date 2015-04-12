@@ -568,7 +568,8 @@ namespace System.Windows.Forms
             RenderPolygonsChanged,
             RenderWireframeChanged,
             UseBindStateBoxesChanged,
-            ApplyBillboardBonesChanged;
+            ApplyBillboardBonesChanged,
+            ScaleBonesChanged;
 
         #endregion
 
@@ -741,6 +742,20 @@ namespace System.Windows.Forms
 
                 if (ApplyBillboardBonesChanged != null)
                     ApplyBillboardBonesChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ScaleBones
+        {
+            get { return CurrentViewport._renderAttrib._scaleBones; }
+            set
+            {
+                CurrentViewport._renderAttrib._scaleBones = value;
+
+                Invalidate();
+
+                if (ScaleBonesChanged != null)
+                    ScaleBonesChanged(this, value);
             }
         }
 

@@ -582,17 +582,17 @@ namespace System
             float* p = (float*)&m;
             fixed (float* src = _values)
             {
-                m[0] = src[0];
-                m[1] = src[1];
-                m[2] = src[2];
+                p[0] = src[0];
+                p[1] = src[1];
+                p[2] = src[2];
 
-                m[4] = src[4];
-                m[5] = src[5];
-                m[6] = src[6];
+                p[4] = src[4];
+                p[5] = src[5];
+                p[6] = src[6];
 
-                m[8] = src[8];
-                m[9] = src[9];
-                m[10] = src[10];
+                p[8] = src[8];
+                p[9] = src[9];
+                p[10] = src[10];
             }
             return m;
         }

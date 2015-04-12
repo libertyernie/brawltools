@@ -556,18 +556,19 @@ namespace System.Windows.Forms
                     IBoneNode o = null;
 
                     Vector3 point = v.UnProject(e.X, e.Y, depth);
+                    bool doScale = v._renderAttrib._scaleBones;
 
                     //Find orb near chosen point
                     if (EditingAll)
                     {
                         foreach (IModel m in _targetModels)
                             foreach (IBoneNode b in m.RootBones)
-                                if (CompareDistanceRecursive(b, point, ref o))
+                                if (CompareDistanceRecursive(b, point, ref o, v, doScale))
                                     break;
                     }
                     else if (_targetModel != null)
                         foreach (IBoneNode b in _targetModel.RootBones)
-                            if (CompareDistanceRecursive(b, point, ref o))
+                            if (CompareDistanceRecursive(b, point, ref o, v, doScale))
                                 break;
 
                     bool update = false;

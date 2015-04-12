@@ -182,6 +182,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem SCameraToolStripMenuItem;
         private ToolStripMenuItem RCameraToolStripMenuItem;
         private ToolStripMenuItem TCameraToolStripMenuItem;
+        private ToolStripMenuItem removeCurrentViewportToolStripMenuItem;
+        private ToolStripMenuItem scaleBonesToolStripMenuItem;
         private RightPanel rightPanel;
 
         private void InitializeComponent()
@@ -259,6 +261,7 @@ namespace System.Windows.Forms
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newViewportLeftToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newViewportAboveToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.removeCurrentViewportToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.modelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toggleBones = new System.Windows.Forms.ToolStripMenuItem();
             this.togglePolygons = new System.Windows.Forms.ToolStripMenuItem();
@@ -271,6 +274,7 @@ namespace System.Windows.Forms
             this.chkBBObjects = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBBVisBones = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBillboardBones = new System.Windows.Forms.ToolStripMenuItem();
+            this.scaleBonesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fileTypesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.playCHR0ToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -626,7 +630,7 @@ namespace System.Windows.Forms
             this.showRight,
             this.detachViewerToolStripMenuItem});
             this.editorsToolStripMenuItem.Name = "editorsToolStripMenuItem";
-            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.editorsToolStripMenuItem.Text = "Panels";
             // 
             // showTop
@@ -678,9 +682,10 @@ namespace System.Windows.Forms
             this.resetCameraToolStripMenuItem,
             this.showCameraCoordinatesToolStripMenuItem,
             this.firstPersonCameraToolStripMenuItem,
-            this.newToolStripMenuItem});
+            this.newToolStripMenuItem,
+            this.removeCurrentViewportToolStripMenuItem});
             this.viewportToolStripMenuItem.Name = "viewportToolStripMenuItem";
-            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.viewportToolStripMenuItem.Text = "Viewport";
             // 
             // backgroundToolStripMenuItem
@@ -999,6 +1004,13 @@ namespace System.Windows.Forms
             this.newViewportAboveToolStripMenuItem.Text = "Above";
             this.newViewportAboveToolStripMenuItem.Click += new System.EventHandler(this.topToolStripMenuItem1_Click);
             // 
+            // removeCurrentViewportToolStripMenuItem
+            // 
+            this.removeCurrentViewportToolStripMenuItem.Name = "removeCurrentViewportToolStripMenuItem";
+            this.removeCurrentViewportToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
+            this.removeCurrentViewportToolStripMenuItem.Text = "Remove Current Viewport";
+            this.removeCurrentViewportToolStripMenuItem.Click += new System.EventHandler(this.removeCurrentViewportToolStripMenuItem_Click);
+            // 
             // modelToolStripMenuItem
             // 
             this.modelToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
@@ -1009,9 +1021,10 @@ namespace System.Windows.Forms
             this.wireframeToolStripMenuItem,
             this.toggleNormals,
             this.boundingBoxToolStripMenuItem,
-            this.chkBillboardBones});
+            this.chkBillboardBones,
+            this.scaleBonesToolStripMenuItem});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
-            this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.modelToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.modelToolStripMenuItem.Text = "Model";
             // 
             // toggleBones
@@ -1108,13 +1121,20 @@ namespace System.Windows.Forms
             this.chkBillboardBones.Text = "Billboard Bones";
             this.chkBillboardBones.Click += new System.EventHandler(this.chkBillboardBones_Click);
             // 
+            // scaleBonesToolStripMenuItem
+            // 
+            this.scaleBonesToolStripMenuItem.Name = "scaleBonesToolStripMenuItem";
+            this.scaleBonesToolStripMenuItem.Size = new System.Drawing.Size(159, 22);
+            this.scaleBonesToolStripMenuItem.Text = "Scale Bones";
+            this.scaleBonesToolStripMenuItem.Click += new System.EventHandler(this.scaleBonesToolStripMenuItem_Click);
+            // 
             // fileTypesToolStripMenuItem
             // 
             this.fileTypesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.playToolStripMenuItem,
             this.sCN0ToolStripMenuItem});
             this.fileTypesToolStripMenuItem.Name = "fileTypesToolStripMenuItem";
-            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.fileTypesToolStripMenuItem.Text = "Animations";
             // 
             // playToolStripMenuItem
@@ -1230,7 +1250,7 @@ namespace System.Windows.Forms
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
@@ -1704,6 +1724,7 @@ namespace System.Windows.Forms
             this.modelPanel.RenderWireframeChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_RenderWireframeChanged);
             this.modelPanel.UseBindStateBoxesChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_UseBindStateBoxesChanged);
             this.modelPanel.ApplyBillboardBonesChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_ApplyBillboardBonesChanged);
+            this.modelPanel.ScaleBonesChanged += new System.Windows.Forms.ModelPanel.RenderStateEvent(this.ModelPanel_ScaleBonesChanged);
             this.modelPanel.OnCurrentViewportChanged += new BrawlLib.OpenGL.ViewportAction(this.modelPanel_OnCurrentViewportChanged);
             // 
             // label1
@@ -1957,5 +1978,10 @@ namespace System.Windows.Forms
         }
 
         #endregion
+
+        private void removeCurrentViewportToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ModelPanel.RemoveViewport(ModelPanel.CurrentViewport);
+        }
     }
 }

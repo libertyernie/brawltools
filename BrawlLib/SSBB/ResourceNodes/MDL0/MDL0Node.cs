@@ -1320,134 +1320,84 @@ When true, metal materials and shaders will be added and modulated as you edit y
             }
         }
 
+        /// <summary>
+        /// Call this before rendering meshes or bones if applying billboards
+        /// This can be optimized by only being called when the camera moves
+        /// or when a CHR0 frame is applied
+        /// </summary>
+        public void UpdateBillboards(ModelPanelViewport v)
+        {
+            if (_billboardBones.Count > 0)
+            {
+                WeightModel(v);
+                ApplySHP(_currentSHP, _currentSHPIndex);
+            }
+        }
+
         public Matrix _matrixOffset = Matrix.Identity;
         public void Render(params object[] args)
         {
             if (!_render || TKContext.CurrentContext == null)
                 return;
-            
-            ModelRenderAttributes attrib;
-            ModelPanelViewport v = null;
 
+            ModelPanelViewport v = null;
             if (args.Length > 0 && args[0] is ModelPanelViewport)
                 v = args[0] as ModelPanelViewport;
 
-            if (!_ignoreModelViewerAttribs && v != null && v._renderAttrib != null)
-                attrib = v._renderAttrib;
-            else
-                attrib = _renderAttribs;
+            ModelRenderAttributes attrib = 
+                !_ignoreModelViewerAttribs && v != null && v._renderAttrib != null ?
+                v._renderAttrib :
+                _renderAttribs;
 
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            if (!attrib._renderPolygons && !attrib._renderWireframe)
+                return;
 
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
+            bool usesOffset = _matrixOffset != Matrix.Identity && _matrixOffset != new Matrix();
+            if (usesOffset)
             {
                 GL.PushMatrix();
                 Matrix m = _matrixOffset;
                 GL.MultMatrix((float*)&m);
             }
 
-            //Apply billboard bones before rendering meshes
-            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Lighting);
+            GL.Enable(EnableCap.DepthTest);
+
+            float maxDrawPriority = 0.0f;
+            if (_objList != null)
+                foreach (MDL0ObjectNode p in _objList)
+                    maxDrawPriority = Math.Max(maxDrawPriority, p.DrawPriority);
+
+            //Draw objects in the prioritized order of materials.
+            List<MDL0ObjectNode> rendered = new List<MDL0ObjectNode>();
+            if (_matList != null)
+                foreach (MDL0MaterialNode m in _matList)
+                    foreach (MDL0ObjectNode p in m._objects)
+                    {
+                        RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
+                        rendered.Add(p);
+                    }
+
+            //Render any remaining objects
+            if (_objList != null)
+                foreach (MDL0ObjectNode p in _objList)
+                    if (!rendered.Contains(p))
+                        RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
+
+            //Turn off the last bound shader program.
+            if (TKContext.CurrentContext._shadersEnabled)
             {
-                WeightModel(v);
-                ApplySHP(_currentSHP, _currentSHPIndex);
+                GL.UseProgram(0);
+                GL.ClientActiveTexture(TextureUnit.Texture0);
             }
 
-            if (attrib._renderPolygons || attrib._renderWireframe)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
+            GL.PopAttrib();
 
-                GL.Enable(EnableCap.Lighting);
-                GL.Enable(EnableCap.DepthTest);
-
-                float maxDrawPriority = 0.0f;
-                if (_objList != null)
-                    foreach (MDL0ObjectNode p in _objList)
-                        maxDrawPriority = Math.Max(maxDrawPriority, p.DrawPriority);
-
-                //Draw objects in the prioritized order of materials.
-                List<MDL0ObjectNode> rendered = new List<MDL0ObjectNode>();
-                if (_matList != null)
-                    foreach (MDL0MaterialNode m in _matList)
-                        foreach (MDL0ObjectNode p in m._objects)
-                        {
-                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
-                            rendered.Add(p);
-                        }
-
-                //Render any remaining objects
-                if (_objList != null)
-                    foreach (MDL0ObjectNode p in _objList)
-                        if (!rendered.Contains(p))
-                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
-
-                //Turn off the last bound shader program.
-                if (TKContext.CurrentContext._shadersEnabled)
-                {
-                    GL.UseProgram(0);
-                    GL.ClientActiveTexture(TextureUnit.Texture0);
-                }
-
-                GL.PopAttrib();
-            }
-
-            if (attrib._renderModelBox || attrib._renderObjectBoxes || attrib._renderBoneBoxes)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Disable(EnableCap.Lighting);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                bool bindState = _bindFrame && attrib._useBindStateBoxes;
-
-                if (attrib._renderModelBox)
-                {
-                    GL.Color4(Color.Gray);
-                    DrawBox(bindState);
-                }
-
-                if (attrib._renderObjectBoxes && _objList != null)
-                {
-                    GL.Color4(Color.Purple);
-                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
-                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
-                    else
-                        foreach (MDL0ObjectNode p in _objList)
-                            if (p._render)
-                                p.DrawBox();
-                }
-
-                if (attrib._renderBoneBoxes)
-                {
-                    GL.Color4(Color.Orange);
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.DrawBox(true, bindState);
-                }
-
-                GL.PopAttrib();
-            }
-
-            if (attrib._renderBones)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.Lighting);
-                GL.Disable(EnableCap.DepthTest);
-                //GL.Enable(EnableCap.LineSmooth);
-
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.LineWidth(1.5f);
-
-                if (_boneList != null)
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render(_isTargetModel, v);
-
-                GL.PopAttrib();
-            }
-
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
+            if (usesOffset)
                 GL.PopMatrix();
         }
 
@@ -1484,6 +1434,62 @@ When true, metal materials and shaders will be added and modulated as you edit y
                             p._manager.RenderNormals();
             
         }
+        public void RenderBoxes(bool model, bool obj, bool bone, bool bindState)
+        {
+            if (model || obj || bone)
+            {
+                GL.PushAttrib(AttribMask.AllAttribBits);
+
+                GL.Disable(EnableCap.Lighting);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                bindState = _bindFrame && bindState;
+
+                if (model)
+                {
+                    GL.Color4(Color.Gray);
+                    DrawBox(bindState);
+                }
+
+                if (obj && _objList != null)
+                {
+                    GL.Color4(Color.Purple);
+                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
+                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
+                    else
+                        foreach (MDL0ObjectNode p in _objList)
+                            if (p._render)
+                                p.DrawBox();
+                }
+
+                if (bone)
+                {
+                    GL.Color4(Color.Orange);
+                    foreach (MDL0BoneNode b in _boneList)
+                        b.DrawBox(true, bindState);
+                }
+
+                GL.PopAttrib();
+            }
+        }
+
+        public void RenderBones(ModelPanelViewport v)
+        {
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
+            GL.Enable(EnableCap.Blend);
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.LineWidth(1.5f);
+
+            if (_boneList != null)
+                foreach (MDL0BoneNode bone in _boneList)
+                    bone.Render(_isTargetModel, v);
+
+            GL.PopAttrib();
+        }
 
         [Browsable(false)]
         public int SelectedObjectIndex { get { return _selectedObjectIndex; } set { _selectedObjectIndex = value; } }
@@ -1497,6 +1503,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
             ApplyVIS(null, 0);
             ApplyPAT(null, 0);
             ApplyCLR(null, 0);
+            ApplySCN(null, 0);
         }
 
         public void DrawBox(bool bindState)

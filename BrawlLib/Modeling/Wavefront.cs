@@ -153,16 +153,16 @@ namespace BrawlLib.Modeling
             //    {
             //        switch (p._type)
             //        {
-            //            case GLPrimitiveType.TriangleFan:
+            //            case GLBeginMode.TriangleFan:
             //                WriteTriFan(writer, p);
             //                break;
-            //            case GLPrimitiveType.TriangleStrip:
+            //            case GLBeginMode.TriangleStrip:
             //                WriteTriStrip(writer, p);
             //                break;
-            //            case GLPrimitiveType.Triangles:
+            //            case GLBeginMode.Triangles:
             //                WriteTriList(writer, p);
             //                break;
-            //            case GLPrimitiveType.Quads:
+            //            case GLBeginMode.Quads:
             //                WriteQuadList(writer, p);
             //                break;
             //        }
