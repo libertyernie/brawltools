@@ -1399,8 +1399,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             if (mat != null)
                 foreach (CLR0MaterialEntryNode e in mat.Children)
                 {
-                    int colorIndex = (int)Math.Truncate(index - 1);
-                    RGBAPixel color = e.Colors[colorIndex];
+                    RGBAPixel color = e.Constant ? e.SolidColor : e.Colors[((int)Math.Truncate(index - 1)).Clamp(0, e.Colors.Count - 1)];
                     RGBAPixel mask = e.ColorMask;
                     switch (e.Target)
                     {
