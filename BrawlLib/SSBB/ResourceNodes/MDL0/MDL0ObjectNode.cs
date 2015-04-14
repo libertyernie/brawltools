@@ -1376,6 +1376,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         
         public void Render(params object[] args)
         {
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
@@ -1385,7 +1387,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 (ModelRenderAttributes)args[0] :
                 _renderAttrib;
 
-            Render(false, attrib._renderShaders, UsableMaterialNode);
+            Render(false, false, UsableMaterialNode);
         }
 
         #endregion

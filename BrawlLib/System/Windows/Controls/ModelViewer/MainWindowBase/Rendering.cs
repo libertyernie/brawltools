@@ -1199,8 +1199,8 @@ namespace System.Windows.Forms
             //So that the model clips with the floor
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Texture2D);
-            //GL.MatrixMode(MatrixMode.Texture);
-            //GL.LoadIdentity();
+            GL.MatrixMode(MatrixMode.Texture);
+            GL.LoadIdentity();
 
             GLTexture bgTex = TKContext.FindOrCreate<GLTexture>("TexBG", GLTexturePanel.CreateBG);
             bgTex.Bind();
@@ -1220,7 +1220,7 @@ namespace System.Windows.Forms
             GL.Vertex3(e, 0.0f, -e);
             GL.TexCoord2(s, t);
             GL.Vertex3(e, 0.0f, e);
-            GL.TexCoord2(0, t);
+            GL.TexCoord2(0.0f, t);
             GL.Vertex3(-e, 0.0f, e);
 
             GL.End();

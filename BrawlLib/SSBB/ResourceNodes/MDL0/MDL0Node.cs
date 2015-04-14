@@ -1337,8 +1337,6 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if ((!attrib._renderPolygons && !attrib._renderWireframe) || _objList == null || _objList.Count == 0)
                 return;
 
-            bool renderShaders = attrib._renderShaders;
-
             GL.PushAttrib(AttribMask.AllAttribBits);
             GL.MatrixMode(MatrixMode.Modelview);
 
@@ -1378,11 +1376,14 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     RenderObject(obj, null, attrib, v);
 
             //Turn off the last bound shader program.
-            if (renderShaders)
+            if (attrib._renderShaders)
                 GL.UseProgram(0);
 
             if (usesOffset)
                 GL.PopMatrix();
+
+            GL.MatrixMode(MatrixMode.Texture);
+            GL.LoadIdentity();
 
             GL.PopAttrib();
         }
