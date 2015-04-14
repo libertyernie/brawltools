@@ -19,8 +19,6 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             CurrentViewport.ViewType = ViewportProjection.Front;
-            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, 0, Height);
-            CurrentViewport.Camera.CalculateProjection();
         }
 
         #region Variables
@@ -349,16 +347,87 @@ namespace System.Windows.Forms
 
         #region Mouse, Resize
 
+        float ToScreenX(float value)
+        {
+            return value * _xScale - Width / 2.0f;
+        }
+        float ToScreenY(float value)
+        {
+            return value * _yScale - Height / 2.0f;
+        }
+        float FromScreenX(float value)
+        {
+            return (value + (Width / 2.0f)) / _xScale;
+        }
+        float FromScreenY(float value)
+        {
+            return (value + (Height / 2.0f)) / _yScale;
+        }
+
+        bool TrySelect(KeyframeEntry e, int min, float mouseX, float mouseY)
+        {
+            if (e._index >= 0)
+            {
+                float keyFrame = (float)e._index;
+                Vector3 point = CurrentViewport.Camera.Project(keyFrame - min, e._value - _minVal, 0.0f);
+
+                point._x += Width / 2.0f;
+                point._y += Height / 2.0f;
+
+                if (Math.Abs(mouseX - point._x) <= _pointWidth)
+                {
+                    if (Math.Abs(mouseY - point._y) <= _pointWidth)
+                    {
+                //if (Math.Abs(mouseX - ToScreenX(keyFrame - min)) <= _pointWidth)
+                //{
+                //    if (Math.Abs(mouseY - ToScreenY(e._value - _minVal)) <= _pointWidth)
+                //    {
+                        _hiKey = e;
+                        Cursor = Cursors.Hand;
+                        Invalidate();
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
         protected override void OnMouseMove(MouseEventArgs e)
         {
+            if (_selecting)
+            {
+                _selEnd = new Vector2(e.X, e.Y);
+                Invalidate();
+            }
+
             if (_keyRoot == null)
                 return;
 
             float mouseY = e.Y;
             float mouseX = e.X;
 
+            if (_ctx != null && _grabbing)
+                lock (_ctx)
+                {
+                    int xDiff = e.X - _lastX;
+                    int yDiff = e.Y - _lastY;
+
+                    Translate(
+                        -xDiff * _transFactor,
+                        yDiff * _transFactor,
+                        0.0f);
+
+                    _lastX = e.X;
+                    _lastY = e.Y;
+
+                    return;
+                }
+
+            _lastX = e.X;
+            _lastY = e.Y;
+
             //Get nearest frame value
-            int frameVal = (int)(mouseX / _xScale + 0.5f);
+            int frameVal = (int)(FromScreenX(mouseX) + 0.5f);
 
             int min = GetKeyframeMinIndex();
             if (!_dragging)
@@ -373,65 +442,16 @@ namespace System.Windows.Forms
 
                 if (DisplayAllKeyframes)
                     for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
-                    {
-                        float frame = (float)entry._index;
-                        if (Math.Abs(mouseX - (frame * _xScale)) <= _pointWidth)
-                        {
-                            if (Math.Abs(mouseY - ((entry._value - _minVal) * _yScale)) <= _pointWidth)
-                            {
-                                _hiKey = entry;
-                                Cursor = Cursors.Hand;
-                                Invalidate();
-                                return;
-                            }
-                        }
-                    }
+                        if (TrySelect(entry, min, mouseX, mouseY)) 
+                            return;
 
                 if (/*_drawTans && */_selKey != null)
                 {
                     if (!DisplayAllKeyframes)
                     {
-                        if (SelectedKeyframe._prev._index != -1)
-                        {
-                            float frame = (float)SelectedKeyframe._prev._index;
-                            if (Math.Abs(mouseX - ((frame - min) * _xScale)) <= _pointWidth)
-                            {
-                                if (Math.Abs(mouseY - ((SelectedKeyframe._prev._value - _minVal) * _yScale)) <= _pointWidth)
-                                {
-                                    _hiKey = SelectedKeyframe._prev;
-                                    Cursor = Cursors.Hand;
-                                    Invalidate();
-                                    return;
-                                }
-                            }
-                        }
-
-                        float frame1 = (float)SelectedKeyframe._index;
-                        if (Math.Abs(mouseX - ((frame1 - min) * _xScale)) <= _pointWidth)
-                        {
-                            if (Math.Abs(mouseY - ((SelectedKeyframe._value - _minVal) * _yScale)) <= _pointWidth)
-                            {
-                                _hiKey = SelectedKeyframe;
-                                Cursor = Cursors.Hand;
-                                Invalidate();
-                                return;
-                            }
-                        }
-
-                        if (SelectedKeyframe._next._index != -1)
-                        {
-                            float frame = (float)SelectedKeyframe._next._index;
-                            if (Math.Abs(mouseX - ((frame - min) * _xScale)) <= _pointWidth)
-                            {
-                                if (Math.Abs(mouseY - ((SelectedKeyframe._next._value - _minVal) * _yScale)) <= _pointWidth)
-                                {
-                                    _hiKey = SelectedKeyframe._next;
-                                    Cursor = Cursors.Hand;
-                                    Invalidate();
-                                    return;
-                                }
-                            }
-                        }
+                        if (TrySelect(SelectedKeyframe._prev, min, mouseX, mouseY)) return;
+                        if (TrySelect(SelectedKeyframe, min, mouseX, mouseY)) return;
+                        if (TrySelect(SelectedKeyframe._next, min, mouseX, mouseY)) return;
                     }
 
                     float i1 = -(_tanLen / 2);
@@ -442,35 +462,38 @@ namespace System.Windows.Forms
                     float tan = _selKey._tangent;
 
                     float p = (float)Math.Sqrt(_precision / 4.0f);
-                    Vector2 one = new Vector2((xVal2 + i1 * p - min) * _xScale, (yVal - _minVal + tan * i1 * p) * _yScale);
-                    Vector2 two = new Vector2((xVal2 + i2 * p - min) * _xScale, (yVal - _minVal + tan * i2 * p) * _yScale);
+                    Vector2 one = new Vector2(
+                        ToScreenX(xVal2 + i1 * p - min),
+                        ToScreenY(yVal - _minVal + tan * i1 * p));
+                    Vector2 two = new Vector2(
+                        ToScreenX(xVal2 + i2 * p - min),
+                        ToScreenY(yVal - _minVal + tan * i2 * p));
 
                     _slopePoint = null;
-                    if (Math.Abs(mouseX - one._x) <= _pointWidth && Math.Abs(mouseY - one._y) <= _pointWidth)
+                    if (Math.Abs(mouseX - one._x) <= _pointWidth && 
+                        Math.Abs(mouseY - one._y) <= _pointWidth)
                     {
                         _slopePoint = new Vector2(mouseX, mouseY);
-                        _origPos = new Vector2((float)(xVal2 - min) * _xScale, (yVal - _minVal) * _yScale);
+                        _origPos = new Vector2(ToScreenX(xVal2 - min), ToScreenY(yVal - _minVal));
                         _hiKey = _selKey;
                         Cursor = Cursors.Hand;
                         Invalidate();
                         return;
                     }
 
-                    if (Math.Abs(mouseX - two._x) <= _pointWidth)
+                    if (Math.Abs(mouseX - two._x) <= _pointWidth && 
+                        Math.Abs(mouseY - two._y) <= _pointWidth)
                     {
-                        if (Math.Abs(mouseY - two._y) <= _pointWidth)
-                        {
-                            _slopePoint = new Vector2(mouseX, mouseY);
-                            _origPos = new Vector2((float)(xVal2 - min) * _xScale, (yVal - _minVal) * _yScale);
-                            _hiKey = _selKey;
-                            Cursor = Cursors.Hand;
-                            Invalidate();
-                            return;
-                        }
+                        _slopePoint = new Vector2(mouseX, mouseY);
+                        _origPos = new Vector2(ToScreenX(xVal2 - min), ToScreenY(yVal - _minVal));
+                        _hiKey = _selKey;
+                        Cursor = Cursors.Hand;
+                        Invalidate();
+                        return;
                     }
                 }
                 if (DisplayAllKeyframes)
-                    if (Math.Abs(mouseX - (_frame * _xScale)) <= _pointWidth)
+                    if (Math.Abs(mouseX - ToScreenX(_frame)) <= _pointWidth)
                         Cursor = Cursors.VSplit;
             }
             else if (_selKey != null && (_keyDraggingAllowed || _slopePoint != null))
@@ -489,7 +512,7 @@ namespace System.Windows.Forms
                     _slopePoint = new Vector2(x2 == _origPos._x ? ((Vector2)_slopePoint)._x : x2, y2);
 
                     Vector2 x = (Vector2)_slopePoint - _origPos;
-                    _selKey._tangent = (float)Math.Round((x._y / _yScale) / (x._x / _xScale), 5);
+                    _selKey._tangent = (float)Math.Round(FromScreenY(x._y) / FromScreenX(x._x), 5);
 
                     if (_genTans)
                     {
@@ -522,7 +545,7 @@ namespace System.Windows.Forms
                 }
                 else if (_keyDraggingAllowed)
                 {
-                    float yVal = mouseY / _yScale + _minVal;
+                    float yVal = FromScreenY(mouseY) + _minVal;
                     int xv = frameVal;
                     int xDiff = xv - (int)(_prevX + 0.5f);
                     float yDiff = (yVal - _prevY);
@@ -594,7 +617,14 @@ namespace System.Windows.Forms
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            bool t = _selKey != _hiKey;
+            if (e.Button == MouseButtons.Right)
+            {
+                _grabbing = true;
+                base.OnMouseDown(e);
+                return;
+            }
+
+            bool keyChanged = _selKey != _hiKey;
 
             if (DisplayAllKeyframes)
                 _dragging = (_selKey = _hiKey) != null || Cursor == Cursors.VSplit || _slopePoint != null;
@@ -619,16 +649,46 @@ namespace System.Windows.Forms
                     _lockIncs = true;
             }
 
-            if (t)
+            if (keyChanged)
             {
                 Invalidate();
                 if (SelectedKeyframeChanged != null)
                     SelectedKeyframeChanged(this, null);
             }
+
+            if (_allowSelection && !_selecting)
+            {
+                _selecting = true;
+                _selStart = new Vector2(e.X, e.Y);
+                _selEnd = _selStart;
+                _shiftSelecting = ModifierKeys == Keys.ShiftKey || ModifierKeys == Keys.Shift;
+            }
+            else if (_selecting && _shiftSelecting)
+            {
+                _selecting = false;
+                _selEnd = new Vector2(e.X, e.Y);
+                _shiftSelecting = false;
+            }
         }
 
         protected override void OnMouseUp(MouseEventArgs e)
         {
+            if (_selecting && !(ModifierKeys == Keys.ShiftKey || ModifierKeys == Keys.Shift || _shiftSelecting))
+            {
+                _selEnd = new Vector2(e.X, e.Y);
+                _selecting = false;
+                Invalidate();
+                return;
+            }
+
+            if (e.Button == MouseButtons.Right && _grabbing)
+            {
+                _grabbing = false;
+                Invalidate();
+                base.OnMouseUp(e);
+                return;
+            }
+
             if (_slopePoint != null || (_dragging && _lockIncs))
                 Invalidate();
 
@@ -644,11 +704,7 @@ namespace System.Windows.Forms
 
             _precision = (float)Width / 100.0f;
 
-            BeginUpdate();
-            CurrentViewport.Region = new Rectangle(0, 0, Width, Height);
-            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, 0, Height);
-            CurrentViewport.Camera.CalculateProjection();
-            EndUpdate();
+            base.OnResize(e);
         }
 
         #endregion
@@ -669,6 +725,9 @@ namespace System.Windows.Forms
 
         private void DrawTangent(KeyframeEntry e, float xMin)
         {
+            if (e._index < 0)
+                return;
+
             int xVal = e._index;
             float yVal = e._value;
             float tan = e._tangent;
@@ -677,8 +736,12 @@ namespace System.Windows.Forms
             float i2 = (_tanLen / 2);
 
             float p = (float)Math.Sqrt(_precision / 4.0f);
-            Vector2 one = new Vector2((xVal + i1 * p - xMin) * _xScale, (yVal - _minVal + tan * i1 * p) * _yScale);
-            Vector2 two = new Vector2((xVal + i2 * p - xMin) * _xScale, (yVal - _minVal + tan * i2 * p) * _yScale);
+            Vector2 one = new Vector2(
+                ToScreenX(xVal + i1 * p - xMin),
+                ToScreenY(yVal - _minVal + tan * i1 * p));
+            Vector2 two = new Vector2(
+                ToScreenX(xVal + i2 * p - xMin),
+                ToScreenY(yVal - _minVal + tan * i2 * p));
 
             if (e == _selKey)
             {
@@ -730,7 +793,7 @@ namespace System.Windows.Forms
         protected override void OnRender(PaintEventArgs e)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
-            GL.ClearColor(Color.White);
+            GL.ClearColor(Color.LightGray);
 
             if (_keyRoot == null)
                 return;
@@ -749,6 +812,7 @@ namespace System.Windows.Forms
             float one, two;
             bool has2nd;
 
+            int min = 0, max;
             if (_allKeys)
             {
                 //Draw lines
@@ -780,28 +844,15 @@ namespace System.Windows.Forms
                 for (float i = 0; i < (float)_frameLimit; i += (1 / _precision))
                 {
                     has2nd = GetFrameValue(i, out one, out two);
-                    GL.Vertex2(i * _xScale, (one - _minVal) * _yScale);
+                    GL.Vertex2(ToScreenX(i), ToScreenY(one - _minVal));
                     if (has2nd)
                     {
                         GL.End();
                         GL.Begin(PrimitiveType.LineStrip);
-                        GL.Vertex2(i * _xScale, (two - _minVal) * _yScale);
+                        GL.Vertex2(ToScreenX(i), ToScreenY(two - _minVal));
                     }
                 }
                 GL.End();
-                
-                //Draw frame indicator
-                GL.Color4(Color.Blue);
-                if (_frame >= 0 && _frame < _frameLimit)
-                {
-                    GL.Begin(PrimitiveType.Lines);
-
-                    float r = _frame * _xScale;
-                    GL.Vertex2(r, 0.0f);
-                    GL.Vertex2(r, Height);
-
-                    GL.End();
-                }
 
                 //Draw points
                 GL.Color4(Color.Black);
@@ -816,9 +867,9 @@ namespace System.Windows.Forms
                     }
 
                     has2nd = GetFrameValue(entry._index, out one, out two);
-                    GL.Vertex2(entry._index * _xScale, (one - _minVal) * _yScale);
+                    GL.Vertex2(ToScreenX(entry._index), ToScreenY(one - _minVal));
                     if (has2nd)
-                        GL.Vertex2(entry._index * _xScale, (two - _minVal) * _yScale);
+                        GL.Vertex2(ToScreenX(entry._index), ToScreenY(two - _minVal));
 
                     if (t)
                     {
@@ -834,12 +885,8 @@ namespace System.Windows.Forms
                 GL.Color4(Color.Black);
                 GL.Begin(PrimitiveType.Lines);
 
-                int min = GetKeyframeMinIndex();
-                int max = GetKeyframeMaxIndex();
-
-                float xv = (SelectedKeyframe._index - min) * _xScale;
-                GL.Vertex2(xv, 0.0f);
-                GL.Vertex2(xv, Height);
+                min = GetKeyframeMinIndex();
+                max = GetKeyframeMaxIndex();
 
                 //float yv = (GetFrameValue(SelectedKeyframe._index) - _minVal) * _yScale;
                 //GL.Vertex2(0.0f, yv);
@@ -858,43 +905,169 @@ namespace System.Windows.Forms
                 DrawTangent(SelectedKeyframe, min);
                 if (_drawTans)
                 {
-                    if (SelectedKeyframe._prev._index != -1)
-                        DrawTangent(SelectedKeyframe._prev, min);
-                    if (SelectedKeyframe._next._index != -1)
-                        DrawTangent(SelectedKeyframe._next, min);
+                    DrawTangent(SelectedKeyframe._prev, min);
+                    DrawTangent(SelectedKeyframe._next, min);
                 }
 
                 //Draw points
                 GL.Color4(Color.Black);
                 GL.Begin(PrimitiveType.Points);
 
-                if (SelectedKeyframe._prev._index != -1)
-                {
-                    has2nd = GetFrameValue(SelectedKeyframe._prev._index, out one, out two);
-                    GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (one - _minVal) * _yScale);
-                    if (has2nd)
-                        GL.Vertex2((SelectedKeyframe._prev._index - min) * _xScale, (two - _minVal) * _yScale);
-                }
-                if (SelectedKeyframe._index != -1)
-                {
-                    has2nd = GetFrameValue(SelectedKeyframe._index, out one, out two);
-                    GL.Vertex2((SelectedKeyframe._index - min) * _xScale, (one - _minVal) * _yScale);
-                    if (has2nd)
-                        GL.Vertex2((SelectedKeyframe._index - min) * _xScale, (two - _minVal) * _yScale);
-                }
-                if (SelectedKeyframe._next._index != -1)
-                {
-                    has2nd = GetFrameValue(SelectedKeyframe._next._index, out one, out two);
-                    GL.Vertex2((SelectedKeyframe._next._index - min) * _xScale, (one - _minVal) * _yScale);
-                    if (has2nd)
-                        GL.Vertex2((SelectedKeyframe._next._index - min) * _xScale, (two - _minVal) * _yScale);
-                }
+                TryDraw(SelectedKeyframe._prev, min);
+                TryDraw(SelectedKeyframe, min);
+                TryDraw(SelectedKeyframe._next, min);
 
                 GL.End();
             }
 
+            GL.MatrixMode(MatrixMode.Projection);
+            GL.LoadIdentity();
+            GL.Ortho(0, Width, Height, 0, -1.0f, 1.0f);
+
+            GL.MatrixMode(MatrixMode.Modelview);
+            GL.LoadIdentity();
+
+            if (_allKeys)
+            {
+                //Draw frame indicator
+                GL.Color4(Color.Blue);
+                if (_frame >= 0 && _frame < _frameLimit)
+                {
+                    GL.Begin(PrimitiveType.Lines);
+
+                    float r = _frame * _xScale;
+                    GL.Vertex2(r, 0.0f);
+                    GL.Vertex2(r, Height);
+
+                    GL.End();
+                }
+            }
+            else if (SelectedKeyframe != null)
+            {
+                float frameX = (SelectedKeyframe._index - min) * _xScale;
+                GL.Vertex2(frameX, 0.0f);
+                GL.Vertex2(frameX, Height);
+            }
+
+            if (_selecting)
+            {
+                GL.Enable(EnableCap.LineStipple);
+                GL.LineStipple(1, 0x0F0F);
+                GL.Color4(Color.Gray);
+                GL.Begin(PrimitiveType.LineLoop);
+                GL.Vertex2(_selStart._x, _selStart._y);
+                GL.Vertex2(_selEnd._x, _selStart._y);
+                GL.Vertex2(_selEnd._x, _selEnd._y);
+                GL.Vertex2(_selStart._x, _selEnd._y);
+                GL.End();
+                GL.Disable(EnableCap.LineStipple);
+            }
+
             GL.Disable(EnableCap.ScissorTest);
         }
+        void TryDraw(KeyframeEntry e, float min)
+        {
+            if (e._index >= 0)
+            {
+                float one, two;
+                bool has2nd = GetFrameValue(e._index, out one, out two);
+                GL.Vertex2(ToScreenX(e._index - min), ToScreenY(one - _minVal));
+                if (has2nd)
+                    GL.Vertex2(ToScreenX(e._index - min), ToScreenY(two - _minVal));
+            }
+        }
         #endregion
+
+        bool _grabbing = false;
+        int _lastX = 0, _lastY = 0;
+        float _transFactor = 0.05f;
+        float _zoomFactor = 2.5f;
+        public bool _allowSelection = true;
+        public bool _selecting = false;
+        public bool _shiftSelecting;
+        public Vector2 _selStart, _selEnd;
+
+        protected override void OnMouseWheel(MouseEventArgs e)
+        {
+            if (!Enabled)
+                return;
+
+            Zoom(-(float)e.Delta / 120.0f * _zoomFactor, e.X, e.Y);
+
+            base.OnMouseWheel(e);
+        }
+
+        private void Translate(float x, float y, float z)
+        {
+            CurrentViewport.Camera.Translate(x, y, z);
+            Invalidate();
+        }
+
+        private void Zoom(float amt, float originX, float originY)
+        {
+            float scale = (amt >= 0 ? amt / 2.0f : 2.0f / -amt);
+            Scale(scale, scale, scale);
+        }
+
+        private void Scale(float x, float y, float z)
+        {
+            CurrentViewport.Camera.Scale(x, y, z);
+            Invalidate();
+        }
+
+        protected override bool ProcessKeyMessage(ref Message m)
+        {
+            if (!Enabled)
+                return false;
+
+            if (m.Msg == 0x100)
+            {
+                Keys mod = Control.ModifierKeys;
+                bool ctrl = (mod & Keys.Control) != 0;
+                bool shift = (mod & Keys.Shift) != 0;
+                bool alt = (mod & Keys.Alt) != 0;
+                switch ((Keys)m.WParam)
+                {
+                    case Keys.NumPad8:
+                    case Keys.Up:
+                        {
+                            Translate(0.0f, -_transFactor * 8, 0.0f);
+                            return true;
+                        }
+                    case Keys.NumPad2:
+                    case Keys.Down:
+                        {
+                            Translate(0.0f, _transFactor * 8, 0.0f);
+                            return true;
+                        }
+                    case Keys.NumPad6:
+                    case Keys.Right:
+                        {
+                            Translate(_transFactor * 8, 0.0f, 0.0f);
+                            return true;
+                        }
+                    case Keys.NumPad4:
+                    case Keys.Left:
+                        {
+                            Translate(-_transFactor * 8, 0.0f, 0.0f);
+                            return true;
+                        }
+                    case Keys.Add:
+                    case Keys.Oemplus:
+                        {
+                            Zoom(-_zoomFactor, 0, 0);
+                            return true;
+                        }
+                    case Keys.Subtract:
+                    case Keys.OemMinus:
+                        {
+                            Zoom(_zoomFactor, 0, 0);
+                            return true;
+                        }
+                }
+            }
+
+            return base.ProcessKeyMessage(ref m);
+        }
     }
 }
