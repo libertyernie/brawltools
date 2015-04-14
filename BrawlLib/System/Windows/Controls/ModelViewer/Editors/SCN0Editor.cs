@@ -2199,8 +2199,8 @@ namespace System.Windows.Forms
                     Vector3 interpRefPoint = new Vector3(x, y, z);
                     Vector2 screenMidPt = new Vector2(panel.CurrentViewport.Region.Width / 2, panel.CurrentViewport.Region.Height / 2);
 
-                    Vector3 ray1 = panel.CurrentViewport.UnProject(screenMidPt._x, screenMidPt._y, 0.0f);
-                    Vector3 ray2 = panel.CurrentViewport.UnProject(screenMidPt._x, screenMidPt._y, 1.0f);
+                    Vector3 ray1 = panel.CurrentViewport.Camera.UnProject(screenMidPt._x, screenMidPt._y, 0.0f);
+                    Vector3 ray2 = panel.CurrentViewport.Camera.UnProject(screenMidPt._x, screenMidPt._y, 1.0f);
 
                     Vector3 u = ray2 - ray1;
                     Vector3 pq = interpRefPoint - ray1;

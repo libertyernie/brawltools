@@ -119,8 +119,8 @@ namespace BrawlLib.OpenGL
         public Vector3 UnProject(float x, float y, float z)
         {
             //No need to correct, the screen texture is relative to the viewport
-            //return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z);
-            return Camera.UnProject(x, y, z);
+            return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z);
+            //return Camera.UnProject(x, y, z);
         }
 
         public void Invalidate()
@@ -323,6 +323,23 @@ namespace BrawlLib.OpenGL
             _camera._defaultRotate = GetDefaultRotate();
             _camera._defaultScale = GetDefaultScale();
             _camera.Reset();
+        }
+
+        public void SetXPercentage(float p)
+        {
+            _percentages._x = p;
+        }
+        public void SetYPercentage(float p)
+        {
+            _percentages._y = p;
+        }
+        public void SetZPercentage(float p)
+        {
+            _percentages._z = p;
+        }
+        public void SetWPercentage(float p)
+        {
+            _percentages._w = p;
         }
     }
 

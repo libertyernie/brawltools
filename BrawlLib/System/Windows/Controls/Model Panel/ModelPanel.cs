@@ -335,6 +335,8 @@ namespace System.Windows.Forms
                     //    continue;
                     t.Key.SetPercentageIndex((int)t.Value, p);
                 }
+
+                Invalidate();
             }
             else if (_viewports.Count > 1)
             {
