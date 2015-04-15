@@ -84,7 +84,7 @@ namespace System.Windows.Forms
                 if (!(_snapX || _snapY || _snapZ || _snapCirc || _hiSphere))
                 {
                     if (NotCtrlAlt)
-                        ResetVertexColors();
+                        ClearSelectedVertices();
 
                     ok = true;
                     goto GetVertex;
@@ -108,7 +108,7 @@ namespace System.Windows.Forms
                     
                     _lastPointWorld = point;
                     _lastPointLocal = point * Matrix.TranslationMatrix(-vertexLoc);
-                    VertexChange(_selectedVertices, Matrix.Identity);
+                    VertexChange(_selectedVertices);
                 }
             }
             else
@@ -124,41 +124,33 @@ namespace System.Windows.Forms
                     if (Ctrl)
                         if (!_selectedVertices.Contains(_hiVertex))
                         {
-                            _selectedVertices.Add(_hiVertex);
-                            _hiVertex._selected = true;
-                            _hiVertex._highlightColor = Color.Orange;
+                            SelectVertex(_hiVertex, true);
                             verticesChanged = true;
                         }
                         else
                         {
-                            _selectedVertices.Remove(_hiVertex);
-                            _hiVertex._selected = false;
-                            _hiVertex._highlightColor = Color.Transparent;
+                            SelectVertex(_hiVertex, false);
                             verticesChanged = true;
                         }
                     else if (Alt)
                         if (_selectedVertices.Contains(_hiVertex))
                         {
-                            _selectedVertices.Remove(_hiVertex);
-                            _hiVertex._selected = false;
-                            _hiVertex._highlightColor = Color.Transparent;
+                            SelectVertex(_hiVertex, false);
                             verticesChanged = true;
                         }
                         else { }
                     else
                     {
-                        ResetVertexColors();
+                        ClearSelectedVertices();
                         if (_hiVertex != null)
                         {
-                            _selectedVertices.Add(_hiVertex);
-                            _hiVertex._selected = true;
-                            _hiVertex._highlightColor = Color.Orange;
+                            SelectVertex(_hiVertex, true);
                             verticesChanged = true;
                         }
                     }
                 }
                 else if (NotCtrlAlt)
-                    ResetVertexColors();
+                    ClearSelectedVertices();
 
                 if (verticesChanged)
                     OnSelectedVerticesChanged();
@@ -213,7 +205,7 @@ namespace System.Windows.Forms
                     if (!VertexLoc().HasValue)
                         BoneChange(SelectedBone);
                     else
-                        VertexChange(_selectedVertices, _newVertexTransform);
+                        VertexChange(_selectedVertices);
                 }
 
                 _snapX = _snapY = _snapZ = _snapCirc = false;
@@ -381,7 +373,7 @@ namespace System.Windows.Forms
                 }
             }
 
-            if (!moving && (!DoNotHighlightOnMouseMove || (DoNotHighlightOnMouseMove && panel.CurrentViewport.Selecting)))
+            if (!moving && (!DoNotHighlightOnMouseMove || (DoNotHighlightOnMouseMove && viewport.Selecting)))
                 HighlightStuff(e, panel);
         }
         #endregion
@@ -749,7 +741,7 @@ namespace System.Windows.Forms
                 if (panel.CurrentViewport.Selecting)
                 {
                     if (NotCtrlAlt)
-                        ResetVertexColors();
+                        ClearSelectedVertices();
 
                     bool selected = false;
                     if (TargetModel != null)
@@ -891,20 +883,9 @@ namespace System.Windows.Forms
                 Vector2 max = new Vector2((float)Math.Max(start.X, end.X), (float)Math.Max(start.Y, end.Y));
                 if (screenPos <= max && screenPos >= min)
                     if (Alt)
-                    {
-                        v._selected = false;
-                        if (_selectedVertices.Contains(v))
-                            _selectedVertices.Remove(v);
-                        v._highlightColor = Color.Transparent;
-                    }
-                    else if (!v._selected)
-                    {
-                        v._selected = true;
-
-                        if (!Ctrl || !_selectedVertices.Contains(v))
-                            _selectedVertices.Add(v);
-                        v._highlightColor = Color.Orange;
-                    }
+                        SelectVertex(v, false);
+                    else if (!v._selected && !Ctrl)
+                        SelectVertex(v, true);
             }
         }
         public void ResetBoneColors()
@@ -915,18 +896,50 @@ namespace System.Windows.Forms
                         b.BoneColor = b.NodeColor = Color.Transparent;
         }
 
-        public void ResetVertexColors()
+        public void SelectVertex(Vertex3 v, bool selected)
+        {
+            if (v.Selected = selected)
+            {
+                if (!_selectedVertices.Contains(v))
+                    _selectedVertices.Add(v);
+            }
+            else
+            {
+                if (_selectedVertices.Contains(v))
+                    _selectedVertices.Remove(v);
+            }
+        }
+        public void ClearSelectedVertices()
         {
             if (_targetModels != null)
                 foreach (IModel m in _targetModels)
                     foreach (IObject o in m.Objects)
                         if (o.Vertices != null)
                             foreach (Vertex3 v in o.Vertices)
-                            {
-                                v._highlightColor = Color.Transparent;
-                                v._selected = false;
-                            }
+                                v.Selected = false;
             _selectedVertices = new List<Vertex3>();
+        }
+        public void SelectAllVertices(IModel mdl)
+        {
+            if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
+            {
+                IObject o = (IObject)mdl.Objects[mdl.SelectedObjectIndex];
+                if (o.IsRendering)
+                    foreach (Vertex3 v in o.Vertices)
+                        SelectVertex(v, true);
+            }
+            else
+                foreach (IObject o in mdl.Objects)
+                    if (o.IsRendering)
+                        foreach (Vertex3 v in o.Vertices)
+                            SelectVertex(v, true);
+        }
+        public void SetSelectedVertices(List<Vertex3> list)
+        {
+            ClearSelectedVertices();
+            _selectedVertices = list;
+            foreach (Vertex3 v in _selectedVertices)
+                v.Selected = true;
         }
         #endregion
     }

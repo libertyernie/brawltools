@@ -110,7 +110,7 @@ namespace System.Windows.Forms
             {
                 ModelPanel.AddTarget(_targetModel);
                 _targetModel.IsTargetModel = true;
-                ResetVertexColors();
+                ClearSelectedVertices();
             }
             else
                 EditingAll = true; //No target model so all is the only option

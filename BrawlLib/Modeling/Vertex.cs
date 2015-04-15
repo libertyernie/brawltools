@@ -210,5 +210,11 @@ namespace BrawlLib.Modeling
 
         public Color _highlightColor = Color.Transparent;
         public bool _selected = false;
+
+        public bool Selected
+        { 
+            get { return _selected; } 
+            set { _highlightColor = (_selected = value) ? Color.Orange : Color.Transparent; }
+        }
     }
 }

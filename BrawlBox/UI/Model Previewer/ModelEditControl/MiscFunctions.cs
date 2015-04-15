@@ -286,7 +286,7 @@ namespace System.Windows.Forms
             if (!ModelPanel.Focused)
                 return false;
 
-            ResetVertexColors();
+            ClearSelectedVertices();
             if (EditingAll)
             {
                 if (_targetModels != null)
@@ -300,29 +300,6 @@ namespace System.Windows.Forms
             ModelPanel.Invalidate();
 
             return true;
-        }
-        private void SelectAllVertices(IModel mdl)
-        {
-            if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
-            {
-                IObject o = (IObject)mdl.Objects[mdl.SelectedObjectIndex];
-                if (o.IsRendering)
-                    foreach (Vertex3 v in o.Vertices)
-                    {
-                        _selectedVertices.Add(v);
-                        v._selected = true;
-                        v._highlightColor = Color.Orange;
-                    }
-            }
-            else
-                foreach (IObject o in mdl.Objects)
-                    if (o.IsRendering)
-                        foreach (Vertex3 v in o.Vertices)
-                        {
-                            _selectedVertices.Add(v);
-                            v._selected = true;
-                            v._highlightColor = Color.Orange;
-                        }
         }
         private bool HotkeyToggleLeftPanel()
         {
