@@ -63,12 +63,18 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             table.Add(Name);
 
+            //Need to assign all strings before clearing the string list!
+            Populate();
+
             _strings.Clear();
             foreach (SHP0EntryNode entry in Children)
             {
-                table.Add(entry.Name);
+                if (!_strings.Contains(entry.Name))
+                    _strings.Add(entry.Name);
+
                 foreach (SHP0VertexSetNode n in entry.Children)
-                    _strings.Add(n.Name);
+                    if (!_strings.Contains(n.Name))
+                        _strings.Add(n.Name);
             }
 
             foreach (string s in _strings)
@@ -173,11 +179,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ((SHP0v3*)address)->_stringListOffset = (int)dataAddress - (int)address;
 
             if (_userEntries.Count > 0 && _version == 4)
-            {
-                SHP0v4* header = (SHP0v4*)address;
-                header->UserData = dataAddress;
-                _userEntries.Write(dataAddress);
-            }
+                _userEntries.Write(((SHP0v4*)address)->UserData = dataAddress);
         }
 
         public override int OnCalculateSize(bool force)
@@ -416,16 +418,26 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             for (int i = 0; i < _indexCount; i++)
-                if ((_fixedFlags >> i & 1) == 0)
-                    new SHP0VertexSetNode(_indices[i] < ((SHP0Node)Parent)._strings.Count ? ((SHP0Node)Parent)._strings[_indices[i]] : "Unknown").Initialize(this, new DataSource(Header->GetEntry(i), 0x14 + Header->_numIndices * 6));
+            {
+                string name;
+                if (_indices[i] < ((SHP0Node)Parent)._strings.Count)
+                    name = ((SHP0Node)Parent)._strings[_indices[i]];
+                else
+                    name = "Unknown";
+
+                SHP0VertexSetNode n = new SHP0VertexSetNode(name);
+
+                if (((_fixedFlags >> i) & 1) == 0)
+                    n.Initialize(this, new DataSource(Header->GetEntry(i), 0x14 + Header->_numIndices * 6));
                 else
                 {
-                    SHP0VertexSetNode n = new SHP0VertexSetNode(_indices[i] < ((SHP0Node)Parent)._strings.Count ? ((SHP0Node)Parent)._strings[_indices[i]] : "Unknown") { _isFixed = true };
+                    n._isFixed = true;
                     _children.Add(n);
                     n._parent = this;
 
                     n.Keyframes[0] = ((bfloat*)Header->EntryOffset)[i];
                 }
+            }
         }
 
         public VoidPtr _dataAddr;
