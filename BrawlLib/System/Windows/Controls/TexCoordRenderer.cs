@@ -764,16 +764,15 @@ namespace System.Windows.Forms
 
                 Vector2* pData = (Vector2*)_renderBuffer.Address;
                 for (int i = 4; i < _manager._faceData.Length; i++)
-                {
                     if (_manager._faceData[i] != null && _enabled[i - 4])
-                    {
-                        GL.VertexPointer(2, VertexPointerType.Float, _stride, (IntPtr)pData);
-                        pData++;
-                    }
-                }
+                        GL.VertexPointer(2, VertexPointerType.Float, _stride, (IntPtr)(pData++));
 
-                uint[] indices = _manager._triangles._indices;
-                GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, indices);
+                if (_manager._triangles != null)
+                    _manager._triangles.Render();
+                if (_manager._lines != null)
+                    _manager._lines.Render();
+                if (_manager._points != null)
+                    _manager._points.Render();
 
                 GL.DisableClientState(ArrayCap.VertexArray);
             }
