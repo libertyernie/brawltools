@@ -84,7 +84,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Bias ColorBias { get { return (Bias)cbias; } set { cbias = (int)value; SignalPropertyChange(); } }
 
         [Category("c TEV Color Env"), Browsable(true)]
-        public TevOp ColorOperation { get { return (TevOp)cop; } set { cop = (int)value; SignalPropertyChange(); } }
+        public TevColorOp ColorOperation { get { return (TevColorOp)cop; } set { cop = (int)value; SignalPropertyChange(); } }
         [Category("c TEV Color Env"), Browsable(true)]
         public bool ColorClamp { get { return cclamp != 0; } set { cclamp = (value ? 1 : 0); SignalPropertyChange(); } }
         
@@ -106,7 +106,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Bias AlphaBias { get { return (Bias)abias; } set { abias = (int)value; SignalPropertyChange(); } }
         
         [Category("d TEV Alpha Env"), Browsable(true)]
-        public TevOp AlphaOperation { get { return (TevOp)aop; } set { aop = (int)value; SignalPropertyChange(); } }
+        public TevColorOp AlphaOperation { get { return (TevColorOp)aop; } set { aop = (int)value; SignalPropertyChange(); } }
         [Category("d TEV Alpha Env"), Browsable(true)]
         public bool AlphaClamp { get { return aclamp != 0; } set { aclamp = (value ? 1 : 0); SignalPropertyChange(); } }
         

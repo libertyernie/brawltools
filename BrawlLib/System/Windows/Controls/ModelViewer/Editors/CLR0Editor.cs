@@ -146,6 +146,7 @@ namespace System.Windows.Forms
                 lstTarget.SelectedIndex = (int)((CLR0MaterialEntryNode)_mat.Children[0]).Target;
             else
                 lstTarget.SelectedIndex = 0;
+            lstTarget_SelectedIndexChanged(null, null);
         }
 
         public CLR0Editor()

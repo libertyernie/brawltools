@@ -571,6 +571,7 @@ namespace System.Windows.Forms
             RenderWireframeChanged,
             UseBindStateBoxesChanged,
             ApplyBillboardBonesChanged,
+            RenderShadersChanged,
             ScaleBonesChanged;
 
         #endregion
@@ -660,6 +661,20 @@ namespace System.Windows.Forms
 
                 if (RenderWireframeChanged != null)
                     RenderWireframeChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderShaders
+        {
+            get { return CurrentViewport._renderAttrib._renderShaders; }
+            set
+            {
+                CurrentViewport._renderAttrib._renderShaders = value;
+
+                Invalidate();
+
+                if (RenderShadersChanged != null)
+                    RenderShadersChanged(this, value);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]

@@ -172,7 +172,7 @@ namespace BrawlLib.Wii.Graphics
         Alpha2,
     }
 
-    public enum TevOp
+    public enum TevColorOp
     {
         Add = 0,
         Subtract = 1,
@@ -190,6 +190,14 @@ namespace BrawlLib.Wii.Graphics
         //GX_TEV_COMP_A8_EQ = GX_TEV_COMP_RGB8_EQ  // for alpha channel
     }
 
+    public enum TevAlphaOp
+    {
+        Add = 0,
+        Subtract = 1,
+        
+        CompA8Greater = 14,
+        CompA8Equal = 15,
+    }
     public enum BlendFactor
     {
         //GX_BL_ZERO,
@@ -213,8 +221,8 @@ namespace BrawlLib.Wii.Graphics
         DestinationAlpha,
         InverseDestinationAlpha,
 
-        DestinationColor = SourceColor,
-        InverseDestinationColor = InverseSourceColor
+        //DestinationColor = SourceColor,
+        //InverseDestinationColor = InverseSourceColor
     }
 
     public enum AlphaCompare
@@ -287,8 +295,8 @@ namespace BrawlLib.Wii.Graphics
     public enum ColorSelChan
     {
         //Rasterized color selections
-        ColorChannel0,//RAS1_CC_0 = 0, // Color channel 0 
-        ColorChannel1,//RAS1_CC_1 = 1, // Color channel 1 
+        LightChannel0,//RAS1_CC_0 = 0, // Color channel 0 
+        LightChannel1,//RAS1_CC_1 = 1, // Color channel 1 
         BumpAlpha = 5,//RAS1_CC_B = 5, // Indirect texture bump alpha 
         NormalizedBumpAlpha = 6,//RAS1_CC_BN = 6, // Indirect texture bump alpha, normalized 0-255 
         Zero = 7,//RAS1_CC_Z = 7 // Set color value to zero 
@@ -324,14 +332,14 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevKAlphaSel
     {
-        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //1.0f
+        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //0.875f
+        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //0.75f
+        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //0.625f
+        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //0.5f
+        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //0.375f
+        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //0.25f
+        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //0.125f
         
         //GX_TEV_KASEL_1    = GX_TEV_KASEL_8_8,
         //GX_TEV_KASEL_3_4  = GX_TEV_KASEL_6_8,
@@ -358,14 +366,14 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevKColorSel
     {
-        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //1.0f, 1.0f, 1.0f
+        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //0.875f, 0.875f, 0.875f
+        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //0.75f, 0.75f, 0.75f
+        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //0.625f, 0.625f, 0.625f
+        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //0.5f, 0.5f, 0.5f
+        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //0.375f, 0.375f, 0.375f
+        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //0.25f, 0.25f, 0.25f
+        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //0.125f, 0.125f, 0.125f
 
         //GX_TEV_KCSEL_1    = GX_TEV_KCSEL_8_8,
         //GX_TEV_KCSEL_3_4  = GX_TEV_KCSEL_6_8,

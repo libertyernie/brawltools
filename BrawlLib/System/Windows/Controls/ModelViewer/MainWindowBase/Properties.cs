@@ -52,6 +52,12 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderWireframe = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderShaders
+        {
+            get { return ModelPanel.RenderShaders; }
+            set { ModelPanel.RenderShaders = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderModelBox
         {
             get { return ModelPanel.RenderModelBox; }

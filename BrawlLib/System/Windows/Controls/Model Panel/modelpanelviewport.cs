@@ -75,14 +75,18 @@ namespace System.Windows.Forms
         public float _spotCutoff = 180.0f;
         public float _spotExponent = 100.0f;
 
-        private Vector4 _posLight, _spotDirLight;
+        internal Vector4 _posLight, _spotDirLight;
         private Vector4 _lightPosition;
 
-        const float v = 100.0f / 255.0f;
-        public Vector4 _ambient = new Vector4(v, v, v, 1.0f);
-        public Vector4 _diffuse = new Vector4(v, v, v, 1.0f);
+        const float v = 1.0f / 255.0f;
+        const float amb = 90.0f;
+        const float diff = 70.0f;
+        const float emi = 160.0f;
+
+        public Vector4 _ambient = new Vector4(amb * v, amb * v, amb * v, 1.0f);
+        public Vector4 _diffuse = new Vector4(diff * v, diff * v, diff * v, 1.0f);
         public Vector4 _specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-        public Vector4 _emission = new Vector4(v, v, v, 1.0f);
+        public Vector4 _emission = new Vector4(emi * v, emi * v, emi * v, 1.0f);
 
         public ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
         public bool _renderFloor;
@@ -1030,11 +1034,14 @@ namespace System.Windows.Forms
         public float _viewDistance = 5.0f;
         public float _spotCutoff = 180.0f;
         public float _spotExponent = 100.0f;
-        const float v = 100.0f / 255.0f;
-        public Vector4 _ambient = new Vector4(v, v, v, 1.0f);
-        public Vector4 _diffuse = new Vector4(v, v, v, 1.0f);
+        const float v = 1.0f / 255.0f;
+        const float amb = 90.0f;
+        const float diff = 70.0f;
+        const float emi = 160.0f;
+        public Vector4 _ambient = new Vector4(amb * v, amb * v, amb * v, 1.0f);
+        public Vector4 _diffuse = new Vector4(diff * v, diff * v, diff * v, 1.0f);
         public Vector4 _specular = new Vector4(0.0f, 0.0f, 0.0f, 1.0f);
-        public Vector4 _emission = new Vector4(v, v, v, 1.0f);
+        public Vector4 _emission = new Vector4(emi * v, emi * v, emi * v, 1.0f);
         public Vector4 _lightPosition = new Vector4(100.0f, 45.0f, 45.0f, 1.0f);
         public ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
         public bool _renderFloor;

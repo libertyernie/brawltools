@@ -274,7 +274,6 @@ When true, metal materials and shaders will be added and modulated as you edit y
                                     MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
                                     node.AddChild(mr);
                                     mr.Texture = "metal00";
-                                    mr._index1 = mr._index2 = i;
                                     mr.SignalPropertyChange();
                                     if (i == n.Children.Count || ((MDL0MaterialRefNode)n.Children[i]).HasTextureMatrix)
                                     {
@@ -285,23 +284,24 @@ When true, metal materials and shaders will be added and modulated as you edit y
                                         mr.HasTextureMatrix = true;
                                         node.Rebuild(true);
 
-                                        mr._projection = (int)TexProjection.STQ;
-                                        mr._inputForm = (int)TexInputForm.ABC1;
-                                        mr._texGenType = (int)TexTexgenType.Regular;
-                                        mr._sourceRow = (int)TexSourceRow.Normals;
-                                        mr._embossSource = 4;
-                                        mr._embossLight = 2;
+                                        mr._texMtxFlags = new XFTexMtxInfo()
+                                        {
+                                            Projection = TexProjection.STQ,
+                                            InputForm = TexInputForm.ABC1,
+                                            TexGenType = TexTexgenType.Regular,
+                                            SourceRow = TexSourceRow.Normals,
+                                            EmbossSource = 5,
+                                            EmbossLight = 0,
+                                        };
+
                                         mr.Normalize = true;
-
                                         mr.MapMode = MappingMethod.EnvCamera;
-
-                                        mr.SetTextMtxData();
 
                                         break;
                                     }
                                 }
 
-                                node._chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
+                                node._chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
                                 node.C1ColorEnabled = true;
                                 node.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1ColorAttenuation = GXAttnFn.Spotlight;
@@ -309,7 +309,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                                 node.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
                                 node.C1AlphaAttenuation = GXAttnFn.Spotlight;
 
-                                node._chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
+                                node._chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
                                 node.C2ColorEnabled = true;
                                 node.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
                                 node.C2ColorAttenuation = GXAttnFn.Specular;
@@ -1266,39 +1266,21 @@ When true, metal materials and shaders will be added and modulated as you edit y
         }
 
         public static void RenderObject(
-            MDL0ObjectNode p, 
-            float maxDrawPriority,
-            bool dontRenderOffscreen,
-            bool renderPolygons,
-            bool renderWireframe)
+            MDL0ObjectNode obj, 
+            MDL0MaterialNode mat,
+            ModelRenderAttributes attrib,
+            ModelPanelViewport viewport)
         {
-            if (p._render)
+            if (obj._render)
             {
-                //if (dontRenderOffscreen)
-                //{
-                //    Vector3 min = new Vector3(float.MaxValue);
-                //    Vector3 max = new Vector3(float.MinValue);
-
-                //    if (p._manager != null)
-                //        foreach (Vertex3 vertex in p._manager._vertices)
-                //        {
-                //            Vector3 v = GLPanel.Current.Project(vertex.WeightedPosition);
-
-                //            min.Min(v);
-                //            max.Max(v);
-                //        }
-
-                //    if (max._x < 0 || min._x > GLPanel.Current.Size.Width ||
-                //        max._y < 0 || min._y > GLPanel.Current.Size.Height)
-                //        return;
-                //}
-
-                if (renderPolygons)
+                if (attrib._renderPolygons)
                 {
-                    float polyOffset = 0.0f;
-                    //polyOffset -= p.DrawPriority;
-                    //polyOffset += maxDrawPriority;
-                    if (renderWireframe)
+                    bool shaders = attrib._renderShaders && mat != null;
+                    if (shaders && !mat._scn0Applied)
+                        mat.ApplyViewportLighting(viewport);
+
+                    float polyOffset = obj.DrawPriority;
+                    if (attrib._renderWireframe)
                         polyOffset += 1.0f;
                     if (polyOffset != 0)
                     {
@@ -1308,17 +1290,20 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     else
                         GL.Disable(EnableCap.PolygonOffsetFill);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    p.Render(false);
+                    obj.Render(false, shaders, mat);
                 }
-                if (renderWireframe)
+                if (attrib._renderWireframe)
                 {
                     GL.Disable(EnableCap.PolygonOffsetFill);
                     GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
                     GL.LineWidth(0.5f);
-                    p.Render(true);
+                    obj.Render(true, false, mat);
                 }
             }
         }
+
+        float _scn0Frame;
+        SCN0Node _scn0;
 
         /// <summary>
         /// Call this before rendering meshes or bones if applying billboards
@@ -1349,8 +1334,16 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 v._renderAttrib :
                 _renderAttribs;
 
-            if (!attrib._renderPolygons && !attrib._renderWireframe)
+            if ((!attrib._renderPolygons && !attrib._renderWireframe) || _objList == null || _objList.Count == 0)
                 return;
+
+            GL.PushAttrib(AttribMask.AllAttribBits);
+            GL.MatrixMode(MatrixMode.Modelview);
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Lighting);
+            GL.Enable(EnableCap.DepthTest);
 
             bool usesOffset = _matrixOffset != Matrix.Identity && _matrixOffset != new Matrix();
             if (usesOffset)
@@ -1360,45 +1353,39 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 GL.MultMatrix((float*)&m);
             }
 
-            GL.PushAttrib(AttribMask.AllAttribBits);
-
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Enable(EnableCap.Lighting);
-            GL.Enable(EnableCap.DepthTest);
-
-            float maxDrawPriority = 0.0f;
-            if (_objList != null)
-                foreach (MDL0ObjectNode p in _objList)
-                    maxDrawPriority = Math.Max(maxDrawPriority, p.DrawPriority);
-
-            //Draw objects in the prioritized order of materials.
-            List<MDL0ObjectNode> rendered = new List<MDL0ObjectNode>();
             if (_matList != null)
                 foreach (MDL0MaterialNode m in _matList)
-                    foreach (MDL0ObjectNode p in m._objects)
-                    {
-                        RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
-                        rendered.Add(p);
-                    }
+                    foreach (MDL0MaterialRefNode mr in m.Children)
+                        mr.SetEffectMatrix(_scn0, (ModelPanelViewport)GLPanel.Current.CurrentViewport, _scn0Frame);
 
-            //Render any remaining objects
-            if (_objList != null)
-                foreach (MDL0ObjectNode p in _objList)
-                    if (!rendered.Contains(p))
-                        RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
+            var objects = _objList.Select(x => (MDL0ObjectNode)x);
+            var xlu = objects.Where(x => x.XluMaterialNode != null).OrderBy(x => x.XluMaterialNode.Index);
+            var opa = objects.Where(x => x.OpaMaterialNode != null).OrderBy(x => x.OpaMaterialNode.Index);
+                    
+            //Render opaque first
+            foreach (MDL0ObjectNode obj in opa)
+                RenderObject(obj, obj.OpaMaterialNode, attrib, v);
+
+            //Render translucent second
+            foreach (MDL0ObjectNode obj in xlu)
+                RenderObject(obj, obj.XluMaterialNode, attrib, v);
+
+            //Render objects with no material
+            foreach (MDL0ObjectNode obj in objects)
+                if (obj.UsableMaterialNode == null)
+                    RenderObject(obj, null, attrib, v);
 
             //Turn off the last bound shader program.
-            if (TKContext.CurrentContext._shadersEnabled)
-            {
+            if (attrib._renderShaders)
                 GL.UseProgram(0);
-                GL.ClientActiveTexture(TextureUnit.Texture0);
-            }
-
-            GL.PopAttrib();
 
             if (usesOffset)
                 GL.PopMatrix();
+
+            GL.MatrixMode(MatrixMode.Texture);
+            GL.LoadIdentity();
+
+            GL.PopAttrib();
         }
 
         public void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera)
@@ -1594,6 +1581,8 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
         public void ApplySCN(SCN0Node node, float index)
         {
+            _scn0 = node;
+            _scn0Frame = index;
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
                     mat.ApplySCN(node, index);

@@ -224,9 +224,9 @@ namespace System
             return bm;
         }
 
-        public static implicit operator Matrix43(bMatrix43 bm)
+        public static implicit operator Matrix34(bMatrix43 bm)
         {
-            Matrix43 m = new Matrix43();
+            Matrix34 m = new Matrix34();
             float* dPtr = (float*)&m;
             bfloat* sPtr = (bfloat*)&bm;
             for (int i = 0; i < 12; i++)
@@ -234,7 +234,7 @@ namespace System
             return m;
         }
 
-        public static implicit operator bMatrix43(Matrix43 m)
+        public static implicit operator bMatrix43(Matrix34 m)
         {
             bMatrix43 bm = new bMatrix43();
             bfloat* dPtr = (bfloat*)&bm;

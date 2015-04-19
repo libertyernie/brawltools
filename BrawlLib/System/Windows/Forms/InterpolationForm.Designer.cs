@@ -33,9 +33,9 @@
             // 
             // InterpolationForm
             // 
-            this.ClientSize = new System.Drawing.Size(358, 208);
+            this.ClientSize = new System.Drawing.Size(474, 271);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(374, 155);
+            this.MinimumSize = new System.Drawing.Size(490, 310);
             this.Name = "InterpolationForm";
             this.Text = "Interpolation Editor";
             this.ResumeLayout(false);

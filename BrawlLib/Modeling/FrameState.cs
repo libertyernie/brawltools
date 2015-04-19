@@ -162,7 +162,7 @@ namespace BrawlLib.Modeling
         public void CalcTransforms()
         {
             CalcFlags();
-            _transform = (Matrix)Matrix43.TextureMatrix(this);
+            _transform = (Matrix)Matrix34.TextureMatrix(this);
         }
 
         public override string ToString()

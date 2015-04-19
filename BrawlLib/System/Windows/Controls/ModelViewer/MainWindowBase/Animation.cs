@@ -364,7 +364,7 @@ namespace System.Windows.Forms
                     break;
                 case NW4RAnimType.SCN:
                     if (SCN0Editor != null)
-                        SCN0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, SCN0Editor.tabIndex, TabControlAction.Selected));
+                        SCN0Editor.tabControl1_Selected(null, new TabControlEventArgs(null, SCN0Editor._tabIndex, TabControlAction.Selected));
                     break;
                 case NW4RAnimType.CLR:
                     if (CLR0Editor != null)

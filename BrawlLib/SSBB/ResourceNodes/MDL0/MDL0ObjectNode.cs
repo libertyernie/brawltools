@@ -1089,243 +1089,242 @@ namespace BrawlLib.SSBB.ResourceNodes
             return box;
         }
 
-        //public void UpdateProgram(ModelPanel mainWindow)
-        //{
-        //    bool temp = false;
-        //    bool force = true;
-        //    bool updateProgram = force || _renderUpdate || UsableMaterialNode._renderUpdate || UsableMaterialNode.ShaderNode._renderUpdate;
-        //    if (updateProgram)
-        //    {
-        //        temp = true;
+        BlendingFactorSrc[] _blendSrc = 
+        {
+            BlendingFactorSrc.Zero, BlendingFactorSrc.One,
+            BlendingFactorSrc.DstColor, BlendingFactorSrc.OneMinusDstColor,
+            BlendingFactorSrc.SrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, 
+            BlendingFactorSrc.DstAlpha, BlendingFactorSrc.OneMinusDstAlpha
+        };
+        BlendingFactorDest[] _blendDst =
+        {
+            BlendingFactorDest.Zero, BlendingFactorDest.One, 
+            BlendingFactorDest.SrcColor, BlendingFactorDest.OneMinusSrcColor,
+            BlendingFactorDest.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+            BlendingFactorDest.DstAlpha, BlendingFactorDest.OneMinusDstAlpha
+        };
+        LogicOp[] _logicOp =
+        {
+            LogicOp.Clear, LogicOp.And, LogicOp.AndReverse, LogicOp.Copy,
+            LogicOp.AndInverted, LogicOp.Noop, LogicOp.Xor, LogicOp.Or,
+            LogicOp.Nor, LogicOp.Equiv, LogicOp.Invert, LogicOp.OrReverse,
+            LogicOp.CopyInverted, LogicOp.OrInverted, LogicOp.Nand, LogicOp.Set
+        };
+        CullFaceMode[] _cullMode =
+        {
+            CullFaceMode.Front,
+            CullFaceMode.Back,
+            CullFaceMode.FrontAndBack
+        };
+        DepthFunction[] _depthFunc =
+        {
+            DepthFunction.Never,
+            DepthFunction.Less,
+            DepthFunction.Equal,
+            DepthFunction.Lequal,
+            DepthFunction.Greater,
+            DepthFunction.Notequal,
+            DepthFunction.Gequal,
+            DepthFunction.Always
+        };
+        AlphaFunction[] _alphaFunc =
+        {
+            AlphaFunction.Never,
+            AlphaFunction.Less,
+            AlphaFunction.Equal,
+            AlphaFunction.Lequal,
+            AlphaFunction.Greater,
+            AlphaFunction.Notequal,
+            AlphaFunction.Gequal,
+            AlphaFunction.Always
+        };
 
-        //        if (_programHandle > 0)
-        //            GL.DeleteProgram(_programHandle);
-
-        //        _programHandle = GL.CreateProgram();
-
-        //        int status;
-        //        string info;
-
-        //        if (_renderUpdate)
-        //        {
-        //            vertexShaderSource = ShaderGenerator.GenerateVertexShader(this);
-
-        //            GL.ShaderSource(vertexShaderHandle, vertexShaderSource);
-        //            GL.CompileShader(vertexShaderHandle);
-
-        //            GL.GetShaderInfoLog(vertexShaderHandle, out info);
-        //            GL.GetShader(vertexShaderHandle, OpenTK.Graphics.OpenGL.ShaderParameter.CompileStatus, out status);
-
-        //            if (status != 1)
-        //                Console.WriteLine(info + "\n\n" + vertexShaderSource + "\n\n");
-        //            else
-        //                GL.AttachShader(_programHandle, vertexShaderHandle);
-        //        }
-        //        if (_renderUpdate || UsableMaterialNode._renderUpdate || UsableMaterialNode.ShaderNode._renderUpdate)
-        //        {
-        //            _fragShaderSource = ShaderGenerator.GeneratePixelShader(this);
-
-        //            GL.ShaderSource(_fragShaderHandle, _fragShaderSource);
-        //            GL.CompileShader(_fragShaderHandle);
-
-        //            GL.GetShaderInfoLog(_fragShaderHandle, out info);
-        //            GL.GetShader(_fragShaderHandle, OpenTK.Graphics.OpenGL.ShaderParameter.CompileStatus, out status);
-
-        //            if (status != 1)
-        //                Console.WriteLine(info + "\n\n" + _fragShaderSource + "\n\n");
-        //            else
-        //                GL.AttachShader(_programHandle, _fragShaderHandle);
-
-        //            UsableMaterialNode._renderUpdate = UsableMaterialNode.ShaderNode._renderUpdate = false;
-        //        }
-
-        //        _renderUpdate = false;
-
-        //        GL.LinkProgram(_programHandle);
-        //    }
-
-        //    GL.UseProgram(_programHandle);
-
-        //    if (temp)
-        //    {
-        //        SetUniforms(_programHandle, mainWindow);
-        //        //UsableMaterialNode.SetUniforms(_programHandle);
-        //    }
-        //    //if (UsableMaterialNode._lightSet != null)
-        //    //    SetLightUniforms(_programHandle);
-        //}
-
-        internal void Render(bool wireframe)
+        internal void Render(bool wireframe, bool useShaders, MDL0MaterialNode material)
         {
             if (!_render || _manager == null)
                 return;
 
-            bool useShaders = TKContext.CurrentContext._shadersEnabled;
-            MDL0MaterialNode material = UsableMaterialNode;
+            if (!TKContext._shadersSupported)
+                useShaders = false;
+
+            _manager.PrepareStream();
 
             if (wireframe)
             {
                 GL.Enable(EnableCap.CullFace);
                 GL.CullFace(CullFaceMode.Back);
-                _manager.PrepareStream();
-                _manager.DisableTextures();
                 GL.Color4(Color.Black);
+
+                _manager.BindStream();
+                _manager.DisableTextures();
                 _manager.RenderMesh();
                 _manager.DetachStreams();
+
                 return;
             }
+            
+            GL.MatrixMode(MatrixMode.Texture);
 
-            //if (useShaders)
-            //{
-            //    UpdateProgram(mainWindow);
-
-            //    _manager.PrepareStreamNew(_programHandle);
-
-            //    if (material != null)
-            //    {
-            //        switch ((int)material.CullMode)
-            //        {
-            //            case 0: //None
-            //                GL.Disable(EnableCap.CullFace);
-            //                break;
-            //            case 1: //Outside
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.Front);
-            //                break;
-            //            case 2: //Inside
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.Back);
-            //                break;
-            //            case 3: //Double
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.FrontAndBack);
-            //                break;
-            //        }
-
-            //        if (material.Children.Count == 0)
-            //            _manager.RenderMesh();
-            //        else
-            //        {
-            //            foreach (MDL0MaterialRefNode mr in material.Children)
-            //            {
-            //                if (mr._texture != null && (!mr._texture.Enabled || mr._texture.Rendered))
-            //                    continue;
-
-            //                mr.Bind(ctx, _programHandle);
-            //            }
-            //            GL.BindVertexArray(_manager._arrayHandle);
-            //            _manager.RenderMesh();
-            //        }
-            //    }
-            //    else
-            //        _manager.RenderMesh();
-
-            //    _manager.DetachStreamsNew();
-            //}
-            //else
+            bool anyRendered = false;
+            if (material != null)
             {
-                GL.Enable(EnableCap.Texture2D);
-                _manager.PrepareStream();
-
-                GL.MatrixMode(MatrixMode.Modelview);
-                if (material != null)
-                {
-                    switch ((int)material.CullMode)
-                    {
-                        case 0: //None
-                            GL.Disable(EnableCap.CullFace);
-                            break;
-                        case 1: //Outside
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.Front);
-                            break;
-                        case 2: //Inside
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.Back);
-                            break;
-                        case 3: //Double
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.FrontAndBack);
-                            break;
-                    }
-
-                    //if (material.EnableBlend)
-                    //{
-                    //    GL.Disable(EnableCap.AlphaTest);
-                    //    GL.Enable(EnableCap.Blend);
-                    //    int src = (int)material._blendMode.SrcFactor, dst = (int)material._blendMode.DstFactor;
-                    //    if (src > 1)
-                    //        src += (int)BlendingFactorSrc.SrcColor;
-                    //    if (dst > 1)
-                    //        dst += (int)BlendingFactorDest.SrcColor;
-                    //    GL.BlendFunc((BlendingFactorSrc)src, (BlendingFactorDest)dst);
-                    //}
-                    //else
-                    //{
-                    //    GL.Disable(EnableCap.Blend);
-                    //    GL.Enable(EnableCap.AlphaTest);
-                    //    GL.AlphaFunc(AlphaFunction.Never + (int)material._alphaFunc.Comp0, (float)material._alphaFunc._ref0 / 255.0f);
-                    //}
-
-                    if (material.Children.Count == 0)
-                    {
-                        _manager.DisableTextures();
-                        _manager.RenderMesh();
-                    }
-                    else
-                    {
-                        bool anyRendered = false;
-                        foreach (MDL0MaterialRefNode mr in material.Children)
-                        {
-                            if (mr._texture == null || !mr._texture.Enabled)
-                                continue;
-                            else
-                                anyRendered = true;
-
-                            GL.MatrixMode(MatrixMode.Texture);
-                            GL.PushMatrix();
-
-                            fixed (Matrix* m = &mr._frameState._transform)
-                                GL.MultMatrix((float*)m);
-
-                            GL.MatrixMode(MatrixMode.Modelview);
-
-                            mr.Bind(-1);
-
-                            _manager.ApplyTexture(mr.Coordinates);
-                            _manager.RenderMesh();
-
-                            GL.MatrixMode(MatrixMode.Texture);
-                            GL.PopMatrix();
-                            GL.MatrixMode(MatrixMode.Modelview);
-                        }
-
-                        if (!anyRendered)
-                        {
-                            _manager.DisableTextures();
-                            _manager.RenderMesh();
-                        }
-                    }
-                }
+                if (!useShaders)
+                    AlphaTest(material);
                 else
                 {
-                    _manager.DisableTextures();
-                    _manager.RenderMesh();
+                    material.UseProgram(this, Control.ModifierKeys == Keys.Alt);
+                    Blend(material);
                 }
 
-                _manager.DetachStreams();
+                //Blend(material);
+                Cull(material);
+                DepthTest(material);
+
+                if (useShaders)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        GL.ClientActiveTexture(TextureUnit.Texture0 + i);
+                        GL.ActiveTexture(TextureUnit.Texture0 + i);
+
+                        if (i >= material.Children.Count)
+                        {
+                            GL.DisableClientState(ArrayCap.TextureCoordArray);
+                            GL.Disable(EnableCap.Texture2D);
+                            continue;
+                        }
+                        else
+                            GL.Enable(EnableCap.Texture2D);
+
+                        MDL0MaterialRefNode mr = (MDL0MaterialRefNode)material.Children[i];
+                        if (mr._texture == null || !mr._texture.Enabled)
+                            continue;
+
+                        Matrix m = mr.GetTransform(_matrixNode != null || _manager.HasTextureMatrix[i]);
+                        GL.LoadMatrix((float*)&m);
+
+                        mr.Bind(material._programHandle);
+                        _manager.ApplyTexture(mr.Coordinates);
+                    }
+                    anyRendered = true;
+                    _manager.BindStream();
+                    _manager.RenderMesh();
+                }
+                else //Fixed functionality
+                {
+                    GL.Enable(EnableCap.Texture2D);
+
+                    _manager.BindStream();
+                    for (int i = material.Children.Count - 1; i >= 0; i--)
+                    {
+                        MDL0MaterialRefNode mr = (MDL0MaterialRefNode)material.Children[i];
+                        if (mr._texture == null || !mr._texture.Enabled)
+                            continue;
+
+                        anyRendered = true;
+
+                        fixed (Matrix* m = &mr._frameState._transform)
+                            GL.LoadMatrix((float*)m);
+
+                        mr.Bind(material._programHandle);
+                        _manager.ApplyTexture(mr.Coordinates);
+
+                        _manager.RenderMesh();
+                    }
+                }
             }
+
+            if (!anyRendered)
+            {
+                _manager.DisableTextures();
+                _manager.RenderMesh();
+            }
+
+            _manager.DetachStreams();
+        }
+
+        void AlphaTest(MDL0MaterialNode material)
+        {
+            GXAlphaFunction alpha = material._alphaFunc;
+
+            AlphaOp logic = alpha.Logic;
+            AlphaCompare func0 = alpha.Comp0;
+            AlphaCompare func1 = alpha.Comp1;
+
+            GL.Enable(EnableCap.AlphaTest);
+            if ((logic == AlphaOp.Or && (func0 == AlphaCompare.Always || func1 == AlphaCompare.Always)) ||
+                (logic == AlphaOp.And && (func0 == AlphaCompare.Always && func1 == AlphaCompare.Always)))
+            {
+                GL.AlphaFunc(AlphaFunction.Always, 0.0f);
+                GL.Disable(EnableCap.AlphaTest);
+            }
+            else if ((logic == AlphaOp.And && (func0 == AlphaCompare.Never || func0 == AlphaCompare.Never)) ||
+                (logic == AlphaOp.Or && (func0 == AlphaCompare.Never && func0 == AlphaCompare.Never)))
+            {
+                GL.Enable(EnableCap.AlphaTest);
+                GL.AlphaFunc(AlphaFunction.Never, 0.0f);
+            }
+            else
+            {
+                GL.Enable(EnableCap.AlphaTest);
+                if ((logic == AlphaOp.Or && func0 == AlphaCompare.Never) ||
+                    (logic == AlphaOp.And && func0 == AlphaCompare.Always))
+                    GL.AlphaFunc(_alphaFunc[(int)func1], (float)alpha._ref1 / 255.0f);
+                else
+                    GL.AlphaFunc(_alphaFunc[(int)func0], (float)alpha._ref0 / 255.0f);
+            }
+        }
+
+        void Blend(MDL0MaterialNode material)
+        {
+            BlendMode b = material._blendMode;
+            if (b.EnableBlend && !b.EnableLogicOp)
+            {
+                GL.Enable(EnableCap.Blend);
+                if (b.Subtract)
+                    GL.BlendEquation(BlendEquationMode.FuncSubtract);
+                else
+                    GL.BlendEquation(BlendEquationMode.FuncAdd);
+                GL.BlendFunc(_blendSrc[(int)b.SrcFactor], _blendDst[(int)b.DstFactor]);
+            }
+            else
+                GL.Disable(EnableCap.Blend);
+            if (b.EnableLogicOp && !b.EnableBlend)
+            {
+                GL.Enable(EnableCap.ColorLogicOp);
+                GL.LogicOp(_logicOp[(int)b.LogicOp]);
+            }
+            else
+                GL.Disable(EnableCap.ColorLogicOp);
+        }
+
+        void Cull(MDL0MaterialNode material)
+        {
+            if ((int)material.CullMode == 0)
+                GL.Disable(EnableCap.CullFace);
+            else
+            {
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(_cullMode[(int)material.CullMode - 1]);
+            }
+        }
+        
+        void DepthTest(MDL0MaterialNode material)
+        {
+            if (material._zMode.EnableDepthTest)
+            {
+                GL.Enable(EnableCap.DepthTest);
+                GL.DepthFunc(_depthFunc[(int)material._zMode.DepthFunction]);
+                GL.DepthMask(material._zMode.EnableDepthUpdate);
+            }
+            else
+                GL.Disable(EnableCap.DepthTest);
         }
 
         public void DrawBox()
         {
             TKContext.DrawWireframeBox(GetBox());
         }
-
-        public bool _renderUpdate = false;
-
-        public string vertexShaderSource;
-        public int vertexShaderHandle;
 
         internal void WeightVertices() 
         {
@@ -1348,33 +1347,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 XluMaterialNode.Children.Count != 0 && 
                 XluMaterialNode.Children[0].Name == "TShadow1")
                 _render = false;
-
-            //if (ctx != null && ctx._shadersEnabled)
-            //{
-            //    vertexShaderHandle = GL.CreateShader(OpenTK.Graphics.OpenGL.ShaderType.VertexShader);
-            //    _fragShaderHandle = GL.CreateShader(OpenTK.Graphics.OpenGL.ShaderType.FragmentShader);
-
-            //    _renderUpdate = true;
-
-            //    if (_manager != null)
-            //        _manager.Bind();
-            //}
         }
         internal override void Unbind() 
         {
             _render = false;
-
-            //if (vertexShaderHandle != 0)
-            //    GL.DeleteShader(vertexShaderHandle);
-
-            //if (_fragShaderHandle != 0)
-            //    GL.DeleteShader(_fragShaderHandle);
-
-            //if (_programHandle != 0)
-            //    GL.DeleteProgram(_programHandle);
-
-            //if (_manager != null)
-            //    _manager.Unbind();
         }
 
         public void Attach()
@@ -1396,13 +1372,22 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void Refresh() { if (Model != null) Model.Refresh(); }
 
+        ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
+        
         public void Render(params object[] args)
         {
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Enable(EnableCap.Lighting);
             GL.Enable(EnableCap.DepthTest);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
 
-            Render(false);
+            ModelRenderAttributes attrib = 
+                args != null && args.Length > 0 && args[0] is ModelRenderAttributes ? 
+                (ModelRenderAttributes)args[0] :
+                _renderAttrib;
+
+            Render(false, false, UsableMaterialNode);
         }
 
         #endregion

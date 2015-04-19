@@ -376,7 +376,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 object x = listKeyframes.SelectedItem;
-                int i = 0;
+                float i = 0;
                 if (x is CHRAnimationFrame)
                     i = ((CHRAnimationFrame)listKeyframes.SelectedItem).Index + 1;
                 else if (x is FloatKeyframe)
@@ -389,7 +389,7 @@ namespace System.Windows.Forms
                     i = ((FogAnimationFrame)listKeyframes.SelectedItem).Index + 1;
 
                 if (_mainWindow.CurrentFrame != i)
-                    _mainWindow.SetFrame(i);
+                    _mainWindow.SetFrame((int)i);
             }
         }
         public void UpdateVisEntry()

@@ -139,9 +139,28 @@ namespace BrawlLib.Wii.Animations
         public float _value;
         public float _tangent;
 
-        //A second keyframe on the same frame is used for jump cutting values/tangents
-        public KeyframeEntry _out;
-
+        public KeyframeEntry Second
+        {
+            get
+            {
+                return _prev._index == _index ? _prev : _next._index == _index ? _next : null;
+            }
+            set
+            {
+                KeyframeEntry second = Second;
+                if (second == null)
+                {
+                    value._index = _index;
+                    InsertAfter(value);
+                }
+                else
+                {
+                    second._value = value._value;
+                    second._tangent = value._tangent;
+                }
+            }
+        }
+        
         public KeyframeEntry(int index, float value)
         {
             _index = index;

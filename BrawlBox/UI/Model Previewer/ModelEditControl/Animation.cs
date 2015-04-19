@@ -68,34 +68,16 @@ namespace System.Windows.Forms
 
             CheckDimensions();
         }
-        
+
+        bool _retainAspect = true;
+
         /// <summary>
         /// Call this after the frame is set.
         /// </summary>
         private void HandleFirstPersonCamera()
         {
             if (firstPersonCameraToolStripMenuItem.Checked && _scn0 != null && scn0Editor._camera != null)
-            {
-                SCN0CameraNode c = scn0Editor._camera;
-                CameraAnimationFrame f = c.GetAnimFrame(CurrentFrame - 1);
-                Vector3 r = f.GetRotate(c.Type);
-                Vector3 t = f.Pos;
-                
-                ModelPanelViewport v = ModelPanel.CurrentViewport;
-
-                ViewportProjection proj = (ViewportProjection)(int)c.ProjectionType;
-                if (v.ViewType != proj)
-                    v.SetProjectionType(proj);
-
-                GLCamera cam = v.Camera;
-                cam.Reset();
-                cam.Translate(t._x, t._y, t._z);
-                cam.Rotate(r._x, r._y, r._z);
-
-                bool retainAspect = true;
-                float aspect = retainAspect ? cam.Aspect : f.Aspect;
-                cam.SetProjectionParams(aspect, f.FovY, f.FarZ, f.NearZ);
-            }
+                scn0Editor._camera.SetCamera(ModelPanel.CurrentViewport, CurrentFrame - 1, _retainAspect);
         }
 
         public override void OnAnimationChanged()

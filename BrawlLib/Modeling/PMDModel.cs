@@ -802,7 +802,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -814,7 +814,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -848,7 +848,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
                 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -872,7 +872,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -884,7 +884,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -930,7 +930,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -963,7 +963,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);
@@ -975,7 +975,7 @@ namespace BrawlLib.Modeling
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.RasterColor = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
                 s = new TEVStageNode();
                 shader.AddChild(s);

@@ -246,7 +246,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public static bool _generateTangents = true;
-        public FogAnimationFrame GetAnimFrame(int index)
+        public FogAnimationFrame GetAnimFrame(float index)
         {
             FogAnimationFrame frame;
             float* dPtr = (float*)&frame;
@@ -257,6 +257,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                 frame.SetBools(x, a.GetKeyframe((int)index) != null);
                 frame.Index = index;
             }
+
+            //Ignore alpha value; not used
+            if (ConstantColor)
+                frame.Color = (Vector3)_solidColor;
+            else
+            {
+                int colorIndex = (int)Math.Truncate(index);
+                Vector3 color = (Vector3)_colors[colorIndex];
+                if (colorIndex + 1 < _colors.Count)
+                {
+                    float frac = index - colorIndex;
+                    Vector3 interp = (Vector3)_colors[colorIndex + 1];
+                    color += (interp - color) * frac;
+                }
+                frame.Color = color;
+            }
+            frame.Type = Type;
             return frame;
         }
         public KeyframeEntry GetKeyframe(int keyFrameMode, int index)

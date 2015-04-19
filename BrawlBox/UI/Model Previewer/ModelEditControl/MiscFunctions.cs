@@ -766,6 +766,17 @@ namespace System.Windows.Forms
             }
         }
 
+        void ModelPanel_RenderShadersChanged(ModelPanel panel, bool value)
+        {
+            //Only update if the focused panel triggered the event
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                shadersToolStripMenuItem.Checked = value;
+                _updating = false;
+            }
+        }
+
         void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)

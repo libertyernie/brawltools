@@ -145,8 +145,8 @@ namespace Ikarus.UI
                 }
                 else
                 {
-                    if (modelPanel.Context._shadersEnabled && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
-                    modelPanel.Context._shadersEnabled = chkShaders.Checked;
+                    if (modelPanel.Context._shadersSupported && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
+                    modelPanel.Context._shadersSupported = chkShaders.Checked;
                 }
             }
             modelPanel.Invalidate();

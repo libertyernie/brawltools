@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.ComponentModel;
 
 namespace System
 {
@@ -63,6 +64,7 @@ namespace System
         public static Vector3 operator *(float s, Vector3 v1) { return new Vector3(v1._x * s, v1._y * s, v1._z * s); }
         public static Vector3 operator /(Vector3 v1, Vector3 v2) { return new Vector3(v1._x / v2._x, v1._y / v2._y, v1._z / v2._z); }
         public static Vector3 operator /(Vector3 v1, float s) { return new Vector3(v1._x / s, v1._y / s, v1._z / s); }
+        public static Vector3 operator /(float s, Vector3 v1) { return new Vector3(s / v1._x, s / v1._y, s / v1._z); }
 
         public static bool operator ==(Vector3 v1, Vector3 v2) { return (v1._x == v2._x) && (v1._y == v2._y) && (v1._z == v2._z); }
         public static bool operator !=(Vector3 v1, Vector3 v2) { return (v1._x != v2._x) || (v1._y != v2._y) || (v1._z != v2._z); }
@@ -212,16 +214,16 @@ namespace System
         
         public void RemapToRange(float min, float max)
         {
-            _x = _x.RemapToRange(-180.0f, 180.0f);
-            _y = _y.RemapToRange(-180.0f, 180.0f);
-            _z = _z.RemapToRange(-180.0f, 180.0f);
+            _x = _x.RemapToRange(min, max);
+            _y = _y.RemapToRange(min, max);
+            _z = _z.RemapToRange(min, max);
         }
         public Vector3 RemappedToRange(float min, float max)
         {
             return new Vector3(
-                _x.RemapToRange(-180.0f, 180.0f),
-                _y.RemapToRange(-180.0f, 180.0f),
-                _z.RemapToRange(-180.0f, 180.0f));
+                _x.RemapToRange(min, max),
+                _y.RemapToRange(min, max),
+                _z.RemapToRange(min, max));
         }
 
         public int CompareTo(object obj)
@@ -288,5 +290,8 @@ namespace System
 
             return u >= 0 && v >= 0 && u + v < 1;
         }
+
+        [Browsable(false)]
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
     }
 }

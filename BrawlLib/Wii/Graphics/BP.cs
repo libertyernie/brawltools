@@ -119,18 +119,18 @@ namespace BrawlLib.Wii.Graphics
         public TevScale Shift { get { return _data[16, 2] == 3 ? TevScale.MultiplyBy1 : (TevScale)_data[20, 2]; } set { if (_data[16, 2] == 3) return; _data[20, 2] = (int)value; } }
         public TevColorRegID Dest { get { return (TevColorRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
 
-        public TevOp Operation
+        public TevColorOp Operation
         {
             get
             {
                 return _data[16, 2] == 3 ? 
-                    (TevOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
-                    _data[18] ? TevOp.Subtract : TevOp.Add;
+                    (TevColorOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
+                    _data[18] ? TevColorOp.Subtract : TevColorOp.Add;
             }
             set
             {
                 _data[18] = ((ushort)value & 1) != 0;
-                if (value <= TevOp.Subtract)
+                if (value <= TevColorOp.Subtract)
                 {
                     _data[16, 2] = 0;
                     _data[20, 2] = 0;
@@ -182,18 +182,18 @@ namespace BrawlLib.Wii.Graphics
         public TevScale Shift { get { return _data[16, 2] == 3 ? TevScale.MultiplyBy1 : (TevScale)_data[20, 2]; } set { if (_data[16, 2] == 3) return; _data[20, 2] = (int)value; } }
         public TevAlphaRegID Dest { get { return (TevAlphaRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
 
-        public TevOp Operation
+        public TevAlphaOp Operation
         {
             get
             {
                 return _data[16, 2] == 3 ?
-                    (TevOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
-                    _data[18] ? TevOp.Subtract : TevOp.Add;
+                    (TevAlphaOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
+                    _data[18] ? TevAlphaOp.Subtract : TevAlphaOp.Add;
             }
             set
             {
                 _data[18] = ((ushort)value & 1) != 0;
-                if (value <= TevOp.Subtract)
+                if (value <= TevAlphaOp.Subtract)
                 {
                     _data[16, 2] = 0;
                     _data[20, 2] = 0;

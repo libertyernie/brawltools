@@ -788,7 +788,7 @@ namespace System
             this.Multiply(m);
         }
 
-        public static explicit operator Matrix(Matrix43 m)
+        public static explicit operator Matrix(Matrix34 m)
         {
             Matrix m1;
             float* sPtr = (float*)&m;
@@ -813,9 +813,9 @@ namespace System
 
             return m1;
         }
-        public static explicit operator Matrix43(Matrix m)
+        public static explicit operator Matrix34(Matrix m)
         {
-            Matrix43 m1;
+            Matrix34 m1;
             float* sPtr = (float*)&m;
             float* dPtr = (float*)&m1;
 

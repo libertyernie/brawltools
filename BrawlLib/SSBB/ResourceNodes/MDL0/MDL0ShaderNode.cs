@@ -24,8 +24,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0MaterialNode[] Materials { get { return _materials.ToArray(); } }
 
         public KSelSwapBlock _swapBlock = KSelSwapBlock.Default;
-        //Used by Alpha Env to retrieve what values to swap
-        public string[] swapModeTable = new string[4];
         public List<MDL0MaterialNode> _materials = new List<MDL0MaterialNode>();
         public sbyte
             _ref0 = -1,
@@ -36,6 +34,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _ref5 = -1,
             _ref6 = -1,
             _ref7 = -1;
+
+        public string[] _fragShaderSource = null;
 
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap0Red { get { return (ColorChannel)_swapBlock._Value01.XRB; } set { _swapBlock._Value01.XRB = value; SignalPropertyChange(); } }
@@ -58,7 +58,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public ColorChannel Swap1Alpha { get { return (ColorChannel)_swapBlock._Value07.XGA; } set { _swapBlock._Value07.XGA = value; SignalPropertyChange(); } }
 
         [Category("Swap Mode Table"), Browsable(true)]
-        public ColorChannel Swap2Red { get { return (ColorChannel)_swapBlock._Value09.XRB; } set { _swapBlock._Value09.XRB = value; SignalPropertyChange(); } }
+        public ColorChannel Swap2Red { get { return (ColorChannel)_swapBlock._Value09.XRB; } set { _swapBlock._Value09.XRB = value; SignalPropertyChange();  } }
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap2Green { get { return (ColorChannel)_swapBlock._Value09.XGA; } set { _swapBlock._Value09.XGA = value; SignalPropertyChange(); } }
 
@@ -77,63 +77,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap3Alpha { get { return (ColorChannel)_swapBlock._Value15.XGA; } set { _swapBlock._Value15.XGA = value; SignalPropertyChange(); } }
 
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Map 0 ID")]
         public TexMapID IndTex0MapID { get { return _swapBlock._Value16.TexMap0; } set { _swapBlock._Value16.TexMap0 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Coord 0 ID")]
         public TexCoordID IndTex0Coord { get { return _swapBlock._Value16.TexCoord0; } set { _swapBlock._Value16.TexCoord0 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Map 1 ID")]
         public TexMapID IndTex1MapID { get { return _swapBlock._Value16.TexMap1; } set { _swapBlock._Value16.TexMap1 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Coord 1 ID")]
         public TexCoordID IndTex1Coord { get { return _swapBlock._Value16.TexCoord1; } set { _swapBlock._Value16.TexCoord1 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Map 2 ID")]
         public TexMapID IndTex2MapID { get { return _swapBlock._Value16.TexMap2; } set { _swapBlock._Value16.TexMap2 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Coord 2 ID")]
         public TexCoordID IndTex2Coord { get { return _swapBlock._Value16.TexCoord2; } set { _swapBlock._Value16.TexCoord2 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Map 3 ID")]
         public TexMapID IndTex3MapID { get { return _swapBlock._Value16.TexMap3; } set { _swapBlock._Value16.TexMap3 = value; SignalPropertyChange(); } }
-        [Category("TEV RAS1 IRef"), Browsable(true)]
+        [Category("TEV Indirect Texture Sources"), DisplayName("Indirect Texture Coord 3 ID")]
         public TexCoordID IndTex3Coord { get { return _swapBlock._Value16.TexCoord3; } set { _swapBlock._Value16.TexCoord3 = value; SignalPropertyChange(); } }
-
-        private void BuildSwapModeTable()
-        {
-            string swapColors = "rgba";
-
-            //Iterate through the swaps
-            for (int i = 0; i < 4; i++)
-            {
-                switch (i)
-                {
-                    case 0:
-                        swapModeTable[i] = new string(new char[] {
-                        swapColors[(int)Swap0Red],
-                        swapColors[(int)Swap0Green],
-                        swapColors[(int)Swap0Blue],
-                        swapColors[(int)Swap0Alpha]});
-                        break;
-                    case 1:
-                        swapModeTable[i] = new string(new char[] {
-                        swapColors[(int)Swap1Red],
-                        swapColors[(int)Swap1Green],
-                        swapColors[(int)Swap1Blue],
-                        swapColors[(int)Swap1Alpha]});
-                        break;
-                    case 2:
-                        swapModeTable[i] = new string(new char[] {
-                        swapColors[(int)Swap2Red],
-                        swapColors[(int)Swap2Green],
-                        swapColors[(int)Swap2Blue],
-                        swapColors[(int)Swap2Alpha]});
-                        break;
-                    case 3:
-                        swapModeTable[i] = new string(new char[] {
-                        swapColors[(int)Swap3Red],
-                        swapColors[(int)Swap3Green],
-                        swapColors[(int)Swap3Blue],
-                        swapColors[(int)Swap3Alpha]});
-                        break;
-                }
-            }
-        }
 
         public override void RemoveChild(ResourceNode child)
         {
@@ -176,10 +135,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Shader Data"), Browsable(true), Description("Enables the material's eighth texture reference for use.")]
         public bool TextureRef7 { get { return _ref7 != -1; } set { _ref7 = (sbyte)(value ? 7 : -1); SignalPropertyChange(); } }
 
-        public bool _renderUpdate = false;
         public new void SignalPropertyChange()
         {
-            _renderUpdate = true;
+            _fragShaderSource = null;
             base.SignalPropertyChange();
         }
 
@@ -343,10 +301,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             header->_stages = Stages;
 
-            header->_res0 = 0;
-            header->_res1 = 0;
-            header->_res2 = 0;
-
             header->_ref0 = _ref0;
             header->_ref1 = _ref1;
             header->_ref2 = _ref2;
@@ -358,6 +312,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             header->_pad0 = 0;
             header->_pad1 = 0;
+            header->_pad2 = 0;
+            header->_pad3 = 0;
+            header->_pad4 = 0;
 
             *header->SwapBlock = _swapBlock;
 
@@ -408,7 +365,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind()
         {
-            //BuildSwapModeTable();
+        }
+
+        internal override void Unbind()
+        {
         }
     }
 }

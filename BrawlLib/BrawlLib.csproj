@@ -280,9 +280,6 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\GDORNode.cs" />
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
     <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
     <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
@@ -606,7 +603,7 @@
     <Compile Include="System\IO\FileAssociation.cs" />
     <Compile Include="System\IO\XmlReader.cs" />
     <Compile Include="System\Matrix.cs" />
-    <Compile Include="System\Matrix43.cs" />
+    <Compile Include="System\Matrix34.cs" />
     <Compile Include="System\Matrix4d.cs" />
     <Compile Include="System\MemoryList.cs" />
     <Compile Include="System\Remapper.cs" />

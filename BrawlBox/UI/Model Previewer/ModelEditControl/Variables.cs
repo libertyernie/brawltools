@@ -120,9 +120,11 @@ namespace System.Windows.Forms
                     return;
                 }
 
+                int frame = CurrentFrame;
                 _targetAnimType = value;
                 leftPanel.TargetAnimType = TargetAnimType;
                 SetCurrentControl();
+                SetFrame(frame);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -135,8 +137,8 @@ namespace System.Windows.Forms
         public override bool PlayVIS0 { get { return playVIS0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool PlayCLR0 { get { return playCLR0ToolStripMenuItem.Checked; } set { playCLR0ToolStripMenuItem.Checked = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
-        public override bool PlaySCN0 { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlaySCN0 { get { return playSCN0ToolStripMenuItem.Checked; } set { playSCN0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool PlaySHP0 { get { return playSHP0ToolStripMenuItem.Checked; } set { playSHP0ToolStripMenuItem.Checked = value; } }
 

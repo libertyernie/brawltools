@@ -149,8 +149,9 @@ namespace BrawlBox.NodeWrappers
                 }
             }
 
-            if (model._shadList != null && model._matList != null)
-            if (model._shadList.Count < model._matList.Count)
+            if (model._shadList != null &&
+                model._matList != null &&
+                model._shadList.Count < model._matList.Count)
             {
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 model._shadGroup.AddChild(shader);

@@ -266,8 +266,6 @@ namespace System.Windows.Forms
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.tabControl1 = new System.Windows.Forms.TabControl();
-            this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.visEditor1 = new System.Windows.Forms.VisEditor();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.panel2 = new System.Windows.Forms.Panel();
             this.numSpotBright = new System.Windows.Forms.NumericInputBox();
@@ -289,6 +287,8 @@ namespace System.Windows.Forms
             this.label9 = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.visEditor1 = new System.Windows.Forms.VisEditor();
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.lightCtrl = new System.Windows.Forms.CLRControl();
             this.tabPage4 = new System.Windows.Forms.TabPage();
@@ -297,9 +297,9 @@ namespace System.Windows.Forms
             this.groupBox1.SuspendLayout();
             this.panel1.SuspendLayout();
             this.tabControl1.SuspendLayout();
-            this.tabPage2.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.tabPage2.SuspendLayout();
             this.tabPage3.SuspendLayout();
             this.tabPage4.SuspendLayout();
             this.SuspendLayout();
@@ -410,24 +410,6 @@ namespace System.Windows.Forms
             this.tabControl1.Size = new System.Drawing.Size(293, 276);
             this.tabControl1.TabIndex = 18;
             // 
-            // tabPage2
-            // 
-            this.tabPage2.Controls.Add(this.visEditor1);
-            this.tabPage2.Location = new System.Drawing.Point(4, 22);
-            this.tabPage2.Name = "tabPage2";
-            this.tabPage2.Size = new System.Drawing.Size(285, 250);
-            this.tabPage2.TabIndex = 4;
-            this.tabPage2.Text = "Enabled";
-            this.tabPage2.UseVisualStyleBackColor = true;
-            // 
-            // visEditor1
-            // 
-            this.visEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.visEditor1.Location = new System.Drawing.Point(0, 0);
-            this.visEditor1.Name = "visEditor1";
-            this.visEditor1.Size = new System.Drawing.Size(285, 250);
-            this.visEditor1.TabIndex = 0;
-            // 
             // tabPage1
             // 
             this.tabPage1.Controls.Add(this.groupBox1);
@@ -475,8 +457,11 @@ namespace System.Windows.Forms
             // numSpotBright
             // 
             this.numSpotBright.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numSpotBright.Integral = false;
             this.numSpotBright.Location = new System.Drawing.Point(211, 84);
             this.numSpotBright.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numSpotBright.MaximumValue = 3.402823E+38F;
+            this.numSpotBright.MinimumValue = -3.402823E+38F;
             this.numSpotBright.Name = "numSpotBright";
             this.numSpotBright.Size = new System.Drawing.Size(70, 20);
             this.numSpotBright.TabIndex = 19;
@@ -497,8 +482,11 @@ namespace System.Windows.Forms
             // numRefBright
             // 
             this.numRefBright.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRefBright.Integral = false;
             this.numRefBright.Location = new System.Drawing.Point(211, 103);
             this.numRefBright.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numRefBright.MaximumValue = 3.402823E+38F;
+            this.numRefBright.MinimumValue = -3.402823E+38F;
             this.numRefBright.Name = "numRefBright";
             this.numRefBright.Size = new System.Drawing.Size(70, 20);
             this.numRefBright.TabIndex = 13;
@@ -552,8 +540,11 @@ namespace System.Windows.Forms
             // numStartY
             // 
             this.numStartY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numStartY.Integral = false;
             this.numStartY.Location = new System.Drawing.Point(142, 46);
             this.numStartY.Margin = new System.Windows.Forms.Padding(0);
+            this.numStartY.MaximumValue = 3.402823E+38F;
+            this.numStartY.MinimumValue = -3.402823E+38F;
             this.numStartY.Name = "numStartY";
             this.numStartY.Size = new System.Drawing.Size(70, 20);
             this.numStartY.TabIndex = 4;
@@ -569,14 +560,17 @@ namespace System.Windows.Forms
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(70, 20);
             this.label10.TabIndex = 14;
-            this.label10.Text = "Spot Bright";
+            this.label10.Text = "Spec Shine";
             this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // numEndZ
             // 
             this.numEndZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numEndZ.Integral = false;
             this.numEndZ.Location = new System.Drawing.Point(211, 65);
             this.numEndZ.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numEndZ.MaximumValue = 3.402823E+38F;
+            this.numEndZ.MinimumValue = -3.402823E+38F;
             this.numEndZ.Name = "numEndZ";
             this.numEndZ.Size = new System.Drawing.Size(70, 20);
             this.numEndZ.TabIndex = 8;
@@ -586,8 +580,11 @@ namespace System.Windows.Forms
             // numStartX
             // 
             this.numStartX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numStartX.Integral = false;
             this.numStartX.Location = new System.Drawing.Point(73, 46);
             this.numStartX.Margin = new System.Windows.Forms.Padding(0);
+            this.numStartX.MaximumValue = 3.402823E+38F;
+            this.numStartX.MinimumValue = -3.402823E+38F;
             this.numStartX.Name = "numStartX";
             this.numStartX.Size = new System.Drawing.Size(70, 20);
             this.numStartX.TabIndex = 3;
@@ -597,8 +594,11 @@ namespace System.Windows.Forms
             // numRefDist
             // 
             this.numRefDist.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRefDist.Integral = false;
             this.numRefDist.Location = new System.Drawing.Point(73, 103);
             this.numRefDist.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numRefDist.MaximumValue = 3.402823E+38F;
+            this.numRefDist.MinimumValue = -3.402823E+38F;
             this.numRefDist.Name = "numRefDist";
             this.numRefDist.Size = new System.Drawing.Size(70, 20);
             this.numRefDist.TabIndex = 12;
@@ -608,8 +608,11 @@ namespace System.Windows.Forms
             // numEndX
             // 
             this.numEndX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numEndX.Integral = false;
             this.numEndX.Location = new System.Drawing.Point(73, 65);
             this.numEndX.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numEndX.MaximumValue = 3.402823E+38F;
+            this.numEndX.MinimumValue = -3.402823E+38F;
             this.numEndX.Name = "numEndX";
             this.numEndX.Size = new System.Drawing.Size(70, 20);
             this.numEndX.TabIndex = 6;
@@ -619,8 +622,11 @@ namespace System.Windows.Forms
             // numEndY
             // 
             this.numEndY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numEndY.Integral = false;
             this.numEndY.Location = new System.Drawing.Point(142, 65);
             this.numEndY.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numEndY.MaximumValue = 3.402823E+38F;
+            this.numEndY.MinimumValue = -3.402823E+38F;
             this.numEndY.Name = "numEndY";
             this.numEndY.Size = new System.Drawing.Size(70, 20);
             this.numEndY.TabIndex = 7;
@@ -630,8 +636,11 @@ namespace System.Windows.Forms
             // numSpotCut
             // 
             this.numSpotCut.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numSpotCut.Integral = false;
             this.numSpotCut.Location = new System.Drawing.Point(73, 84);
             this.numSpotCut.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
+            this.numSpotCut.MaximumValue = 3.402823E+38F;
+            this.numSpotCut.MinimumValue = -3.402823E+38F;
             this.numSpotCut.Name = "numSpotCut";
             this.numSpotCut.Size = new System.Drawing.Size(70, 20);
             this.numSpotCut.TabIndex = 11;
@@ -641,8 +650,11 @@ namespace System.Windows.Forms
             // numStartZ
             // 
             this.numStartZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numStartZ.Integral = false;
             this.numStartZ.Location = new System.Drawing.Point(211, 46);
             this.numStartZ.Margin = new System.Windows.Forms.Padding(0);
+            this.numStartZ.MaximumValue = 3.402823E+38F;
+            this.numStartZ.MinimumValue = -3.402823E+38F;
             this.numStartZ.Name = "numStartZ";
             this.numStartZ.Size = new System.Drawing.Size(70, 20);
             this.numStartZ.TabIndex = 5;
@@ -684,6 +696,24 @@ namespace System.Windows.Forms
             this.label8.Text = "Ref Dist";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // tabPage2
+            // 
+            this.tabPage2.Controls.Add(this.visEditor1);
+            this.tabPage2.Location = new System.Drawing.Point(4, 22);
+            this.tabPage2.Name = "tabPage2";
+            this.tabPage2.Size = new System.Drawing.Size(285, 250);
+            this.tabPage2.TabIndex = 4;
+            this.tabPage2.Text = "Enabled";
+            this.tabPage2.UseVisualStyleBackColor = true;
+            // 
+            // visEditor1
+            // 
+            this.visEditor1.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.visEditor1.Location = new System.Drawing.Point(0, 0);
+            this.visEditor1.Name = "visEditor1";
+            this.visEditor1.Size = new System.Drawing.Size(285, 250);
+            this.visEditor1.TabIndex = 0;
+            // 
             // tabPage3
             // 
             this.tabPage3.Controls.Add(this.lightCtrl);
@@ -696,6 +726,7 @@ namespace System.Windows.Forms
             // 
             // lightCtrl
             // 
+            this.lightCtrl.ColorID = 0;
             this.lightCtrl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lightCtrl.Location = new System.Drawing.Point(0, 0);
             this.lightCtrl.Name = "lightCtrl";
@@ -714,6 +745,7 @@ namespace System.Windows.Forms
             // 
             // specCtrl
             // 
+            this.specCtrl.ColorID = 0;
             this.specCtrl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.specCtrl.Location = new System.Drawing.Point(0, 0);
             this.specCtrl.Name = "specCtrl";
@@ -729,10 +761,10 @@ namespace System.Windows.Forms
             this.groupBox1.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.tabControl1.ResumeLayout(false);
-            this.tabPage2.ResumeLayout(false);
             this.tabPage1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            this.tabPage2.ResumeLayout(false);
             this.tabPage3.ResumeLayout(false);
             this.tabPage4.ResumeLayout(false);
             this.ResumeLayout(false);
