@@ -23,65 +23,59 @@ namespace Ikarus.MovesetFile
                         _entries.Add(Parse<CollisionDataEntry>(addr[i]));
             }
         }
-        //protected override void Write(VoidPtr address)
-        //{
-        //    bint* offsets = (bint*)address;
-        //    VoidPtr dataAddr = address;
-        //    if (Children.Count > 0)
-        //    {
-        //        foreach (MoveDefOffsetNode o in Children)
-        //            if (o.Children.Count > 0 && !(o.Children[0] as MovesetEntry).External)
-        //            {
-        //                o.Children[0].Rebuild(dataAddr, o.Children[0]._calcSize, true);
-        //                _lookupOffsets.AddRange((o.Children[0] as MovesetEntry)._lookupOffsets);
-        //                dataAddr += o.Children[0]._calcSize;
-        //            }
-        //        offsets = (bint*)dataAddr;
-        //        foreach (MoveDefOffsetNode o in Children)
-        //        {
-        //            if (o.Children.Count > 0)
-        //            {
-        //                *offsets = (int)(o.Children[0] as MovesetEntry)._rebuildAddr - (int)RebuildBase;
-        //                _lookupOffsets.Add(offsets); //offset to child
-        //            }
-        //            offsets++;
-        //        }
-        //    }
+        protected override int OnGetLookupCount()
+        {
+            int count = 0;
+            if (_entries.Count > 0)
+            {
+                count++; //offset to collision entries
+                foreach (var o in _entries)
+                    count += o.GetLookupCount();
+            }
+            return base.OnGetLookupCount();
+        }
 
-        //    _rebuildAddr = offsets;
-        //    FDefListOffset* header = (FDefListOffset*)offsets;
+        protected override void OnWrite(VoidPtr address)
+        {
+            bint* offsets = (bint*)address;
+            VoidPtr dataAddr = address;
+            if (_entries.Count > 0)
+            {
+                foreach (CollisionDataEntry o in _entries)
+                    if (!o.External)
+                    {
+                        o.Write(dataAddr);
+                        Lookup(o.LookupAddresses);
+                        dataAddr += o._calcSize;
+                    }
+                offsets = (bint*)dataAddr;
+                foreach (CollisionDataEntry o in _entries)
+                {
+                    Lookup(&offsets);
+                    *offsets++ = o.RebuildOffset;
+                }
+            }
 
-        //    header->_listCount = Children.Count;
-        //    if (Children.Count > 0)
-        //    {
-        //        header->_startOffset = (int)dataAddr - (int)RebuildBase;
-        //        _lookupOffsets.Add(header->_startOffset.Address);
-        //    }
-        //}
-        //public override int GetSize()
-        //{
-        //    _lookupCount = 0;
-        //    _entryLength = 8;
-        //    _childLength = 0;
-        //    if (Children.Count > 0)
-        //    {
-        //        _lookupCount++; //offset to children
-        //        foreach (MoveDefOffsetNode o in Children)
-        //        {
-        //            _childLength += 4;
-        //            if (o.Children.Count > 0)
-        //            {
-        //                _lookupCount++; //offset to child
-        //                if (!(o.Children[0] as MovesetEntry).External)
-        //                {
-        //                    _childLength += o.Children[0].CalculateSize(true);
-        //                    _lookupCount += (o.Children[0] as MovesetEntry)._lookupCount;
-        //                }
-        //            }
-        //        }
-        //    }
-        //    return _childLength + _entryLength;
-        //}
+            RebuildAddress = offsets;
+            sListOffset* header = (sListOffset*)offsets;
+
+            header->_listCount = _entries.Count;
+            if (_entries.Count > 0)
+            {
+                header->_startOffset = Offset(dataAddr);
+                Lookup(header->_startOffset.Address);
+            }
+        }
+
+        protected override int OnGetSize()
+        {
+            _entryLength = 8;
+            _childLength = 0;
+            if (_entries.Count > 0)
+                foreach (var o in _entries)
+                    _childLength += 4 + o._bones.Count * 4;
+            return _childLength + _entryLength;
+        }
     }
 
     public enum CollisionType : int
@@ -189,10 +183,9 @@ namespace Ikarus.MovesetFile
 
                     bint* addr = (bint*)address;
                     foreach (BoneIndexValue b in _bones)
-                    {
-                        b.RebuildAddress = addr;
-                        *addr++ = b.boneIndex;
-                    }
+                        b.Write(addr++);
+
+                    RebuildAddress = addr;
 
                     sCollData0* data1 = (sCollData0*)addr;
                     data1->unk1 = _length;
@@ -202,24 +195,27 @@ namespace Ikarus.MovesetFile
                     if (_bones.Count > 0)
                     {
                         data1->_list._startOffset = Offset(address);
-                        _lookupOffsets.Add(&data1->_list._startOffset);
+                        Lookup(&data1->_list._startOffset);
                     }
                     data1->_list._listCount = _bones.Count;
-                    RebuildAddress = addr;
 
+                    
                     break;
 
                 case CollisionType.Type1:
+
+                    RebuildAddress = address;
 
                     sCollData1* data2 = (sCollData1*)address;
                     data2->unk1 = _length;
                     data2->unk2 = _width;
                     data2->unk3 = _height;
-                    RebuildAddress = address;
 
                     break;
 
                 case CollisionType.Type2:
+
+                    RebuildAddress = address;
 
                     sCollData2* data3 = (sCollData2*)address;
                     data3->flags = _flags;
@@ -229,8 +225,6 @@ namespace Ikarus.MovesetFile
 
                     if ((_flags & 2) == 2)
                         data3->unk4 = _unknown;
-
-                    RebuildAddress = address;
 
                     break;
             }

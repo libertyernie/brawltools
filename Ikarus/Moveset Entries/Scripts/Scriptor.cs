@@ -640,11 +640,12 @@ namespace Ikarus.ModelViewer
                     if (RunTime._muteSFX)
                         break;
 
-                    id = e[0];
                     if (Manager.SoundArchive != null)
                     {
                         RSARNode node = Manager.SoundArchive;
                         List<RSAREntryNode> sounds = node._infoCache[0];
+
+                        id = e[0];
                         if (sounds != null && id >= 0 && id < sounds.Count)
                         {
                             RSARSoundNode s = sounds[id] as RSARSoundNode;

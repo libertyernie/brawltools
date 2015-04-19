@@ -64,7 +64,7 @@ namespace Ikarus.MovesetFile
             if (_bones.Count > 0)
             {
                 header->_offset = Offset(address);
-                _lookupOffsets.Add(&header->_offset);
+                Lookup(&header->_offset);
             }
         }
     }

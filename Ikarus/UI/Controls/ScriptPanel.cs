@@ -580,7 +580,7 @@ namespace Ikarus.UI
             chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
             chkFixedTrans.Checked = grp._flags.HasFlag(AnimationFlags.FixedTranslation);
 
-            lblActionName.Text = RunTime.CurrentSubaction._animationName;
+            lblActionName.Text = RunTime.CurrentSubaction.Name;
         }
 
         /// <summary>

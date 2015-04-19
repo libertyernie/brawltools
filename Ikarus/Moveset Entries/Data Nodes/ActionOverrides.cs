@@ -158,7 +158,7 @@ namespace Ikarus.MovesetFile
                 addr->_actionID = e._actionId;
                 SakuraiArchiveNode.Builder._postProcessNodes.Add(this);
                 if (e._script != null && e._script.Count > 0)
-                    _lookupOffsets.Add(addr->_commandListOffset.Address);
+                    Lookup(addr->_commandListOffset.Address);
                 address += 8;
             }
 

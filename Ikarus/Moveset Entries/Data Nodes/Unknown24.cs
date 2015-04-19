@@ -46,7 +46,7 @@ namespace Ikarus.MovesetFile
             if (_indices.Count > 0)
             {
                 header->_startOffset = Offset(address);
-                _lookupOffsets.Add(header->_startOffset.Address);
+                Lookup(header->_startOffset.Address);
             }
 
             header->_listCount = _indices.Count;

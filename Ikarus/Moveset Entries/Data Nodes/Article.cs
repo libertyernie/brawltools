@@ -52,25 +52,25 @@ namespace Ikarus.MovesetFile
         public string ArticleBone { get { return ArticleBoneNode == null ? _articleBone.ToString() : ArticleBoneNode.Name; } set { if (Model == null) { _articleBone = Convert.ToInt32(value); } else { ArticleBoneNode = String.IsNullOrEmpty(value) ? ArticleBoneNode : _info._model.FindBone(value); } SignalPropertyChange(); } }
         [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
         public string CharacterBone { get { return CharBoneNode == null ? _charBone.ToString() : CharBoneNode.Name; } set { if (Model == null) { _charBone = Convert.ToInt32(value); } else { CharBoneNode = String.IsNullOrEmpty(value) ? CharBoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int ActionFlagsStart { get { return _actionFlagsOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int SubactionFlagsStart { get { return _subactionFlagsOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int ActionsStart { get { return _actionArrayOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int SubactionMainStart { get { return _subactionsMainArrayOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int SubactionGFXStart { get { return _subactionGFXArrayOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int SubactionSFXStart { get { return _subactionSFXArrayOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int ModelVisibility { get { return _modelVisOffset; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public int CollisionData { get { return _collisionDataOffset; } }
-        [Category("Article"), Browsable(false)]
-        public int DataOffset2 { get { return _off2; } }
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
+        public int AddAreaDataSetList { get { return _off2; } }
+        [Category("Article"), Browsable(true)]
         public int DataOffset3 { get { return _off3; } }
 
         //public string ArticleStringID { get { return "ArticleType" + (Static ? "2_" : "1_") + (Name == "Entry Article" ? "Entry" : (Parent.Name == "Static Articles" ? "Static" + Index : _offsetID.ToString())); } }
@@ -206,7 +206,7 @@ namespace Ikarus.MovesetFile
         //public Data2ListNode _data2;
         public RawParamList _data3;
 
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public List<int> ExtraOffsets { get { return _extraOffsets; } }
         public List<int> _extraOffsets;
         [Category("Article"), Browsable(false)]

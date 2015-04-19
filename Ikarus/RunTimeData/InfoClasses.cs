@@ -90,9 +90,7 @@ namespace Ikarus.ModelViewer
                     foreach (MDL0ObjectNode o in _model._objList)
                         o._render = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
 
-            _running = false;
-            if (_model != null)
-                _model.IsRendering = false;
+            Running = false;
         }
 
         private bool _running = false;
@@ -160,12 +158,7 @@ namespace Ikarus.ModelViewer
         public bool Running 
         {
             get { return _running; } 
-            set
-            {
-                _running = value;
-                if (_model != null)
-                    _model.IsRendering = _running;
-            }
+            set { ModelVisible = _running = value; }
         }
 
         public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }

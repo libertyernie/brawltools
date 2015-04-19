@@ -57,6 +57,12 @@ namespace BrawlLib.SSBBTypes
         public bint _startOffset;
         public bint _listCount;
 
+        public sListOffset(int offset, int count)
+        {
+            _startOffset = offset;
+            _listCount = count;
+        }
+
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
 }

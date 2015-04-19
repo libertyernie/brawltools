@@ -282,19 +282,20 @@ namespace Ikarus.MovesetFile
             get { return Data; }
             set
             {
-                //if (value < 0)
-                //{
-                //    _value = value;
-                //    list = 4;
-                //    type = -1;
-                //    index = -1;
-                //    SignalPropertyChange();
-                //    return;
-                //}
+                if (value < 0)
+                {
+                    Data = value;
+                    _offsetInfo._list = ListValue.Null;
+                    _offsetInfo._type = TypeValue.None;
+                    _offsetInfo._index = -1;
+                    SignalPropertyChange();
+                    return;
+                }
                 SakuraiEntryNode r = _root.GetEntry(value);
                 if (r != null && r is Script)
                     Data = value;
-                else MessageBox.Show("An action could not be located.");
+                else
+                    MessageBox.Show("An action could not be located.");
             }
         }
         [Category("Event Offset"), Browsable(true), TypeConverter(typeof(DropDownListExtNodesMDef))]
@@ -326,44 +327,11 @@ namespace Ikarus.MovesetFile
         internal Script GetScript() { return ((MovesetNode)_root).GetScript(RawOffset); }
         public Script _script;
 
-        protected override void OnParse(VoidPtr address)
-        {
-            base.OnParse(address);
-            
-            //if (RawOffset > 0)
-            //{
-            //    _root.GetScriptLocation(RawOffset, out _offsetInfo);
-            //    if (!External)
-            //    {
-            //        _script = _root.GetScript(_offsetInfo);
-            //        if (_script == null)
-            //            _script = GetScript();
-            //    }
-            //}
-            //else
-            //{
-            //    _script = null;
-            //    _offsetInfo.type = (TypeValue)(-1);
-            //    if (RawOffset < 0 && External)
-            //    {
-            //        _offsetInfo.index = _externalEntry.Index;
-            //        _offsetInfo.list = ListValue.References;
-            //    }
-            //    else
-            //    {
-            //        _offsetInfo.index = -1;
-            //        _offsetInfo.list = ListValue.Null;
-            //    }
-            //}
-        }
-
         public override void PostParse()
         {
-            LinkScript();
-        }
+            //Get script node using raw offset
+            //This happens in post parse so that all scripts have been parsed already
 
-        internal void LinkScript()
-        {
             MovesetNode node = (MovesetNode)_root;
 
             SakuraiEntryNode e = _root.GetEntry(RawOffset);
@@ -385,7 +353,7 @@ namespace Ikarus.MovesetFile
                 }
                 return;
             }
-            
+
             if (a == null)
                 a = GetScript();
 

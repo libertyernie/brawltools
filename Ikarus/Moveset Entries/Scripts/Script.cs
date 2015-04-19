@@ -27,19 +27,20 @@ namespace Ikarus.MovesetFile
             _flags = flags._flags;
             _inTransTime = flags._inTranslationTime;
             _stringOffset = flags._stringOffset;
-            _animationName = name;
+            _name = name;
             _index = i;
         }
 
         public AnimationFlags _flags;
         public byte _inTransTime;
-        public string _animationName;
         public int _stringOffset;
 
         public Script _main;
         public Script _sfx;
         public Script _gfx;
         public Script _other;
+
+        public bool Enabled { get { return Name != "<null>"; } }
 
         public Script GetWithType(int type)
         {
@@ -68,17 +69,9 @@ namespace Ikarus.MovesetFile
             return new Script[] { _main, _sfx, _gfx, _other };
         }
 
-        public override string Name
-        {
-            get
-            {
-                return _animationName;
-            }
-        }
-
-        public override string ToString() { return String.Format("[{0}] {1}", _index.ToString().PadLeft(3), _animationName); }
+        public override string ToString() { return String.Format("[{0}] {1}", _index.ToString().PadLeft(3), Name); }
     }
-    public class ActionEntry : MovesetEntryNode
+    public unsafe class ActionEntry : MovesetEntryNode
     {
         [Category("Action")]
         public int ID { get { return _id; } }
@@ -122,6 +115,17 @@ namespace Ikarus.MovesetFile
                 case 0: _entry = s; break;
                 case 1: _exit = s; break;
             }
+        }
+
+        protected override void OnWrite(VoidPtr address)
+        {
+            RebuildAddress = address;
+
+            sActionFlags* values = (sActionFlags*)address;
+            values->_flags1 = Flags1;
+            values->_flags2 = Flags2;
+            values->_flags3 = Flags3;
+            values->_flags4 = Flags4;
         }
 
         public override string ToString() { return String.Format("[{0}] Action", ID.ToString().PadLeft(3)); }
@@ -296,7 +300,7 @@ namespace Ikarus.MovesetFile
                 if (e.Count > 0)
                 {
                     eventAddr->_argumentOffset = (uint)Offset(paramAddr);
-                    _lookupOffsets.Add(&eventAddr->_argumentOffset);
+                    Lookup(&eventAddr->_argumentOffset);
                 }
                 else
                     eventAddr->_argumentOffset = 0;

@@ -1763,8 +1763,6 @@ namespace Ikarus.UI
                 listPanel.UpdateAnimations();
 
                 ResetBoneColors();
-
-                RunTime.ResetSubactionVariables();
                 RunTime.SetFrame(1);
             }
             else

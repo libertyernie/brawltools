@@ -60,7 +60,7 @@ namespace Ikarus.MovesetFile
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct CommonHeader
+    public unsafe struct DataCommonHeader
     {
         public bint GlobalICs;
         public bint SSEGlobalICs;
@@ -400,6 +400,8 @@ namespace Ikarus.MovesetFile
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct sSubActionFlags
     {
+        public const int Size = 8;
+
         public byte _inTranslationTime;
         public AnimationFlags _flags;
         public short pad;
@@ -504,25 +506,21 @@ namespace Ikarus.MovesetFile
     {
         public const int Size = 0x4C;
 
-        public bint UnknownSection1Offset;
-        public bint FinalSmashAuraOffset;
-        public bint FinalSmashAuraCount;
-        public bint HurtBoxOffset;
-        public bint HurtBoxCount;
-        public bint LedgegrabOffset;
-        public bint LedgegrabCount;
-        public bint UnknownSection2Offset;
-        public bint UnknownSection2Count;
-        public bint BoneRef2Offset;
-        public bint UnknownSection3Offset;
-        public bint SoundDataOffset;
-        public bint UnknownSection5Offset;
-        public bint MultiJumpOffset;
-        public bint GlideOffset;
-        public bint CrawlOffset;
-        public bint CollisionDataOffset;
-        public bint TetherOffset;
-        public bint UnknownSection12Offset;
+        public bint Unknown0;
+        public sListOffset FinalSmashAura;
+        public sListOffset HurtBoxes;
+        public sListOffset Ledgegrabs;
+        public sListOffset Unknown7;
+        public bint BoneReferences;
+        public bint Unknown10;
+        public bint SoundData;
+        public bint Unknown12;
+        public bint MultiJump;
+        public bint Glide;
+        public bint Crawl;
+        public bint CollisionData;
+        public bint Tether;
+        public bint Unknown18;
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public int this[int i]

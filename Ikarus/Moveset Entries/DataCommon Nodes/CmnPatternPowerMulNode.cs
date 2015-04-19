@@ -107,7 +107,7 @@ namespace Ikarus.MovesetFile
             foreach (Script p in _scripts)
             {
                 p.Write(addr);
-                _lookupOffsets.AddRange(p._lookupOffsets);
+                Lookup(p.LookupAddresses);
                 addr += p._calcSize;
             }
         }

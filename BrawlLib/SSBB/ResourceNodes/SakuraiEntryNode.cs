@@ -20,7 +20,7 @@ namespace BrawlLib.SSBBTypes
                 return RebuildAddress == null 
                     || BaseAddress == null 
                     || RebuildAddress < BaseAddress ? 
-                    -1 : (int)RebuildAddress - (int)BaseAddress;
+                    -1 : Offset(RebuildAddress);
             }
         }
         [Browsable(false)]
@@ -93,7 +93,7 @@ namespace BrawlLib.SSBBTypes
         public int LookupCount { get { return _lookupCount; } }
         private int _lookupCount = 0;
 
-        public List<VoidPtr> _lookupOffsets;
+        private List<VoidPtr> _lookupAddresses;
         
         //Functions
         /// <summary>
@@ -210,9 +210,12 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public int Write(VoidPtr address)
         {
+            if (External)
+                throw new Exception("Trying to write an external data entry inside of a section's child data!");
+
             //Reset list of lookup offsets
             //Addresses will be added in OnWrite.
-            _lookupOffsets = new List<VoidPtr>();
+            _lookupAddresses = new List<VoidPtr>();
 
             //Reset the rebuild address to be set in OnWrite
             //Set to 'address' instead? I just don't want to forget to set this 
@@ -226,7 +229,7 @@ namespace BrawlLib.SSBBTypes
             OnWrite(address);
 
 #if DEBUG
-            if (_lookupOffsets.Count != _lookupCount)
+            if (_lookupAddresses.Count != _lookupCount)
                 throw new Exception("Number of actual lookup offsets does not match the calculated count.");
 
             if (!RebuildAddress)
@@ -256,8 +259,16 @@ namespace BrawlLib.SSBBTypes
                 throw new Exception("Offset value set in lookup, not the address of the offset value.");
 #endif
 
-            _lookupOffsets.Add(Offset(address));
+            _lookupAddresses.Add(address);
         }
+
+        protected void Lookup(List<VoidPtr> values)
+        {
+            _lookupAddresses.AddRange(values);
+        }
+
+        [Browsable(false)]
+        public List<VoidPtr> LookupAddresses { get { return _lookupAddresses; } }
 
         //Overridable functions
         protected virtual void OnParse(VoidPtr address) { }

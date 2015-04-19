@@ -12,29 +12,57 @@ namespace Ikarus.MovesetFile
     public abstract class OffsetHolder
     {
         protected VoidPtr _address;
-        protected LookupManager _lookup;
         protected DataSection _data;
 
         public void Parse(DataSection node, VoidPtr address)
         {
             _data = node;
             _address = address;
-            if (OffsetsType != null)
-                GetValues(OffsetsType);
+
+            TryGetValues();
             OnParse();
+
+            int i = 0;
+            foreach (var a in _data._articles)
+                a._index = i++;
+
+            _data._articles = _data._articles.OrderBy(x => x._offset).ToList();
+
+            i = 0;
+            foreach (var a in _data._paramLists)
+                a._index = i++;
+
+            _data._paramLists = _data._paramLists.OrderBy(x => x._offset).ToList();
         }
-        public void Write(DataSection node, LookupManager lookup, VoidPtr address)
+
+        List<VoidPtr> _lookupAddresses;
+
+        protected void Lookup(VoidPtr address)
         {
-            _lookup = lookup;
+            _lookupAddresses.Add(address);
+        }
+
+        protected void Lookup(List<VoidPtr> values)
+        {
+            _lookupAddresses.AddRange(values);
+        }
+
+        public List<VoidPtr> Write(DataSection node, VoidPtr address)
+        {
+            _lookupAddresses = new List<VoidPtr>();
             _data = node;
             _address = address;
+
+            TrySetValues();
             OnWrite();
+
+            return _lookupAddresses;
         }
 
         protected virtual Type OffsetsType { get { return null; } }
 
         //Used to parse extra things that are not parameters or articles
-        protected virtual void OnParse() {  }
+        protected virtual void OnParse() { }
         //Used to write extra things that are not parameters or articles
         protected virtual void OnWrite() { }
 
@@ -66,29 +94,50 @@ namespace Ikarus.MovesetFile
             for (int i = startIndex; i < count; i++)
                 _data._paramLists.Add(GetParamList(i));
         }
-        protected unsafe void GetValues(Type offsets)
+        protected unsafe void TryGetValues()
         {
-            FieldInfo[] fields = offsets.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
-            int i = 0;
-            foreach (FieldInfo info in fields)
-            {
-                if (info.Name.StartsWith("_article") && info.Name.Length == 9)
-                    _data._articles.Add(_data.Parse<ArticleNode>(*(bint*)(_address + i)));
-                else if (info.Name.StartsWith("_params") && info.Name.Length == 8)
-                    _data._paramLists.Add(_data.Parse<RawParamList>(*(bint*)(_address + i)));
-                i += Marshal.SizeOf(info.FieldType);
-            }
-        }
-        protected unsafe void SetValues(Type offsets)
-        {
-            FieldInfo[] fields = offsets.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            if (OffsetsType == null)
+                return;
+
+            FieldInfo[] fields = OffsetsType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+
             int i = 0;
             foreach (FieldInfo info in fields)
             {
                 if (info.Name.StartsWith("_article") && !info.Name.Contains("count"))
-                    Set(i, _data._articles[int.Parse(info.Name.Substring(9, info.Name.Length - 9))]);
+                    _data._articles.Add(_data.Parse<ArticleNode>(*(bint*)(_address + i)));
                 else if (info.Name.StartsWith("_params") && !info.Name.Contains("count"))
-                    Set(i, _data._paramLists[int.Parse(info.Name.Substring(8, info.Name.Length - 8))]);
+                    _data._paramLists.Add(_data.Parse<RawParamList>(*(bint*)(_address + i)));
+                i += Marshal.SizeOf(info.FieldType);
+            }
+        }
+        protected unsafe void TrySetValues()
+        {
+            if (OffsetsType == null)
+                return;
+
+            FieldInfo[] fields = OffsetsType.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic);
+            int i = 0;
+            foreach (FieldInfo info in fields)
+            {
+                if (info.Name.StartsWith("_article") && !info.Name.Contains("count"))
+                {
+                    foreach (var a in _data._articles)
+                        if (a.Index == i)
+                        {
+                            Set(i, a);
+                            break;
+                        }
+                }
+                else if (info.Name.StartsWith("_params") && !info.Name.Contains("count"))
+                {
+                    foreach (var a in _data._paramLists)
+                        if (a.Index == i)
+                        {
+                            Set(i, a);
+                            break;
+                        }
+                }
                 i++;
             }
         }
@@ -107,14 +156,13 @@ namespace Ikarus.MovesetFile
         }
 
         //How to parse the articles for a character:
-        //Copy and paste one of the classes below (ex, Link)
-        //Then rename it to the character and uncomment the character in the function below
-        //Then using Brawlbox v0.68b, you can view the data offsets
+        //Using Brawlbox v0.68b, you can view a character's extra data offsets (header data specific to that character)
         //by opening the character's moveset file and going to MoveDef_FitChar->Sections->data
         //Go the properties and view the ExtraOffsets collection.
-        //Use this to set up the struct for the character accordingly.
+        //Use this to set up the struct for the character accordingly (find their struct by name below).
         //You can view the int offset of each article in the Articles list under data,
         //So just match those offsets to the list, get the index and use it to parse them.
+        //Articles and parameter lists names must start with _article or _params
         public static OffsetHolder GetOffsets(CharName character)
         {
             Type[] types = Assembly.GetExecutingAssembly().GetTypes().Where(

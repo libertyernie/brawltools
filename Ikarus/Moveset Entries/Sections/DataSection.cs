@@ -110,10 +110,15 @@ namespace Ikarus.MovesetFile
         //Other lists
         public ActionOverrideList _exitOverrides;
         public ActionOverrideList _entryOverrides;
-        public List<RawParamList> _paramLists;
+
         public BindingList<SubActionEntry> _subActions;
-        public List<ArticleNode> _articles;
         public List<ArticleNode> _staticArticles;
+
+        //Extra data offset lists
+        public List<ArticleNode> _articles;
+        public List<RawParamList> _paramLists;
+        public List<CollisionData> _hitData;
+        public List<sAddAreaDataSet> _addAreaDataSets;
 
         //public MoveDefStaticArticleGroupNode _staticArticles;
         ////Character Specific Nodes
@@ -649,14 +654,21 @@ namespace Ikarus.MovesetFile
 #endregion
         //}
 
+        protected override int OnGetLookupCount() { return _builder._lookupCount; }
+
         DataBuilder _builder;
         protected override int OnGetSize()
         {
             _builder = new DataBuilder(this);
-            _entryLength = 124 + ExtraDataOffsets.GetOffsets(((MovesetNode)_root).Character).Size;
+            _entryLength = DataHeader.Size + _builder._extraDataOffsets.Size;
             _childLength = _builder.CalcSize();
             return _entryLength + _childLength;
         }
-        protected override void OnWrite(VoidPtr address) { _builder.Build(address); _builder = null; }
+        protected override void OnWrite(VoidPtr address)
+        {
+            _builder.Build(address);
+            _builder = null;
+            Lookup(_builder._lookupAddresses.ToList());
+        }
     }
 }

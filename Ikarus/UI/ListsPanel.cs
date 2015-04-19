@@ -653,7 +653,7 @@ namespace Ikarus.UI
             string name = null;
             int i = SubActionsList.SelectedIndex;
             if (RunTime.Subactions != null && i >= 0 && i < RunTime.Subactions.Count)
-                name = RunTime.Subactions[i]._animationName;
+                name = RunTime.Subactions[i].Name;
 
             int frame = CurrentFrame;
 
@@ -664,7 +664,7 @@ namespace Ikarus.UI
             //Reselect the animation
             if (name != null)
                 for (int x = 0; x < RunTime.Subactions.Count; x++)
-                    if (RunTime.Subactions[x]._animationName == name)
+                    if (RunTime.Subactions[x].Name == name)
                     {
                         SubActionsList.SetSelected(x, true);
                         break;
@@ -1054,7 +1054,7 @@ namespace Ikarus.UI
 
             if (SubActionsList.SelectedItems.Count > 0)
             {
-                string r = RunTime.CurrentSubaction._animationName;
+                string r = RunTime.CurrentSubaction.Name;
                 if (_animations.ContainsKey(r))
                 {
                     var x = _animations[r];

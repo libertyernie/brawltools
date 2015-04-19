@@ -172,6 +172,9 @@ namespace Ikarus
         {
             get 
             {
+                if (RunTime._muteSFX)
+                    return null;
+
                 if (_rsar != null)
                     return _rsar;
                 else
