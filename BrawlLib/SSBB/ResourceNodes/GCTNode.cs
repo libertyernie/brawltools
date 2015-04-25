@@ -311,6 +311,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (s.Length > 0)
                     g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s, _enabled = true });
 
+                if (g._name == null)
+                {
+                    g._name = Path.GetFileNameWithoutExtension(path);
+                }
+
                 return g;
             }
             else if (endFound && i > 0)
