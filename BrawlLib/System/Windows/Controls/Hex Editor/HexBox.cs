@@ -2707,7 +2707,9 @@ namespace Be.Windows.Forms
                     if (half && u > 1)
                         backBrush = CommandBrush;
 
-                    byte b = (byte)((word >> ((3 - u) * 8)) & 0xFF);
+                    byte b = _byteProvider.ReadByte(x+u);
+                    if (cmd != null && _sectionEditor.displayInitialized.Checked)
+                        b = (byte)((word >> ((3 - u) * 8)) & 0xFF);
 
                     bool isSelectedByte = offset >= _bytePos && offset <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
 
