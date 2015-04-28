@@ -446,19 +446,19 @@ namespace BrawlLib.Modeling
                                         }
                                     }
                                     else if (_reader.Name.Equals("polygons", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.polygons));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polygons));
                                     else if (_reader.Name.Equals("polylist", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.polylist));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polylist));
                                     else if (_reader.Name.Equals("triangles", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.triangles));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.triangles));
                                     else if (_reader.Name.Equals("tristrips", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.tristrips));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.tristrips));
                                     else if (_reader.Name.Equals("trifans", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.trifans));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.trifans));
                                     else if (_reader.Name.Equals("lines", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.lines));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.lines));
                                     else if (_reader.Name.Equals("linestrips", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.linestrips));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.linestrips));
 
                                     _reader.EndElement();
                                 }
@@ -471,7 +471,7 @@ namespace BrawlLib.Modeling
                     _reader.EndElement();
                 }
             }
-            private PrimitiveEntry ParsePrimitive(PrimitiveType type)
+            private PrimitiveEntry ParsePrimitive(ColladaPrimitiveType type)
             {
                 PrimitiveEntry prim = new PrimitiveEntry() { _type = type };
                 PrimitiveFace p;
@@ -480,17 +480,17 @@ namespace BrawlLib.Modeling
 
                 switch (type)
                 {
-                    case PrimitiveType.trifans:
-                    case PrimitiveType.tristrips:
-                    case PrimitiveType.triangles:
+                    case ColladaPrimitiveType.trifans:
+                    case ColladaPrimitiveType.tristrips:
+                    case ColladaPrimitiveType.triangles:
                         stride = 3;
                         break;
-                    case PrimitiveType.lines:
-                    case PrimitiveType.linestrips:
+                    case ColladaPrimitiveType.lines:
+                    case ColladaPrimitiveType.linestrips:
                         stride = 2;
                         break;
-                    case PrimitiveType.polygons:
-                    case PrimitiveType.polylist:
+                    case ColladaPrimitiveType.polygons:
+                    case ColladaPrimitiveType.polylist:
                         stride = 4;
                         break;
                 }
@@ -524,22 +524,22 @@ namespace BrawlLib.Modeling
 
                         switch (type)
                         {
-                            case PrimitiveType.trifans:
-                            case PrimitiveType.tristrips:
-                            case PrimitiveType.polygons:
-                            case PrimitiveType.polylist:
+                            case ColladaPrimitiveType.trifans:
+                            case ColladaPrimitiveType.tristrips:
+                            case ColladaPrimitiveType.polygons:
+                            case ColladaPrimitiveType.polylist:
                                 p._faceCount = p._pointCount - 2;
                                 break;
 
-                            case PrimitiveType.triangles:
+                            case ColladaPrimitiveType.triangles:
                                 p._faceCount = p._pointCount / 3;
                                 break;
 
-                            case PrimitiveType.lines:
+                            case ColladaPrimitiveType.lines:
                                 p._faceCount = p._pointCount / 2;
                                 break;
 
-                            case PrimitiveType.linestrips:
+                            case ColladaPrimitiveType.linestrips:
                                 p._faceCount = p._pointCount - 1;
                                 break;
                         }
@@ -1063,7 +1063,7 @@ namespace BrawlLib.Modeling
         }
         private class PrimitiveEntry
         {
-            internal PrimitiveType _type;
+            internal ColladaPrimitiveType _type;
 
             internal string _material;
             internal int _entryCount;
@@ -1198,7 +1198,7 @@ namespace BrawlLib.Modeling
             specular,
             transparent
         }
-        private enum PrimitiveType
+        private enum ColladaPrimitiveType
         {
             None,
             polygons,

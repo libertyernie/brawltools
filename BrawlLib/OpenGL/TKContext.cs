@@ -12,7 +12,7 @@ using OpenTK.Graphics;
 
 namespace BrawlLib.OpenGL
 {
-    public delegate T GLCreateHandler<T>(TKContext ctx);
+    public delegate T GLCreateHandler<T>();
 
     public unsafe class TKContext : IDisposable
     {
@@ -33,7 +33,7 @@ namespace BrawlLib.OpenGL
 
             if (CurrentContext._states.ContainsKey(name))
                 return (T)CurrentContext._states[name];
-            T obj = handler(CurrentContext);
+            T obj = handler();
             CurrentContext._states[name] = obj;
             return obj;
         }
@@ -214,7 +214,7 @@ namespace BrawlLib.OpenGL
         public static unsafe void DrawWireframeBox(Box value) { DrawWireframeBox(value.Min, value.Max); }
         public static unsafe void DrawWireframeBox(Vector3 min, Vector3 max)
         {
-            GL.Begin(PrimitiveType.LineStrip);
+            GL.Begin(BeginMode.LineStrip);
 
             GL.Vertex3(max._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, min._z);
@@ -226,7 +226,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Vertex3(min._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, max._z);
@@ -246,7 +246,7 @@ namespace BrawlLib.OpenGL
         public static unsafe void DrawBox(Box value) { DrawBox(value.Min, value.Max); }
         public static unsafe void DrawBox(Vector3 p1, Vector3 p2)
         {
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             GL.Vertex3(p1._x, p1._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p1._z);
@@ -261,7 +261,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p1._x, p2._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p2._z);
@@ -278,7 +278,7 @@ namespace BrawlLib.OpenGL
         public static unsafe void DrawInvertedBox(Box value) { DrawInvertedBox(value.Min, value.Max); }
         public unsafe static void DrawInvertedBox(Vector3 p1, Vector3 p2)
         {
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             GL.Vertex3(p1._x, p1._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p1._z);
@@ -293,7 +293,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p2._x, p2._y, p1._z);
             GL.Vertex3(p2._x, p2._y, p2._z);
@@ -331,10 +331,10 @@ namespace BrawlLib.OpenGL
         }
 
         public GLDisplayList GetLine() { return FindOrCreate<GLDisplayList>("Line", CreateLine); }
-        private static GLDisplayList CreateLine(TKContext ctx)
+        private static GLDisplayList CreateLine()
         {
             GLDisplayList list = new GLDisplayList();
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(2.0f, 0.0f, 0.0f);
@@ -346,12 +346,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetRingList() { return FindOrCreate<GLDisplayList>("Ring", CreateRing); }
-        private static GLDisplayList CreateRing(TKContext ctx)
+        private static GLDisplayList CreateRing()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(BeginMode.LineLoop);
 
             float angle = 0.0f;
             for (int i = 0; i < 360; i++, angle = i * Maths._deg2radf)
@@ -364,12 +364,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetSquareList() { return FindOrCreate<GLDisplayList>("Square", CreateSquare); }
-        private static GLDisplayList CreateSquare(TKContext ctx)
+        private static GLDisplayList CreateSquare()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(BeginMode.LineLoop);
 
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(0.0f, 0.0f, 1.0f);
@@ -384,12 +384,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetAxisList() { return FindOrCreate<GLDisplayList>("Axes", CreateAxes); }
-        private static GLDisplayList CreateAxes(TKContext ctx)
+        private static GLDisplayList CreateAxes()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Color4(1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -424,12 +424,12 @@ namespace BrawlLib.OpenGL
             return list;
         }
         public static GLDisplayList GetCubeList() { return FindOrCreate<GLDisplayList>("Cube", CreateCube); }
-        private static GLDisplayList CreateCube(TKContext ctx)
+        private static GLDisplayList CreateCube()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             Vector3 p1 = new Vector3(0);
             Vector3 p2 = new Vector3(0.99f);
@@ -447,7 +447,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p1._x, p2._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p2._z);
@@ -466,12 +466,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetCircleList() { return FindOrCreate<GLDisplayList>("Circle", CreateCircle); }
-        private static GLDisplayList CreateCircle(TKContext ctx)
+        private static GLDisplayList CreateCircle()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.TriangleFan);
+            GL.Begin(BeginMode.TriangleFan);
 
             GL.Vertex3(0.0f, 0.0f, 0.0f);
 
@@ -493,21 +493,13 @@ namespace BrawlLib.OpenGL
             GL.PopMatrix();
         }
         public static GLDisplayList GetSphereList() { return FindOrCreate<GLDisplayList>("Sphere", CreateSphere); }
-        public static GLDisplayList CreateSphere(TKContext ctx)
+        public static GLDisplayList CreateSphere()
         {
-            //IntPtr quad = Glu.NewQuadric();
-            //Glu.QuadricDrawStyle(quad, QuadricDrawStyle.Fill);
-            //Glu.QuadricOrientation(quad, QuadricOrientation.Outside);
-
             GLDisplayList dl = new GLDisplayList();
 
             dl.Begin();
-
             DrawSphere(new Vector3(), 1.0f, 40);
-            //Glu.Sphere(quad, 1.0f, 40, 40);
             dl.End();
-
-            //Glu.DeleteQuadric(quad);
 
             return dl;
         }
@@ -517,7 +509,7 @@ namespace BrawlLib.OpenGL
                 radius = -radius;
 
             if (radius == 0.0f)
-                throw new DivideByZeroException("DrawSphere: Radius cannot be 0f.");
+                throw new DivideByZeroException("DrawSphere: Radius cannot be zero.");
             
             if (precision == 0)
                 throw new DivideByZeroException("DrawSphere: Precision of 8 or greater is required.");
@@ -534,7 +526,7 @@ namespace BrawlLib.OpenGL
                 theta1 = (j * twoPIThroughPrecision) - halfPI;
                 theta2 = ((j + 1) * twoPIThroughPrecision) - halfPI;
 
-                GL.Begin(PrimitiveType.TriangleStrip);
+                GL.Begin(BeginMode.TriangleStrip);
                 for (uint i = 0; i <= precision; i++)
                 {
                     theta3 = i * twoPIThroughPrecision;

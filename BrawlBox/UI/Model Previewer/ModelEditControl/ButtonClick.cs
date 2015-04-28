@@ -22,6 +22,11 @@ namespace System.Windows.Forms
     public partial class ModelEditControl : ModelEditorBase
     {
         #region Model Viewer Properties
+        private void scaleBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                ScaleBones = !ScaleBones;
+        }
         private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (!_updating)
@@ -247,6 +252,8 @@ namespace System.Windows.Forms
 
             curViewport.SetPercentages(averageX, yMin, xMax, yMax);
             newViewport.SetPercentages(xMin, yMin, averageX, yMax);
+
+            ModelPanel.Invalidate();
         }
         private void topToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -263,6 +270,8 @@ namespace System.Windows.Forms
 
             curViewport.SetPercentages(xMin, averageY, xMax, yMax);
             newViewport.SetPercentages(xMin, yMin, xMax, averageY);
+
+            ModelPanel.Invalidate();
         }
         private void LiveTextureFolderPath_Click(object sender, EventArgs e)
         {

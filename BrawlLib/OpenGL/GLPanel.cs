@@ -49,7 +49,17 @@ namespace BrawlLib.OpenGL
         protected List<GLViewport> _viewports = new List<GLViewport>();
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public GLViewport HighlightedViewport { get { return _viewports.Count > 1 ? _highlightedViewport : _viewports[0]; } }
+        public GLViewport HighlightedViewport
+        {
+            get
+            {
+                return _viewports.Count > 1 ?
+                    _highlightedViewport :
+                    _viewports.Count > 0 ?
+                    _viewports[0] :
+                    CurrentViewport;
+            }
+        }
 
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public GLViewport CurrentViewport
@@ -113,6 +123,8 @@ namespace BrawlLib.OpenGL
                 v._owner = null;
                 v.OnInvalidate -= Invalidate;
                 _viewports.Remove(v);
+                FitViewports();
+                Invalidate();
             }
         }
         public void RemoveViewport(int index)
@@ -138,6 +150,68 @@ namespace BrawlLib.OpenGL
                 _ctx.Unbind();
                 _ctx.Dispose();
                 _ctx = null;
+            }
+        }
+
+        public void FitViewports()
+        {
+            foreach (GLViewport v in _viewports)
+            {
+                Vector4 p = v.Percentages;
+                GLViewport x = null, y = null, z = null, w = null;
+                Vector4 diff = new Vector4(float.MaxValue);
+                foreach (GLViewport v2 in _viewports)
+                {
+                    if (v2 == v)
+                        continue;
+
+                    float diff2 = Math.Abs(p._x - v2.Percentages._x);
+                    if (diff2 <= diff._x)
+                    {
+                        x = v2;
+                        diff._x = diff2;
+                    }
+                    diff2 = Math.Abs(p._y - v2.Percentages._y);
+                    if (diff2 <= diff._y)
+                    {
+                        y = v2;
+                        diff._y = diff2;
+                    }
+                    diff2 = Math.Abs(p._z - v2.Percentages._z);
+                    if (diff2 <= diff._z)
+                    {
+                        z = v2;
+                        diff._z = diff2;
+                    }
+                    diff2 = Math.Abs(p._w - v2.Percentages._w);
+                    if (diff2 <= diff._w)
+                    {
+                        w = v2;
+                        diff._w = diff2;
+                    }
+                }
+                Vector4 average = new Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+                if (diff._x > 0.0f && x != null)
+                {
+                    average._x = (v.Percentages._x + x.Percentages._x) / 2.0f;
+                    x.SetXPercentage(average._x);
+                }
+                if (diff._y > 0.0f && y != null)
+                {
+                    average._y = (v.Percentages._y + y.Percentages._y) / 2.0f;
+                    y.SetYPercentage(average._y);
+                }
+                if (diff._z > 0.0f && z != null)
+                {
+                    average._z = (v.Percentages._z + z.Percentages._z) / 2.0f;
+                    z.SetZPercentage(average._z);
+                }
+                if (diff._w > 0.0f && w != null)
+                {
+                    average._w = (v.Percentages._w + w.Percentages._w) / 2.0f;
+                    w.SetWPercentage(average._w);
+                }
+                v.SetPercentages(average);
             }
         }
 

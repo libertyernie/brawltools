@@ -1,5 +1,7 @@
 ﻿using BrawlLib.Modeling;
 using System.Collections.Generic;
+using System.Linq;
+
 namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
@@ -77,14 +79,13 @@ namespace System.Windows.Forms
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
-        public void VertexChange(List<Vertex3> vertices, Matrix transform)
+        public void VertexChange(List<Vertex3> vertices)
         {
             SaveState state = new VertexState()
             {
                 _vertices = vertices,
+                _weightedPositions = vertices.Select(x => x.WeightedPosition).ToList(),
                 _targetModel = TargetModel,
-                _origin = VertexLoc().Value,
-                _transform = transform,
             };
 
             AddState(state);
@@ -157,22 +158,10 @@ namespace System.Windows.Forms
                 TargetModel = state._targetModel;
             }
 
-            Matrix transform;
-            Vector3 center = new Vector3();
+            for (int i = 0; i < state._vertices.Count; i++)
+                state._vertices[i].WeightedPosition = state._weightedPositions[i];
 
-            if (state._isUndo)
-            {
-                transform = ((VertexState)RedoSave)._transform.Invert();
-                center = state._origin;
-            }
-            else
-            {
-                transform = state._transform;
-                center = ((VertexState)UndoSave)._origin;
-            }
-
-            foreach (Vertex3 vertex in _selectedVertices)
-                vertex.WeightedPosition = Maths.TransformAboutPoint(vertex.WeightedPosition, center, transform);
+            SetSelectedVertices(state._vertices);
 
             _vertexLoc = null;
 

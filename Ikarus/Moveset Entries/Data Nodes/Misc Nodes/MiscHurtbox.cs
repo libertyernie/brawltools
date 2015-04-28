@@ -191,7 +191,7 @@ namespace Ikarus.MovesetFile
                         if (quadrant == q)
                         {
                             GL.Translate(stretch._x, stretch._y, stretch._z);
-                            GL.Begin(PrimitiveType.Quads);
+                            GL.Begin(BeginMode.Quads);
                             GL.Vertex3(Math.Cos(ang1) * Math.Sin(ringang2), Math.Sin(ang1) * Math.Sin(ringang2), Math.Cos(ringang2));
                             GL.Vertex3(Math.Cos(ang2) * Math.Sin(ringang2), Math.Sin(ang2) * Math.Sin(ringang2), Math.Cos(ringang2));
                             GL.Vertex3(Math.Cos(ang2) * Math.Sin(ringang1), Math.Sin(ang2) * Math.Sin(ringang1), Math.Cos(ringang1));
@@ -241,7 +241,7 @@ namespace Ikarus.MovesetFile
                     z2 += stretchfac._z;
                 }
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 GL.Vertex3(x1, y1, z1);
                 GL.Vertex3(x2, y1, z1);
                 GL.Vertex3(x2, y2, z2);
@@ -284,7 +284,7 @@ namespace Ikarus.MovesetFile
                     z2 += stretchfac._z;
                 }
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 GL.Vertex3(x1, y1, z1);
                 GL.Vertex3(x1, y2, z1);
                 GL.Vertex3(x2, y2, z2);
@@ -327,7 +327,7 @@ namespace Ikarus.MovesetFile
                     y2 += stretchfac._y;
                 }
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 GL.Vertex3(x2, y2, z1);
                 GL.Vertex3(x2, y2, z2);
                 GL.Vertex3(x1, y1, z2);
@@ -338,7 +338,7 @@ namespace Ikarus.MovesetFile
             Vector3 scale = frame._scale;
 
             // six faces
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
             float outpos;
 
             // left face

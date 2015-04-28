@@ -14,13 +14,13 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        protected const float _orbRadius = 1.0f;
-        protected const float _circRadius = 1.2f;
-        protected const float _axisSnapRange = 7.0f;
-        protected const float _selectRange = 0.03f; //Selection error range for orb and circ
-        protected const float _axisSelectRange = 0.15f; //Selection error range for axes
-        protected const float _selectOrbScale = _selectRange / _orbRadius;
-        protected const float _circOrbScale = _circRadius / _orbRadius;
+        public const float _orbRadius = 1.0f;
+        public const float _circRadius = 1.2f;
+        public const float _axisSnapRange = 7.0f;
+        public const float _selectRange = 0.03f; //Selection error range for orb and circ
+        public const float _axisSelectRange = 0.15f; //Selection error range for axes
+        public const float _selectOrbScale = _selectRange / _orbRadius;
+        public const float _circOrbScale = _circRadius / _orbRadius;
 
         public int _animFrame = 0, _maxFrame;
         public bool _updating, _loop;

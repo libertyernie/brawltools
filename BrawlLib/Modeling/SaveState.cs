@@ -30,8 +30,7 @@ namespace BrawlLib.Modeling
     public class VertexState : SaveState
     {
         public List<Vertex3> _vertices = null;
-        public Matrix _transform;
-        public Vector3 _origin;
+        public List<Vector3> _weightedPositions = null;
         public IModel _targetModel;
     }
 

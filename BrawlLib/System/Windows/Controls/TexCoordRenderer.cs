@@ -288,7 +288,7 @@ namespace System.Windows.Forms
                     s = (float)Width / (float)bgTex.Width,
                     t = (float)Height / (float)bgTex.Height;
 
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
 
                 GL.TexCoord2(0.0f, 0.0f);
                 GL.Vertex2(-halfW, -halfH);
@@ -422,7 +422,7 @@ namespace System.Windows.Forms
             GL.BindTexture(TextureTarget.Texture2D, texture._texId);
 
             //Draw a quad across the screen and render the texture with the calculated texcoords
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.TexCoord2(texCoord[0], texCoord[1]);
             GL.Vertex2(-halfW, -halfH);
@@ -674,16 +674,15 @@ namespace System.Windows.Forms
 
                 Vector2* pData = (Vector2*)_renderBuffer.Address;
                 for (int i = 4; i < _manager._faceData.Length; i++)
-                {
                     if (_manager._faceData[i] != null && _enabled[i - 4])
-                    {
-                        GL.VertexPointer(2, VertexPointerType.Float, _stride, (IntPtr)pData);
-                        pData++;
-                    }
-                }
+                        GL.VertexPointer(2, VertexPointerType.Float, _stride, (IntPtr)(pData++));
 
-                uint[] indices = _manager._triangles._indices;
-                GL.DrawElements(PrimitiveType.Triangles, indices.Length, DrawElementsType.UnsignedInt, indices);
+                if (_manager._triangles != null)
+                    _manager._triangles.Render();
+                if (_manager._lines != null)
+                    _manager._lines.Render();
+                if (_manager._points != null)
+                    _manager._points.Render();
 
                 GL.DisableClientState(ArrayCap.VertexArray);
             }

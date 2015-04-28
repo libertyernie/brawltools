@@ -392,8 +392,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Child Population
         public bool _isPopulating;
-        public void Populate() { Populate(-1); }
-        public void Populate(int levels)
+        public void Populate(int levels = -1)
         {
             _isPopulating = true;
             if (levels > 0)

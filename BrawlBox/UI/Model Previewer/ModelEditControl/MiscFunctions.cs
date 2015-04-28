@@ -286,7 +286,7 @@ namespace System.Windows.Forms
             if (!ModelPanel.Focused)
                 return false;
 
-            ResetVertexColors();
+            ClearSelectedVertices();
             if (EditingAll)
             {
                 if (_targetModels != null)
@@ -300,29 +300,6 @@ namespace System.Windows.Forms
             ModelPanel.Invalidate();
 
             return true;
-        }
-        private void SelectAllVertices(IModel mdl)
-        {
-            if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
-            {
-                IObject o = (IObject)mdl.Objects[mdl.SelectedObjectIndex];
-                if (o.IsRendering)
-                    foreach (Vertex3 v in o.Vertices)
-                    {
-                        _selectedVertices.Add(v);
-                        v._selected = true;
-                        v._highlightColor = Color.Orange;
-                    }
-            }
-            else
-                foreach (IObject o in mdl.Objects)
-                    if (o.IsRendering)
-                        foreach (Vertex3 v in o.Vertices)
-                        {
-                            _selectedVertices.Add(v);
-                            v._selected = true;
-                            v._highlightColor = Color.Orange;
-                        }
         }
         private bool HotkeyToggleLeftPanel()
         {
@@ -771,7 +748,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_UseBindStateBoxesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -782,7 +758,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_ApplyBillboardBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -793,7 +768,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -804,7 +778,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderVerticesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -815,7 +788,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderPolygonsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -826,7 +798,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderOffscreenChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -837,7 +808,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderNormalsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -848,7 +818,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderFloorChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -859,7 +828,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderModelBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -869,7 +837,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderObjectBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -879,7 +846,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderVisBoneBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -890,11 +856,19 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
                 toggleBones.Checked = chkBones.Checked = value;
+                _updating = false;
+            }
+        }
+        private void ModelPanel_ScaleBonesChanged(ModelPanel panel, bool value)
+        {
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                scaleBonesToolStripMenuItem.Checked = value;
                 _updating = false;
             }
         }

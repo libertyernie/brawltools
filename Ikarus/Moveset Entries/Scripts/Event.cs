@@ -745,7 +745,7 @@ namespace Ikarus.MovesetFile
             {
                 m = Matrix.TransformMatrix(new Vector3(0.5f), (globalPos + bonePos).LookatAngles(cam) * Maths._rad2degf, new Vector3(0));
                 GL.MultMatrix((float*)&m);
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 for (int i = 0; i < 16; i += 2)
                 {
                     GL.Vertex3(Math.Cos((i - 1) * Math.PI / 8) * 0.5, Math.Sin((i - 1) * Math.PI / 8) * 0.5, 0);
@@ -763,7 +763,7 @@ namespace Ikarus.MovesetFile
                     angleflip = 180;
                 m = Matrix.TransformMatrix(new Vector3(1), new Vector3(a, angleflip, 0), new Vector3());
                 GL.MultMatrix((float*)&m);
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 // left face
                 GL.Vertex3(0.1, 0.1, 0);
                 GL.Vertex3(0.1, 0.1, 1);
@@ -813,7 +813,7 @@ namespace Ikarus.MovesetFile
                     {
                         double ang1 = (j * (drawAngle / 2)) / 180 * Math.PI;
                         double ang2 = ((j + 1) * (drawAngle / 2)) / 180 * Math.PI;
-                        GL.Begin(PrimitiveType.LineStrip);
+                        GL.Begin(BeginMode.LineStrip);
                         GL.Vertex3(Math.Cos(ang1), Math.Sin(ang1), 0);
                         GL.Vertex3(Math.Cos(ang2), Math.Sin(ang2), 0);
                         GL.End();
@@ -895,7 +895,7 @@ namespace Ikarus.MovesetFile
                 GL.Color4((color._x / 255.0f), (color._y / 225.0f), (color._z / 255.0f), 0.5f);
                 
                 GL.Translate(reversepos._x, reversepos._y, reversepos._z);
-                GL.Begin(PrimitiveType.Lines); // stretch lines
+                GL.Begin(BeginMode.Lines); // stretch lines
                 GL.Vertex3(1, 0, 0);
                 GL.Vertex3(1 - reversepos._x, 0 - reversepos._y, 0 - reversepos._z);
                 GL.Vertex3(-1, 0, 0);
@@ -927,7 +927,7 @@ namespace Ikarus.MovesetFile
             {
                 m = Matrix.TransformMatrix(new Vector3(0.5f), (globalPos + bonePos).LookatAngles(cam) * Maths._rad2degf, new Vector3(0));
                 GL.MultMatrix((float*)&m);
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 for (int i = 0; i < 16; i += 2)
                 {
                     GL.Vertex3(Math.Cos((i - 1) * Math.PI / 8) * 0.5, Math.Sin((i - 1) * Math.PI / 8) * 0.5, 0);
@@ -945,7 +945,7 @@ namespace Ikarus.MovesetFile
                     angleflip = 180;
                 m = Matrix.TransformMatrix(new Vector3(1), new Vector3(a, angleflip, 0), new Vector3());
                 GL.MultMatrix((float*)&m);
-                GL.Begin(PrimitiveType.Quads);
+                GL.Begin(BeginMode.Quads);
                 // left face
                 GL.Vertex3(0.1, 0.1, 0);
                 GL.Vertex3(0.1, 0.1, 1);
@@ -996,7 +996,7 @@ namespace Ikarus.MovesetFile
                         double ang1 = (j * (drawangle / 2)) / 180 * Math.PI;
                         double ang2 = ((j + 1) * (drawangle / 2)) / 180 * Math.PI;
                         int q = 0;
-                        GL.Begin(PrimitiveType.LineStrip);
+                        GL.Begin(BeginMode.LineStrip);
                         GL.Vertex3(Math.Cos(ang1), Math.Sin(ang1), 0);
                         GL.Vertex3(Math.Cos(ang2), Math.Sin(ang2), 0);
                         GL.End();

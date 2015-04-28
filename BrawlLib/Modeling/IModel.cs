@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Windows.Forms;
 
 namespace BrawlLib.Modeling
 {
@@ -25,9 +26,12 @@ namespace BrawlLib.Modeling
         void ApplyVIS(VIS0Node node, float index);
         void ApplyCLR(CLR0Node node, float index);
         void ApplySCN(SCN0Node node, float index);
-        
+
+        void UpdateBillboards(ModelPanelViewport v);
         void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera);
         void RenderNormals();
+        void RenderBoxes(bool model, bool obj, bool bone, bool bindState);
+        void RenderBones(ModelPanelViewport v);
 
         int SelectedObjectIndex { get; set; }
         IObject[] Objects { get; }
@@ -47,6 +51,7 @@ namespace BrawlLib.Modeling
         public bool _renderBoneBoxes = false;
         public bool _useBindStateBoxes = true;
         public bool _applyBillboardBones = true;
+        public bool _scaleBones = false;
 
         public ModelRenderAttributes() { }
         public ModelRenderAttributes(SerializationInfo info, StreamingContext ctxt)

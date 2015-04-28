@@ -305,7 +305,11 @@ namespace System.Windows.Forms
                 if (string.IsNullOrEmpty(s))
                     continue;
 
-                string[] values2 = s.Split(' ');
+                string line = s.StartsWith("* ")
+                    ? s.Substring(2)
+                    : s;
+
+                string[] values2 = line.Split(' ');
                 if (values2.Length < 2)
                 {
                     status.Text = String.Format("Problem on line {0}: Not enough values", x);
