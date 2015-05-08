@@ -14,10 +14,11 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TEX0Node : BRESEntryNode, IImageSource
     {
         internal TEX0v1* Header1 { get { return (TEX0v1*)WorkingUncompressed.Address; } }
+        internal TEX0v2* Header2 { get { return (TEX0v2*)WorkingUncompressed.Address; } }
         internal TEX0v3* Header3 { get { return (TEX0v3*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.TEX0; } }
         public override int DataAlign { get { return 0x20; } }
-        public override int[] SupportedVersions { get { return new int[] { 1, 3 }; } }
+        public override int[] SupportedVersions { get { return new int[] { 1, 2, 3 }; } }
 
         public TEX0Node() { _version = 1; }
 
@@ -43,14 +44,28 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            if ((_name == null) && (Header1->_stringOffset != 0))
-                _name = Header1->ResourceString;
+            if (_version == 2)
+            {
+                if ((_name == null) && (Header2->_stringOffset != 0))
+                    _name = Header2->ResourceString;
 
-            _width = Header1->_width;
-            _height = Header1->_height;
-            _format = Header1->PixelFormat;
-            _lod = Header1->_levelOfDetail;
-            _hasPalette = Header1->HasPalette;
+                _width = Header2->_width;
+                _height = Header2->_height;
+                _format = Header2->PixelFormat;
+                _lod = Header2->_levelOfDetail;
+                _hasPalette = Header2->HasPalette;
+            }
+            else
+            {
+                if ((_name == null) && (Header1->_stringOffset != 0))
+                    _name = Header1->ResourceString;
+
+                _width = Header1->_width;
+                _height = Header1->_height;
+                _format = Header1->PixelFormat;
+                _lod = Header1->_levelOfDetail;
+                _hasPalette = Header1->HasPalette;
+            }
 
             if (_version == 3)
                 (_userEntries = new UserDataCollection()).Read(Header3->UserData);
@@ -74,17 +89,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Bitmap GetImage(int index)
         {
             PLT0Node plt = GetPaletteNode();
-            try
-            {
-                if (WorkingUncompressed != DataSource.Empty)
-                    if (plt != null)
-                        return TextureConverter.DecodeIndexed(Header1, plt.Palette, index + 1);
-                    else
-                        return TextureConverter.Decode(Header1, index + 1);
-                else 
-                    return null;
-            }
-            catch { return null; }
+            return GetImage(index, plt);
         }
 
         public Bitmap GetImage(int index, PLT0Node plt)
@@ -93,10 +98,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (WorkingUncompressed != DataSource.Empty)
                     if (plt != null)
-                        return TextureConverter.DecodeIndexed(Header1, plt.Palette, index + 1);
+                        return TextureConverter.DecodeIndexed(
+                            (VoidPtr)CommonHeader + 0x40, _width, _height, plt.Palette, index + 1, _format);
                     else
-                        return TextureConverter.Decode(Header1, index + 1);
-                else 
+                        return TextureConverter.Decode(
+                            (VoidPtr)CommonHeader + 0x40, _width, _height, index + 1, _format);
+                else
                     return null;
             }
             catch { return null; }
@@ -106,10 +113,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.PostProcess(bresAddress, dataAddress, dataLength, stringTable);
 
-            TEX0v1* header = (TEX0v1*)dataAddress;
-            header->ResourceStringAddress = stringTable[Name] + 4;
-            if (!String.IsNullOrEmpty(_originalPath))
-                header->OrigPathAddress = stringTable[_originalPath] + 4;
+            if (_version == 2)
+            {
+                TEX0v2* header = (TEX0v2*)dataAddress;
+                header->ResourceStringAddress = stringTable[Name] + 4;
+                if (!String.IsNullOrEmpty(_originalPath))
+                    header->OrigPathAddress = stringTable[_originalPath] + 4;
+            }
+            else
+            {
+                TEX0v1* header = (TEX0v1*)dataAddress;
+                header->ResourceStringAddress = stringTable[Name] + 4;
+                if (!String.IsNullOrEmpty(_originalPath))
+                    header->OrigPathAddress = stringTable[_originalPath] + 4;
+            }
         }
 
         public void Replace(Bitmap bmp)
