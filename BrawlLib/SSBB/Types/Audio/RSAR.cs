@@ -85,7 +85,7 @@ namespace BrawlLib.SSBBTypes
         //Gets names of file paths seperated by an underscore
         public string GetStringEntry(int index)
         {
-            if (index < 0) 
+            if (index < 0)
                 return "<null>";
             return new String(GetStringEntryAddr(index));
         }
@@ -117,17 +117,15 @@ namespace BrawlLib.SSBBTypes
         public bint _stringId;
         public bint _index;
 
-        public bool IsLeaf { get { return (_flags & 1) != 0; } set { _flags = (ushort)(value ? 1 : 0); } }
-
-        public SYMBMaskEntry(short bit, int left, int right) : this(false, bit, left, right, 0, 0) { }
-        public SYMBMaskEntry(bool leaf, short bit, int left, int right, int id, int index)
+        public SYMBMaskEntry(short bit, int left, int right) : this(0, bit, left, right, 0, 0) { }
+        public SYMBMaskEntry(ushort flags, short bit, int left, int right, int id, int index)
         {
-            _flags = (ushort)(leaf ? 1 : 0); 
+            _flags = flags;
             _bit = bit;
             _leftId = left;
-            _rightId = right; 
-            _stringId = id; 
-            _index = index; 
+            _rightId = right;
+            _stringId = id;
+            _index = index;
         }
 
         private SYMBMaskEntry* Address { get { fixed (SYMBMaskEntry* ptr = &this)return ptr; } }
@@ -142,76 +140,76 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-    //    public static void Build(SYMBMaskHeader* group, int index)
-    //    {
-    //        //Get the first entry in the group, which is empty
-    //        SYMBMaskEntry* list = group->Entries;
-    //        //Get the entry that will be modified
-    //        SYMBMaskEntry* entry = &list[index];
-    //        //Get the first entry again
-    //        SYMBMaskEntry* prev = &list[0];
-    //        //Get the entry that the first entry's left index points to
-    //        SYMBMaskEntry* current = &list[prev->_leftId];
-    //        //The index of the current entry
-    //        int currentIndex = prev->_leftId;
+        //    public static void Build(SYMBMaskHeader* group, int index)
+        //    {
+        //        //Get the first entry in the group, which is empty
+        //        SYMBMaskEntry* list = group->Entries;
+        //        //Get the entry that will be modified
+        //        SYMBMaskEntry* entry = &list[index];
+        //        //Get the first entry again
+        //        SYMBMaskEntry* prev = &list[0];
+        //        //Get the entry that the first entry's left index points to
+        //        SYMBMaskEntry* current = &list[prev->_leftId];
+        //        //The index of the current entry
+        //        int currentIndex = prev->_leftId;
 
-    //        bool isRight = false;
+        //        bool isRight = false;
 
-    //        //Get the length of the string
-    //        int strLen = pString->_length;
+        //        //Get the length of the string
+        //        int strLen = pString->_length;
 
-    //        //Create a byte pointer to the struct's string data
-    //        byte* pChar = (byte*)pString + 4, sChar;
+        //        //Create a byte pointer to the struct's string data
+        //        byte* pChar = (byte*)pString + 4, sChar;
 
-    //        int eIndex = strLen - 1, eBits = pChar[eIndex].CompareBits(0), val;
-    //        *entry = new ResourceEntry((eIndex << 3) | eBits, index, index, (int)dataAddress - (int)group, (int)pChar - (int)group);
+        //        int eIndex = strLen - 1, eBits = pChar[eIndex].CompareBits(0), val;
+        //        *entry = new ResourceEntry((eIndex << 3) | eBits, index, index, (int)dataAddress - (int)group, (int)pChar - (int)group);
 
-    //        //Continue while the previous id is greater than the current. Loop backs will stop the processing.
-    //        //Continue while the entry id is less than or equal the current id. Being higher than the current id means we've found a place to insert.
-    //        while ((entry->_bit <= current->_bit) && (prev->_bit > current->_bit))
-    //        {
-    //            if (entry->_bit == current->_bit)
-    //            {
-    //                sChar = (byte*)group + current->_stringOffset;
+        //        //Continue while the previous id is greater than the current. Loop backs will stop the processing.
+        //        //Continue while the entry id is less than or equal the current id. Being higher than the current id means we've found a place to insert.
+        //        while ((entry->_bit <= current->_bit) && (prev->_bit > current->_bit))
+        //        {
+        //            if (entry->_bit == current->_bit)
+        //            {
+        //                sChar = (byte*)group + current->_stringOffset;
 
-    //                //Rebuild new id relative to current entry
-    //                for (eIndex = strLen; (eIndex-- > 0) && (pChar[eIndex] == sChar[eIndex]); ) ;
-    //                eBits = pChar[eIndex].CompareBits(sChar[eIndex]);
+        //                //Rebuild new id relative to current entry
+        //                for (eIndex = strLen; (eIndex-- > 0) && (pChar[eIndex] == sChar[eIndex]); ) ;
+        //                eBits = pChar[eIndex].CompareBits(sChar[eIndex]);
 
-    //                entry->_bit = (ushort)((eIndex << 3) | eBits);
+        //                entry->_bit = (ushort)((eIndex << 3) | eBits);
 
-    //                if (((sChar[eIndex] >> eBits) & 1) != 0)
-    //                {
-    //                    entry->_leftId = (ushort)index;
-    //                    entry->_rightId = currentIndex;
-    //                }
-    //                else
-    //                {
-    //                    entry->_leftId = currentIndex;
-    //                    entry->_rightId = (ushort)index;
-    //                }
-    //            }
+        //                if (((sChar[eIndex] >> eBits) & 1) != 0)
+        //                {
+        //                    entry->_leftId = (ushort)index;
+        //                    entry->_rightId = currentIndex;
+        //                }
+        //                else
+        //                {
+        //                    entry->_leftId = currentIndex;
+        //                    entry->_rightId = (ushort)index;
+        //                }
+        //            }
 
-    //            //Is entry to the right or left of current?
-    //            isRight = ((val = current->_bit >> 3) < strLen) && (((pChar[val] >> (current->_bit & 7)) & 1) != 0);
+        //            //Is entry to the right or left of current?
+        //            isRight = ((val = current->_bit >> 3) < strLen) && (((pChar[val] >> (current->_bit & 7)) & 1) != 0);
 
-    //            prev = current;
-    //            current = &list[currentIndex = (isRight) ? current->_rightId : current->_leftId];
-    //        }
+        //            prev = current;
+        //            current = &list[currentIndex = (isRight) ? current->_rightId : current->_leftId];
+        //        }
 
-    //        sChar = (current->_stringOffset == 0) ? null : (byte*)group + current->_stringOffset;
-    //        val = sChar == null ? 0 : (int)(*(bint*)(sChar - 4));
+        //        sChar = (current->_stringOffset == 0) ? null : (byte*)group + current->_stringOffset;
+        //        val = sChar == null ? 0 : (int)(*(bint*)(sChar - 4));
 
-    //        if ((val == strLen) && (((sChar[eIndex] >> eBits) & 1) != 0))
-    //            entry->_rightId = currentIndex;
-    //        else
-    //            entry->_leftId = currentIndex;
+        //        if ((val == strLen) && (((sChar[eIndex] >> eBits) & 1) != 0))
+        //            entry->_rightId = currentIndex;
+        //        else
+        //            entry->_leftId = currentIndex;
 
-    //        if (isRight)
-    //            prev->_rightId = (ushort)index;
-    //        else
-    //            prev->_leftId = (ushort)index;
-    //    }
+        //        if (isRight)
+        //            prev->_rightId = (ushort)index;
+        //        else
+        //            prev->_leftId = (ushort)index;
+        //    }
     }
 
     #endregion
@@ -234,7 +232,7 @@ namespace BrawlLib.SSBBTypes
         public RuintList* Files { get { return (RuintList*)_collection[3]; } } //INFOFileEntry
         public RuintList* Groups { get { return (RuintList*)_collection[4]; } } //INFOGroupHeader
         public INFOFooter* Footer { get { return (INFOFooter*)_collection[5]; } }
-        
+
         public INFOSoundEntry* GetSound(int i) { return (INFOSoundEntry*)(_collection.Address + (*Sounds)[i]); }
         public INFOBankEntry* GetBank(int i) { return (INFOBankEntry*)(_collection.Address + (*Banks)[i]); }
         public INFOPlayerInfoEntry* GetPlayerInfo(int i) { return (INFOPlayerInfoEntry*)(_collection.Address + (*PlayerInfo)[i]); }
@@ -346,7 +344,7 @@ namespace BrawlLib.SSBBTypes
         public bint _padding;
     }
     #endregion
-    
+
     #region Player Info
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct INFOPlayerInfoEntry
@@ -394,7 +392,7 @@ namespace BrawlLib.SSBBTypes
     unsafe struct INFOFileEntry
     {
         public const int Size = 0x8;
-        
+
         public bint _groupId;
         public bint _index;
 
@@ -447,7 +445,7 @@ namespace BrawlLib.SSBBTypes
         public bint _dataOffset; //Offset to audio, relative to waveDataOffset above
         public bint _dataLength; //Audio length
         public bint _reserved;
-        
+
         public override string ToString()
         {
             return String.Format("[{0:X}]", (uint)_fileId);
@@ -468,7 +466,7 @@ namespace BrawlLib.SSBBTypes
 
         public SSBBEntryHeader _header;
         private fixed int _padding[6];
-        
+
         public void Set(int length)
         {
             _header._tag = Tag;

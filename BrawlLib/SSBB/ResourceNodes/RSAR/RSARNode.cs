@@ -32,7 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal INFOFooter ftr;
 
-        private List<RSARFileNode> _files = new List<RSARFileNode>();
+        private List<RSARFileNode> _files;
         [Browsable(false)]
         public List<RSARFileNode> Files { get { return _files; } }
 
@@ -127,30 +127,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                     n.GetName();
 
             _rootIds = new int[4];
-            _symbCache = new SYMBMaskEntry[4][];
+            _symbCache = new List<SYMBMaskEntry>[4];
             bint* offsets = (bint*)((VoidPtr)symb + 12);
             for (int i = 0; i < 4; i++)
             {
+                _symbCache[i] = new List<SYMBMaskEntry>();
                 SYMBMaskHeader* hdr = (SYMBMaskHeader*)((VoidPtr)symb + 8 + offsets[i]);
-
-                _symbCache[i] = new SYMBMaskEntry[hdr->_numEntries];
                 //Console.WriteLine("Root Index = " + hdr->_rootId);
                 _rootIds[i] = hdr->_rootId;
                 for (int x = 0; x < hdr->_numEntries; x++)
                 {
                     SYMBMaskEntry* e = &hdr->Entries[x];
-                    _symbCache[i][x] = *e;
+                    _symbCache[i].Add(*e);
                     //Console.WriteLine(String.Format("[{5}] {0}, {1}, {2} - {4}", e->_bit != -1 ? e->_bit.ToString().PadLeft(3) : "   ", e->_leftId != -1 ? e->_leftId.ToString().PadLeft(3) : "   ", e->_rightId != -1 ? e->_rightId.ToString().PadLeft(3) : "   ", e->_index != -1 ? e->_index.ToString().PadLeft(3) : "   ", new string(offset + stringOffsets[e->_stringId]), x.ToString().PadLeft(3)));
                 }
             }
             //Sort(true);
         }
 
-        public int[] RootIDs { get { return _rootIds; } }
-        public SYMBMaskEntry[][] SymbCache { get { return _symbCache; } }
-
         public int[] _rootIds;
-        public SYMBMaskEntry[][] _symbCache;
+        public List<SYMBMaskEntry>[] _symbCache;
 
         private void GetFiles()
         {
@@ -310,8 +306,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             return _converter.CalculateSize(_entryList, this);
         }
 
+        public string t = null;
+        bool l = true;
+        public VoidPtr _rebuildBase;
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
+            _rebuildBase = address;
+
             int symbLen, infoLen, fileLen;
 
             RSARHeader* rsar = (RSARHeader*)address;
@@ -321,7 +322,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             info = (INFOHeader*)((int)symb + (symbLen = _converter.EncodeSYMBBlock(symb, _entryList, this)));
             data = (FILEHeader*)((int)info + (infoLen = _converter.EncodeINFOBlock(info, _entryList, this)));
-            fileLen = _converter.EncodeFILEBlock(data, _entryList, address, this);
+            fileLen = _converter.EncodeFILEBlock(data, _entryList, this);
 
             rsar->Set(symbLen, infoLen, fileLen, VersionMinor);
 
