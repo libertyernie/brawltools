@@ -19,7 +19,7 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             CurrentViewport.ViewType = ViewportProjection.Front;
-            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, 0, Height);
+            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, Height, 0);
             CurrentViewport.Camera.CalculateProjection();
         }
 
@@ -168,25 +168,28 @@ namespace System.Windows.Forms
         #region Functions
         private bool Has3PlusVals()
         {
-            HashSet<float> v = new HashSet<float>();
-            if (DisplayAllKeyframes)
-            {
-                for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
-                {
-                    v.Add(entry._value);
-                    if (v.Count > 3)
-                        return true;
-                }
-            }
-            else
-            {
-                v.Add(SelectedKeyframe._prev._value);
-                v.Add(SelectedKeyframe._value);
-                v.Add(SelectedKeyframe._next._value);
-                if (v.Count > 3)
-                    return true;
-            }
+            //Just don't resize while dragging at all
             return false;
+
+            //HashSet<float> v = new HashSet<float>();
+            //if (DisplayAllKeyframes)
+            //{
+            //    for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
+            //    {
+            //        v.Add(entry._value);
+            //        if (v.Count > 3)
+            //            return true;
+            //    }
+            //}
+            //else
+            //{
+            //    v.Add(SelectedKeyframe._prev._value);
+            //    v.Add(SelectedKeyframe._value);
+            //    v.Add(SelectedKeyframe._next._value);
+            //    if (v.Count > 3)
+            //        return true;
+            //}
+            //return false;
         }
 
         private int GetKeyframeMaxIndex()
@@ -236,44 +239,28 @@ namespace System.Windows.Forms
             if (_keyRoot == null)
                 return false;
 
-            //check if index past last frame
-            //clamp to last frame if index past last frame
-            if (index >= root._prev._index)
+            if (index > root._prev._index)
             {
-                KeyframeEntry e = root._prev;
-                if (e._prev._index == e._index)
-                {
-                    one = e._prev._value;
-                    two = e._value;
-                    return true;
-                }
-                else
-                {
-                    one = e._value;
-                    return false;
-                }
+                float span = FrameLimit - _keyRoot._prev._index.Clamp(0, FrameLimit) + _keyRoot._next._index.Clamp(0, FrameLimit);
+                float offset =
+                    index > _keyRoot._prev._index && index < FrameLimit ? index - _keyRoot._prev._index :
+                    FrameLimit - _keyRoot._prev._index + index;
+
+                one = _keyRoot._prev.Interpolate(offset, span, _keyRoot._next);
+                return false;
             }
 
-            //clamp to first frame if index < 0 (root._next == first frame)
-            if (index <= root._next._index)
+            if (index < root._next._index)
             {
-                KeyframeEntry e = root._next;
-                if (e._next._index == e._index)
-                {
-                    one = e._value;
-                    two = e._next._value;
-                    return true;
-                }
-                else
-                {
-                    one = e._value;
-                    return false;
-                }
+                float span = FrameLimit - _keyRoot._prev._index.Clamp(0, FrameLimit) + _keyRoot._next._index.Clamp(0, FrameLimit);
+                float offset =
+                    index > _keyRoot._prev._index.Clamp(0, FrameLimit) && index < FrameLimit ? index - _keyRoot._prev._index.Clamp(0, FrameLimit) :
+                    FrameLimit - _keyRoot._prev._index.Clamp(0, FrameLimit) + index;
+
+                one = _keyRoot._prev.Interpolate(offset, span, _keyRoot._next);
+                return false;
             }
 
-            //get keyframe entry  before float index
-            //if the input key frame index exists as a keyframe entry,
-            //return it's value instead.
             for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next)
                 if (entry._index == index)
                 {
@@ -289,7 +276,6 @@ namespace System.Windows.Forms
                     }
                 }
 
-            //otherwise, return the interpolated value of the entry prior to the input index.
             one = entry._prev.Interpolate(index - (float)entry._prev._index, false);
             return false;
         }
@@ -354,7 +340,7 @@ namespace System.Windows.Forms
             if (_keyRoot == null)
                 return;
 
-            float mouseY = e.Y;
+            float mouseY = (float)Height - e.Y;
             float mouseX = e.X;
 
             //Get nearest frame value
@@ -594,16 +580,13 @@ namespace System.Windows.Forms
 
         protected override void OnMouseDown(MouseEventArgs e)
         {
-            bool t = _selKey != _hiKey;
+            bool keyChanged = _selKey != _hiKey;
+            _selKey = _hiKey;
 
             if (DisplayAllKeyframes)
-                _dragging = (_selKey = _hiKey) != null || Cursor == Cursors.VSplit || _slopePoint != null;
+                _dragging = _selKey != null || Cursor == Cursors.VSplit || _slopePoint != null;
             else
-            {
-                if (_hiKey != null)
-                    _selKey = _hiKey;
                 _dragging = _selKey != null && (_slopePoint != null || Cursor == Cursors.Hand);
-            }
 
             if (_selKey != null)
             {
@@ -618,8 +601,37 @@ namespace System.Windows.Forms
                 if ((_dragging && !Has3PlusVals()) || _slopePoint != null)
                     _lockIncs = true;
             }
+            else if (!_dragging && ModifierKeys == Keys.Control)
+            {
+                int frameVal = (int)(e.X / _xScale + 0.5f);
+                KeyframeEntry entry;
+                for (entry = _keyRoot._next; 
+                    entry != _keyRoot && entry._index >= 0 && entry._index <= FrameLimit; 
+                    entry = entry._next)
+                    if (entry._index < frameVal)
+                    {
+                        if (entry.Second != null)
+                            entry = entry.Second;
+                        
+                        if (entry._next._index > frameVal || entry._next == _keyRoot)
+                            break;
+                    }
+                if (entry != _keyRoot)
+                {
+                    int min = GetKeyframeMinIndex();
+                    KeyframeEntry r = new KeyframeEntry(frameVal + min, ((float)Height - e.Y) / _yScale + _minVal);
+                    entry.InsertAfter(r);
+                    r.GenerateTangent();
+                    _selKey = r;
+                    _dragging = true;
+                    _prevX = _selKey._index - min;
+                    _prevY = _selKey._value;
+                    _frame = _selKey._index;
+                    Invalidate();
+                }
+            }
 
-            if (t)
+            if (keyChanged)
             {
                 Invalidate();
                 if (SelectedKeyframeChanged != null)
@@ -646,7 +658,7 @@ namespace System.Windows.Forms
 
             BeginUpdate();
             CurrentViewport.Region = new Rectangle(0, 0, Width, Height);
-            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, 0, Height);
+            CurrentViewport.Camera._orthoDimensions = new Vector4(0, Width, Height, 0);
             CurrentViewport.Camera.CalculateProjection();
             EndUpdate();
         }

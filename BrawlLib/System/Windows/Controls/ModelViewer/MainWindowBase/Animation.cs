@@ -71,6 +71,9 @@ namespace System.Windows.Forms
         /// <param name="offset">The amount to add to the current rotation displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyAngle(int index, float offset)
         {
+            if (offset == 0.0f)
+                return;
+
             NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2) + 3];
             float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
@@ -83,6 +86,9 @@ namespace System.Windows.Forms
         /// <param name="offset">The amount to add to the current translation displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyTranslation(int index, float offset)
         {
+            if (offset == 0.0f)
+                return;
+
             NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2) + 6];
             float newVal = (float)Math.Round(box.Value + offset, 3);
             if (box.Value != newVal)
@@ -95,6 +101,9 @@ namespace System.Windows.Forms
         /// <param name="offset">The multiplier for the current scale displayed in the CHR0 editor box.</param>
         protected unsafe void ApplyScale(int index, float scale)
         {
+            if (scale == 0.0f || scale == 1.0f)
+                return;
+
             NumericInputBox box = CHR0Editor._transBoxes[index.Clamp(0, 2)];
             float newVal = (float)Math.Round(box.Value * scale, 3);
             if (box.Value != newVal && newVal != 0.0f)
@@ -119,14 +128,13 @@ namespace System.Windows.Forms
 
             if (PlaybackPanel != null)
             {
-                PlaybackPanel.btnNextFrame.Enabled = _animFrame < loopMax;
-                PlaybackPanel.btnPrevFrame.Enabled = _animFrame > 0;
-
-                PlaybackPanel.btnLast.Enabled = _animFrame != loopMax;
-                PlaybackPanel.btnFirst.Enabled = _animFrame > 1;
-
-                if (_animFrame <= (float)PlaybackPanel.numFrameIndex.Maximum)
-                    PlaybackPanel.numFrameIndex.Value = (decimal)_animFrame;
+                if (PlaybackPanel.InvokeRequired)
+                {
+                    Action<int, int> d = new Action<int, int>(PlaybackPanel.UpdateInterface);
+                    this.Invoke(d, new object[] { _animFrame, loopMax });
+                }
+                else
+                    PlaybackPanel.UpdateInterface(_animFrame, loopMax);
             }
 
             if (!_playing)
@@ -201,7 +209,15 @@ namespace System.Windows.Forms
             }
 
             if (PlaybackPanel != null)
-                PlaybackPanel.btnPlay.Text = "Play";
+            {
+                if (PlaybackPanel.InvokeRequired)
+                {
+                    Action d = () => { PlaybackPanel.btnPlay.Text = "Play"; };
+                    this.Invoke(d);
+                }
+                else
+                    PlaybackPanel.btnPlay.Text = "Play";
+            }
 
             EnableTransformEdit = true;
 
@@ -226,6 +242,14 @@ namespace System.Windows.Forms
             }
         }
 
+        public void TryInvoke(Control c, Action a, params object[] parameters)
+        {
+            if (c.InvokeRequired)
+                this.Invoke(a);
+            else
+                a();
+        }
+
         /// <summary>
         /// Called only when the animation frame or frame data changes
         /// </summary>
@@ -233,19 +257,21 @@ namespace System.Windows.Forms
         {
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: if (CHR0Editor != null) CHR0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SRT: if (SRT0Editor != null) SRT0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SHP: if (SHP0Editor != null) SHP0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.PAT: if (PAT0Editor != null) PAT0Editor.UpdatePropDisplay(); break;
-                case NW4RAnimType.SCN: if (SCN0Editor != null) SCN0Editor.UpdatePropDisplay(); break;
+                case NW4RAnimType.CHR: if (CHR0Editor != null) TryInvoke(CHR0Editor, CHR0Editor.UpdatePropDisplay); break;
+                case NW4RAnimType.SRT: if (SRT0Editor != null) TryInvoke(SRT0Editor, SRT0Editor.UpdatePropDisplay); break;
+                case NW4RAnimType.SHP: if (SHP0Editor != null) TryInvoke(SHP0Editor, SHP0Editor.UpdatePropDisplay); break;
+                case NW4RAnimType.PAT: if (PAT0Editor != null) TryInvoke(PAT0Editor, PAT0Editor.UpdatePropDisplay); break;
+                case NW4RAnimType.SCN: if (SCN0Editor != null) TryInvoke(SCN0Editor, SCN0Editor.UpdatePropDisplay); break;
                 case NW4RAnimType.CLR: break;
                 case NW4RAnimType.VIS:
-                    if (KeyframePanel != null && KeyframePanel.visEditor.TargetNode != null && !((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Constant)
+                    if (KeyframePanel != null)
                     {
-                        KeyframePanel.visEditor._updating = true;
-                        KeyframePanel.visEditor.listBox1.SelectedIndices.Clear();
-                        KeyframePanel.visEditor.listBox1.SelectedIndex = CurrentFrame - 1;
-                        KeyframePanel.visEditor._updating = false;
+                        if (KeyframePanel.InvokeRequired)
+                        {
+                            Action<int> d = new Action<int>(KeyframePanel.UpdateCurrentFrame);
+                            this.Invoke(d, new object[] { _animFrame });
+                        }
+                        KeyframePanel.UpdateCurrentFrame(_animFrame);
                     }
                     break;
             }
@@ -461,14 +487,22 @@ namespace System.Windows.Forms
             if (focusType == NW4RAnimType.None)
             {
                 focusType = TargetAnimType;
-                for (int i = 0; i < 7; i++)
-                    if ((int)focusType != i)
+                if (focusType == NW4RAnimType.SCN)
+                    return;
+
+                for (int i = 0; i < ResourceTypeList.Length; i++)
+                    if ((int)focusType != i && (NW4RAnimType)i != NW4RAnimType.SCN)
                         SetAnimation((NW4RAnimType)i, null);
             }
             else
-                for (int i = 0; i < 7; i++)
-                    if ((int)focusType != i)
+            {
+                if (focusType == NW4RAnimType.SCN)
+                    return;
+
+                for (int i = 0; i < ResourceTypeList.Length; i++)
+                    if ((int)focusType != i && (NW4RAnimType)i != NW4RAnimType.SCN)
                         SetCorrespondingAnimation(focusType, (NW4RAnimType)i);
+            }
         }
 
         public ResourceType[] ResourceTypeList = new ResourceType[]
@@ -496,7 +530,7 @@ namespace System.Windows.Forms
             if (TargetModel != null && (node = FindAnimation((ResourceNode)TargetModel, focusFile.Name, targetType)) != null)
                 return node;
 
-            foreach (ResourceNode r in _animationSearchNodes)
+            foreach (ResourceNode r in _openedFiles)
                 if (r != null && (node = FindAnimation(r, focusFile.Name, targetType)) != null)
                     return node;
 
@@ -532,7 +566,7 @@ namespace System.Windows.Forms
             }
         }
 
-        public void UpdateVis0(ItemCheckEventArgs e)
+        public void UpdateVis0(int objectIndex, int drawCallIndex, bool value)
         {
             BRESEntryNode n;
             if ((n = TargetAnimation as BRESEntryNode) == null ||
@@ -543,11 +577,19 @@ namespace System.Windows.Forms
         Start:
             if (_vis0 != null)
             {
-                int index = e.Index;
-                if (index == -1)
+                if (objectIndex < 0 || objectIndex >= TargetModel.Objects.Length)
                     return;
 
-                MDL0BoneNode bone = ((MDL0ObjectNode)TargetModel.Objects[index])._visBoneNode;
+                MDL0ObjectNode obj = (MDL0ObjectNode)TargetModel.Objects[objectIndex];
+
+                if (drawCallIndex < 0 || drawCallIndex >= obj._drawCalls.Count)
+                    return;
+
+                DrawCall c = obj._drawCalls[drawCallIndex];
+                MDL0BoneNode bone = c._visBoneNode;
+
+                if (bone == null)
+                    return;
 
                 VIS0EntryNode node = null;
                 if ((node = (VIS0EntryNode)_vis0.FindChild(bone.Name, true)) == null && bone.BoneIndex != 0 && bone.Name != "EyeYellowM")
@@ -557,7 +599,7 @@ namespace System.Windows.Forms
                     node.MakeConstant(true);
                 }
 
-                bool ANIMval = e.NewValue == CheckState.Checked;
+                bool ANIMval = value;
 
                 bool nowAnimated = false, alreadyConstant = false;
             Top:
@@ -602,7 +644,8 @@ namespace System.Windows.Forms
                     if (constant) node.MakeConstant(node.GetEntry(0));
                 }
 
-                if (node != null && ((VIS0EntryNode)KeyframePanel.visEditor.TargetNode).Name == node.Name)
+                var t = (VIS0EntryNode)KeyframePanel.visEditor.TargetNode;
+                if (node != null && t != null && t.Name == node.Name)
                     VIS0Editor.UpdateEntry();
             }
             else
@@ -641,6 +684,21 @@ namespace System.Windows.Forms
             int i = (KeyframePanel.visEditor.listBox1.SelectedIndex + 1).Clamp(0, MaxFrame);
             if (i != CurrentFrame)
                 SetFrame(i);
+        }
+
+        public virtual void OpenInMainForm(ResourceNode node)
+        {
+            
+        }
+
+        public virtual bool ShouldCloseFile(ResourceNode node)
+        {
+            return true;
+        }
+
+        public virtual void UnloadAnimations(ResourceNode r)
+        {
+            
         }
     }
 }

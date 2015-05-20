@@ -12,7 +12,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal MDL0ColorData* Header { get { return (MDL0ColorData*)WorkingUncompressed.Address; } }
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
         MDL0ColorData _hdr = new MDL0ColorData();
 

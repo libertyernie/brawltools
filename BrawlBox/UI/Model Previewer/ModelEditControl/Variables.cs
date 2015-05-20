@@ -21,10 +21,9 @@ namespace System.Windows.Forms
     {
         public List<CollisionNode> _collisions = new List<CollisionNode>();
         private CollisionNode _targetCollision;
-        public ResourceNode _externalAnimationsNode;
 
         private bool _syncTexToObj;
-        public bool _maximize, _savePosition;
+        public bool _maximize, _savePosition, _hideMainWindow;
         private bool _snapToCollisions;
         private bool _renderCollisions = true;
 
@@ -83,12 +82,6 @@ namespace System.Windows.Forms
         {
             get { return ScreenCapBgLocText.Text; }
             set { ScreenCapBgLocText.Text = value; }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ResourceNode ExternalAnimationsNode
-        {
-            get { return _externalAnimationsNode; }
-            set { _externalAnimationsNode = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool InterpolationFormOpen

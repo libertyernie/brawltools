@@ -30,8 +30,13 @@ namespace System.Windows.Forms
             this.lblBoneName = new System.Windows.Forms.Label();
             this.btnRemove = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.numMult = new System.Windows.Forms.NumericInputBox();
+            this.btnMult = new System.Windows.Forms.Button();
+            this.btnDiv = new System.Windows.Forms.Button();
+            this.numAdd = new System.Windows.Forms.NumericInputBox();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
+            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -43,7 +48,7 @@ namespace System.Windows.Forms
             this.lstBoneWeights.IntegralHeight = false;
             this.lstBoneWeights.Location = new System.Drawing.Point(0, 3);
             this.lstBoneWeights.Name = "lstBoneWeights";
-            this.lstBoneWeights.Size = new System.Drawing.Size(124, 75);
+            this.lstBoneWeights.Size = new System.Drawing.Size(153, 100);
             this.lstBoneWeights.TabIndex = 0;
             this.lstBoneWeights.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstBoneWeights_DrawItem);
             this.lstBoneWeights.SelectedIndexChanged += new System.EventHandler(this.lstBoneWeights_SelectedIndexChanged);
@@ -52,25 +57,29 @@ namespace System.Windows.Forms
             // 
             this.btnSetWeight.Location = new System.Drawing.Point(67, 28);
             this.btnSetWeight.Name = "btnSetWeight";
-            this.btnSetWeight.Size = new System.Drawing.Size(79, 22);
+            this.btnSetWeight.Size = new System.Drawing.Size(61, 22);
             this.btnSetWeight.TabIndex = 2;
-            this.btnSetWeight.Text = "Set Weight";
+            this.btnSetWeight.Text = "Set";
             this.btnSetWeight.UseVisualStyleBackColor = true;
             this.btnSetWeight.Click += new System.EventHandler(this.btnSetWeight_Click);
             // 
             // numWeight
             // 
+            this.numWeight.Integral = false;
             this.numWeight.Location = new System.Drawing.Point(3, 29);
+            this.numWeight.MaximumValue = 3.402823E+38F;
+            this.numWeight.MinimumValue = -3.402823E+38F;
             this.numWeight.Name = "numWeight";
             this.numWeight.Size = new System.Drawing.Size(62, 20);
             this.numWeight.TabIndex = 3;
             this.numWeight.Text = "0";
+            this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
             // 
             // btnBlend
             // 
-            this.btnBlend.Location = new System.Drawing.Point(130, 52);
+            this.btnBlend.Location = new System.Drawing.Point(129, 4);
             this.btnBlend.Name = "btnBlend";
-            this.btnBlend.Size = new System.Drawing.Size(62, 23);
+            this.btnBlend.Size = new System.Drawing.Size(62, 22);
             this.btnBlend.TabIndex = 4;
             this.btnBlend.Text = "Blend";
             this.btnBlend.UseVisualStyleBackColor = true;
@@ -79,9 +88,9 @@ namespace System.Windows.Forms
             // 
             // btnCopy
             // 
-            this.btnCopy.Location = new System.Drawing.Point(3, 52);
+            this.btnCopy.Location = new System.Drawing.Point(129, 28);
             this.btnCopy.Name = "btnCopy";
-            this.btnCopy.Size = new System.Drawing.Size(62, 23);
+            this.btnCopy.Size = new System.Drawing.Size(62, 22);
             this.btnCopy.TabIndex = 5;
             this.btnCopy.Text = "Copy";
             this.btnCopy.UseVisualStyleBackColor = true;
@@ -90,9 +99,9 @@ namespace System.Windows.Forms
             // 
             // btnPaste
             // 
-            this.btnPaste.Location = new System.Drawing.Point(67, 52);
+            this.btnPaste.Location = new System.Drawing.Point(192, 28);
             this.btnPaste.Name = "btnPaste";
-            this.btnPaste.Size = new System.Drawing.Size(62, 23);
+            this.btnPaste.Size = new System.Drawing.Size(62, 22);
             this.btnPaste.TabIndex = 6;
             this.btnPaste.Text = "Paste";
             this.btnPaste.UseVisualStyleBackColor = true;
@@ -101,7 +110,7 @@ namespace System.Windows.Forms
             // 
             // btnAdd
             // 
-            this.btnAdd.Location = new System.Drawing.Point(147, 28);
+            this.btnAdd.Location = new System.Drawing.Point(67, 52);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(22, 22);
             this.btnAdd.TabIndex = 7;
@@ -111,7 +120,7 @@ namespace System.Windows.Forms
             // 
             // btnSubtract
             // 
-            this.btnSubtract.Location = new System.Drawing.Point(170, 28);
+            this.btnSubtract.Location = new System.Drawing.Point(90, 52);
             this.btnSubtract.Name = "btnSubtract";
             this.btnSubtract.Size = new System.Drawing.Size(22, 22);
             this.btnSubtract.TabIndex = 8;
@@ -121,9 +130,9 @@ namespace System.Windows.Forms
             // 
             // btnLock
             // 
-            this.btnLock.Location = new System.Drawing.Point(3, 3);
+            this.btnLock.Location = new System.Drawing.Point(2, 4);
             this.btnLock.Name = "btnLock";
-            this.btnLock.Size = new System.Drawing.Size(61, 23);
+            this.btnLock.Size = new System.Drawing.Size(64, 22);
             this.btnLock.TabIndex = 10;
             this.btnLock.Text = "Lock";
             this.btnLock.UseVisualStyleBackColor = true;
@@ -132,7 +141,7 @@ namespace System.Windows.Forms
             // lblBoneName
             // 
             this.lblBoneName.AutoSize = true;
-            this.lblBoneName.Location = new System.Drawing.Point(134, 8);
+            this.lblBoneName.Location = new System.Drawing.Point(197, 9);
             this.lblBoneName.Name = "lblBoneName";
             this.lblBoneName.Size = new System.Drawing.Size(32, 13);
             this.lblBoneName.TabIndex = 11;
@@ -140,9 +149,9 @@ namespace System.Windows.Forms
             // 
             // btnRemove
             // 
-            this.btnRemove.Location = new System.Drawing.Point(67, 3);
+            this.btnRemove.Location = new System.Drawing.Point(67, 4);
             this.btnRemove.Name = "btnRemove";
-            this.btnRemove.Size = new System.Drawing.Size(61, 23);
+            this.btnRemove.Size = new System.Drawing.Size(61, 22);
             this.btnRemove.TabIndex = 12;
             this.btnRemove.Text = "Remove";
             this.btnRemove.UseVisualStyleBackColor = true;
@@ -150,6 +159,11 @@ namespace System.Windows.Forms
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.label1);
+            this.panel1.Controls.Add(this.numMult);
+            this.panel1.Controls.Add(this.btnMult);
+            this.panel1.Controls.Add(this.btnDiv);
+            this.panel1.Controls.Add(this.numAdd);
             this.panel1.Controls.Add(this.btnAdd);
             this.panel1.Controls.Add(this.numWeight);
             this.panel1.Controls.Add(this.btnBlend);
@@ -161,17 +175,59 @@ namespace System.Windows.Forms
             this.panel1.Controls.Add(this.lblBoneName);
             this.panel1.Controls.Add(this.btnRemove);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(127, 0);
+            this.panel1.Location = new System.Drawing.Point(156, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(193, 78);
+            this.panel1.Size = new System.Drawing.Size(285, 103);
             this.panel1.TabIndex = 14;
+            // 
+            // numMult
+            // 
+            this.numMult.Integral = false;
+            this.numMult.Location = new System.Drawing.Point(3, 77);
+            this.numMult.MaximumValue = 3.402823E+38F;
+            this.numMult.MinimumValue = -3.402823E+38F;
+            this.numMult.Name = "numMult";
+            this.numMult.Size = new System.Drawing.Size(62, 20);
+            this.numMult.TabIndex = 16;
+            this.numMult.Text = "0.95";
+            // 
+            // btnMult
+            // 
+            this.btnMult.Location = new System.Drawing.Point(67, 76);
+            this.btnMult.Name = "btnMult";
+            this.btnMult.Size = new System.Drawing.Size(22, 22);
+            this.btnMult.TabIndex = 14;
+            this.btnMult.Text = "*";
+            this.btnMult.UseVisualStyleBackColor = true;
+            this.btnMult.Click += new System.EventHandler(this.btnMult_Click);
+            // 
+            // btnDiv
+            // 
+            this.btnDiv.Location = new System.Drawing.Point(90, 76);
+            this.btnDiv.Name = "btnDiv";
+            this.btnDiv.Size = new System.Drawing.Size(22, 22);
+            this.btnDiv.TabIndex = 15;
+            this.btnDiv.Text = "/";
+            this.btnDiv.UseVisualStyleBackColor = true;
+            this.btnDiv.Click += new System.EventHandler(this.btnDiv_Click);
+            // 
+            // numAdd
+            // 
+            this.numAdd.Integral = false;
+            this.numAdd.Location = new System.Drawing.Point(3, 53);
+            this.numAdd.MaximumValue = 3.402823E+38F;
+            this.numAdd.MinimumValue = -3.402823E+38F;
+            this.numAdd.Name = "numAdd";
+            this.numAdd.Size = new System.Drawing.Size(62, 20);
+            this.numAdd.TabIndex = 13;
+            this.numAdd.Text = "0.1";
             // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter1.Location = new System.Drawing.Point(124, 0);
+            this.splitter1.Location = new System.Drawing.Point(153, 0);
             this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 78);
+            this.splitter1.Size = new System.Drawing.Size(3, 103);
             this.splitter1.TabIndex = 15;
             this.splitter1.TabStop = false;
             this.splitter1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitter1_MouseDown);
@@ -183,13 +239,23 @@ namespace System.Windows.Forms
             this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitter2.Location = new System.Drawing.Point(0, 0);
             this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(124, 3);
+            this.splitter2.Size = new System.Drawing.Size(153, 3);
             this.splitter2.TabIndex = 16;
             this.splitter2.TabStop = false;
+            this.splitter2.Visible = false;
             this.splitter2.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitter2_SplitterMoving);
             this.splitter2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseDown);
             this.splitter2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseMove);
             this.splitter2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseUp);
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(118, 56);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(32, 13);
+            this.label1.TabIndex = 17;
+            this.label1.Text = "Bone";
             // 
             // WeightEditor
             // 
@@ -197,8 +263,9 @@ namespace System.Windows.Forms
             this.Controls.Add(this.splitter2);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.panel1);
+            this.MinimumSize = new System.Drawing.Size(441, 103);
             this.Name = "WeightEditor";
-            this.Size = new System.Drawing.Size(320, 78);
+            this.Size = new System.Drawing.Size(441, 103);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -313,22 +380,27 @@ namespace System.Windows.Forms
         private Panel panel1;
         private Splitter splitter1;
         private Splitter splitter2;
+        private NumericInputBox numMult;
+        private Button btnMult;
+        private Button btnDiv;
+        private NumericInputBox numAdd;
+        private Label label1;
         public IBoneNode _targetBone;
         public void SetVertices(List<Vertex3> vertices)
         {
             //Remove weights with value 0 from the current vertex's influence
             if (_targetVertices != null)
-            foreach (Vertex3 v in _targetVertices)
-                if (v != null)
-                {
-                    List<BoneWeight> b = v.GetBoneWeights();
-                    for (int i = 0; i < b.Count; i++)
-                        if (b[i].Weight == 0.0f)
-                            b.RemoveAt(i--);
+                foreach (Vertex3 v in _targetVertices)
+                    if (v != null)
+                    {
+                        List<BoneWeight> b = v.GetBoneWeights();
+                        for (int i = 0; i < b.Count; i++)
+                            if (b[i].Weight == 0.0f)
+                                b.RemoveAt(i--);
 
-                    if (b.Count == 1) //Change influence to a bone
-                        v.MatrixNode = b[0].Bone;
-                }
+                        if (b.Count == 1) //Change influence to a bone
+                            v.MatrixNode = b[0].Bone;
+                    }
 
             _targetVertices = vertices.ToList();
 
@@ -379,7 +451,7 @@ namespace System.Windows.Forms
         }
         public void SetWeight(float value, Vertex3 vertex)
         {
-            Weight(value, vertex, false);
+            Weight(value, vertex, WeightType.Set);
         }
         public void IncrementWeight(float value)
         {
@@ -388,13 +460,28 @@ namespace System.Windows.Forms
         }
         public void IncrementWeight(float value, Vertex3 vertex)
         {
-            Weight(value, vertex, true);
+            Weight(value, vertex, WeightType.Add);
+        }
+        public void MultiplyWeight(float value)
+        {
+            foreach (Vertex3 v in TargetVertices)
+                MultiplyWeight(value, v);
+        }
+        public void MultiplyWeight(float value, Vertex3 vertex)
+        {
+            Weight(value, vertex, WeightType.Multiply);
         }
         private float RoundValue(float value, float max)
         {
             return (float)Math.Round(value.Clamp(0.0f, max), 7);
         }
-        private void Weight(float value, Vertex3 vertex, bool increment)
+        enum WeightType
+        {
+            Set,
+            Multiply,
+            Add
+        }
+        private void Weight(float value, Vertex3 vertex, WeightType type)
         {
             //LET'S TANGO
 
@@ -404,10 +491,9 @@ namespace System.Windows.Forms
             int selectedIndex = 0;
 
             IMatrixNode node = vertex.MatrixNode;
-
             if (node == null)
             {
-                ((MDL0ObjectNode)vertex.Parent).ConvertInf();
+                ((MDL0ObjectNode)vertex.Parent).TryConvertMatrixToVertex();
                 node = vertex.MatrixNode;
             }
 
@@ -423,17 +509,16 @@ namespace System.Windows.Forms
                 node = new Influence(origBone);
             }
 
-            bool refs = node.Users.Count > 1;
-
-            if (refs)
+            //Make a copy of the influence if it will affect more than just this vertex after being changed
+            if (node.Users.Count > 1)
                 targetInf = (node as Influence).Clone();
             else
-                targetInf = (node as Influence);
+                targetInf = node as Influence;
 
             weights = targetInf.Weights;
 
             selectedIndex = vertex.IndexOfBone(TargetBone);
-            if (selectedIndex == -1)
+            if (selectedIndex < 0)
             {
                 weights.Add(new BoneWeight(TargetBone, 0.0f));
                 selectedIndex = weights.Count - 1;
@@ -448,7 +533,18 @@ namespace System.Windows.Forms
                 if (b.Locked)
                     max -= b.Weight;
 
-            value = increment ? RoundValue(targetWeight.Weight + value, max) : RoundValue(value, max);
+            switch (type)
+            {
+                default:
+                    value = RoundValue(value, max);
+                    break;
+                case WeightType.Add:
+                    value = RoundValue(targetWeight.Weight + value, max);
+                    break;
+                case WeightType.Multiply:
+                    value = RoundValue(targetWeight.Weight * value, max);
+                    break;
+            }
 
             if (targetWeight.Weight == value) 
                 return;
@@ -485,8 +581,8 @@ namespace System.Windows.Forms
 
             MDL0ObjectNode obj = vertex.Parent as MDL0ObjectNode;
 
-            vertex.MatrixNode = obj.Model._influences.FindOrCreate(targetInf, false);
-            obj.ConvertInf();
+            vertex.MatrixNode = obj.Model._influences.FindOrCreate(targetInf);
+            //obj.TryConvertMatrixToObject();
             obj.Model.SignalPropertyChange();
 
             _mainWindow.UpdateModel();
@@ -647,6 +743,21 @@ namespace System.Windows.Forms
         {
             //if (_resizing)
             //    _mainWindow.AnimCtrlPnl.Width += e.X - o;
+        }
+
+        private void numWeight_ValueChanged(object sender, EventArgs e)
+        {
+            btnSetWeight_Click(sender, e);
+        }
+
+        private void btnMult_Click(object sender, EventArgs e)
+        {
+            MultiplyWeight(numMult.Value);
+        }
+
+        private void btnDiv_Click(object sender, EventArgs e)
+        {
+            MultiplyWeight(1.0f / numMult.Value);
         }
     }
 

@@ -74,6 +74,9 @@ namespace BrawlLib.OpenGL
                     _currentViewport = _viewports[0];
                 }
 
+                if (_currentViewport._owner != this)
+                    _currentViewport._owner = this;
+
                 return _currentViewport;
             }
             set
@@ -155,6 +158,8 @@ namespace BrawlLib.OpenGL
 
         public void FitViewports()
         {
+            //TODO: this doesn't work right in every circumstance
+
             foreach (GLViewport v in _viewports)
             {
                 Vector4 p = v.Percentages;
@@ -301,6 +306,8 @@ namespace BrawlLib.OpenGL
             AddViewport(GLViewport.DefaultPerspective);
         }
 
+        public float GetDepth(Vector2 v) { return GetDepth((int)(v._x + 0.5f), (int)(v._y + 0.5f)); }
+        
         public virtual float GetDepth(int x, int y)
         {
             float val = 0;
@@ -392,6 +399,7 @@ namespace BrawlLib.OpenGL
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (GLViewport v in _viewports)
                 OnRenderViewport(e, v);
+            BrawlLib.Wii.Graphics.ShaderGenerator._pixelLightingChanged = false;
         }
 
         protected virtual void OnRenderViewport(PaintEventArgs e, GLViewport v) { }

@@ -146,24 +146,33 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
                 Load(mRef.Index, shaderProgramHandle);
 
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureLodBias, mRef.LODBias);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)mRef.MagFilter]);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)mRef.MinFilter]);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)mRef.UWrapMode]);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)mRef.VWrapMode]);
+            ApplyGLTextureParameters(mRef);
 
-            float* p = stackalloc float[4];
-            p[0] = p[1] = p[2] = p[3] = 1.0f;
-            if (Selected && !ObjOnly)
-                p[0] = -1.0f;
+            if (shaderProgramHandle <= 0)
+            {
+                float* p = stackalloc float[4];
+                p[0] = p[1] = p[2] = p[3] = 1.0f;
+                if (Selected && !ObjOnly)
+                    p[0] = -1.0f;
 
-            GL.Light(LightName.Light0, LightParameter.Specular, p);
-            GL.Light(LightName.Light0, LightParameter.Diffuse, p);
+                GL.Light(LightName.Light0, LightParameter.Specular, p);
+                GL.Light(LightName.Light0, LightParameter.Diffuse, p);
+            }
         }
 
-        public TextureMagFilter[] _magFilters = { TextureMagFilter.Nearest, TextureMagFilter.Linear };
-        public TextureMinFilter[] _minFilters = { TextureMinFilter.Nearest, TextureMinFilter.Linear, TextureMinFilter.NearestMipmapNearest, TextureMinFilter.NearestMipmapLinear, TextureMinFilter.LinearMipmapNearest, TextureMinFilter.LinearMipmapLinear, };
-        public TextureWrapMode[] _wraps = { TextureWrapMode.ClampToEdge, TextureWrapMode.Repeat, TextureWrapMode.MirroredRepeat };
+        public static readonly TextureMagFilter[] _magFilters = { TextureMagFilter.Nearest, TextureMagFilter.Linear };
+        public static readonly TextureMinFilter[] _minFilters = { TextureMinFilter.Nearest, TextureMinFilter.Linear, TextureMinFilter.NearestMipmapNearest, TextureMinFilter.NearestMipmapLinear, TextureMinFilter.LinearMipmapNearest, TextureMinFilter.LinearMipmapLinear, };
+        public static readonly TextureWrapMode[] _wraps = { TextureWrapMode.ClampToEdge, TextureWrapMode.Repeat, TextureWrapMode.MirroredRepeat };
+
+        public static void ApplyGLTextureParameters(MDL0MaterialRefNode mr)
+        {
+            //GL.TexParameter(TextureTarget.Texture2D, (TextureParameterName)ExtTextureFilterAnisotropic.MaxTextureMaxAnisotropyExt, 1 << mr._maxAniso);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureLodBias, mr.LODBias);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)_magFilters[(int)mr.MagFilter]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)_minFilters[(int)mr.MinFilter]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)_wraps[(int)mr.UWrapMode]);
+            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)_wraps[(int)mr.VWrapMode]);
+        }
 
         public void GetSource()
         {
@@ -214,13 +223,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if ((tNode = node.FindChild("Textures(NW4R)/" + Name, true) as TEX0Node) != null)
                     {
                         Source = tNode;
-                        //if (palette != null)
-                            Texture.Attach(tNode, _palette);
-                        //else
-                        //    Texture.Attach(tNode);
+                        Texture.Attach(tNode, _palette);
                         return;
                     }
-                    else
+                    else //Then search the directory
                         bmp = SearchDirectory(node._origPath);
 
                     if (bmp != null)
@@ -231,6 +237,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (bmp != null)
                 Texture.Attach(bmp);
+            else
+                Texture.Default();
         }
 
         private Bitmap SearchDirectory(string path)
@@ -241,53 +249,43 @@ namespace BrawlLib.SSBB.ResourceNodes
                 DirectoryInfo dir = new DirectoryInfo(Path.GetDirectoryName(path));
                 if (dir.Exists && Name != "<null>")
                     foreach (FileInfo file in dir.GetFiles(Name + ".*"))
-                    {
-                        if (file.Name.EndsWith(".tga"))
-                        {
-                            Source = file.FullName;
-                            bmp = TGA.FromFile(file.FullName);
-                            break;
-                        }
-                        else if (file.Name.EndsWith(".png") || file.Name.EndsWith(".tiff") || file.Name.EndsWith(".tif"))
-                        {
-                            Source = file.FullName;
-                            bmp = CopyImage(file.FullName);
-                            break;
-                        }
-                    }
+                        if (File.Exists(file.FullName))
+                            if (file.Name.EndsWith(".tga"))
+                            {
+                                Source = file.FullName;
+                                bmp = TGA.FromFile(file.FullName);
+                                break;
+                            }
+                            else if (
+                                file.Name.EndsWith(".png") || 
+                                file.Name.EndsWith(".tiff") ||
+                                file.Name.EndsWith(".tif") ||
+                                file.Name.EndsWith(".jpg") ||
+                                file.Name.EndsWith(".jpeg") ||
+                                file.Name.EndsWith(".bmp") ||
+                                file.Name.EndsWith(".gif"))
+                            {
+                                Source = file.FullName;
+                                bmp = CopyImage(file.FullName);
+                                break;
+                            }
             }
             return bmp;
         }
 
         public static Bitmap CopyImage(string path)
         {
-            using (var sourceImage = (Bitmap)Image.FromFile(path))
+            if (!File.Exists(path))
+                return null;
+
+            try
             {
-                if (sourceImage.Palette.Entries.Length > 0)
-                {
-                    //Indexed
-                    var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
-                      sourceImage.PixelFormat);
-                    var sourceData = sourceImage.LockBits(
-                      new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-                      ImageLockMode.ReadOnly, sourceImage.PixelFormat);
-                    var targetData = targetImage.LockBits(
-                      new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
-                      ImageLockMode.WriteOnly, targetImage.PixelFormat);
-                    Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
-                    sourceImage.UnlockBits(sourceData);
-                    targetImage.UnlockBits(targetData);
-                    targetImage.Palette = sourceImage.Palette;
-                    return targetImage;
-                }
-                else
-                {
-                    //Non-indexed
-                    var targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
-                    using (var canvas = Graphics.FromImage(targetImage))
-                        canvas.DrawImageUnscaled(sourceImage, 0, 0);
-                    return targetImage;
-                }
+                using (var sourceImage = (Bitmap)Image.FromFile(path))
+                    return sourceImage.Copy();
+            }
+            catch
+            {
+                return null;
             }
         }  
 

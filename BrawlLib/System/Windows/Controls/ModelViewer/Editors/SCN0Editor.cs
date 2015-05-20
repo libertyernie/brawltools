@@ -570,8 +570,8 @@ namespace System.Windows.Forms
             this.numRefBright.Integral = false;
             this.numRefBright.Location = new System.Drawing.Point(348, 72);
             this.numRefBright.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
-            this.numRefBright.MaximumValue = 3.402823E+38F;
-            this.numRefBright.MinimumValue = -3.402823E+38F;
+            this.numRefBright.MaximumValue = 1F;
+            this.numRefBright.MinimumValue = 0F;
             this.numRefBright.Name = "numRefBright";
             this.numRefBright.Size = new System.Drawing.Size(70, 20);
             this.numRefBright.TabIndex = 36;
@@ -585,8 +585,8 @@ namespace System.Windows.Forms
             this.numSpotCut.Integral = false;
             this.numSpotCut.Location = new System.Drawing.Point(348, 15);
             this.numSpotCut.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
-            this.numSpotCut.MaximumValue = 3.402823E+38F;
-            this.numSpotCut.MinimumValue = -3.402823E+38F;
+            this.numSpotCut.MaximumValue = 90F;
+            this.numSpotCut.MinimumValue = 0F;
             this.numSpotCut.Name = "numSpotCut";
             this.numSpotCut.Size = new System.Drawing.Size(70, 20);
             this.numSpotCut.TabIndex = 34;
@@ -664,7 +664,7 @@ namespace System.Windows.Forms
             this.numRefDist.Location = new System.Drawing.Point(348, 53);
             this.numRefDist.Margin = new System.Windows.Forms.Padding(0, 10, 0, 10);
             this.numRefDist.MaximumValue = 3.402823E+38F;
-            this.numRefDist.MinimumValue = -3.402823E+38F;
+            this.numRefDist.MinimumValue = 0F;
             this.numRefDist.Name = "numRefDist";
             this.numRefDist.Size = new System.Drawing.Size(70, 20);
             this.numRefDist.TabIndex = 35;
@@ -737,7 +737,7 @@ namespace System.Windows.Forms
             this.label23.Name = "label23";
             this.label23.Size = new System.Drawing.Size(70, 20);
             this.label23.TabIndex = 37;
-            this.label23.Text = "Spot Bright";
+            this.label23.Text = "Spec Bright";
             this.label23.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // groupBox5
@@ -1888,7 +1888,12 @@ namespace System.Windows.Forms
             ResetBox(index);
             _mainWindow.KeyframePanel.UpdateKeyframe(CurrentFrame - 1);
 
-            _mainWindow.SetFrame(CurrentFrame);
+            if (_mainWindow.ModelPanel.FirstPersonCamera && 
+                _mainWindow._SCN0Camera != null && 
+                _tabIndex == 4)
+                _mainWindow._SCN0Camera.SetCamera(_mainWindow.ModelPanel.CurrentViewport, CurrentFrame - 1, true);
+
+            _mainWindow.UpdateModel();
         }
 
         bool _updating = false;
@@ -1906,6 +1911,8 @@ namespace System.Windows.Forms
             cboLight6.SelectedIndex = _lightSet._lights[6] != null ? _lightSet._lights[6].Index + 1 : 0;
             cboLight7.SelectedIndex = _lightSet._lights[7] != null ? _lightSet._lights[7].Index + 1 : 0;
             _updating = false;
+
+            _mainWindow.UpdateModel();
         }
 
         private void nodeList_SelectedIndexChanged(object sender, EventArgs e)
@@ -2203,14 +2210,18 @@ namespace System.Windows.Forms
                     BoxChanged(numAimZ, null);
                 }
             }
+
+            _mainWindow.ModelPanel.Invalidate();
         }
 
         private void lstCamProj_SelectedIndexChanged(object sender, EventArgs e)
         {
+            ProjectionType p = (ProjectionType)cboCamProj.SelectedIndex;
+
             if (_camera != null)
             {
-                _camera.ProjectionType = (ProjectionType)cboCamProj.SelectedIndex;
-                _mainWindow.SetFrame(CurrentFrame);
+                _camera.ProjectionType = p;
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2219,7 +2230,7 @@ namespace System.Windows.Forms
             if (_fog != null)
             {
                 _fog.Type = (FogType)cboFogType.SelectedItem;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2229,17 +2240,52 @@ namespace System.Windows.Forms
             {
                 _camera.Type = (SCN0CameraType)cboCamType.SelectedIndex;
                 bool aim = _camera.Type == SCN0CameraType.Aim;
-                //btnUseCamera.Visible = !aim;
-                numTwist.ForeColor = aim ? Color.Black : Color.Gray;
+
+                numAimX.ForeColor = 
+                numAimY.ForeColor = 
+                numAimZ.ForeColor = 
+                numTwist.ForeColor = 
+                aim ? Color.Black : Color.LightGray;
+
+                numRotX.ForeColor = 
+                numRotY.ForeColor = 
+                numRotZ.ForeColor =
+                aim ? Color.LightGray : Color.Black;
             }
         }
 
         private void lstLightType_SelectedIndexChanged(object sender, EventArgs e)
         {
+            LightType t = (LightType)cboLightType.SelectedIndex;
+            switch (t)
+            {
+                case LightType.Directional:
+                    numSpotCut.ForeColor =
+                    numRefDist.ForeColor =
+                    numRefBright.ForeColor =
+                    cboDistFunc.ForeColor =
+                    cboSpotFunc.ForeColor = Color.LightGray;
+                    break;
+                case LightType.Point:
+                    numSpotCut.ForeColor = Color.LightGray;
+                    numRefDist.ForeColor = Color.Black;
+                    numRefBright.ForeColor = Color.Black;
+                    cboDistFunc.ForeColor = Color.Black;
+                    cboSpotFunc.ForeColor = Color.LightGray;
+                    break;
+                case LightType.Spotlight:
+                    numSpotCut.ForeColor =
+                    numRefDist.ForeColor =
+                    numRefBright.ForeColor =
+                    cboDistFunc.ForeColor =
+                    cboSpotFunc.ForeColor = Color.Black;
+                    break;
+            }
+
             if (_light != null)
             {
-                _light.LightType = (LightType)cboLightType.SelectedIndex;
-                _mainWindow.SetFrame(CurrentFrame);
+                _light.LightType = t;
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2248,7 +2294,7 @@ namespace System.Windows.Forms
             if (_light != null)
             {
                 _light.DistanceFunction = (DistAttnFn)cboDistFunc.SelectedIndex;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2257,7 +2303,7 @@ namespace System.Windows.Forms
             if (_light != null)
             {
                 _light.SpotFunction = (SpotFn)cboSpotFunc.SelectedIndex;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2266,7 +2312,7 @@ namespace System.Windows.Forms
             if (_ambLight != null)
             {
                 _ambLight.ColorEnabled = chkAmbClr.Checked;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2275,7 +2321,7 @@ namespace System.Windows.Forms
             if (_ambLight != null)
             {
                 _ambLight.AlphaEnabled = chkAmbAlpha.Checked;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2284,7 +2330,7 @@ namespace System.Windows.Forms
             if (_light != null)
             {
                 _light.ColorEnabled = chkLightClr.Checked;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -2293,16 +2339,18 @@ namespace System.Windows.Forms
             if (_light != null)
             {
                 _light.AlphaEnabled = chkLightAlpha.Checked;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
 
         private void chkLightSpec_CheckedChanged(object sender, EventArgs e)
         {
+            numSpotBright.ForeColor = chkLightSpec.Checked ? Color.Black : Color.LightGray;
+
             if (_light != null)
             {
                 _light.SpecularEnabled = chkLightSpec.Checked;
-                _mainWindow.SetFrame(CurrentFrame);
+                _mainWindow.UpdateModel();
             }
         }
         CameraAnimationFrame _tempCameraFrame;

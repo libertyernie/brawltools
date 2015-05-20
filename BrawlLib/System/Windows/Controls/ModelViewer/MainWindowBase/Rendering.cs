@@ -13,19 +13,15 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        public unsafe virtual void modelPanel1_PreRender(ModelPanelViewport viewport)
+        public unsafe virtual void modelPanel1_PreRender(ModelPanelViewport vp)
         {
-            if (viewport != null)
+            if (vp != null)
             {
-                if (viewport._renderFloor)
+                if (vp._renderFloor)
                     OnRenderFloor();
 
-                if (viewport._renderAttrib._applyBillboardBones)
-                    if (EditingAll && _targetModels != null)
-                        foreach (IModel m in _targetModels)
-                            m.UpdateBillboards(viewport);
-                    else if (TargetModel != null)
-                        TargetModel.UpdateBillboards(viewport);
+                GL.Enable(EnableCap.DepthTest);
+                GL.DepthFunc(DepthFunction.Lequal);
             }
         }
 
@@ -34,26 +30,32 @@ namespace System.Windows.Forms
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
             GL.Disable(EnableCap.Lighting);
-            GL.Enable(EnableCap.DepthTest);
 
             if (_targetModels != null)
                 foreach (IModel m in _targetModels)
                     PostRender(m, vp);
 
+            GL.Disable(EnableCap.DepthTest);
+
             if (RenderLightDisplay/* && vp == ModelPanel.CurrentViewport*/)
-                OnRenderLightDisplay(vp.LightPosition);
+                OnRenderLightDisplay(vp);
 
-            if (TargetAnimType == NW4RAnimType.SCN)
-                RenderSCN0Controls();
+            if (TargetAnimType == NW4RAnimType.SCN && vp.RenderSCN0Controls)
+                RenderSCN0Controls(vp);
 
-            GL.Enable(EnableCap.DepthTest);
+            //For now we'll clear the depth buffer bit here.
+            //We're not using the model depth in any way so it doesn't matter
+            //The problem with not doing this at the moment is the rotation control clips with the model.
+            //This is because the rotation axes need to be lequal depth tested against an invisible sphere
+            //I don't know how to test a sub depth buffer and then always make it pass on the actual buffer
             GL.Clear(ClearBufferMask.DepthBufferBit);
+
             RenderTransformControl(vp);
             RenderDepth(vp);
         }
 
         #region SCN0 Controls
-        public unsafe void RenderSCN0Controls()
+        public unsafe void RenderSCN0Controls(ModelPanelViewport vp)
         {
             if (_scn0 == null)
                 return;
@@ -62,7 +64,7 @@ namespace System.Windows.Forms
             if (frame < 0)
                 return;
 
-            GL.Color4(Color.Blue);
+            GL.Color3(Color.Blue);
             GL.Disable(EnableCap.Lighting);
 
             if (_SCN0LightSet != null)
@@ -79,35 +81,42 @@ namespace System.Windows.Forms
                     Vector3 start = l.GetStart(frame);
                     Vector3 end = l.GetEnd(frame);
 
-                    //TODO: draw line, sphere, and cone for respective light types
-                    //switch (l.LightType)
-                    //{
-                    //    case BrawlLib.SSBBTypes.LightType.Directional: 
+                    switch (l.LightType)
+                    {
+                        case BrawlLib.SSBBTypes.LightType.Spotlight:
+                        case BrawlLib.SSBBTypes.LightType.Directional:
                             GL.Begin(BeginMode.Lines);
-                            GL.Color4((Color)l.GetColor(frame, 0));
+                            GL.Color3((Color)l.GetColor(frame, 0));
                             GL.Vertex3((OpenTK.Vector3)start);
-                            if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
+                            if (l.SpecularEnabled) GL.Color3((Color)l.GetColor(frame, 1));
                             GL.Vertex3((OpenTK.Vector3)end);
                             GL.End();
-                    //        break;
-                    //    case BrawlLib.SSBBTypes.LightType.Point:
-                            
-                    //        GL.Begin(PrimitiveType.Lines);
-                    //        GL.Color4((Color)l.GetColor(frame, 0));
-                    //        GL.Vertex3((OpenTK.Vector3)start);
-                    //        if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
-                    //        GL.Vertex3((OpenTK.Vector3)end);
-                    //        GL.End();
-                    //        break;
-                    //    case BrawlLib.SSBBTypes.LightType.Spotlight:
-                    //        GL.Begin(PrimitiveType.Lines);
-                    //        GL.Color4((Color)l.GetColor(frame, 0));
-                    //        GL.Vertex3((OpenTK.Vector3)start);
-                    //        if (l.SpecularEnabled) GL.Color4((Color)l.GetColor(frame, 1));
-                    //        GL.Vertex3((OpenTK.Vector3)end);
-                    //        GL.End();
-                    //        break;
-                    //}
+                            if (l.LightType == BrawlLib.SSBBTypes.LightType.Spotlight)
+                            {
+                                float radius = start.TrueDistance(end) * (float)Math.Tan(Maths._deg2radf * l.SpotCut.GetFrameValue(frame));
+                                Matrix x = Matrix.TransformMatrix(
+                                    new Vector3(radius),
+                                    Maths._rad2degf * end.LookatAngles(start),
+                                    end);
+                                GL.PushMatrix();
+                                GL.MultMatrix((float*)&x);
+                                TKContext.GetRingList().Call();
+                                GL.PopMatrix();
+                                break;
+                            }
+                            break;
+                        case BrawlLib.SSBBTypes.LightType.Point:
+                            GL.Color4((Color)l.GetColor(frame, 0));
+                            GL.PushMatrix();
+                            Matrix m = Matrix.TransformMatrix(
+                                new Vector3(l.RefDist.GetFrameValue(frame)),
+                                CameraFacingRotation(vp.Camera, start),
+                                start);
+                            GL.MultMatrix((float*)&m);
+                            TKContext.GetRingList().Call();
+                            GL.PopMatrix();
+                            break;
+                    }
 
                     foreach (ModelPanelViewport v in ModelPanel)
                     {
@@ -162,9 +171,17 @@ namespace System.Windows.Forms
             if (_SCN0Camera != null)
             {
                 Vector3 start = _SCN0Camera.GetStart(frame);
-                Vector3 end = _SCN0Camera.GetEnd(frame);
+                Vector3 end = new Vector3();
+                    
+                if (_SCN0Camera.Type == BrawlLib.SSBBTypes.SCN0CameraType.Aim)
+                    end = _SCN0Camera.GetEnd(frame);
+                else
+                {
+                    Matrix r = Matrix.TranslationMatrix(new Vector3(0.0f, 0.0f, -1.0f) * Matrix.RotationMatrix(_SCN0Camera.GetRotate(frame)));
+                    end = r * start;
+                }
 
-                GL.Color4(Color.Black);
+                GL.Color3(Color.Green);
                 GL.Begin(BeginMode.Lines);
 
                 GL.Vertex3((OpenTK.Vector3)start);
@@ -174,7 +191,7 @@ namespace System.Windows.Forms
 
                 foreach (ModelPanelViewport v in ModelPanel)
                 {
-                    v.ScreenText["Camera Position"] = v.Camera.Project(start);
+                    v.ScreenText[_SCN0Camera.Name] = v.Camera.Project(start);
                     //v.ScreenText["Camera Aim"] = v.Camera.Project(end);
                 }
 
@@ -190,7 +207,7 @@ namespace System.Windows.Forms
                 //    GL.Vertex3(c.GetFrameValue(CameraKeyframeMode.AimX, i), c.GetFrameValue(CameraKeyframeMode.AimY, i), c.GetFrameValue(CameraKeyframeMode.AimZ, i));
                 //GL.End();
 
-                GL.Color4(Color.Black);
+                GL.Color3(Color.Black);
 
                 //Render these if selected
                 //if (_lightStartSelected || _lightEndSelected)
@@ -241,55 +258,110 @@ namespace System.Windows.Forms
                 vp._renderAttrib._useBindStateBoxes);
         }
 
-        #region Bone Control Rendering
+        public enum CoordinateType
+        {
+            Local,
+            World,
+            Screen
+        }
+
+        public CoordinateType[] _coordinateTypes = new CoordinateType[]
+        {
+            CoordinateType.Local, //T
+            CoordinateType.Local, //R
+            CoordinateType.Local, //S
+        };
+
+        #region Transform Control Rendering
         public unsafe void RenderTransformControl(ModelPanelViewport panel)
         {
             if (_playing)
                 return;
 
             bool hasBone = SelectedBone != null;
-            if (hasBone || VertexLoc().HasValue)
+            if (hasBone || VertexLoc.HasValue)
             {
-                Vector3 pos, rot;
+                Vector3 pos;
+                Matrix rot = Matrix.Identity;
                 float radius;
 
                 if (hasBone)
                 {
                     pos = BoneLoc(SelectedBone);
-                    radius = OrbRadius(SelectedBone, panel.Camera);
-                    rot = SelectedBone.Matrix.GetAngles();
+                    radius = OrbRadius(pos, panel.Camera);
+                    if (ControlType != TransformType.None)
+                        switch (_coordinateTypes[(int)ControlType])
+                        {
+                            case CoordinateType.Local:
+                                rot = GetBoneWorldMtx().GetRotationMatrix();
+                                break;
+                            case CoordinateType.World:
+                                //rot = Matrix.Identity; //Already set to identity above
+                                break;
+                            case CoordinateType.Screen:
+                                //rot = CameraFacingRotationMatrix(panel, pos);
+                                rot = Matrix.RotationMatrix(panel.Camera._rotation);
+                                break;
+                        }
                 }
                 else
                 {
-                    pos = VertexLoc().Value;
-                    radius = VertexOrbRadius(panel.Camera);
-                    rot = new Vector3();
+                    pos = VertexLoc.Value;
+                    radius = OrbRadius(pos, panel.Camera);
+                    if (ControlType != TransformType.None)
+                        switch (_coordinateTypes[(int)ControlType])
+                        {
+                            case CoordinateType.Local:
+                            case CoordinateType.World:
+                                //rot = Matrix.Identity; //Already set to identity above
+                                break;
+                            case CoordinateType.Screen:
+                                rot = CameraFacingRotationMatrix(panel, pos);
+                                break;
+                        }
                 }
 
                 switch (ControlType)
                 {
                     case TransformType.Translation:
-                        RenderTranslationControl(pos, radius, panel);
+                        RenderTranslationControl(pos, radius, rot, panel);
                         break;
                     case TransformType.Rotation:
                         RenderRotationControl(pos, radius, rot, panel);
                         break;
                     case TransformType.Scale:
-                        RenderScaleControl(pos, radius, panel);
+                        RenderScaleControl(pos, radius, rot, panel);
                         break;
                 }
             }
         }
-        public unsafe void RenderTranslationControl(Vector3 position, float radius, ModelPanelViewport panel)
+        public unsafe void RenderTranslationControl(Vector3 position, float radius, Matrix rotation, ModelPanelViewport panel)
         {
-            GLDisplayList axis = GetAxes();
+            Matrix m = Matrix.TransformMatrix(new Vector3(radius * 0.25f), new Vector3(), position) * CameraFacingRotationMatrix(panel, position);
 
-            //Enter local space
-            Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), position);
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            axis.Call();
+            GL.Color4(_hiCirc || _snapCirc ? Color.Yellow : Color.Gray);
+
+            GL.Begin(BeginMode.LineLoop);
+
+            GL.Vertex2(-0.5f, -0.5f);
+            GL.Vertex2(-0.5f, 0.5f);
+            GL.Vertex2(0.5f, 0.5f);
+            GL.Vertex2(0.5f, -0.5f);
+            GL.Vertex2(-0.5f, -0.5f);
+
+            GL.End();
+
+            GL.PopMatrix();
+
+            //Enter local space
+            m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), position) * rotation;
+            GL.PushMatrix();
+            GL.MultMatrix((float*)&m);
+
+            GetTranslationAxes().Call();
 
             GL.PopMatrix();
 
@@ -297,29 +369,24 @@ namespace System.Windows.Forms
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Z"] = panel.Camera.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderScaleControl(Vector3 pos, float radius, ModelPanelViewport panel)
+        public unsafe void RenderScaleControl(Vector3 pos, float radius, Matrix rotation, ModelPanelViewport panel)
         {
-            GLDisplayList axis = GetScaleControl();
-
             //Enter local space
-            Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), pos);
+            Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), pos) * rotation;
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            axis.Call();
+            GetScaleAxes().Call();
 
             GL.PopMatrix();
-
+            
             panel.ScreenText["X"] = panel.Camera.Project(new Vector3(_axisLDist + 0.1f, 0, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Z"] = panel.Camera.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderRotationControl(Vector3 position, float radius, Vector3 rotate, ModelPanelViewport panel)
+        public unsafe void RenderRotationControl(Vector3 position, float radius, Matrix rotation, ModelPanelViewport panel)
         {
-            Matrix m = Matrix.TransformMatrix(
-                new Vector3(radius), 
-                panel.ViewType == ViewportProjection.Perspective ? position.LookatAngles(CamLoc(panel.Camera)) * Maths._rad2degf : panel.Camera._rotation, 
-                position);
+            Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), position) * CameraFacingRotationMatrix(panel, position);
 
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
@@ -328,6 +395,10 @@ namespace System.Windows.Forms
             GLDisplayList circle = TKContext.GetRingList();
 
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+            GL.PushAttrib(AttribMask.DepthBufferBit);
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthFunc(DepthFunction.Lequal);
 
             //Orb
             GL.Color4(0.7f, 0.7f, 0.7f, 0.15f);
@@ -353,7 +424,7 @@ namespace System.Windows.Forms
             GL.Enable(EnableCap.DepthTest);
 
             //Enter local space
-            m = Matrix.TransformMatrix(new Vector3(radius), rotate, position);
+            m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), position) * rotation;
 
             panel.ScreenText["X"] = panel.Camera.Project(new Vector3(1.1f, 0, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, 1.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
@@ -390,6 +461,8 @@ namespace System.Windows.Forms
 
             //Pop
             GL.PopMatrix();
+
+            GL.PopAttrib();
         }
 
 #endregion
@@ -399,7 +472,7 @@ namespace System.Windows.Forms
         public const float _axisHalfLDist = 0.75f;
         public const float _apthm = 0.075f;
         public const float _dst = 1.5f;
-        public GLDisplayList GetAxes()
+        public GLDisplayList GetTranslationAxes()
         {
             //Create the axes.
             GLDisplayList axis = new GLDisplayList();
@@ -556,7 +629,7 @@ namespace System.Windows.Forms
         }
         public const float _scaleHalf1LDist = 0.8f;
         public const float _scaleHalf2LDist = 1.2f;
-        public GLDisplayList GetScaleControl()
+        public GLDisplayList GetScaleAxes()
         {
             //Create the axes.
             GLDisplayList axis = new GLDisplayList();
@@ -706,6 +779,9 @@ namespace System.Windows.Forms
             if (v._grabbing || v._scrolling || _playing)
                 return;
 
+            GL.Enable(EnableCap.DepthTest);
+            GL.DepthFunc(DepthFunction.Always);
+
             GL.Color4(Color.Black);
 #if DEBUG
             GL.ColorMask(_renderDepth, false, false, false);
@@ -737,150 +813,6 @@ namespace System.Windows.Forms
                         if (bone != SelectedBone)
                             RenderOrb(bone, list, v, doScale);
             }
-
-            //Render invisible depth planes for translation and scale controls
-            if ((ControlType != TransformType.Rotation && SelectedBone != null) || VertexLoc().HasValue)
-            {
-                #region Axis Selection Display List
-
-                GLDisplayList selList = new GLDisplayList();
-
-                selList.Begin();
-
-                GL.Begin(BeginMode.Quads);
-
-                //X Axis
-                //XY quad
-                GL.Vertex3(0.0f, -_axisSelectRange, 0.0f);
-                GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
-                GL.Vertex3(_axisLDist, _axisSelectRange, 0.0f);
-                GL.Vertex3(_axisLDist, -_axisSelectRange, 0.0f);
-                //XZ quad
-                GL.Vertex3(0.0f, 0.0f, -_axisSelectRange);
-                GL.Vertex3(0.0f, 0.0f, _axisSelectRange);
-                GL.Vertex3(_axisLDist, 0.0f, _axisSelectRange);
-                GL.Vertex3(_axisLDist, 0.0f, -_axisSelectRange);
-
-                //Y Axis
-                //YX quad
-                GL.Vertex3(-_axisSelectRange, 0.0f, 0.0f);
-                GL.Vertex3(_axisSelectRange, 0.0f, 0.0f);
-                GL.Vertex3(_axisSelectRange, _axisLDist, 0.0f);
-                GL.Vertex3(-_axisSelectRange, _axisLDist, 0.0f);
-                //YZ quad
-                GL.Vertex3(0.0f, 0.0f, -_axisSelectRange);
-                GL.Vertex3(0.0f, 0.0f, _axisSelectRange);
-                GL.Vertex3(0.0f, _axisLDist, _axisSelectRange);
-                GL.Vertex3(0.0f, _axisLDist, -_axisSelectRange);
-
-                //Z Axis
-                //ZX quad
-                GL.Vertex3(-_axisSelectRange, 0.0f, 0.0f);
-                GL.Vertex3(_axisSelectRange, 0.0f, 0.0f);
-                GL.Vertex3(_axisSelectRange, 0.0f, _axisLDist);
-                GL.Vertex3(-_axisSelectRange, 0.0f, _axisLDist);
-                //ZY quad
-                GL.Vertex3(0.0f, -_axisSelectRange, 0.0f);
-                GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
-                GL.Vertex3(0.0f, _axisSelectRange, _axisLDist);
-                GL.Vertex3(0.0f, -_axisSelectRange, _axisLDist);
-
-                GL.End();
-
-                selList.End();
-
-                #endregion
-
-                if (ControlType != TransformType.Rotation && SelectedBone != null)
-                {
-                    Matrix m = Matrix.TransformMatrix(new Vector3(OrbRadius(SelectedBone, v)), new Vector3(), BoneLoc(SelectedBone));
-                    GL.PushMatrix();
-                    GL.MultMatrix((float*)&m);
-
-                    selList.Call();
-
-                    if (ControlType == TransformType.Translation)
-                    {
-                        GL.Begin(BeginMode.Quads);
-
-                        //XY
-                        GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
-                        GL.Vertex3(_axisHalfLDist, _axisSelectRange, 0.0f);
-                        GL.Vertex3(_axisHalfLDist, _axisHalfLDist, 0.0f);
-                        GL.Vertex3(0.0f, _axisHalfLDist, 0.0f);
-
-                        //YZ
-                        GL.Vertex3(0.0f, 0.0f, _axisSelectRange);
-                        GL.Vertex3(0.0f, _axisHalfLDist, _axisSelectRange);
-                        GL.Vertex3(0.0f, _axisHalfLDist, _axisHalfLDist);
-                        GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
-
-                        //XZ
-                        GL.Vertex3(_axisSelectRange, 0.0f, 0.0f);
-                        GL.Vertex3(_axisSelectRange, 0.0f, _axisHalfLDist);
-                        GL.Vertex3(_axisHalfLDist, 0.0f, _axisHalfLDist);
-                        GL.Vertex3(_axisHalfLDist, 0.0f, 0.0f);
-
-                        GL.End();
-                    }
-                    else
-                    {
-                        GL.Begin(BeginMode.Triangles);
-
-                        //XY
-                        GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
-                        GL.Vertex3(_scaleHalf2LDist, _axisSelectRange, 0.0f);
-                        GL.Vertex3(0.0f, _scaleHalf2LDist, 0.0f);
-
-                        //YZ
-                        GL.Vertex3(0.0f, 0.0f, _axisSelectRange);
-                        GL.Vertex3(0.0f, _scaleHalf2LDist, _axisSelectRange);
-                        GL.Vertex3(0.0f, 0.0f, _scaleHalf2LDist);
-
-                        //XZ
-                        GL.Vertex3(_axisSelectRange, 0.0f, 0.0f);
-                        GL.Vertex3(_axisSelectRange, 0.0f, _scaleHalf2LDist);
-                        GL.Vertex3(_scaleHalf2LDist, 0.0f, 0.0f);
-
-                        GL.End();
-                    }
-
-                    GL.PopMatrix();
-                }
-
-                if (VertexLoc().HasValue && v._renderAttrib._renderVertices)
-                {
-                    Matrix m = Matrix.TransformMatrix(new Vector3(VertexOrbRadius(v)), new Vector3(), ((Vector3)VertexLoc()));
-                    GL.PushMatrix();
-                    GL.MultMatrix((float*)&m);
-
-                    selList.Call();
-
-                    GL.Begin(BeginMode.Quads);
-
-                    //XY
-                    GL.Vertex3(0.0f, _axisSelectRange, 0.0f);
-                    GL.Vertex3(_axisHalfLDist, _axisSelectRange, 0.0f);
-                    GL.Vertex3(_axisHalfLDist, _axisHalfLDist, 0.0f);
-                    GL.Vertex3(0.0f, _axisHalfLDist, 0.0f);
-
-                    //YZ
-                    GL.Vertex3(0.0f, 0.0f, _axisSelectRange);
-                    GL.Vertex3(0.0f, _axisHalfLDist, _axisSelectRange);
-                    GL.Vertex3(0.0f, _axisHalfLDist, _axisHalfLDist);
-                    GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
-
-                    //XZ
-                    GL.Vertex3(_axisSelectRange, 0.0f, 0.0f);
-                    GL.Vertex3(_axisSelectRange, 0.0f, _axisHalfLDist);
-                    GL.Vertex3(_axisHalfLDist, 0.0f, _axisHalfLDist);
-                    GL.Vertex3(_axisHalfLDist, 0.0f, 0.0f);
-
-                    GL.End();
-
-                    GL.PopMatrix();
-                }
-            }
             GL.ColorMask(true, true, true, true);
         }
 
@@ -889,35 +821,63 @@ namespace System.Windows.Forms
         #region Orb Point Distance
 
         /// <summary>
+        /// Use this for transforming points
+        /// </summary>
+        public bool GetTransformPoint(
+            Vector2 mousePoint,
+            out Vector3 point,
+            ModelPanelViewport panel,
+            Vector3 center)
+        {
+            return GetTransformPoint(mousePoint, out point, panel, Matrix.TranslationMatrix(center));
+        }
+
+        /// <summary>
         /// Gets world-point of specified mouse point projected onto the selected bone's local space if rotating or in world space if translating or scaling.
         /// Intersects the projected ray with the appropriate plane using the snap flags.
         /// </summary>
-        public bool GetOrbPoint(Vector2 mousePoint, out Vector3 point, ModelPanelViewport panel)
+        public bool GetTransformPoint(
+            Vector2 mousePoint,
+            out Vector3 point,
+            ModelPanelViewport panel,
+            Matrix localTransform)
         {
-            IBoneNode bone = SelectedBone;
-            if (bone == null)
-            {
-                point = new Vector3();
-                return false;
-            }
-
             Vector3 lineStart = panel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
             Vector3 lineEnd = panel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
-            Vector3 center = bone.Matrix.GetPoint();
+            Vector3 center = localTransform.GetPoint();
             Vector3 camera = panel.Camera.GetPoint();
             Vector3 normal = new Vector3();
-            float radius = CamDistance(center, ModelPanel.CurrentViewport);
+
+            bool axisSnap = _snapX || _snapY || _snapZ;
+            CoordinateType coord = _coordinateTypes[(int)ControlType];
 
             switch (ControlType)
             {
                 case TransformType.Rotation:
 
-                    if (_snapX)
-                        normal = (bone.Matrix * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                    else if (_snapY)
-                        normal = (bone.Matrix * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                    else if (_snapZ)
-                        normal = (bone.Matrix * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
+                    float radius = CamDistance(center, ModelPanel.CurrentViewport);
+                    if (axisSnap)
+                    {
+                        switch (coord)
+                        {
+                            case CoordinateType.Screen:
+                                if (_snapX || _snapY || _snapZ)
+                                    normal = camera.Normalize(center);
+                                break;
+                            case CoordinateType.Local:
+                                normal = (localTransform * new Vector3(
+                                    _snapX ? 1.0f : 0.0f,
+                                    _snapY ? 1.0f : 0.0f,
+                                    _snapZ ? 1.0f : 0.0f)).Normalize(center);
+                                break;
+                            case CoordinateType.World:
+                                normal = new Vector3(
+                                    _snapX ? 1.0f : 0.0f,
+                                    _snapY ? 1.0f : 0.0f,
+                                    _snapZ ? 1.0f : 0.0f);
+                                break;
+                        }
+                    }
                     else if (_snapCirc)
                     {
                         radius *= _circOrbScale;
@@ -939,90 +899,57 @@ namespace System.Windows.Forms
                 case TransformType.Translation:
                 case TransformType.Scale:
 
-                    if (_snapX && _snapY)
-                        normal = new Vector3(0.0f, 0.0f, 1.0f);
-                    else if (_snapX && _snapZ)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (_snapY && _snapZ)
-                        normal = new Vector3(1.0f, 0.0f, 0.0f);
-                    else if (_snapX)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (_snapY)
-                        normal = new Vector3(1.0f, 0.0f, 0.0f);
-                    else if (_snapZ)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
+                    if (axisSnap)
+                    {
+                        if (_snapX && _snapY && _snapZ)
+                            normal = Vector3.UnitZ * Matrix.RotationMatrix(panel.Camera._rotation);
+                        else
+                        {
+                            switch (coord)
+                            {
+                                case CoordinateType.Screen:
+                                    normal = Vector3.UnitZ * Matrix.RotationMatrix(panel.Camera._rotation);
+                                    break;
+                                case CoordinateType.Local:
+                                case CoordinateType.World:
+
+                                    //Remove local rotation
+                                    if (coord == CoordinateType.World)
+                                        localTransform = Matrix.TranslationMatrix(center) * Matrix.ScaleMatrix(localTransform.GetScale());
+
+                                    if (_snapX && _snapY)
+                                        normal = (localTransform * Vector3.UnitZ).Normalize(center);
+                                    else if (_snapX && _snapZ)
+                                        normal = (localTransform * Vector3.UnitY).Normalize(center);
+                                    else if (_snapY && _snapZ)
+                                        normal = (localTransform * Vector3.UnitX).Normalize(center);
+                                    else //One of the snaps
+                                    {
+                                        Vector3 unitSnapAxis = new Vector3(
+                                            _snapX ? 1.0f : 0.0f,
+                                            _snapY ? 1.0f : 0.0f,
+                                            _snapZ ? 1.0f : 0.0f);
+
+                                        float camDist = camera.TrueDistance(center);
+                                        Vector3 camVec = camera.Normalize(center);
+                                        float ratio = camVec.Dot(unitSnapAxis) / (camVec.TrueDistance() * unitSnapAxis.TrueDistance());
+                                        float lineDist = camDist * ratio;
+                                        Vector3 endPoint = localTransform * (unitSnapAxis * lineDist);
+                                        normal = camera.Normalize(endPoint);
+                                    }
+                                    break;
+                            }
+                        }
+                    }
                     else
-                        normal = camera.Normalize(center);
+                        normal = Vector3.UnitZ * Matrix.RotationMatrix(panel.Camera._rotation);
 
                     break;
             }
 
             return Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point);
         }
-
-        public bool GetVertexOrbPoint(Vector2 mousePoint, Vector3 center, out Vector3 point, ModelPanelViewport panel)
-        {
-            Vector3 lineStart = panel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
-            Vector3 lineEnd = panel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
-            Vector3 camera = panel.Camera.GetPoint();
-            Vector3 normal = new Vector3();
-            float radius = CamDistance(center, ModelPanel.CurrentViewport);
-
-            switch (ControlType)
-            {
-                case TransformType.Rotation:
-                    if (_snapX)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(1.0f, 0.0f, 0.0f)).Normalize(center);
-                    else if (_snapY)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 1.0f, 0.0f)).Normalize(center);
-                    else if (_snapZ)
-                        normal = (Matrix.TranslationMatrix(VertexLoc().Value) * new Vector3(0.0f, 0.0f, 1.0f)).Normalize(center);
-                    else if (_snapCirc)
-                    {
-                        radius *= _circOrbScale;
-                        normal = camera.Normalize(center);
-                    }
-                    else if (Maths.LineSphereIntersect(lineStart, lineEnd, center, radius, out point))
-                        return true;
-                    else
-                        normal = camera.Normalize(center);
-
-                    if (Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-                    {
-                        point = Maths.PointAtLineDistance(center, point, radius);
-                        return true;
-                    }
-
-                    break;
-
-                case TransformType.Scale:
-                case TransformType.Translation:
-
-                    if (_snapX && _snapY)
-                        normal = new Vector3(0.0f, 0.0f, 1.0f);
-                    else if (_snapX && _snapZ)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (_snapY && _snapZ)
-                        normal = new Vector3(1.0f, 0.0f, 0.0f);
-                    else if (_snapX)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else if (_snapY)
-                        normal = new Vector3(1.0f, 0.0f, 0.0f);
-                    else if (_snapZ)
-                        normal = new Vector3(0.0f, 1.0f, 0.0f);
-                    else
-                        normal = camera.Normalize(center);
-
-                    break;
-            }
-
-            if (!Maths.LinePlaneIntersect(lineStart, lineEnd, center, normal, out point))
-            {
-                point = new Vector3();
-                return false;
-            }
-            return true;
-        }
+        
         public Vertex3 CompareVertexDistance(Vector3 point)
         {
             if (TargetModel == null)
@@ -1035,7 +962,7 @@ namespace System.Windows.Forms
                     foreach (Vertex3 v in o.Vertices)
                     {
                         float t = v.WeightedPosition.TrueDistance(point);
-                        if (Math.Abs(t) < 0.025f)
+                        if (Math.Abs(t) < 0.02f)
                             return v;
                     }
                 else
@@ -1044,7 +971,7 @@ namespace System.Windows.Forms
                             foreach (Vertex3 v in w.Vertices)
                             {
                                 float t = v.WeightedPosition.TrueDistance(point);
-                                if (Math.Abs(t) < 0.025f)
+                                if (Math.Abs(t) < 0.02f)
                                     return v;
                             }
             }
@@ -1054,12 +981,12 @@ namespace System.Windows.Forms
                         foreach (Vertex3 v in o.Vertices)
                         {
                             float t = v.WeightedPosition.TrueDistance(point);
-                            if (Math.Abs(t) < 0.025f)
+                            if (Math.Abs(t) < 0.02f)
                                 return v;
                         }
             return null;
         }
-        private bool CompareDistanceRecursive(IBoneNode bone, Vector3 point, ref IBoneNode match, ModelPanelViewport v, bool doScale)
+        private bool CompareBoneDistanceRecursive(IBoneNode bone, Vector3 point, ref IBoneNode match, ModelPanelViewport v, bool doScale)
         {
             float dist = bone.Matrix.GetPoint().TrueDistance(point) / (doScale ? OrbRadius(bone, v) : 1.0f);
             if (Math.Abs(dist - MDL0BoneNode._nodeRadius) < 0.01f)
@@ -1069,7 +996,7 @@ namespace System.Windows.Forms
             }
 
             foreach (IBoneNode b in ((ResourceNode)bone).Children)
-                if (CompareDistanceRecursive(b, point, ref match, v, doScale))
+                if (CompareBoneDistanceRecursive(b, point, ref match, v, doScale))
                     return true;
 
             return false;
@@ -1089,7 +1016,7 @@ namespace System.Windows.Forms
 
         #endregion
 
-        public static void OnRenderLightDisplay(Vector4 lightPos)
+        public static unsafe void OnRenderLightDisplay(ModelPanelViewport v)
         {
             GL.PushAttrib(AttribMask.AllAttribBits);
             GL.MatrixMode(MatrixMode.Modelview);
@@ -1097,90 +1024,115 @@ namespace System.Windows.Forms
 
             GL.Color4(Color.Blue);
             GL.Disable(EnableCap.Lighting);
-            GL.Disable(EnableCap.DepthTest);
+            //GL.Disable(EnableCap.DepthTest);
 
-            GL.Scale(lightPos._x, lightPos._x, lightPos._x);
+            Vector4 lightPos = v.LightPosition;
 
-            GL.Rotate(90.0f, 1, 0, 0);
-
-            float 
-                azimuth = lightPos._y.RemapToRange(-180.0f, 180.0f),
-                elevation = lightPos._z.RemapToRange(-180.0f, 180.0f);
-
-            if (Math.Abs(azimuth) == Math.Abs(elevation) && azimuth % 180.0f == 0 && elevation % 180.0f == 0)
+            if (!v.LightDirectional)
             {
-                azimuth = 0;
-                elevation = 0;
+                GL.Enable(EnableCap.DepthTest);
+
+                Vector3 pos = (Vector3)v._posLight;
+
+                GLDisplayList list = TKContext.GetSphereList();
+                GL.Translate((OpenTK.Vector3)pos);
+
+                GL.Color4(Color.FromArgb(120, 100, 100, 255));
+
+                //Matrix m = CameraFacingRotationMatrix(v.Camera, pos);
+                //GL.MultMatrix((float*)&m);
+
+                GL.Scale(lightPos._x, lightPos._x, lightPos._x);
+
+                list.Call();
             }
-
-            int i;
-            float e = azimuth, x;
-
-            bool flip = false;
-            if (e < 0)
+            else
             {
-                e = -e;
-                flip = true;
+                GL.Disable(EnableCap.DepthTest);
+
+                GL.Scale(lightPos._x, lightPos._x, lightPos._x);
+
+                GL.Rotate(90.0f, 1, 0, 0);
+
+                float
+                    azimuth = lightPos._y.RemapToRange(-180.0f, 180.0f),
+                    elevation = lightPos._z.RemapToRange(-180.0f, 180.0f);
+
+                if (Math.Abs(azimuth) == Math.Abs(elevation) && azimuth % 180.0f == 0 && elevation % 180.0f == 0)
+                {
+                    azimuth = 0;
+                    elevation = 0;
+                }
+
+                int i;
+                float e = azimuth, x;
+
+                bool flip = false;
+                if (e < 0)
+                {
+                    e = -e;
+                    flip = true;
+                    GL.Rotate(180.0f, 1, 0, 0);
+                }
+
+                float f = (float)((int)e);
+                float diff = (float)Math.Round(e - f, 1);
+
+                GL.Begin(BeginMode.Lines);
+                for (i = 0; i < f; i++)
+                {
+                    GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
+                    GL.Vertex2(Math.Cos((i + 1) * Maths._deg2radf), Math.Sin((i + 1) * Maths._deg2radf));
+                }
+                for (x = 0; x < diff; x += 0.1f)
+                {
+                    GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
+                    GL.Vertex2(Math.Cos((x + 0.1f + (float)i) * Maths._deg2radf), Math.Sin((x + 0.1f + (float)i) * Maths._deg2radf));
+                }
+                GL.End();
+
+                if (flip) GL.Rotate(-180.0f, 1, 0, 0);
+
+                GL.Rotate(90.0f, 0, 1, 0);
+                GL.Rotate(90.0f, 0, 0, 1);
                 GL.Rotate(180.0f, 1, 0, 0);
-            }
-                
-            float f = (float)((int)e);
-            float diff = (float)Math.Round(e - f, 1);
+                GL.Rotate(90.0f - azimuth, 0, 1, 0);
 
-            GL.Begin(BeginMode.Lines);
-            for (i = 0; i < f; i++)
-            {
-                GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
-                GL.Vertex2(Math.Cos((i + 1) * Maths._deg2radf), Math.Sin((i + 1) * Maths._deg2radf));
-            }
-            for (x = 0; x < diff; x += 0.1f)
-            {
+                e = elevation;
+
+                if (e < 0)
+                {
+                    e = -e;
+                    GL.Rotate(180.0f, 1, 0, 0);
+                }
+
+                f = (float)((int)e);
+                diff = (float)Math.Round(e - f, 1);
+
+                GL.Begin(BeginMode.Lines);
+                for (i = 0; i < f; i++)
+                {
+                    GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
+                    GL.Vertex2(Math.Cos((i + 1) * Maths._deg2radf), Math.Sin((i + 1) * Maths._deg2radf));
+                }
+                for (x = 0; x < diff; x += 0.1f)
+                {
+                    GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
+                    GL.Vertex2(Math.Cos((x + 0.1f + (float)i) * Maths._deg2radf), Math.Sin((x + 0.1f + (float)i) * Maths._deg2radf));
+                }
+
                 GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
-                GL.Vertex2(Math.Cos((x + 0.1f + (float)i) * Maths._deg2radf), Math.Sin((x + 0.1f + (float)i) * Maths._deg2radf));
+                GL.Color4(Color.Orange);
+                GL.Vertex3(0, 0, 0);
+                GL.End();
+
+                GL.Scale(0.01f, 0.01f, 0.01f);
+                GL.Rotate(azimuth, 0, 1, 0);
+                GL.Enable(EnableCap.DepthTest);
+
+                GL.PopAttrib();
+                GL.PopMatrix();
             }
-            GL.End();
-
-            if (flip) GL.Rotate(-180.0f, 1, 0, 0);
-
-            GL.Rotate(90.0f, 0, 1, 0);
-            GL.Rotate(90.0f, 0, 0, 1);
-            GL.Rotate(180.0f, 1, 0, 0);
-            GL.Rotate(90.0f - azimuth, 0, 1, 0);
-
-            e = elevation;
-
-            if (e < 0)
-            {
-                e = -e;
-                GL.Rotate(180.0f, 1, 0, 0);
-            }
-
-            f = (float)((int)e);
-            diff = (float)Math.Round(e - f, 1);
-
-            GL.Begin(BeginMode.Lines);
-            for (i = 0; i < f; i++)
-            {
-                GL.Vertex2(Math.Cos(i * Maths._deg2radf), Math.Sin(i * Maths._deg2radf));
-                GL.Vertex2(Math.Cos((i + 1) * Maths._deg2radf), Math.Sin((i + 1) * Maths._deg2radf));
-            }
-            for (x = 0; x < diff; x += 0.1f)
-            {
-                GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
-                GL.Vertex2(Math.Cos((x + 0.1f + (float)i) * Maths._deg2radf), Math.Sin((x + 0.1f + (float)i) * Maths._deg2radf));
-            }
-
-            GL.Vertex2(Math.Cos((x + (float)i) * Maths._deg2radf), Math.Sin((x + (float)i) * Maths._deg2radf));
-            GL.Color4(Color.Orange);
-            GL.Vertex3(0, 0, 0);
-            GL.End();
-
-            GL.Scale(0.01f, 0.01f, 0.01f);
-            GL.Rotate(azimuth, 0, 1, 0);
-            GL.Enable(EnableCap.DepthTest);
-
-            GL.PopAttrib();
-            GL.PopMatrix();
         }
 
         public static void OnRenderFloor()

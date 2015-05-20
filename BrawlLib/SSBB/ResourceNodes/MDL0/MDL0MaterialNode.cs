@@ -102,7 +102,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Attributes
 
-        public MDL0ObjectNode[] Objects { get { if (!isMetal) return _objects.ToArray(); else return MetalMaterial == null ? null : MetalMaterial._objects.ToArray(); } }
+        public MDL0ObjectNode[] Objects { get { if (!IsMetal) return _objects.ToArray(); else return MetalMaterial == null ? null : MetalMaterial._objects.ToArray(); } }
         
         #region Konstant Block
 
@@ -117,7 +117,14 @@ Those properties can use this color as an argument. This color is referred to as
         public GXColorS10 ConstantColor0
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg0Lo.RB, A = _tevKonstBlock.TevReg0Lo.AG, B = _tevKonstBlock.TevReg0Hi.RB, G = _tevKonstBlock.TevReg0Hi.AG }; }
-            set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg0Lo.RB = value.R; _tevKonstBlock.TevReg0Lo.AG = value.A; _tevKonstBlock.TevReg0Hi.RB = value.B; _tevKonstBlock.TevReg0Hi.AG = value.G; k1 = value; } } 
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _tevKonstBlock.TevReg0Lo.RB = value.R; _tevKonstBlock.TevReg0Lo.AG = value.A; _tevKonstBlock.TevReg0Hi.RB = value.B; _tevKonstBlock.TevReg0Hi.AG = value.G; k1 = value;
+                    SignalPropertyChange();
+                }
+            } 
         }
         [Category("Shader Constant Color Block"), DisplayName("Constant Color 1"),
         TypeConverter(typeof(GXColorS10StringConverter)),
@@ -125,7 +132,14 @@ Those properties can use this color as an argument. This color is referred to as
         public GXColorS10 ConstantColor1
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg1Lo.RB, A = _tevKonstBlock.TevReg1Lo.AG, B = _tevKonstBlock.TevReg1Hi.RB, G = _tevKonstBlock.TevReg1Hi.AG }; }
-            set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg1Lo.RB = value.R; _tevKonstBlock.TevReg1Lo.AG = value.A; _tevKonstBlock.TevReg1Hi.RB = value.B; _tevKonstBlock.TevReg1Hi.AG = value.G; k2 = value; } } 
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _tevKonstBlock.TevReg1Lo.RB = value.R; _tevKonstBlock.TevReg1Lo.AG = value.A; _tevKonstBlock.TevReg1Hi.RB = value.B; _tevKonstBlock.TevReg1Hi.AG = value.G; k2 = value;
+                    SignalPropertyChange();
+                }
+            } 
         }
         [Category("Shader Constant Color Block"), DisplayName("Constant Color 2"),
         TypeConverter(typeof(GXColorS10StringConverter)),
@@ -133,7 +147,14 @@ Those properties can use this color as an argument. This color is referred to as
         public GXColorS10 ConstantColor2
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg2Lo.RB, A = _tevKonstBlock.TevReg2Lo.AG, B = _tevKonstBlock.TevReg2Hi.RB, G = _tevKonstBlock.TevReg2Hi.AG }; }
-            set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg2Lo.RB = value.R; _tevKonstBlock.TevReg2Lo.AG = value.A; _tevKonstBlock.TevReg2Hi.RB = value.B; _tevKonstBlock.TevReg2Hi.AG = value.G; k3 = value; } } 
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _tevKonstBlock.TevReg2Lo.RB = value.R; _tevKonstBlock.TevReg2Lo.AG = value.A; _tevKonstBlock.TevReg2Hi.RB = value.B; _tevKonstBlock.TevReg2Hi.AG = value.G; k3 = value;
+                    SignalPropertyChange();
+                }
+            } 
         }
         [Category("Shader Constant Color Block"), DisplayName("Constant Color 3"),
         TypeConverter(typeof(GXColorS10StringConverter)),
@@ -141,7 +162,14 @@ Those properties can use this color as an argument. This color is referred to as
         public GXColorS10 ConstantColor3
         { 
             get { return new GXColorS10() { R = _tevKonstBlock.TevReg3Lo.RB, A = _tevKonstBlock.TevReg3Lo.AG, B = _tevKonstBlock.TevReg3Hi.RB, G = _tevKonstBlock.TevReg3Hi.AG }; }
-            set { if (!CheckIfMetal()) { _tevKonstBlock.TevReg3Lo.RB = value.R; _tevKonstBlock.TevReg3Lo.AG = value.A; _tevKonstBlock.TevReg3Hi.RB = value.B; _tevKonstBlock.TevReg3Hi.AG = value.G; k4 = value; } } 
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _tevKonstBlock.TevReg3Lo.RB = value.R; _tevKonstBlock.TevReg3Lo.AG = value.A; _tevKonstBlock.TevReg3Hi.RB = value.B; _tevKonstBlock.TevReg3Hi.AG = value.G; k4 = value;
+                    SignalPropertyChange();
+                }
+            } 
         }
 
         #endregion
@@ -175,6 +203,8 @@ Those properties can use this color as an argument. This color is referred to as
                     _tevColorBlock.TevReg1Hi2.AG = value.G;
 
                     c1 = value;
+                    
+                    SignalPropertyChange();
                 }
             }
         }
@@ -200,6 +230,8 @@ Those properties can use this color as an argument. This color is referred to as
                     _tevColorBlock.TevReg2Hi2.AG = value.G;
 
                     c2 = value;
+
+                    SignalPropertyChange();
                 }
             }
         }
@@ -225,6 +257,8 @@ Those properties can use this color as an argument. This color is referred to as
                     _tevColorBlock.TevReg3Hi2.AG = value.G;
 
                     c3 = value;
+
+                    SignalPropertyChange();
                 }
             }
         }
@@ -267,6 +301,8 @@ Those properties can use this color as an argument. This color is referred to as
                     if (node != null)
                         ShaderNode = node;
                 }
+
+                SignalPropertyChange();
             }
         }
         #endregion
@@ -274,37 +310,158 @@ Those properties can use this color as an argument. This color is referred to as
         #region Alpha Func
 
         [Category("Alpha Function")]
-        public byte Ref0 { get { return _alphaFunc._ref0; } set { if (!CheckIfMetal()) _alphaFunc._ref0 = value; } }
+        public byte Ref0
+        {
+            get { return _alphaFunc._ref0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _alphaFunc._ref0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Alpha Function")]
-        public AlphaCompare Comp0 { get { return _alphaFunc.Comp0; } set { if (!CheckIfMetal()) _alphaFunc.Comp0 = value;  } }
+        public AlphaCompare Comp0
+        {
+            get { return _alphaFunc.Comp0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _alphaFunc.Comp0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Alpha Function")]
-        public AlphaOp Logic { get { return _alphaFunc.Logic; } set { if (!CheckIfMetal()) _alphaFunc.Logic = value;  } }
+        public AlphaOp Logic
+        {
+            get { return _alphaFunc.Logic; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _alphaFunc.Logic = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Alpha Function")]
-        public byte Ref1 { get { return _alphaFunc._ref1; } set { if (!CheckIfMetal()) _alphaFunc._ref1 = value;  } }
+        public byte Ref1
+        {
+            get { return _alphaFunc._ref1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _alphaFunc._ref1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Alpha Function")]
-        public AlphaCompare Comp1 { get { return _alphaFunc.Comp1; } set { if (!CheckIfMetal()) _alphaFunc.Comp1 = value;  } }
+        public AlphaCompare Comp1
+        {
+            get { return _alphaFunc.Comp1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _alphaFunc.Comp1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
         #region Depth Func
 
         [Category("Z Mode"), Description("Generally this should be false if using alpha function (transparency), as transparent pixels will change the depth.")]
-        public bool CompareBeforeTexture { get { return _depthTestBeforeTexture != 0; } set { if (!CheckIfMetal()) _depthTestBeforeTexture = (byte)(value ? 1 : 0); } }
+        public bool CompareBeforeTexture
+        {
+            get { return _depthTestBeforeTexture != 0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _depthTestBeforeTexture = (byte)(value ? 1 : 0);
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Z Mode"), Description("Determines if this material's pixels should be compared to other pixels in order to obscure or be obscured.")]
-        public bool EnableDepthTest { get { return _zMode.EnableDepthTest; } set { if (!CheckIfMetal()) _zMode.EnableDepthTest = value;  } }
+        public bool EnableDepthTest
+        {
+            get { return _zMode.EnableDepthTest; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _zMode.EnableDepthTest = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Z Mode")]
-        public bool EnableDepthUpdate { get { return _zMode.EnableDepthUpdate; } set { if (!CheckIfMetal()) _zMode.EnableDepthUpdate = value;  } }
+        public bool EnableDepthUpdate
+        {
+            get { return _zMode.EnableDepthUpdate; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _zMode.EnableDepthUpdate = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Z Mode"), Description("How this material should be compared to other materials.")]
-        public GXCompare DepthFunction { get { return _zMode.DepthFunction; } set { if (!CheckIfMetal()) _zMode.DepthFunction = value;  } }
+        public GXCompare DepthFunction
+        {
+            get { return _zMode.DepthFunction; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _zMode.DepthFunction = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
         #region Blend Mode
 
         [Category("Blend Mode"), Description("This allows the textures to be semi-transparent. Cannot be used with alpha function.")]
-        public bool EnableBlend { get { return _blendMode.EnableBlend; } set { if (!CheckIfMetal()) { _blendMode.EnableBlend = value; } } }
+        public bool EnableBlend
+        {
+            get { return _blendMode.EnableBlend; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.EnableBlend = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Blend Mode")]
-        public bool EnableBlendLogic { get { return _blendMode.EnableLogicOp; } set { if (!CheckIfMetal()) _blendMode.EnableLogicOp = value;  } }
+        public bool EnableBlendLogic
+        {
+            get { return _blendMode.EnableLogicOp; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.EnableLogicOp = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         
         //These are disabled via mask
         //[Category("Blend Mode")]
@@ -315,54 +472,252 @@ Those properties can use this color as an argument. This color is referred to as
         //public bool EnableAlphaUpdate { get { return _blendMode.EnableAlphaUpdate; } }
 
         [Category("Blend Mode")]
-        public BlendFactor SrcFactor { get { return _blendMode.SrcFactor; } set { if (!CheckIfMetal()) _blendMode.SrcFactor = value;  } }
+        public BlendFactor SrcFactor
+        {
+            get { return _blendMode.SrcFactor; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.SrcFactor = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Blend Mode")]
-        public GXLogicOp BlendLogicOp { get { return _blendMode.LogicOp; } set { if (!CheckIfMetal()) _blendMode.LogicOp = value;  } }
+        public GXLogicOp BlendLogicOp
+        {
+            get { return _blendMode.LogicOp; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.LogicOp = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Blend Mode")]
-        public BlendFactor DstFactor { get { return _blendMode.DstFactor; } set { if (!CheckIfMetal()) _blendMode.DstFactor = value;  } }
+        public BlendFactor DstFactor
+        {
+            get { return _blendMode.DstFactor; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.DstFactor = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         [Category("Blend Mode")]
-        public bool Subtract { get { return _blendMode.Subtract; } set { if (!CheckIfMetal()) _blendMode.Subtract = value;  } }
+        public bool Subtract
+        {
+            get { return _blendMode.Subtract; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _blendMode.Subtract = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
         #region Constant Alpha
 
         [Category("Constant Alpha"), DisplayName("Enabled")]
-        public bool ConstantAlphaEnabled { get { return _constantAlpha.Enable != 0; } set { if (!CheckIfMetal()) _constantAlpha.Enable = (byte)(value ? 1 : 0); } }
+        public bool ConstantAlphaEnabled
+        {
+            get { return _constantAlpha.Enable != 0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _constantAlpha.Enable = (byte)(value ? 1 : 0);
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Constant Alpha"), DisplayName("Value")]
-        public byte ConstantAlphaValue { get { return _constantAlpha.Value; } set { if (!CheckIfMetal()) _constantAlpha.Value = value; } }
+        public byte ConstantAlphaValue
+        {
+            get { return _constantAlpha.Value; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _constantAlpha.Value = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
         #region Indirect Texturing
 
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex1 { get { return (IndirectMethod)_indirectMethod1; } set { if (!CheckIfMetal()) _indirectMethod1 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex1
+        {
+            get { return (IndirectMethod)_indirectMethod1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indirectMethod1 = (byte)value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex2 { get { return (IndirectMethod)_indirectMethod2; } set { if (!CheckIfMetal()) _indirectMethod2 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex2
+        {
+            get { return (IndirectMethod)_indirectMethod2; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indirectMethod2 = (byte)value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex3 { get { return (IndirectMethod)_indirectMethod3; } set { if (!CheckIfMetal()) _indirectMethod3 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex3
+        {
+            get { return (IndirectMethod)_indirectMethod3; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indirectMethod3 = (byte)value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndirectMethod IndirectMethodTex4 { get { return (IndirectMethod)_indirectMethod4; } set { if (!CheckIfMetal()) _indirectMethod4 = (byte)value; } }
+        public IndirectMethod IndirectMethodTex4
+        {
+            get { return (IndirectMethod)_indirectMethod4; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indirectMethod4 = (byte)value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex1ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale0 = value; } }
+        public IndTexScale IndirectTex1ScaleS
+        {
+            get { return (IndTexScale)_indMtx.SS0val.S_Scale0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS0val.S_Scale0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex1ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale0 = value; } }
+        public IndTexScale IndirectTex1ScaleT
+        {
+            get { return (IndTexScale)_indMtx.SS0val.T_Scale0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS0val.T_Scale0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex2ScaleS { get { return (IndTexScale)_indMtx.SS0val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.S_Scale1 = value; } }
+        public IndTexScale IndirectTex2ScaleS
+        {
+            get { return (IndTexScale)_indMtx.SS0val.S_Scale1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS0val.S_Scale1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex2ScaleT { get { return (IndTexScale)_indMtx.SS0val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS0val.T_Scale1 = value; } }
+        public IndTexScale IndirectTex2ScaleT
+        {
+            get { return (IndTexScale)_indMtx.SS0val.T_Scale1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS0val.T_Scale1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex3ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale0 = value; } }
+        public IndTexScale IndirectTex3ScaleS
+        {
+            get { return (IndTexScale)_indMtx.SS1val.S_Scale0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS1val.S_Scale0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex3ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale0; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale0 = value; } }
+        public IndTexScale IndirectTex3ScaleT
+        {
+            get { return (IndTexScale)_indMtx.SS1val.T_Scale0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS1val.T_Scale0 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex4ScaleS { get { return (IndTexScale)_indMtx.SS1val.S_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.S_Scale1 = value; } }
+        public IndTexScale IndirectTex4ScaleS
+        {
+            get { return (IndTexScale)_indMtx.SS1val.S_Scale1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS1val.S_Scale1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Indirect Texturing")]
-        public IndTexScale IndirectTex4ScaleT { get { return (IndTexScale)_indMtx.SS1val.T_Scale1; } set { if (!CheckIfMetal()) _indMtx.SS1val.T_Scale1 = value; } }
+        public IndTexScale IndirectTex4ScaleT
+        {
+            get { return (IndTexScale)_indMtx.SS1val.T_Scale1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _indMtx.SS1val.T_Scale1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         
         public enum IndirectMethod
         {
@@ -388,171 +743,171 @@ Those properties can use this color as an argument. This color is referred to as
 //        public int ActiveLightChannels { get { return _numLights; } set { if (!CheckIfMetal()) _numLights = (byte)value.Clamp(0, 2); } }
         [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter)), Description(
 @"Takes light input from the SCN0 and blends it with color input taken from the Material Source (if register) or from color nodes attached to the object (if vertex), then passes it to ColorChannel0 in each shader stage.")]
-        public LightChannel LightChannel0 { get { return _chan1; } set { if (!CheckIfMetal()) _chan1 = value; } }
+        public LightChannel LightChannel0 { get { return _chan1; } }
         [Category("Lighting Channels"), TypeConverter(typeof(ExpandableObjectCustomConverter)), Description(
 @"Takes light input from the SCN0 and blends it with color input taken from the Material Source (if register) or from color nodes attached to the object (if vertex), then passes it to ColorChannel1 in each shader stage.")]
-        public LightChannel LightChannel1 { get { return _chan2; } set { if (!CheckIfMetal()) _chan2 = value; } }
+        public LightChannel LightChannel1 { get { return _chan2; } }
 
         [Category("Lighting Channel 1"), Browsable(false)]
-        public LightingChannelFlags C1Flags { get { return _chan1.Flags; } set { if (!CheckIfMetal()) _chan1.Flags = value; } }
+        public LightingChannelFlags C1Flags { get { return _chan1.Flags; } set { _chan1.Flags = value; } }
         [Category("Lighting Channel 1"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C1MaterialColor { get { return _chan1.MaterialColor; } set { if (!CheckIfMetal()) _chan1.MaterialColor = value; } }
+        public RGBAPixel C1MaterialColor { get { return _chan1.MaterialColor; } set { _chan1.MaterialColor = value; } }
         [Category("Lighting Channel 1"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C1AmbientColor { get { return _chan1.AmbientColor; } set { if (!CheckIfMetal()) _chan1.AmbientColor = value; } }
+        public RGBAPixel C1AmbientColor { get { return _chan1.AmbientColor; } set { _chan1.AmbientColor = value; } }
 
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXColorSrc C1ColorMaterialSource
         {
             get { return _chan1.ColorMaterialSource; }
-            set { if (!CheckIfMetal()) _chan1.ColorMaterialSource = value; }
+            set { _chan1.ColorMaterialSource = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public bool C1ColorEnabled
         {
             get { return _chan1.ColorEnabled; }
-            set { if (!CheckIfMetal()) _chan1.ColorEnabled = value; }
+            set { _chan1.ColorEnabled = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXColorSrc C1ColorAmbientSource
         {
             get { return _chan1.ColorAmbientSource; }
-            set { if (!CheckIfMetal()) _chan1.ColorAmbientSource = value; }
+            set { _chan1.ColorAmbientSource = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXDiffuseFn C1ColorDiffuseFunction
         {
             get { return _chan1.ColorDiffuseFunction; }
-            set { if (!CheckIfMetal()) _chan1.ColorDiffuseFunction = value; }
+            set { _chan1.ColorDiffuseFunction = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXAttnFn C1ColorAttenuation
         {
             get { return _chan1.ColorAttenuation; }
-            set { if (!CheckIfMetal()) _chan1.ColorAttenuation = value; }
+            set { _chan1.ColorAttenuation = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public MatChanLights C1ColorLights
         {
             get { return _chan1.ColorLights; }
-            set { if (!CheckIfMetal()) _chan1.ColorLights = value; }
+            set { _chan1.ColorLights = value; }
         }
 
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXColorSrc C1AlphaMaterialSource
         {
             get { return _chan1.AlphaMaterialSource; }
-            set { if (!CheckIfMetal()) _chan1.AlphaMaterialSource = value; }
+            set { _chan1.AlphaMaterialSource = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public bool C1AlphaEnabled
         {
             get { return _chan1.AlphaEnabled; }
-            set { if (!CheckIfMetal()) _chan1.AlphaEnabled = value; }
+            set { _chan1.AlphaEnabled = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXColorSrc C1AlphaAmbientSource
         {
             get { return _chan1.AlphaAmbientSource; }
-            set { if (!CheckIfMetal()) _chan1.AlphaAmbientSource = value; }
+            set { _chan1.AlphaAmbientSource = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXDiffuseFn C1AlphaDiffuseFunction
         {
             get { return _chan1.AlphaDiffuseFunction; }
-            set { if (!CheckIfMetal()) _chan1.AlphaDiffuseFunction = value; }
+            set { _chan1.AlphaDiffuseFunction = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public GXAttnFn C1AlphaAttenuation
         {
             get { return _chan1.AlphaAttenuation; }
-            set { if (!CheckIfMetal()) _chan1.AlphaAttenuation = value; }
+            set { _chan1.AlphaAttenuation = value; }
         }
         [Category("Lighting Channel 1"), Browsable(false)]
         public MatChanLights C1AlphaLights
         {
             get { return _chan1.AlphaLights; }
-            set { if (!CheckIfMetal()) _chan1.AlphaLights = value; }
+            set { _chan1.AlphaLights = value; }
         }
 
         [Category("Lighting Channel 2"), Browsable(false)]
-        public LightingChannelFlags C2Flags { get { return _chan2.Flags; } set { if (!CheckIfMetal()) _chan2.Flags = value; } }
+        public LightingChannelFlags C2Flags { get { return _chan2.Flags; } set { _chan2.Flags = value; } }
         [Category("Lighting Channel 2"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C2MaterialColor { get { return _chan2.MaterialColor; } set { if (!CheckIfMetal()) _chan2.MaterialColor = value; } }
+        public RGBAPixel C2MaterialColor { get { return _chan2.MaterialColor; } set { _chan2.MaterialColor = value; } }
         [Category("Lighting Channel 2"), Browsable(false), TypeConverter(typeof(RGBAStringConverter))]
-        public RGBAPixel C2AmbientColor { get { return _chan2.AmbientColor; } set { if (!CheckIfMetal()) _chan2.AmbientColor = value; } }
+        public RGBAPixel C2AmbientColor { get { return _chan2.AmbientColor; } set { _chan2.AmbientColor = value; } }
 
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXColorSrc C2ColorMaterialSource
         {
             get { return _chan2.ColorMaterialSource; }
-            set { if (!CheckIfMetal()) _chan2.ColorMaterialSource = value; }
+            set { _chan2.ColorMaterialSource = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public bool C2ColorEnabled
         {
             get { return _chan2.ColorEnabled; }
-            set { if (!CheckIfMetal()) _chan2.ColorEnabled = value; }
+            set { _chan2.ColorEnabled = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXColorSrc C2ColorAmbientSource
         {
             get { return _chan2.ColorAmbientSource; }
-            set { if (!CheckIfMetal()) _chan2.ColorAmbientSource = value; }
+            set { _chan2.ColorAmbientSource = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXDiffuseFn C2ColorDiffuseFunction
         {
             get { return _chan2.ColorDiffuseFunction; }
-            set { if (!CheckIfMetal()) _chan2.ColorDiffuseFunction = value; }
+            set { _chan2.ColorDiffuseFunction = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXAttnFn C2ColorAttenuation
         {
             get { return _chan2.ColorAttenuation; }
-            set { if (!CheckIfMetal()) _chan2.ColorAttenuation = value; }
+            set { _chan2.ColorAttenuation = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public MatChanLights C2ColorLights
         {
             get { return _chan2.ColorLights; }
-            set { if (!CheckIfMetal()) _chan2.ColorLights = value; }
+            set { _chan2.ColorLights = value; }
         }
 
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXColorSrc C2AlphaMaterialSource
         {
             get { return _chan2.AlphaMaterialSource; }
-            set { if (!CheckIfMetal()) _chan2.AlphaMaterialSource = value; }
+            set { _chan2.AlphaMaterialSource = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public bool C2AlphaEnabled
         {
             get { return _chan2.AlphaEnabled; }
-            set { if (!CheckIfMetal()) _chan2.AlphaEnabled = value; }
+            set { _chan2.AlphaEnabled = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXColorSrc C2AlphaAmbientSource
         {
             get { return _chan2.AlphaAmbientSource; }
-            set { if (!CheckIfMetal()) _chan2.AlphaAmbientSource = value; }
+            set { _chan2.AlphaAmbientSource = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXDiffuseFn C2AlphaDiffuseFunction
         {
             get { return _chan2.AlphaDiffuseFunction; }
-            set { if (!CheckIfMetal()) _chan2.AlphaDiffuseFunction = value; }
+            set { _chan2.AlphaDiffuseFunction = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public GXAttnFn C2AlphaAttenuation
         {
             get { return _chan2.AlphaAttenuation; }
-            set { if (!CheckIfMetal()) _chan2.AlphaAttenuation = value; }
+            set { _chan2.AlphaAttenuation = value; }
         }
         [Category("Lighting Channel 2"), Browsable(false)]
         public MatChanLights C2AlphaLights
         {
             get { return _chan2.AlphaLights; }
-            set { if (!CheckIfMetal()) _chan2.AlphaLights = value; }
+            set { _chan2.AlphaLights = value; }
         }
 
         #endregion
@@ -570,6 +925,8 @@ Those properties can use this color as an argument. This color is referred to as
                     _texMtxFlags = (uint)value;
                     foreach (MDL0MaterialRefNode r in Children)
                         r._bindState.MatrixMode = r._frameState.MatrixMode = value;
+
+                    SignalPropertyChange();
                 }
             }
         }
@@ -607,6 +964,8 @@ Those properties can use this color as an argument. This color is referred to as
 
                     //if (message.Length != 0)
                     //    MessageBox.Show("The following objects no longer use this material:\n" + message);
+
+                    SignalPropertyChange();
                 }
             }
         }
@@ -616,11 +975,44 @@ Those properties can use this color as an argument. This color is referred to as
         [Category("Material"), Description(@"
 This dictates how many consecutive stages in the attached shader should be applied to produce the final output color.
 For example, if the shader has two stages but this number is 1, the second stage in the shader will be ignored.")]
-        public int ActiveShaderStages { get { return _activeStages; } set { if (!CheckIfMetal()) _activeStages = (byte)(value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value); } }
+        public int ActiveShaderStages
+        {
+            get { return _activeStages; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _activeStages = (byte)(value > ShaderNode.Stages ? ShaderNode.Stages : value < 1 ? (byte)1 : value);
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Material"), Description("The number of active indirect textures in the shader.")]
-        public int IndirectShaderStages { get { return _activeIndStages; } set { if (!CheckIfMetal()) _activeIndStages = (byte)(value > 4 ? (byte)4 : value < 0 ? (byte)0 : value); } }
+        public int IndirectShaderStages
+        {
+            get { return _activeIndStages; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _activeIndStages = (byte)(value > 4 ? (byte)4 : value < 0 ? (byte)0 : value);
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Material"), Description("This will make one, neither or both sides of the linked objects' mesh invisible.")]
-        public CullMode CullMode { get { return _cull; } set { if (!CheckIfMetal()) _cull = value;  } }
+        public CullMode CullMode
+        {
+            get { return _cull; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _cull = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
@@ -628,22 +1020,92 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         [Category("SCN0 References"), 
         Description("This is the index of the SCN0 LightSet that should be applied to this model. Set to -1 if unused.")]
-        public sbyte LightSetIndex { get { return _lightSetIndex; } set { if (!CheckIfMetal()) { _lightSetIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
+        public sbyte LightSetIndex
+        {
+            get { return _lightSetIndex; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _lightSetIndex = value;
+
+                    if (MetalMaterial != null)
+                        MetalMaterial.UpdateAsMetal();
+
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("SCN0 References"), 
         Description("This is the index of the SCN0 Fog that should be applied to this model. Set to -1 if unused.")]
-        public sbyte FogIndex { get { return _fogIndex; } set { if (!CheckIfMetal()) { _fogIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal(); } } }
+        public sbyte FogIndex
+        {
+            get { return _fogIndex; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _fogIndex = value; if (MetalMaterial != null) MetalMaterial.UpdateAsMetal();
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("SCN0 References"), 
         Description("This is the index of the SCN0 Light that should be used for indirect texture 1 if it is a normal map. Set to -1 if unused.")]
-        public sbyte NormMapRefLight1 { get { return _normMapRefLight1; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
+        public sbyte NormMapRefLight1
+        {
+            get { return _normMapRefLight1; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _normMapRefLight1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("SCN0 References"),
         Description("This is the index of the SCN0 Light that should be used for indirect texture 2 if it is a normal map. Set to -1 if unused.")]
-        public sbyte NormMapRefLight2 { get { return _normMapRefLight2; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
+        public sbyte NormMapRefLight2
+        {
+            get { return _normMapRefLight2; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _normMapRefLight1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("SCN0 References"),
         Description("This is the index of the SCN0 Light that should be used for indirect texture 3 if it is a normal map. Set to -1 if unused.")]
-        public sbyte NormMapRefLight3 { get { return _normMapRefLight3; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
+        public sbyte NormMapRefLight3
+        {
+            get { return _normMapRefLight3; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _normMapRefLight1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("SCN0 References"),
         Description("This is the index of the SCN0 Light that should be used for indirect texture 4 if it is a normal map. Set to -1 if unused.")]
-        public sbyte NormMapRefLight4 { get { return _normMapRefLight4; } set { if (!CheckIfMetal()) _normMapRefLight1 = value; } }
+        public sbyte NormMapRefLight4
+        {
+            get { return _normMapRefLight4; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _normMapRefLight1 = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
@@ -653,7 +1115,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         public void UpdateAsMetal()
         {
-            if (!isMetal)
+            if (!IsMetal)
                 return;
 
             _updating = true;
@@ -676,7 +1138,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                         if (s.Stages == 4)
                         {
                             foreach (MDL0MaterialNode y in s._materials)
-                                if (!y.isMetal || y.Children.Count != Children.Count)
+                                if (!y.IsMetal || y.Children.Count != Children.Count)
                                     goto NotFound;
                             ShaderNode = s;
                             found = true;
@@ -796,24 +1258,23 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         public bool CheckIfMetal()
         {
-            if (Model != null && Model._autoMetal)
-            {
-                if (!_updating)
-                {
-                    if (isMetal)
-                        if (MessageBox.Show(null, "This model is currently set to automatically modify metal materials.\nYou cannot make changes unless you turn it off.\nDo you want to turn it off?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                            Model._autoMetal = false;
-                        else
-                            return true;
-                }
-            }
+            //if (Model != null && Model._autoMetal)
+            //{
+            //    if (!_updating)
+            //    {
+            //        if (IsMetal)
+            //            if (MessageBox.Show(null, "This model is currently set to automatically modify metal materials.\nYou cannot make changes unless you turn it off.\nDo you want to turn it off?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            //                Model._autoMetal = false;
+            //            else
+            //                return true;
+            //    }
+            //}
 
-            SignalPropertyChange();
             return false;
         }
 
         [Browsable(false)]
-        public bool isMetal { get { return Name.EndsWith("_ExtMtl"); } }
+        public bool IsMetal { get { return Name.EndsWith("_ExtMtl"); } }
 
         [Browsable(false)]
         public MDL0MaterialNode MetalMaterial
@@ -822,12 +1283,12 @@ For example, if the shader has two stages but this number is 1, the second stage
             {
                 foreach (MDL0MaterialNode t in Model._matList)
                 {
-                    if (!isMetal)
+                    if (!IsMetal)
                     {
-                        if (t.Name.StartsWith(Name) && t.isMetal && (Name.Length + 7 == t.Name.Length))
+                        if (t.Name.StartsWith(Name) && t.IsMetal && (Name.Length + 7 == t.Name.Length))
                             return t;
                     }
-                    else if (Name.StartsWith(t.Name) && !t.isMetal && (t.Name.Length + 7 == Name.Length)) return t;
+                    else if (Name.StartsWith(t.Name) && !t.IsMetal && (t.Name.Length + 7 == Name.Length)) return t;
                 }
                 return null;
             }
@@ -1168,7 +1629,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         #region GLSL
 
-        public new void SignalPropertyChange()
+        public override void SignalPropertyChange()
         {
             _fragShaderSource = null;
             _vertexShaderSource = null;
@@ -1180,16 +1641,26 @@ For example, if the shader has two stages but this number is 1, the second stage
         public string _fragShaderSource;
         public int _fragShaderHandle = 0;
         public int _programHandle = 0;
+        public bool _internalForceRemake = false;
 
         public void UseProgram(MDL0ObjectNode node, bool forceRemake = false)
         {
+            forceRemake = forceRemake || ShaderGenerator._pixelLightingChanged;
+
             //If a rendering property has been changed, the shaders need to be regenerated
             bool updateVert = String.IsNullOrEmpty(_vertexShaderSource) || forceRemake;
             bool updateMatFrag = String.IsNullOrEmpty(_fragShaderSource) || forceRemake;
             bool updateShaderFrag = (ShaderNode != null && ShaderNode._fragShaderSource == null) || forceRemake;
             bool updateProgram = _programHandle <= 0 ||
                 updateVert || _vertexShaderHandle <= 0 ||
-                updateMatFrag || updateShaderFrag || _fragShaderHandle <= 0;
+                updateMatFrag || updateShaderFrag || _fragShaderHandle <= 0 ||
+                _internalForceRemake;
+
+            if (updateShaderFrag)
+                foreach (MDL0MaterialNode m in ShaderNode.Materials)
+                    m._internalForceRemake = true;
+
+            _internalForceRemake = false;
 
             if (updateProgram)
             {
@@ -1439,27 +1910,18 @@ For example, if the shader has two stages but this number is 1, the second stage
         public bool _scn0Applied = false;
         public Vector4 _ambientLight;
         public FogAnimationFrame _fog;
-
         public GLSLLightFrame[] _lights = new GLSLLightFrame[8];
         
-        //One for each texture map
-        //public Vector3[] _refCams = new Vector3[8];
-
-        //First 8 are for each texture map, last 4 are for normal maps
-        //public GLSLLightFrame[] _refLights = new GLSLLightFrame[12];
-
         internal unsafe void ApplySCN(SCN0Node node, float index)
         {
             if (node == null || index <= 0)
             {
                 _scn0Applied = false;
 
-                //Substitute fixed pipeline lighting
+                //Substitute fixed pipeline lighting later
                 _ambientLight = new Vector4();
                 _fog = new FogAnimationFrame();
                 _lights = new GLSLLightFrame[8];
-                //_refCams = new Vector3[8];
-                //_refLights = new GLSLLightFrame[8];
             }
             else
             {
@@ -1495,45 +1957,27 @@ For example, if the shader has two stages but this number is 1, the second stage
                     if (fog != null)
                         _fog = fog.GetAnimFrame(index);
                 }
-
-                //for (int i = 0; i < Children.Count; i++)
-                //{
-                //    MDL0MaterialRefNode mr = (MDL0MaterialRefNode)Children[i];
-                //    if (cameraGroup != null)
-                //    {
-                //        int camIndex = mr.SCN0RefCamera;
-                //        if (camIndex >= 0 && camIndex < cameraGroup.Children.Count)
-                //        {
-                //            SCN0CameraNode camera = camIndex < cameraGroup.Children.Count && camIndex >= 0 ? cameraGroup.Children[camIndex] as SCN0CameraNode : null;
-                //            if (camera != null)
-                //                _refCams[i] = camera.GetPosition(index);
-                //        }
-                //    }
-                //    if (lightGroup != null)
-                //    {
-                //        int lightIndex = mr.SCN0RefLight;
-                //        if (lightIndex >= 0 && lightIndex < lightGroup.Children.Count)
-                //        {
-                //            SCN0LightNode light = lightIndex < lightGroup.Children.Count && lightIndex >= 0 ? lightGroup.Children[lightIndex] as SCN0LightNode : null;
-                //            if (light != null)
-                //                _refLights[i] = light.GetGLSLAnimFrame(index);
-                //        }
-                //    }
-                //}
             }
         }
 
         public void ApplyViewportLighting(ModelPanelViewport viewport)
         {
+            //TODO: support 8 built-in lights instead of just one, and fog?
+            //(like an SCN0 built into the program)
             if (!_scn0Applied)
             {
+                bool pointLight = viewport._posLight._w != 0.0f;
                 _lights[0] = new GLSLLightFrame(
-                    true,
-                    LightType.Directional, 
+                    viewport._lightEnabled,
+                    pointLight ? LightType.Point : LightType.Directional, 
                     new Vector3(viewport._posLight._x, viewport._posLight._y, viewport._posLight._z),
                     new Vector3(),
                     viewport.Diffuse,
+
+                    pointLight ? 
+                    SCN0LightNode.GetLightDistCoefs(viewport.LightPosition._x, 0.5f, DistAttnFn.Medium) : 
                     new Vector3(1.0f, 0.0f, 0.0f),
+
                     new Vector3(1.0f, 0.0f, 0.0f),
                     true,
                     viewport.Specular,
@@ -1568,13 +2012,13 @@ For example, if the shader has two stages but this number is 1, the second stage
             base.Remove();
         }
 
-        public override void RemoveChild(ResourceNode child)
-        {
-            base.RemoveChild(child);
+        //public override void RemoveChild(ResourceNode child)
+        //{
+        //    base.RemoveChild(child);
 
-            if (!_updating && Model._autoMetal && MetalMaterial != null && !this.isMetal)
-                MetalMaterial.UpdateAsMetal();
-        }
+        //    if (!_updating && Model._autoMetal && MetalMaterial != null && !this.isMetal)
+        //        MetalMaterial.UpdateAsMetal();
+        //}
     }
 
     #region Light Channel Info
@@ -1599,7 +2043,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             _alpha = new LightChannelControl(alpha, this);
         }
 
-        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the ColorChannel property in shader stages.")]
+        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the LightChannel property in shader stages.")]
         public bool RasterColorEnabled
         {
             get { return _flags.HasFlag(LightingChannelFlags.UseChanColor); }
@@ -1608,12 +2052,12 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseChanColor;
                 else
-                    _flags &= LightingChannelFlags.UseChanColor;
+                    _flags &= ~LightingChannelFlags.UseChanColor;
 
                 _parent.SignalPropertyChange();
             }
         }
-        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the ColorChannel property in shader stages.")]
+        [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the LightChannel property in shader stages.")]
         public bool RasterAlphaEnabled
         {
             get { return _flags.HasFlag(LightingChannelFlags.UseChanAlpha); }
@@ -1622,7 +2066,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseChanAlpha;
                 else
-                    _flags &= LightingChannelFlags.UseChanAlpha;
+                    _flags &= ~LightingChannelFlags.UseChanAlpha;
 
                 _parent.SignalPropertyChange();
             }
@@ -1636,7 +2080,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseAmbColor;
                 else
-                    _flags &= LightingChannelFlags.UseAmbColor;
+                    _flags &= ~LightingChannelFlags.UseAmbColor;
 
                 _parent.SignalPropertyChange();
             }
@@ -1650,7 +2094,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseAmbAlpha;
                 else
-                    _flags &= LightingChannelFlags.UseAmbAlpha;
+                    _flags &= ~LightingChannelFlags.UseAmbAlpha;
 
                 _parent.SignalPropertyChange();
             }
@@ -1664,7 +2108,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseMatColor;
                 else
-                    _flags &= LightingChannelFlags.UseMatColor;
+                    _flags &= ~LightingChannelFlags.UseMatColor;
 
                 _parent.SignalPropertyChange();
             }
@@ -1678,7 +2122,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                 if (value)
                     _flags |= LightingChannelFlags.UseMatAlpha;
                 else
-                    _flags &= LightingChannelFlags.UseMatAlpha;
+                    _flags &= ~LightingChannelFlags.UseMatAlpha;
 
                 _parent.SignalPropertyChange();
             }

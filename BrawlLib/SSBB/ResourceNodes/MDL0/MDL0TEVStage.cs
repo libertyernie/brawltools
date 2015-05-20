@@ -103,7 +103,7 @@ If clamped, output is restrained to the range [0.0, 1.0].
 Note that input is not limited to color values; you can use alpha for all three channels as well.
 
 If you're having a hard time visualizing the output of this equation, think in terms of 0 and 1, where 0 is black and 1 is white.
-If the input is 0, nothing multiplied by it passes through. If input is 1, any value multiplied by it will pass through.";
+If the input is 0, no color multiplied by it can change the color from black. If input is 1, any color value multiplied by it will pass through.";
 
         const string eqAlpha =
 @"Shader stages run this equation to blend alpha values and create the final transparency value of each pixel fragment on a mesh.
@@ -122,7 +122,7 @@ If clamped, output is restrained to the range [0.0, 1.0].
 Note that input is not limited to alpha; you can use Red, Green or Blue as well (separately).
 
 If you're having a hard time visualizing the output of this equation, think in terms of 0 and 1, where 0 is invisible and 1 is fully visible.
-If the input is 0, nothing multiplied by it can affect transparency. If input is 1, any value multiplied by it will affect transparency.";
+If the input is 0, nothing multiplied by it can affect transparency. If input is 1, any value multiplied by it will affect transparency unless that value is also 1.";
 
         //[Category("c TEV Color Env"), Description(eqClr)]
         //public string ColorOutput { get { return (ColorClamp ? "clamp(" : "") + "(d " + (ColorSubtract ? "-" : "+") + " ((1 - c) * a + c * b)" + ((int)ColorBias == 1 ? " + 0.5" : (int)ColorBias == 2 ? " - 0.5" : "") + ") * " + ((int)ColorScale == 3 ? "0.5" : (int)ColorScale == 0 ? "1" : ((int)ColorScale * 2).ToString()) + (ColorClamp ? ");" : ";"); } }
@@ -416,11 +416,59 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
         //Don't get any strings from this node!
         internal override void GetStrings(StringTable table) { }
 
-        public new void SignalPropertyChange()
+        public override void SignalPropertyChange()
         {
             if (Parent != null)
                 ((MDL0ShaderNode)Parent)._fragShaderSource = null;
+            
             base.SignalPropertyChange();
+        }
+
+        public override void Remove()
+        {
+            MDL0ShaderNode parent = Parent as MDL0ShaderNode;
+            base.Remove();
+            if (parent != null)
+                parent._fragShaderSource = null;
+            SignalPropertyChange();
+        }
+
+        public override bool MoveDown()
+        {
+            bool b = base.MoveDown();
+            MDL0ShaderNode parent = Parent as MDL0ShaderNode;
+            if (parent != null)
+                parent._fragShaderSource = null;
+            SignalPropertyChange();
+            return b;
+        }
+
+        public override bool MoveUp()
+        {
+            bool b = base.MoveUp();
+            MDL0ShaderNode parent = Parent as MDL0ShaderNode;
+            if (parent != null)
+                parent._fragShaderSource = null;
+            SignalPropertyChange();
+            return b;
+        }
+
+        public override void DoMoveDown(bool select)
+        {
+            base.DoMoveDown(select);
+            MDL0ShaderNode parent = Parent as MDL0ShaderNode;
+            if (parent != null)
+                parent._fragShaderSource = null;
+            SignalPropertyChange();
+        }
+
+        public override void DoMoveUp(bool select)
+        {
+            base.DoMoveUp(select);
+            MDL0ShaderNode parent = Parent as MDL0ShaderNode;
+            if (parent != null)
+                parent._fragShaderSource = null;
+            SignalPropertyChange();
         }
 
         public bool AnyTextureSourceUsed()

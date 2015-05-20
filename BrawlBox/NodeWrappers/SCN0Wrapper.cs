@@ -63,35 +63,35 @@ namespace BrawlBox.NodeWrappers
             SCN0EntryNode node = ((SCN0Node)_resource).CreateResource<SCN0LightSetNode>("NewLightSet");
             BaseWrapper res = this.FindResource(node, true);
             res.EnsureVisible();
-            res.TreeView.SelectedNode = res;
+            //res.TreeView.SelectedNode = res;
         }
         public void newAmbLight()
         {
             SCN0EntryNode node = ((SCN0Node)_resource).CreateResource<SCN0AmbientLightNode>("NewAmbientLight");
             BaseWrapper res = this.FindResource(node, true);
             res.EnsureVisible();
-            res.TreeView.SelectedNode = res;
+            //res.TreeView.SelectedNode = res;
         }
         public void newLight()
         {
             SCN0EntryNode node = ((SCN0Node)_resource).CreateResource<SCN0LightNode>("NewLight");
             BaseWrapper res = this.FindResource(node, true);
             res.EnsureVisible();
-            res.TreeView.SelectedNode = res;
+            //res.TreeView.SelectedNode = res;
         }
         public void newFogSet()
         {
             SCN0EntryNode node = ((SCN0Node)_resource).CreateResource<SCN0FogNode>("NewFogSet");
             BaseWrapper res = this.FindResource(node, true);
             res.EnsureVisible();
-            res.TreeView.SelectedNode = res;
+            //res.TreeView.SelectedNode = res;
         }
         public void newCamera()
         {
             SCN0EntryNode node = ((SCN0Node)_resource).CreateResource<SCN0CameraNode>("NewCamera");
             BaseWrapper res = this.FindResource(node, true);
             res.EnsureVisible();
-            res.TreeView.SelectedNode = res;
+            //res.TreeView.SelectedNode = res;
         }
     }
 

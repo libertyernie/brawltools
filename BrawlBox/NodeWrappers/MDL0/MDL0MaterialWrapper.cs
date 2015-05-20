@@ -50,8 +50,8 @@ namespace BrawlBox.NodeWrappers
                 node.Default();
                 _resource.SignalPropertyChange();
 
-                if (node.Model.AutoMetalMaterials && ((MDL0MaterialNode)node.Parent).MetalMaterial != null)
-                    ((MDL0MaterialNode)node.Parent).MetalMaterial.UpdateAsMetal();
+                //if (node.Model.AutoMetalMaterials && ((MDL0MaterialNode)node.Parent).MetalMaterial != null)
+                //    ((MDL0MaterialNode)node.Parent).MetalMaterial.UpdateAsMetal();
 
                 Nodes[Nodes.Count - 1].EnsureVisible();
                 //TreeView.SelectedNode = Nodes[Nodes.Count - 1];

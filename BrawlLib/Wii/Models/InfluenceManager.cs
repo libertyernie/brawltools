@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
 using System.Windows.Forms;
+using System.ComponentModel;
 
 namespace BrawlLib.Wii.Models
 {
@@ -15,7 +16,7 @@ namespace BrawlLib.Wii.Models
         internal List<Influence> _influences = new List<Influence>();
         public List<Influence> Influences { get { return _influences; } }
 
-        public Influence FindOrCreate(Influence inf, bool increaseRefs)
+        public Influence FindOrCreate(Influence inf)
         {
             //Search for influence in list. If it exists, return it.
             foreach (Influence i in _influences)
@@ -25,20 +26,18 @@ namespace BrawlLib.Wii.Models
             //Not found, add it to the list.
             _influences.Add(inf);
 
-            if (increaseRefs)
-                inf._refCount++;
-
             return inf;
         }
 
         public int Count { get { return _influences.Count; } }
         
-        public void Remove(Influence inf)
+        public void Remove(Influence inf, IMatrixNodeUser user)
         {
             for (int i = 0; i < Count; i++)
-                if (object.ReferenceEquals(_influences[i], inf))
+                if (object.ReferenceEquals(_influences[i], inf) && inf.Users.Contains(user))
                 {
-                    if (inf._refCount-- <= 0)
+                    inf.Users.Remove(user);
+                    if (inf.Users.Count <= 0)
                         _influences.RemoveAt(i);
                     break;
                 }
@@ -61,7 +60,7 @@ namespace BrawlLib.Wii.Models
             int i = 0;
             while (i < Count)
             {
-                if (_influences[i].ReferenceCount <= 0)
+                if (_influences[i].Users.Count <= 0)
                     _influences.RemoveAt(i);
                 else
                     i++;
@@ -77,7 +76,6 @@ namespace BrawlLib.Wii.Models
         public override string ToString() { return ""; }
 
         internal List<IMatrixNodeUser> _references = new List<IMatrixNodeUser>();
-        internal int _refCount;
         internal int _index;
         internal Matrix _matrix;
         internal Matrix? _invMatrix;
@@ -119,6 +117,7 @@ namespace BrawlLib.Wii.Models
         //Does not modify any locked weights.
         public void Normalize() 
         {
+            //Denominator and numerator to convert each unlocked weight with
             float denom = 0.0f, num = 1.0f;
 
             foreach (BoneWeight b in Weights)
@@ -127,9 +126,10 @@ namespace BrawlLib.Wii.Models
                 else
                     denom += b.Weight;
 
+            //Don't do anything if all weights are locked
             if (denom != 0.0f && num != 0.0f)
                 foreach (BoneWeight b in Weights)
-                    if (!b.Locked)
+                    if (!b.Locked) //Only normalize unlocked weights used in the calculation
                         b.Weight = (float)Math.Round(b.Weight / denom * num, 7);
         }
 
@@ -142,10 +142,11 @@ namespace BrawlLib.Wii.Models
             return i;
         }
 
-        public int ReferenceCount { get { return _refCount; } set { _refCount = value; } }
+        [Browsable(false)]
         public int NodeIndex { get { return _index; } }
-
+        [Browsable(false)]
         public Matrix Matrix { get { return _matrix; } }
+        [Browsable(false)]
         public Matrix InverseMatrix 
         {
             get
@@ -166,9 +167,11 @@ namespace BrawlLib.Wii.Models
             }
         }
         
+        [Browsable(false)]
         public bool IsPrimaryNode { get { return false; } }
-
+        [Browsable(false)]
         public bool IsWeighted { get { return _weights.Count > 1; } }
+        [Browsable(false)]
         public IBoneNode Bone { get { return _weights[0].Bone; } }
 
         public Influence()
@@ -206,7 +209,7 @@ namespace BrawlLib.Wii.Models
                     if (w.Bone != null)
                         _matrix += (w.Bone.Matrix * w.Bone.InverseBindMatrix) * w.Weight;
 
-                //The inverse matrix is only used for unweighting vertices so we don't need to set it now
+                //The inverse matrix is only used for unweighting vertices and normals so we don't need to set it now
                 _invMatrix = null;
             }
             else if (_weights.Count == 1)
@@ -227,9 +230,9 @@ namespace BrawlLib.Wii.Models
             if (i1._weights.Count > i2._weights.Count)
                 return 1;
 
-            if (i1._refCount > i2._refCount)
+            if (i1.Users.Count > i2.Users.Count)
                 return -1;
-            if (i1._refCount < i2._refCount)
+            if (i1.Users.Count < i2.Users.Count)
                 return 1;
 
             return 0;

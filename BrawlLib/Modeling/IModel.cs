@@ -16,8 +16,10 @@ namespace BrawlLib.Modeling
         InfluenceManager Influences { get; }
         IBoneNode[] BoneCache { get; }
         IBoneNode[] RootBones { get; }
+        IObject[] Objects { get; }
+        int SelectedObjectIndex { get; set; }
         bool IsTargetModel { get; set; }
-        
+
         void ResetToBindState();
         void ApplyCHR(CHR0Node node, float index);
         void ApplySRT(SRT0Node node, float index);
@@ -26,15 +28,11 @@ namespace BrawlLib.Modeling
         void ApplyVIS(VIS0Node node, float index);
         void ApplyCLR(CLR0Node node, float index);
         void ApplySCN(SCN0Node node, float index);
-
-        void UpdateBillboards(ModelPanelViewport v);
+        
         void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera);
         void RenderNormals();
         void RenderBoxes(bool model, bool obj, bool bone, bool bindState);
         void RenderBones(ModelPanelViewport v);
-
-        int SelectedObjectIndex { get; set; }
-        IObject[] Objects { get; }
     }
 
     [Serializable]
@@ -53,6 +51,7 @@ namespace BrawlLib.Modeling
         public bool _applyBillboardBones = true;
         public bool _renderShaders = true;
         public bool _scaleBones = false;
+        public bool _renderBonesAsPoints = false;
 
         public ModelRenderAttributes() { }
         public ModelRenderAttributes(SerializationInfo info, StreamingContext ctxt)

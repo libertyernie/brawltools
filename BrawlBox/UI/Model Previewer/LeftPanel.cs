@@ -65,6 +65,8 @@ namespace System.Windows.Forms
         private Panel panel2;
         private TextBox txtSearchAnim;
         public CheckBox chkContains;
+        private Splitter spltDrawCalls;
+        public CheckedListBox lstDrawCalls;
         private Panel pnlObjects;
 
         private void InitializeComponent()
@@ -74,6 +76,8 @@ namespace System.Windows.Forms
             this.pnlObjects = new System.Windows.Forms.Panel();
             this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.lstObjects = new System.Windows.Forms.CheckedListBox();
+            this.spltDrawCalls = new System.Windows.Forms.Splitter();
+            this.lstDrawCalls = new System.Windows.Forms.CheckedListBox();
             this.chkAllObj = new System.Windows.Forms.CheckBox();
             this.chkSyncVis = new System.Windows.Forms.CheckBox();
             this.btnObjects = new System.Windows.Forms.Button();
@@ -84,6 +88,9 @@ namespace System.Windows.Forms
             this.AnimListNewAnim = new System.Windows.Forms.ToolStripMenuItem();
             this.inModelsBRRESToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.inExternalFileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.panel2 = new System.Windows.Forms.Panel();
+            this.txtSearchAnim = new System.Windows.Forms.TextBox();
+            this.chkContains = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
             this.btnSaveAnims = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
@@ -118,17 +125,14 @@ namespace System.Windows.Forms
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.spltObjTex = new System.Windows.Forms.ProxySplitter();
             this.spltAnimObj = new System.Windows.Forms.ProxySplitter();
-            this.panel2 = new System.Windows.Forms.Panel();
-            this.txtSearchAnim = new System.Windows.Forms.TextBox();
-            this.chkContains = new System.Windows.Forms.CheckBox();
             this.pnlObjects.SuspendLayout();
             this.pnlAnims.SuspendLayout();
             this.ctxAnimList.SuspendLayout();
+            this.panel2.SuspendLayout();
             this.panel1.SuspendLayout();
             this.ctxTextures.SuspendLayout();
             this.pnlTextures.SuspendLayout();
             this.ctxAnim.SuspendLayout();
-            this.panel2.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlObjects
@@ -136,6 +140,8 @@ namespace System.Windows.Forms
             this.pnlObjects.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pnlObjects.Controls.Add(this.overObjPnl);
             this.pnlObjects.Controls.Add(this.lstObjects);
+            this.pnlObjects.Controls.Add(this.spltDrawCalls);
+            this.pnlObjects.Controls.Add(this.lstDrawCalls);
             this.pnlObjects.Controls.Add(this.chkAllObj);
             this.pnlObjects.Controls.Add(this.chkSyncVis);
             this.pnlObjects.Controls.Add(this.btnObjects);
@@ -151,7 +157,7 @@ namespace System.Windows.Forms
             this.overObjPnl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.overObjPnl.Location = new System.Drawing.Point(0, 61);
             this.overObjPnl.Name = "overObjPnl";
-            this.overObjPnl.Size = new System.Drawing.Size(135, 87);
+            this.overObjPnl.Size = new System.Drawing.Size(135, 50);
             this.overObjPnl.TabIndex = 8;
             this.overObjPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overObjPnl_Paint);
             // 
@@ -164,12 +170,36 @@ namespace System.Windows.Forms
             this.lstObjects.Location = new System.Drawing.Point(0, 61);
             this.lstObjects.Margin = new System.Windows.Forms.Padding(0);
             this.lstObjects.Name = "lstObjects";
-            this.lstObjects.Size = new System.Drawing.Size(135, 87);
+            this.lstObjects.Size = new System.Drawing.Size(135, 50);
             this.lstObjects.TabIndex = 4;
             this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstPolygons_ItemCheck);
             this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstPolygons_SelectedValueChanged);
             this.lstObjects.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstPolygons_KeyDown);
             this.lstObjects.Leave += new System.EventHandler(this.lstObjects_Leave);
+            // 
+            // spltDrawCalls
+            // 
+            this.spltDrawCalls.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.spltDrawCalls.Location = new System.Drawing.Point(0, 111);
+            this.spltDrawCalls.Name = "spltDrawCalls";
+            this.spltDrawCalls.Size = new System.Drawing.Size(135, 3);
+            this.spltDrawCalls.TabIndex = 9;
+            this.spltDrawCalls.TabStop = false;
+            this.spltDrawCalls.Visible = false;
+            // 
+            // lstDrawCalls
+            // 
+            this.lstDrawCalls.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.lstDrawCalls.FormattingEnabled = true;
+            this.lstDrawCalls.IntegralHeight = false;
+            this.lstDrawCalls.Location = new System.Drawing.Point(0, 114);
+            this.lstDrawCalls.Name = "lstDrawCalls";
+            this.lstDrawCalls.Size = new System.Drawing.Size(135, 34);
+            this.lstDrawCalls.TabIndex = 0;
+            this.lstDrawCalls.Visible = false;
+            this.lstDrawCalls.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstDrawCalls_ItemCheck);
+            this.lstDrawCalls.SelectedIndexChanged += new System.EventHandler(this.lstDrawCalls_SelectedIndexChanged);
+            this.lstDrawCalls.DoubleClick += new System.EventHandler(this.lstDrawCalls_DoubleClick);
             // 
             // chkAllObj
             // 
@@ -289,6 +319,43 @@ namespace System.Windows.Forms
             this.inExternalFileToolStripMenuItem.Visible = false;
             this.inExternalFileToolStripMenuItem.Click += new System.EventHandler(this.inExternalFileToolStripMenuItem_Click);
             // 
+            // panel2
+            // 
+            this.panel2.Controls.Add(this.txtSearchAnim);
+            this.panel2.Controls.Add(this.chkContains);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel2.Location = new System.Drawing.Point(0, 42);
+            this.panel2.Name = "panel2";
+            this.panel2.Size = new System.Drawing.Size(135, 21);
+            this.panel2.TabIndex = 32;
+            // 
+            // txtSearchAnim
+            // 
+            this.txtSearchAnim.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.txtSearchAnim.ForeColor = System.Drawing.Color.Gray;
+            this.txtSearchAnim.Location = new System.Drawing.Point(0, 0);
+            this.txtSearchAnim.Name = "txtSearchAnim";
+            this.txtSearchAnim.Size = new System.Drawing.Size(65, 20);
+            this.txtSearchAnim.TabIndex = 30;
+            this.txtSearchAnim.Text = "Search for an animation...";
+            this.txtSearchAnim.TextChanged += new System.EventHandler(this.txtSearchAnim_TextChanged);
+            this.txtSearchAnim.Enter += new System.EventHandler(this.txtSearchAnim_Enter);
+            this.txtSearchAnim.Leave += new System.EventHandler(this.txtSearchAnim_Leave);
+            // 
+            // chkContains
+            // 
+            this.chkContains.AutoSize = true;
+            this.chkContains.Dock = System.Windows.Forms.DockStyle.Right;
+            this.chkContains.Location = new System.Drawing.Point(65, 0);
+            this.chkContains.Margin = new System.Windows.Forms.Padding(0);
+            this.chkContains.Name = "chkContains";
+            this.chkContains.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
+            this.chkContains.Size = new System.Drawing.Size(70, 21);
+            this.chkContains.TabIndex = 32;
+            this.chkContains.Text = "Contains";
+            this.chkContains.UseVisualStyleBackColor = true;
+            this.chkContains.CheckedChanged += new System.EventHandler(this.chkContains_CheckedChanged);
+            // 
             // panel1
             // 
             this.panel1.Controls.Add(this.btnSaveAnims);
@@ -300,20 +367,20 @@ namespace System.Windows.Forms
             this.panel1.Size = new System.Drawing.Size(135, 21);
             this.panel1.TabIndex = 27;
             // 
-            // SaveAnims
+            // btnSaveAnims
             // 
             this.btnSaveAnims.Location = new System.Drawing.Point(41, 0);
-            this.btnSaveAnims.Name = "SaveAnims";
+            this.btnSaveAnims.Name = "btnSaveAnims";
             this.btnSaveAnims.Size = new System.Drawing.Size(41, 21);
             this.btnSaveAnims.TabIndex = 28;
             this.btnSaveAnims.Text = "Save";
             this.btnSaveAnims.UseVisualStyleBackColor = true;
             this.btnSaveAnims.Click += new System.EventHandler(this.button2_Click);
             // 
-            // Load
+            // btnLoad
             // 
             this.btnLoad.Location = new System.Drawing.Point(1, 0);
-            this.btnLoad.Name = "Load";
+            this.btnLoad.Name = "btnLoad";
             this.btnLoad.Size = new System.Drawing.Size(41, 21);
             this.btnLoad.TabIndex = 27;
             this.btnLoad.Text = "Load";
@@ -603,43 +670,6 @@ namespace System.Windows.Forms
             this.spltAnimObj.TabIndex = 1;
             this.spltAnimObj.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltAnimObj_Dragged);
             // 
-            // panel2
-            // 
-            this.panel2.Controls.Add(this.txtSearchAnim);
-            this.panel2.Controls.Add(this.chkContains);
-            this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 42);
-            this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(135, 21);
-            this.panel2.TabIndex = 32;
-            // 
-            // txtSearchAnim
-            // 
-            this.txtSearchAnim.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtSearchAnim.ForeColor = System.Drawing.Color.Gray;
-            this.txtSearchAnim.Location = new System.Drawing.Point(0, 0);
-            this.txtSearchAnim.Name = "txtSearchAnim";
-            this.txtSearchAnim.Size = new System.Drawing.Size(65, 20);
-            this.txtSearchAnim.TabIndex = 30;
-            this.txtSearchAnim.Text = "Search for an animation...";
-            this.txtSearchAnim.TextChanged += new System.EventHandler(this.txtSearchAnim_TextChanged);
-            this.txtSearchAnim.Enter += new System.EventHandler(this.txtSearchAnim_Enter);
-            this.txtSearchAnim.Leave += new System.EventHandler(this.txtSearchAnim_Leave);
-            // 
-            // chkContains
-            // 
-            this.chkContains.AutoSize = true;
-            this.chkContains.Dock = System.Windows.Forms.DockStyle.Right;
-            this.chkContains.Location = new System.Drawing.Point(65, 0);
-            this.chkContains.Margin = new System.Windows.Forms.Padding(0);
-            this.chkContains.Name = "chkContains";
-            this.chkContains.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.chkContains.Size = new System.Drawing.Size(70, 21);
-            this.chkContains.TabIndex = 32;
-            this.chkContains.Text = "Contains";
-            this.chkContains.UseVisualStyleBackColor = true;
-            this.chkContains.CheckedChanged += new System.EventHandler(this.chkContains_CheckedChanged);
-            // 
             // LeftPanel
             // 
             this.Controls.Add(this.pnlObjects);
@@ -652,12 +682,12 @@ namespace System.Windows.Forms
             this.pnlObjects.ResumeLayout(false);
             this.pnlAnims.ResumeLayout(false);
             this.ctxAnimList.ResumeLayout(false);
+            this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
             this.panel1.ResumeLayout(false);
             this.ctxTextures.ResumeLayout(false);
             this.pnlTextures.ResumeLayout(false);
             this.ctxAnim.ResumeLayout(false);
-            this.panel2.ResumeLayout(false);
-            this.panel2.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -674,9 +704,10 @@ namespace System.Windows.Forms
             set { _mainWindow = value; }
         }
 
-        private ListViewGroup _AnimGroupBRRES = new ListViewGroup("In BRRES");
-        private ListViewGroup _AnimGroupNotBRRES = new ListViewGroup("Not In BRRES");
-        private ListViewGroup _AnimGroupExternal = new ListViewGroup("External File");
+        public ListViewGroup _AnimGroupBRRES = new ListViewGroup("In BRRES");
+        public ListViewGroup _AnimGroupNotBRRES = new ListViewGroup("Not In BRRES");
+        //private ListViewGroup _AnimGroupExternal = new ListViewGroup("External File");
+        public List<ListViewGroup> _AnimGroupsExternal = new List<ListViewGroup>();
 
         public bool _syncPat0 = false;
         private bool _updating = false;
@@ -767,7 +798,7 @@ namespace System.Windows.Forms
             InitializeComponent();
             listAnims.Groups.Add(_AnimGroupBRRES);
             listAnims.Groups.Add(_AnimGroupNotBRRES);
-            listAnims.Groups.Add(_AnimGroupExternal);
+            //listAnims.Groups.Add(_AnimGroupExternal);
         }
 
         public bool LoadAnims(
@@ -775,12 +806,10 @@ namespace System.Windows.Forms
             NW4RAnimType type,
             string compare,
             bool contains,
-            bool external,
-            bool inBRRES)
+            bool inBRRES,
+            ListViewGroup externalGroup = null)
         {
-            bool ib = !external && (inBRRES || (TargetModel != null &&
-                TargetModel is MDL0Node &&
-                node == ((MDL0Node)TargetModel).BRESNode));
+            bool ib = inBRRES || (TargetModel != null && TargetModel is MDL0Node && node == ((MDL0Node)TargetModel).BRESNode);
 
             if (!_mainWindow.chkBRRESAnims.Checked && ib)
                 return false;
@@ -794,14 +823,9 @@ namespace System.Windows.Forms
                 case ResourceType.U8Folder:
                 case ResourceType.BRES:
                 case ResourceType.BRESGroup:
-                //default:
                     foreach (ResourceNode n in node.Children)
-                        found = LoadAnims(n, type, compare, contains, external, ib) || found;
+                        found = LoadAnims(n, type, compare, contains, ib, externalGroup) || found;
                     break;
-
-                case ResourceType.MDef:
-                    return false;
-
                 case ResourceType.CHR0: found = true; if (type == NW4RAnimType.CHR) goto Add; break;
                 case ResourceType.SRT0: found = true; if (type == NW4RAnimType.SRT) goto Add; break;
                 case ResourceType.SHP0: found = true; if (type == NW4RAnimType.SHP) goto Add; break;
@@ -813,9 +837,15 @@ namespace System.Windows.Forms
             return found;
             
             Add:
-            if (String.IsNullOrEmpty(compare) || (contains && node.Name.Contains(compare, StringComparison.OrdinalIgnoreCase)) || node.Name.StartsWith(compare, StringComparison.OrdinalIgnoreCase))
-                listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, external ? _AnimGroupExternal : ib ? _AnimGroupBRRES : _AnimGroupNotBRRES) { Tag = node });
-            
+            if (String.IsNullOrEmpty(compare) ||
+                (contains && node.Name.Contains(compare, StringComparison.OrdinalIgnoreCase)) ||
+                node.Name.StartsWith(compare, StringComparison.OrdinalIgnoreCase))
+            {
+                ListViewGroup u = externalGroup != null ? externalGroup : ib ? _AnimGroupBRRES : _AnimGroupNotBRRES;
+                if (u == null)
+                    Console.WriteLine();
+                listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, u) { Tag = node });
+            }
             return found;
         }
 
@@ -824,7 +854,7 @@ namespace System.Windows.Forms
         {
             _mainWindow.Updating = true;
 
-            string Name = listAnims.SelectedItems != null && listAnims.SelectedItems.Count > 0 ? listAnims.SelectedItems[0].Tag.ToString() : null;
+            string name = listAnims.SelectedItems != null && listAnims.SelectedItems.Count > 0 ? listAnims.SelectedItems[0].Tag.ToString() : null;
             int frame = CurrentFrame;
 
             string text = txtSearchAnim.Text;
@@ -833,20 +863,38 @@ namespace System.Windows.Forms
             listAnims.BeginUpdate();
             listAnims.Items.Clear();
 
+            listAnims.Groups.Clear();
+
             if (TargetModel != null && TargetModel is MDL0Node)
             {
+                _AnimGroupBRRES.Header = String.Format("In BRRES ({0})", TargetModel.ToString());
+                _AnimGroupNotBRRES.Header = String.Format("Not in BRRES ({0})", TargetModel.ToString());
+
+                listAnims.Groups.Add(_AnimGroupBRRES);
+                listAnims.Groups.Add(_AnimGroupNotBRRES);
+
                 ResourceNode node = _mainWindow.chkNonBRRESAnims.Checked ? ((MDL0Node)TargetModel).RootNode : ((MDL0Node)TargetModel).BRESNode;
-                LoadAnims(node, type, addAll ? null : text, chkContains.Checked, false, false);
+                LoadAnims(node, type, addAll ? null : text, chkContains.Checked, false);
             }
 
-            if (_mainWindow.ExternalAnimationsNode != null && _mainWindow.chkExternalAnims.Checked)
-                LoadAnims(_mainWindow.ExternalAnimationsNode.RootNode, type, addAll ? null : text, chkContains.Checked, true, false);
+            if (_mainWindow.chkExternalAnims.Checked)
+            {
+                ResourceNode root = TargetModel == null ? null : ((ResourceNode)TargetModel).RootNode;
+                foreach (ResourceNode r in _mainWindow._openedFiles)
+                    if (r != root && r != null)
+                    {
+                        ListViewGroup g = new ListViewGroup(r.Name);
+                        listAnims.Groups.Add(g);
+                        _AnimGroupsExternal.Add(g);
+                        LoadAnims(r, type, addAll ? null : text, chkContains.Checked, false, g);
+                    }
+            }
 
             listAnims.EndUpdate();
 
             //Reselect the animation
             for (int i = 0; i < listAnims.Items.Count; i++)
-                if (listAnims.Items[i].Tag.ToString() == Name)
+                if (listAnims.Items[i].Tag.ToString() == name)
                 {
                     listAnims.Items[i].Selected = true;
                     break;
@@ -857,6 +905,21 @@ namespace System.Windows.Forms
 
             if ((_mainWindow.GetAnimation(TargetAnimType) == null) && (listAnims.SelectedItems.Count == 0))
                 _mainWindow.GetFiles(NW4RAnimType.None);
+        }
+
+        public void LoadAnimations(ResourceNode node)
+        {
+            if (_mainWindow.chkExternalAnims.Checked && node != null)
+            {
+                ResourceNode root = TargetModel == null ? null : ((ResourceNode)TargetModel).RootNode;
+                if (node.RootNode != root)
+                {
+                    ListViewGroup g = new ListViewGroup(node.Name);
+                    listAnims.Groups.Add(g);
+                    _AnimGroupsExternal.Add(g);
+                    LoadAnims(node, TargetAnimType, null, false, false, g);
+                }
+            }
         }
 
         public void UpdateSRT0Selection(SRT0Node selection)
@@ -901,7 +964,7 @@ namespace System.Windows.Forms
             {
                 //Add textures the selected object uses
                 if (_selectedObject is MDL0ObjectNode)
-                    foreach (MDL0MaterialRefNode tref in ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Children)
+                    foreach (MDL0MaterialRefNode tref in ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode.Children)
                         lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
             }
             else if (TargetModel != null)
@@ -945,16 +1008,17 @@ namespace System.Windows.Forms
 					lstObjects.Items.Add(obj, obj._render);
             else if (TargetModel != null)
             {
-                ResourceNode n;
                 UpdateAnimations(TargetAnimType);
                 if (TargetModel is MDL0Node)
                 {
-                    if ((n = ((MDL0Node)TargetModel).FindChild("Objects", false)) != null)
-                        foreach (MDL0ObjectNode poly in n.Children)
-                            lstObjects.Items.Add(poly, poly._render);
+                    MDL0Node model = TargetModel as MDL0Node;
 
-                    if ((n = ((MDL0Node)TargetModel).FindChild("Textures", false)) != null)
-                        foreach (MDL0TextureNode tref in n.Children)
+                    if (model._objList != null)
+                        foreach (MDL0ObjectNode poly in model._objList)
+                            lstObjects.Items.Add(poly, poly.IsRendering);
+
+                    if (model._texList != null)
+                        foreach (MDL0TextureNode tref in model._texList)
                             lstTextures.Items.Add(tref, tref.Enabled);
                 }
             }
@@ -1033,9 +1097,23 @@ namespace System.Windows.Forms
         {
             if ((_selectedObject = lstObjects.SelectedItem as IObject) != null)
             {
-                if (_selectedObject is MDL0ObjectNode)
-                    TargetTexRef = _selectedTexture != null ? ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                if (lstDrawCalls.Visible = spltDrawCalls.Visible =
+                    _selectedObject is MDL0ObjectNode)
+                {
+                    MDL0ObjectNode o = _selectedObject as MDL0ObjectNode;
+
+                    _updating = true;
+
+                    lstDrawCalls.DataSource = o._drawCalls;
+                    lstDrawCalls.SelectedIndex = o._drawCalls.Count > 0 ? 0 : -1;
+                    for (int i = 0; i < lstDrawCalls.Items.Count; i++)
+                        lstDrawCalls.SetItemChecked(i, o._drawCalls[i]._render);
+
+                    _updating = false;
+                }
             }
+            else
+                lstDrawCalls.Visible = spltDrawCalls.Visible = false;
 
             _mainWindow.SelectedPolygonChanged();
             overObjPnl.Invalidate();
@@ -1050,38 +1128,29 @@ namespace System.Windows.Forms
 
         private void lstPolygons_ItemCheck(object sender, ItemCheckEventArgs e)
         {
+            if (_updating)
+                return;
+
             MDL0ObjectNode poly = lstObjects.Items[e.Index] as MDL0ObjectNode;
 
             if (poly != null)
             {
-                poly._render = e.NewValue == CheckState.Checked;
+                bool matches = poly.IsRendering == (e.NewValue == CheckState.Checked);
 
-                if (chkSyncVis.Checked && poly._visBoneNode != null)
+                if (!matches)
+                    poly.IsRendering = e.NewValue == CheckState.Checked;
+
+                if (poly == SelectedObject)
                 {
-                    bool temp = false;
-                    if (!_mainWindow.VIS0Updating)
-                    {
-                        _mainWindow.VIS0Updating = true;
-                        temp = true;
-                    }
-
-                    if (_mainWindow.VIS0Indices.ContainsKey(poly._visBoneNode.Name))
-                        foreach (int i in _mainWindow.VIS0Indices[poly._visBoneNode.Name])
-                            if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
-                                lstObjects.SetItemChecked(i, poly._render);
-
-                    if (temp)
-                    {
-                        _mainWindow.VIS0Updating = false;
-                        temp = false;
-                    }
-
-                    if (!_mainWindow.VIS0Updating)
-                    {
-                        _polyIndex = e.Index;
-                        _mainWindow.UpdateVis0(e);
-                    }
+                    _updating = true;
+                    for (int i = 0; i < lstDrawCalls.Items.Count; i++)
+                        if (i < poly._drawCalls.Count)
+                            lstDrawCalls.SetItemChecked(i, poly._drawCalls[i]._render);
+                    _updating = false;
                 }
+
+                if (!matches && chkSyncVis.Checked)
+                    ChecksChanged(poly);
             }
 
             CollisionObject obj = lstObjects.Items[e.Index] as CollisionObject;
@@ -1091,6 +1160,52 @@ namespace System.Windows.Forms
             if (!_updating)
                 _mainWindow.ModelPanel.Invalidate();
         }
+
+        public void ChecksChanged(MDL0ObjectNode poly)
+        {
+            bool temp = false;
+            if (!_mainWindow.VIS0Updating)
+            {
+                _mainWindow.VIS0Updating = true;
+                temp = true;
+            }
+
+            foreach (DrawCall d in poly._drawCalls)
+                if (_mainWindow.VIS0Indices.ContainsKey(d.VisibilityBone))
+                {
+                    var objects = _mainWindow.VIS0Indices[d.VisibilityBone];
+                    foreach (var i in objects)
+                    {
+                        if (i.Key < 0 || i.Key >= lstObjects.Items.Count || i.Value == null)
+                            continue;
+
+                        MDL0ObjectNode o = (MDL0ObjectNode)lstObjects.Items[i.Key];
+                        foreach (int call in i.Value)
+                        {
+                            DrawCall other = o._drawCalls[call];
+                            if (other._render != d._render && other != d)
+                                other._render = d._render;
+                        }
+                        UpdateObjectCheckState(i.Key);
+                    }
+                }
+
+            if (temp)
+            {
+                _mainWindow.VIS0Updating = false;
+                temp = false;
+            }
+
+            if (!_mainWindow.VIS0Updating)
+            {
+                _polyIndex = poly.Index;
+
+                if (chkSyncVis.Checked)
+                    for (int i = 0; i < poly._drawCalls.Count; i++)
+                        _mainWindow.UpdateVis0(_polyIndex, i, poly._drawCalls[i]._render);
+            }
+        }
+
         private void lstTextures_SelectedValueChanged(object sender, EventArgs e)
         {
             if (_selectedTexture != null)
@@ -1106,8 +1221,8 @@ namespace System.Windows.Forms
                 if (_mainWindow.SyncTexturesToObjectList)
                     _selectedTexture.ObjOnly = true;
 
-                if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject).UsableMaterialNode != null)
-                    TargetTexRef = _selectedObject != null ? ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode != null)
+                    TargetTexRef = _selectedObject != null ? ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             }
             if (!_updating)
                 _mainWindow.ModelPanel.Invalidate();
@@ -1118,14 +1233,14 @@ namespace System.Windows.Forms
             if (lstObjects.Items.Count == 0)
                 return;
 
-            _updating = true;
+            //_updating = true;
 
             lstObjects.BeginUpdate();
             for (int i = 0; i < lstObjects.Items.Count; i++)
                 lstObjects.SetItemCheckState(i, chkAllObj.CheckState);
             lstObjects.EndUpdate();
 
-            _updating = false;
+            //_updating = false;
 
             _mainWindow.ModelPanel.Invalidate();
         }
@@ -1354,8 +1469,8 @@ namespace System.Windows.Forms
 
         private void fileType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            UpdateAnimations(TargetAnimType);
             _mainWindow.TargetAnimType = TargetAnimType;
+            UpdateAnimations(TargetAnimType);
         }
 
         #region Animation Context Menu
@@ -1466,7 +1581,7 @@ namespace System.Windows.Forms
 
         private void button1_Click(object sender, EventArgs e)
         {
-            _mainWindow.btnOpenClose_Click(this, null);
+            _mainWindow.btnLoadAnimations_Click(this, null);
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -1483,24 +1598,28 @@ namespace System.Windows.Forms
             for (int i = 0; i < lstObjects.Items.Count; i++)
             {
                 MDL0ObjectNode poly = lstObjects.Items[i] as MDL0ObjectNode;
-                if (poly != null && poly.UsableMaterialNode != null)
-                    if (_srt0Selection != null)
-                    {
-                        if (_srt0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.SRT0Entry) != null)
+                if (poly != null)
+                    foreach (DrawCall c in poly._drawCalls)
+                        if (c.MaterialNode != null)
                         {
-                            Rectangle r = lstObjects.GetItemRectangle(i);
-                            g.DrawRectangle(Pens.Black, r);
-                        }
-                    }
-                    else if (_pat0Selection != null)
-                    {
-                        if (_pat0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.PAT0Entry) != null)
-                        {
-                            Rectangle r = lstObjects.GetItemRectangle(i);
-                            g.DrawRectangle(Pens.Black, r);
+                            if (_srt0Selection != null)
+                            {
+                                if (_srt0Selection.FindChildByType(c.MaterialNode.Name, false, ResourceType.SRT0Entry) != null)
+                                {
+                                    Rectangle r = lstObjects.GetItemRectangle(i);
+                                    g.DrawRectangle(Pens.Black, r);
+                                }
+                            }
+                            else if (_pat0Selection != null)
+                            {
+                                if (_pat0Selection.FindChildByType(c.MaterialNode.Name, false, ResourceType.PAT0Entry) != null)
+                                {
+                                    Rectangle r = lstObjects.GetItemRectangle(i);
+                                    g.DrawRectangle(Pens.Black, r);
 
+                                }
+                            }
                         }
-                    }
             }
         }
 
@@ -1512,29 +1631,30 @@ namespace System.Windows.Forms
             Graphics g = e.Graphics;
             ResourceNode rn = null;
 
-            if (_selectedObject != null && 
-                _selectedObject is MDL0ObjectNode &&
-                ((MDL0ObjectNode)_selectedObject).UsableMaterialNode != null)
+            if (_selectedObject != null && _selectedObject is MDL0ObjectNode)
                 for (int i = 0; i < lstTextures.Items.Count; i++)
                 {
+                    MDL0ObjectNode obj = _selectedObject as MDL0ObjectNode;
                     MDL0TextureNode tex = lstTextures.Items[i] as MDL0TextureNode;
-                    if ((rn = ((MDL0ObjectNode)_selectedObject).UsableMaterialNode.FindChild(tex.Name, true)) != null)
-                        if (_srt0Selection != null)
-                        {
-                            if (_srt0Selection.FindChildByType(((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
-                            {
-                                Rectangle r = lstTextures.GetItemRectangle(i);
-                                g.DrawRectangle(Pens.Black, r);
-                            }
-                        }
-                        else if (_pat0Selection != null)
-                        {
-                            if (_pat0Selection.FindChildByType(((MDL0ObjectNode)_selectedObject).UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
-                            {
-                                Rectangle r = lstTextures.GetItemRectangle(i);
-                                g.DrawRectangle(Pens.Black, r);
-                            }
-                        }
+                    foreach (DrawCall c in obj._drawCalls)
+                        if (c.MaterialNode != null)
+                            if ((rn = c.MaterialNode.FindChild(tex.Name, true)) != null)
+                                if (_srt0Selection != null)
+                                {
+                                    if (_srt0Selection.FindChildByType(c.MaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
+                                    {
+                                        Rectangle r = lstTextures.GetItemRectangle(i);
+                                        g.DrawRectangle(Pens.Black, r);
+                                    }
+                                }
+                                else if (_pat0Selection != null)
+                                {
+                                    if (_pat0Selection.FindChildByType(c.MaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
+                                    {
+                                        Rectangle r = lstTextures.GetItemRectangle(i);
+                                        g.DrawRectangle(Pens.Black, r);
+                                    }
+                                }
                 }
         }
 
@@ -1610,14 +1730,14 @@ namespace System.Windows.Forms
 
         private void inExternalFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (_mainWindow.ExternalAnimationsNode == null)
-                return;
+            //if (_mainWindow.ExternalAnimationsNode == null)
+            //    return;
 
-            ResourceNode r = _mainWindow.ExternalAnimationsNode;
-            BRRESNode target = null;
+            //ResourceNode r = _mainWindow.ExternalAnimationsNode;
+            //BRRESNode target = null;
 
-            if (target != null)
-                AddAnimation(target);
+            //if (target != null)
+            //    AddAnimation(target);
         }
 
         private void ctxAnimList_Opening(object sender, CancelEventArgs e)
@@ -1714,6 +1834,76 @@ namespace System.Windows.Forms
         private void chkContains_CheckedChanged(object sender, EventArgs e)
         {
             UpdateAnimations();
+        }
+
+        private void lstDrawCalls_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (_updating)
+                return;
+
+            DrawCall c = lstDrawCalls.SelectedItem as DrawCall;
+            if (c != null)
+            {
+                c._render = !c._render;
+                UpdateObjectCheckState(lstObjects.SelectedIndex);
+                if (chkSyncVis.Checked)
+                    ChecksChanged(c._parentObject);
+                _mainWindow.ModelPanel.Invalidate();
+            }
+        }
+
+        public void UpdateObjectCheckState(int i)
+        {
+            if (i < 0 || i > lstObjects.Items.Count)
+                return;
+
+            MDL0ObjectNode o = lstObjects.Items[i] as MDL0ObjectNode;
+            if (o == null)
+                return;
+
+            CheckState s = CheckState.Indeterminate;
+            bool someRendering = false, someNotRendering = false;
+            foreach (DrawCall x in o._drawCalls)
+            {
+                if (x._render)
+                    someRendering = true;
+                else
+                    someNotRendering = true;
+
+                if (someNotRendering && someRendering)
+                    break;
+            }
+            if (someRendering && !someNotRendering)
+                s = CheckState.Checked;
+            else if (!someRendering && someNotRendering)
+                s = CheckState.Unchecked;
+
+            _updating = true;
+            lstObjects.SetItemCheckState(i, s);
+            _updating = false;
+        }
+
+        private void lstDrawCalls_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            DrawCall c = lstDrawCalls.SelectedItem as DrawCall;
+            if (c != null && c.MaterialNode != null)
+                TargetTexRef = _selectedTexture != null ? c.MaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+        }
+
+        private void lstDrawCalls_DoubleClick(object sender, EventArgs e)
+        {
+            
+        }
+
+        public void SetRenderState(int objKey, int i, bool render, MDL0ObjectNode obj)
+        {
+            if (lstObjects.SelectedIndex == objKey)
+                lstDrawCalls.SetItemChecked(i, render);
+            else
+            {
+                obj._drawCalls[i]._render = render;
+                UpdateObjectCheckState(objKey);
+            }
         }
     }
 }

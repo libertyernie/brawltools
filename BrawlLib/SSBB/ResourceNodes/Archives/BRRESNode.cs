@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using BrawlLib.Wii.Textures;
 using Gif.Components;
 using System.Linq;
+using System.Drawing.Drawing2D;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -384,6 +385,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 using (ProgressWindow progress = new ProgressWindow(RootNode._mainForm, "GIF to PAT0 converter", "Converting, please wait...", true))
                 {
+                    Bitmap prev = null;
+
                     progress.Begin(0, frames, 0);
                     for (int i = 0; i < frames; i++, entry = new PAT0TextureEntryNode())
                     {
@@ -394,27 +397,43 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                         dlg.ImageSource = name + ".";
 
-                        Bitmap img = (Bitmap)decoder.GetFrame(i);
-                        if (i == 0)
+                        using (Bitmap img = (Bitmap)decoder.GetFrame(i))
                         {
-                            dlg.LoadImages(img);
-                            dlg.Resized += onResized;
-                            if (dlg.ShowDialog(null, this) != DialogResult.OK)
-                                return;
+                            if (i == 0)
+                            {
+                                dlg.LoadImages(img.Copy());
+                                dlg.Resized += onResized;
+                                if (dlg.ShowDialog(null, this) != DialogResult.OK)
+                                    return;
 
-                            textureNode._hasTex = dlg.TextureData != null;
-                            textureNode._hasPlt = dlg.PaletteData != null;
-                        }
-                        else
-                        {
-                            dlg.LoadImages(img);
-                            if (resized)
-                                dlg.ResizeImage(w, h);
+                                textureNode._hasTex = dlg.TextureData != null;
+                                textureNode._hasPlt = dlg.PaletteData != null;
+
+                                prev = img.Copy();
+                            }
                             else
-                                dlg.UpdatePreview();
-                            dlg.EncodeSource();
+                            {
+                                //Draw the current image over the previous
+                                //This is because some GIFs use pixels of the previous frame
+                                //in order to compress the overall image data
+                                using (Graphics graphics = Graphics.FromImage(prev))
+                                {
+                                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                                    graphics.CompositingQuality = CompositingQuality.HighQuality;
+                                    graphics.CompositingMode = CompositingMode.SourceOver;
+                                    graphics.SmoothingMode = SmoothingMode.HighQuality;
+                                    graphics.DrawImage(img, 0, 0, prev.Width, prev.Height);
+                                }
 
-                            textureNode.AddChild(entry);
+                                dlg.LoadImages(prev.Copy());
+                                if (resized)
+                                    dlg.ResizeImage(w, h);
+                                else
+                                    dlg.UpdatePreview();
+                                dlg.EncodeSource();
+
+                                textureNode.AddChild(entry);
+                            }
                         }
 
                         entry._frame = (float)Math.Round(frameCount, 2);
@@ -428,6 +447,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                         progress.Update(progress.CurrentValue + 1);
                     }
                     progress.Finish();
+                    if (prev != null)
+                        prev.Dispose();
                 }
                 
                 p._numFrames = (ushort)(frameCount + 0.5f);
@@ -609,7 +630,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _version; }
             set
             {
-                if (SupportedVersions.Contains(_version))
+                if (SupportedVersions.Contains(value))
                 {
                     int previous = _version;
                     _version = value;

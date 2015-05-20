@@ -43,7 +43,13 @@ namespace System
             info.AddValue("_y", _y);
             info.AddValue("_z", _z);
         }
-        public static explicit operator Vector3(Vector4 v) { return new Vector3(v._x / v._w, v._y / v._w, v._z / v._w); }
+        public static explicit operator Vector3(Vector4 v)
+        {
+            if (v._w == 0.0f)
+                return new Vector3(v._x, v._y, v._z);
+            else
+                return new Vector3(v._x / v._w, v._y / v._w, v._z / v._w);
+        }
         //public static explicit operator Vector4(Vector3 v) { return new Vector4(v._x, v._y, v._z, 1.0f); }
 
         public static explicit operator Vector3(OpenTK.Vector3 v) { return new Vector3(v.X, v.Y, v.Z); }
@@ -120,11 +126,11 @@ namespace System
         public static Vector3 Lerp(Vector3 v1, Vector3 v2, float median) { return (v1 * (1.0f - median)) + (v2 * median); }
         public static Vector3 Floor(Vector3 v) { return new Vector3((int)v._x, (int)v._y, (int)v._z); }
 
-        public static readonly Vector3 UnitX = new Vector3(1, 0, 0);
-        public static readonly Vector3 UnitY = new Vector3(0, 1, 0);
-        public static readonly Vector3 UnitZ = new Vector3(0, 0, 1);
-        public static readonly Vector3 Zero = new Vector3(0, 0, 0);
-        public static readonly Vector3 One = new Vector3(1, 1, 1);
+        public static readonly Vector3 UnitX = new Vector3(1.0f, 0.0f, 0.0f);
+        public static readonly Vector3 UnitY = new Vector3(0.0f, 1.0f, 0.0f);
+        public static readonly Vector3 UnitZ = new Vector3(0.0f, 0.0f, 1.0f);
+        public static readonly Vector3 Zero = new Vector3(0.0f);
+        public static readonly Vector3 One = new Vector3(1.0f);
 
         public Vector3 Cross(Vector3 v) { return new Vector3(_y * v._z - v._y * _z, _z * v._x - v._z * _x, _x * v._y - v._x * _y); }
         public static Vector3 Cross(Vector3 v1, Vector3 v2) { return new Vector3(v1._y * v2._z - v2._y * v1._z, v1._z * v2._x - v2._z * v1._x, v1._x * v2._y - v2._x * v1._y); }
@@ -209,8 +215,8 @@ namespace System
             set { fixed (Vector3* p = &this) ((float*)p)[index] = value; }
         }
 
-        public void Morph(Vector3 dest, float percent) { this += ((dest - this) * percent); }
-        public Vector3 ReturnMorph(Vector3 dest, float percent) { return this + ((dest - this) * percent); }
+        public void Lerp(Vector3 dest, float percent) { this += ((dest - this) * percent); }
+        public Vector3 Lerped(Vector3 dest, float percent) { return this + ((dest - this) * percent); }
         
         public void RemapToRange(float min, float max)
         {

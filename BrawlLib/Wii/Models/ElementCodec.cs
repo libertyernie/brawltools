@@ -738,15 +738,9 @@ namespace BrawlLib.Wii.Models
                     int x = RemapTable[i];
                     //Create new vertex, assigning the value + influence from the remap table
                     int node = (x >> 16) & 0xFFFF;
-                    IMatrixNode mtx;
-                    if (node == 0xFFFF)
-                    {
-                        mtx = null;
-                    }
-                    else
-                    {
+                    IMatrixNode mtx = null;
+                    if (node < nodeTable.Length && node >= 0)
                         mtx = nodeTable[node];
-                    }
 
                     Vertex3 v = new Vertex3(pVert[x & 0xFFFF], mtx) { _facepoints = _points[i] };
                     foreach (Facepoint f in v._facepoints) f._vertex = v;

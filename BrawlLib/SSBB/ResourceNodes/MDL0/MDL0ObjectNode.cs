@@ -12,6 +12,7 @@ using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
 using BrawlLib.Modeling.Triangle_Converter;
+using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -37,16 +38,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public byte _drawIndex;
-        public byte DrawPriority
-        {
-            get { return _drawIndex; }
-            set
-            {
-                _drawIndex = value;
-                SignalPropertyChange();
-            }
-        }
+        //public byte _drawIndex;
+
+        //[Category("Rendering")]
+        //public byte DrawPriority
+        //{
+        //    get { return _drawIndex; }
+        //    set
+        //    {
+        //        _drawIndex = value;
+        //        SignalPropertyChange();
+        //    }
+        //}
 
         internal CPVertexFormat _vertexFormat;
         internal XFVertexSpecs _vertexSpecs;
@@ -89,7 +92,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Object Data")]
         public int FaceCount { get { return _numFaces; } }
 
-        internal List<IMatrixNode> _influences;
         [Browsable(false)]
         public List<IMatrixNode> Influences { get { return _influences; } }
 
@@ -102,28 +104,46 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0VertexNode _vertexNode;
         public MDL0NormalNode _normalNode;
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListVertices))]
         public string VertexNode
         {
             get { return _vertexNode == null ? null : _vertexNode._name; }
             set
             {
+                //Can't remove the vertex node!
+                //Do nothing if attempting to set to null
                 if (!String.IsNullOrEmpty(value))
                 {
-                    MDL0VertexNode node = Model.FindChild(String.Format("Vertices/{0}", value), false) as MDL0VertexNode;
-                    if (node != null && _vertexNode != null && node.NumVertices >= _vertexNode.NumVertices)
+                    MDL0VertexNode newNode = Model.FindChild(String.Format("Vertices/{0}", value), false) as MDL0VertexNode;
+                    if (newNode != null)
                     {
-                        if (_vertexNode != null && _vertexNode._objects.Contains(this))
-                            _vertexNode._objects.Remove(this);
+                        if (_vertexNode != null)
+                        {
+                            if (newNode.NumVertices < _vertexNode.NumVertices)
+                            {
+                                MessageBox.Show(String.Format("Not enough vertices.\nNeeds: {0}\nSelection: {1}", _vertexNode.NumVertices, newNode.NumVertices));
+                                return;
+                            }
 
-                        (_vertexNode = node)._objects.Add(this);
-                        _elementIndices[0] = (short)node.Index;
+                            if (_vertexNode._objects.Contains(this))
+                                _vertexNode._objects.Remove(this);
+                        }
+
+                        (_vertexNode = newNode)._objects.Add(this);
+                        _elementIndices[0] = (short)newNode.Index;
+                    }
+                    else
+                    {
+                        MessageBox.Show("A vertex node with this name was not found.");
+                        return;
                     }
                 }
                 SignalPropertyChange();
             }
         }
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListNormals))]
         public string NormalNode
         {
@@ -132,7 +152,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 MDL0NormalNode oldNode = _normalNode;
                 if (String.IsNullOrEmpty(value))
-                    if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Do you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                    if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
                         if (oldNode._objects.Contains(this))
                             oldNode._objects.Remove(this);
@@ -141,17 +161,31 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _elementIndices[1] = -1;
                         _rebuild = true;
                     }
-                    else return;
+                    else return; //No point setting a null node to null
                 else
                 {
-                    MDL0NormalNode node = Model.FindChild(String.Format("Normals/{0}", value), false) as MDL0NormalNode;
-                    if (node != null && _normalNode != null && node.NumEntries >= _normalNode.NumEntries)
+                    MDL0NormalNode newNode = Model.FindChild(String.Format("Normals/{0}", value), false) as MDL0NormalNode;
+                    if (newNode != null)
                     {
-                        if (_normalNode != null && _normalNode._objects.Contains(this))
-                            _normalNode._objects.Remove(this);
+                        if (_normalNode != null)
+                        {
+                            if (newNode.NumEntries < _normalNode.NumEntries)
+                            {
+                                MessageBox.Show(String.Format("Not enough normals.\nNeeds: {0}\nSelection: {1}", _normalNode.NumEntries, newNode.NumEntries));
+                                return;
+                            }
 
-                        (_normalNode = node)._objects.Add(this);
-                        _elementIndices[1] = (short)node.Index;
+                            if (_normalNode._objects.Contains(this))
+                                _normalNode._objects.Remove(this);
+                        }
+
+                        (_normalNode = newNode)._objects.Add(this);
+                        _elementIndices[1] = (short)newNode.Index;
+                    }
+                    else
+                    {
+                        MessageBox.Show("A normal node with this name was not found.");
+                        return;
                     }
                 }
                 SignalPropertyChange();
@@ -167,7 +201,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             MDL0ColorNode oldNode = _colorSet[id];
             if (String.IsNullOrEmpty(value))
-                if (oldNode != null)
+                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
                     if (oldNode._objects.Contains(this))
                         oldNode._objects.Remove(this);
@@ -176,47 +210,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _elementIndices[id + 2] = -1;
                     _rebuild = true;
                 }
-                else return;
+                else return; //No point setting a null node to null
             else
             {
                 MDL0ColorNode newNode = Model.FindChild(String.Format("Colors/{0}", value), false) as MDL0ColorNode;
-                if (newNode != null && newNode.NumEntries != 0)
+                if (newNode != null)
                 {
                     if (oldNode != null)
                     {
-                        if (newNode.NumEntries >= oldNode.NumEntries)
-                        {
-                            if (oldNode._objects.Contains(this))
-                                oldNode._objects.Remove(this);
-
-                            (_colorSet[id] = newNode)._objects.Add(this);
-                            _elementIndices[id + 2] = (short)newNode.Index;
-                        }
-                        else if (newNode.NumEntries > 0)
+                        if (newNode.NumEntries < oldNode.NumEntries)
                         {
                             if (MessageBox.Show(null, "This node has less colors than in the originally linked color node.\nAny colors that cannot be found will use the first color instead.\nIs this okay?", "", MessageBoxButtons.YesNo) == DialogResult.No)
                                 return;
 
-                            if (oldNode._objects.Contains(this))
-                                oldNode._objects.Remove(this);
-
-                            (_colorSet[id] = newNode)._objects.Add(this);
-                            _elementIndices[id + 2] = (short)newNode.Index;
                             _rebuild = true;
                         }
+
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
                     }
-                    else return;
+
+                    (_colorSet[id] = newNode)._objects.Add(this);
+                    _elementIndices[id + 2] = (short)newNode.Index;
                 }
-                else return;
+                else
+                {
+                    MessageBox.Show("A color node with this name was not found.");
+                    return;
+                }
             }
             SignalPropertyChange();
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListColors))]
         public string ColorNode0
         {
             get { return _colorSet[0] == null ? null : _colorSet[0]._name; }
             set { SetColors(0, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListColors))]
         public string ColorNode1
         {
@@ -233,7 +265,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             MDL0UVNode oldNode = _uvSet[id];
             if (String.IsNullOrEmpty(value))
-                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Do you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
                     if (oldNode._objects.Contains(this))
                         oldNode._objects.Remove(this);
@@ -242,17 +274,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _elementIndices[id + 4] = -1;
                     _rebuild = true;
                 }
-                else return;
+                else return; //No point setting a null node to null
             else
             {
                 MDL0UVNode newNode = Model.FindChild(String.Format("UVs/{0}", value), false) as MDL0UVNode;
-                if (newNode != null && oldNode != null)
+                if (newNode != null)
                 {
-                    if (newNode.NumEntries != oldNode.NumEntries && MessageBox.Show(RootNode._mainForm, "Entry counts are not equal.\nThis might cause problems.\nContinue anyway?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                        return;
+                    if (oldNode != null)
+                    {
+                        if (newNode.NumEntries < oldNode.NumEntries)
+                        {
+                            MessageBox.Show(String.Format("Not enough UVs.\nNeeds: {0}\nSelection: {1}", oldNode.NumEntries, newNode.NumEntries));
+                            return;
+                        }
 
-                    if (oldNode._objects.Contains(this))
-                        oldNode._objects.Remove(this);
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
+                    }
 
                     (_uvSet[id] = newNode)._objects.Add(this);
                     _elementIndices[id + 4] = (short)newNode.Index;
@@ -261,49 +299,56 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             SignalPropertyChange();
         }
-
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord0
         {
             get { return _uvSet[0] == null ? null : _uvSet[0]._name; }
             set { SetUVs(0, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord1
         {
             get { return _uvSet[1] == null ? null : _uvSet[1]._name; }
             set { SetUVs(1, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord2
         {
             get { return _uvSet[2] == null ? null : _uvSet[2]._name; }
             set { SetUVs(2, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord3
         {
             get { return _uvSet[3] == null ? null : _uvSet[3]._name; }
             set { SetUVs(3, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord4
         {
             get { return _uvSet[4] == null ? null : _uvSet[4]._name; }
             set { SetUVs(4, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord5
         {
             get { return _uvSet[5] == null ? null : _uvSet[5]._name; }
             set { SetUVs(5, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord6
         {
             get { return _uvSet[6] == null ? null : _uvSet[6]._name; }
             set { SetUVs(6, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord7
         {
@@ -318,6 +363,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal MDL0FurPosNode _furPosNode;
         internal MDL0FurVecNode _furVecNode;
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListFurPos))]
         public string FurLayerCoordNode
         {
@@ -340,6 +386,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListFurVec))]
         public string FurVectorNode
         {
@@ -380,10 +427,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal short[] _elementIndices = new short[14];
         public bool _rebuild = false, _reOptimized = false;
 
+        internal List<IMatrixNode> _influences;
+        public BindingList<DrawCall> _drawCalls = new BindingList<DrawCall>();
+
         #endregion
 
         #region Single Bind linkage
-        [Browsable(true), TypeConverter(typeof(DropDownListBones))]
+
+        [Category("Object Data")]
+        [TypeConverter(typeof(DropDownListBones))]
         public string SingleBind
         {
             get { return _matrixNode == null ? "(none)" : _matrixNode.IsPrimaryNode ? ((MDL0BoneNode)_matrixNode)._name : "(multiple)"; }
@@ -403,180 +455,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_matrixNode == value)
                     return;
 
-                if (value is MDL0BoneNode && _matrixNode is Influence)
-                {
+                if (_manager != null)
                     foreach (Vertex3 v in _manager._vertices)
-                    {
-                        v.Position *= ((MDL0BoneNode)value).InverseMatrix;
-                        //v._normal *= ((MDL0BoneNode)value).InverseMatrix.GetRotationMatrix();
-                    }
-                    SetEditedVertices();
-                    //SetEditedNormals();
-                }
-                else if (value is Influence && _matrixNode is MDL0BoneNode)
-                {
-                    foreach (Vertex3 v in _manager._vertices)
-                    {
-                        v.Position *= ((MDL0BoneNode)_matrixNode).Matrix;
-                        //v._normal *= ((MDL0BoneNode)_matrixNode).Matrix.GetRotationMatrix();
-                    }
-                    SetEditedVertices();
-                    //SetEditedNormals();
-                }
+                        v.ChangeInfluence(value);
 
                 if (_matrixNode != null)
                 {
-                    if (_matrixNode is MDL0BoneNode)
-                        ((MDL0BoneNode)_matrixNode)._infPolys.Remove(this);
-                    else
-                    {
-                        _matrixNode.ReferenceCount--;
+                    if (_matrixNode is MDL0BoneNode && ((MDL0BoneNode)_matrixNode)._singleBindObjects.Contains(this))
+                        ((MDL0BoneNode)_matrixNode)._singleBindObjects.Remove(this);
+                    else if (_matrixNode.Users.Contains(this))
                         _matrixNode.Users.Remove(this);
-                    }
                 }
                 if ((_matrixNode = value) != null)
                 {
                     //Singlebind bones aren't added to NodeMix, but its node id is still built as influenced
-                    //_singleBind.ReferenceCount++;
-                    if (_matrixNode is MDL0BoneNode)
-                        ((MDL0BoneNode)_matrixNode)._infPolys.Add(this);
-                    else
-                    {
-                        _matrixNode.ReferenceCount++;
+                    if (_matrixNode is MDL0BoneNode && !((MDL0BoneNode)_matrixNode)._singleBindObjects.Contains(this))
+                        ((MDL0BoneNode)_matrixNode)._singleBindObjects.Add(this);
+                    else if (!_matrixNode.Users.Contains(this))
                         _matrixNode.Users.Add(this);
-                    }
                 }
             }
-        }
-        #endregion
-
-        #region Material linkage
-        //public void EvalMaterials(ref string message)
-        //{
-        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-        //        if (OpaMaterialNode != null)
-        //            message += Name + "\n";
-        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-        //        if (XluMaterialNode != null)
-        //            message += Name + "\n";
-        //}
-        //public void FixMaterials(ref string message)
-        //{
-        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-        //    {
-        //        if (OpaMaterialNode == null)
-        //            OpaMaterialNode = XluMaterialNode;
-        //        else
-        //            message += Name + "\n";
-        //        XluMaterialNode = null;
-        //    }
-        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-        //    {
-        //        if (XluMaterialNode == null)
-        //            XluMaterialNode = OpaMaterialNode;
-        //        else
-        //            message += Name + "\n";
-        //        OpaMaterialNode = null;
-        //    }
-        //}
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode UsableMaterialNode
-        {
-            get
-            {
-                if (OpaMaterialNode != null)
-                    return OpaMaterialNode;
-                else
-                    return XluMaterialNode;
-            }
-            set
-            {
-                if (value.XLUMaterial)
-                    XluMaterialNode = value;
-                else 
-                    OpaMaterialNode = value;
-            }
-        }
-
-        internal MDL0MaterialNode _opaMaterial, _xluMaterial;
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode OpaMaterialNode
-        {
-            get { return _opaMaterial; }
-            set
-            {
-                if (_opaMaterial == value)
-                    return;
-                if (_opaMaterial != null)
-                    _opaMaterial._objects.Remove(this);
-                if ((_opaMaterial = value) != null)
-                    _opaMaterial._objects.Add(this);
-            }
-        }
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode XluMaterialNode
-        {
-            get { return _xluMaterial; }
-            set
-            {
-                if (_xluMaterial == value)
-                    return;
-                if (_xluMaterial != null)
-                    _xluMaterial._objects.Remove(this);
-                if ((_xluMaterial = value) != null)
-                    _xluMaterial._objects.Add(this);
-            }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListOpaMaterials))]
-        public string OpaMaterial
-        {
-            get { return _opaMaterial == null ? null : _opaMaterial._name; }
-            set { if (String.IsNullOrEmpty(value)) OpaMaterialNode = null; else { OpaMaterialNode = Model.FindOrCreateOpaMaterial(value); } }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListXluMaterials))]
-        public string XluMaterial
-        {
-            get { return _xluMaterial == null ? null : _xluMaterial._name; }
-            set { if (String.IsNullOrEmpty(value)) XluMaterialNode = null; else { XluMaterialNode = Model.FindOrCreateXluMaterial(value); } }
-        }
-        #endregion
-
-        #region Bone linkage
-        public MDL0BoneNode _visBoneNode;
-        [Browsable(false)]
-        public MDL0BoneNode VisibilityBoneNode
-        {
-            get { return _visBoneNode; }
-            set
-            {
-                if (_visBoneNode == value)
-                    return;
-                if (_visBoneNode != null)
-                    _visBoneNode._manPolys.Remove(this);
-                if ((_visBoneNode = value) != null)
-                {
-                    _visBoneNode._manPolys.Add(this);
-                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
-                }
-            }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListBones))]
-        public string VisibilityBone //This attaches the object to a bone controlled by a VIS0
-        {
-            get { return _visBoneNode == null ? null : _visBoneNode._name; }
-            set { VisibilityBoneNode = String.IsNullOrEmpty(value) ? null : Model.FindBone(value); Model.SignalPropertyChange(); }
         }
         #endregion
 
@@ -765,9 +663,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Rebuilding
 
-        [Browsable(false)]
-        public bool HasNonFloatVertices { get { return _vertexNode !=  null && _vertexNode.Format != WiiVertexComponentType.Float; } }
-
         public void RecalcIndices()
         {
             _elementIndices[0] = (short)(_vertexNode != null ? _vertexNode.Index : _elementIndices[0]);
@@ -905,13 +800,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Add def length
                 size = _tableLen + 0xE0;
 
-                if (model._isImport)
+                //If assets have been changed, linked asset nodes must be recreated!
+                if (model._isImport || _manager._assetsChanged)
                     _manager.GroupPrimitives(
                         Collada._importOptions._useTristrips,
                         Collada._importOptions._cacheSize,
                         Collada._importOptions._minStripLen,
                         Collada._importOptions._pushCacheHits,
-                        Collada._importOptions._forceCCW,
+                        !model._isImport ? false : Collada._importOptions._forceCCW,
                         out _numFacepoints,
                         out _numFaces);
 
@@ -1070,8 +966,21 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Rendering
 
         [Browsable(false)]
-        public bool IsRendering { get { return _render; } set { _render = value; } }
-        public bool _render = true;
+        public bool IsRendering
+        {
+            get
+            {
+                foreach (DrawCall c in _drawCalls)
+                    if (c._render)
+                        return true;
+                return false;
+            }
+            set
+            {
+                foreach (DrawCall c in _drawCalls)
+                    c._render = value;
+            } 
+        }
 
         [Browsable(false)]
         public bool Attached { get { return _attached; } set { _attached = value; } }
@@ -1141,7 +1050,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal void Render(bool wireframe, bool useShaders, MDL0MaterialNode material)
         {
-            if (!_render || _manager == null)
+            if (_manager == null)
                 return;
 
             if (!TKContext._shadersSupported)
@@ -1278,7 +1187,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         void Blend(MDL0MaterialNode material)
         {
             BlendMode b = material._blendMode;
-            if (b.EnableBlend && !b.EnableLogicOp)
+            if (b.EnableBlend/* && !b.EnableLogicOp*/)
             {
                 GL.Enable(EnableCap.Blend);
                 if (b.Subtract)
@@ -1289,7 +1198,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             else
                 GL.Disable(EnableCap.Blend);
-            if (b.EnableLogicOp && !b.EnableBlend)
+            if (b.EnableLogicOp /*&& !b.EnableBlend*/)
             {
                 GL.Enable(EnableCap.ColorLogicOp);
                 GL.LogicOp(_logicOp[(int)b.LogicOp]);
@@ -1334,152 +1243,140 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal override void Bind() 
         {
-            if (_visBoneNode == null)
-                _render = true;
-            else
-                if (_visBoneNode._name == "EyeYellowM")
-                    _render = false;
-                else
-                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
-
-            if (_render && 
-                XluMaterialNode != null && 
-                XluMaterialNode.Children.Count != 0 && 
-                XluMaterialNode.Children[0].Name == "TShadow1")
-                _render = false;
+            //foreach (DrawCall c in _drawCalls)
+            //    c.Bind();
         }
-        internal override void Unbind() 
-        {
-            _render = false;
-        }
+        internal override void Unbind() { }
 
         public void Attach()
         {
             _attached = true;
-            _render = true;
-
             Model.Attach();
-            
         }
         public void Detach()
         {
             _attached = false;
-            _render = false;
 
             if (Model != null)
                 Model.Detach();
         }
 
-        public void Refresh() { if (Model != null) Model.Refresh(); }
-
-        ModelRenderAttributes _renderAttrib = new ModelRenderAttributes();
-        
-        public void Render(params object[] args)
+        public void Refresh()
         {
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-            GL.Enable(EnableCap.Lighting);
-            GL.Enable(EnableCap.DepthTest);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            if (Model != null)
+                Model.Refresh();
+        }
 
-            ModelRenderAttributes attrib = 
-                args != null && args.Length > 0 && args[0] is ModelRenderAttributes ? 
-                (ModelRenderAttributes)args[0] :
-                _renderAttrib;
-
-            Render(false, false, UsableMaterialNode);
+        public void PreRender(ModelPanelViewport v)
+        {
+            if (Model != null)
+                Model.PreRender(v);
         }
 
         #endregion
 
         #region Etc
-        public void ConvertInf()
+
+        public override void SignalPropertyChange()
+        {
+            base.SignalPropertyChange();
+
+            TKContext.InvalidateModelPanels(this);
+        }
+
+        public void TryConvertMatrixToVertex()
+        {
+            if (_matrixNode != null)
+            {
+                IMatrixNode m = MatrixNode;
+                MatrixNode = null;
+                foreach (Vertex3 v in _manager._vertices)
+                    v.MatrixNode = m;
+            }
+        }
+        public void TryConvertMatrixToObject()
         {
             if (_matrixNode == null)
             {
-                IMatrixNode inf = null;
-                bool ok = true;
+                IMatrixNode mtxNode = null;
+                bool singlebind = true;
+
                 foreach (Vertex3 v in _manager._vertices)
-                {
-                    if (inf == null)
-                        inf = v.MatrixNode;
-                    else if (inf != v.MatrixNode)
+                    if (v.MatrixNode != null)
                     {
-                        ok = false;
-                        break;
+                        if (mtxNode == null)
+                            mtxNode = v.MatrixNode;
+
+                        if (v.MatrixNode != mtxNode)
+                        {
+                            singlebind = false;
+                            break;
+                        }
                     }
-                }
-                if (ok)
+
+                if (singlebind)
                 {
-                    MatrixNode = inf;
                     foreach (Vertex3 v in _manager._vertices)
                         v.MatrixNode = null;
+                    MatrixNode = mtxNode;
                 }
             }
-            else
-            {
-                foreach (Vertex3 v in _manager._vertices)
-                    v.MatrixNode = MatrixNode;
-                MatrixNode = null;
-            }
         }
+
         public void SetVerticesFromWeighted()
         {
             for (int i = 0; i < _manager._vertices.Count; i++)
             {
                 Vertex3 vec = _manager._vertices[i];
-                //if (vec._moved)
-                _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.GetInvMatrix() * vec.WeightedPosition;
+                _vertexNode.Vertices[vec._facepoints[0]._vertexIndex] = vec.GetInvMatrix() * vec.WeightedPosition;
             }
 
             _vertexNode.ForceRebuild = true; 
             if (_vertexNode.Format == WiiVertexComponentType.Float)
                 _vertexNode.ForceFloat = true;
         }
-        //public void SetEditedNormals()
-        //{
-        //    for (int i = 0; i < _manager._vertices.Count; i++)
-        //    {
-        //        Vertex3 vec = _manager._vertices[i];
-        //        if (vec._moved)
-        //            _vertexNode.Vertices[_manager._vertices[i]._facepoints[0].NormalIndex] = vec._normal;
-        //    }
-
-        //    _normalNode.ForceRebuild = true;
-        //    if (_normalNode.Format == WiiVertexComponentType.Float)
-        //        _normalNode.ForceFloat = true;
-        //}
         public void SetEditedVertices()
         {
-            for (int i = 0; i < _manager._vertices.Count; i++)
-            {
-                Vertex3 vec = _manager._vertices[i];
-                //if (vec._moved)
-                    _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.Position;
-            }
-            
-            _vertexNode.ForceRebuild = true;
-            if (_vertexNode.Format == WiiVertexComponentType.Float)
-                _vertexNode.ForceFloat = true;
+            foreach (Vertex3 v in _manager._vertices)
+                v.SetPosition(_vertexNode);
+        }
+        public void SetEditedNormals()
+        {
+            if (_manager != null && _manager._vertices != null && _normalNode != null)
+                foreach (Vertex3 v in _manager._vertices)
+                    v.SetNormal(this);
         }
 
         public MDL0ObjectNode HardCopy() 
         {
-            MDL0ObjectNode o = new MDL0ObjectNode() { _manager = _manager.HardCopy(), Name = Name };
-            o._vertexNode = _vertexNode;
-            o._normalNode = _normalNode;
+            MDL0ObjectNode o = new MDL0ObjectNode()
+            {
+                _manager = _manager.HardCopy(),
+                Name = Name,
+                _vertexNode = _vertexNode,
+                _normalNode = _normalNode,
+                _furVecNode = _furVecNode,
+                _furPosNode = _furPosNode,
+                _matrixNode = _matrixNode,
+                _elementIndices = _elementIndices,
+                _numFacepoints = _numFacepoints,
+                _numFaces = _numFaces,
+                _drawCalls = new BindingList<DrawCall>()
+            };
             for (int i = 0; i < 2; i++)
                 o._colorSet[i] = _colorSet[i];
             for (int i = 0; i < 8; i++)
                 o._uvSet[i] = _uvSet[i];
-            o._opaMaterial = _opaMaterial;
-            o._xluMaterial = _xluMaterial;
-            o._furVecNode = _furVecNode;
-            o._furPosNode = _furPosNode;
-            o._visBoneNode = _visBoneNode;
-            o._matrixNode = _matrixNode;
-            o._elementIndices = _elementIndices;
-            o._uncompSource = o._origSource = new DataSource(WorkingUncompressed.Address, WorkingUncompressed.Length, Wii.Compression.CompressionType.None);
+            foreach (DrawCall c in _drawCalls)
+                o._drawCalls.Add(new DrawCall(o)
+                {
+                    MaterialNode = c.MaterialNode,
+                    VisibilityBoneNode = c.VisibilityBoneNode,
+                    DrawPriority = c.DrawPriority,
+                    DrawPass = c.DrawPass
+                });
+
+            o.SignalPropertyChange();
             return o;
         }
 
@@ -1529,17 +1426,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             
             MatrixNode = null;
-            VisibilityBoneNode = null;
-            OpaMaterialNode = null;
-            XluMaterialNode = null;
+
+            foreach (DrawCall c in _drawCalls)
+            {
+                c.VisibilityBoneNode = null;
+                c.MaterialNode = null;
+            }
+
+            _drawCalls.Clear();
+
+            if (DrawCallsChanged != null)
+                DrawCallsChanged(null, null);
 
             if (_manager != null)
                 foreach (Vertex3 vertex in _manager._vertices)
                     if (vertex.MatrixNode != null)
-                    {
                         vertex.MatrixNode.Users.Remove(vertex);
-                        vertex.MatrixNode.ReferenceCount--;
-                    }
 
             Dispose();
             base.Remove();
@@ -1562,69 +1464,257 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _uvSet[7] != null && _uvSet[7]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 8?", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
         }
 
-        public static int DrawCompareOpa(ResourceNode n1, ResourceNode n2)
-        {
-            //First compare draw priorities
-            if (((MDL0ObjectNode)n1).DrawPriority > ((MDL0ObjectNode)n2).DrawPriority)
-                return 1;
-            if (((MDL0ObjectNode)n1).DrawPriority < ((MDL0ObjectNode)n2).DrawPriority)
-                return -1;
-
-            //Make sure the node isn't null
-            if (((MDL0ObjectNode)n1).OpaMaterialNode != null && ((MDL0ObjectNode)n2).OpaMaterialNode == null)
-                return 1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode == null && ((MDL0ObjectNode)n2).OpaMaterialNode != null)
-                return -1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode == null && ((MDL0ObjectNode)n2).OpaMaterialNode == null)
-                return 0;
-
-            //Now check material draw priority
-            if (((MDL0ObjectNode)n1).OpaMaterialNode.Index > ((MDL0ObjectNode)n2).OpaMaterialNode.Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode.Index < ((MDL0ObjectNode)n2).OpaMaterialNode.Index)
-                return -1;
-
-            //Finally compare the object index
-            if (((MDL0ObjectNode)n1).Index > ((MDL0ObjectNode)n2).Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).Index < ((MDL0ObjectNode)n2).Index)
-                return -1;
-
-            //Should never return equal
-            return 0;
-        }
-        public static int DrawCompareXlu(ResourceNode n1, ResourceNode n2)
-        {
-            //First compare draw priorities
-            if (((MDL0ObjectNode)n1).DrawPriority > ((MDL0ObjectNode)n2).DrawPriority)
-                return 1;
-            if (((MDL0ObjectNode)n1).DrawPriority < ((MDL0ObjectNode)n2).DrawPriority)
-                return -1;
-
-            //Make sure the node isn't null
-            if (((MDL0ObjectNode)n1).XluMaterialNode != null && ((MDL0ObjectNode)n2).XluMaterialNode == null)
-                return 1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode == null && ((MDL0ObjectNode)n2).XluMaterialNode != null)
-                return -1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode == null && ((MDL0ObjectNode)n2).XluMaterialNode == null)
-                return 0;
-
-            //Now check material draw priority
-            if (((MDL0ObjectNode)n1).XluMaterialNode.Index > ((MDL0ObjectNode)n2).XluMaterialNode.Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode.Index < ((MDL0ObjectNode)n2).XluMaterialNode.Index)
-                return -1;
-
-            //Finally compare the object index
-            if (((MDL0ObjectNode)n1).Index > ((MDL0ObjectNode)n2).Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).Index < ((MDL0ObjectNode)n2).Index)
-                return -1;
-
-            //Should never return equal
-            return 0;
-        }
         #endregion
+
+        public event EventHandler DrawCallsChanged;
+        
+        public void OnDrawCallsChanged()
+        {
+            if (_attached)
+            {
+                if (DrawCallsChanged != null)
+                    DrawCallsChanged(this, null);
+            }
+            else if (Model != null && Model.Attached)
+                Model.OnDrawCallsChanged();
+        }
+
+        [Browsable(false)]
+        public List<DrawCallBase> DrawCalls
+        {
+            get { return _drawCalls.Select(x => x as DrawCallBase).ToList(); }
+        }
+    }
+
+    public unsafe class DrawCall : DrawCallBase
+    {
+        public DrawCall(MDL0ObjectNode parent) { _parentObject = parent; }
+
+        [Browsable(false)]
+        public override IObject Parent { get { return _parentObject; } }
+
+        public MDL0ObjectNode _parentObject;
+        public bool _render;
+
+        public override string ToString()
+        {
+            return String.Format("{0} {1}: {2} {3}",
+                _isXLU ? "XLU" : "OPA",
+                _drawOrder.ToString(),
+                _material == null ? "(null)" : _material.Name,
+                _visBoneNode == null ? "(null)" : _visBoneNode.Name);
+        }
+
+        //Data stored in actual MDL0 opa/xlu draw call
+        internal MDL0BoneNode _visBoneNode;
+        internal MDL0MaterialNode _material;
+        internal bool _isXLU;
+        internal byte _drawOrder = 0;
+
+        [Category("Object Draw Call"), TypeConverter(typeof(DropDownListMaterialsDrawCall))]
+        public string Material
+        {
+            get { return _material == null ? null : _material._name; }
+            set
+            {
+                MaterialNode = String.IsNullOrEmpty(value) ? null :
+                    _isXLU ? _parentObject.Model.FindOrCreateXluMaterial(value) : _parentObject.Model.FindOrCreateOpaMaterial(value);
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        [Category("Object Draw Call"), TypeConverter(typeof(DropDownListBonesDrawCall))]
+        public string VisibilityBone //This attaches the object to a bone controlled by a VIS0
+        {
+            get { return _visBoneNode == null ? null : _visBoneNode._name; }
+            set
+            {
+                VisibilityBoneNode = String.IsNullOrEmpty(value) ? null : _parentObject.Model.FindBone(value);
+                _parentObject.Model.SignalPropertyChange();
+            }
+        }
+
+        public enum DrawPassType
+        {
+            Opaque,
+            Transparent
+        }
+
+        [Category("Object Draw Call")]
+        public DrawPassType DrawPass
+        {
+            get { return _isXLU ? DrawPassType.Transparent : DrawPassType.Opaque; }
+            set
+            {
+                _isXLU = value == DrawPassType.Opaque ? false : true;
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        [Category("Object Draw Call")]
+        public byte DrawPriority
+        {
+            get { return _drawOrder; }
+            set
+            {
+                _drawOrder = value;
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        /// <summary>
+        /// Does not signal a property change!
+        /// </summary>
+        [Browsable(false)]
+        public MDL0MaterialNode MaterialNode
+        {
+            get { return _material; }
+            set
+            {
+                if (_material == value)
+                    return;
+                if (_material != null)
+                    _material._objects.Remove(_parentObject);
+                if ((_material = value) != null)
+                    _material._objects.Add(_parentObject);
+            }
+        }
+        /// <summary>
+        /// Does not signal a property change!
+        /// </summary>
+        [Browsable(false)]
+        public MDL0BoneNode VisibilityBoneNode
+        {
+            get { return _visBoneNode; }
+            set
+            {
+                if (_visBoneNode == value)
+                    return;
+                if (_visBoneNode != null && _visBoneNode._visibilityObjects.Contains(_parentObject))
+                    _visBoneNode._visibilityObjects.Remove(_parentObject);
+                if ((_visBoneNode = value) != null)
+                {
+                    if (!_visBoneNode._visibilityObjects.Contains(_parentObject))
+                        _visBoneNode._visibilityObjects.Add(_parentObject);
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                }
+            }
+        }
+
+        public override int CompareTo(DrawCallBase y)
+        {
+            return DrawCompare(this, y as DrawCall);
+        }
+
+        public static int DrawCompare(DrawCall n1, DrawCall n2)
+        {
+            //First compare with render pass
+            if ((n1.DrawPass == DrawPassType.Opaque || n1.MaterialNode == null) && 
+                (n2.DrawPass == DrawPassType.Transparent && n2.MaterialNode != null))
+                return -1;
+            if ((n2.DrawPass == DrawPassType.Opaque || n2.MaterialNode == null) &&
+                (n1.DrawPass == DrawPassType.Transparent && n1.MaterialNode != null))
+                return 1;
+
+            //Compare draw priorities
+            if (n1.DrawPriority > n2.DrawPriority)
+                return 1;
+            if (n1.DrawPriority < n2.DrawPriority)
+                return -1;
+
+            //Make sure the node isn't null
+            if (n1.MaterialNode != null && n2.MaterialNode == null)
+                return 1;
+            if (n1.MaterialNode == null && n2.MaterialNode != null)
+                return -1;
+            if (n1.MaterialNode == null && n2.MaterialNode == null)
+                return 0;
+
+            //Now check material draw index
+            if (n1.MaterialNode.Index > n2.MaterialNode.Index)
+                return 1;
+            if (n1.MaterialNode.Index < n2.MaterialNode.Index)
+                return -1;
+
+            //Compare the object index
+            if (n1._parentObject.Index > n2._parentObject.Index)
+                return 1;
+            if (n1._parentObject.Index < n2._parentObject.Index)
+                return -1;
+
+            //Same object, so compare draw call index
+            if (n1._parentObject._drawCalls.IndexOf(n1) > n2._parentObject._drawCalls.IndexOf(n2))
+                return 1;
+            if (n1._parentObject._drawCalls.IndexOf(n1) < n2._parentObject._drawCalls.IndexOf(n2))
+                return -1;
+
+            //Should never return equal
+            return 0;
+        }
+
+        public override void Bind()
+        {
+            if (_visBoneNode == null)
+                _render = true;
+            else
+                if (_visBoneNode._name == "EyeYellowM")
+                    _render = false;
+                else
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+
+            if (DrawPass == DrawCall.DrawPassType.Transparent &&
+                MaterialNode != null &&
+                MaterialNode.Children.Count != 0 &&
+                MaterialNode.Children[0].Name == "TShadow1")
+                _render = false;
+        }
+
+        public override void Render(ModelPanelViewport viewport)
+        {
+            if (!_render || _parentObject == null)
+                return;
+
+            MDL0Node model = _parentObject.Model;
+            bool usesOffset = model != null && model._matrixOffset != null;
+            if (usesOffset)
+            {
+                GL.PushMatrix();
+                Matrix m = model._matrixOffset.Value;
+                GL.MultMatrix((float*)&m);
+            }
+
+            ModelRenderAttributes attrib = viewport._renderAttrib;
+            MDL0MaterialNode mat = MaterialNode;
+            if (attrib._renderPolygons)
+            {
+                bool shaders = attrib._renderShaders && mat != null;
+                if (shaders && !mat._scn0Applied)
+                    mat.ApplyViewportLighting(viewport);
+
+                float polyOffset = DrawPriority;
+                if (attrib._renderWireframe)
+                    polyOffset -= 1.0f;
+                if (polyOffset != 0.0f)
+                {
+                    GL.Enable(EnableCap.PolygonOffsetFill);
+                    GL.PolygonOffset(1.0f, -polyOffset);
+                }
+                else
+                    GL.Disable(EnableCap.PolygonOffsetFill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                _parentObject.Render(false, shaders, mat);
+            }
+            if (attrib._renderWireframe)
+            {
+                GL.Disable(EnableCap.PolygonOffsetFill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                GL.LineWidth(0.5f);
+                _parentObject.Render(true, false, mat);
+            }
+
+            if (usesOffset)
+                GL.PopMatrix();
+        }
     }
 
     public interface IMatrixNodeUser //Objects and Vertices

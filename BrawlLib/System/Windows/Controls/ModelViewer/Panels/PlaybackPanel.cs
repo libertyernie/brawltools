@@ -73,7 +73,7 @@ namespace System.Windows.Forms
             // 
             this.numFPS.Location = new System.Drawing.Point(42, 4);
             this.numFPS.Maximum = new decimal(new int[] {
-            60,
+            2000,
             0,
             0,
             0});
@@ -294,6 +294,18 @@ namespace System.Windows.Forms
         public void numTotalFrames_ValueChanged(object sender, EventArgs e)
         {
             _mainWindow.numTotalFrames_ValueChanged(sender, e);
+        }
+
+        internal void UpdateInterface(int animFrame, int loopMax)
+        {
+            btnNextFrame.Enabled = animFrame < loopMax;
+            btnPrevFrame.Enabled = animFrame > 0;
+
+            btnLast.Enabled = animFrame != loopMax;
+            btnFirst.Enabled = animFrame > 1;
+
+            if (animFrame <= (float)numFrameIndex.Maximum)
+                numFrameIndex.Value = (decimal)animFrame;
         }
     }
 }

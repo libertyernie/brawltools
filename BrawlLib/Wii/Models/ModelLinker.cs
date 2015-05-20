@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using MR = BrawlLib.Wii.Models.MDLResourceType;
 using BrawlLib.Modeling;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace BrawlLib.Wii.Models
 {
@@ -32,9 +33,16 @@ namespace BrawlLib.Wii.Models
         #region Linker lists
         internal const int BankLen = 13;
 
+        internal static bool SpecialRebuildData(int typeIndex)
+        {
+            if (typeIndex == 0 || typeIndex == 9 || typeIndex == 10)
+                return true;
+            return false;
+        }
+
         internal static readonly System.Type[] TypeBank = new System.Type[] 
         {
-            null,
+            typeof(MDL0DefNode), //0, special handling
             typeof(MDL0BoneNode),
             typeof(MDL0VertexNode),
             typeof(MDL0NormalNode),
@@ -43,8 +51,8 @@ namespace BrawlLib.Wii.Models
             typeof(MDL0MaterialNode),
             typeof(MDL0ShaderNode),
             typeof(MDL0ObjectNode),
-            null,
-            null,
+            typeof(MDL0TextureNode), //9, special handling
+            typeof(MDL0TextureNode), //10, special handling
             typeof(MDL0FurVecNode),
             typeof(MDL0FurPosNode),
         };
@@ -93,7 +101,7 @@ namespace BrawlLib.Wii.Models
         public ResourceGroup* UVs; //9
         public ResourceGroup* Materials; //3
         public ResourceGroup* Shaders; //4
-        public ResourceGroup* Polygons; //5
+        public ResourceGroup* Objects; //5
         public ResourceGroup* Textures; //10
         public ResourceGroup* Palettes; //11
         public ResourceGroup* FurVectors;
@@ -105,7 +113,7 @@ namespace BrawlLib.Wii.Models
         public int _headerLen, _tableLen, _groupLen, _texLen, _boneLen, _dataLen, _defLen, _assetLen;
         public List<MDL0TextureNode> _texList, _pltList;
         public int _nodeCount;
-        public ResourceNode[] BoneCache;
+        public MDL0BoneNode[] BoneCache;
         public IMatrixNode[] NodeCache;
 
         public List<VertexCodec> _vertices;
@@ -137,6 +145,32 @@ namespace BrawlLib.Wii.Models
                     //    MessageBox.Show("Unsupported Fur Data is used!");
         }
 
+        public void RegenerateBoneCache(bool remake = false)
+        {
+            if (Model != null && Model._boneGroup != null)
+            {
+                if (remake)
+                {
+                    BoneCache = Model._boneGroup.
+                        FindChildrenByType(null, ResourceType.MDL0Bone).
+                        Select(x => x as MDL0BoneNode).
+                        ToArray();
+                }
+                else
+                    BoneCache = Model._boneGroup.
+                        FindChildrenByType(null, ResourceType.MDL0Bone).
+                        Select(x => x as MDL0BoneNode).
+                        OrderBy(x => x.BoneIndex).
+                        ToArray();
+            }
+            else
+                BoneCache = new MDL0BoneNode[0];
+
+            int i = 0;
+            foreach (MDL0BoneNode b in BoneCache)
+                b._entryIndex = i++;
+        }
+
         public static ModelLinker Prepare(MDL0Node model)
         {
             ModelLinker linker = new ModelLinker();
@@ -144,7 +178,8 @@ namespace BrawlLib.Wii.Models
             linker.Model = model;
             linker.Version = model._version;
 
-            linker.BoneCache = new ResourceNode[0];
+            //Get flattened bone list and assign it to bone cache
+            linker.RegenerateBoneCache();
 
             MDLResourceType resType;
             int index;
@@ -152,13 +187,8 @@ namespace BrawlLib.Wii.Models
 
             foreach (MDL0GroupNode group in model.Children)
             {
-                resType = (MDLResourceType)Enum.Parse(typeof(MDLResourceType), group.Name);
-
-                //Get flattened bone list and assign it to bone cache
-                if (resType == MDLResourceType.Bones)
-                    linker.BoneCache = group.FindChildrenByType(null, ResourceType.MDL0Bone);
-
                 //If version contains resource type, add it to group list
+                resType = (MDLResourceType)Enum.Parse(typeof(MDLResourceType), group.Name);
                 if ((index = iList.IndexOf(resType)) >= 0)
                     linker.Groups[(int)resType] = group;
             }
@@ -176,19 +206,27 @@ namespace BrawlLib.Wii.Models
             //Write data in the order it appears
             foreach (MDLResourceType resType in OrderBank)
             {
-                if (((group = Groups[(int)resType]) == null) || (TypeBank[(int)resType] == null))
+                if (((group = Groups[(int)resType]) == null) || SpecialRebuildData((int)resType))
                     continue;
 
                 if (resType == MDLResourceType.Bones)
                 {
-                    foreach (ResourceNode e in BoneCache)
-                    {
-                        if (form != null)
-                            form.Say("Writing the Bones - " + e.Name);
+                    if (form != null)
+                        form.Say("Writing Bones");
 
+                    MDL0Bone* pBone = (MDL0Bone*)pData;
+                    foreach (MDL0BoneNode e in BoneCache)
+                    {
                         len = e._calcSize;
                         e.Rebuild(pData, len, true);
                         pData += len;
+                    }
+                    //Loop through after all bones are written
+                    //and set header offsets to related bones
+                    foreach (MDL0BoneNode e in BoneCache)
+                    {
+                        e.CalculateOffsets(pBone);
+                        pBone = pBone->Next;
                     }
                 }
                 else if (resType == MDLResourceType.Shaders)
@@ -196,14 +234,14 @@ namespace BrawlLib.Wii.Models
                     MDL0GroupNode mats = Groups[(int)MDLResourceType.Materials];
                     MDL0Material* mHeader;
 
+                    if (form != null)
+                        form.Say("Writing Shaders");
+
                     //Write data without headers
                     foreach (ResourceNode e in group.Children)
                     {
                         if (((MDL0ShaderNode)e)._materials.Count > 0)
                         {
-                            if (form != null)
-                                form.Say("Writing the Shaders - " + e.Name);
-
                             len = e._calcSize;
                             e.Rebuild(pData, len, force);
                             pData += len;
@@ -228,7 +266,7 @@ namespace BrawlLib.Wii.Models
                     foreach (ResourceNode r in group.Children)
                     {
                         if (form != null)
-                            form.Say("Writing the " + resType.ToString() + " - " + r.Name);
+                            form.Say("Writing " + resType.ToString() + " - " + r.Name);
 
                         len = r._calcSize;
                         r.Rebuild(pData, len, true); //Forced to fix object node ids and align materials
@@ -265,7 +303,7 @@ namespace BrawlLib.Wii.Models
             fixed (ResourceGroup** pOut = &Defs)
                 foreach (MDLResourceType resType in IndexBank[Version])
                 {
-                    if (((group = Groups[(int)resType]) == null) || (TypeBank[(int)resType] == null))
+                    if (((group = Groups[(int)resType]) == null) || SpecialRebuildData((int)resType))
                         continue;
 
                     pOut[(int)resType] = pGrp = (ResourceGroup*)pGroup;

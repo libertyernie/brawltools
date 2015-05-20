@@ -156,16 +156,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             CameraAnimationFrame f = GetAnimFrame(frame);
             cam.Reset();
             cam.Translate(f.Pos);
-            cam.Rotate(f.GetRotate(Type));
+
+            Vector3 rotate = f.GetRotation(Type);
+            cam.Rotate(rotate);
 
             float aspect = retainAspect ? cam.Aspect : f.Aspect;
             cam.SetProjectionParams(aspect, f.FovY, f.FarZ, f.NearZ);
         }
 
+        /// <summary>
+        /// mtx is from camera to world space (a point in camera space)
+        /// inverse is from world to camera space (a point in the world)
+        /// </summary>
         public void GetModelViewMatrix(float frame, out Matrix mtx, out Matrix inverse)
         {
             CameraAnimationFrame f = GetAnimFrame(frame);
-            Vector3 r = f.GetRotate(Type);
+            Vector3 r = f.GetRotation(Type);
             Vector3 t = f.Pos;
 
             mtx = Matrix.ReverseTransformMatrix(new Vector3(1.0f), r, t);
@@ -306,6 +312,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal unsafe Vector3 GetPosition(float index)
         {
             return new Vector3(PosX.GetFrameValue(index), PosY.GetFrameValue(index), PosZ.GetFrameValue(index));
+        }
+
+        public Vector3 GetRotate(float frame)
+        {
+            return new Vector3(RotX.GetFrameValue(frame), RotY.GetFrameValue(frame), RotZ.GetFrameValue(frame));
         }
     }
 

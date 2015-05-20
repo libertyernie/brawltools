@@ -38,7 +38,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override string Name
         {
             get { return _texture != null ? _texture.Name : base.Name; }
-            set { if (_texture != null) Texture = value; base.Name = value; }
+            set { Texture = value; base.Name = value; }
         }
 
         #region Variables
@@ -46,13 +46,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public TexMtxEffect _texMatrixEffect;
         public XFDualTex _dualTexFlags;
         public XFTexMtxInfo _texMtxFlags;
-
-        //internal int _projection; //Normal enable is true when projection is XF_TEX_STQ
-        //internal int _inputForm;
-        //internal int _texGenType;
-        //internal int _sourceRow;
-        //internal int _embossSource;
-        //internal int _embossLight;
 
         internal int _uWrap;
         internal int _vWrap;
@@ -96,61 +89,314 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         n._manager.HasTextureMatrix[Index] = value;
                         n._rebuild = true;
-                        Model.SignalPropertyChange();
+                        n.SignalPropertyChange();
 
                         if (n._vertexNode.Format != WiiVertexComponentType.Float)
                             n._vertexNode._forceRebuild = n._vertexNode._forceFloat = value;
                     }
+                SignalPropertyChange();
             }
         }
 
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Scale { get { return _bindState.Scale; } set { if (!CheckIfMetal()) { _bindState.Scale = value; UpdateCurrentControl(); } } }
+        public Vector2 Scale
+        {
+            get { return _bindState.Scale; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _bindState.Scale = value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Coordinates")]
-        public float Rotation { get { return _bindState.Rotate; } set { if (!CheckIfMetal()) { _bindState.Rotate = value; UpdateCurrentControl(); } } }
+        public float Rotation
+        {
+            get { return _bindState.Rotate; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _bindState.Rotate = value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Coordinates"), TypeConverter(typeof(Vector2StringConverter))]
-        public Vector2 Translation { get { return _bindState.Translate; } set { if (!CheckIfMetal()) { _bindState.Translate = value; UpdateCurrentControl(); } } }
+        public Vector2 Translation
+        {
+            get { return _bindState.Translate; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _bindState.Translate = value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
 
         [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefCamera { get { return _texMatrixEffect.SCNCamera; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNCamera = value; } }
+        public sbyte SCN0RefCamera
+        {
+            get { return _texMatrixEffect.SCNCamera; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMatrixEffect.SCNCamera = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("Texture Matrix Effect")]
-        public sbyte SCN0RefLight { get { return _texMatrixEffect.SCNLight; } set { if (!CheckIfMetal()) _texMatrixEffect.SCNLight = value; } }
+        public sbyte SCN0RefLight
+        {
+            get { return _texMatrixEffect.SCNLight; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMatrixEffect.SCNLight = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("Texture Matrix Effect")]
-        public MappingMethod MapMode { get { return _texMatrixEffect.MapMode; } set { if (!CheckIfMetal()) _texMatrixEffect.MapMode = value; UpdateCurrentControl(); } }
+        public MappingMethod MapMode
+        {
+            get { return _texMatrixEffect.MapMode; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMatrixEffect.MapMode = value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Matrix Effect"), TypeConverter(typeof(Matrix43StringConverter)), Browsable(false)]
-        public Matrix34 EffectMatrix { get { return _texMatrixEffect.TextureMatrix; } set { if (!CheckIfMetal()) { _texMatrixEffect.TextureMatrix = value; } } }
+        public Matrix34 EffectMatrix
+        {
+            get { return _texMatrixEffect.TextureMatrix; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMatrixEffect.TextureMatrix = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         
         [Category("XF TexGen Flags")]
-        public TexProjection Projection { get { return _texMtxFlags.Projection; } set { if (!CheckIfMetal()) { _texMtxFlags.Projection = value; } } }
+        public TexProjection Projection
+        {
+            get { return _texMtxFlags.Projection; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.Projection = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public TexInputForm InputForm { get { return _texMtxFlags.InputForm; } set { if (!CheckIfMetal()) { _texMtxFlags.InputForm = value; } } }
+        public TexInputForm InputForm
+        {
+            get { return _texMtxFlags.InputForm; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.InputForm = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public TexTexgenType Type { get { return _texMtxFlags.TexGenType; } set { if (!CheckIfMetal()) { _texMtxFlags.TexGenType = value; } } }
+        public TexTexgenType Type
+        {
+            get { return _texMtxFlags.TexGenType; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.TexGenType = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public TexSourceRow Coordinates { get { return _texMtxFlags.SourceRow; } set { if (!CheckIfMetal()) { _texMtxFlags.SourceRow = value; UpdateCurrentControl(); } } }
+        public TexSourceRow Coordinates
+        {
+            get { return _texMtxFlags.SourceRow; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.SourceRow = value;
+                    SignalPropertyChange(); 
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public int EmbossSource { get { return _texMtxFlags.EmbossSource; } set { if (!CheckIfMetal()) { _texMtxFlags.EmbossSource = value; } } }
+        public int EmbossSource
+        {
+            get { return _texMtxFlags.EmbossSource; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.EmbossSource = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public int EmbossLight { get { return _texMtxFlags.EmbossLight; } set { if (!CheckIfMetal()) { _texMtxFlags.EmbossLight = value; } } }
+        public int EmbossLight
+        {
+            get { return _texMtxFlags.EmbossLight; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texMtxFlags.EmbossLight = value;
+                    SignalPropertyChange(); 
+                }
+            }
+        }
         [Category("XF TexGen Flags")]
-        public bool Normalize { get { return _dualTexFlags._normalEnable != 0; } set { if (!CheckIfMetal()) { _dualTexFlags._normalEnable = (byte)(value ? 1 : 0); } } }
+        public bool Normalize
+        {
+            get { return _dualTexFlags._normalEnable != 0; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _dualTexFlags._normalEnable = (byte)(value ? 1 : 0);
+                    SignalPropertyChange(); 
+                }
+            }
+        }
 
         [Category("Texture Reference")]
-        public MatWrapMode UWrapMode { get { return (MatWrapMode)_uWrap; } set { if (!CheckIfMetal()) { _uWrap = (int)value; UpdateCurrentControl(); } } }
+        public MatWrapMode UWrapMode
+        {
+            get { return (MatWrapMode)_uWrap; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _uWrap = (int)value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public MatWrapMode VWrapMode { get { return (MatWrapMode)_vWrap; } set { if (!CheckIfMetal()) { _vWrap = (int)value; UpdateCurrentControl(); } } }
+        public MatWrapMode VWrapMode
+        {
+            get { return (MatWrapMode)_vWrap; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _vWrap = (int)value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public MatTextureMinFilter MinFilter { get { return (MatTextureMinFilter)_minFltr; } set { if (!CheckIfMetal()) { _minFltr = (int)value; UpdateCurrentControl(); } } }
+        public MatTextureMinFilter MinFilter
+        {
+            get { return (MatTextureMinFilter)_minFltr; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _minFltr = (int)value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public MatTextureMagFilter MagFilter { get { return (MatTextureMagFilter)_magFltr; } set { if (!CheckIfMetal()) { _magFltr = (int)value; UpdateCurrentControl(); } } }
+        public MatTextureMagFilter MagFilter
+        {
+            get { return (MatTextureMagFilter)_magFltr; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _magFltr = (int)value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public float LODBias { get { return _lodBias; } set { if (!CheckIfMetal()) { _lodBias = value; UpdateCurrentControl(); } } }
+        public float LODBias
+        {
+            get { return _lodBias; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _lodBias = value;
+                    SignalPropertyChange();
+                    UpdateCurrentControl();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public MatAnisotropy MaxAnisotropy { get { return (MatAnisotropy)_maxAniso; } set { if (!CheckIfMetal()) _maxAniso = (int)value; } }
+        public MatAnisotropy MaxAnisotropy
+        {
+            get { return (MatAnisotropy)_maxAniso; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _maxAniso = (int)value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public bool ClampBias { get { return _clampBias; } set { if (!CheckIfMetal()) _clampBias = value; } }
+        public bool ClampBias
+        {
+            get { return _clampBias; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _clampBias = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
         [Category("Texture Reference")]
-        public bool TexelInterpolate { get { return _texelInterp; } set { if (!CheckIfMetal()) _texelInterp = value; } }
+        public bool TexelInterpolate
+        {
+            get { return _texelInterp; }
+            set
+            {
+                if (!CheckIfMetal())
+                {
+                    _texelInterp = value;
+                    SignalPropertyChange();
+                }
+            }
+        }
 
         #endregion
 
@@ -238,7 +484,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (Material != null && Material.CheckIfMetal())
                 return true;
 
-            SignalPropertyChange();
             return false;
         }
 
@@ -441,13 +686,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _effectMatrix = Matrix34.ProjectionMapping(SCN0RefCamera, node, v, frame);
                         break;
                     case MappingMethod.EnvSpec:
-                        _effectMatrix = Matrix34.EnvironmentSpecularMapping(SCN0RefCamera, SCN0RefLight, node, v, frame);
+                        _effectMatrix = Matrix34.EnvSpecMap(SCN0RefCamera, SCN0RefLight, node, v, frame);
                         break;
                     case MappingMethod.EnvLight:
-                        _effectMatrix = Matrix34.EnvironmentMapping(SCN0RefCamera, SCN0RefLight, node, v, frame);
+                        _effectMatrix = Matrix34.EnvLightMap(SCN0RefLight, node, v, frame);
                         break;
                     case MappingMethod.EnvCamera:
-                        _effectMatrix = Matrix34.EnvironmentMapping(SCN0RefCamera, SCN0RefLight, node, v, frame);
+                        _effectMatrix = Matrix34.EnvCamMap(SCN0RefCamera, node, v, frame);
                         break;
                     default:
                         _effectMatrix = Matrix.Identity;
@@ -464,18 +709,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!useEffectMtx || _effectMatrix == Matrix.Identity)
                 return _frameState._transform;
             else
-            {
-                Matrix34 srt = (Matrix34)_frameState._transform;
-                float temp = srt[2];
-                srt[2] = srt[3];
-                srt[3] = temp;
-
-                temp = srt[6];
-                srt[6] = srt[7];
-                srt[7] = temp;
-
-                return (Matrix)srt * _effectMatrix;
-            }
+                return _frameState._transform * _effectMatrix;
         }
 
         public void Default()

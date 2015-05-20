@@ -82,7 +82,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 table[r.Index] = (uint)(addr - address);
 
-                r.MoveRaw(addr, r.WorkingUncompressed.Length);
+                Memory.Move(addr, r.WorkingUncompressed.Address, (uint)r.WorkingUncompressed.Length);
 
                 WaveInfo* wave = (WaveInfo*)addr;
                 wave->_dataLocation = (uint)(_audioAddr - baseAddr);

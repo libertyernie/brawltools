@@ -588,6 +588,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal void SetSize(int count, bool looped)
         {
             Keyframes.FrameLimit = count + (looped ? 1 : 0);
+            Keyframes.Loop = looped;
             SignalPropertyChange();
         }
 

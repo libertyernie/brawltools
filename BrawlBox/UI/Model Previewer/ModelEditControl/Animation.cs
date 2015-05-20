@@ -36,8 +36,8 @@ namespace System.Windows.Forms
 
                 prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;
-                animCtrlPnl.Width = 320;
-                animEditors.Height = 78;
+                animCtrlPnl.Width = weightEditor.MinimumSize.Width;
+                animEditors.Height = weightEditor.MinimumSize.Height;
                 weightEditor.Visible = true;
                 _currentControl.Visible = false;
             }
@@ -76,7 +76,7 @@ namespace System.Windows.Forms
         /// </summary>
         private void HandleFirstPersonCamera()
         {
-            if (firstPersonCameraToolStripMenuItem.Checked && _scn0 != null && scn0Editor._camera != null)
+            if (FirstPersonCamera && _scn0 != null && scn0Editor._camera != null)
                 scn0Editor._camera.SetCamera(ModelPanel.CurrentViewport, CurrentFrame - 1, _retainAspect);
         }
 

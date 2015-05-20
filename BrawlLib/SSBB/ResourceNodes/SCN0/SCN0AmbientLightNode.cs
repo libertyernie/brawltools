@@ -146,7 +146,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             else
             {
                 int colorIndex = (int)Math.Truncate(index);
-                Vector4 color = (Vector4)_colors[colorIndex];
+                Vector4 color = (Vector4)_colors[colorIndex.Clamp(0, _colors.Count - 1)];
                 if (colorIndex + 1 < _colors.Count)
                 {
                     float frac = index - colorIndex;

@@ -18,6 +18,8 @@ namespace BrawlLib.Modeling
     {
         #region Variables
 
+        public bool _assetsChanged = false;
+
         public List<Vertex3> _vertices;
         public UnsafeBuffer _indices;
 
@@ -335,9 +337,9 @@ namespace BrawlLib.Modeling
             _vertices = desc.Finish((Vector3*)pAssetList[0], nodes);
 
             ushort* pIndex = (ushort*)_indices.Address;
-            for (int x = 0; x < _pointCount; x++)
-                if (pIndex[x] >= 0 && pIndex[x] < _vertices.Count)
-                    _vertices[pIndex[x]]._faceDataIndices.Add(x);
+            for (int x = 0; x < _pointCount; x++, pIndex++)
+                if (*pIndex >= 0 && *pIndex < _vertices.Count)
+                    _vertices[*pIndex]._faceDataIndices.Add(x);
         }
         
         ~PrimitiveManager() { Dispose(); }
@@ -439,7 +441,8 @@ namespace BrawlLib.Modeling
 
                     if (cmd != GXListCommand.LoadIndexD) //How does the light command work? Never seen it used
                     {
-                        group._nodeOffsets.Add(new NodeOffset((uint)(pData - pStart) - group._offset, cache[value]));
+                        if (value < cache.Length && value >= 0)
+                            group._nodeOffsets.Add(new NodeOffset((uint)(pData - pStart) - group._offset, cache[value]));
                         if (cmd == GXListCommand.LoadIndexA)
                             desc.SetNode(pData); //Set weight
                     }
@@ -718,6 +721,10 @@ namespace BrawlLib.Modeling
                 }
 
                 _primGroups.AddRange(groups);
+            }
+            if (_points != null)
+            {
+
             }
         }
         
@@ -1750,8 +1757,6 @@ namespace BrawlLib.Modeling
         }
 
         #endregion
-
-        public PrimitiveManager Clone() { return MemberwiseClone() as PrimitiveManager; }
     }
 
     public unsafe class GLPrimitive

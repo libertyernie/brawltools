@@ -179,7 +179,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public bool HasChanged { get { return _changed; } set { _changed = value; } }
 
-        public void SignalPropertyChange()
+        public virtual void SignalPropertyChange()
         {
             if (PropertyChanged != null)
                 PropertyChanged(this);
@@ -738,6 +738,31 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else if (_origSource != DataSource.Empty)
                     _origSource.Address += offset;
             }
+        }
+
+        internal virtual void MoveUncompressed(VoidPtr address, int length)
+        {
+            Memory.Move(address, WorkingUncompressed.Address, (uint)length);
+            DataSource newsrc = new DataSource(address, length);
+
+            int offset = address - WorkingUncompressed.Address;
+            foreach (ResourceNode n in Children)
+                n.OnParentMovedUncompressed(offset);
+
+            _replSrc.Close();
+            _replUncompSrc.Close();
+            _replSrc = _replUncompSrc = newsrc;
+        }
+        internal virtual void OnParentMovedUncompressed(int offset)
+        {
+            if (_replUncompSrc != DataSource.Empty)
+                _replUncompSrc.Address += offset;
+            else if (_uncompSource != DataSource.Empty)
+                _uncompSource.Address += offset;
+
+            if (_children != null)
+                foreach (ResourceNode n in _children)
+                    n.OnParentMovedUncompressed(offset);
         }
 
         #endregion

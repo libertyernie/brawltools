@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using OpenTK.Graphics;
+using BrawlLib.Modeling;
 
 namespace BrawlLib.OpenGL
 {
@@ -59,7 +60,7 @@ namespace BrawlLib.OpenGL
         public static int _versionMin = 0;
         public static bool _anyContextInitialized = false;
 
-        private Control _window;
+        public Control _window;
         public TKContext(Control window)
         {
             _window = window;
@@ -187,6 +188,14 @@ namespace BrawlLib.OpenGL
         {
             if (CurrentContext == this)
                 _context.Update(WindowInfo); 
+        }
+
+        public static void InvalidateModelPanels(IRenderedObject obj)
+        {
+            if (_boundContexts != null)
+                foreach (var x in _boundContexts)
+                    if (x._window is ModelPanel/* && ((ModelPanel)x._window)._renderList.Contains(obj)*/)
+                        x._window.Invalidate();
         }
 
         public static unsafe void DrawWireframeBox(Box value) { DrawWireframeBox(value.Min, value.Max); }
@@ -349,11 +358,11 @@ namespace BrawlLib.OpenGL
 
             GL.Begin(BeginMode.LineLoop);
 
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, 1.0f);
-            GL.Vertex3(0.0f, 1.0f, 1.0f);
-            GL.Vertex3(0.0f, 1.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.Vertex2(0.0f, 0.0f);
+            GL.Vertex2(0.0f, 1.0f);
+            GL.Vertex2(1.0f, 1.0f);
+            GL.Vertex2(1.0f, 0.0f);
+            GL.Vertex2(0.0f, 0.0f);
 
             GL.End();
 

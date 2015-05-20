@@ -594,8 +594,15 @@ namespace BrawlLib.Modeling
             foreach (ModelMaterial m in _materials)
             {
                 PrimitiveManager manager = new PrimitiveManager() { _pointCount = (int)m._faceVertCount };
-                MDL0ObjectNode p = new MDL0ObjectNode() { _manager = manager, _opaMaterial = (MDL0MaterialNode)model._matList[x] };
-                p._opaMaterial._objects.Add(p);
+                MDL0ObjectNode p = new MDL0ObjectNode()
+                {
+                    _manager = manager,
+                    _drawCalls = new System.ComponentModel.BindingList<DrawCall>()
+                };
+                p._drawCalls.Add(new DrawCall(p)
+                {
+                    MaterialNode = (MDL0MaterialNode)model._matList[x]
+                });
                 p._manager._vertices = new List<Vertex3>();
                 p.Name = "polygon" + x++;
                 p._parent = model._objGroup;
@@ -658,7 +665,7 @@ namespace BrawlLib.Modeling
                         t._z = mv._position[2];
                         if (inf.Weights.Count > 1)
                         {
-                            inf = model._influences.FindOrCreate(inf, true);
+                            inf = model._influences.FindOrCreate(inf);
                             inf.CalcMatrix();
                             v = new Vertex3(t, inf);
                         }
@@ -710,11 +717,13 @@ namespace BrawlLib.Modeling
                     {
                         //Increase reference count ahead of time for rebuild
                         if (p._manager._vertices[0].MatrixNode != null)
-                            p._manager._vertices[0].MatrixNode.ReferenceCount++;
+                            //p._manager._vertices[0].MatrixNode.ReferenceCount++;
+                            p._manager._vertices[0].MatrixNode.Users.Add(p);
 
                         foreach (Vertex3 v in p._manager._vertices)
                             if (v.MatrixNode != null)
-                                v.MatrixNode.ReferenceCount--;
+                                //v.MatrixNode.ReferenceCount--;
+                                v.MatrixNode.Users.Remove(v);
 
                         p._nodeId = -2; //Continued on polygon rebuild
                     }

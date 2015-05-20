@@ -135,7 +135,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Shader Data"), Browsable(true), Description("Enables the material's eighth texture reference for use.")]
         public bool TextureRef7 { get { return _ref7 != -1; } set { _ref7 = (sbyte)(value ? 7 : -1); SignalPropertyChange(); } }
 
-        public new void SignalPropertyChange()
+        public override void SignalPropertyChange()
         {
             _fragShaderSource = null;
             base.SignalPropertyChange();

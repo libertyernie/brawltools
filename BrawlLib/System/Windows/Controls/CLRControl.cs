@@ -221,6 +221,8 @@ namespace System.Windows.Forms
 
         private ARGBPixel _primaryColor;
 
+        public event EventHandler CurrentColorChanged;
+
         public int _colorId = 0;
         public int ColorID { get { return _colorId; } set { _colorId = value; SourceChanged(); } }
 
@@ -277,6 +279,20 @@ namespace System.Windows.Forms
             if (e.KeyCode == Keys.Enter)
                 lstColors_DoubleClick(sender, e);
         }
+
+        int tempIndex = -1;
+        void _dlgColor_OnColorChanged(Color selection)
+        {
+            if (tempIndex >= 0)
+            {
+                ARGBPixel p = (ARGBPixel)selection;
+                lstColors.Items[tempIndex] = p;
+                _colorSource.SetColor(tempIndex, _colorId, p);
+
+                if (CurrentColorChanged != null)
+                    CurrentColorChanged(this, EventArgs.Empty);
+            }
+        }
         private void lstColors_DoubleClick(object sender, EventArgs e)
         {
             ListBox.SelectedIndexCollection indices = lstColors.SelectedIndices;
@@ -286,14 +302,23 @@ namespace System.Windows.Forms
             int count = indices.Count;
             if (count == 1)
             {
-                int index = indices[0];
-                _dlgColor.Color = (Color)(ARGBPixel)lstColors.Items[index];
-                if (_dlgColor.ShowDialog(this) == DialogResult.OK)
+                tempIndex = indices[0];
+                ARGBPixel prev = (ARGBPixel)lstColors.Items[tempIndex];
+                _dlgColor.Color = (Color)prev;
+                _dlgColor.OnColorChanged += _dlgColor_OnColorChanged;
+                if (_dlgColor.ShowDialog(this) != DialogResult.OK)
                 {
-                    ARGBPixel p = (ARGBPixel)_dlgColor.Color;
-                    lstColors.Items[index] = p;
-                    _colorSource.SetColor(index, _colorId, p);
+                    if (tempIndex >= 0)
+                    {
+                        lstColors.Items[tempIndex] = prev;
+                        _colorSource.SetColor(tempIndex, _colorId, prev);
+
+                        if (CurrentColorChanged != null)
+                            CurrentColorChanged(this, EventArgs.Empty);
+                    }
                 }
+                _dlgColor.OnColorChanged -= _dlgColor_OnColorChanged;
+                tempIndex = -1;
             }
             else
             {

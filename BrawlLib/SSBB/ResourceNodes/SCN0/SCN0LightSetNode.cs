@@ -28,48 +28,53 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Remaps light entries to an array with no space between entries.
         private void SetLight(int index, string value)
         {
-            int i = 0;
-            if (!String.IsNullOrEmpty(value))
-            {
-                for (; i < 8; i++)
-                    if (GetLightName(i) == value && i != index)
-                        return;
-                for (i = 0; i < index; i++)
-                    if (GetLightName(i) == null)
-                        break;
-            }
-            else
+            //int i = 0;
+            int i = index.Clamp(0, 8);
+
+            if (value == "<null>")
+                value = null;
+
+            if (/*!*/String.IsNullOrEmpty(value))
+            //{
+            //    //for (; i < 8; i++)
+            //    //    if (GetLightName(i) == value && i != index)
+            //    //        return;
+            //    for (i = 0; i < index; i++)
+            //        if (String.IsNullOrEmpty(GetLightName(i)))
+            //            break;
+            //}
+            //else
             {
                 _lights[index] = null;
-                SignalPropertyChange();
-
-                int amt = 0;
-                for (int x = 0; x < 8; x++)
-                    if (_lights[x] == null)
-                        amt++;
-                    else if (amt != 0)
-                    {
-                        _lights[x - amt] = _lights[x];
-                        _lights[x] = null;
-                    }
+                //int amt = 0;
+                //for (int x = 0; x < 8; x++)
+                //    if (_lights[x] == null)
+                //        amt++;
+                //    else if (amt != 0)
+                //    {
+                //        _lights[x - amt] = _lights[x];
+                //        _lights[x] = null;
+                //    }
                 UpdateProperties();
-                return;
+                SignalPropertyChange();
+                //return;
             }
-            if (i <= index)
+            //if (i <= index)
+            else
             {
                 _lights[i] = ((SCN0Node)Parent.Parent).GetFolder<SCN0LightNode>().FindChild(value, false) as SCN0LightNode;
-                if (_lights[i] == null)
-                {
-                    int amt = 0;
-                    for (int x = 0; x < 8; x++)
-                        if (_lights[x] == null)
-                            amt++;
-                        else if (amt != 0)
-                        {
-                            _lights[x - amt] = _lights[x];
-                            _lights[x] = null;
-                        }
-                }
+                //if (_lights[i] == null)
+                //{
+                //    int amt = 0;
+                //    for (int x = 0; x < 8; x++)
+                //        if (_lights[x] == null)
+                //            amt++;
+                //        else if (amt != 0)
+                //        {
+                //            _lights[x - amt] = _lights[x];
+                //            _lights[x] = null;
+                //        }
+                //}
                 UpdateProperties();
                 SignalPropertyChange();
             }

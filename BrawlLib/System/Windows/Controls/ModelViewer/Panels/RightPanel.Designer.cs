@@ -30,6 +30,7 @@
         {
             this.editor = new System.Windows.Forms.ComboBox();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.pnlOpenedFiles = new System.Windows.Forms.OpenedFilesControl();
             this.pnlBones = new System.Windows.Forms.BonesPanel();
             this.pnlKeyframes = new System.Windows.Forms.KeyframePanel();
             this.panel1.SuspendLayout();
@@ -42,7 +43,8 @@
             this.editor.FormattingEnabled = true;
             this.editor.Items.AddRange(new object[] {
             "Bones",
-            "Keyframes"});
+            "Keyframes",
+            "Files"});
             this.editor.Location = new System.Drawing.Point(0, 0);
             this.editor.Name = "editor";
             this.editor.Size = new System.Drawing.Size(230, 21);
@@ -51,6 +53,7 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.pnlOpenedFiles);
             this.panel1.Controls.Add(this.pnlBones);
             this.panel1.Controls.Add(this.pnlKeyframes);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -58,6 +61,14 @@
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(230, 434);
             this.panel1.TabIndex = 1;
+            // 
+            // pnlOpenedFiles
+            // 
+            this.pnlOpenedFiles.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlOpenedFiles.Location = new System.Drawing.Point(0, 0);
+            this.pnlOpenedFiles.Name = "pnlOpenedFiles";
+            this.pnlOpenedFiles.Size = new System.Drawing.Size(230, 434);
+            this.pnlOpenedFiles.TabIndex = 2;
             // 
             // pnlBones
             // 
@@ -70,6 +81,7 @@
             // pnlKeyframes
             // 
             this.pnlKeyframes.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.pnlKeyframes.Enabled = false;
             this.pnlKeyframes.FrameIndex = -1;
             this.pnlKeyframes.Location = new System.Drawing.Point(0, 0);
             this.pnlKeyframes.Name = "pnlKeyframes";
@@ -94,5 +106,6 @@
         private global::System.Windows.Forms.Panel panel1;
         public global::System.Windows.Forms.BonesPanel pnlBones;
         public global::System.Windows.Forms.KeyframePanel pnlKeyframes;
+        public OpenedFilesControl pnlOpenedFiles;
     }
 }

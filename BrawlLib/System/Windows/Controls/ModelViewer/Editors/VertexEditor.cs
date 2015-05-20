@@ -459,7 +459,7 @@ namespace System.Windows.Forms
         public List<Vertex3> TargetVertices 
         {
             get { return _targetVertices; }
-            set { _targetVertices = value; UpdatePropDisplay(); }
+            set { _targetVertices = value.ToList(); UpdatePropDisplay(); }
         }        
         public List<Vertex3> _targetVertices;
 
@@ -470,6 +470,7 @@ namespace System.Windows.Forms
 
             if (_targetVertices != null)
             {
+                _mainWindow.VertexChange(_targetVertices);
                 if (_targetVertices.Count == 1)
                 {
                     TargetVertex._weightedPosition._x = numPosX.Value;
@@ -479,11 +480,11 @@ namespace System.Windows.Forms
                 {
                     foreach (Vertex3 v in _targetVertices)
                     {
-                        v._weightedPosition._x += numPosX.Value;
+                        v._weightedPosition._x += numPosX.Value - numPosX._previousValue;
                         v.Unweight();
                     }
-                    numPosX.Value = 0;
                 }
+                _mainWindow.VertexChange(_targetVertices);
                 _mainWindow.UpdateModel();
             }
         }
@@ -495,6 +496,7 @@ namespace System.Windows.Forms
 
             if (_targetVertices != null)
             {
+                _mainWindow.VertexChange(_targetVertices);
                 if (_targetVertices.Count == 1)
                 {
                     TargetVertex._weightedPosition._y = numPosY.Value;
@@ -504,11 +506,11 @@ namespace System.Windows.Forms
                 {
                     foreach (Vertex3 v in _targetVertices)
                     {
-                        v._weightedPosition._y += numPosY.Value;
+                        v._weightedPosition._y += numPosY.Value - numPosY._previousValue;
                         v.Unweight();
                     }
-                    numPosY.Value = 0;
                 }
+                _mainWindow.VertexChange(_targetVertices);
                 _mainWindow.UpdateModel();
             }
         }
@@ -520,6 +522,7 @@ namespace System.Windows.Forms
 
             if (_targetVertices != null)
             {
+                _mainWindow.VertexChange(_targetVertices);
                 if (_targetVertices.Count == 1)
                 {
                     TargetVertex._weightedPosition._z = numPosZ.Value;
@@ -529,11 +532,11 @@ namespace System.Windows.Forms
                 {
                     foreach (Vertex3 v in _targetVertices)
                     {
-                        v._weightedPosition._z += numPosZ.Value;
+                        v._weightedPosition._z += numPosZ.Value - numPosZ._previousValue;
                         v.Unweight();
                     }
-                    numPosZ.Value = 0;
                 }
+                _mainWindow.VertexChange(_targetVertices);
                 _mainWindow.UpdateModel();
             }
         }
@@ -582,12 +585,14 @@ namespace System.Windows.Forms
 
         private void btnAverage_Click(object sender, EventArgs e)
         {
+            _mainWindow.VertexChange(_targetVertices);
             Vector3 point = new Vector3();
             foreach (Vertex3 v in _targetVertices)
                 point += v.WeightedPosition;
             point /= _targetVertices.Count;
             foreach (Vertex3 v in _targetVertices)
                 v.WeightedPosition = point;
+            _mainWindow.VertexChange(_targetVertices);
             _mainWindow.UpdateModel();
         }
 

@@ -26,7 +26,16 @@ namespace System.Windows.Forms
     {
         public ModelEditorBase _mainWindow;
 
-        public KeyframePanel() { InitializeComponent(); }
+        public KeyframePanel()
+        {
+            InitializeComponent();
+            clrControl.CurrentColorChanged += clrControl_CurrentColorChanged;
+        }
+
+        void clrControl_CurrentColorChanged(object sender, EventArgs e)
+        {
+            _mainWindow.UpdateModel();
+        }
 
         private int _currentPage = 1;
         private ResourceNode _target;
@@ -409,6 +418,7 @@ namespace System.Windows.Forms
             {
                 visEditor.TargetNode.Enabled = chkEnabled.Checked;
                 UpdateVisEntry();
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -425,6 +435,8 @@ namespace System.Windows.Forms
                 clrControl.ColorSource.SetColorConstant(clrControl.ColorID, chkConstant.Checked);
                 clrControl.ColorID = clrControl.ColorID;
             }
+            if (!_updating)
+                _mainWindow.UpdateModel();
         }
 
         private void lstTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -505,6 +517,17 @@ namespace System.Windows.Forms
         {
             get { return _mainWindow.SelectedBone; }
             set { _mainWindow.SelectedBone = value; }
+        }
+
+        public void UpdateCurrentFrame(int frame)
+        {
+            if (visEditor.TargetNode != null && !visEditor.TargetNode.Constant)
+            {
+                visEditor._updating = true;
+                visEditor.listBox1.SelectedIndices.Clear();
+                visEditor.listBox1.SelectedIndex = frame - 1;
+                visEditor._updating = false;
+            }
         }
     }
 }

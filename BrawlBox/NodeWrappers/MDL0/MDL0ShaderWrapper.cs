@@ -23,13 +23,11 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
             _menu.Items.Add(new ToolStripSeparator());
-            //_menu.Items.Add(new ToolStripMenuItem("Add New Structure", null, CreateAction, Keys.Control | Keys.Alt | Keys.N));
             _menu.Items.Add(new ToolStripMenuItem("Add New Stage", null, CreateAction, Keys.Control | Keys.Alt | Keys.N));
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        //protected static void CreateAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().CreateStruct(); }
         protected static void CreateAction(object sender, EventArgs e) { GetInstance<MDL0ShaderWrapper>().CreateStage(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
@@ -40,19 +38,6 @@ namespace BrawlBox.NodeWrappers
             MDL0ShaderWrapper w = GetInstance<MDL0ShaderWrapper>();
             _menu.Items[6].Enabled = w._resource.Children.Count < 16; //16 stages max!
         }
-        //private void CreateStruct()
-        //{
-        //    if (_resource.Children.Count < 8)
-        //    {
-        //        MDL0ShaderStructNode shadstr = new MDL0ShaderStructNode();
-        //        _resource.AddChild(shadstr, true);
-        //        shadstr.Default();
-
-        //        Nodes[Nodes.Count - 1].EnsureVisible();
-        //        //TreeView.SelectedNode = Nodes[Nodes.Count - 1];
-        //    }
-        //}
-
         private void CreateStage()
         {
             if (_resource.Children.Count < 16)

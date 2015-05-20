@@ -14,7 +14,20 @@ namespace BrawlLib.Wii.Graphics
 {
     public unsafe class ShaderGenerator
     {
-        static bool PixelLighting = false;
+        internal static bool _pixelLightingChanged = false;
+        static bool _pixelLighting = false;
+        public static bool PixelLighting
+        {
+            get { return _pixelLighting; }
+            set
+            {
+                if (_pixelLighting == value)
+                    return;
+
+                _pixelLighting = value;
+                _pixelLightingChanged = true;
+            }
+        }
 
         //Determines if the final shader should be written to the console for review
         static bool AlwaysOutputShader = false;
@@ -164,10 +177,11 @@ namespace BrawlLib.Wii.Graphics
                 //wl("gl_Position = ftransform();");
                 wl("gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;");
 
-                //wl("{0} = gl_ModelViewMatrix;", _vModelViewMtxName);
-                wl("vec4 tempPos = gl_ModelViewMatrix * gl_Vertex;");
-                wl("{0} = vec3(tempPos);", _vPositionName);
-                wl("{0} = gl_NormalMatrix * gl_Normal;", _vNormalName);
+                wl("{0} = vec3(gl_ModelViewMatrix * gl_Vertex);", _vPositionName);
+                if (PixelLighting)
+                    wl("{0} = gl_NormalMatrix * gl_Normal;", _vNormalName);
+                else
+                    wl("{0} = normalize(gl_NormalMatrix * gl_Normal);", _vNormalName);
                 wl("{0} = gl_Color;", _vVtxColorsName[0]);
                 wl("{0} = gl_SecondaryColor;", _vVtxColorsName[1]);
 
@@ -178,82 +192,15 @@ namespace BrawlLib.Wii.Graphics
                 {
                     MDL0MaterialRefNode mr = (MDL0MaterialRefNode)_material.Children[i];
 
-                    //Associated texture coordinates are loaded into the same active texture unit as the map's index
-                    string src = mr.TextureCoordId >= 0 ? ("gl_MultiTexCoord" + i) : _texGenSrc[(int)mr.Coordinates];
+                    //LightChannels are not written in the vertex shader when using pixel lighting,
+                    //but color texture coordinates need it. Need to handle this in the fragment shader
+                    if (mr.Coordinates == TexSourceRow.Colors && PixelLighting)
+                        continue;
 
-                    string name = "uv" + i;
+                    WriteCoordSource(mr, i);
 
-                    //Don't multiply color mapping by texture matrix
-                    if (mr.Coordinates == TexSourceRow.Colors)
-                    {
-                        if (PixelLighting)
-                            continue;
-
-                        src = String.Format(src, mr.Type == TexTexgenType.Color1 ? "1" : "0");
-                    }
-                    else
-                        src = String.Format("gl_TextureMatrix[{0}] * {1}", i, src);
-
-                    wl("vec4 {0} = {1};", name, src);
-
-                    if (mr.Projection == TexProjection.STQ)
-                    {
-                        wl("if ({0}.z != 0.0f)", name);
-                        wl("\t{0}.xy = {0}.xy / {0}.z;", name);
-                    }
-                    //if (mr.Normalize)
-                    //    wl("{0} = normalize({0});", name);
-
-                    wl("gl_TexCoord[{0}] = {1};", i, name);
+                    wl("gl_TexCoord[{0}] = uv{0};", i);
                 }
-
-                //                 wl(@"vec3 normalDirection = 
-                //                normalize(gl_NormalMatrix * gl_Normal);
-                //             vec3 lightDirection;
-                //             float attenuation;
-                //  
-                //             if (0.0 == gl_LightSource[0].position.w) 
-                //                // directional light?
-                //             {
-                //                attenuation = 1.0; // no attenuation
-                //                lightDirection = 
-                //                   normalize(vec3(gl_LightSource[0].position));
-                //             } 
-                //             else // point light or spotlight (or other kind of light) 
-                //             {
-                //                vec3 vertexToLightSource = 
-                //                   vec3(gl_LightSource[0].position 
-                //                   - gl_ModelViewMatrix * gl_Vertex);
-                //                float distance = length(vertexToLightSource);
-                //                attenuation = 
-                //                   1.0 / (gl_LightSource[0].constantAttenuation 
-                //                   + gl_LightSource[0].linearAttenuation * distance
-                //                   + gl_LightSource[0].quadraticAttenuation 
-                //                   * distance * distance);
-                //                lightDirection = normalize(vertexToLightSource);
-                //  
-                //                if (gl_LightSource[0].spotCutoff <= 90.0) // spotlight?
-                //                {
-                //                   float clampedCosine = max(0.0, dot(-lightDirection, 
-                //                      gl_LightSource[0].spotDirection));
-                //                   if (clampedCosine < gl_LightSource[0].spotCosCutoff) 
-                //                      // outside of spotlight cone?
-                //                   {
-                //                      attenuation = 0.0;
-                //                   }
-                //                   else
-                //                   {
-                //                      attenuation = attenuation * pow(clampedCosine, 
-                //                         gl_LightSource[0].spotExponent);
-                //                   }
-                //                }
-                //             }
-                //             vec3 diffuseReflection = attenuation 
-                //                * vec3(gl_LightSource[0].diffuse) 
-                //                * vec3(gl_FrontMaterial.emission)
-                //                * max(0.0, dot(normalDirection, lightDirection));
-                //  
-                //             lightChannel0 = vec4(diffuseReflection, 1.0);");
             }
             return Finish();
         }
@@ -280,6 +227,31 @@ namespace BrawlLib.Wii.Graphics
             wl("return clamp(v, vec3(0.0), vec3(1.0));");
             CloseBracket();
             wl();
+        }
+
+        private static void WriteCoordSource(MDL0MaterialRefNode mr, int i)
+        {
+            //Associated texture coordinates are loaded into the same active texture unit as the map's index
+            string src = mr.TextureCoordId >= 0 ? 
+                ("gl_MultiTexCoord" + i) : 
+                _texGenSrc[(int)mr.Coordinates];
+
+            if (mr.Coordinates == TexSourceRow.Colors)
+                src = String.Format(src, mr.Type == TexTexgenType.Color1 ? "1" : "0");
+
+            src = String.Format("gl_TextureMatrix[{0}] * {1}", i, src);
+
+            //TODO: Normalizing doesn't work right when a mesh is scaled by a bone
+            if (mr.Normalize)
+                src = String.Format("normalize({0})", src);
+
+            wl("vec4 uv{0} = {1};", i, src);
+
+            if (mr.Projection == TexProjection.STQ)
+            {
+                wl("if (uv{0}.z != 0.0f)", i);
+                wl("\tuv{0}.xy = uv{0}.xy / uv{0}.z;", i);
+            }
         }
 
         public static string GenMaterialFragShader()
@@ -353,27 +325,14 @@ namespace BrawlLib.Wii.Graphics
                     {
                         MDL0MaterialRefNode mr = (MDL0MaterialRefNode)_material.Children[i];
                         if (mr.Coordinates == TexSourceRow.Colors)
-                        {
-                            string name = "uv" + i;
-                            string src = String.Format(_texGenSrc[(int)mr.Coordinates],
-                                mr.Type == TexTexgenType.Color1 ? "1" : "0");
-
-                            wl("vec4 {0} = {1};", name, src);
-
-                            if (mr.Projection == TexProjection.STQ)
-                            {
-                                wl("if ({0}.z != 0.0f)", name);
-                                wl("\t{0}.xy = {0}.xy / {0}.z;", name);
-                            }
-                            if (mr.Normalize)
-                                wl("{0} = normalize({0});", name);
-
-                            wl("gl_TexCoord[{0}] = {1};", i, name);
-                        }
+                            WriteCoordSource(mr, i);
+                        else 
+                            wl("vec4 uv{0} = gl_TexCoord[{0}];", i);
                     }
                 }
 
-                //Write the previous register value (in case a shader isn't injected, the frag will still work)
+                //Write the output color register value
+                //In the event that a shader isn't injected, the frag shader will still compile
                 wl("vec4 {0} = {1};", PrevRegName, _defaultRegisterValues[0]);
 
                 //The shader will be added in here
@@ -401,8 +360,8 @@ namespace BrawlLib.Wii.Graphics
                     wl();
                     Comment("Alpha Function");
 
-                    string compare0 = String.Format(_alphaTestCompName[(int)func0], "gl_FragColor.a", (float)func._ref0 / 255f);
-                    string compare1 = String.Format(_alphaTestCompName[(int)func1], "gl_FragColor.a", (float)func._ref1 / 255f);
+                    string compare0 = String.Format(_alphaTestCompName[(int)func0], "gl_FragColor.a", (float)func._ref0 / 255.0f);
+                    string compare1 = String.Format(_alphaTestCompName[(int)func1], "gl_FragColor.a", (float)func._ref1 / 255.0f);
                     string fullcompare = string.Format(_alphaTestCombineName[(int)logic], compare0, compare1);
 
                     if (logic == AlphaOp.Or)
@@ -421,6 +380,11 @@ namespace BrawlLib.Wii.Graphics
                     }
 
                     wl("if (!(" + fullcompare + ")) discard;");
+                }
+                else if (!_material.EnableBlend)
+                {
+                    //If no alpha testing and no blending, alpha is always 1.0
+                    wl("gl_FragColor.a = 1.0;");
                 }
             }
             return Finish();
@@ -577,8 +541,7 @@ namespace BrawlLib.Wii.Graphics
 
                         #region Diffuse Attenuation
 
-                        Comment("Initialize attenuation value with diffuse attenuation");
-
+                        //Initialize attenuation value with diffuse attenuation
                         string cAttn = String.Format("float {0}{1} = ", attnName, colorPassSuffix) + "{0};";
                         string aAttn = String.Format("float {0}{1} = ", attnName, alphaPassSuffix) + "{0};";
                         switch (color.DiffuseFunction)
@@ -604,10 +567,7 @@ namespace BrawlLib.Wii.Graphics
                             //Distance and angular quadratic coefficients
                             wl("float k0 = 1.0, k1 = 0.0, k2 = 0.0;");
                             wl("float a0 = 1.0, a1 = 0.0, a2 = 0.0;");
-
-                            //Get light direction (aim - pos)
-                            //wl("vec3 {0} = normalize(({4} * vec4({1}.{2}, 1.0)) - ({4} * vec4({1}.{3}, 1.0))).xyz;", 
-                            //    lightDirName, lightName, LightDirName, LightPosName, _vModelViewMtxName);
+                            
                             wl("vec3 {0} = gl_NormalMatrix * {1}.{2};", lightDirName, lightName, LightDirName);
                         }
 
@@ -738,10 +698,6 @@ namespace BrawlLib.Wii.Graphics
                         wl("{0}{3} = {1}.{2}{3};", lightColorName, lightName, LightSpecColorName, part);
 
                         string halfVecName = "halfVec";
-                        //wl("vec3 {0} = vec3(-{1}.x, -{1}.y, -{1}.z + 1.0);",
-                        //    halfVecName, lightVecName);
-                        //wl("{0} = normalize({0} / length({0}));",
-                        //    halfVecName);
                         wl("vec3 {0} = normalize({1} + normalize(-{2}));",
                             halfVecName, lightVecName, _vPositionName);
 
@@ -842,8 +798,12 @@ namespace BrawlLib.Wii.Graphics
                     int mapID = (int)stage.TextureMapID;
                     int coordID = (int)stage.TextureCoordID;
 
-                    wl(_texColorName + " = texture2D(texture{0}, gl_TexCoord[{1}].st).{2};",
-                        mapID.ToString(), coordID.ToString(), tswap);
+                    if (PixelLighting)
+                        wl(_texColorName + " = texture2D(texture{0}, uv{1}.st).{2};",
+                            mapID.ToString(), coordID.ToString(), tswap);
+                    else
+                        wl(_texColorName + " = texture2D(texture{0}, gl_TexCoord[{1}].st).{2};",
+                            mapID.ToString(), coordID.ToString(), tswap);
                 }
                 else
                     wl(_texColorName + " = {0};", vec4Zero);
@@ -867,7 +827,7 @@ namespace BrawlLib.Wii.Graphics
                         break;
                 }
 
-            string reg, a, b, c, d;
+            string reg, ca, cb, cc, cd, aa, ab, ac, ad;
 
             wl();
             Comment("Color Operation");
@@ -875,28 +835,72 @@ namespace BrawlLib.Wii.Graphics
             ColorEnv color = stage._colorEnv;
 
             reg = _outReg[(int)color.Dest] + ".rgb";
-            a = TruncCSel((int)color.SelA);
-            b = TruncCSel((int)color.SelB);
-            c = TruncCSel((int)color.SelC);
-            d = TruncCSel((int)color.SelD);
+            ca = TruncCSel((int)color.SelA);
+            cb = TruncCSel((int)color.SelB);
+            cc = TruncCSel((int)color.SelC);
+            cd = TruncCSel((int)color.SelD);
 
             TevColorOp cOp = color.Operation;
-            if ((int)cOp <= 1)
+            int icOp = (int)cOp;
+            if (icOp <= 1)
             {
                 int bias = (int)color.Bias;
                 int scale = (int)color.Shift;
 
                 wl(String.Format("{0} = ({4} {5} (mix({1},{2},{3})){6}){7};",
-                    reg, a, b, c, d,
+                    reg, ca, cb, cc, cd,
                     cOp == TevColorOp.Add ? "+" : "-",
                     _tevBiasName[bias],
                     _tevScaleName[scale]));
                 if (color.Clamp)
                     wl("{0} = satv({0});", reg, vec3Zero, vec3One);
             }
-            else
+            else if (icOp >= 8 && icOp <= 15)
             {
+                bool greater = icOp % 2 == 0;
 
+                //255 divided down to 1 has an accuracy of ~0.00392 between values
+                //use abs() < 0.005 to compare equality of floats that may not be accurate
+                string comp = greater ? 
+                    ca + ".{0}" + " > " + cb + ".{0}" : 
+                    "abs(" + ca + ".{0} - " + cb + ".{0}) < 0.005";
+
+                string compAdd = "if ({0}) " + reg + ".{1} += " + cc + ".{1};";
+
+                //Write d to the register
+                wl("{0}.{2} = {1}.{2};", reg, cd, "rgb");
+
+                //Compare a and b selections and add c to the register
+                if (icOp > 13)
+                {
+                    wl(compAdd, String.Format(comp, "r"), "r");
+                    wl(compAdd, String.Format(comp, "g"), "g");
+                    wl(compAdd, String.Format(comp, "b"), "b");
+                }
+                else
+                {
+                    switch (icOp / 2 - 4)
+                    {
+                        case 0: //R
+                            wl(compAdd, 
+                                String.Format(comp, "r"), 
+                                "rgb");
+                            break;
+                        case 1: //GR
+                            wl(compAdd, 
+                                String.Format(comp, "r") + " && " + 
+                                String.Format(comp, "g"), 
+                                "rgb");
+                            break;
+                        case 2: //BGR
+                            wl(compAdd,
+                                String.Format(comp, "r") + " && " +
+                                String.Format(comp, "g") + " && " +
+                                String.Format(comp, "b"),
+                                "rgb");
+                            break;
+                    }
+                }
             }
 
             wl();
@@ -905,28 +909,72 @@ namespace BrawlLib.Wii.Graphics
             AlphaEnv alpha = stage._alphaEnv;
 
             reg = _outReg[(int)alpha.Dest] + ".a";
-            a = TruncASel((int)alpha.SelA);
-            b = TruncASel((int)alpha.SelB);
-            c = TruncASel((int)alpha.SelC);
-            d = TruncASel((int)alpha.SelD);
+            aa = TruncASel((int)alpha.SelA);
+            ab = TruncASel((int)alpha.SelB);
+            ac = TruncASel((int)alpha.SelC);
+            ad = TruncASel((int)alpha.SelD);
 
             TevAlphaOp aOp = alpha.Operation;
-            if ((int)aOp <= 1)
+            int iaOp = (int)aOp;
+            if (iaOp <= 1)
             {
                 int bias = (int)alpha.Bias;
                 int scale = (int)alpha.Shift;
 
                 wl(String.Format("{0} = ({4} {5} (mix({1},{2},{3})){6}){7};",
-                    reg, a, b, c, d,
+                    reg, aa, ab, ac, ad,
                     aOp == TevAlphaOp.Add ? "+" : "-",
                     _tevBiasName[bias],
                     _tevScaleName[scale]));
                 if (alpha.Clamp)
                     wl("{0} = satf({0});", reg);
             }
-            else
+            else if (iaOp >= 8 && iaOp <= 15)
             {
+                bool greater = icOp % 2 == 0;
 
+                string compAdd = "if ({0}) " + reg + ".{1} += " + ac + ".{1};";
+
+                //Write d to the register
+                wl("{0}.{2} = {1}.{2};", reg, ad, "a");
+
+                //Compare a and b selections and add c to the register
+                if (icOp > 13)
+                {
+                    string comp = greater ?
+                        aa + ".{0}" + " > " + ab + ".{0}" :
+                        "abs(" + aa + ".{0} - " + ab + ".{0}) < 0.005";
+
+                    wl(compAdd, String.Format(comp, "a"), "a");
+                }
+                else
+                {
+                    string comp = greater ?
+                        ca + ".{0}" + " > " + cb + ".{0}" :
+                        "abs(" + ca + ".{0} - " + cb + ".{0}) < 0.005";
+
+                    switch (icOp / 2 - 4)
+                    {
+                        case 0: //R
+                            wl(compAdd,
+                                String.Format(comp, "r"),
+                                "a");
+                            break;
+                        case 1: //GR
+                            wl(compAdd,
+                                String.Format(comp, "r") + " && " +
+                                String.Format(comp, "g"),
+                                "a");
+                            break;
+                        case 2: //BGR
+                            wl(compAdd,
+                                String.Format(comp, "r") + " && " +
+                                String.Format(comp, "g") + " && " +
+                                String.Format(comp, "b"),
+                                "a");
+                            break;
+                    }
+                }
             }
 
             CloseBracket();
@@ -1180,18 +1228,18 @@ namespace BrawlLib.Wii.Graphics
         static readonly string[] _texGenSrc =
         {
             "gl_Vertex",
-            "vec4(gl_NormalMatrix * gl_Normal,1.0)",
+            "vec4(gl_Normal, 1.0)",
             LightChannelName + "{0}",
             "BinormalsT", //Unsupported
             "BinormalsB", //Unsupported
-            "gl_TextureMatrix[0] * gl_MultiTexCoord0",
-            "gl_TextureMatrix[1] * gl_MultiTexCoord1",
-            "gl_TextureMatrix[2] * gl_MultiTexCoord2",
-            "gl_TextureMatrix[3] * gl_MultiTexCoord3",
-            "gl_TextureMatrix[4] * gl_MultiTexCoord4",
-            "gl_TextureMatrix[5] * gl_MultiTexCoord5",
-            "gl_TextureMatrix[6] * gl_MultiTexCoord6",
-            "gl_TextureMatrix[7] * gl_MultiTexCoord7"
+            "gl_MultiTexCoord0",
+            "gl_MultiTexCoord1",
+            "gl_MultiTexCoord2",
+            "gl_MultiTexCoord3",
+            "gl_MultiTexCoord4",
+            "gl_MultiTexCoord5",
+            "gl_MultiTexCoord6",
+            "gl_MultiTexCoord7"
         };
         static readonly string[] _defaultRegisterValues =
         {

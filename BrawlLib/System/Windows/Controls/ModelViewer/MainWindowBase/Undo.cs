@@ -1,4 +1,5 @@
 ﻿using BrawlLib.Modeling;
+using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -10,16 +11,40 @@ namespace System.Windows.Forms
         public List<SaveState> _undoSaves = new List<SaveState>();
         public List<SaveState> _redoSaves = new List<SaveState>();
         public int _saveIndex = 0;
-        public bool _awaitingRedoSave = false;
+        public bool AwaitingRedoSave { get { return _currentUndo != null; } }
         public bool _undoing = false;
+
+        public SaveState _currentUndo;
 
         void AddUndo(SaveState save)
         {
-            if (_awaitingRedoSave)
+            if (AwaitingRedoSave)
             {
+#if DEBUG
                 throw new Exception("Waiting for redo save to be added");
+#else
+                return;
+#endif
             }
 
+            save._isUndo = true;
+            _currentUndo = save;
+        }
+        void AddRedo(SaveState save)
+        {
+            if (!AwaitingRedoSave)
+            {
+#if DEBUG
+                throw new Exception("Waiting for undo save to be added");
+#else
+                return;
+#endif
+            }
+
+            save._isUndo = false;
+
+            //Remove changes made after the current state
+            //BEFORE adding new saves for this state
             int i = _saveIndex + 1;
             if (_undoSaves.Count > i)
             {
@@ -27,35 +52,26 @@ namespace System.Windows.Forms
                 _redoSaves.RemoveRange(i, _redoSaves.Count - i);
             }
 
-            save._isUndo = true;
-            _undoSaves.Add(save);
-            _awaitingRedoSave = true;
-        }
-        void AddRedo(SaveState save)
-        {
-            if (!_awaitingRedoSave)
-            {
-                throw new Exception("Waiting for undo save to be added");
-            }
-
-            save._isUndo = false;
+            //Add the saves
             _redoSaves.Add(save);
-            
+            _undoSaves.Add(_currentUndo);
+
+            //Remove the oldest saves if over the max undo count
             if (_undoSaves.Count > _allowedUndos)
             {
                 _undoSaves.RemoveAt(0);
                 _redoSaves.RemoveAt(0);
             }
-            else
+            else //Otherwise, move the save index to the current saves
                 _saveIndex++;
 
-            _awaitingRedoSave = false;
+            _currentUndo = null;
             UpdateUndoButtons();
         }
 
         void AddState(SaveState state)
         {
-            if (!_awaitingRedoSave)
+            if (!AwaitingRedoSave)
                 AddUndo(state);
             else
                 AddRedo(state);
@@ -83,6 +99,8 @@ namespace System.Windows.Forms
         {
             SaveState state = new VertexState()
             {
+                _chr0 = _chr0,
+                _animFrame = CurrentFrame,
                 _vertices = vertices,
                 _weightedPositions = vertices.Select(x => x.WeightedPosition).ToList(),
                 _targetModel = TargetModel,
@@ -91,12 +109,30 @@ namespace System.Windows.Forms
             AddState(state);
         }
 
+        public void CancelChangeState()
+        {
+            if (!AwaitingRedoSave)
+            {
+#if DEBUG
+                throw new Exception("Nothing to cancel.");
+#else
+                return;
+#endif
+            }
+
+            _currentUndo = null;
+        }
+
         public bool CanUndo { get { return _saveIndex >= 0; } }
         public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
 
         public void Undo()
         {
-            if (CanUndo)
+            _translating = _scaling = _rotating = false;
+
+            if (AwaitingRedoSave)
+                CancelChangeState();
+            else if (CanUndo)
             {
                 ModelPanel.BeginUpdate();
 
@@ -117,6 +153,11 @@ namespace System.Windows.Forms
         }
         public void Redo()
         {
+            _translating = _scaling = _rotating = false;
+
+            if (AwaitingRedoSave)
+                CancelChangeState();
+
             if (CanRedo)
             {
                 ModelPanel.BeginUpdate();
@@ -152,11 +193,18 @@ namespace System.Windows.Forms
 
         void ApplyVertexState(VertexState state)
         {
+            IModel model = TargetModel;
+            CHR0Node n = _chr0;
+            int frame = CurrentFrame;
+
             if (TargetModel != state._targetModel)
             {
                 _resetCamera = false;
                 TargetModel = state._targetModel;
             }
+
+            SelectedCHR0 = state._chr0;
+            CurrentFrame = state._animFrame;
 
             for (int i = 0; i < state._vertices.Count; i++)
                 state._vertices[i].WeightedPosition = state._weightedPositions[i];
@@ -164,6 +212,14 @@ namespace System.Windows.Forms
             SetSelectedVertices(state._vertices);
 
             _vertexLoc = null;
+
+            if (TargetModel != model)
+            {
+                _resetCamera = false;
+                TargetModel = model;
+            }
+            SelectedCHR0 = n;
+            CurrentFrame = frame;
 
             UpdateModel();
         }

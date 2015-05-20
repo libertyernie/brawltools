@@ -28,11 +28,11 @@ namespace BrawlLib.Modeling
 
         public enum ImportType
         {
-            MDL0,
-            //BMD,
-            //LM
-            //FMDL
-            //NP3D
+            MDL0, //Wii SDK
+            //BMD, //GameCube SDK
+            //LM, //Luigi's Mansion
+            //FMDL, //Wii U SDK
+            //NP3D, //Namco (Smash 4)
         }
 
         public IModel ImportModel(string filePath, ImportType type)
@@ -414,17 +414,18 @@ namespace BrawlLib.Modeling
             {
                 Error = "There was a problem creating a new object for " + (node._name != null ? node._name : node._id);
 
-                MDL0ObjectNode poly = new MDL0ObjectNode() { _manager = manager };
-                poly._name = node._name != null ? node._name : node._id;
+                MDL0ObjectNode poly = new MDL0ObjectNode()
+                {
+                    _manager = manager,
+                    _name = node._name != null ? node._name : node._id,
+                    _drawCalls = new BindingList<DrawCall>()
+                };
 
                 //Attach material
                 if (inst._material != null)
                     foreach (MaterialEntry mat in shell._materials)
                         if (mat._id == inst._material._target)
-                        {
-                            (poly._opaMaterial = (mat._node as MDL0MaterialNode))._objects.Add(poly);
-                            break;
-                        }
+                            poly._drawCalls.Add(new DrawCall(poly) { MaterialNode = mat._node as MDL0MaterialNode });
 
                 model._numTriangles += poly._numFaces = manager._faceCount = manager._pointCount / 3;
                 model._numFacepoints += poly._numFacepoints = manager._pointCount;
@@ -432,42 +433,42 @@ namespace BrawlLib.Modeling
                 poly._parent = model._objGroup;
                 model._objList.Add(poly);
 
-                model.ApplyCHR(null, 0);
+                model.ResetToBindState();
 
                 //Attach single-bind
                 if (parent != null && parent is MDL0BoneNode)
                 {
                     MDL0BoneNode bone = (MDL0BoneNode)parent;
-                    foreach (Vertex3 v in poly.Vertices)
-                        v.Position *= bone.InverseBindMatrix;
-
                     poly.MatrixNode = bone;
+
+                    foreach (DrawCall c in poly._drawCalls)
+                        c.VisibilityBoneNode = bone;
                 }
                 else if (model._boneList.Count == 0)
                 {
                     Error = String.Format("There was a problem rigging {0} to a single bone.", poly._name);
 
                     Box box = poly.GetBox();
+                    MDL0BoneNode bone = new MDL0BoneNode()
+                    {
+                        Scale = Vector3.One,
+                        Translation = (box.Max + box.Min) / 2.0f,
+                        _name = "TransN_" + poly.Name,
+                        Parent = TempRootBone,
+                    };
 
-                    MDL0BoneNode bone = new MDL0BoneNode();
-                    bone.Scale = new Vector3(1);
-                    bone.Translation = (box.Max + box.Min) / 2;
                     bone.RecalcBindState();
-
-                    bone._name = "TransN_" + poly.Name;
-
-                    foreach (Vertex3 v in poly.Vertices)
-                        v.Position *= bone.InverseBindMatrix;
-
                     poly.MatrixNode = bone;
-                    bone.ReferenceCount++;
 
-                    TempRootBone._children.Add(bone);
-                    bone._parent = TempRootBone;
+                    foreach (DrawCall c in poly._drawCalls)
+                        c.VisibilityBoneNode = bone;
                 }
                 else
                 {
                     Error = String.Format("There was a problem checking if {0} is rigged to a single bone.", poly._name);
+
+                    foreach (DrawCall c in poly._drawCalls)
+                        c.VisibilityBoneNode = model._boneList[0] as MDL0BoneNode;
 
                     IMatrixNode mtxNode = null;
                     bool singlebind = true;
@@ -487,13 +488,13 @@ namespace BrawlLib.Modeling
 
                     if (singlebind && poly._matrixNode == null)
                     {
-                        //Increase reference count ahead of time for rebuild
+                        //Reassign reference entries
                         if (poly._manager._vertices[0].MatrixNode != null)
-                            poly._manager._vertices[0].MatrixNode.ReferenceCount++;
+                            poly._manager._vertices[0].MatrixNode.Users.Add(poly);
 
                         foreach (Vertex3 v in poly._manager._vertices)
                             if (v.MatrixNode != null)
-                                v.MatrixNode.ReferenceCount--;
+                                v.MatrixNode.Users.Remove(v);
 
                         poly._nodeId = -2; //Continued on polygon rebuild
                     }
@@ -518,7 +519,7 @@ namespace BrawlLib.Modeling
                 model._matGroup.AddChild(mat);
 
                 foreach (MDL0ObjectNode obj in model._objList)
-                    obj.OpaMaterialNode = mat;
+                    obj._drawCalls[0].MaterialNode = mat;
             }
 
             Error = "There was a problem removing original color buffers.";
@@ -595,7 +596,7 @@ namespace BrawlLib.Modeling
             if (model._objList != null)
                 foreach (MDL0ObjectNode obj1 in model._objList)
                 {
-                    MDL0MaterialNode p = obj1.UsableMaterialNode;
+                    MDL0MaterialNode p = obj1._drawCalls[0].MaterialNode;
 
                     //Set materials to use register color if option set
                     if (_importOptions._useReg)
@@ -633,18 +634,21 @@ namespace BrawlLib.Modeling
             if (_importOptions._rmpMats && model._matList != null && model._objList != null)
             {
                 foreach (MDL0ObjectNode obj3 in model._objList)
+                {
+                    MDL0MaterialNode mat = obj3._drawCalls[0].MaterialNode;
                     foreach (MDL0MaterialNode m in model._matList)
                         if (m.Children.Count > 0 &&
                             m.Children[0] != null &&
-                            obj3.OpaMaterialNode != null &&
-                            obj3.OpaMaterialNode.Children.Count > 0 &&
-                            obj3.OpaMaterialNode.Children[0] != null &&
-                            m.Children[0].Name == obj3.OpaMaterialNode.Children[0].Name &&
-                            m.C1ColorMaterialSource == obj3.OpaMaterialNode.C1ColorMaterialSource)
+                            mat != null &&
+                            mat.Children.Count > 0 &&
+                            mat.Children[0] != null &&
+                            m.Children[0].Name == mat.Children[0].Name &&
+                            m.C1ColorMaterialSource == mat.C1ColorMaterialSource)
                         {
-                            obj3.OpaMaterialNode = m;
+                            obj3._drawCalls[0].MaterialNode = m;
                             break;
                         }
+                }
 
                 //Remove unused materials
                 for (int i = 0; i < model._matList.Count; i++)

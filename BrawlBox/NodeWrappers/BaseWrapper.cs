@@ -150,6 +150,7 @@ namespace BrawlBox
         internal protected virtual void OnUpdateCurrentControl(object sender, EventArgs e)
         {
             MainForm form = MainForm.Instance;
+            //var g = form.propertyGrid1.SelectedGridItem;
             form._currentControl = null;
             form.resourceTree_SelectionChanged(this, null);
         }

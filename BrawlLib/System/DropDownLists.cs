@@ -10,7 +10,17 @@ using BrawlLib.Wii.Compression;
 namespace System
 {
     #region MDL0
-
+    public class DropDownListMaterialsDrawCall : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            MDL0Node model = (context.Instance as DrawCall)._parentObject.Model;
+            List<ResourceNode> mats = new List<ResourceNode>();
+            foreach (MDL0MaterialNode n in model._matList) mats.Add(n);
+            return new StandardValuesCollection(mats.Select(n => n.ToString()).ToList());
+        }
+    }
     public class DropDownListOpaMaterials : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
@@ -51,6 +61,15 @@ namespace System
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
             return new StandardValuesCollection(model._shadList.Select(n => n.ToString()).ToList());
+        }
+    }
+    public class DropDownListBonesDrawCall : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            MDL0Node model = (context.Instance as DrawCall)._parentObject.Model;
+            return new StandardValuesCollection(model._linker.BoneCache.Select(n => n.ToString()).ToList());
         }
     }
     public class DropDownListBones : StringConverter

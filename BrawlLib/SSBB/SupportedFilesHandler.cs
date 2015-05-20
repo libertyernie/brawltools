@@ -102,7 +102,7 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(false, "Truevision TARGA", "tga"),
             new SupportedFileInfo(false, "Tagged Image File Format", "tif", "tiff"),
             new SupportedFileInfo(false, "Bitmap", "bmp"),
-            new SupportedFileInfo(false, "Joint Photographic Experts Group Image", "jpg", "jpeg"),
+            new SupportedFileInfo(false, "JPEG Image", "jpg", "jpeg"),
             new SupportedFileInfo(false, "Graphics Interchange Format", "gif"),
 
             //Misc

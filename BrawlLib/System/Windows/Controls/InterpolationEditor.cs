@@ -34,6 +34,11 @@ namespace System.Windows.Forms
         void interpolationViewer_SignalChange(object sender, EventArgs e)
         {
             ((ResourceNode)_targetNode).SignalPropertyChange();
+            if (_mainWindow != null)
+            {
+                _mainWindow.UpdatePropDisplay();
+                _mainWindow.UpdateModel();
+            }
         }
 
         void interpolationViewer1_UpdateProps(object sender, EventArgs e)
@@ -83,6 +88,9 @@ namespace System.Windows.Forms
 
         public void RootChanged()
         {
+            if (_targetNode == null || SelectedMode >= _targetNode.KeyArrays.Length || SelectedMode < 0)
+                return;
+
             KeyframeArray array = _targetNode.KeyArrays[SelectedMode];
             if (array != null)
             {
@@ -417,7 +425,7 @@ namespace System.Windows.Forms
 
             RootChanged();
 
-            if (SelectedKeyframe != null)
+            if (SelectedKeyframe != null && interpolationViewer.KeyRoot != null)
             {
                 KeyframeEntry prev = SelectedKeyframe;
                 for (KeyframeEntry entry = interpolationViewer.KeyRoot._next; (entry != interpolationViewer.KeyRoot); entry = entry._next)

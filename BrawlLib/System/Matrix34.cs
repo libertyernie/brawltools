@@ -3,6 +3,7 @@ using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Animations;
+using OpenTK.Graphics.OpenGL;
 using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -639,29 +640,29 @@ namespace System
                     c._orthoDimensions[3],
                     c._orthoDimensions[0],
                     c._orthoDimensions[1],
-                    0.5f, -0.5f, 0.5f, 0.5f);
+                    0.5f, 0.5f, 0.5f, 0.5f);
             else
                 return LightMtxPersp(
-                    c._fovY, c._aspect,
-                    0.5f, -0.5f, 0.5f, 0.5f);
+                    c._fovY, 1.0f,
+                    0.5f, 0.5f, 0.5f, 0.5f);
         }
         static Matrix34 ProjectionTexMtx(SCN0CameraNode c, float frame)
         {
             CameraAnimationFrame f = c.GetAnimFrame(frame);
             if (c.ProjectionType == BrawlLib.Wii.Graphics.ProjectionType.Orthographic)
                 return LightMtxOrtho(
-                    0,
-                    0,
-                    0,
-                    0,
-                    0.5f, -0.5f, 0.5f, 0.5f);
+                    f.Height / 2.0f,
+                    -f.Height / 2.0f,
+                    -f.Height * f.Aspect / 2.0f,
+                    f.Height * f.Aspect / 2.0f,
+                    0.5f, 0.5f, 0.5f, 0.5f);
             else
                 return LightMtxPersp(
-                    f.FovY, f.Aspect,
-                    0.5f, -0.5f, 0.5f, 0.5f);
+                    f.FovY, 1.0f,
+                    0.5f, 0.5f, 0.5f, 0.5f);
         }
 
-        public static Matrix34 LightMtxPersp(float fovY, float aspect, float scaleS, float scaleT, float transS, float transT)
+        static Matrix34 LightMtxPersp(float fovY, float aspect, float scaleS, float scaleT, float transS, float transT)
         {
             // find the cotangent of half the (YZ) field of view
             float cot = 1.0f / (float)Math.Tan(Maths._deg2rad * (fovY * 0.5f));
@@ -671,7 +672,7 @@ namespace System
                 0.0f, 0.0f, -1.0f, 0.0f);
         }
 
-        public static Matrix34 LightMtxOrtho(float t, float b, float l, float r, float scaleS, float scaleT, float transS, float transT)
+        static Matrix34 LightMtxOrtho(float t, float b, float l, float r, float scaleS, float scaleT, float transS, float transT)
         {
             float tmp1 = 1.0f / (r - l), tmp2 = 1.0f / (t - b);
             return new Matrix34(
@@ -680,113 +681,84 @@ namespace System
                 0.0f, 0.0f, 0.0f, 1.0f);
         }
 
-        public static Matrix EnvironmentMapping(
-            int ref_camera,
-            int ref_light,
-            SCN0Node node,
-            ModelPanelViewport v,
-            float frame)
+        public static Matrix EnvCamMap(int refCam, SCN0Node node, ModelPanelViewport v, float frame)
+        {
+            GLCamera cam = v.Camera;
+            if (refCam >= 0 && node != null && node.CameraGroup != null && refCam < node.CameraGroup.Children.Count)
+            {
+                SCN0CameraNode camNode = (SCN0CameraNode)node.CameraGroup.Children[refCam];
+                Matrix cm, cmInv;
+                camNode.GetModelViewMatrix(frame, out cm, out cmInv);
+                return (Matrix)Matrix34.EnvironmentTexMtx() * cm.GetRotationMatrix();
+            }
+
+            return (Matrix)Matrix34.EnvironmentTexMtx() * v.Camera._matrix.GetRotationMatrix();
+        }
+
+        public static Matrix EnvLightMap(int refLight, SCN0Node node, ModelPanelViewport v, float frame)
         {
             Matrix m = Matrix.Identity;
             GLCamera cam = v.Camera;
-            if (ref_camera >= 0 && 
-                node != null &&
-                node.CameraGroup != null && 
-                ref_camera < node.CameraGroup.Children.Count)
+            Matrix camMtx = cam._matrix;
+            Matrix invCamMtx = cam._matrixInverse;
+
+            Matrix34 envMtx = new Matrix34(
+                0.5f, 0.0f, 0.0f, 0.5f,
+                0.0f, -0.5f, 0.0f, 0.5f,
+                0.0f, 0.0f, 0.0f, 1.0f);
+
+            //If no light is referenced, use the BrawlBox built-in light
+            if (refLight < 0 || (node != null && node.LightGroup != null && refLight >= node.LightGroup.Children.Count))
             {
-                SCN0CameraNode camNode = (SCN0CameraNode)node.CameraGroup.Children[ref_camera];
-                Matrix cm, cmInv;
-                camNode.GetModelViewMatrix(frame, out cm, out cmInv);
-                m = cm * cam._matrixInverse;
-                Matrix34 m34 = (Matrix34)m;
-                m34[3] = m34[7] = m34[11] = 0.0f;
-                m34 = EnvironmentTexMtx() * m34;
-                m = (Matrix)m34;
+                refLight = 0;
+                node = null;
             }
-            else if (ref_light >= 0 && 
-                node != null &&
-                node.LightGroup != null && 
-                ref_light < node.LightGroup.Children.Count && 
-                ((SCN0LightNode)node.LightGroup.Children[ref_light]).GetEnabled(frame))
+
+            // The light position and direction needs to be transformed with the camera's inverse matrix.
+            Vector3 vLook, camUp, vRight, vUp;
+
+            bool specEnabled;
+            vLook = GetLightLook(node, refLight, invCamMtx, v, frame, out specEnabled).Normalize();
+
+            // Calculate without using a target because the margin of error for calculations must be taken into account when the light is far away.
+            // Take the absolute value as a measure against transformation margin.
+            if ((Math.Abs(vLook._x) < 0.000001f) &&
+                (Math.Abs(vLook._z) < 0.000001f))
             {
-                Matrix34 envMtx = new Matrix34(
-                    0.5f,  0.0f, 0.0f, 0.5f,
-                    0.0f, -0.5f, 0.0f, 0.5f,
-                    0.0f,  0.0f, 0.0f, 1.0f);
-
-                // The light position and direction needs to be transformed with the camera's inverse matrix.
-                Vector3 vLook, camUp, vRight, vUp;
-                
-                SCN0LightNode lightNode = ((SCN0LightNode)node.LightGroup.Children[ref_light]);
-                vLook = (lightNode.GetEnd(frame) - lightNode.GetStart(frame)).Normalize();
-
-                Matrix inv = cam._matrixInverse;
-                
-                bool temp = vLook._x == 0.0f && vLook._y == 0.0f && vLook._z == 0.0f;
-                if ((lightNode.LightType != LightType.Spotlight && !lightNode.SpecularEnabled) || temp)
+                camUp._x = camUp._y = 0.0f;
+                if (vLook._y <= 0.0f)
                 {
-                    // Use light position if they are diffuse light or if light has no direction.
-                    if (temp)
-                        vLook = lightNode.GetStart(frame);
-
-                    vLook = -(inv.GetRotationMatrix() * vLook);
-                    if (vLook._x == 0.0f &&
-                        vLook._y == 0.0f &&
-                        vLook._z == 0.0f)
-                    {
-                        // If the light position is the origin, treat as if light is coming from the top of y-axis.
-                        vLook._y = -1.0f;
-                    }
-                }
-                else
-                    vLook = inv.GetRotationMatrix() * vLook;
-
-                vLook.Normalize();
-
-                // Calculate without using a target because the margin of error for calculations must be taken into account when the light is far away.
-                // 
-
-                // Take the absolute value as a measure against transformation margin.
-                if ((Math.Abs(vLook._x) < 0.000001f) &&
-                    (Math.Abs(vLook._z) < 0.000001f))
-                {
-                    camUp._x = camUp._y = 0.0f;
-                    if (vLook._y <= 0.0f)
-                    {
-                        // Look straight down
-                        camUp._z = -1.0f;
-                    }
-                    else
-                    {
-                        // Look straight up
-                        camUp._z = 1.0f;
-                    }
+                    // Look straight down
+                    camUp._z = -1.0f;
                 }
                 else
                 {
-                    camUp._x = camUp._z = 0.0f;
-                    camUp._y = 1.0f;
+                    // Look straight up
+                    camUp._z = 1.0f;
                 }
-
-                vUp = (vRight = vLook.Cross(camUp).Normalize()).Cross(vLook);
-
-                Matrix34 m34 = new Matrix34(
-                    vRight._x,  vRight._y,  vRight._z, 0.0f,
-                    vUp._x,  vUp._y,  vUp._z, 0.0f,
-                    -vLook._x,  -vLook._y,  -vLook._z, 0.0f);
-
-                m34 = (Matrix34)(((Matrix)m34) * inv);
-
-                m34[3] = 0.0f;
-                m34[7] = 0.0f;
-                m34[11] = 0.0f;
-
-                m = (Matrix)(envMtx * m34);
             }
             else
-                m = (Matrix)EnvironmentTexMtx();
-            
-            return m;
+            {
+                camUp._x = camUp._z = 0.0f;
+                camUp._y = 1.0f;
+            }
+
+            vUp = (vRight = vLook.Cross(camUp).Normalize()).Cross(vLook);
+
+            Matrix34 m34 = new Matrix34(
+                vRight._x, vRight._y, vRight._z, 0.0f,
+                vUp._x, vUp._y, vUp._z, 0.0f,
+                -vLook._x, -vLook._y, -vLook._z, 0.0f);
+
+            m34 = (Matrix34)(((Matrix)m34) * invCamMtx);
+
+            m34[3] = 0.0f;
+            m34[7] = 0.0f;
+            m34[11] = 0.0f;
+
+            return (Matrix)(envMtx * m34);
+
+            //return (Matrix)envMtx * Matrix.RotationMatrix(new Vector3().LookatAngles((Vector3)v._posLight) * Maths._rad2degf);
         }
 
         public static Matrix ProjectionMapping(
@@ -797,9 +769,9 @@ namespace System
         {
             Matrix m = Matrix.Identity;
             GLCamera cam = v.Camera;
-            if (ref_camera >= 0 && 
+            if (ref_camera >= 0 &&
                 node != null &&
-                node.CameraGroup != null && 
+                node.CameraGroup != null &&
                 ref_camera < node.CameraGroup.Children.Count)
             {
                 // Set so that the image is projected from the specified camera.
@@ -807,11 +779,11 @@ namespace System
                 SCN0CameraNode camNode = (SCN0CameraNode)node.CameraGroup.Children[ref_camera];
                 Matrix cm, cmInv;
                 camNode.GetModelViewMatrix(frame, out cm, out cmInv);
-                m = cm * cam._matrixInverse;
+                m = cm * cam._matrix;
                 m = (Matrix)(ProjectionTexMtx(camNode, frame) * ((Matrix34)m));
             }
             else
-                 m = (Matrix)ProjectionTexMtx(cam);
+                m = (Matrix)ProjectionTexMtx(cam);
             
             return m;
         }
@@ -839,55 +811,38 @@ namespace System
                 return hTmp;
         }
 
-        public static Matrix EnvironmentSpecularMapping(
-            int ref_camera,
-            int ref_light,
+        /// <summary>
+        /// This function returns a texture matrix
+        /// that will aim the texture to the midpoint between the active camera
+        /// and the given reference camera or light.
+        /// </summary>
+        public static Matrix EnvSpecMap(
+            int refCam,
+            int refLight,
             SCN0Node node,
             ModelPanelViewport v,
             float frame)
         {
-            Matrix m;
+            // Normal environmental map when neither the light nor the camera is specified.
+            Matrix34 finalMtx = EnvironmentTexMtx();
+
             GLCamera cam = v.Camera;
             Vector3 vLook, camUp, camLook;
-            Matrix camMtx = cam._matrix;
-            Matrix invCamMtx = cam._matrixInverse;
+            Matrix camMtx = cam._matrixInverse;
+            Matrix invCamMtx = cam._matrix;
 
             Matrix34 m34 = (Matrix34)camMtx;
             camLook._x = -m34[8];
             camLook._y = -m34[9];
             camLook._z = -m34[10];
 
-            if (ref_light >= 0 && 
-                node != null &&
-                node.LightGroup != null && 
-                ref_light < node.LightGroup.Children.Count && 
-                ((SCN0LightNode)node.LightGroup.Children[ref_light]).GetEnabled(frame))
+            if (refLight >= 0)
             {
-                // Map from the midpoint of the view camera and the specified light.
-                SCN0LightNode lightNode = (SCN0LightNode)node.LightGroup.Children[ref_light];
-                Vector3 lgtLook = (lightNode.GetEnd(frame) - lightNode.GetStart(frame)).Normalize();
-
-                bool temp = lgtLook._x == 0.0f && lgtLook._y == 0.0f && lgtLook._z == 0.0f;
-                if ((lightNode.LightType != LightType.Spotlight && !lightNode.SpecularEnabled) || temp)
-                {
-                    // Use light position if they are diffuse light or if light has no direction.
-                    if (temp)
-                        lgtLook = lightNode.GetStart(frame);
-
-                    lgtLook = -(invCamMtx.GetRotationMatrix() * lgtLook);
-                    if (lgtLook._x == 0.0f &&
-                        lgtLook._y == 0.0f &&
-                        lgtLook._z == 0.0f)
-                    {
-                        // If the light position is the origin, treat as if light is coming from the top of y-axis.
-                        lgtLook._y = -1.0f;
-                    }
-                }
-                else
-                    lgtLook = invCamMtx.GetRotationMatrix() * lgtLook;
+                bool specEnabled;
+                Vector3 lgtLook = GetLightLook(node, refLight, invCamMtx, v, frame, out specEnabled);
 
                 // Specular light is already set as a vector taking the center position.
-                if (!lightNode.SpecularEnabled)
+                if (!specEnabled)
                     vLook = GetHalfAngle(camLook, lgtLook);
                 else
                     vLook = -lgtLook;
@@ -913,12 +868,18 @@ namespace System
                     camUp._y = 1.0f;
                 }
             }
-            else if (ref_camera >= 0 && 
-                node != null &&
-                node.CameraGroup != null && 
-                ref_camera < node.CameraGroup.Children.Count)
+            else if (refCam >= 0)
             {
-                SCN0CameraNode camNode = (SCN0CameraNode)node.CameraGroup.Children[ref_camera];
+                SCN0CameraNode camNode = null;
+
+                if (node != null && node.CameraGroup != null && refCam < node.CameraGroup.Children.Count)
+                {
+                    camNode = (SCN0CameraNode)node.CameraGroup.Children[refCam];
+                }
+                else
+                {
+
+                }
 
                 Matrix cM, cMInv;
                 camNode.GetModelViewMatrix(frame, out cM, out cMInv);
@@ -934,8 +895,7 @@ namespace System
             }
             else
             {
-                // Normal environmental map when neither the light nor the camera is specified.
-                return (Matrix)EnvironmentTexMtx();
+                return (Matrix)finalMtx;
             }
 
             vLook.Normalize();
@@ -952,7 +912,57 @@ namespace System
             m34[7] = 0.0f;
             m34[11] = 0.0f;
 
-            return (Matrix)(EnvironmentTexMtx() * m34);
+            return (Matrix)(finalMtx * m34);
+        }
+
+        private static unsafe Vector3 GetLightLook(
+            SCN0Node node, int refLight, Matrix invCamMtx, ModelPanelViewport v, float frame, out bool specEnabled)
+        {
+            Vector3 start, end;
+            LightType lightType;
+
+            if (node != null && node.LightGroup != null && refLight < node.LightGroup.Children.Count && refLight >= 0)
+            {
+                //SCN0 light exists
+                SCN0LightNode lightNode = (SCN0LightNode)node.LightGroup.Children[refLight];
+                start = lightNode.GetStart(frame);
+                end = lightNode.GetEnd(frame);
+                lightType = lightNode.LightType;
+                specEnabled = lightNode.SpecularEnabled;
+            }
+            else //Use the model viewer light settings by default
+            {
+                start = (Vector3)v._posLight;
+                end = new Vector3();
+                lightType = LightType.Directional;
+                specEnabled = true;
+            }
+
+            //Don't use if not enabled?
+            //bool enabled = lightNode.GetEnabled(frame);
+
+            Vector3 lgtLook = (end - start).Normalize();
+
+            bool temp = lgtLook._x == 0.0f && lgtLook._y == 0.0f && lgtLook._z == 0.0f;
+            if ((lightType != LightType.Spotlight && !specEnabled) || temp)
+            {
+                // Use light position if they are diffuse light or if light has no direction.
+                if (temp)
+                    lgtLook = start;
+
+                lgtLook = -(invCamMtx.GetRotationMatrix() * lgtLook);
+                if (lgtLook._x == 0.0f &&
+                    lgtLook._y == 0.0f &&
+                    lgtLook._z == 0.0f)
+                {
+                    // If the light position is the origin, treat as if light is coming from the top of y-axis.
+                    lgtLook._y = -1.0f;
+                }
+            }
+            else
+                lgtLook = invCamMtx.GetRotationMatrix() * lgtLook;
+
+            return lgtLook;
         }
 
         public void Multiply(Matrix34* m)

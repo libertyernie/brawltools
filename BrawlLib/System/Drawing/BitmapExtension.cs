@@ -1,44 +1,67 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Drawing.Imaging;
-using System.Drawing.Drawing2D;
-using System.Runtime.InteropServices;
-using System.IO;
-using BrawlLib.Imaging;
+﻿using BrawlLib.Imaging;
 using BrawlLib.Wii.Textures;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
-namespace System.Drawing
+namespace System
 {
-    public struct ColorInformation
+    public static class BitmapExtension
     {
-        private ARGBPixel[] _colors;
-        private int _alphaColors;
-        private bool _isGreyscale;
-
-        public ARGBPixel[] UniqueColors { get { return _colors; } }
-        public int ColorCount { get { return _colors.Length; } }
-        public int AlphaColors { get { return _alphaColors; } }
-        public bool IsGreyscale { get { return _isGreyscale; } }
-
-        public ColorInformation(ARGBPixel[] colors)
+        public static Bitmap Resize(this Bitmap i, int width, int height, InterpolationMode mode = InterpolationMode.HighQualityBicubic)
         {
-            _colors = colors;
-            _alphaColors = 0;
-            _isGreyscale = true;
-            foreach (ARGBPixel p in colors)
+            Bitmap r = new Bitmap(width, height);
+            r.SetResolution(i.HorizontalResolution, i.VerticalResolution);
+            using (Graphics graphics = Graphics.FromImage(r))
             {
-                if (p.A != 0xFF) 
-                    _alphaColors++;
-                if ((_isGreyscale) && (!p.IsGreyscale()))
-                    _isGreyscale = false;
+                graphics.InterpolationMode = mode;
+                graphics.CompositingQuality = CompositingQuality.HighQuality;
+                graphics.CompositingMode = CompositingMode.SourceCopy;
+                graphics.SmoothingMode = SmoothingMode.HighQuality;
+                using (ImageAttributes wrapMode = new ImageAttributes())
+                {
+                    //This fixes the antialiasing on the edges of the image
+                    wrapMode.SetWrapMode(WrapMode.TileFlipXY);
+                    graphics.DrawImage(i, new Rectangle(0, 0, r.Width, r.Height), 0, 0, i.Width, i.Height, GraphicsUnit.Pixel, wrapMode);
+                }
+            }
+            return r;
+        }
+
+        public static Bitmap Copy(this Bitmap sourceImage)
+        {
+            if (sourceImage.Palette.Entries.Length > 0)
+            {
+                //Indexed
+                Bitmap targetImage = new Bitmap(sourceImage.Width, sourceImage.Height,
+                  sourceImage.PixelFormat);
+                BitmapData sourceData = sourceImage.LockBits(
+                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                  ImageLockMode.ReadOnly, sourceImage.PixelFormat);
+                BitmapData targetData = targetImage.LockBits(
+                  new Rectangle(0, 0, sourceImage.Width, sourceImage.Height),
+                  ImageLockMode.WriteOnly, targetImage.PixelFormat);
+                Memory.Move(targetData.Scan0, sourceData.Scan0, (uint)sourceData.Stride * (uint)sourceData.Height);
+                sourceImage.UnlockBits(sourceData);
+                targetImage.UnlockBits(targetData);
+                targetImage.Palette = sourceImage.Palette;
+                return targetImage;
+            }
+            else
+            {
+                //Non-indexed
+                Bitmap targetImage = new Bitmap(sourceImage.Width, sourceImage.Height, sourceImage.PixelFormat);
+                targetImage.SetResolution(sourceImage.HorizontalResolution, sourceImage.VerticalResolution);
+                using (Graphics g = Graphics.FromImage(targetImage))
+                    g.DrawImageUnscaled(sourceImage, 0, 0);
+                return targetImage;
             }
         }
-    }
-    public static class BitmapExtention
-    {
+
         public static bool IsIndexed(this Bitmap bmp) { return (bmp.PixelFormat & PixelFormat.Indexed) != 0; }
         //public unsafe static int GetColorCount(this Bitmap bmp) { int alpha; bool grey; return GetColorCount(bmp, out alpha, out grey); }
         //public unsafe static int GetColorCount(this Bitmap bmp, out int alphaColors) { bool grey; return GetColorCount(bmp, out alphaColors, out grey); }
@@ -343,6 +366,32 @@ namespace System.Drawing
         public static void SaveTGA(this Bitmap bmp, FileStream stream)
         {
             TGA.ToStream(bmp, stream);
+        }
+    }
+
+    public struct ColorInformation
+    {
+        private ARGBPixel[] _colors;
+        private int _alphaColors;
+        private bool _isGreyscale;
+
+        public ARGBPixel[] UniqueColors { get { return _colors; } }
+        public int ColorCount { get { return _colors.Length; } }
+        public int AlphaColors { get { return _alphaColors; } }
+        public bool IsGreyscale { get { return _isGreyscale; } }
+
+        public ColorInformation(ARGBPixel[] colors)
+        {
+            _colors = colors;
+            _alphaColors = 0;
+            _isGreyscale = true;
+            foreach (ARGBPixel p in colors)
+            {
+                if (p.A != 0xFF)
+                    _alphaColors++;
+                if ((_isGreyscale) && (!p.IsGreyscale()))
+                    _isGreyscale = false;
+            }
         }
     }
     public enum QuantizationAlgorithm

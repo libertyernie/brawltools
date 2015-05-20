@@ -24,7 +24,7 @@ namespace BrawlBox
         private static FolderBrowserDialog _folderDlg;
 
         internal static ResourceNode _rootNode;
-        public static ResourceNode RootNode { get { return _rootNode; } }
+        public static ResourceNode RootNode { get { return _rootNode; } set { _rootNode = value; MainForm.Instance.Reset(); } }
         internal static string _rootPath;
         public static string RootPath { get { return _rootPath; } }
 
@@ -114,12 +114,26 @@ namespace BrawlBox
         public static bool Close() { return Close(false); }
         public static bool Close(bool force)
         {
+            //Have to close external files before the root file
+            while (ModelEditControl.Instances.Count > 0)
+            {
+                var control = ModelEditControl.Instances[0];
+                if (control.ParentForm != null)
+                {
+                    control.ParentForm.Close();
+                    if (!control.IsDisposed)
+                        return false;
+                }
+                else if (!control.Close())
+                    return false;
+            }
+
             if (_rootNode != null)
             {
                 if (_rootNode.IsDirty && !force)
                 {
                     DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
-                    if (((res == DialogResult.Yes) && (!Save())) || (res == DialogResult.Cancel))
+                    if ((res == DialogResult.Yes && !Save()) || res == DialogResult.Cancel)
                         return false;
                 }
 
@@ -128,6 +142,7 @@ namespace BrawlBox
 
                 MainForm.Instance.Reset();
             }
+
             _rootPath = null;
             return true;
         }

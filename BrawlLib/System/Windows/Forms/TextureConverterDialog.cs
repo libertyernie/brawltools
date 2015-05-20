@@ -66,6 +66,8 @@ namespace System.Windows.Forms
         private Label label10;
         private Button btnApplyDims;
         private CheckBox chkConstrainProps;
+        private NumericUpDown numMIPPreview;
+        private Label label12;
     
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap TextureData { get { return _textureData; } }
@@ -315,6 +317,7 @@ namespace System.Windows.Forms
             int maxLOD = 1;
             for (int w = _source.Width, h = _source.Height; (w != 1) && (h != 1); w >>= 1, h >>= 1, maxLOD++) ;
             numLOD.Maximum = maxLOD;
+            numMIPPreview.Maximum = maxLOD;
 
             if (_updating)
                 return;
@@ -330,20 +333,6 @@ namespace System.Windows.Forms
             if (_preview != null) { _preview.Dispose(); _preview = null; }
             if (_source != null) { _source.Dispose(); _source = null; }
             if (_indexed != null) { _indexed.Dispose(); _indexed = null; }
-        }
-
-        public static Bitmap ResizeImage(Image i, int width, int height)
-        {
-            Bitmap r = new Bitmap(width, height);
-            r.SetResolution(i.HorizontalResolution, i.VerticalResolution);
-            using (Graphics graphics = Graphics.FromImage(r))
-            {
-                graphics.CompositingQuality = System.Drawing.Drawing2D.CompositingQuality.HighQuality;
-                graphics.InterpolationMode = System.Drawing.Drawing2D.InterpolationMode.HighQualityBicubic;
-                graphics.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
-                graphics.DrawImage(i, 0, 0, r.Width, r.Height);
-            }
-            return r;
         }
 
         private void CopyPreview(Bitmap src)
@@ -733,6 +722,8 @@ namespace System.Windows.Forms
             this.panel2 = new System.Windows.Forms.Panel();
             this.button1 = new System.Windows.Forms.Button();
             this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
+            this.numMIPPreview = new System.Windows.Forms.NumericUpDown();
+            this.label12 = new System.Windows.Forms.Label();
             this.pictureBox1 = new System.Windows.Forms.GoodPictureBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numLOD)).BeginInit();
@@ -744,6 +735,7 @@ namespace System.Windows.Forms
             ((System.ComponentModel.ISupportInitialize)(this.numW)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMIPPreview)).BeginInit();
             this.SuspendLayout();
             // 
             // chkPreview
@@ -1181,15 +1173,17 @@ namespace System.Windows.Forms
             // txtPath
             // 
             this.txtPath.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.txtPath.Location = new System.Drawing.Point(0, 0);
+            this.txtPath.Location = new System.Drawing.Point(92, 0);
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(304, 20);
+            this.txtPath.Size = new System.Drawing.Size(212, 20);
             this.txtPath.TabIndex = 0;
             // 
             // panel2
             // 
             this.panel2.Controls.Add(this.txtPath);
+            this.panel2.Controls.Add(this.numMIPPreview);
+            this.panel2.Controls.Add(this.label12);
             this.panel2.Controls.Add(this.button1);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel2.Location = new System.Drawing.Point(0, 0);
@@ -1207,6 +1201,37 @@ namespace System.Windows.Forms
             this.button1.Text = "Browse...";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // numMIPPreview
+            // 
+            this.numMIPPreview.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numMIPPreview.Location = new System.Drawing.Point(41, 0);
+            this.numMIPPreview.Minimum = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numMIPPreview.Name = "numMIPPreview";
+            this.numMIPPreview.Size = new System.Drawing.Size(51, 20);
+            this.numMIPPreview.TabIndex = 10;
+            this.numMIPPreview.Value = new decimal(new int[] {
+            1,
+            0,
+            0,
+            0});
+            this.numMIPPreview.Visible = false;
+            this.numMIPPreview.ValueChanged += new System.EventHandler(this.numMIPPreview_ValueChanged);
+            // 
+            // label12
+            // 
+            this.label12.Dock = System.Windows.Forms.DockStyle.Left;
+            this.label12.Location = new System.Drawing.Point(0, 0);
+            this.label12.Name = "label12";
+            this.label12.Size = new System.Drawing.Size(41, 20);
+            this.label12.TabIndex = 11;
+            this.label12.Text = "MIP:";
+            this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label12.Visible = false;
             // 
             // pictureBox1
             // 
@@ -1244,6 +1269,7 @@ namespace System.Windows.Forms
             this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
             this.panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.numMIPPreview)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -1265,7 +1291,7 @@ namespace System.Windows.Forms
             if (w == _base.Width && h == _base.Height)
                 Source = _base;
             else
-                Source = ResizeImage(_base, w, h);
+                Source = _base.Resize(w, h);
             UpdatePreview();
 
             if (Resized != null)
@@ -1307,6 +1333,16 @@ namespace System.Windows.Forms
                 numW.Value = numH.Value / (decimal)_base.Height * (decimal)_base.Width;
                 _updating = false;
             }
+        }
+
+        private void numMIPPreview_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+
+            _updating = true;
+            numMIPPreview.Value = ((int)numMIPPreview.Value).Clamp(1, (int)numLOD.Value);
+            _updating = false;
         }
     }
 }

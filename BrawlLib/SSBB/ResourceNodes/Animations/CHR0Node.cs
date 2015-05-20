@@ -611,7 +611,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         bool _useModelScale, _useModelRotate, _useModelTranslate, _scaleCompApply, _scaleCompParent, _classicScaleOff;
 
-        #if DEBUG
+//#if DEBUG
 
         public bool UseModelScale { get { return _useModelScale; } set { _useModelScale = value; SignalPropertyChange(); } }
         public bool UseModelRotate { get { return _useModelRotate; } set { _useModelRotate = value; SignalPropertyChange(); } }
@@ -620,8 +620,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool ScaleCompensateParent { get { return _scaleCompParent; } set { _scaleCompParent = value; SignalPropertyChange(); } }
         public bool ClassicScaleOff { get { return _classicScaleOff; } set { _classicScaleOff = value; SignalPropertyChange(); } }
 
+#if DEBUG
         public AnimationCode Flags { get { return _code; } }
-        #endif
+#endif
 
         AnimationCode _code;
 
@@ -676,14 +677,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
 
-#if DEBUG
+//#if DEBUG
             _code.UseModelScale = _useModelScale;
             _code.UseModelRot = _useModelRotate;
             _code.UseModelTrans = _useModelTranslate;
             _code.ScaleCompApply = _scaleCompApply;
             _code.ScaleCompParent = _scaleCompParent;
             _code.ClassicScaleOff = _classicScaleOff;
-#endif
+//#endif
 
             AnimationConverter.EncodeCHR0Keyframes(_keyframes, address, _dataAddr, _code);
         }
@@ -697,6 +698,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal void SetSize(int count, bool looped)
         {
             Keyframes.FrameLimit = count + (looped ? 1 : 0);
+            Keyframes.Loop = looped;
             SignalPropertyChange();
         }
 

@@ -291,7 +291,7 @@ namespace System.Windows.Forms
                 foreach (ResourceNode s in ((ResourceNode)TargetModel).RootNode.FindChildrenByType(null, ResourceType.PLT0))
                     pltBox.Items.Add(s.Name);
             }
-            foreach (ResourceNode r in _mainWindow._animationSearchNodes)
+            foreach (ResourceNode r in _mainWindow._openedFiles)
             {
                 foreach (ResourceNode s in r.FindChildrenByType(null, ResourceType.TEX0))
                     texBox.Items.Add(s.Name);

@@ -55,9 +55,6 @@ namespace System.Windows.Forms
             base.OnShown(e);
             collisionEditor1.TargetNode = _node;
             collisionEditor1._modelPanel.Capture();
-
-            GenericWrapper._modelViewerOpen = true;
-            MainForm.Instance.Visible = false;
         }
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
@@ -71,7 +68,6 @@ namespace System.Windows.Forms
         {
             base.OnClosed(e);
 
-            GenericWrapper._modelViewerOpen = false;
             MainForm.Instance.Visible = true;
             MainForm.Instance.Refresh();
         }

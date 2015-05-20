@@ -59,12 +59,14 @@ namespace BrawlLib.OpenGL
 
                 _backImg = value;
                 _updateImage = true;
+
+                Invalidate();
             }
         }
         public Color BackgroundColor
         {
             get { return _backColor; }
-            set { _backColor = Color.FromArgb(0, value.R, value.G, value.B); }
+            set { _backColor = Color.FromArgb(0, value.R, value.G, value.B); Invalidate(); }
         }
 
         public void SetPercentages(Vector4 v)
@@ -106,6 +108,10 @@ namespace BrawlLib.OpenGL
             return y + _owner.Height - Region.Height - Region.Y;
         }
 
+        /// <summary>
+        /// Input is a world point.
+        /// Output is a viewport-screen point with a depth value of z.
+        /// </summary>
         public Vector3 Project(float x, float y, float z) { return Project(new Vector3(x, y, z)); }
         public Vector3 Project(Vector3 source)
         {
@@ -115,12 +121,14 @@ namespace BrawlLib.OpenGL
             //vec._y = LocalToWorldYf(vec._y);
             return vec;
         }
+        /// <summary>
+        /// Input is a full-screen point with a depth value of z. 
+        /// Output is a world point
+        /// </summary>
         public Vector3 UnProject(Vector3 source) { return UnProject(source._x, source._y, source._z); }
         public Vector3 UnProject(float x, float y, float z)
         {
-            //No need to correct, the screen texture is relative to the viewport
             return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z);
-            //return Camera.UnProject(x, y, z);
         }
 
         public void Invalidate()

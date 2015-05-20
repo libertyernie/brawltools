@@ -22,6 +22,11 @@ namespace System.Windows.Forms
     public partial class ModelEditControl : ModelEditorBase
     {
         #region Model Viewer Properties
+        void firstPersonCameraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                FirstPersonCamera = !FirstPersonCamera;
+        }
         private void shadersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (!_updating)
@@ -304,11 +309,7 @@ namespace System.Windows.Forms
         }
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog d = new OpenFileDialog();
-            d.Filter = "All Compatible Files (*.pac, *.pcs, *.brres, *.mrg, *.arc, *.szs,  *.mdl0)|*.pac;*.pcs;*.brres;*.mrg;*.arc;*.szs;*.mdl0";
-            d.Title = "Select a file to open";
-            if (d.ShowDialog() == DialogResult.OK)
-                OpenFile(d.FileName);
+            rightPanel.pnlOpenedFiles.LoadExternal(true, false, false);
         }
         private void newSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -322,33 +323,34 @@ namespace System.Windows.Forms
         }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.Close()) this.ParentForm.Close();
+            this.ParentForm.Close();
         }
 
         #region Rendered Models
 
         private void hideFromSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             ModelPanel.RemoveTarget(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
+            {
+                _resetCamera = false;
                 TargetModel = _targetModels[0];
+            }
 
             ModelPanel.Invalidate();
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             ModelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);
-            //models.Items.Remove(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
+            {
+                _resetCamera = false;
                 TargetModel = _targetModels[0];
+            }
 
             ModelPanel.Invalidate();
         }
@@ -495,6 +497,8 @@ namespace System.Windows.Forms
         public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ChooseOrClearBackgroundImage();
+
+            loadImageToolStripMenuItem.Text = ModelPanel.CurrentViewport.BackgroundImage == null ? "Load Image" : "Clear Image";
         }
 
         protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }

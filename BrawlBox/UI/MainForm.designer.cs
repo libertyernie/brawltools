@@ -34,7 +34,6 @@ namespace BrawlBox
             BrawlLib.OpenGL.GLCamera glCamera1 = new BrawlLib.OpenGL.GLCamera();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.resourceTree = new BrawlBox.ResourceTree();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -66,6 +65,7 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.resourceTree = new BrawlBox.ResourceTree();
             this.ppcDisassembler1 = new System.Windows.Forms.PPCDisassembler();
             this.texCoordControl1 = new System.Windows.Forms.TexCoordControl();
             this.attributeGrid1 = new System.Windows.Forms.MultipleInterpretationAttributeGrid();
@@ -83,6 +83,7 @@ namespace BrawlBox
             this.clrControl = new System.Windows.Forms.CLRControl();
             this.soundPackControl1 = new System.Windows.Forms.SoundPackControl();
             this.msBinEditor1 = new System.Windows.Forms.MSBinEditor();
+            this.mdL0ObjectControl1 = new System.Windows.Forms.MDL0ObjectControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -115,21 +116,6 @@ namespace BrawlBox
             this.splitContainer1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseDown);
             this.splitContainer1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseMove);
             this.splitContainer1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitContainer_MouseUp);
-            // 
-            // resourceTree
-            // 
-            this.resourceTree.AllowDrop = true;
-            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.resourceTree.HideSelection = false;
-            this.resourceTree.ImageIndex = 0;
-            this.resourceTree.Indent = 20;
-            this.resourceTree.Location = new System.Drawing.Point(0, 24);
-            this.resourceTree.Name = "resourceTree";
-            this.resourceTree.SelectedImageIndex = 0;
-            this.resourceTree.ShowIcons = true;
-            this.resourceTree.Size = new System.Drawing.Size(212, 387);
-            this.resourceTree.TabIndex = 0;
-            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
             // 
             // menuStrip1
             // 
@@ -379,6 +365,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.mdL0ObjectControl1);
             this.splitContainer2.Panel2.Controls.Add(this.ppcDisassembler1);
             this.splitContainer2.Panel2.Controls.Add(this.texCoordControl1);
             this.splitContainer2.Panel2.Controls.Add(this.attributeGrid1);
@@ -414,6 +401,21 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(401, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
+            // 
+            // resourceTree
+            // 
+            this.resourceTree.AllowDrop = true;
+            this.resourceTree.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.resourceTree.HideSelection = false;
+            this.resourceTree.ImageIndex = 0;
+            this.resourceTree.Indent = 20;
+            this.resourceTree.Location = new System.Drawing.Point(0, 24);
+            this.resourceTree.Name = "resourceTree";
+            this.resourceTree.SelectedImageIndex = 0;
+            this.resourceTree.ShowIcons = true;
+            this.resourceTree.Size = new System.Drawing.Size(212, 387);
+            this.resourceTree.TabIndex = 0;
+            this.resourceTree.SelectionChanged += new System.EventHandler(this.resourceTree_SelectionChanged);
             // 
             // ppcDisassembler1
             // 
@@ -582,6 +584,13 @@ namespace BrawlBox
             this.msBinEditor1.TabIndex = 2;
             this.msBinEditor1.Visible = false;
             // 
+            // mdL0ObjectControl1
+            // 
+            this.mdL0ObjectControl1.Location = new System.Drawing.Point(139, 56);
+            this.mdL0ObjectControl1.Name = "mdL0ObjectControl1";
+            this.mdL0ObjectControl1.Size = new System.Drawing.Size(652, 397);
+            this.mdL0ObjectControl1.TabIndex = 21;
+            // 
             // MainForm
             // 
             this.AllowDrop = true;
@@ -666,6 +675,7 @@ namespace BrawlBox
         private ToolStripMenuItem rEFTParticleTexturesToolStripMenuItem;
         private TexCoordControl texCoordControl1;
         private PPCDisassembler ppcDisassembler1;
+        private MDL0ObjectControl mdL0ObjectControl1;
     }
 }
 

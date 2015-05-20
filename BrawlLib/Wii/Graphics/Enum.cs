@@ -83,8 +83,8 @@ namespace BrawlLib.Wii.Graphics
 
     public enum ColorArg
     {
-        PreviousColor,//GX_CC_CPREV,
-        PreviousAlpha,//GX_CC_APREV,
+        OutputColor,//GX_CC_CPREV,
+        OutputAlpha,//GX_CC_APREV,
         Color0,//GX_CC_C0,
         Alpha0,//GX_CC_A0,
         Color1,//GX_CC_C1,
@@ -103,7 +103,7 @@ namespace BrawlLib.Wii.Graphics
 
     public enum AlphaArg
     {
-        PreviousAlpha,//GX_CA_APREV,
+        OutputAlpha,//GX_CA_APREV,
         Alpha0,//GX_CA_A0,
         Alpha1,//GX_CA_A1,
         Alpha2,//GX_CA_A2,
@@ -159,14 +159,14 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevColorRegID
     {
-        PreviousColor,
+        OutputColor,
         Color0,
         Color1,
         Color2,
     }
     public enum TevAlphaRegID
     {
-        PreviousAlpha,
+        OutputAlpha,
         Alpha0,
         Alpha1,
         Alpha2,
@@ -194,7 +194,13 @@ namespace BrawlLib.Wii.Graphics
     {
         Add = 0,
         Subtract = 1,
-        
+
+        CompR8Greater = 8,
+        CompR8Equal = 9,
+        CompGR16Greater = 10,
+        CompGR16Equal = 11,
+        CompBGR24Greater = 12,
+        CompBGR24Equal = 13,
         CompA8Greater = 14,
         CompA8Equal = 15,
     }

@@ -228,9 +228,6 @@
     <Compile Include="UI\Model Previewer\ModelEditControl\Designer.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="UI\Model Previewer\ModelEditControl\FileHandling.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Rendering.cs">
       <SubType>UserControl</SubType>
     </Compile>

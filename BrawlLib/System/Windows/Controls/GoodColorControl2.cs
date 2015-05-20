@@ -149,6 +149,9 @@ namespace System.Windows.Forms
 
         #endregion
 
+        public delegate void ColorChangedEvent(Color selection);
+        public event ColorChangedEvent OnColorChanged;
+
         private Color _color;
         private Color _newColor;
         public Color Color
@@ -242,6 +245,8 @@ namespace System.Windows.Forms
         {
             _newColor = goodColorControl1.Color;
             pnlNew.Invalidate();
+            if (OnColorChanged != null)
+                OnColorChanged(_newColor);
         }
 
         private void chkAlpha_CheckedChanged(object sender, EventArgs e)

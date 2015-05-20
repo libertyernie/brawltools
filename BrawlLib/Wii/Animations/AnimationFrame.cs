@@ -378,7 +378,7 @@ namespace BrawlLib.Wii.Animations
                     break;
                 case LightType.Spotlight:
                     Position = pos;
-                    Direction = (aim - pos).Normalize();
+                    Direction = (pos - aim).Normalize();
                     break;
                 default:
                     Position = new Vector3();
@@ -642,16 +642,19 @@ namespace BrawlLib.Wii.Animations
             }
         }
 
-        public Vector3 GetRotate(SCN0CameraType type)
+        public Vector3 GetRotation(SCN0CameraType type)
         {
             if (type == SCN0CameraType.Rotate)
                 return Rot;
             else //Aim - calculate rotation facing the position
-            {
-                Matrix m = Matrix.ReverseLookat(Aim, Pos, Twist);
-                Vector3 a = m.GetAngles();
-                return new Vector3(-a._x, -a._y, -a._z);
-            }
+                return GetRotationMatrix(type).GetAngles();
+        }
+        public Matrix GetRotationMatrix(SCN0CameraType type)
+        {
+            if (type == SCN0CameraType.Rotate)
+                return Matrix.RotationMatrix(Rot);
+            else //Aim - calculate rotation facing the position
+                return Matrix.RotationMatrix(Aim.LookatAngles(Pos) * Maths._rad2degf) * Matrix.RotationAboutZ(Twist);
         }
 
         public CameraAnimationFrame(Vector3 pos, Vector3 rot, Vector3 aim, float t, float f, float h, float a, float nz, float fz)

@@ -1113,8 +1113,7 @@ namespace System
 
         public static Matrix Lookat(Vector3 eye, Vector3 target, float roll)
         {
-            roll = roll * Maths._deg2radf;
-            Vector3 up = new Vector3(-(float)Math.Sin(roll), (float)Math.Cos(roll), 0);
+            Vector3 up = new Vector3(-(float)Math.Sin(roll * Maths._deg2radf), (float)Math.Cos(roll * Maths._deg2radf), 0);
 
             Vector3 zaxis = (eye - target).Normalize();
             Vector3 xaxis = up.Cross(zaxis).Normalize();
@@ -1144,8 +1143,7 @@ namespace System
 
         public static Matrix ReverseLookat(Vector3 eye, Vector3 target, float roll)
         {
-            roll = roll * Maths._deg2radf;
-            Vector3 up = new Vector3(-(float)Math.Sin(roll), (float)Math.Cos(roll), 0);
+            Vector3 up = new Vector3(-(float)Math.Sin(roll * Maths._deg2radf), (float)Math.Cos(roll * Maths._deg2radf), 0);
 
             Vector3 zaxis = (target - eye).Normalize();
             Vector3 xaxis = up.Cross(zaxis).Normalize();

@@ -73,6 +73,31 @@ namespace BrawlLib.SSBB.ResourceNodes
             return false;
         }
 
+        public override int OnCalculateSize(bool force)
+        {
+            return WorkingUncompressed.Length + (_version == 3 ? _userEntries.GetSize() : 0);
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            int offset = 0x40 + (_version == 3 ? _userEntries.GetSize() : 0);
+            Memory.Move(address + offset, WorkingUncompressed.Address + offset, (uint)length - (uint)offset);
+            switch (Version)
+            {
+                case 1:
+                    *(TEX0v1*)address = new TEX0v1(_width, _height, Format, _lod);
+                    break;
+                case 2:
+                    *(TEX0v2*)address = new TEX0v2(_width, _height, Format, _lod);
+                    break;
+                case 3:
+                    TEX0v3* v3 = (TEX0v3*)address;
+                    *v3 = new TEX0v3(_width, _height, Format, _lod);
+                    _userEntries.Write(address + 0x40);
+                    v3->_headerLen = offset;
+                    break;
+            }
+        }
+
         internal override void GetStrings(StringTable table)
         {
             table.Add(Name);

@@ -12,7 +12,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //protected override int DataLength { get { return Header->_dataLen; } }
 
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
         MDL0NormalData _hdr = new MDL0NormalData();
 

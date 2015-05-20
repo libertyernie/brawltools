@@ -100,7 +100,7 @@ namespace BrawlBox
                 }
 
                 //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.75b_h1";
+                string version = "v0.76";
 
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
                 IReadOnlyList<Release> release = null;
@@ -254,6 +254,7 @@ namespace BrawlBox
             texCoordControl1.TargetNode = null;
             ppcDisassembler1.SetTarget(null, 0, null);
             modelPanel1.ClearAll();
+            mdL0ObjectControl1.SetTarget(null);
             
             Control newControl = null;
             Control newControl2 = null;
@@ -278,6 +279,10 @@ namespace BrawlBox
                 else if (node is MDL0MaterialRefNode)
                 {
                     newControl = texCoordControl1;
+                }
+                else if (node is MDL0ObjectNode)
+                {
+                    newControl = mdL0ObjectControl1;
                 }
                 else if (node is MSBinNode)
                 {
@@ -417,7 +422,7 @@ namespace BrawlBox
                 if (node._children == null)
                     node.Populate(0);
                 
-                if (node is IModel)
+                if (node is IModel && ModelEditControl.Instances.Count == 0)
                 {
                     IModel m = node as IModel;
                     m.ResetToBindState();
@@ -427,6 +432,8 @@ namespace BrawlBox
                 modelPanel1.AddTarget(o);
                 modelPanel1.SetCamWithBox(o.GetBox());
             }
+            else if (_currentControl is MDL0ObjectControl)
+                mdL0ObjectControl1.SetTarget(node as MDL0ObjectNode);
             else if (_currentControl is TexCoordControl)
                 texCoordControl1.TargetNode = ((MDL0MaterialRefNode)node);
         }

@@ -190,6 +190,8 @@ namespace BrawlBox
             {
                 case ResourceType.ARC:
                 case ResourceType.MRG:
+                case ResourceType.U8:
+                case ResourceType.U8Folder:
                 case ResourceType.BRES:
                 case ResourceType.BRESGroup:
                     foreach (ResourceNode n in node.Children)

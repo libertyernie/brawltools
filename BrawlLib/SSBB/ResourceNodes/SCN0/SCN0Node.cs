@@ -47,8 +47,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void UpdateChildFrameLimits()
         {
-            if (LightSetGroup != null)
-                foreach (SCN0LightNode l in LightSetGroup.Children)
+            if (LightGroup != null)
+                foreach (SCN0LightNode l in LightGroup.Children)
                     l.SetSize(_numFrames, Loop);
             if (AmbientGroup != null)
                 foreach (SCN0AmbientLightNode l in AmbientGroup.Children)

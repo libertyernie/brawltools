@@ -98,7 +98,7 @@ namespace System.Windows.Forms
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ResourceNode r = Program.OpenedFiles[listBox1.SelectedIndex];
-            if (r.IsDirty || r.CompressionHasChanged)
+            if (r.IsDirty)
             {
                 DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
                 if ((res == DialogResult.Yes && !Save(r)) || res == DialogResult.Cancel)

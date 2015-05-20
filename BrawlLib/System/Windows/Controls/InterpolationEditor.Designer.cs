@@ -36,7 +36,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
-            this.cbTransform = new System.Windows.Forms.ComboBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.displayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkViewOne = new System.Windows.Forms.ToolStripMenuItem();
@@ -59,10 +58,10 @@
             this.chkSmooth = new System.Windows.Forms.ToolStripMenuItem();
             this.chkFlat = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBreakKey = new System.Windows.Forms.ToolStripMenuItem();
+            this.cbTransform = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.label9 = new System.Windows.Forms.Label();
             this.interpolationViewer = new System.Windows.Forms.InterpolationViewer();
             this.numPrecision = new System.Windows.Forms.NumericInputBox();
             this.nibTanLen = new System.Windows.Forms.NumericInputBox();
@@ -71,6 +70,7 @@
             this.numOutVal = new System.Windows.Forms.NumericInputBox();
             this.numInTan = new System.Windows.Forms.NumericInputBox();
             this.numInValue = new System.Windows.Forms.NumericInputBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -85,7 +85,7 @@
             this.panel1.Enabled = false;
             this.panel1.Location = new System.Drawing.Point(0, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(571, 63);
+            this.panel1.Size = new System.Drawing.Size(570, 63);
             this.panel1.TabIndex = 2;
             // 
             // groupBox1
@@ -104,7 +104,7 @@
             this.groupBox1.Enabled = false;
             this.groupBox1.Location = new System.Drawing.Point(98, 0);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(473, 63);
+            this.groupBox1.Size = new System.Drawing.Size(472, 63);
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Edit Keyframe";
@@ -168,26 +168,6 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Value:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // cbTransform
-            // 
-            this.cbTransform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbTransform.FormattingEnabled = true;
-            this.cbTransform.Items.AddRange(new object[] {
-            "Scale X",
-            "Scale Y",
-            "Scale Z",
-            "Rotation X",
-            "Rotation Y",
-            "Rotation Z",
-            "Translation X",
-            "Translation Y",
-            "Translation Z"});
-            this.cbTransform.Location = new System.Drawing.Point(3, 4);
-            this.cbTransform.Name = "cbTransform";
-            this.cbTransform.Size = new System.Drawing.Size(121, 21);
-            this.cbTransform.TabIndex = 6;
-            this.cbTransform.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
             // 
             // menuStrip1
             // 
@@ -391,11 +371,31 @@
             this.chkBreakKey.Text = "Break In/Out";
             this.chkBreakKey.Click += new System.EventHandler(this.chkBreakKey_Click);
             // 
+            // cbTransform
+            // 
+            this.cbTransform.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbTransform.FormattingEnabled = true;
+            this.cbTransform.Items.AddRange(new object[] {
+            "Scale X",
+            "Scale Y",
+            "Scale Z",
+            "Rotation X",
+            "Rotation Y",
+            "Rotation Z",
+            "Translation X",
+            "Translation Y",
+            "Translation Z"});
+            this.cbTransform.Location = new System.Drawing.Point(3, 4);
+            this.cbTransform.Name = "cbTransform";
+            this.cbTransform.Size = new System.Drawing.Size(121, 21);
+            this.cbTransform.TabIndex = 6;
+            this.cbTransform.SelectedIndexChanged += new System.EventHandler(this.comboBox1_SelectedIndexChanged);
+            // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label1.Location = new System.Drawing.Point(477, 5);
+            this.label1.Location = new System.Drawing.Point(476, 5);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(50, 20);
             this.label1.TabIndex = 1;
@@ -406,7 +406,7 @@
             // 
             this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.label4.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label4.Location = new System.Drawing.Point(351, 5);
+            this.label4.Location = new System.Drawing.Point(350, 5);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(88, 20);
             this.label4.TabIndex = 7;
@@ -423,21 +423,10 @@
             this.panel2.Controls.Add(this.label1);
             this.panel2.Controls.Add(this.numFrameVal);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Bottom;
-            this.panel2.Location = new System.Drawing.Point(0, 358);
+            this.panel2.Location = new System.Drawing.Point(0, 171);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(571, 29);
+            this.panel2.Size = new System.Drawing.Size(570, 29);
             this.panel2.TabIndex = 4;
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label9.Location = new System.Drawing.Point(194, 5);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(119, 20);
-            this.label9.TabIndex = 9;
-            this.label9.Text = "Interpolation Precision:";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // interpolationViewer
             // 
@@ -450,7 +439,7 @@
             this.interpolationViewer.KeyDraggingAllowed = false;
             this.interpolationViewer.Location = new System.Drawing.Point(0, 63);
             this.interpolationViewer.Name = "interpolationViewer";
-            this.interpolationViewer.Size = new System.Drawing.Size(571, 295);
+            this.interpolationViewer.Size = new System.Drawing.Size(570, 108);
             this.interpolationViewer.SyncStartEnd = false;
             this.interpolationViewer.TabIndex = 3;
             this.interpolationViewer.TangentLength = 5F;
@@ -460,7 +449,7 @@
             this.numPrecision.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.numPrecision.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numPrecision.Integral = false;
-            this.numPrecision.Location = new System.Drawing.Point(312, 5);
+            this.numPrecision.Location = new System.Drawing.Point(311, 5);
             this.numPrecision.MaximumValue = 3.402823E+38F;
             this.numPrecision.MinimumValue = 0F;
             this.numPrecision.Name = "numPrecision";
@@ -474,7 +463,7 @@
             this.nibTanLen.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.nibTanLen.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.nibTanLen.Integral = false;
-            this.nibTanLen.Location = new System.Drawing.Point(438, 5);
+            this.nibTanLen.Location = new System.Drawing.Point(437, 5);
             this.nibTanLen.MaximumValue = 3.402823E+38F;
             this.nibTanLen.MinimumValue = 0F;
             this.nibTanLen.Name = "nibTanLen";
@@ -488,7 +477,7 @@
             this.numFrameVal.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.numFrameVal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.numFrameVal.Integral = false;
-            this.numFrameVal.Location = new System.Drawing.Point(526, 5);
+            this.numFrameVal.Location = new System.Drawing.Point(525, 5);
             this.numFrameVal.MaximumValue = 65536F;
             this.numFrameVal.MinimumValue = 0F;
             this.numFrameVal.Name = "numFrameVal";
@@ -547,14 +536,25 @@
             this.numInValue.Text = "0";
             this.numInValue.ValueChanged += new System.EventHandler(this.numInValue_ValueChanged);
             // 
+            // label9
+            // 
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label9.Location = new System.Drawing.Point(178, 5);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(134, 20);
+            this.label9.TabIndex = 9;
+            this.label9.Text = "Interpolation Precision:";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
             // InterpolationEditor
             // 
             this.Controls.Add(this.interpolationViewer);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
-            this.MinimumSize = new System.Drawing.Size(472, 266);
+            this.MinimumSize = new System.Drawing.Size(570, 200);
             this.Name = "InterpolationEditor";
-            this.Size = new System.Drawing.Size(571, 387);
+            this.Size = new System.Drawing.Size(570, 200);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.groupBox1.ResumeLayout(false);
@@ -610,7 +610,7 @@
         private ToolStripMenuItem chkSmooth;
         private ToolStripMenuItem chkFlat;
         private ToolStripMenuItem chkBreakKey;
-        private Label label9;
         private NumericInputBox numPrecision;
+        private Label label9;
     }
 }

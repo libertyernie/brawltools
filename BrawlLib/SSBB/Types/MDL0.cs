@@ -496,6 +496,8 @@ namespace BrawlLib.SSBBTypes
         public bMatrix43 _transform;
         public bMatrix43 _transformInv;
 
+        public MDL0Bone* Next { get { return (MDL0Bone*)(Address + _headerLen); } }
+
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
         public UserData* UserDataAddress { get { if (_userDataOffset <= 0) return null; return (UserData*)(Address + _userDataOffset); } }

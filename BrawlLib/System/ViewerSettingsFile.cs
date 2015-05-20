@@ -44,7 +44,8 @@ namespace System
         public bool SnapToColl;
         public bool FlatBoneList;
         public bool BoneListContains;
-
+        
+        public bool HideMainWindow;
         public bool SavePosition;
         public int _width, _height, _posX, _posY;
 

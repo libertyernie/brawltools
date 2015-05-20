@@ -20,7 +20,9 @@ namespace System.Windows.Forms
 
         private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            pnlKeyframes.Visible = !(pnlBones.Visible = editor.SelectedIndex == 0);
+            pnlBones.Visible = editor.SelectedIndex == 0;
+            pnlKeyframes.Visible = editor.SelectedIndex == 1;
+            pnlOpenedFiles.Visible = editor.SelectedIndex == 2;
         }
 
         public void Reset() { pnlBones.Reset(); }

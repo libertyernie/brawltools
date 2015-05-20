@@ -22,7 +22,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _minLod;
         public bfloat _maxLod;
         public bint _origPathOffset;
-        private fixed byte padding[12];
+        private fixed int padding[3];
 
         internal VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
@@ -88,7 +88,7 @@ namespace BrawlLib.SSBBTypes
         public bint _levelOfDetail;
         public bfloat _minLod;
         public bfloat _maxLod;
-        private fixed byte padding[12];
+        private fixed int padding[3];
 
         internal VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
@@ -140,7 +140,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct TEX0v3
     {
-        public const int Size = 0x44;
+        public const int Size = 0x40;
         public const uint Tag = 0x30584554;
 
         public BRESCommonHeader _header;
@@ -155,7 +155,7 @@ namespace BrawlLib.SSBBTypes
         public bfloat _maxLod;
         public bint _origPathOffset;
         public bint _userDataOffset;
-        private fixed byte padding[12];
+        private fixed int padding[2];
 
         //User Data comes before texture data. Align to 0x20
 

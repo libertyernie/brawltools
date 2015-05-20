@@ -544,6 +544,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public bool GetEntry(int index)
         {
+            if (_data.Length == 0)
+                return Enabled;
+
             int i = index >> 3;
             int bit = 1 << (7 - (index & 0x7));
             return (_data[i] & bit) != 0;
@@ -621,7 +624,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     //Interpolate the color, in case the index isn't an integer
 
                     int colorIndex = (int)Math.Truncate(index);
-                    color = (Vector4)_lightColor[colorIndex];
+                    color = (Vector4)_lightColor[colorIndex.Clamp(0, _lightColor.Count - 1)];
                     if (colorIndex + 1 < _lightColor.Count)
                     {
                         float frac = index - colorIndex;
@@ -638,7 +641,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         //Interpolate the color, in case the index isn't an integer
 
                         int specIndex = (int)Math.Truncate(index);
-                        specColor = (Vector4)_specColor[specIndex];
+                        specColor = (Vector4)_specColor[specIndex.Clamp(0, _specColor.Count - 1)];
                         if (specIndex + 1 < _specColor.Count)
                         {
                             float frac = index - specIndex;
@@ -785,6 +788,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public static Vector3 GetLightSpotCoefs(float cutoff, SpotFn spotFunc)
         {
+            //a2x^2 + a1x + a0
             float a0, a1, a2, d, cr = (float)Math.Cos(cutoff * Maths._deg2radf);
 
             if (cutoff <= 0.0f || cutoff > 90.0f)
@@ -850,6 +854,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public static Vector3 GetLightDistCoefs(float distance, float brightness, DistAttnFn distFunc)
         {
             //constant attn, linear attn, quadratic attn
+            //k2x^2 + k1x + k0
             float k0, k1, k2;
 
             if (distance < 0.0F || brightness <= 0.0F || brightness >= 1.0F)

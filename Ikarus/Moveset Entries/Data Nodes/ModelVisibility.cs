@@ -281,7 +281,7 @@ namespace Ikarus.MovesetFile
                     if (i != Switch._defaultGroup)
                         foreach (BoneIndexValue b in Group._bones)
                             if (b.BoneNode != null)
-                                foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                                foreach (MDL0ObjectNode p in b.BoneNode._visibilityObjects)
                                     p._render = false;
                     i++;
                 }
@@ -294,7 +294,7 @@ namespace Ikarus.MovesetFile
                     ModelVisGroup Group = Switch[Switch._defaultGroup];
                     foreach (BoneIndexValue b in Group._bones)
                         if (b.BoneNode != null)
-                            foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                            foreach (MDL0ObjectNode p in b.BoneNode._visibilityObjects)
                                 p._render = true;
                 }
         }
@@ -316,7 +316,7 @@ namespace Ikarus.MovesetFile
             foreach (ModelVisGroup grp in switchEntry)
                 foreach (BoneIndexValue b in grp._bones)
                     if (b.BoneNode != null)
-                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                        foreach (MDL0ObjectNode obj in b.BoneNode._visibilityObjects)
                             obj._render = false;
 
             //Check if the group id is usable
@@ -328,7 +328,7 @@ namespace Ikarus.MovesetFile
             if (group != null)
                 foreach (BoneIndexValue b in group._bones)
                     if (b.BoneNode != null)
-                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                        foreach (MDL0ObjectNode obj in b.BoneNode._visibilityObjects)
                             obj._render = true;
         }
     }

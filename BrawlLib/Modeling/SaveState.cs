@@ -29,6 +29,8 @@ namespace BrawlLib.Modeling
 
     public class VertexState : SaveState
     {
+        public int _animFrame;
+        public CHR0Node _chr0;
         public List<Vertex3> _vertices = null;
         public List<Vector3> _weightedPositions = null;
         public IModel _targetModel;

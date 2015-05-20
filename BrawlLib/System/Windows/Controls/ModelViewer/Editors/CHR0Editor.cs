@@ -57,6 +57,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem removeAllToolStripMenuItem;
         private ContextMenuStrip ctxTools;
         private ToolStripMenuItem bakeVertexPositionsToolStripMenuItem;
+        private CheckBox chkBoneEdit;
         private ToolStripMenuItem addCustomAmountToolStripMenuItem;
         private void InitializeComponent()
         {
@@ -81,6 +82,8 @@ namespace System.Windows.Forms
             this.lblRot = new System.Windows.Forms.Label();
             this.lblScale = new System.Windows.Forms.Label();
             this.grpTransAll = new System.Windows.Forms.GroupBox();
+            this.ctxTools = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.bakeVertexPositionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.btnInsert = new System.Windows.Forms.Button();
             this.btnClean = new System.Windows.Forms.Button();
             this.btnPasteAll = new System.Windows.Forms.Button();
@@ -103,16 +106,16 @@ namespace System.Windows.Forms
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addCustomAmountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.ctxTools = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.bakeVertexPositionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.chkBoneEdit = new System.Windows.Forms.CheckBox();
             this.grpTransform.SuspendLayout();
             this.grpTransAll.SuspendLayout();
-            this.ctxBox.SuspendLayout();
             this.ctxTools.SuspendLayout();
+            this.ctxBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpTransform
             // 
+            this.grpTransform.Controls.Add(this.chkBoneEdit);
             this.grpTransform.Controls.Add(this.FrameScale);
             this.grpTransform.Controls.Add(this.btnPaste);
             this.grpTransform.Controls.Add(this.FrameRot);
@@ -385,6 +388,20 @@ namespace System.Windows.Forms
             this.grpTransAll.TabStop = false;
             this.grpTransAll.Text = "Transform All";
             // 
+            // ctxTools
+            // 
+            this.ctxTools.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bakeVertexPositionsToolStripMenuItem});
+            this.ctxTools.Name = "ctxBox";
+            this.ctxTools.Size = new System.Drawing.Size(186, 26);
+            // 
+            // bakeVertexPositionsToolStripMenuItem
+            // 
+            this.bakeVertexPositionsToolStripMenuItem.Name = "bakeVertexPositionsToolStripMenuItem";
+            this.bakeVertexPositionsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
+            this.bakeVertexPositionsToolStripMenuItem.Text = "Bake Vertex Positions";
+            this.bakeVertexPositionsToolStripMenuItem.Click += new System.EventHandler(this.bakeVertexPositionsToolStripMenuItem_Click);
+            // 
             // btnInsert
             // 
             this.btnInsert.Location = new System.Drawing.Point(106, 54);
@@ -583,19 +600,15 @@ namespace System.Windows.Forms
             this.addCustomAmountToolStripMenuItem.Text = "Edit All...";
             this.addCustomAmountToolStripMenuItem.Click += new System.EventHandler(this.addCustomAmountToolStripMenuItem_Click);
             // 
-            // ctxTools
+            // chkBoneEdit
             // 
-            this.ctxTools.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.bakeVertexPositionsToolStripMenuItem});
-            this.ctxTools.Name = "ctxBox";
-            this.ctxTools.Size = new System.Drawing.Size(186, 26);
-            // 
-            // bakeVertexPositionsToolStripMenuItem
-            // 
-            this.bakeVertexPositionsToolStripMenuItem.Name = "bakeVertexPositionsToolStripMenuItem";
-            this.bakeVertexPositionsToolStripMenuItem.Size = new System.Drawing.Size(185, 22);
-            this.bakeVertexPositionsToolStripMenuItem.Text = "Bake Vertex Positions";
-            this.bakeVertexPositionsToolStripMenuItem.Click += new System.EventHandler(this.bakeVertexPositionsToolStripMenuItem_Click);
+            this.chkBoneEdit.AutoSize = true;
+            this.chkBoneEdit.Location = new System.Drawing.Point(318, 0);
+            this.chkBoneEdit.Name = "chkBoneEdit";
+            this.chkBoneEdit.Size = new System.Drawing.Size(102, 17);
+            this.chkBoneEdit.TabIndex = 36;
+            this.chkBoneEdit.Text = "Bone Edit Mode";
+            this.chkBoneEdit.UseVisualStyleBackColor = true;
             // 
             // CHR0Editor
             // 
@@ -608,8 +621,8 @@ namespace System.Windows.Forms
             this.grpTransform.PerformLayout();
             this.grpTransAll.ResumeLayout(false);
             this.grpTransAll.PerformLayout();
-            this.ctxBox.ResumeLayout(false);
             this.ctxTools.ResumeLayout(false);
+            this.ctxBox.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -662,6 +675,8 @@ namespace System.Windows.Forms
         {
             if (!Enabled)
                 return;
+
+            chkBoneEdit.Visible = chkBoneEdit.Enabled = CurrentFrame < 1;
 
             grpTransAll.Enabled = SelectedAnimation != null;
             btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
@@ -727,7 +742,6 @@ namespace System.Windows.Forms
                 box.Value = index < 3 ? 1 : 0;
                 box.BackColor = Color.White;
             }
-            
         }
         public unsafe void ApplyState(BoneState save)
         {
@@ -753,6 +767,7 @@ namespace System.Windows.Forms
 
             _mainWindow.BoneChange(TargetBone);
         }
+
         public unsafe void BoxChanged(object sender, EventArgs e)
         {
             if (TargetBone == null)
@@ -811,6 +826,11 @@ namespace System.Windows.Forms
                 p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
                 state.CalcTransforms();
                 bone.BindState = state;
+
+                //This will make the model not move with the bone
+                if (chkBoneEdit.Checked)
+                    bone.RecalcBindState();
+
                 ((ResourceNode)bone).SignalPropertyChange();
             }
 

@@ -47,11 +47,12 @@ namespace System.Windows.Forms
         public IBoneNode _selectedBone = null;
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
         public List<HotKeyInfo> _hotkeyList;
-        public List<ResourceNode> _animationSearchNodes = new List<ResourceNode>();
         public List<Image> _images = new List<Image>();
 
+        public BindingList<ResourceNode> _openedFiles = new BindingList<ResourceNode>();
+
         //Bone Name - Attached Polygon Indices
-        public Dictionary<string, List<int>> VIS0Indices
+        public Dictionary<string, Dictionary<int, List<int>>> VIS0Indices
         {
             get
             {
@@ -65,7 +66,6 @@ namespace System.Windows.Forms
 
         protected Vector3 _lastPointLocal, _lastPointWorld;
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
-        protected Matrix _newVertexTransform;
         protected Vector3? _vertexLoc = null;
 
         protected bool _rotating, _translating, _scaling;
@@ -95,7 +95,7 @@ namespace System.Windows.Forms
         public InterpolationEditor _interpolationEditor;
         public InterpolationForm _interpolationForm = null;
         public Control _currentControl = null;
-        protected OpenFileDialog dlgOpen = new OpenFileDialog();
+        public OpenFileDialog _dlgOpen = new OpenFileDialog();
 
         #region Events
 
@@ -144,9 +144,9 @@ namespace System.Windows.Forms
 
     public enum TransformType
     {
-        None = -1,
         Translation = 0,
         Rotation = 1,
-        Scale = 2
+        Scale = 2,
+        None = 3,
     }
 }

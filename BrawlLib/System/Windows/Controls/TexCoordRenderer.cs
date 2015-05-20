@@ -173,9 +173,10 @@ namespace System.Windows.Forms
             _uvSetIndices.Clear();
             if ((_objIndex = _objNames.Count == 1 ? 0 : index >= 0 ? index.Clamp(0, _objNames.Count - 2) : -1) >= 0)
             {
-                foreach (MDL0UVNode uv in _targetMatRef.Material.Objects[_objIndex]._uvSet)
-                    if (uv != null)
-                        _uvSetIndices.Add(uv.Index);
+                if (_targetMatRef.Material.Objects.Length != 0)
+                    foreach (MDL0UVNode uv in _targetMatRef.Material.Objects[_objIndex]._uvSet)
+                        if (uv != null)
+                            _uvSetIndices.Add(uv.Index);
             }
             else
             {
@@ -226,7 +227,7 @@ namespace System.Windows.Forms
                         info._isEnabled = true;
                         info._enabled = new bool[8];
                         for (int x = 0; x < 8; x++)
-                            if (info._manager._faceData[x + 4] != null)
+                            if (info._manager != null && info._manager._faceData[x + 4] != null)
                                 info._enabled[x] = !singleUV || _uvIndex == x;
                     }
                 }
@@ -235,7 +236,7 @@ namespace System.Windows.Forms
                     info._isEnabled = true;
                     info._enabled = new bool[8];
                     for (int x = 0; x < 8; x++)
-                        if (info._manager._faceData[x + 4] != null)
+                        if (info._manager != null && info._manager._faceData[x + 4] != null)
                             info._enabled[x] = !singleUV || _uvIndex == r++;
                 }
             }
@@ -311,46 +312,7 @@ namespace System.Windows.Forms
             if (texture == null || texture._texId <= 0)
                 return;
 
-            int filter = 0;
-            switch (_targetMatRef.MagFilter)
-            {
-                case MatTextureMagFilter.Nearest:
-                    filter = (int)TextureMagFilter.Nearest; break;
-                case MatTextureMagFilter.Linear:
-                    filter = (int)TextureMagFilter.Linear; break;
-            }
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, filter);
-            switch (_targetMatRef.MinFilter)
-            {
-                case MatTextureMinFilter.Nearest:
-                    filter = (int)TextureMinFilter.Nearest; break;
-                case MatTextureMinFilter.Linear:
-                    filter = (int)TextureMinFilter.Linear; break;
-                case MatTextureMinFilter.Nearest_Mipmap_Nearest:
-                    filter = (int)TextureMinFilter.NearestMipmapNearest; break;
-                case MatTextureMinFilter.Nearest_Mipmap_Linear:
-                    filter = (int)TextureMinFilter.NearestMipmapLinear; break;
-                case MatTextureMinFilter.Linear_Mipmap_Nearest:
-                    filter = (int)TextureMinFilter.LinearMipmapNearest; break;
-                case MatTextureMinFilter.Linear_Mipmap_Linear:
-                    filter = (int)TextureMinFilter.LinearMipmapLinear; break;
-            }
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, filter);
-            GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureLodBias, _targetMatRef.LODBias);
-
-            switch ((int)_targetMatRef.UWrapMode)
-            {
-                case 0: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge); break;
-                case 1: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat); break;
-                case 2: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.MirroredRepeat); break;
-            }
-
-            switch ((int)_targetMatRef.VWrapMode)
-            {
-                case 0: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge); break;
-                case 1: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat); break;
-                case 2: GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.MirroredRepeat); break;
-            }
+            MDL0TextureNode.ApplyGLTextureParameters(_targetMatRef);
 
             //These are used to match up the UV overlay to the texture underneath
             Vector2 topLeft = new Vector2();
@@ -619,16 +581,17 @@ namespace System.Windows.Forms
             {
                 _min = new Vector2(float.MaxValue);
                 _max = new Vector2(float.MinValue);
-                for (int i = 4; i < _manager._faceData.Length; i++)
-                    if (_manager._faceData[i] != null && _enabled[i - 4])
-                    {
-                        Vector2* pSrc = (Vector2*)_manager._faceData[i].Address;
-                        for (int x = 0; x < _manager._pointCount; x++, pSrc++)
+                if (_manager != null && _manager._faceData != null)
+                    for (int i = 4; i < _manager._faceData.Length; i++)
+                        if (_manager._faceData[i] != null && _enabled[i - 4])
                         {
-                            _min.Min(*pSrc);
-                            _max.Max(*pSrc);
+                            Vector2* pSrc = (Vector2*)_manager._faceData[i].Address;
+                            for (int x = 0; x < _manager._pointCount; x++, pSrc++)
+                            {
+                                _min.Min(*pSrc);
+                                _max.Max(*pSrc);
+                            }
                         }
-                    }
             }
 
             public void CalcStride()

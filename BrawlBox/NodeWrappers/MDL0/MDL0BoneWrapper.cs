@@ -27,6 +27,9 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("Add To Next &Up", null, AddUpAction, Keys.Control | Keys.Alt | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Add To Next D&own", null, AddDownAction, Keys.Control | Keys.Alt | Keys.Down));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("Move to end of bone array", null, RemapAction));
+            _menu.Items.Add(new ToolStripMenuItem("Regenerate bone array", null, RegenAction));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Add New Child", null, CreateAction, Keys.Control | Keys.Alt | Keys.N));
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
@@ -36,6 +39,8 @@ namespace BrawlBox.NodeWrappers
         protected static void AddUpAction(object sender, EventArgs e) { GetInstance<MDL0BoneWrapper>().AddUp(); }
         protected static void AddDownAction(object sender, EventArgs e) { GetInstance<MDL0BoneWrapper>().AddDown(); }
         protected static void CreateAction(object sender, EventArgs e) { GetInstance<MDL0BoneWrapper>().CreateNode(); }
+        protected static void RemapAction(object sender, EventArgs e) { GetInstance<MDL0BoneWrapper>().Remap(); }
+        protected static void RegenAction(object sender, EventArgs e) { GetInstance<MDL0BoneWrapper>().Regen(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = true;
@@ -49,6 +54,38 @@ namespace BrawlBox.NodeWrappers
             _menu.Items[7].Enabled = w.PrevNode != null;
             _menu.Items[8].Enabled = w.NextNode != null;
         }
+
+        public void Regen()
+        {
+            MDL0BoneNode b = _resource as MDL0BoneNode;
+            if (b != null)
+            {
+                MDL0Node m = b.Model;
+                if (m != null)
+                {
+                    m._linker.RegenerateBoneCache(true);
+                    OnUpdateProperties(null, null);
+                    b.SignalPropertyChange();
+                }
+
+            }
+        }
+        public void Remap()
+        {
+            MDL0BoneNode b = _resource as MDL0BoneNode;
+            if (b != null)
+            {
+                MDL0Node m = b.Model;
+                if (m != null)
+                {
+                    b._entryIndex = m._linker.BoneCache.Length;
+                    m._linker.RegenerateBoneCache();
+                    OnUpdateProperties(null, null);
+                    b.SignalPropertyChange();
+                }
+            }
+        }
+
         public unsafe void AddUp()
         {
             //try

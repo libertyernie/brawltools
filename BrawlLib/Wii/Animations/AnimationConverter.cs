@@ -15,12 +15,17 @@ namespace BrawlLib.Wii.Animations
             //set the frame count later manually.
             int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
+            KeyframeCollection kf;
             if (node is CHR0Node && entry)
-                return DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
+                kf = DecodeCHR0Keyframes((CHR0Entry*)entry, numFrames);
             else if (node is SRT0Node && entry)
-                return DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
+                kf = DecodeSRT0Keyframes((SRT0TextureEntry*)entry, numFrames);
             else
-                return new KeyframeCollection(arrayCount, numFrames, defaults);
+                kf = new KeyframeCollection(arrayCount, numFrames, defaults);
+
+            kf.Loop = node.Loop;
+
+            return kf;
         }
 
         public static KeyframeArray DecodeSHP0Keyframes(SHP0KeyframeEntries* entry, SHP0Node node)
@@ -30,7 +35,7 @@ namespace BrawlLib.Wii.Animations
             //set the frame count later manually.
             int numFrames = node == null ? 1 : node.FrameCount + (node.Loop ? 1 : 0);
 
-            KeyframeArray kf = new KeyframeArray(numFrames);
+            KeyframeArray kf = new KeyframeArray(numFrames) { Loop = node.Loop };
 
             if (entry == null)
                 return kf;

@@ -358,11 +358,21 @@ namespace System.Windows.Forms
         }
         private bool HotkeyCancelChange()
         {
+            if (!AwaitingRedoSave)
+                return false;
+
             //Undo transformations, make sure to reset keyframes
-            if (VertexLoc().HasValue)
-                foreach (Vertex3 vertex in _selectedVertices)
-                    vertex.WeightedPosition = Maths.TransformAboutPoint(vertex.WeightedPosition, VertexLoc().Value, Matrix.Invert(_newVertexTransform));
-            else
+            if (VertexLoc.HasValue && _currentUndo is VertexState)
+            {
+                VertexState v = _currentUndo as VertexState;
+
+                for (int i = 0; i < v._vertices.Count; i++)
+                    v._vertices[i].WeightedPosition = v._weightedPositions[i];
+                
+                CancelChangeState();
+                UpdateModel();
+            }
+            else if (_rotating || _translating || _scaling)
             {
                 if (_rotating)
                 {
@@ -391,6 +401,8 @@ namespace System.Windows.Forms
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
                 }
+
+                CancelChangeState();
             }
 
             _rotating = false;
