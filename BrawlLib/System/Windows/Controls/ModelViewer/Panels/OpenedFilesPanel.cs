@@ -139,6 +139,7 @@ namespace System.Windows.Forms
                 }
             }
 
+            _mainWindow.Updating = true;
             for (int m = 0; m < _mainWindow.ModelPanel._renderList.Count; m++)
             {
                 ResourceNode o = _mainWindow.ModelPanel._renderList[m] as ResourceNode;
@@ -150,6 +151,7 @@ namespace System.Windows.Forms
             }
             _mainWindow.ModelPanel.RemoveReference(r, false);
             _mainWindow.UnloadAnimations(r);
+            _mainWindow.Updating = false;
 
             if (shouldClose)
                 r.Dispose();

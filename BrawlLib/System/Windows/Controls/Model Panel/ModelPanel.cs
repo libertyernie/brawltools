@@ -137,6 +137,7 @@ namespace System.Windows.Forms
         {
             if (!_renderList.Contains(target))
                 return;
+            _renderList.Remove(target);
 
             target.Detach();
 
@@ -144,7 +145,6 @@ namespace System.Windows.Forms
                 RemoveReference(target as ResourceNode, refreshReferences);
 
             target.DrawCallsChanged -= target_DrawCallsChanged;
-            _renderList.Remove(target);
 
             _drawCalls = _renderList.SelectMany(x => x.DrawCalls).ToList();
             _drawCalls.Sort(DrawCallSort);

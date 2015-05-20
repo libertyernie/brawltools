@@ -100,7 +100,7 @@ namespace BrawlBox
                 }
 
                 //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.76";
+                string version = "v0.76_h1";
 
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
                 IReadOnlyList<Release> release = null;
