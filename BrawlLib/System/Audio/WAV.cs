@@ -287,22 +287,23 @@ namespace System.Audio
             return new PCMStream(FileMap.FromFile(path, FileMapProtect.Read));
         }
 
-        public static void ToFile(IAudioStream source, string path)
+        public static void ToFile(IAudioStream source, string path, int samplePosition = 0, int maxSampleCount = int.MaxValue)
         {
+			int sampleCount = Math.Min(maxSampleCount, (source.Samples - samplePosition));
             using (FileStream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
             {
                 //Estimate size
-                int outLen = 44 + (source.Samples * source.Channels * 2);
+				int outLen = 44 + (sampleCount * source.Channels * 2);
 
                 //Create file map
                 stream.SetLength(outLen);
                 using (FileMap map = FileMap.FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, outLen))
                 {
                     RIFFHeader* riff = (RIFFHeader*)map.Address;
-                    *riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, source.Samples);
+					*riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, sampleCount);
 
-                    source.SamplePosition = 0;
-                    source.ReadSamples(map.Address + 44, source.Samples);
+					source.SamplePosition = samplePosition;
+					source.ReadSamples(map.Address + 44, sampleCount);
                 }
             }
         }
