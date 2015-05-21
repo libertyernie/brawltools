@@ -63,6 +63,7 @@ namespace System.Windows.Forms
         {
             this.components = new System.ComponentModel.Container();
             this.grpTransform = new System.Windows.Forms.GroupBox();
+            this.chkBoneEdit = new System.Windows.Forms.CheckBox();
             this.FrameScale = new System.Windows.Forms.CheckBox();
             this.btnPaste = new System.Windows.Forms.Button();
             this.FrameRot = new System.Windows.Forms.CheckBox();
@@ -106,7 +107,6 @@ namespace System.Windows.Forms
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addCustomAmountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkBoneEdit = new System.Windows.Forms.CheckBox();
             this.grpTransform.SuspendLayout();
             this.grpTransAll.SuspendLayout();
             this.ctxTools.SuspendLayout();
@@ -143,6 +143,16 @@ namespace System.Windows.Forms
             this.grpTransform.TabIndex = 23;
             this.grpTransform.TabStop = false;
             this.grpTransform.Text = "Transform Frame";
+            // 
+            // chkBoneEdit
+            // 
+            this.chkBoneEdit.AutoSize = true;
+            this.chkBoneEdit.Location = new System.Drawing.Point(318, 0);
+            this.chkBoneEdit.Name = "chkBoneEdit";
+            this.chkBoneEdit.Size = new System.Drawing.Size(102, 17);
+            this.chkBoneEdit.TabIndex = 36;
+            this.chkBoneEdit.Text = "Bone Edit Mode";
+            this.chkBoneEdit.UseVisualStyleBackColor = true;
             // 
             // FrameScale
             // 
@@ -369,7 +379,6 @@ namespace System.Windows.Forms
             // 
             // grpTransAll
             // 
-            this.grpTransAll.ContextMenuStrip = this.ctxTools;
             this.grpTransAll.Controls.Add(this.btnInsert);
             this.grpTransAll.Controls.Add(this.btnClean);
             this.grpTransAll.Controls.Add(this.btnPasteAll);
@@ -599,16 +608,6 @@ namespace System.Windows.Forms
             this.addCustomAmountToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
             this.addCustomAmountToolStripMenuItem.Text = "Edit All...";
             this.addCustomAmountToolStripMenuItem.Click += new System.EventHandler(this.addCustomAmountToolStripMenuItem_Click);
-            // 
-            // chkBoneEdit
-            // 
-            this.chkBoneEdit.AutoSize = true;
-            this.chkBoneEdit.Location = new System.Drawing.Point(318, 0);
-            this.chkBoneEdit.Name = "chkBoneEdit";
-            this.chkBoneEdit.Size = new System.Drawing.Size(102, 17);
-            this.chkBoneEdit.TabIndex = 36;
-            this.chkBoneEdit.Text = "Bone Edit Mode";
-            this.chkBoneEdit.UseVisualStyleBackColor = true;
             // 
             // CHR0Editor
             // 
