@@ -484,8 +484,10 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             OnMoved();
         }
 
-        public void CalculateOffsets(MDL0Bone* header)
+        public void CalculateOffsets()
         {
+            MDL0Bone* header = (MDL0Bone*)WorkingUncompressed.Address;
+
             //Set first child
             header->_firstChildOffset = _children.Count > 0 ?
                 (int)Children[0].WorkingUncompressed.Address - (int)header :
@@ -506,7 +508,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     (int)Parent._children[index - 1].WorkingUncompressed.Address - (int)header;
 
                 //Next sibling
-                header->_prevOffset = index == (Parent._children.Count - 1) ? 
+                header->_nextOffset = index == (Parent._children.Count - 1) ? 
                     0 : 
                     (int)Parent._children[index + 1].WorkingUncompressed.Address - (int)header;
             }

@@ -224,10 +224,7 @@ namespace BrawlLib.Wii.Models
                     //Loop through after all bones are written
                     //and set header offsets to related bones
                     foreach (MDL0BoneNode e in BoneCache)
-                    {
-                        e.CalculateOffsets(pBone);
-                        pBone = pBone->Next;
-                    }
+                        e.CalculateOffsets();
                 }
                 else if (resType == MDLResourceType.Shaders)
                 {
