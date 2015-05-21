@@ -2039,8 +2039,13 @@ namespace System.Windows.Forms
             cboNodeList.Items.Clear();
             SCN0GroupNode g;
             if (SelectedAnimation != null && (g = SelectedAnimation.GetFolder((SCN0GroupNode.GroupType)_tabIndex)) != null)
+            {
+                Enabled = true;
                 foreach (SCN0EntryNode s in g.Children)
                     cboNodeList.Items.Add(s);
+            }
+            else
+                Enabled = false;
             if (cboNodeList.Items.Count > 0)
                 cboNodeList.SelectedIndex = 0;
             else
@@ -2059,7 +2064,7 @@ namespace System.Windows.Forms
             UpdateNodeList();
 
             _mainWindow.UpdateAnimationPanelDimensions();
-            UpdatePropDisplay();
+            //UpdatePropDisplay();
         }
 
         private void button1_Click(object sender, EventArgs e)

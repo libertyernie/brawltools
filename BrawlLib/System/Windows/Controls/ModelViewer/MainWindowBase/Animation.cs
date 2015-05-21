@@ -461,8 +461,8 @@ namespace System.Windows.Forms
                 SetFrame(1);
             }
 
-            UpdateModel();
-            UpdatePropDisplay();
+            //UpdateModel();
+            //UpdatePropDisplay();
             OnAnimationChanged();
         }
 

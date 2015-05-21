@@ -174,6 +174,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public SCN0GroupNode GetFolder(SCN0GroupNode.GroupType type)
         {
+            Populate(0);
+
             int typeID = (int)type;
             if (typeID < 0 || typeID >= 5)
                 return null;
