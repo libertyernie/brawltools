@@ -68,7 +68,7 @@ namespace BrawlLib.Wii.Graphics
         Inverse,//GX_LO_INV,
         ReverseOr,//GX_LO_REVOR,
         InverseCopy,//GX_LO_INVCOPY,
-        InvorseOr,//GX_LO_INVOR,
+        InverseOr,//GX_LO_INVOR,
         NotAnd,//GX_LO_NAND,
         Set//GX_LO_SET
     }
