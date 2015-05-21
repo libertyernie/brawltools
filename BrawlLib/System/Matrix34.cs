@@ -640,11 +640,11 @@ namespace System
                     c._orthoDimensions[3],
                     c._orthoDimensions[0],
                     c._orthoDimensions[1],
-                    0.5f, 0.5f, 0.5f, 0.5f);
+                    0.5f, -0.5f, 0.5f, 0.5f);
             else
                 return LightMtxPersp(
                     c._fovY, 1.0f,
-                    0.5f, 0.5f, 0.5f, 0.5f);
+                    0.5f, -0.5f, 0.5f, 0.5f);
         }
         static Matrix34 ProjectionTexMtx(SCN0CameraNode c, float frame)
         {
@@ -655,11 +655,11 @@ namespace System
                     -f.Height / 2.0f,
                     -f.Height * f.Aspect / 2.0f,
                     f.Height * f.Aspect / 2.0f,
-                    0.5f, 0.5f, 0.5f, 0.5f);
+                    0.5f, -0.5f, 0.5f, 0.5f);
             else
                 return LightMtxPersp(
                     f.FovY, 1.0f,
-                    0.5f, 0.5f, 0.5f, 0.5f);
+                    0.5f, -0.5f, 0.5f, 0.5f);
         }
 
         static Matrix34 LightMtxPersp(float fovY, float aspect, float scaleS, float scaleT, float transS, float transT)
@@ -767,7 +767,8 @@ namespace System
             ModelPanelViewport v,
             float frame)
         {
-            Matrix m = Matrix.Identity;
+            Matrix projMtx = Matrix.Identity;
+            Matrix camMtx = Matrix.Identity;
             GLCamera cam = v.Camera;
             if (ref_camera >= 0 &&
                 node != null &&
@@ -779,13 +780,16 @@ namespace System
                 SCN0CameraNode camNode = (SCN0CameraNode)node.CameraGroup.Children[ref_camera];
                 Matrix cm, cmInv;
                 camNode.GetModelViewMatrix(frame, out cm, out cmInv);
-                m = cm * cam._matrix;
-                m = (Matrix)(ProjectionTexMtx(camNode, frame) * ((Matrix34)m));
+                camMtx = cm * cam._matrix;
+                projMtx = (Matrix)(ProjectionTexMtx(camNode, frame));
             }
             else
-                m = (Matrix)ProjectionTexMtx(cam);
-            
-            return m;
+            {
+                camMtx = cam._matrix;
+                projMtx = (Matrix)ProjectionTexMtx(cam);
+            }
+
+            return projMtx * camMtx;
         }
 
         static Vector3 GetHalfAngle(Vector3 a, Vector3 b)
