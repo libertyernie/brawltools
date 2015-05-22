@@ -16,13 +16,19 @@ they be held accountable for the manner in which it is used.
 
  - v0.76 - BrawlLib v0.23
 
+ Hotfix 2 (5/21/2015)
+ . Fixed bug setting an MDL0 bone's next sibling offset
+ . Fixed bug setting "NeedsNormalMatrixArray" in MDL0 header (caused issues with lighting in-game)
+ . Somewhat fixed display of MDL0 textures using projection mapping
+
  Hotfix 1 (5/21/2015)
  . Fixed issue where the model editor would sometimes hang indefinitely upon closing
  . Fixed issue where sometimes after selecting an SCN0, you couldn't edit it
 
  Initial Release (5/20/2015)
  . Added support for shaders in the viewport! This means that (nearly) all object, material and shader settings will show in the viewport. 
- Models will now  render more closely to how they should in-game. (View -> Model -> Shaders, on by default). SCN0 scene lighting, fog and ambient lights can be applied to a model and edited in realtime by linking the model's materials to a corresponding lightset 
+ Models will now  render more closely to how they should in-game. (View -> Model -> Shaders, on by default).
+ SCN0 scene lighting, fog and ambient lights can be applied to a model and edited in realtime by linking the model's materials to a corresponding lightset 
  and fog entry and then selecting the SCN0 in the model editor after changing the edit type to SCN.
  NOTE that this feature (rendering shaders in general) is not flawless. Here's a list of things that DO NOT WORK:
 	- Indirect textures, including normal maps and fur maps
@@ -31,7 +37,8 @@ they be held accountable for the manner in which it is used.
 	- Binormals for texture coordinates (Binormals are not supported by BrawlBox at all)
 	- "Emboss Map" for texture reference "Type", "EmbossSource" and "EmbossLight" (under XF TexGen Flags)
 	- "CompareBeforeTexture" under Z Mode in material properties (this allows for comparing depth before any texture transparency is applied)
-. Added options to MDL0 bone right click menu to move the current bone to the end of the bone array or regenerate the bone array (all bone indices are reassigned). You can also change the bone's Bone Index in the array. This doesn't have an effect on heirarchy, but allows you to inject bones without affecting the bone indices of others.
+. Added options to MDL0 bone right click menu to move the current bone to the end of the bone array or regenerate the bone array (all bone indices are reassigned). 
+You can also change the bone's Bone Index in the array. This doesn't have an effect on heirarchy, but allows you to inject bones without affecting the bone indices of others.
 . Moved "AutoMetalMaterials" option from the MDL0 properties to the right click menu under the name "Regenerate Metal Materials".
 . Added options to automatically rename all vertex, normal, uv and color sets in an MDL0 in the MDL0 right click menu under "Auto Name Assets".
 . Updated the "Reimport Meshes" option in the MDL0 right click menu to handle a wider variety of scenarios 
@@ -39,14 +46,18 @@ they be held accountable for the manner in which it is used.
 . Changed SCN0 right click menu to display but not highlight a newly added node (this allows you to add many entries at once with the shortcut keys)
 . Added file manager to model editor, allowing you to open models and animations from multiple files at once. Expand the right panel in the model editor and 
 change the dropdown to "Files". Right click a file in the list for more options, double click to open that file in the main window.
-. Changed the model editor to not close the main window upon opening. This allows you to make changes to things such as MDL0 materials and shaders and see your changes immediately show on the model. This also allows for some other "unintentional features", such as opening more than one model editor at once. (Things can get wonky)
+. Changed the model editor to not close the main window upon opening. This allows you to make changes to things such as MDL0 materials and shaders and see 
+your changes immediately show on the model. This also allows for some other "unintentional features", such as opening more than one model editor at once. (Things can get wonky)
 . Fixed bug where collisions would not rotate with their attached bone properly
 . Fixed bug dealing with saving RSAR sound archives after making any edits
 . Added option to add multiple "draw calls" to an MDL0 object. This allows you to render the same object more than once using a different material, visibility bone, draw priority, and/or XLU/OPA draw pass.
 . Fixed support for viewing an SCN0 camera in first person in the model editor (View -> Viewport -> 1st Person SCN0 Camera)
 . Fixed support for loading a background image in the model editor
-. Added option to change the bone/vertex transform tool to World or Local space (only world is available for vertex selections). Local is default and means that the coordinate axes are relative to that bone, and dragging on an axis will only change that axis value in an animation. World means that the coordinate axes are relative to the floor, and dragging on an axis may affect multiple axis values in an animation. (View -> Viewport -> Transform Control -> Translate/Rotate/Scale -> World/Local)
-. Added "After Rotation" option to change the local bone/vertex translation tool to apply before or after the bone's rotation.Transforms are applied in order of Translate, Rotate, Scale, so this option changes the tool to work in the order of Rotate, Translate, Scale. "After Rotation" is off by default. (View -> Viewport -> Transform Control -> Translate -> After Rotation)
+. Added option to change the bone/vertex transform tool to World or Local space (only world is available for vertex selections). Local is default and means 
+that the coordinate axes are relative to that bone, and dragging on an axis will only change that axis value in an animation. World means that the 
+coordinate axes are relative to the floor, and dragging on an axis may affect multiple axis values in an animation. (View -> Viewport -> Transform Control -> Translate/Rotate/Scale -> World/Local)
+. Added "After Rotation" option to change the local bone/vertex translation tool to apply before or after the bone's rotation.
+Transforms are applied in order of Translate, Rotate, Scale, so this option changes the tool to work in the order of Rotate, Translate, Scale. "After Rotation" is off by default. (View -> Viewport -> Transform Control -> Translate -> After Rotation)
 . Added options to model editor settings dialog (Options -> Settings):
 	- Current Viewport -> Lighting -> Enabled: This will enable or disable built-in lighting in the viewport. SCN0 lighting may still be applied.
 	- General -> Scale bone with camera: This will keep each bone at a fixed size on the screen. Especially useful for stage editing.
