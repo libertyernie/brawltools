@@ -677,7 +677,7 @@ namespace System.Windows.Forms
 
             chkBoneEdit.Visible = chkBoneEdit.Enabled = CurrentFrame < 1;
 
-            grpTransAll.Enabled = SelectedAnimation != null;
+            grpTransAll.Enabled = TargetModel != null;
             btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
             grpTransform.Enabled = TargetBone != null;
 
@@ -742,9 +742,8 @@ namespace System.Windows.Forms
                 box.BackColor = Color.White;
             }
         }
-        public unsafe void ApplyState(BoneState save)
+        public unsafe void ApplyState(FrameState state)
         {
-            FrameState state = (FrameState)save._frameState;
             float* p = (float*)&state;
             for (int i = 0; i < 9; i++)
                 if (_transBoxes[i].Value != p[i])
@@ -883,34 +882,39 @@ namespace System.Windows.Forms
             if (_copyAllState.Count == 0)
                 return;
 
+            List<IBoneNode> o = new List<IBoneNode>();
+            foreach (MDL0BoneNode bone in TargetModel.BoneCache)
+                if (_copyAllState.ContainsKey(bone._name))
+                    o.Add(bone);
+
+            _mainWindow.BoneChange(o.ToArray());
             if (CurrentFrame < 1)
             {
-                foreach (MDL0BoneNode bone in TargetModel.BoneCache)
-                    if (_copyAllState.ContainsKey(bone._name))
+                foreach (MDL0BoneNode bone in o)
+                {
+                    CHRAnimationFrame f = _copyAllState[bone._name];
+                    if (!_onlyKeys)
                     {
-                        CHRAnimationFrame f = _copyAllState[bone._name];
-                        if (!_onlyKeys)
-                        {
-                            if (AllTrans.Checked)
-                                bone._bindState._translate = f.Translation;
-                            if (AllRot.Checked)
-                                bone._bindState._rotate = f.Rotation;
-                            if (AllScale.Checked)
-                                bone._bindState._scale = f.Scale;
-                        }
-                        else
-                        {
-                            FrameState s = bone._bindState;
-                            float* sPtr = (float*)&f;
-                            float* dPtr = (float*)&s;
-                            for (int x = 0; x < 9; x++)
-                                if (f.GetBool(x))
-                                    dPtr[x] = sPtr[x];
-                            bone._bindState = s;
-                        }
-                        bone._bindState.CalcTransforms();
-                        bone.SignalPropertyChange();
+                        if (AllTrans.Checked)
+                            bone._bindState._translate = f.Translation;
+                        if (AllRot.Checked)
+                            bone._bindState._rotate = f.Rotation;
+                        if (AllScale.Checked)
+                            bone._bindState._scale = f.Scale;
                     }
+                    else
+                    {
+                        FrameState s = bone._bindState;
+                        float* sPtr = (float*)&f;
+                        float* dPtr = (float*)&s;
+                        for (int x = 0; x < 9; x++)
+                            if (f.GetBool(x))
+                                dPtr[x] = sPtr[x];
+                        bone._bindState = s;
+                    }
+                    bone._bindState.CalcTransforms();
+                    bone.SignalPropertyChange();
+                }
             }
             else
             {
@@ -942,6 +946,7 @@ namespace System.Windows.Forms
                                 entry.SetKeyframe(x, i, ptr[x]);
                 }
             }
+            _mainWindow.BoneChange(o.ToArray());
             _mainWindow.UpdateModel();
         }
 

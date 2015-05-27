@@ -80,12 +80,12 @@ namespace System.Windows.Forms
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
-        public void BoneChange(IBoneNode bone)
+        public void BoneChange(params IBoneNode[] bones)
         {
             SaveState state = new BoneState()
             {
-                _bone = bone,
-                _frameState = bone.FrameState,
+                _bones = bones,
+                _frameStates = bones.Select(x => x.FrameState).ToArray(),
                 _animation = SelectedCHR0,
                 _frameIndex = CurrentFrame,
             };
@@ -187,8 +187,11 @@ namespace System.Windows.Forms
             }
             SelectedCHR0 = state._animation;
             CurrentFrame = state._frameIndex;
-            SelectedBone = state._bone;
-            CHR0Editor.ApplyState(state);
+            for (int i = 0; i < state._bones.Length; i++)
+            {
+                SelectedBone = state._bones[i];
+                CHR0Editor.ApplyState(state._frameStates[i]);
+            }
         }
 
         void ApplyVertexState(VertexState state)
