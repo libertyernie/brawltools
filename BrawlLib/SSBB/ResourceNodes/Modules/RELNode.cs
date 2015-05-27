@@ -21,8 +21,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.REL; } }
 
         [Browsable(false)]
-        public ModuleSectionNode[] Sections { get { return _sections; } }
-        public ModuleSectionNode[] _sections;
+        public ModuleSectionNode[] Sections
+        {
+            get
+            {
+                if (_sections == null)
+                    Populate();
+                return _sections;
+            }
+        }
+
+        public ModuleSectionNode[] _sections = null;
 
         public uint _id;
         public int _linkNext; //0
