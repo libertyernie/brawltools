@@ -16,6 +16,13 @@ they be held accountable for the manner in which it is used.
 
  - v0.76 - BrawlLib v0.23
 
+  Hotfix 3 (5/26/2015)
+ . Fixed bug setting "NeedsNormalMatrixArray" in MDL0 header again, woops
+ . Fixed bug rendering GLSL shaders that use transparency on a computer with a locale other than English
+ . Fixed bug writing SCN0s (would work in Dolphin Emulator, but not on the actual Wii hardware)
+ . Added option to MDL0 materials to export the automatically generated GLSL vertex and fragment shaders for learning, reference, or external use
+ . Updated CHR0 editor "Transform All" group box to be enabled even when no animation is selected
+
  Hotfix 2 (5/21/2015)
  . Fixed bug setting an MDL0 bone's next sibling offset
  . Fixed bug setting "NeedsNormalMatrixArray" in MDL0 header (caused issues with lighting in-game)
