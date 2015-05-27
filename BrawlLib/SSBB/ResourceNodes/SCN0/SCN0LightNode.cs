@@ -352,7 +352,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ref _numEntries[0]);
 
             if (!SpecularEnabled)
+            {
+                _constants[1] = (_fixedFlags & FixedFlags.SpecColorConstant) != 0;
                 return false;
+            }
 
             //Read light specular color
             ReadColors(
@@ -385,6 +388,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (int i = 0; i < 2; i++)
             {
+                if (i == 1 && !SpecularEnabled)
+                    break;
+
                 _matches[i] = FindColorMatch(_constants[i], Scene.FrameCount, i) as SCN0LightNode;
                 if (_matches[i] == null && !_constants[i])
                     _dataLengths[1] += 4 * (FrameCount + 1);
@@ -395,7 +401,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //If this light uses specular lighting, 
             //increment SCN0 specular light count
-            if (UsageFlags.HasFlag(UsageFlags.SpecularEnabled) && Scene != null)
+            if (SpecularEnabled && Scene != null)
                 Scene._specLights++;
 
             return SCN0Light.Size;
@@ -446,6 +452,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _matches[0] == null ? null : _matches[0]._lightAddress,
                 (RGBAPixel*)_dataAddrs[1]);
 
+            //Only bother writing if specular is enabled
             if (SpecularEnabled)
                 _dataAddrs[1] += WriteColors(
                     ref newFlags,
@@ -458,6 +465,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ref _specularAddress,
                     _matches[1] == null ? null : _matches[1]._specularAddress,
                     (RGBAPixel*)_dataAddrs[1]);
+            else
+            {
+                //The value is set to 0
+                header->_specularColor = new RGBAPixel();
+
+                //The flag, while unused, seems to be set to the same state as the color constant flag
+                if (_constants[0])
+                    newFlags |= (int)FixedFlags.SpecColorConstant;
+                else
+                    newFlags &= (int)~FixedFlags.SpecColorConstant;
+            }
 
             if (!ConstantVisibility && _entryCount != 0)
             {
@@ -702,7 +720,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (ConstantColor)
                 frame.Color = (Vector4)_solidColors[0];
-            else
+            else if (_lightColor.Count > 0)
             {
                 int colorIndex = ((int)Math.Truncate(index)).Clamp(0, _lightColor.Count - 1);
                 Vector4 color = (Vector4)_lightColor[colorIndex];
@@ -715,19 +733,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 frame.Color = color;
             }
 
-            if (ConstantSpecular)
-                frame.SpecularColor = (Vector4)_solidColors[1];
-            else
+            if (SpecularEnabled)
             {
-                int specIndex = ((int)Math.Truncate(index)).Clamp(0, _specColor.Count - 1);
-                Vector4 specColor = (Vector4)_specColor[specIndex];
-                if (specIndex + 1 < _specColor.Count)
+                if (ConstantSpecular)
+                    frame.SpecularColor = (Vector4)_solidColors[1];
+                else if (_specColor.Count > 0)
                 {
-                    float frac = index - specIndex;
-                    Vector4 interp = (Vector4)_specColor[specIndex + 1];
-                    specColor += (interp - specColor) * frac;
+                    int specIndex = ((int)Math.Truncate(index)).Clamp(0, _specColor.Count - 1);
+                    Vector4 specColor = (Vector4)_specColor[specIndex];
+                    if (specIndex + 1 < _specColor.Count)
+                    {
+                        float frac = index - specIndex;
+                        Vector4 interp = (Vector4)_specColor[specIndex + 1];
+                        specColor += (interp - specColor) * frac;
+                    }
+                    frame.SpecularColor = specColor;
                 }
-                frame.SpecularColor = specColor;
             }
 
             return frame;

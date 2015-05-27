@@ -154,7 +154,34 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 dataAddress = (VoidPtr)group + (rEntry++)->_dataOffset;
                 ResourceEntry.Build(group, index++, dataAddress, (BRESString*)stringTable[n.Name]);
-                n.PostProcess(scn0Address, dataAddress, stringTable);
+                //n.PostProcess(scn0Address, dataAddress, stringTable);
+            }
+
+            int len = 0;
+            switch (_type)
+            {
+                case GroupType.LightSet:
+                    len = SCN0LightSet.Size;
+                    break;
+                case GroupType.AmbientLight:
+                    len = SCN0AmbientLight.Size;
+                    break;
+                case GroupType.Light:
+                    len = SCN0Light.Size;
+                    break;
+                case GroupType.Fog:
+                    len = SCN0Fog.Size;
+                    break;
+                case GroupType.Camera:
+                    len = SCN0Camera.Size;
+                    break;
+            }
+            bint* hdr = (bint*)scn0Address + 5;
+            VoidPtr entries = scn0Address + hdr[(int)_type];
+            foreach (SCN0EntryNode n in Children)
+            {
+                n.PostProcess(scn0Address, entries, stringTable);
+                entries += len;
             }
         }
 
