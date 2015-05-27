@@ -9,12 +9,13 @@ using OpenTK.Graphics.OpenGL;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
 using BrawlLib.Wii.Animations;
+using System.Globalization;
 
 namespace BrawlLib.Wii.Graphics
 {
     public unsafe class ShaderGenerator
     {
-        internal static bool _pixelLightingChanged = false;
+        public static bool _pixelLightingChanged = false;
         static bool _pixelLighting = false;
         public static bool PixelLighting
         {
@@ -45,7 +46,6 @@ namespace BrawlLib.Wii.Graphics
         private static bool _vertex = false;
         private static string[] swapModeTable;
 
-        public static MDL0ObjectNode _object;
         public static MDL0MaterialNode _material;
         public static MDL0ShaderNode _shaderNode;
 
@@ -248,10 +248,7 @@ namespace BrawlLib.Wii.Graphics
             wl("vec4 uv{0} = {1};", i, src);
 
             if (mr.Projection == TexProjection.STQ)
-            {
-                wl("if (uv{0}.z != 0.0f)", i);
-                wl("\tuv{0}.xy = uv{0}.xy / uv{0}.z;", i);
-            }
+                wl("if (uv{0}.z != 0.0f) uv{0}.xy = uv{0}.xy / uv{0}.z;", i);
         }
 
         public static string GenMaterialFragShader()
@@ -344,7 +341,7 @@ namespace BrawlLib.Wii.Graphics
                     //No point doing them if they'll be thrown out later
                     //This is a low priority optimization
                     Comment("Constant Alpha");
-                    wl("{0}.a = {1};", PrevRegName, (_material.ConstantAlphaValue / 255.0f).ToString());
+                    wl("{0}.a = {1};", PrevRegName, (_material.ConstantAlphaValue / 255.0f).ToString(CultureInfo.InvariantCulture));
                     wl();
                 }
 
@@ -360,8 +357,8 @@ namespace BrawlLib.Wii.Graphics
                     wl();
                     Comment("Alpha Function");
 
-                    string compare0 = String.Format(_alphaTestCompName[(int)func0], "gl_FragColor.a", (float)func._ref0 / 255.0f);
-                    string compare1 = String.Format(_alphaTestCompName[(int)func1], "gl_FragColor.a", (float)func._ref1 / 255.0f);
+                    string compare0 = String.Format(_alphaTestCompName[(int)func0], "gl_FragColor.a", ((float)func._ref0 / 255.0f).ToString(CultureInfo.InvariantCulture));
+                    string compare1 = String.Format(_alphaTestCompName[(int)func1], "gl_FragColor.a", ((float)func._ref1 / 255.0f).ToString(CultureInfo.InvariantCulture));
                     string fullcompare = string.Format(_alphaTestCombineName[(int)logic], compare0, compare1);
 
                     if (logic == AlphaOp.Or)
@@ -931,7 +928,7 @@ namespace BrawlLib.Wii.Graphics
             }
             else if (iaOp >= 8 && iaOp <= 15)
             {
-                bool greater = icOp % 2 == 0;
+                bool greater = iaOp % 2 == 0;
 
                 string compAdd = "if ({0}) " + reg + ".{1} += " + ac + ".{1};";
 
@@ -939,7 +936,7 @@ namespace BrawlLib.Wii.Graphics
                 wl("{0}.{2} = {1}.{2};", reg, ad, "a");
 
                 //Compare a and b selections and add c to the register
-                if (icOp > 13)
+                if (iaOp > 13)
                 {
                     string comp = greater ?
                         aa + ".{0}" + " > " + ab + ".{0}" :
@@ -949,11 +946,12 @@ namespace BrawlLib.Wii.Graphics
                 }
                 else
                 {
+                    //This actually compares color values, not a typo
                     string comp = greater ?
                         ca + ".{0}" + " > " + cb + ".{0}" :
                         "abs(" + ca + ".{0} - " + cb + ".{0}) < 0.005";
 
-                    switch (icOp / 2 - 4)
+                    switch (iaOp / 2 - 4)
                     {
                         case 0: //R
                             wl(compAdd,
@@ -1148,7 +1146,6 @@ namespace BrawlLib.Wii.Graphics
             {
                 GLSLLightFrame frame = p[i];
                 string x = String.Format("{0}[{1}].", name, i);
-                Uniform(pHandle, x + LightTypeName, (int)frame.Type);
                 Uniform(pHandle, x + LightEnabledName, frame.Enabled);
                 Uniform(pHandle, x + LightSpecEnabledName, frame.SpecEnabled);
                 Uniform(pHandle, x + LightPosName, frame.Position);
@@ -1164,7 +1161,6 @@ namespace BrawlLib.Wii.Graphics
 
         #region Light
         const string LightStructName = "LightFrame";
-        const string LightTypeName = "type";
         const string LightEnabledName = "enabled";
         const string LightSpecEnabledName = "hasSpecular";
         const string LightPosName = "pos";
@@ -1174,16 +1170,12 @@ namespace BrawlLib.Wii.Graphics
         const string LightDistCoefsName = "distCoefs";
         const string LightSpotCoefsName = "spotCoefs";
         const string LightDistCoefsSpecName = "distCoefsSpec";
-        const string LightSpotCoefsSpecValueName = "vec3(0.0,0.0,1.0)";
 
         static void WriteLightFrameStruct()
         {
             wl("struct {0}", LightStructName);
             wl("{");
             wl("int {0};", LightEnabledName);
-            wl();
-            Comment("Light Type: point = 0, directional = 1, spot = 2");
-            wl("int {0};", LightTypeName);
             wl("vec3 {0};", LightPosName);
             wl("vec3 {0};", LightDirName);
             wl();
@@ -1338,7 +1330,7 @@ namespace BrawlLib.Wii.Graphics
         static string HandleProblem(string message)
         {
 #if DEBUG
-            MessageBox.Show(_object.RootNode._mainForm, message, String.Format("Handled error compiling {0} shader", _vertex ? "vertex" : "fragment"), MessageBoxButtons.OK);
+            MessageBox.Show(_material.RootNode._mainForm, message, String.Format("Handled error compiling {0} shader", _vertex ? "vertex" : "fragment"), MessageBoxButtons.OK);
 #endif
             return "Error";
         }
@@ -1370,19 +1362,60 @@ namespace BrawlLib.Wii.Graphics
 #endif
         }
 
-        public static void Set(MDL0ObjectNode obj, MDL0MaterialNode mat)
+        public static void Set(MDL0MaterialNode mat)
         {
-            _object = obj;
             _material = mat;
             _shaderNode = mat.ShaderNode;
         }
 
         public static void Clear()
         {
-            _object = null;
             _material = null;
             _shaderNode = null;
         }
         #endregion
+
+        public static string CombineFragShader(string matSource, string[] shaderStages, int stageCount)
+        {
+            string[] fragSplit = matSource.Split('%');
+
+            //Inject the tev operations into the material shader
+            string combineFrag = fragSplit[0];
+            if (fragSplit.Length == 3)
+            {
+                if (shaderStages != null)
+                {
+                    //Get base tabs
+                    string tabs = "";
+                    if (fragSplit.Length == 3)
+                    {
+                        int tabCount = int.Parse(fragSplit[1]);
+                        for (int i = 0; i < tabCount; i++)
+                            tabs += "\t";
+                    }
+
+                    for (int i = 0, stageIndex = 0; i < shaderStages.Length; i++)
+                    {
+                        if (i > 0)
+                        {
+                            //Don't write stages that aren't active
+                            if (stageIndex >= stageCount)
+                                break;
+
+                            stageIndex++;
+                        }
+
+                        string[] shadSplit = shaderStages[i].Split(
+                            new string[] { ShaderGenerator.NewLine },
+                            StringSplitOptions.None);
+
+                        foreach (string line in shadSplit)
+                            combineFrag += tabs + line + ShaderGenerator.NewLine;
+                    }
+                }
+                combineFrag += fragSplit[2];
+            }
+            return combineFrag;
+        }
     }
 }

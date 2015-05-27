@@ -1678,7 +1678,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                         _programHandle = 0;
                     }
 
-                    ShaderGenerator.Set(node, this);
+                    ShaderGenerator.Set(this);
 
                     if (updateShaderFrag)
                         ShaderNode._fragShaderSource = ShaderGenerator.GenTEVFragShader();
@@ -1687,44 +1687,11 @@ For example, if the shader has two stages but this number is 1, the second stage
                     if (updateMatFrag)
                         _fragShaderSource = ShaderGenerator.GenMaterialFragShader();
 
-                    string[] fragSplit = _fragShaderSource.Split('%');
-
-                    //Inject the tev operations into the material shader
-                    string combineFrag = fragSplit[0];
-                    if (fragSplit.Length == 3)
-                    {
-                        if (ShaderNode != null)
-                        {
-                            //Get base tabs
-                            string tabs = "";
-                            if (fragSplit.Length == 3)
-                            {
-                                int tabCount = int.Parse(fragSplit[1]);
-                                for (int i = 0; i < tabCount; i++)
-                                    tabs += "\t";
-                            }
-
-                            for (int i = 0, stageIndex = 0; i < ShaderNode._fragShaderSource.Length; i++)
-                            {
-                                if (i > 0)
-                                {
-                                    //Don't write stages that aren't active
-                                    if (stageIndex >= ActiveShaderStages)
-                                        break;
-
-                                    stageIndex++;
-                                }
-
-                                string[] shadSplit = ShaderNode._fragShaderSource[i].Split(
-                                    new string[] { ShaderGenerator.NewLine },
-                                    StringSplitOptions.None);
-
-                                foreach (string line in shadSplit)
-                                    combineFrag += tabs + line + ShaderGenerator.NewLine;
-                            }
-                        }
-                        combineFrag += fragSplit[2];
-                    }
+                    string combineFrag = ShaderGenerator.CombineFragShader(
+                        _fragShaderSource,
+                        ShaderNode == null ? null : ShaderNode._fragShaderSource,
+                        ActiveShaderStages);
+                    
                     GenShader(ref _vertexShaderHandle, _vertexShaderSource, true);
                     GenShader(ref _fragShaderHandle, combineFrag, false);
 

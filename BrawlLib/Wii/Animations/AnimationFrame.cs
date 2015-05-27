@@ -335,8 +335,6 @@ namespace BrawlLib.Wii.Animations
     {
         public static readonly GLSLLightFrame Empty = new GLSLLightFrame();
 
-        public LightType Type;
-
         //These three vars are used by both specular and diffuse
         public int Enabled; //Don't apply this light if 0
         public Vector3 Position;
@@ -366,7 +364,7 @@ namespace BrawlLib.Wii.Animations
             Vector3 distCoefsSpec)
         {
             Enabled = enabled ? 1 : 0;
-            switch (Type = type)
+            switch (type)
             {
                 case LightType.Point:
                     Position = pos;
