@@ -369,7 +369,7 @@ namespace BrawlLib.Wii.Models
                             entryList = model._objList;
                             foreach (MDL0ObjectNode n in model._objList)
                             {
-                                if (n.NormalNode != null)
+                                if (n.NormalNode != null || n._manager._faceData[1] != null)
                                     model._needsNrmMtxArray = true;
                                 if (n.HasTexMtx)
                                     model._needsTexMtxArray = true;
