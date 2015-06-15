@@ -13,11 +13,11 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "PAC File Archive", "pac"),
             new SupportedFileInfo(true, "PCS Compressed File Archive", "pcs"),
             new SupportedFileInfo(true, "ARC File Archive", "arc"),
-            //new SupportedFileInfo(true, "RARC File Archive", "rarc"),
+            new SupportedFileInfo(true, "RARC File Archive", "rarc"),
             new SupportedFileInfo(true, "MRG Resource Group", "mrg"),
             new SupportedFileInfo(true, "MRG Compressed Resource Group", "mrgc"),
             new SupportedFileInfo(true, "SZS Compressed Archive", "szs"),
-            //new SupportedFileInfo(true, "SZP Compressed Archive", "szp"),
+            new SupportedFileInfo(true, "SZP Compressed Archive", "szp"),
 
             //NW4R Model Resources
             new SupportedFileInfo(true, "NW4R Resource Pack", "brres"),
@@ -82,9 +82,9 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(false, "Brawl Stage Collision File", "coll"),
 
             //Gamecube
-            //new SupportedFileInfo(true, "J3D v3 Model", "bmd"),
-            //new SupportedFileInfo(true, "J3D v4 Model", "bdl"),
-            //new SupportedFileInfo(true, "Luigi's Mansion GC model", "bin"),
+            new SupportedFileInfo(true, "J3D v3 Model", "bmd"),
+            new SupportedFileInfo(true, "J3D v4 Model", "bdl"),
+            new SupportedFileInfo(true, "Luigi's Mansion GC model", "bin"),
 
             //Wii U
             //new SupportedFileInfo(true, "Wii U Archive", "sarc"),
