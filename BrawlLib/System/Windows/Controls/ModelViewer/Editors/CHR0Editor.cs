@@ -669,6 +669,19 @@ namespace System.Windows.Forms
             _transBoxes[6] = numTransX; numTransX.Tag = 6;
             _transBoxes[7] = numTransY; numTransY.Tag = 7;
             _transBoxes[8] = numTransZ; numTransZ.Tag = 8;
+
+            foreach (NumericInputBox box in _transBoxes) {
+                box.KeyUp += (sender, e) => {
+                    // If the user has selected the whole text and wants to replace it with a negative number, allow them to enter a minus sign.
+                    if (e.KeyCode == Keys.OemMinus) {
+                        NumericInputBox n = (NumericInputBox)sender;
+                        if (n.SelectionLength == n.Text.Length) {
+                            n.Text = "-";
+                            n.Select(1, 1);
+                        }
+                    }
+                };
+            }
         }
         public void UpdatePropDisplay()
         {
