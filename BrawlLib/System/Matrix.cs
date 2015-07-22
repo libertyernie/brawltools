@@ -2,6 +2,8 @@
 using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
 using System.Runtime.Serialization;
+using BrawlLib.Wii.Models;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -233,6 +235,23 @@ namespace System
             p[12] = -x - y - z;
             p[13] = -x - y - z;
             p[14] = -x - y - z;
+            return m;
+        }
+
+        public static Matrix InfluenceMatrix(List<BoneWeight> weights)
+        {
+            Matrix m = new Matrix();
+            foreach (BoneWeight w in weights)
+                if (w.Bone != null)
+                    m += (w.Bone.Matrix * w.Bone.InverseBindMatrix) * w.Weight;
+            return m;
+        }
+        public static Matrix ReverseInfluenceMatrix(List<BoneWeight> weights)
+        {
+            Matrix m = new Matrix();
+            foreach (BoneWeight w in weights)
+                if (w.Bone != null)
+                    m += (w.Bone.InverseMatrix * w.Bone.BindMatrix) * w.Weight;
             return m;
         }
 

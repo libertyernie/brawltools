@@ -204,21 +204,13 @@ namespace BrawlLib.Wii.Models
         {
             if (IsWeighted)
             {
-                _matrix = new Matrix();
-                foreach (BoneWeight w in _weights)
-                    if (w.Bone != null)
-                        _matrix += (w.Bone.Matrix * w.Bone.InverseBindMatrix) * w.Weight;
-
-                //The inverse matrix is only used for unweighting vertices and normals so we don't need to set it now
-                _invMatrix = null;
+                _matrix = Matrix.InfluenceMatrix(_weights);
+                _invMatrix = Matrix.ReverseInfluenceMatrix(_weights);
             }
-            else if (_weights.Count == 1)
+            else if (_weights.Count == 1 && Bone != null)
             {
-                if (Bone != null)
-                {
-                    _matrix = Bone.Matrix;
-                    _invMatrix = Bone.InverseMatrix;
-                }
+                _matrix = Bone.Matrix;
+                _invMatrix = Bone.InverseMatrix;
             }
             else
                 _invMatrix = _matrix = Matrix.Identity;
