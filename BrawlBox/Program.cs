@@ -13,6 +13,9 @@ namespace BrawlBox
 {
     static class Program
     {
+        //Make sure this matches the tag name of the release on github exactly
+        public static readonly string TagName = "v0.76b";
+
         public static readonly string AssemblyTitle;
         public static readonly string AssemblyDescription;
         public static readonly string AssemblyCopyright;

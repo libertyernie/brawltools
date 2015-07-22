@@ -4,7 +4,7 @@ using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB;
 using BrawlLib.SSBB.ResourceNodes;
-using Octokit;
+using Microsoft.Win32;
 using System;
 using System.Audio;
 using System.Collections.Generic;
@@ -13,6 +13,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Linq;
 
 namespace BrawlBox
 {
@@ -84,13 +85,10 @@ namespace BrawlBox
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
 
-        private async void CheckUpdates(bool manual = true)
+        private void CheckUpdates(bool manual = true)
         {
             try
             {
-                //TODO: move this entire function into the updater, 
-                //pass specific information as arguments
-
                 string updater = System.Windows.Forms.Application.StartupPath + "/Updater.exe";
                 if (!File.Exists(updater))
                 {
@@ -99,42 +97,40 @@ namespace BrawlBox
                     return;
                 }
 
-                //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.76_h3";
-
-                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-                IReadOnlyList<Release> release = null;
-                try
+                bool canRun = true;
+                using (RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).
+                    OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\"))
                 {
-                    release = await github.Release.GetAll("libertyernie", "brawltools");
-                }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    if (manual)
-                        MessageBox.Show("Unable to connect to the internet.");
-                    return;
-                }
-
-                if (release != null &&
-                    release.Count > 0 &&
-                    !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
-                    release[0].Name.Contains("BrawlBox", StringComparison.InvariantCultureIgnoreCase)) //Make sure this is a BrawlBox release
-                {
-                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
-                    if (UpdateResult == DialogResult.Yes)
+                    object o = ndpKey.GetValue("Release");
+                    if (o == null)
                     {
-                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
-                        if (OverwriteResult == DialogResult.Yes)
-                        {
-                            Process.Start(updater, "-r");
-                            this.Close();
-                        }
-                        else if (OverwriteResult == DialogResult.No)
-                            Process.Start(updater);
+                        canRun = false;
+                    }
+
+		            int releaseKey = Convert.ToInt32(o);
+                    if (releaseKey < 378389)
+                    {
+                        canRun = false;
                     }
                 }
-                else if (manual)
-                    MessageBox.Show("No updates found.");
+
+                if (canRun)
+                {
+                    Process.Start(new ProcessStartInfo()
+                    {
+                        FileName = updater,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        Arguments = String.Format("-b {0} {1}",
+                        Program.TagName, manual ? "1" : "0"),
+                    });
+                }
+                else
+                {
+                    if (manual)
+                        MessageBox.Show(".NET version 4.5 is required to run the updater.");
+                    checkForUpdatesToolStripMenuItem.Enabled =
+                    checkForUpdatesToolStripMenuItem.Visible = false;
+                }
             }
             catch (Exception e)
             {

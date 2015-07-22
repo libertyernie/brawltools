@@ -4,12 +4,15 @@
 //================================================================\\
 using Octokit;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Reflection;
 using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Linq;
 
 namespace Net
 {
@@ -40,6 +43,17 @@ namespace Net
                 Directory.CreateDirectory(AppPath + "/" + release.TagName);
                 AppPath += "/" + release.TagName;
             }
+            else
+            {
+                //Find and close the brawlbox application that will be overwritten
+                Process[] px =  Process.GetProcessesByName("BrawlBox");
+                Process p = px.FirstOrDefault(x => x.MainModule.FileName.StartsWith(AppPath));
+                if (p != null && p != default(Process))
+                {
+                    p.CloseMainWindow();
+                    p.Close();
+                }
+            }
 
             using (WebClient client = new WebClient())
             {
@@ -62,6 +76,48 @@ namespace Net
                 Process update = Process.Start(AppPath + "/Update.exe", "-d\"" + AppPath + "\"");
             }
         }
+
+        public static async Task CheckUpdates(string releaseTag, bool manual = true)
+        {
+            try
+            {
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+                IReadOnlyList<Release> release = null;
+                try
+                {
+                    release = await github.Release.GetAll("libertyernie", "brawltools");
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MessageBox.Show("Unable to connect to the internet.");
+                    return;
+                }
+
+                if (release != null &&
+                    release.Count > 0 &&
+                    !String.Equals(release[0].TagName, releaseTag, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
+                    release[0].Name.IndexOf("BrawlBox", StringComparison.InvariantCultureIgnoreCase) >= 0) //Make sure this is a BrawlBox release
+                {
+                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                    if (UpdateResult == DialogResult.Yes)
+                    {
+                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
+                        if (OverwriteResult != DialogResult.Cancel)
+                        {
+                            Task t = UpdateCheck(OverwriteResult == DialogResult.Yes);
+                            t.Wait();
+                        }
+                    }
+                }
+                else if (manual)
+                    MessageBox.Show("No updates found.");
+            }
+            catch (Exception e)
+            {
+                if (manual)
+                    MessageBox.Show(e.Message);
+            }
+        }
     }
 
     public static class BugSquish
@@ -82,19 +138,33 @@ namespace Net
     {
         static void Main(string[] args)
         {
-            // -r is the overwrite switch.
-            if (args.Length > 0 && args[0] == "-r")
+            bool somethingDone = false;
+
+            if (args.Length > 0)
             {
-                Task t = Updater.UpdateCheck(true);
-                t.Wait();
+                switch (args[0])
+                {
+                    case "-r": //overwrite
+                        somethingDone = true;
+                        Task t = Updater.UpdateCheck(true);
+                        t.Wait();
+                        break;
+                    case "-b": //brawlbox call
+                        somethingDone = true;
+                        Task t2 = Updater.CheckUpdates(args[1], args[2] != "0");
+                        t2.Wait();
+                        break;
+                }
             }
-            else if (args.Length > 0 && args[0] != "-r")
-                Console.WriteLine("Usage: -r = Overwrite files in directory");
-            else
+            else if (args.Length == 0)
             {
+                somethingDone = true;
                 Task t = Updater.UpdateCheck();
                 t.Wait();
             }
+
+            if (!somethingDone)
+                Console.WriteLine("Usage: -r = Overwrite files in directory");
         }
     }
 }
