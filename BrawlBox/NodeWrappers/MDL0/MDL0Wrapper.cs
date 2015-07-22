@@ -202,7 +202,9 @@ namespace BrawlBox.NodeWrappers
                 NewShader();
             
             mat.ShaderNode = (MDL0ShaderNode)model._shadList[0];
-            mat.AddChild(new MDL0MaterialRefNode() { Name = "MatRef0" });
+            MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+            mat.AddChild(mr);
+            mr.Name = "MatRef0";
             mat.Rebuild(true);
 
             BaseWrapper b = FindResource(mat, true);
