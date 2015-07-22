@@ -32,7 +32,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public RGBAPixel[] Colors
         {
             get { return _colors == null && Header != null ? _colors = ColorCodec.ExtractColors(Header).Select(n => (RGBAPixel)n).ToArray() : _colors; }
-            set { _colors = value; SignalPropertyChange(); }
+            set
+            {
+                _colors = value;
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()

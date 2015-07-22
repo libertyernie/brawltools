@@ -183,6 +183,8 @@ namespace System.Windows.Forms
         private ToolStripMenuItem playSCN0ToolStripMenuItem;
         private ToolStripMenuItem removeCurrentViewportToolStripMenuItem;
         private ToolStripMenuItem afterRotationToolStripMenuItem;
+        private ToolStripMenuItem btnWeightEditor;
+        private ToolStripMenuItem btnVertexEditor;
         private RightPanel rightPanel;
 
         private void InitializeComponent()
@@ -299,6 +301,8 @@ namespace System.Windows.Forms
             this.liveTextureFolderToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.LiveTextureFolderPath = new System.Windows.Forms.ToolStripMenuItem();
             this.EnableLiveTextureFolder = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnWeightEditor = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnVertexEditor = new System.Windows.Forms.ToolStripMenuItem();
             this.targetModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkEditAll = new System.Windows.Forms.ToolStripMenuItem();
             this.hideFromSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -627,7 +631,7 @@ namespace System.Windows.Forms
             this.showRight,
             this.detachViewerToolStripMenuItem});
             this.editorsToolStripMenuItem.Name = "editorsToolStripMenuItem";
-            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.editorsToolStripMenuItem.Text = "Panels";
             // 
             // showTop
@@ -682,7 +686,7 @@ namespace System.Windows.Forms
             this.newToolStripMenuItem,
             this.removeCurrentViewportToolStripMenuItem});
             this.viewportToolStripMenuItem.Name = "viewportToolStripMenuItem";
-            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.viewportToolStripMenuItem.Text = "Viewport";
             // 
             // backgroundToolStripMenuItem
@@ -977,11 +981,9 @@ namespace System.Windows.Forms
             // 
             // firstPersonCameraToolStripMenuItem
             // 
-            //this.firstPersonCameraToolStripMenuItem.CheckOnClick = true;
             this.firstPersonCameraToolStripMenuItem.Name = "firstPersonCameraToolStripMenuItem";
             this.firstPersonCameraToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.firstPersonCameraToolStripMenuItem.Text = "1st Person SCN0 Camera";
-            this.firstPersonCameraToolStripMenuItem.Click += firstPersonCameraToolStripMenuItem_Click;
             // 
             // newToolStripMenuItem
             // 
@@ -1026,7 +1028,7 @@ namespace System.Windows.Forms
             this.shadersToolStripMenuItem,
             this.chkBillboardBones});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
-            this.modelToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.modelToolStripMenuItem.Text = "Model";
             // 
             // toggleBones
@@ -1138,7 +1140,7 @@ namespace System.Windows.Forms
             this.playToolStripMenuItem,
             this.sCN0ToolStripMenuItem});
             this.fileTypesToolStripMenuItem.Name = "fileTypesToolStripMenuItem";
-            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.fileTypesToolStripMenuItem.Text = "Animations";
             // 
             // playToolStripMenuItem
@@ -1235,7 +1237,7 @@ namespace System.Windows.Forms
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
@@ -1244,7 +1246,9 @@ namespace System.Windows.Forms
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.interpolationEditorToolStripMenuItem,
             this.selectedAnimationToolStripMenuItem,
-            this.liveTextureFolderToolStripMenuItem});
+            this.liveTextureFolderToolStripMenuItem,
+            this.btnWeightEditor,
+            this.btnVertexEditor});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
             this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
             this.toolsToolStripMenuItem.Text = "Tools";
@@ -1252,7 +1256,7 @@ namespace System.Windows.Forms
             // interpolationEditorToolStripMenuItem
             // 
             this.interpolationEditorToolStripMenuItem.Name = "interpolationEditorToolStripMenuItem";
-            this.interpolationEditorToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.interpolationEditorToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.interpolationEditorToolStripMenuItem.Text = "Interpolation Editor";
             this.interpolationEditorToolStripMenuItem.Click += new System.EventHandler(this.interpolationEditorToolStripMenuItem_Click);
             // 
@@ -1266,7 +1270,7 @@ namespace System.Windows.Forms
             this.interpolationToolStripMenuItem});
             this.selectedAnimationToolStripMenuItem.Enabled = false;
             this.selectedAnimationToolStripMenuItem.Name = "selectedAnimationToolStripMenuItem";
-            this.selectedAnimationToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.selectedAnimationToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.selectedAnimationToolStripMenuItem.Text = "Selected Animation";
             // 
             // portToolStripMenuItem
@@ -1331,7 +1335,7 @@ namespace System.Windows.Forms
             this.LiveTextureFolderPath,
             this.EnableLiveTextureFolder});
             this.liveTextureFolderToolStripMenuItem.Name = "liveTextureFolderToolStripMenuItem";
-            this.liveTextureFolderToolStripMenuItem.Size = new System.Drawing.Size(177, 22);
+            this.liveTextureFolderToolStripMenuItem.Size = new System.Drawing.Size(181, 22);
             this.liveTextureFolderToolStripMenuItem.Text = "Live Texture Folder";
             // 
             // LiveTextureFolderPath
@@ -1347,6 +1351,22 @@ namespace System.Windows.Forms
             this.EnableLiveTextureFolder.Size = new System.Drawing.Size(116, 22);
             this.EnableLiveTextureFolder.Text = "Enabled";
             this.EnableLiveTextureFolder.Click += new System.EventHandler(this.EnableLiveTextureFolder_Click);
+            // 
+            // btnWeightEditor
+            // 
+            this.btnWeightEditor.Name = "btnWeightEditor";
+            this.btnWeightEditor.ShortcutKeyDisplayString = "9 Key";
+            this.btnWeightEditor.Size = new System.Drawing.Size(181, 22);
+            this.btnWeightEditor.Text = "Weight Editor";
+            this.btnWeightEditor.Click += new System.EventHandler(this.btnWeightEditor_Click);
+            // 
+            // btnVertexEditor
+            // 
+            this.btnVertexEditor.Name = "btnVertexEditor";
+            this.btnVertexEditor.ShortcutKeyDisplayString = "0 Key";
+            this.btnVertexEditor.Size = new System.Drawing.Size(181, 22);
+            this.btnVertexEditor.Text = "Vertex Editor";
+            this.btnVertexEditor.Click += new System.EventHandler(this.btnVertexEditor_Click);
             // 
             // targetModelToolStripMenuItem
             // 
@@ -2161,6 +2181,16 @@ namespace System.Windows.Forms
             }
 
             base.modelPanel1_MouseUp(sender, e);
+        }
+
+        private void btnWeightEditor_Click(object sender, EventArgs e)
+        {
+            ToggleWeightEditor();
+        }
+
+        private void btnVertexEditor_Click(object sender, EventArgs e)
+        {
+            ToggleVertexEditor();
         }
     }
 }

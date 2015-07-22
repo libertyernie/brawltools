@@ -22,7 +22,8 @@ namespace System.Windows.Forms
         public int prevHeight = 0, prevWidth = 0;
         public void ToggleWeightEditor()
         {
-            if (weightEditor.Visible)
+            animEditors.Visible = true;
+            if (!(btnWeightEditor.Checked = !btnWeightEditor.Checked))
             {
                 animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;
@@ -46,7 +47,8 @@ namespace System.Windows.Forms
         }
         public void ToggleVertexEditor()
         {
-            if (vertexEditor.Visible)
+            animEditors.Visible = true;
+            if (!(btnVertexEditor.Checked = !btnVertexEditor.Checked))
             {
                 animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;

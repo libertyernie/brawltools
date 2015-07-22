@@ -16,7 +16,7 @@ namespace BrawlLib.Modeling
     {
         public Vector3 _position;
         public Vector3 _weightedPosition;
-        private IMatrixNode _matrixNode;
+        internal IMatrixNode _matrixNode;
         
         //normals, colors and uvs aren't stored in this class
         //because this stores a unique weighted point in space.
@@ -76,7 +76,9 @@ namespace BrawlLib.Modeling
             get { return MatrixNode == null ? "(none)" : MatrixNode.IsPrimaryNode ? ((ResourceNode)MatrixNode).Name : "(multiple)"; }
         }
 
-        public void ChangeInfluence(IMatrixNode newMatrixNode)
+        private bool _updateAssets = true;
+
+        public unsafe void ChangeInfluence(IMatrixNode newMatrixNode)
         {
             if (_parent == null)
                 return;
@@ -85,28 +87,77 @@ namespace BrawlLib.Modeling
             if (newMatrixNode is IBoneNode && (oldMatrixNode is Influence || oldMatrixNode == null))
             {
                 //Move to local
-                _position *= ((IBoneNode)newMatrixNode).InverseMatrix;
+                Matrix inv = ((IBoneNode)newMatrixNode).InverseBindMatrix;
+                
+                _position *= inv;
+                UpdateNormals(Matrix.Identity, inv);
 
-                SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
             }
             else if ((newMatrixNode is Influence || newMatrixNode == null) && oldMatrixNode is IBoneNode)
             {
                 //Move to world
-                _position *= ((IBoneNode)oldMatrixNode).Matrix;
+                Matrix m = ((IBoneNode)oldMatrixNode).BindMatrix;
 
-                SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
+                _position *= m;
+                UpdateNormals(m, Matrix.Identity);
+
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
             }
             else if (newMatrixNode is IBoneNode && oldMatrixNode is IBoneNode)
             {
                 //Update local position
-                _position *= ((IBoneNode)oldMatrixNode).Matrix;
-                _position *= ((IBoneNode)newMatrixNode).InverseMatrix;
+                Matrix m = ((IBoneNode)oldMatrixNode).BindMatrix;
+                Matrix inv = ((IBoneNode)newMatrixNode).InverseBindMatrix;
+                
+                _position *= m;
+                _position *= inv;
+                UpdateNormals(m, inv);
 
-                SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
             }
+
+            _updateAssets = true;
 
             //If both are null or an influence, they're already in world position
         }
+
+        private void SetNormals()
+        {
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null)
+                obj.SetEditedNormals();
+        }
+
+        private unsafe void UpdateNormals(Matrix m, Matrix inv)
+        {
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null && obj._manager._faceData[1] != null)
+            {
+                Vector3* pData = (Vector3*)obj._manager._faceData[1].Address;
+                for (int i = 0; i < _faceDataIndices.Count; i++)
+                {
+                    Vector3 n = pData[_faceDataIndices[i]];
+                    n *= m.GetRotationMatrix();
+                    n *= inv.GetRotationMatrix();
+                    pData[_faceDataIndices[i]] = n;
+                }
+            }
+        }
+
+        public void DeferUpdateAssets() { _updateAssets = false; }
 
         [Browsable(false)]
         public IMatrixNode MatrixNode
@@ -160,23 +211,29 @@ namespace BrawlLib.Modeling
             _nodes = null;
         }
 
-        public void Unweight()
+        //Moves an edited world position back into the stored position
+        public void Unweight(bool updateVertexSets = true)
         {
-            if (_weights == null || _nodes == null)
-                _position = GetInvMatrix() * WeightedPosition;
-            else
+            //Unweight overall position
+            _position = GetInvMatrix() * WeightedPosition;
+
+            //Distribute weights for the position across all vertex set influences
+            if (updateVertexSets)
             {
-                Vector3 trans = _weightedPosition - _bCenter;
-                for (int i = 0; i < _nodes.Length; i++)
+                if (_weights != null && _nodes != null)
                 {
-                    MDL0VertexNode set = _nodes[i];
-                    SetPosition(set, GetInvMatrix() * ((GetMatrix() * set.Vertices[_facepoints[0]._vertexIndex]) + trans));
+                    Vector3 trans = _weightedPosition - _bCenter;
+                    for (int i = 0; i < _nodes.Length; i++)
+                    {
+                        MDL0VertexNode set = _nodes[i];
+                        SetPosition(set, GetInvMatrix() * (GetMatrix() * set.Vertices[_facepoints[0]._vertexIndex] + trans));
+                    }
+                    MDL0ObjectNode obj = (MDL0ObjectNode)_parent;
+                    SetPosition(obj._vertexNode, GetInvMatrix() * ((GetMatrix() * obj._vertexNode.Vertices[_facepoints[0]._vertexIndex]) + trans));
                 }
-
-                _position = GetInvMatrix() * ((GetMatrix() * ((MDL0ObjectNode)_parent)._vertexNode.Vertices[_facepoints[0]._vertexIndex]) + trans);
+                else
+                    SetPosition();
             }
-
-            SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
         }
 
         internal float _baseWeight = 0;
@@ -186,39 +243,28 @@ namespace BrawlLib.Modeling
 
         public void SetPosition(MDL0VertexNode node, Vector3 pos)
         {
-            node.Vertices[_facepoints[0]._vertexIndex] = pos;
-            node.ForceRebuild = true;
-            if (node.Format == WiiVertexComponentType.Float)
-                node.ForceFloat = true;
+            //if (node == null)
+            //    return;
+
+            //node.Vertices[_facepoints[0]._vertexIndex] = pos;
+            //node.ForceRebuild = true;
+            //if (node.Format == WiiVertexComponentType.Float)
+            //    node.ForceFloat = true;
+
+            //Have to use this function instead of setting the vertices directly
+            //This is because the vertex set may be used by other objects
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null)
+                obj.SetEditedVertices();
         }
-        public void SetPosition(MDL0VertexNode node)
+        public void SetPosition()
         {
-            node.Vertices[_facepoints[0]._vertexIndex] = Position;
-            node.ForceRebuild = true;
-            if (node.Format == WiiVertexComponentType.Float)
-                node.ForceFloat = true;
-        }
-        public unsafe void SetNormal(MDL0ObjectNode o)
-        {
-            MDL0NormalNode node = o._normalNode;
+            MDL0VertexNode node = ((MDL0ObjectNode)_parent)._vertexNode;
+
             if (node == null)
                 return;
 
-            if (o._manager._faceData[1] != null)
-            {
-                Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
-                int x = 0;
-                foreach (int i in _faceDataIndices)
-                {
-                    if (x >= _facepoints.Count)
-                        continue;
-                    
-                    int n = _facepoints[x++]._normalIndex;
-                    if (n < 0 || n >= node.Normals.Length)
-                        node.Normals[n] = pData[i];
-                }
-            }
-
+            node.Vertices[_facepoints[0]._vertexIndex] = Position;
             node.ForceRebuild = true;
             if (node.Format == WiiVertexComponentType.Float)
                 node.ForceFloat = true;

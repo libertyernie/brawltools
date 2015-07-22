@@ -31,25 +31,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                for (int i = 0; i < 8; i++)
-                    if (_manager.HasTextureMatrix[i])
-                        return true;
+                if (_manager != null)
+                    for (int i = 0; i < 8; i++)
+                        if (_manager.HasTextureMatrix[i])
+                            return true;
                 return false;
             }
         }
-
-        //public byte _drawIndex;
-
-        //[Category("Rendering")]
-        //public byte DrawPriority
-        //{
-        //    get { return _drawIndex; }
-        //    set
-        //    {
-        //        _drawIndex = value;
-        //        SignalPropertyChange();
-        //    }
-        //}
 
         internal CPVertexFormat _vertexFormat;
         internal XFVertexSpecs _vertexSpecs;
@@ -78,7 +66,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             _manager.HasTextureMatrix[index] = value;
             SignalPropertyChange();
-            _rebuild = true;
+            _forceRebuild = true;
         }
 
         [Category("Object Data")]
@@ -159,7 +147,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                         _normalNode = null;
                         _elementIndices[1] = -1;
-                        _rebuild = true;
+                        _forceRebuild = true;
                     }
                     else return; //No point setting a null node to null
                 else
@@ -208,7 +196,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     _colorSet[id] = null;
                     _elementIndices[id + 2] = -1;
-                    _rebuild = true;
+                    _forceRebuild = true;
                 }
                 else return; //No point setting a null node to null
             else
@@ -223,7 +211,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             if (MessageBox.Show(null, "This node has less colors than in the originally linked color node.\nAny colors that cannot be found will use the first color instead.\nIs this okay?", "", MessageBoxButtons.YesNo) == DialogResult.No)
                                 return;
 
-                            _rebuild = true;
+                            _forceRebuild = true;
                         }
 
                         if (oldNode._objects.Contains(this))
@@ -272,7 +260,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     _uvSet[id] = null;
                     _elementIndices[id + 4] = -1;
-                    _rebuild = true;
+                    _forceRebuild = true;
                 }
                 else return; //No point setting a null node to null
             else
@@ -425,7 +413,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         private int _tableLen = 0;
 
         internal short[] _elementIndices = new short[14];
-        public bool _rebuild = false, _reOptimized = false;
+        public bool _forceRebuild = false, _reOptimized = false;
 
         internal List<IMatrixNode> _influences;
         public BindingList<DrawCall> _drawCalls = new BindingList<DrawCall>();
@@ -456,8 +444,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return;
 
                 if (_manager != null)
+                {
                     foreach (Vertex3 v in _manager._vertices)
+                    {
+                        v.DeferUpdateAssets();
                         v.ChangeInfluence(value);
+
+                        if (v._matrixNode != null && v._matrixNode.Users.Contains(v))
+                            v._matrixNode.Users.Remove(v);
+                    }
+                    if (_updateAssets)
+                        SetEditedAssets(false, true, true);
+                }
 
                 if (_matrixNode != null)
                 {
@@ -474,6 +472,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     else if (!_matrixNode.Users.Contains(this))
                         _matrixNode.Users.Add(this);
                 }
+
+                _updateAssets = true;
             }
         }
         #endregion
@@ -584,9 +584,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _elementIndices[13] = (short)(_furPosNode != null ? _furPosNode.Index : -1);
 
             //Create primitive manager
-            if (_parent != null && (_manager = new PrimitiveManager(header, Model._assets, linker.NodeCache))._vertices != null)
-                foreach (Vertex3 v in _manager._vertices)
-                    v.Parent = this;
+            _manager = new PrimitiveManager(header, Model._assets, linker.NodeCache, this);
 
             //Read internal object node cache and read influence list
             if (Model._linker.NodeCache != null && _matrixNode == null)
@@ -603,17 +601,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (header->_totalLength % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper data length.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange(); _forceRebuild = true;
             }
             if ((int)(0x24 + header->_primitives._offset) % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper primitives start offset.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange(); _forceRebuild = true;
             }
             if (CheckVertexFormat())
             {
                 Model._errors.Add("Object " + Index + " has a facepoint descriptor that does not match its linked nodes.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange(); _forceRebuild = true;
 
                 for (int i = 0; i < 2; i++)
                     if (_colorSet[i] != null && _manager._faceData[i + 2] == null)
@@ -625,7 +623,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < 8; i++)
                     _manager.HasTextureMatrix[i] = false;
                 SignalPropertyChange();
-                _rebuild = true;
+                _forceRebuild = true;
             }
 
             //if (!Weighted)
@@ -774,11 +772,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             RecalcIndices();
 
             //Check that the facepoint descriptor matches the linked nodes
-            if (!_rebuild)
-                _rebuild = CheckVertexFormat();
+            if (!_forceRebuild)
+                _forceRebuild = CheckVertexFormat();
+
+            //Primitives need to be 
+            _manager._remakePrimitives = model._isImport || _reOptimized || _manager.AssetsChanged;
 
             //Rebuild only under certain circumstances
-            if ((_manager._isImportOrReopimized = model._isImport || _reOptimized) || _rebuild)
+            if (_manager._remakePrimitives || _forceRebuild)
             {
                 _manager._isWeighted = Weighted;
 
@@ -801,7 +802,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 size = _tableLen + 0xE0;
 
                 //If assets have been changed, linked asset nodes must be recreated!
-                if (model._isImport || _manager._assetsChanged)
+                //This will merge internally stored face data buffers into facepoints,
+                //then group them and store the groups in _primGroups
+                if (model._isImport || _manager.AssetsChanged)
                     _manager.GroupPrimitives(
                         Collada._importOptions._useTristrips,
                         Collada._importOptions._cacheSize,
@@ -834,7 +837,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 (_uvSet[5] == null ? 0 : 0x20 + 
                 (_uvSet[7] == null ? 0 : 0x20)));
 
-            if (_manager._isImportOrReopimized || _rebuild)
+            if (_manager._remakePrimitives || _forceRebuild)
             {
                 //Set header values
                 header->_totalLength = length;
@@ -893,6 +896,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 //Write primitives
                 _manager.WritePrimitives(header, model._linker.NodeCache);
+
+                _manager.AssetsChanged = false;
             }
             else
             {
@@ -913,7 +918,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     *(bshort*)((byte*)header + 0x62) = _elementIndices[13];
                 }
             }
-            _rebuild = _reOptimized = false;
+            _forceRebuild = _reOptimized = false;
         }
 
         private void WriteWeightTable(VoidPtr addr)
@@ -1235,10 +1240,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             TKContext.DrawWireframeBox(GetBox());
         }
 
-        internal void WeightVertices() 
+        internal void Weight() 
         {
             if (_manager != null) 
                 _manager.Weight();
+        }
+        internal void Unweight(bool updateAssets)
+        {
+            if (_manager != null)
+                _manager.Unweight(updateAssets);
         }
 
         internal override void Bind() 
@@ -1291,7 +1301,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 IMatrixNode m = MatrixNode;
                 MatrixNode = null;
                 foreach (Vertex3 v in _manager._vertices)
+                {
+                    v.DeferUpdateAssets();
                     v.MatrixNode = m;
+                }
             }
         }
         public void TryConvertMatrixToObject()
@@ -1301,53 +1314,50 @@ namespace BrawlLib.SSBB.ResourceNodes
                 IMatrixNode mtxNode = null;
                 bool singlebind = true;
 
+                int i = 0;
                 foreach (Vertex3 v in _manager._vertices)
-                    if (v.MatrixNode != null)
-                    {
-                        if (mtxNode == null)
-                            mtxNode = v.MatrixNode;
+                {
+                    i++;
 
-                        if (v.MatrixNode != mtxNode)
-                        {
-                            singlebind = false;
-                            break;
-                        }
+                    if (mtxNode == null)
+                        mtxNode = v.MatrixNode;
+
+                    if (v.MatrixNode != mtxNode)
+                    {
+                        singlebind = false;
+                        break;
                     }
+                }
 
                 if (singlebind)
                 {
-                    foreach (Vertex3 v in _manager._vertices)
-                        v.MatrixNode = null;
+                    DeferUpdateAssets();
                     MatrixNode = mtxNode;
                 }
             }
         }
-
-        public void SetVerticesFromWeighted()
+        private bool _updateAssets = true;
+        public void DeferUpdateAssets() { _updateAssets = false; }
+        public void SetEditedAssets(bool forceNewNode, params bool[] types)
         {
-            for (int i = 0; i < _manager._vertices.Count; i++)
-            {
-                Vertex3 vec = _manager._vertices[i];
-                _vertexNode.Vertices[vec._facepoints[0]._vertexIndex] = vec.GetInvMatrix() * vec.WeightedPosition;
-            }
+            if (types.Length > 0 && types[0])
+                SetEditedVertices(forceNewNode);
+            if (types.Length > 1 && types[1])
+                SetEditedNormals(forceNewNode);
+            if (types.Length > 2 && types[2])
+                SetEditedColors(0, forceNewNode);
+            if (types.Length > 3 && types[3])
+                SetEditedColors(1, forceNewNode);
+            for (int i = 0; i < 8; i++)
+                if (types.Length > i + 4 && types[i + 4])
+                    SetEditedUVs(i, forceNewNode);
+        }
+        public void SetEditedVertices(bool forceNewNode = false) { _manager.PositionsChanged(this, forceNewNode); }
+        public void SetEditedNormals(bool forceNewNode = false) { _manager.NormalsChanged(this, forceNewNode); }
+        public void SetEditedColors(int id, bool forceNewNode = false) { _manager.ColorsChanged(this, id, forceNewNode); }
+        public void SetEditedUVs(int id, bool forceNewNode = false) { _manager.UVsChanged(this, id, forceNewNode); }
 
-            _vertexNode.ForceRebuild = true; 
-            if (_vertexNode.Format == WiiVertexComponentType.Float)
-                _vertexNode.ForceFloat = true;
-        }
-        public void SetEditedVertices()
-        {
-            foreach (Vertex3 v in _manager._vertices)
-                v.SetPosition(_vertexNode);
-        }
-        public void SetEditedNormals()
-        {
-            if (_manager != null && _manager._vertices != null && _normalNode != null)
-                foreach (Vertex3 v in _manager._vertices)
-                    v.SetNormal(this);
-        }
-
-        public MDL0ObjectNode HardCopy() 
+        public MDL0ObjectNode HardCopy()
         {
             MDL0ObjectNode o = new MDL0ObjectNode()
             {
@@ -1719,6 +1729,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public interface IMatrixNodeUser //Objects and Vertices
     {
+        //The next time MatrixNode is set, vertices and normals will not be updated.
+        //This is so that assets aren't updated until after vertex loops complete.
+        //Resets after MatrixNode is set.
+        void DeferUpdateAssets();
         IMatrixNode MatrixNode { get; set; }
     }
 }

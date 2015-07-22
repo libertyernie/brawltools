@@ -229,7 +229,7 @@ namespace System.Windows.Forms
 
         private void btnLeftToggle_Click(object sender, EventArgs e) { showLeft.Checked = !showLeft.Checked; }
         private void btnTopToggle_Click(object sender, EventArgs e) { showTop.Checked = !showTop.Checked; }
-        private void btnBottomToggle_Click(object sender, EventArgs e) { showBottom.Checked = !showBottom.Checked; CheckDimensions(); }
+        private void btnBottomToggle_Click(object sender, EventArgs e) { showBottom.Checked = !showBottom.Checked; }
         private void btnRightToggle_Click(object sender, EventArgs e) { showRight.Checked = !showRight.Checked; }
 
         #endregion
@@ -485,8 +485,8 @@ namespace System.Windows.Forms
                 ((CHR0Node)n).AverageKeys(SelectedBone.Name);
             if (n is SRT0Node && TargetTexRef != null)
                 ((SRT0Node)n).AverageKeys(TargetTexRef.Parent.Name, TargetTexRef.Index);
-            if (n is SHP0Node && SHP0Editor.VertexSet != null && SHP0Editor.VertexSetDest != null)
-                ((SHP0Node)n).AverageKeys(SHP0Editor.VertexSet.Name, SHP0Editor.VertexSetDest.Name);
+            if (n is SHP0Node && SHP0Editor.SelectedDestination != null && SHP0Editor.VertexSetDest != null)
+                ((SHP0Node)n).AverageKeys(SHP0Editor.SelectedDestination, SHP0Editor.VertexSetDest.Name);
         }
 
         public void setColorToolStripMenuItem_Click(object sender, EventArgs e)

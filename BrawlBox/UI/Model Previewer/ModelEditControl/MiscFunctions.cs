@@ -112,6 +112,10 @@ namespace System.Windows.Forms
             }
             else if (!weightEditor.Visible && !vertexEditor.Visible)
                 s = new Drawing.Size(0, 0);
+            else if (weightEditor.Visible)
+                s = weightEditor.MinimumSize;
+            else if (vertexEditor.Visible)
+                s = vertexEditor.MinimumSize;
 
             //See if the scroll bar needs to be visible
             int addedHeight = 0;
@@ -444,13 +448,8 @@ namespace System.Windows.Forms
                 new HotKeyInfo(Keys.E, false, false, false, HotkeyScaleTool),
                 new HotKeyInfo(Keys.R, false, false, false, HotkeyRotateTool),
                 new HotKeyInfo(Keys.T, false, false, false, HotkeyTranslateTool),
-                new HotKeyInfo(Keys.J, false, false, false, HotkeyVertexEditor),
-
-#if DEBUG
-                //Weight editor has been disabled in release due to the necessity
-                //of re-encoding objects after making influence changes.
-                new HotKeyInfo(Keys.H, false, false, false, HotkeyWeightEditor),
-#endif
+                new HotKeyInfo(Keys.D0, false, false, false, HotkeyVertexEditor),
+                new HotKeyInfo(Keys.D9, false, false, false, HotkeyWeightEditor),
             };
             _hotkeyList.AddRange(temp);
         }

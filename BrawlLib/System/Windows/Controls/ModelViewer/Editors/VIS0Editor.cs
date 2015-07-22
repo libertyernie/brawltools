@@ -73,7 +73,8 @@ namespace System.Windows.Forms
 
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            TargetVisEntry = listBox1.Items[listBox1.SelectedIndex] as VIS0EntryNode;
+            if (listBox1.SelectedIndex >= 0 && listBox1.SelectedIndex < listBox1.Items.Count)
+                TargetVisEntry = listBox1.Items[listBox1.SelectedIndex] as VIS0EntryNode;
             //if (_mainWindow.CurrentFrame > 0 && _mainWindow.CurrentFrame < _mainWindow.KeyframePanel.visEditor.listBox1.Items.Count)
             //    _mainWindow.KeyframePanel.visEditor.listBox1.SelectedIndex = _mainWindow.CurrentFrame - 1;
         }

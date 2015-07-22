@@ -573,6 +573,7 @@ namespace System.Windows.Forms
 
         public Bitmap GetScreenshot(Rectangle region, bool withTransparency)
         {
+            GL.ReadBuffer(ReadBufferMode.Back);
             Bitmap bmp = new Bitmap(region.Width,  region.Height);
             BitmapData data;
             if (withTransparency)

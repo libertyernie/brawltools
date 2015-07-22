@@ -88,7 +88,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (n.Weighted)
                     {
                         n._manager.HasTextureMatrix[Index] = value;
-                        n._rebuild = true;
+                        n._forceRebuild = true;
                         n.SignalPropertyChange();
 
                         if (n._vertexNode.Format != WiiVertexComponentType.Float)
@@ -436,7 +436,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public string Texture
         {
             get { return _texture == null ? null : _texture.Name; }
-            set { TextureNode = String.IsNullOrEmpty(value) ? null : Model.FindOrCreateTexture(value); SignalPropertyChange(); UpdateCurrentControl(); }
+            set { TextureNode = String.IsNullOrEmpty(value) || Model == null ? null : Model.FindOrCreateTexture(value); SignalPropertyChange(); UpdateCurrentControl(); }
         }
         #endregion
 

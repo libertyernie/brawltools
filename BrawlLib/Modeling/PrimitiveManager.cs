@@ -18,7 +18,24 @@ namespace BrawlLib.Modeling
     {
         #region Variables
 
-        public bool _assetsChanged = false;
+        public bool AssetsChanged
+        {
+            get
+            {
+                foreach (bool b in _changed)
+                    if (b)
+                        return true;
+
+                return false;
+            }
+            set
+            {
+                for (int i = 0; i < _changed.Length; i++)
+                    _changed[i] = false;
+            }
+        }
+
+        IObject _owner;
 
         public List<Vertex3> _vertices;
         public UnsafeBuffer _indices;
@@ -33,6 +50,16 @@ namespace BrawlLib.Modeling
         //The primitives indices match up to these values
         public UnsafeBuffer[] _faceData = new UnsafeBuffer[12];
         public bool[] _dirty = new bool[12];
+        private bool[] _changed = new bool[12];
+
+        public void SetAssetChanged(int index)
+        {
+            //Signal that facepoints need to be reindexed with a new asset array
+            _changed[index] = true;
+
+            //Update render buffer
+            _dirty[index] = true;
+        }
 
         //Graphics buffer is a combination of the _faceData streams
         //Vertex (Vertex3 - 12 bytes), Normal (Vertex3 - 12 bytes),
@@ -55,7 +82,7 @@ namespace BrawlLib.Modeling
         public bool[] HasTextureMatrix = new bool[8];
 
         //Set these in OnCalculateSize!
-        public bool _isImportOrReopimized;
+        public bool _remakePrimitives; //Otherwise, copies previous raw primitive values
         public bool _isWeighted;
         public int _primitiveSize = 0;
         public List<FacepointAttribute> _descList;
@@ -278,8 +305,11 @@ namespace BrawlLib.Modeling
         public PrimitiveManager(
             MDL0Object* polygon,
             AssetStorage assets,
-            IMatrixNode[] nodes)
+            IMatrixNode[] nodes,
+            IObject owner)
         {
+            _owner = owner;
+
             byte*[] pAssetList = new byte*[12];
             byte*[] pFaceBuffers = new byte*[12];
             int id;
@@ -340,6 +370,9 @@ namespace BrawlLib.Modeling
             for (int x = 0; x < _pointCount; x++, pIndex++)
                 if (*pIndex >= 0 && *pIndex < _vertices.Count)
                     _vertices[*pIndex]._faceDataIndices.Add(x);
+
+            foreach (Vertex3 v in _vertices)
+                v.Parent = _owner as IMatrixNodeUser;
         }
         
         ~PrimitiveManager() { Dispose(); }
@@ -620,7 +653,7 @@ namespace BrawlLib.Modeling
 
             foreach (PrimitiveGroup g in _primGroups)
             {
-                if (_isImportOrReopimized)
+                if (_remakePrimitives)
                 {
                     if (g._tristrips.Count != 0)
                         foreach (PointTriangleStrip strip in g._tristrips)
@@ -640,7 +673,7 @@ namespace BrawlLib.Modeling
                 {
                     g.RegroupNodes();
                     for (int i = 0; i < g._headers.Count; i++)
-                        _primitiveSize += 3 + g._points[i].Count * _fpStride;
+                        _primitiveSize += 3 + g._facePoints[i].Count * _fpStride;
                 }
 
                 if (g._nodes.Count == 1 && g._nodes[0] == 0xFFFF)
@@ -655,6 +688,7 @@ namespace BrawlLib.Modeling
 
         /// <summary>
         /// Currently should only should be called when importing a model with the collada importer
+        /// or when internal asset data has changed and needs to be distributed to external arrays
         /// </summary>
         public void GroupPrimitives(
             bool useStrips,
@@ -699,7 +733,7 @@ namespace BrawlLib.Modeling
 
                 Facepoint[] points = new Facepoint[_lines._indices.Length];
                 uint[] indices = _lines._indices;
-                for (int t = 0; t < _lines._indices.Length; t++)
+                for (int t = 0; t < indices.Length; t++)
                     points[t] = facepoints[indices[t]];
 
                 List<PrimitiveGroup> groups = new List<PrimitiveGroup>();
@@ -724,7 +758,30 @@ namespace BrawlLib.Modeling
             }
             if (_points != null)
             {
+                Facepoint[] points = new Facepoint[_points._indices.Length];
+                uint[] indices = _points._indices;
+                for (int t = 0; t < indices.Length; t++)
+                    points[t] = facepoints[indices[t]];
 
+                List<PrimitiveGroup> groups = new List<PrimitiveGroup>();
+
+                for (int i = 0; i < points.Length; i++)
+                {
+                    FPoint p = new FPoint(points[i]);
+
+                    bool added = false;
+                    foreach (PrimitiveGroup g in groups)
+                        if (added = g.TryAdd(p))
+                            break;
+                    if (!added)
+                    {
+                        PrimitiveGroup g = new PrimitiveGroup();
+                        g.TryAdd(p);
+                        groups.Add(g);
+                    }
+                }
+
+                _primGroups.AddRange(groups);
             }
         }
         
@@ -791,7 +848,7 @@ namespace BrawlLib.Modeling
                     }
                 }
 
-                if (_isImportOrReopimized)
+                if (_remakePrimitives)
                 {
                     if (g._tristrips.Count != 0)
                         foreach (PointTriangleStrip strip in g._tristrips)
@@ -832,7 +889,7 @@ namespace BrawlLib.Modeling
                     {
                         *(PrimitiveHeader*)address = g._headers[i];
                         address += 3;
-                        foreach (Facepoint point in g._points[i])
+                        foreach (Facepoint point in g._facePoints[i])
                             WriteFacepoint(point, g, ref address);
                     }
             }
@@ -1233,77 +1290,78 @@ namespace BrawlLib.Modeling
             uint tx7Type = (int)GXCompType.Float;
             uint tx7Frac = 0;
 
-            foreach (VertexAttributeFormat list in _fmtList)
-                switch (list._attr)
-                {
-                    case GXAttribute.Position:
-                        posCnt = (uint)list._cnt;
-                        posType = (uint)list._type;
-                        posFrac = list._frac;
-                        break;
-                    case GXAttribute.Normal:
-                    case GXAttribute.NBT:
-                        nrmType = (uint)list._type;
-                        if (list._cnt == GXCompCnt.NrmNBT3)
-                        {
-                            nrmCnt = (uint)GXCompCnt.NrmNBT;
-                            nrmId3 = 1;
-                        }
-                        else
-                        {
-                            nrmCnt = (uint)list._cnt;
-                            nrmId3 = 0;
-                        }
-                        break;
-                    case GXAttribute.Color0:
-                        c0Cnt = (uint)list._cnt;
-                        c0Type = (uint)list._type;
-                        break;
-                    case GXAttribute.Color1:
-                        c1Cnt = (uint)list._cnt;
-                        c1Type = (uint)list._type;
-                        break;
-                    case GXAttribute.Tex0:
-                        tx0Cnt = (uint)list._cnt;
-                        tx0Type = (uint)list._type;
-                        tx0Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex1:
-                        tx1Cnt = (uint)list._cnt;
-                        tx1Type = (uint)list._type;
-                        tx1Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex2:
-                        tx2Cnt = (uint)list._cnt;
-                        tx2Type = (uint)list._type;
-                        tx2Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex3:
-                        tx3Cnt = (uint)list._cnt;
-                        tx3Type = (uint)list._type;
-                        tx3Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex4:
-                        tx4Cnt = (uint)list._cnt;
-                        tx4Type = (uint)list._type;
-                        tx4Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex5:
-                        tx5Cnt = (uint)list._cnt;
-                        tx5Type = (uint)list._type;
-                        tx5Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex6:
-                        tx6Cnt = (uint)list._cnt;
-                        tx6Type = (uint)list._type;
-                        tx6Frac = list._frac;
-                        break;
-                    case GXAttribute.Tex7:
-                        tx7Cnt = (uint)list._cnt;
-                        tx7Type = (uint)list._type;
-                        tx7Frac = list._frac;
-                        break;
-                }
+            if (_fmtList != null)
+                foreach (VertexAttributeFormat list in _fmtList)
+                    switch (list._attr)
+                    {
+                        case GXAttribute.Position:
+                            posCnt = (uint)list._cnt;
+                            posType = (uint)list._type;
+                            posFrac = list._frac;
+                            break;
+                        case GXAttribute.Normal:
+                        case GXAttribute.NBT:
+                            nrmType = (uint)list._type;
+                            if (list._cnt == GXCompCnt.NrmNBT3)
+                            {
+                                nrmCnt = (uint)GXCompCnt.NrmNBT;
+                                nrmId3 = 1;
+                            }
+                            else
+                            {
+                                nrmCnt = (uint)list._cnt;
+                                nrmId3 = 0;
+                            }
+                            break;
+                        case GXAttribute.Color0:
+                            c0Cnt = (uint)list._cnt;
+                            c0Type = (uint)list._type;
+                            break;
+                        case GXAttribute.Color1:
+                            c1Cnt = (uint)list._cnt;
+                            c1Type = (uint)list._type;
+                            break;
+                        case GXAttribute.Tex0:
+                            tx0Cnt = (uint)list._cnt;
+                            tx0Type = (uint)list._type;
+                            tx0Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex1:
+                            tx1Cnt = (uint)list._cnt;
+                            tx1Type = (uint)list._type;
+                            tx1Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex2:
+                            tx2Cnt = (uint)list._cnt;
+                            tx2Type = (uint)list._type;
+                            tx2Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex3:
+                            tx3Cnt = (uint)list._cnt;
+                            tx3Type = (uint)list._type;
+                            tx3Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex4:
+                            tx4Cnt = (uint)list._cnt;
+                            tx4Type = (uint)list._type;
+                            tx4Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex5:
+                            tx5Cnt = (uint)list._cnt;
+                            tx5Type = (uint)list._type;
+                            tx5Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex6:
+                            tx6Cnt = (uint)list._cnt;
+                            tx6Type = (uint)list._type;
+                            tx6Frac = list._frac;
+                            break;
+                        case GXAttribute.Tex7:
+                            tx7Cnt = (uint)list._cnt;
+                            tx7Type = (uint)list._type;
+                            tx7Frac = list._frac;
+                            break;
+                    }
             
             MDL0PolygonDefs* Defs = (MDL0PolygonDefs*)polygon->DefList;
             Defs->UVATA = (uint)ShiftUVATA(posCnt, posType, posFrac, nrmCnt, nrmType, c0Cnt, c0Type, c1Cnt, c1Type, tx0Cnt, tx0Type, tx0Frac, nrmId3);
@@ -1472,24 +1530,30 @@ namespace BrawlLib.Modeling
         {
             Facepoint[] _facepoints = new Facepoint[_pointCount];
 
-            ushort* pIndex = (ushort*)_indices.Address;
-            for (int x = 0; x < 12; x++)
+            bool isModelImport = Collada.CurrentModel != null;
+            if (isModelImport)
             {
-                if (_faceData[x] == null && x != 0)
+                ushort* pIndex = (ushort*)_indices.Address;
+                for (int i = 0; i < _pointCount; i++)
+                {
+                    Facepoint f = _facepoints[i] = new Facepoint() { _index = i };
+                    f._vertexIndex = *pIndex++;
+                    if (f._vertexIndex < _vertices.Count && f._vertexIndex >= 0)
+                        f._vertex = _vertices[f._vertexIndex];
+                }
+            }
+            else if (_vertices != null)
+                foreach (Vertex3 v in _vertices)
+                    for (int i = 0; i < v._faceDataIndices.Count; i++)
+                        _facepoints[v._faceDataIndices[i]] = v._facepoints[i];
+
+            for (int x = 1; x < 12; x++)
+            {
+                if (_faceData[x] == null || (!isModelImport && !_changed[x]))
                     continue;
 
                 switch (x)
                 {
-                    case 0:
-                        for (int i = 0; i < _pointCount; i++)
-                            if (_vertices.Count != 0)
-                            {
-                                Facepoint f = _facepoints[i] = new Facepoint() { _index = i };
-                                f._vertexIndex = *pIndex++;
-                                if (f._vertexIndex < _vertices.Count && f._vertexIndex >= 0)
-                                    f._vertex = _vertices[f._vertexIndex];
-                            }
-                        break;
                     case 1:
                         Vector3* pIn1 = (Vector3*)_faceData[x].Address;
                         for (int i = 0; i < _pointCount; i++)
@@ -1498,12 +1562,20 @@ namespace BrawlLib.Modeling
                     case 2:
                     case 3:
                         RGBAPixel* pIn2 = (RGBAPixel*)_faceData[x].Address;
-                        if (Collada._importOptions._useOneNode)
-                            for (int i = 0; i < _pointCount; i++)
-                                _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(Collada._importOptions._singleColorNodeEntries, *pIn2++);
+                        if (isModelImport)
+                        {
+                            if (Collada._importOptions._useOneNode)
+                                for (int i = 0; i < _pointCount; i++)
+                                    _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(Collada._importOptions._singleColorNodeEntries, *pIn2++);
+                            else
+                                for (int i = 0; i < _pointCount; i++)
+                                    _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(((MDL0ObjectNode)((MDL0Node)Collada.CurrentModel)._objList[_newClrObj[x - 2]])._manager.GetColors(x - 2, false), *pIn2++).ClampMin(0);
+                        }
                         else
+                        {
                             for (int i = 0; i < _pointCount; i++)
-                                _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(((MDL0ObjectNode)((MDL0Node)Collada.CurrentModel)._objList[_newClrObj[x - 2]])._manager.GetColors(x - 2, false), *pIn2++).ClampMin(0);
+                                _facepoints[i]._colorIndices[x - 2] = Array.IndexOf(GetColors(x - 2, false), *pIn2++).ClampMin(0);
+                        }
                         break;
                     default:
                         Vector2* pIn3 = (Vector2*)_faceData[x].Address;
@@ -1515,11 +1587,21 @@ namespace BrawlLib.Modeling
             return _facepoints;
         }
 
-        internal void Weight()
+        public void Unweight(bool updateAssets)
         {
             if (_vertices != null)
                 foreach (Vertex3 v in _vertices)
+                    v.Unweight(updateAssets);
+        }
+
+        public void Weight()
+        {
+            //Weight vertices
+            if (_vertices != null)
+                foreach (Vertex3 v in _vertices)
                     v.Weight();
+
+            //Update graphics buffer with weighted data on next render
             _dirty[0] = true;
             _dirty[1] = true;
         }
@@ -1543,15 +1625,16 @@ namespace BrawlLib.Modeling
                         pOut += 8;
 
             int v;
-            ushort* pIndex = (ushort*)_indices.Address;
             if (index == 0) //Vertices
             {
+                ushort* pIndex = (ushort*)_indices.Address;
                 for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     if ((v = *pIndex++) < _vertices.Count && v >= 0)
                         *(Vector3*)pOut = _vertices[v].WeightedPosition;
             }
             else if (index == 1) //Normals
             {
+                ushort* pIndex = (ushort*)_indices.Address;
                 Vector3* pIn = (Vector3*)_faceData[index].Address;
                 for (int i = 0; i < _pointCount; i++, pOut += _renderStride)
                     if ((v = *pIndex++) < _vertices.Count && v >= 0)
@@ -1579,7 +1662,7 @@ namespace BrawlLib.Modeling
             int bufferSize = _renderStride * _pointCount;
 
             //Dispose of buffer if size doesn't match
-            if ((_graphicsBuffer != null) && (_graphicsBuffer.Length != bufferSize))
+            if (_graphicsBuffer != null && _graphicsBuffer.Length != bufferSize)
             {
                 _graphicsBuffer.Dispose();
                 _graphicsBuffer = null;
@@ -1757,6 +1840,191 @@ namespace BrawlLib.Modeling
         }
 
         #endregion
+
+        //TODO: try to preserve vertex, normal and color array indices
+        //otherwise SHP0 morph sets won't work anymore
+
+        public unsafe void PositionsChanged(MDL0ObjectNode obj, bool forceNewNode = false)
+        {
+            if (obj == null || _vertices == null)
+                return;
+
+            SetAssetChanged(0);
+            obj._forceRebuild = true;
+            obj.SignalPropertyChange();
+
+            MDL0VertexNode node;
+            if (obj._vertexNode != null)
+            {
+                if (obj._vertexNode._objects.Count == 1 && !forceNewNode)
+                    node = obj._vertexNode;
+                else
+                {
+                    node = new MDL0VertexNode();
+                    obj.Model.VertexGroup.AddChild(node);
+                    node.Name = node.FindName("Regenerated");
+                    if (obj._vertexNode._objects.Contains(obj))
+                        obj._vertexNode._objects.Remove(obj);
+                    obj._vertexNode = node;
+                    obj._vertexNode._objects.Add(obj);
+                    obj._elementIndices[0] = (short)obj._vertexNode.Index;
+                }
+            }
+            else
+            {
+                node = new MDL0VertexNode();
+                obj.Model.VertexGroup.AddChild(node);
+                node.Name = node.FindName("Regenerated");
+                obj._vertexNode = node;
+                obj._vertexNode._objects.Add(obj);
+                obj._elementIndices[0] = (short)obj._vertexNode.Index;
+            }
+
+            node.Vertices = GetVertices(true);
+            int x = 0;
+            foreach (Vertex3 v in _vertices)
+            {
+                foreach (Facepoint f in v._facepoints)
+                {
+                    f._vertexIndex = x;
+                    f._vertex = v;
+                }
+                x++;
+            }
+        }
+
+        public unsafe void NormalsChanged(MDL0ObjectNode obj, bool forceNewNode = false)
+        {
+            if (obj == null || _faceData[1] == null)
+                return;
+
+            SetAssetChanged(1);
+            obj._forceRebuild = true;
+            obj.SignalPropertyChange();
+
+            MDL0NormalNode node;
+            if (obj._normalNode != null)
+            {
+                if (obj._normalNode._objects.Count == 1 && !forceNewNode)
+                    node = obj._normalNode;
+                else
+                {
+                    node = new MDL0NormalNode();
+                    obj.Model.NormalGroup.AddChild(node);
+                    node.Name = node.FindName("Regenerated");
+                    if (obj._normalNode._objects.Contains(obj))
+                        obj._normalNode._objects.Remove(obj);
+                    obj._normalNode = node;
+                    obj._normalNode._objects.Add(obj);
+                    obj._elementIndices[1] = (short)obj._normalNode.Index;
+                }
+            }
+            else
+            {
+                node = new MDL0NormalNode();
+                obj.Model.NormalGroup.AddChild(node);
+                node.Name = node.FindName("Regenerated");
+                obj._normalNode = node;
+                obj._normalNode._objects.Add(obj);
+                obj._elementIndices[1] = (short)obj._normalNode.Index;
+            }
+
+            node.Normals = GetNormals(true);
+            Vector3* pData = (Vector3*)_faceData[1].Address;
+            foreach (Vertex3 v in _vertices)
+                for (int i = 0; i < v._faceDataIndices.Count; i++)
+                    v._facepoints[i]._normalIndex = Array.IndexOf(node.Normals, pData[v._faceDataIndices[i]]);
+        }
+
+        public unsafe void ColorsChanged(MDL0ObjectNode obj, int id, bool forceNewNode = false)
+        {
+            id = id.Clamp(0, 1);
+
+            if (obj == null || _faceData[id + 2] == null)
+                return;
+
+            SetAssetChanged(id + 2);
+            obj._forceRebuild = true;
+            obj.SignalPropertyChange();
+
+            MDL0ColorNode node;
+            if (obj._colorSet[id] != null)
+            {
+                if (obj._colorSet[id]._objects.Count == 1 && !forceNewNode)
+                    node = obj._colorSet[id];
+                else
+                {
+                    node = new MDL0ColorNode();
+                    obj.Model.ColorGroup.AddChild(node);
+                    node.Name = node.FindName("Regenerated");
+                    if (obj._colorSet[id]._objects.Contains(obj))
+                        obj._colorSet[id]._objects.Remove(obj);
+                    obj._colorSet[id] = node;
+                    obj._colorSet[id]._objects.Add(obj);
+                    obj._elementIndices[id + 2] = (short)obj._colorSet[id].Index;
+                }
+            }
+            else
+            {
+                node = new MDL0ColorNode();
+                obj.Model.ColorGroup.AddChild(node);
+                node.Name = node.FindName("Regenerated");
+                obj._colorSet[id] = node;
+                obj._colorSet[id]._objects.Add(obj);
+                obj._elementIndices[id + 2] = (short)obj._colorSet[id].Index;
+            }
+
+            node.Colors = GetColors(id, true);
+            RGBAPixel* pData = (RGBAPixel*)_faceData[id + 2].Address;
+            foreach (Vertex3 v in _vertices)
+                for (int i = 0; i < v._faceDataIndices.Count; i++)
+                    v._facepoints[i]._colorIndices[id] = Array.IndexOf(node.Colors, pData[v._faceDataIndices[i]]);
+        }
+
+        public unsafe void UVsChanged(MDL0ObjectNode obj, int id, bool forceNewNode = false)
+        {
+            id = id.Clamp(0, 7);
+
+            if (obj == null || _faceData[id + 4] == null)
+                return;
+
+            SetAssetChanged(id + 4);
+            obj._forceRebuild = true;
+            obj.SignalPropertyChange();
+
+            MDL0UVNode node;
+            if (obj._uvSet[id] != null)
+            {
+                if (obj._uvSet[id]._objects.Count == 1 && !forceNewNode)
+                    node = obj._uvSet[id];
+                else
+                {
+                    node = new MDL0UVNode();
+                    obj.Model.UVGroup.AddChild(node);
+                    node.Name = node.FindName("Regenerated");
+                    if (obj._uvSet[id]._objects.Contains(obj))
+                        obj._uvSet[id]._objects.Remove(obj);
+                    obj._uvSet[id] = node;
+                    obj._uvSet[id]._objects.Add(obj);
+                    obj._elementIndices[id + 4] = (short)obj._uvSet[id].Index;
+                }
+            }
+            else
+            {
+                node = new MDL0UVNode();
+                obj.Model.UVGroup.AddChild(node);
+                node.Name = node.FindName("Regenerated");
+                obj._uvSet[id] = node;
+                obj._uvSet[id]._objects.Add(obj);
+                obj._elementIndices[id + 4] = (short)obj._uvSet[id].Index;
+            }
+
+            node.Points = GetUVs(id, true);
+            Vector2* pData = (Vector2*)_faceData[id + 4].Address;
+            foreach (Vertex3 v in _vertices)
+                for (int i = 0; i < v._faceDataIndices.Count; i++)
+                    v._facepoints[i]._UVIndices[id] = Array.IndexOf(node.Points, pData[v._faceDataIndices[i]]);
+        }
     }
 
     public unsafe class GLPrimitive

@@ -39,10 +39,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         };
 
         //Parser commands must initialize the node before returning.
-        public unsafe static ResourceNode FromFile(ResourceNode parent, string path)
+        public unsafe static ResourceNode FromFile(ResourceNode parent, string path, FileOptions options = FileOptions.RandomAccess)
         {
             ResourceNode node = null;
-            FileMap map = FileMap.FromFile(path, FileMapProtect.Read);
+            FileMap map = FileMap.FromFile(path, FileMapProtect.Read, 0, 0, options);
             try
             {
                 DataSource source = new DataSource(map);

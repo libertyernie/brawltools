@@ -174,7 +174,19 @@ namespace System.Windows.Forms
                 _snapX = _snapY = _snapZ = _snapCirc = false;
 
                 if (!MouseDownTargetVertex(e, panel))
+                {
+                    if (CurrentFrame == 0 &&
+                        TargetAnimType == NW4RAnimType.CHR &&
+                        CHR0Editor.chkBoneEdit.Checked &&
+                        TargetModel != null &&
+                        TargetModel is MDL0Node)
+                    {
+                        MDL0Node m = TargetModel as MDL0Node;
+                        m._dontUpdateMesh = true;
+                    }
+
                     MouseDownTargetBone(e, panel);
+                }
 
                 //Ensure a redraw so the snapping indicators are correct
                 panel.Invalidate();
@@ -187,6 +199,13 @@ namespace System.Windows.Forms
 
         protected virtual void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
+            bool temp = TargetModel != null && TargetModel is MDL0Node;
+            if (temp)
+            {
+                MDL0Node m = TargetModel as MDL0Node;
+                m._dontUpdateMesh = false;
+            }
+
             if (e.Button == Forms.MouseButtons.Left)
             {
                 ModelPanel panel = sender as ModelPanel;
@@ -196,7 +215,19 @@ namespace System.Windows.Forms
                 if (_rotating || _translating || _scaling)
                 {
                     if (!VertexLoc.HasValue)
+                    {
+                        if (temp &&
+                            CHR0Editor.chkUpdateBindPose.Checked &&
+                            TargetAnimType == NW4RAnimType.CHR &&
+                            CurrentFrame == 0 &&
+                            SelectedBone != null)
+                        {
+                            SelectedBone.RecalcBindState(!CHR0Editor.chkBoneEdit.Checked);
+                            UpdateModel(TargetModel, CurrentFrame);
+                        }
+
                         BoneChange(SelectedBone);
+                    }
                     else
                         VertexChange(_selectedVertices);
                 }

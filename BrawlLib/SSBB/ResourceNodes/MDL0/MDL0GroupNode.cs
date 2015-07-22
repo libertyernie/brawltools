@@ -349,13 +349,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
 
                     bool hasUnused = false;
-                    for (int i = max; i < 8; i++)
-                        if (m._manager.HasTextureMatrix[i])
-                        {
-                            m._manager.HasTextureMatrix[i] = false;
-                            m._rebuild = true;
-                            hasUnused = true;
-                        }
+                    if (m._manager != null)
+                        for (int i = max; i < 8; i++)
+                            if (m._manager.HasTextureMatrix[i])
+                            {
+                                m._manager.HasTextureMatrix[i] = false;
+                                m._forceRebuild = true;
+                                hasUnused = true;
+                            }
                     if (hasUnused)
                     {
                         ((MDL0Node)Parent)._errors.Add("Object " + m.Index + " has unused texture matrices.");

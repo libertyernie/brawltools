@@ -567,7 +567,7 @@ namespace BrawlLib.Wii.Models
 
             byte* tIn, tOut;
 
-            group._points.Add(new List<Facepoint>());
+            group._facePoints.Add(new List<Facepoint>());
 
             //Iterate commands in list
             fixed (ushort* pNode = Nodes)
@@ -686,7 +686,7 @@ namespace BrawlLib.Wii.Models
                         default: break; //End
                     }
                     
-                    group._points[group._points.Count - 1].Add(f);
+                    group._facePoints[group._facePoints.Count - 1].Add(f);
                 }
             }
         }

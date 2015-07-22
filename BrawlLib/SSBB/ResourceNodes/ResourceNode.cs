@@ -930,6 +930,20 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.EnumTypeInternal(list, type);
         }
 
+        public ResourceNode[] FindChildrenByName(string name)
+        {
+            List<ResourceNode> nodes = new List<ResourceNode>();
+            this.EnumNameInternal(nodes, name);
+            return nodes.ToArray();
+        }
+        private void EnumNameInternal(List<ResourceNode> list, string name)
+        {
+            if (this.Name == name)
+                list.Add(this);
+            foreach (ResourceNode n in Children)
+                n.EnumNameInternal(list, name);
+        }
+
         public unsafe string FindName(string name)
         {
             int index = -1;

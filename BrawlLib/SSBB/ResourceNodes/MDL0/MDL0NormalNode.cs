@@ -14,7 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
         public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0NormalData _hdr = new MDL0NormalData();
+        MDL0NormalData _hdr = new MDL0NormalData() { _type = (int)WiiVertexComponentType.Float };
 
         public enum NormalType
         {
@@ -43,7 +43,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Vector3[] Normals
         {
             get { return _normals == null ? _normals = VertexCodec.ExtractNormals(Header) : _normals; }
-            set { _normals = value; SignalPropertyChange(); }
+            set
+            {
+                _normals = value;
+
+                _forceRebuild = true;
+                if (Format == WiiVertexComponentType.Float)
+                    _forceFloat = true;
+
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()

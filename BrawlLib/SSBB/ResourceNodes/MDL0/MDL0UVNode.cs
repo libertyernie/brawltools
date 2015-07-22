@@ -10,9 +10,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal MDL0UVData* Header { get { return (MDL0UVData*)WorkingUncompressed.Address; } }
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0UVData _hdr = new MDL0UVData();
+        MDL0UVData _hdr = new MDL0UVData() { _format = (int)WiiVertexComponentType.Float };
 
         [Category("UV Data")]
         public int ID { get { return _hdr._index; } }
@@ -39,7 +39,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Vector2[] Points
         {
             get { return _points == null ? _points = VertexCodec.ExtractUVs(Header) : _points; }
-            set { _points = value; SignalPropertyChange(); }
+            set
+            {
+                _points = value;
+
+                _forceRebuild = true;
+                if (Format == WiiVertexComponentType.Float)
+                    _forceFloat = true;
+                
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()
@@ -86,7 +95,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_entryStride = (byte)_enc._dstStride;
                 header->_numEntries = (ushort)_enc._srcCount;
                 header->_min = (Vector2)_enc._min;
-                header->_min = (Vector2)_enc._max;
+                header->_max = (Vector2)_enc._max;
                 header->_pad1 = header->_pad2 = header->_pad3 = header->_pad4 = 0;
 
                 _enc.Write(Points, (byte*)address + 0x40);

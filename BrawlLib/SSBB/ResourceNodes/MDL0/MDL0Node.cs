@@ -98,7 +98,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Version 10 and 11 objects are slighly different from 8 and 9
             if (_objList != null && (convertingDown || convertingUp))
                 foreach (MDL0ObjectNode o in _objList)
-                    o._rebuild = true;
+                    o._forceRebuild = true;
         }
 
         [Category("G3D Model"), Description("True when one or more objects has normals and is rigged to more than one influence (the object's single bind property says '(none)').")]
@@ -210,14 +210,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void CheckTextures()
         {
             if (_texList != null)
-                foreach (MDL0TextureNode t in _texList)
+            {
+                for (int i = 0; i < _texList.Count; i++)
                 {
-                    for (int i = 0; i < t._references.Count; i++)
-                        if (t._references[i].Parent == null)
-                            t._references.RemoveAt(i--);
+                    MDL0TextureNode t = (MDL0TextureNode)_texList[i];
+                    for (int x = 0; x < t._references.Count; x++)
+                        if (t._references[x].Parent == null)
+                            t._references.RemoveAt(x--);
                     if (t._references.Count == 0)
-                        t.Remove();
+                        _texList.RemoveAt(i--);
                 }
+            }
         }
 
         public List<ResourceNode> GetUsedShaders()
@@ -575,7 +578,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 newBone._billboardFlags = bone._billboardFlags;
                 newBone._boneFlags = bone._boneFlags;
                 newBone._extents = bone._extents;
-                newBone.RecalcBindState();
+                newBone.RecalcBindState(false);
             }
 
             //Regenerate bone cache, the FindBone function uses it
@@ -623,7 +626,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Force a rebuild, just in case.
             //This will also avoid the rebuilder trying to copy the soure data over,
             //which has been disposed of.
-            repObj._rebuild = true;
+            repObj._forceRebuild = true;
 
             //Find a matching object to replace using the object's name
             bool found = false;
@@ -1123,7 +1126,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _enableExtents = props->_enableExtents != 0;
             _envMtxMode = props->_envMtxMode;
 
-            if (props->_origPathOffset > 0 && props->_origPathOffset < header->_header._size)
+            if (props->_origPathOffset > 0 && props->_origPathOffset > header->_header._size)
                 _originalPath = props->OrigPath;
 
             (_userEntries = new UserDataCollection()).Read(header->UserData);
@@ -1238,11 +1241,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             IsDirty = false;
         }
 
-        public static MDL0Node FromFile(string path)
+        public static MDL0Node FromFile(string path, FileOptions options = FileOptions.RandomAccess)
         {
             //string ext = Path.GetExtension(path);
             if (path.EndsWith(".mdl0", StringComparison.OrdinalIgnoreCase))
-                return NodeFactory.FromFile(null, path) as MDL0Node;
+                return NodeFactory.FromFile(null, path, options) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
                 return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
             else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
@@ -1313,11 +1316,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override unsafe void Replace(string fileName, FileMapProtect prot, FileOptions options)
         {
-            MDL0Node node = FromFile(fileName);
+            MDL0Node node = FromFile(fileName, FileOptions.SequentialScan);
             if (node == null)
                 return;
 
-            ReplaceRaw(node.WorkingUncompressed.Map);
+            //Get the original data source from the newly created model
+            //and clear the reference to it so it's not disposed of
+            //when the model is disposed
+            DataSource m = node._uncompSource;
+            node._uncompSource = DataSource.Empty;
+            node._origSource = DataSource.Empty;
+
+            node.Dispose();
+            ReplaceRaw(m.Map);
         }
         public override unsafe void Export(string outPath)
         {
@@ -1641,6 +1652,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 TKContext.DrawWireframeBox(box);
         }
 
+        public bool _dontUpdateMesh = false;
+
         bool _bindFrame = true;
         public void ApplyCHR(CHR0Node node, float index)
         {
@@ -1663,10 +1676,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (Influence inf in _influences._influences)
                 inf.CalcMatrix();
 
-            //Weight vertices
-            if (_objList != null)
+            //Weight vertices and normals
+            if (!_dontUpdateMesh && _objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    poly.WeightVertices();
+                    poly.Weight();
         }
 
         public void ApplySRT(SRT0Node node, float index)
@@ -1748,60 +1761,189 @@ namespace BrawlLib.SSBB.ResourceNodes
             _currentSHP = node;
             _currentSHPIndex = index;
 
-            if (node == null || index == 0)
-                return;
+            //Max amount of morphs allowed is technically 32
 
             SHP0EntryNode entry;
 
             if (_objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    if (poly._manager != null && 
-                        (entry = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null && 
-                        entry.Enabled)
+                {
+                    PrimitiveManager p = poly._manager;
+                    if (p == null)
+                        continue;
+
+                    //Reset this object's normal buffer to default
+                    //Vertices are already weighted in WeightMeshes
+                    //and colors aren't influenced by matrices,
+                    //so they can be retrieved directly from the external array later on
+                    for (int i = 0; i < p._vertices.Count; i++)
                     {
-                        if (entry.UpdateVertices)
+                        Vertex3 v = p._vertices[i];
+                        for (int m = 0; m < v._faceDataIndices.Count; m++)
                         {
-                            //Max amount of morphs allowed is technically 32
-                            float[] weights = new float[entry.Children.Count];
-                            MDL0VertexNode[] nodes = new MDL0VertexNode[entry.Children.Count];
-
-                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            int fIndex = v._faceDataIndices[m];
+                            if (p._faceData[1] != null && poly._normalNode != null)
                             {
-                                MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
-
-                                weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1) : 0;
-                                nodes[shpSet.Index] = vNode;
+                                ((Vector3*)p._faceData[1].Address)[fIndex] =
+                                    poly._normalNode.Normals[v._facepoints[m]._normalIndex];
                             }
+                            //for (int c = 0; c < 2; c++)
+                            //    if (p._faceData[c + 2] != null && poly._colorSet[c] != null)
+                            //    {
+                            //        ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
+                            //            poly._colorSet[c].Colors[v._facepoints[m]._colorIndices[c]];
+                            //    }
+                        }
+                    }
+
+                    if (node == null || index == 0)
+                        continue;
+
+                    if ((entry = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null && 
+                        entry.Enabled && entry.UpdateVertices)
+                    {
+                        float[] weights = new float[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
+
+                        float totalWeight = 0;
+                        foreach (float f in weights)
+                            totalWeight += f;
+
+                        float baseWeight = 1.0f - totalWeight;
+                        float total = totalWeight + baseWeight;
+
+                        MDL0VertexNode[] nodes = new MDL0VertexNode[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            nodes[shpSet.Index] = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
+
+                        //Calculate barycenter per vertex and set as weighted pos
+                        for (int i = 0; i < p._vertices.Count; i++)
+                        {
+                            int x = 0;
+                            Vertex3 v3 = p._vertices[i];
+                            v3._weightedPosition *= baseWeight;
+
+                            foreach (MDL0VertexNode vNode in nodes)
+                            {
+                                if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
+                                    v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x];
+                                x++;
+                            }
+
+                            v3._weightedPosition /= total;
+
+                            v3._weights = weights;
+                            v3._nodes = nodes;
+                            v3._baseWeight = baseWeight;
+                            v3._bCenter = v3._weightedPosition;
+                        }
+                    }
+
+                    if ((entry = node.FindChild(poly.NormalNode, true) as SHP0EntryNode) != null && 
+                        entry.Enabled && entry.UpdateNormals)
+                    {
+                        float[] weights = new float[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
+
+                        float totalWeight = 0;
+                        foreach (float f in weights)
+                            totalWeight += f;
+
+                        float baseWeight = 1.0f - totalWeight;
+                        float total = totalWeight + baseWeight;
+
+                        MDL0NormalNode[] nodes = new MDL0NormalNode[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            nodes[shpSet.Index] = _normList.Find(x => x.Name == shpSet.Name) as MDL0NormalNode;
+
+                        UnsafeBuffer buf = p._faceData[1];
+                        if (buf != null)
+                        {
+                            Vector3* pData = (Vector3*)buf.Address;
+
+                            for (int i = 0; i < p._vertices.Count; i++)
+                            {
+                                Vertex3 v3 = p._vertices[i];
+                                int m = 0;
+                                foreach (Facepoint r in v3._facepoints)
+                                {
+                                    int nIndex = v3._faceDataIndices[m++];
+
+                                    Vector3 weightedNormal =
+                                        v3.GetMatrix().GetRotationMatrix() * pData[nIndex] * baseWeight;
+
+                                    int x = 0;
+                                    foreach (MDL0NormalNode n in nodes)
+                                    {
+                                        if (n != null && r._normalIndex < n.Normals.Length)
+                                            weightedNormal += 
+                                                v3.GetMatrix().GetRotationMatrix() * 
+                                                n.Normals[r._normalIndex] * 
+                                                weights[x];
+                                        x++;
+                                    }
+
+                                    pData[nIndex] = v3.GetInvMatrix().GetRotationMatrix() * (weightedNormal / total).Normalize();
+                                }
+                            }
+                        }
+                        p._dirty[1] = true;
+                    }
+
+                    for (int x = 0; x < 2; x++)
+                    {
+                        if (poly._colorSet[x] != null &&
+                            (entry = node.FindChild(poly._colorSet[x].Name, true) as SHP0EntryNode) != null &&
+                            entry.Enabled && entry.UpdateColors)
+                        {
+                            float[] weights = new float[entry.Children.Count];
+                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                                weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
 
                             float totalWeight = 0;
                             foreach (float f in weights)
                                 totalWeight += f;
 
                             float baseWeight = 1.0f - totalWeight;
+                            float total = totalWeight + baseWeight;
 
-                            //Calculate barycenter per vertex and set as weighted pos
-                            for (int i = 0; i < poly._manager._vertices.Count; i++)
+                            MDL0ColorNode[] nodes = new MDL0ColorNode[entry.Children.Count];
+                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                                nodes[shpSet.Index] = _colorList.Find(b => b.Name == shpSet.Name) as MDL0ColorNode;
+
+                            UnsafeBuffer buf = p._faceData[x + 2];
+                            if (buf != null)
                             {
-                                int x = 0;
-                                Vertex3 v3 = poly._manager._vertices[i];
-                                v3._weightedPosition *= baseWeight;
+                                RGBAPixel* pData = (RGBAPixel*)buf.Address;
 
-                                foreach (MDL0VertexNode vNode in nodes)
-                                    if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
-                                        v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x++];
+                                for (int i = 0; i < p._vertices.Count; i++)
+                                {
+                                    Vertex3 v3 = p._vertices[i];
+                                    int m = 0;
+                                    foreach (Facepoint r in v3._facepoints)
+                                    {
+                                        int cIndex = v3._faceDataIndices[m++];
 
-                                v3._weightedPosition /= (totalWeight + baseWeight);
+                                        Vector4 color = (Vector4)poly._colorSet[x].Colors[r._colorIndices[x]] * baseWeight;
 
-                                v3._weights = weights;
-                                v3._nodes = nodes;
-                                v3._baseWeight = baseWeight;
-                                v3._bCenter = v3._weightedPosition;
+                                        int w = 0;
+                                        foreach (MDL0ColorNode n in nodes)
+                                        {
+                                            if (n != null && r._colorIndices[x] < n.Colors.Length)
+                                                color += (Vector4)n.Colors[r._colorIndices[x]] * weights[w];
+                                            w++;
+                                        }
+
+                                        pData[cIndex] = color / total;
+                                    }
+                                }
                             }
+                            p._dirty[x + 2] = true;
                         }
-
-                        //TODO: update normals and colors
-                        //This will be a bit trickier since they're not stored in the Vertex3 class
                     }
+                }
         }
         #endregion
 

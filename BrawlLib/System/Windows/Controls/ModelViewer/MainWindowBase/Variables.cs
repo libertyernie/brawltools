@@ -68,7 +68,7 @@ namespace System.Windows.Forms
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
         protected Vector3? _vertexLoc = null;
 
-        protected bool _rotating, _translating, _scaling;
+        public bool _rotating, _translating, _scaling;
         protected bool _snapX, _snapY, _snapZ, _snapCirc;
         protected bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
         public bool _resetCamera = true;

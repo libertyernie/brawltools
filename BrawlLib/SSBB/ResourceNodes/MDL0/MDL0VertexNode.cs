@@ -15,7 +15,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
         public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0VertexData _hdr = new MDL0VertexData();
+        MDL0VertexData _hdr = new MDL0VertexData() { _type = (int)WiiVertexComponentType.Float };
 
         [Category("Vertex Data")]
         public int ID { get { return _hdr._index; } }
@@ -41,7 +41,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Vector3[] Vertices
         {
             get { return _vertices == null ? _vertices = VertexCodec.ExtractVertices(Header) : _vertices; }
-            set { _vertices = value; SignalPropertyChange(); }
+            set
+            {
+                _vertices = value;
+
+                _forceRebuild = true;
+                if (Format == WiiVertexComponentType.Float)
+                    _forceFloat = true;
+
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()

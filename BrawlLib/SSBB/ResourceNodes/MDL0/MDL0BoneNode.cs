@@ -559,11 +559,12 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             _userEntries.PostProcess(dataAddress + 0xD0, stringTable);
         }
 
-        private void InfluenceVertices(bool influence)
+        //Only updates single-bind vertices and objects!
+        //Influences using this bone must be handled separately
+        private void InfluenceAssets(bool influence)
         {
-            //TODO: need to recollect normal buffers as nodes after modifying
-
             Matrix m = influence ? InverseBindMatrix : BindMatrix;
+
             Matrix rm = m.GetRotationMatrix();
             foreach (IMatrixNodeUser user in Users)
                 if (user is MDL0ObjectNode)
@@ -577,6 +578,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     foreach (Vertex3 v in o._manager._vertices)
                     {
                         v.Position *= m;
+
                         if (pData != null)
                             foreach (int i in v._faceDataIndices)
                                 pData[i] *= rm;
@@ -605,6 +607,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 foreach (Vertex3 v in o._manager._vertices)
                 {
                     v.Position *= m;
+
                     if (pData != null)
                         foreach (int i in v._faceDataIndices)
                             pData[i] *= rm;
@@ -612,49 +615,118 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             }
         }
 
-        private void SetVertices()
-        {
-            foreach (IMatrixNodeUser user in Users)
-                if (user is MDL0ObjectNode)
-                {
-                    MDL0ObjectNode o = user as MDL0ObjectNode;
-                    o.SetEditedVertices();
-                }
-                else if (user is Vertex3)
-                {
-                    Vertex3 v = user as Vertex3;
-                    MDL0ObjectNode o = v.Parent as MDL0ObjectNode;
-
-                    v.SetPosition(o._vertexNode);
-                }
-            foreach (MDL0ObjectNode o in _singleBindObjects)
-                o.SetEditedVertices();
-        }
-
-        private void SetNormals()
-        {
-            foreach (IMatrixNodeUser user in Users)
-                if (user is MDL0ObjectNode)
-                {
-                    MDL0ObjectNode o = user as MDL0ObjectNode;
-                    o.SetEditedNormals();
-                }
-                else if (user is Vertex3)
-                {
-                    Vertex3 v = user as Vertex3;
-                    MDL0ObjectNode o = v.Parent as MDL0ObjectNode;
-
-                    v.SetNormal(o);
-                }
-            foreach (MDL0ObjectNode o in _singleBindObjects)
-                o.SetEditedNormals();
-        }
-
         //Change has been made to bind state, need to recalculate matrices
-        public void RecalcBindState()
+        public void RecalcBindState(bool updateMesh = true)
         {
-            //Move all influenced vertices/normals to world space (uninfluenced by this bone's bind matrix)
-            InfluenceVertices(false);
+            //Get all objects that are influenced by these bones
+            List<MDL0ObjectNode> changed = new List<MDL0ObjectNode>();
+            RecursiveGetInfluencedObjects(ref changed);
+
+            if (!updateMesh) //Need to stop vertices rigged to one bone from moving
+                RecursiveRecalcBindState(false, false);
+            else //Need to move vertices rigged to influences to the new position
+            {
+                //Note: vertex position precision goes down over time for influences
+                //Try not to call this too much, or manual vertex fixes will be needed
+
+                Model.ApplyCHR(null, 0);
+                foreach (MDL0ObjectNode o in changed)
+                    if (o._manager != null)
+                    {
+                        Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
+                        if (o.MatrixNode != null)
+                        {
+                            if (o.MatrixNode is Influence)
+                            {
+                                Influence inf = (Influence)o.MatrixNode;
+                                foreach (Vertex3 v in o._manager._vertices)
+                                {
+                                    v._position *= inf.Matrix;
+                                    foreach (int i in v._faceDataIndices)
+                                        pData[i] *= inf.Matrix.GetRotationMatrix();
+                                }
+                            }
+                        }
+                        else
+                            foreach (Vertex3 v in o._manager._vertices)
+                                if (v.MatrixNode is Influence)
+                                {
+                                    Influence inf = (Influence)v.MatrixNode;
+                                    v._position *= inf.Matrix;
+                                    foreach (int i in v._faceDataIndices)
+                                        pData[i] *= inf.Matrix.GetRotationMatrix();
+                                }
+                    }
+
+                RecursiveRecalcBindState(true, false);
+                foreach (Influence inf in Model._influences._influences)
+                    inf.CalcMatrix();
+
+                foreach (MDL0ObjectNode o in changed)
+                    if (o._manager != null)
+                    {
+                        Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
+                        if (o.MatrixNode != null)
+                        {
+                            if (o.MatrixNode is Influence)
+                            {
+                                Influence inf = (Influence)o.MatrixNode;
+                                foreach (Vertex3 v in o._manager._vertices)
+                                {
+                                    v._position *= inf.InverseMatrix;
+                                    foreach (int i in v._faceDataIndices)
+                                        pData[i] *= inf.InverseMatrix.GetRotationMatrix();
+                                }
+                            }
+                        }
+                        else
+                            foreach (Vertex3 v in o._manager._vertices)
+                                if (v.MatrixNode is Influence)
+                                {
+                                    Influence inf = (Influence)v.MatrixNode;
+                                    v._position *= inf.InverseMatrix;
+                                    foreach (int i in v._faceDataIndices)
+                                        pData[i] *= inf.InverseMatrix.GetRotationMatrix();
+                                }
+                    }
+            }
+
+            //Update the external arrays with the new unweighted vertices and normals
+            foreach (MDL0ObjectNode o in changed)
+                o.SetEditedAssets(false, true, true);
+        }
+
+        private void RecursiveGetInfluencedObjects(ref List<MDL0ObjectNode> changed)
+        {
+            foreach (IMatrixNodeUser user in Users)
+                if (user is MDL0ObjectNode)
+                {
+                    MDL0ObjectNode o = user as MDL0ObjectNode;
+
+                    if (!changed.Contains(o))
+                        changed.Add(o);
+                }
+                else if (user is Vertex3)
+                {
+                    Vertex3 v = user as Vertex3;
+                    MDL0ObjectNode o = v.Parent as MDL0ObjectNode;
+
+                    if (!changed.Contains(o))
+                        changed.Add(o);
+                }
+
+            foreach (MDL0ObjectNode o in _singleBindObjects)
+                if (!changed.Contains(o))
+                    changed.Add(o);
+
+            foreach (MDL0BoneNode bone in Children)
+                bone.RecursiveGetInfluencedObjects(ref changed);
+        }
+
+        private void RecursiveRecalcBindState(bool updateMesh, bool animPose)
+        {
+            if (!updateMesh)
+                InfluenceAssets(false);
 
             if (_parent is MDL0BoneNode)
             {
@@ -666,15 +738,12 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 _bindMatrix = _bindState._transform;
                 _inverseBindMatrix = _bindState._iTransform;
             }
-            
+
+            if (!updateMesh)
+                InfluenceAssets(true);
+
             foreach (MDL0BoneNode bone in Children)
-                bone.RecalcBindState();
-
-            //Move all influenced vertices/normals back to local space (influenced by this bone's bind matrix)
-            InfluenceVertices(true);
-
-            SetVertices();
-            SetNormals();
+                bone.RecursiveRecalcBindState(updateMesh, animPose);
 
             SignalPropertyChange();
         }

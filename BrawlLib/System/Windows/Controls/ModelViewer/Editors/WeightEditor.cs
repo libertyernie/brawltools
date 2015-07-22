@@ -22,8 +22,6 @@ namespace System.Windows.Forms
             this.btnSetWeight = new System.Windows.Forms.Button();
             this.numWeight = new System.Windows.Forms.NumericInputBox();
             this.btnBlend = new System.Windows.Forms.Button();
-            this.btnCopy = new System.Windows.Forms.Button();
-            this.btnPaste = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnSubtract = new System.Windows.Forms.Button();
             this.btnLock = new System.Windows.Forms.Button();
@@ -34,9 +32,10 @@ namespace System.Windows.Forms
             this.btnMult = new System.Windows.Forms.Button();
             this.btnDiv = new System.Windows.Forms.Button();
             this.numAdd = new System.Windows.Forms.NumericInputBox();
+            this.btnPaste = new System.Windows.Forms.Button();
+            this.btnCopy = new System.Windows.Forms.Button();
             this.splitter1 = new System.Windows.Forms.Splitter();
             this.splitter2 = new System.Windows.Forms.Splitter();
-            this.label1 = new System.Windows.Forms.Label();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -48,7 +47,7 @@ namespace System.Windows.Forms
             this.lstBoneWeights.IntegralHeight = false;
             this.lstBoneWeights.Location = new System.Drawing.Point(0, 3);
             this.lstBoneWeights.Name = "lstBoneWeights";
-            this.lstBoneWeights.Size = new System.Drawing.Size(153, 100);
+            this.lstBoneWeights.Size = new System.Drawing.Size(127, 100);
             this.lstBoneWeights.TabIndex = 0;
             this.lstBoneWeights.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstBoneWeights_DrawItem);
             this.lstBoneWeights.SelectedIndexChanged += new System.EventHandler(this.lstBoneWeights_SelectedIndexChanged);
@@ -77,7 +76,7 @@ namespace System.Windows.Forms
             // 
             // btnBlend
             // 
-            this.btnBlend.Location = new System.Drawing.Point(129, 4);
+            this.btnBlend.Location = new System.Drawing.Point(129, 28);
             this.btnBlend.Name = "btnBlend";
             this.btnBlend.Size = new System.Drawing.Size(62, 22);
             this.btnBlend.TabIndex = 4;
@@ -86,33 +85,11 @@ namespace System.Windows.Forms
             this.btnBlend.Visible = false;
             this.btnBlend.Click += new System.EventHandler(this.btnBlend_Click);
             // 
-            // btnCopy
-            // 
-            this.btnCopy.Location = new System.Drawing.Point(129, 28);
-            this.btnCopy.Name = "btnCopy";
-            this.btnCopy.Size = new System.Drawing.Size(62, 22);
-            this.btnCopy.TabIndex = 5;
-            this.btnCopy.Text = "Copy";
-            this.btnCopy.UseVisualStyleBackColor = true;
-            this.btnCopy.Visible = false;
-            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
-            // 
-            // btnPaste
-            // 
-            this.btnPaste.Location = new System.Drawing.Point(192, 28);
-            this.btnPaste.Name = "btnPaste";
-            this.btnPaste.Size = new System.Drawing.Size(62, 22);
-            this.btnPaste.TabIndex = 6;
-            this.btnPaste.Text = "Paste";
-            this.btnPaste.UseVisualStyleBackColor = true;
-            this.btnPaste.Visible = false;
-            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
-            // 
             // btnAdd
             // 
             this.btnAdd.Location = new System.Drawing.Point(67, 52);
             this.btnAdd.Name = "btnAdd";
-            this.btnAdd.Size = new System.Drawing.Size(22, 22);
+            this.btnAdd.Size = new System.Drawing.Size(30, 22);
             this.btnAdd.TabIndex = 7;
             this.btnAdd.Text = "+";
             this.btnAdd.UseVisualStyleBackColor = true;
@@ -120,9 +97,9 @@ namespace System.Windows.Forms
             // 
             // btnSubtract
             // 
-            this.btnSubtract.Location = new System.Drawing.Point(90, 52);
+            this.btnSubtract.Location = new System.Drawing.Point(98, 52);
             this.btnSubtract.Name = "btnSubtract";
-            this.btnSubtract.Size = new System.Drawing.Size(22, 22);
+            this.btnSubtract.Size = new System.Drawing.Size(30, 22);
             this.btnSubtract.TabIndex = 8;
             this.btnSubtract.Text = "-";
             this.btnSubtract.UseVisualStyleBackColor = true;
@@ -141,7 +118,7 @@ namespace System.Windows.Forms
             // lblBoneName
             // 
             this.lblBoneName.AutoSize = true;
-            this.lblBoneName.Location = new System.Drawing.Point(197, 9);
+            this.lblBoneName.Location = new System.Drawing.Point(134, 9);
             this.lblBoneName.Name = "lblBoneName";
             this.lblBoneName.Size = new System.Drawing.Size(32, 13);
             this.lblBoneName.TabIndex = 11;
@@ -159,7 +136,6 @@ namespace System.Windows.Forms
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.label1);
             this.panel1.Controls.Add(this.numMult);
             this.panel1.Controls.Add(this.btnMult);
             this.panel1.Controls.Add(this.btnDiv);
@@ -175,9 +151,9 @@ namespace System.Windows.Forms
             this.panel1.Controls.Add(this.lblBoneName);
             this.panel1.Controls.Add(this.btnRemove);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.panel1.Location = new System.Drawing.Point(156, 0);
+            this.panel1.Location = new System.Drawing.Point(130, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(285, 103);
+            this.panel1.Size = new System.Drawing.Size(130, 103);
             this.panel1.TabIndex = 14;
             // 
             // numMult
@@ -189,23 +165,23 @@ namespace System.Windows.Forms
             this.numMult.Name = "numMult";
             this.numMult.Size = new System.Drawing.Size(62, 20);
             this.numMult.TabIndex = 16;
-            this.numMult.Text = "0.95";
+            this.numMult.Text = "1.05";
             // 
             // btnMult
             // 
             this.btnMult.Location = new System.Drawing.Point(67, 76);
             this.btnMult.Name = "btnMult";
-            this.btnMult.Size = new System.Drawing.Size(22, 22);
+            this.btnMult.Size = new System.Drawing.Size(30, 22);
             this.btnMult.TabIndex = 14;
-            this.btnMult.Text = "*";
+            this.btnMult.Text = "x";
             this.btnMult.UseVisualStyleBackColor = true;
             this.btnMult.Click += new System.EventHandler(this.btnMult_Click);
             // 
             // btnDiv
             // 
-            this.btnDiv.Location = new System.Drawing.Point(90, 76);
+            this.btnDiv.Location = new System.Drawing.Point(98, 76);
             this.btnDiv.Name = "btnDiv";
-            this.btnDiv.Size = new System.Drawing.Size(22, 22);
+            this.btnDiv.Size = new System.Drawing.Size(30, 22);
             this.btnDiv.TabIndex = 15;
             this.btnDiv.Text = "/";
             this.btnDiv.UseVisualStyleBackColor = true;
@@ -222,10 +198,32 @@ namespace System.Windows.Forms
             this.numAdd.TabIndex = 13;
             this.numAdd.Text = "0.1";
             // 
+            // btnPaste
+            // 
+            this.btnPaste.Location = new System.Drawing.Point(129, 75);
+            this.btnPaste.Name = "btnPaste";
+            this.btnPaste.Size = new System.Drawing.Size(62, 22);
+            this.btnPaste.TabIndex = 6;
+            this.btnPaste.Text = "Paste";
+            this.btnPaste.UseVisualStyleBackColor = true;
+            this.btnPaste.Visible = false;
+            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            // 
+            // btnCopy
+            // 
+            this.btnCopy.Location = new System.Drawing.Point(129, 51);
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(62, 22);
+            this.btnCopy.TabIndex = 5;
+            this.btnCopy.Text = "Copy";
+            this.btnCopy.UseVisualStyleBackColor = true;
+            this.btnCopy.Visible = false;
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            // 
             // splitter1
             // 
             this.splitter1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter1.Location = new System.Drawing.Point(153, 0);
+            this.splitter1.Location = new System.Drawing.Point(127, 0);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(3, 103);
             this.splitter1.TabIndex = 15;
@@ -239,7 +237,7 @@ namespace System.Windows.Forms
             this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
             this.splitter2.Location = new System.Drawing.Point(0, 0);
             this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(153, 3);
+            this.splitter2.Size = new System.Drawing.Size(127, 3);
             this.splitter2.TabIndex = 16;
             this.splitter2.TabStop = false;
             this.splitter2.Visible = false;
@@ -248,24 +246,15 @@ namespace System.Windows.Forms
             this.splitter2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseMove);
             this.splitter2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseUp);
             // 
-            // label1
-            // 
-            this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(118, 56);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(32, 13);
-            this.label1.TabIndex = 17;
-            this.label1.Text = "Bone";
-            // 
             // WeightEditor
             // 
             this.Controls.Add(this.lstBoneWeights);
             this.Controls.Add(this.splitter2);
             this.Controls.Add(this.splitter1);
             this.Controls.Add(this.panel1);
-            this.MinimumSize = new System.Drawing.Size(441, 103);
+            this.MinimumSize = new System.Drawing.Size(260, 103);
             this.Name = "WeightEditor";
-            this.Size = new System.Drawing.Size(441, 103);
+            this.Size = new System.Drawing.Size(260, 103);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ResumeLayout(false);
@@ -286,8 +275,6 @@ namespace System.Windows.Forms
         private Button btnSetWeight;
         private NumericInputBox numWeight;
         private Button btnBlend;
-        private Button btnCopy;
-        private Button btnPaste;
         private Button btnAdd;
         private Label lblBoneName;
         private Button btnSubtract;
@@ -310,6 +297,8 @@ namespace System.Windows.Forms
 
         private Vertex3 _vertex = null;
         private Button btnLock;
+        private Button btnPaste;
+        private Button btnCopy;
 
         public List<Vertex3> _targetVertices;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -325,18 +314,7 @@ namespace System.Windows.Forms
             set 
             {
                 if ((_targetBoneWeight = value) != null)
-                {
                     _mainWindow.SelectedBone = TargetBoneWeight.Bone;
-                    btnAdd.Enabled = _targetBoneWeight.Weight != 1.0f && lstBoneWeights.Items.Count != 1;
-                    btnSubtract.Enabled = _targetBoneWeight.Weight != 0.0f && lstBoneWeights.Items.Count != 1;
-                    btnRemove.Enabled = true;
-                }
-                else
-                {
-                    btnRemove.Enabled = false;
-                    btnAdd.Enabled = false;
-                    btnSubtract.Enabled = false;
-                } 
                 _mainWindow.ModelPanel.Invalidate();
             }
         }
@@ -353,6 +331,7 @@ namespace System.Windows.Forms
                     lblBoneName.Text = _targetBone.Name;
                     btnLock.Enabled = true;
                     btnLock.Text = _targetBone.Locked ? "Unlock" : "Lock";
+
                     if (_bones != null)
                     {
                         int i = _bones.IndexOf(_targetBone);
@@ -373,8 +352,39 @@ namespace System.Windows.Forms
                     numWeight.Value = 0;
                     lstBoneWeights.SelectedIndex = -1;
                 }
+
+                UpdateButtons();
             }
         }
+
+        private void UpdateButtons()
+        {
+            bool canAdd = false, canSub = false, canMul = false, canDiv = false, canRemove = false;
+            if (_targetBone != null)
+            {
+                foreach (BoneWeight b in lstBoneWeights.Items)
+                {
+                    if (b.Bone == _targetBone)
+                    {
+                        canAdd = b.Weight < 1.0f;
+                        canSub = b.Weight > 0.0f;
+                        canMul = b.Weight != 0.0f;
+                        canDiv = b.Weight != 0.0f && numMult.Value != 0.0f;
+                        canRemove = true;
+                        break;
+                    }
+                }
+                //Bone not found in array?
+                if (!canRemove)
+                    canAdd = numAdd.Value != 0.0f;
+            }
+            btnAdd.Enabled = canAdd;
+            btnMult.Enabled = canMul;
+            btnSubtract.Enabled = canSub;
+            btnDiv.Enabled = canDiv;
+            btnRemove.Enabled = canRemove;
+        }
+
         public BoneWeight _targetBoneWeight;
         private Button btnRemove;
         private Panel panel1;
@@ -384,24 +394,9 @@ namespace System.Windows.Forms
         private Button btnMult;
         private Button btnDiv;
         private NumericInputBox numAdd;
-        private Label label1;
         public IBoneNode _targetBone;
         public void SetVertices(List<Vertex3> vertices)
         {
-            //Remove weights with value 0 from the current vertex's influence
-            if (_targetVertices != null)
-                foreach (Vertex3 v in _targetVertices)
-                    if (v != null)
-                    {
-                        List<BoneWeight> b = v.GetBoneWeights();
-                        for (int i = 0; i < b.Count; i++)
-                            if (b[i].Weight == 0.0f)
-                                b.RemoveAt(i--);
-
-                        if (b.Count == 1) //Change influence to a bone
-                            v.MatrixNode = b[0].Bone;
-                    }
-
             _targetVertices = vertices.ToList();
 
             ResetList();
@@ -416,24 +411,25 @@ namespace System.Windows.Forms
             _bones = new List<IBoneNode>();
             _totals = new Dictionary<string, float[]>();
             _weightTotal = 0;
-            foreach (Vertex3 v in _targetVertices)
-            {
-                List<BoneWeight> array = v.GetBoneWeights();
-                foreach (BoneWeight b in array)
+            if (_targetVertices != null)
+                foreach (Vertex3 v in _targetVertices)
                 {
-                    if (!_totals.ContainsKey(b.Bone.Name))
+                    List<BoneWeight> array = v.GetBoneWeights();
+                    foreach (BoneWeight b in array)
                     {
-                        _bones.Add(b.Bone);
-                        _totals.Add(b.Bone.Name, new float[] { b.Weight, 1 });
+                        if (!_totals.ContainsKey(b.Bone.Name))
+                        {
+                            _bones.Add(b.Bone);
+                            _totals.Add(b.Bone.Name, new float[] { b.Weight, 1 });
+                        }
+                        else
+                        {
+                            _totals[b.Bone.Name][0] += b.Weight;
+                            _totals[b.Bone.Name][1] += 1;
+                        }
+                        _weightTotal += b.Weight;
                     }
-                    else
-                    {
-                        _totals[b.Bone.Name][0] += b.Weight;
-                        _totals[b.Bone.Name][1] += 1;
-                    }
-                    _weightTotal += b.Weight;
                 }
-            }
 
             foreach (MDL0BoneNode b in _bones)
                 lstBoneWeights.Items.Add(new BoneWeight(b, (_totals[b.Name][0] / _weightTotal)));
@@ -443,11 +439,18 @@ namespace System.Windows.Forms
         }
 
         public bool _updating = false;
+        public List<MDL0ObjectNode> _anyConverted = null;
 
-        public void SetWeight(float value) 
+        public void SetWeight(float value)
         {
-            foreach (Vertex3 v in TargetVertices) 
+            if (TargetVertices == null || TargetVertices.Count == 0)
+                return;
+
+            _anyConverted = new List<MDL0ObjectNode>();
+            foreach (Vertex3 v in TargetVertices)
                 SetWeight(value, v);
+
+            UpdateBindState(TargetVertices.ToArray());
         }
         public void SetWeight(float value, Vertex3 vertex)
         {
@@ -455,8 +458,14 @@ namespace System.Windows.Forms
         }
         public void IncrementWeight(float value)
         {
+            if (TargetVertices == null || TargetVertices.Count == 0)
+                return;
+
+            _anyConverted = new List<MDL0ObjectNode>();
             foreach (Vertex3 v in TargetVertices) 
-                IncrementWeight(value, v); 
+                IncrementWeight(value, v);
+
+            UpdateBindState(TargetVertices.ToArray());
         }
         public void IncrementWeight(float value, Vertex3 vertex)
         {
@@ -464,13 +473,45 @@ namespace System.Windows.Forms
         }
         public void MultiplyWeight(float value)
         {
+            if (TargetVertices == null || TargetVertices.Count == 0)
+                return;
+
+            _anyConverted = new List<MDL0ObjectNode>();
             foreach (Vertex3 v in TargetVertices)
                 MultiplyWeight(value, v);
+            
+            UpdateBindState(TargetVertices.ToArray());
         }
         public void MultiplyWeight(float value, Vertex3 vertex)
         {
             Weight(value, vertex, WeightType.Multiply);
         }
+
+        private void UpdateBindState(params Vertex3[] vertices)
+        {
+            List<MDL0ObjectNode> changed = new List<MDL0ObjectNode>();
+            foreach (Vertex3 v in vertices)
+                if (!changed.Contains(v.Parent as MDL0ObjectNode))
+                    changed.Add(v.Parent as MDL0ObjectNode);
+            foreach (MDL0ObjectNode obj in changed)
+            {
+                //See if the object can be made into a single bind
+                obj.TryConvertMatrixToObject();
+
+                if (_anyConverted.Contains(obj))
+                    obj.SetEditedAssets(false, true, true);
+
+                //Force full object rebuild and signal a change to the object
+                obj._forceRebuild = true;
+                obj.SignalPropertyChange();
+            }
+
+            //Update vertices with edited influences
+            _mainWindow.UpdateModel();
+
+            _anyConverted = null;
+        }
+
         private float RoundValue(float value, float max)
         {
             return (float)Math.Round(value.Clamp(0.0f, max), 7);
@@ -481,58 +522,58 @@ namespace System.Windows.Forms
             Multiply,
             Add
         }
-        private void Weight(float value, Vertex3 vertex, WeightType type)
+
+        //Returns true if the vertex's matrix node is changed.
+        private bool Weight(float value, Vertex3 vertex, WeightType type)
         {
-            //LET'S TANGO
+            if (_targetBone == null || _targetBone.Locked)
+                return false;
 
             Influence targetInf = null;
             BoneWeight targetWeight = null;
             float max = 1.0f;
-            int selectedIndex = 0;
 
-            IMatrixNode node = vertex.MatrixNode;
-            if (node == null)
-            {
-                ((MDL0ObjectNode)vertex.Parent).TryConvertMatrixToVertex();
-                node = vertex.MatrixNode;
-            }
+            //Get the matrix that influences this vertex
+            IMatrixNode node = vertex.GetMatrixNode();
 
-            List<BoneWeight> weights = node.Weights;
+            bool startsAsBone = false;
 
-            if (_targetBone == null || _targetBone.Locked)
-                return;
-
-            MDL0BoneNode origBone = null;
+            //Convert a single bone into an influence so bones can be added to it later
             if (node is MDL0BoneNode)
             {
-                origBone = node as MDL0BoneNode;
-                node = new Influence(origBone);
+                startsAsBone = true;
+                node = new Influence(node as MDL0BoneNode);
             }
 
-            //Make a copy of the influence if it will affect more than just this vertex after being changed
-            if (node.Users.Count > 1)
-                targetInf = (node as Influence).Clone();
-            else
-                targetInf = node as Influence;
+            //Duplicate the influence if it affects more than just this vertex
+            targetInf = node.Users.Count > 1 ?
+                (node as Influence).Clone() :
+                node as Influence;
 
-            weights = targetInf.Weights;
-
-            selectedIndex = vertex.IndexOfBone(TargetBone);
+            //Find or add the current bone to the influence
+            List<BoneWeight> weights = targetInf.Weights;
+            int selectedIndex = weights.Select(x => x.Bone).ToArray().IndexOf(TargetBone);
             if (selectedIndex < 0)
             {
                 weights.Add(new BoneWeight(TargetBone, 0.0f));
                 selectedIndex = weights.Count - 1;
             }
 
+            //Get the weight at the index of the current bone
             targetWeight = targetInf.Weights[selectedIndex];
-            if (targetWeight.Locked) 
-                return;
 
+            //Can't do anything to a locked weight
+            if (targetWeight.Locked) 
+                return false;
+
+            //Get the sum of all weights that can be edited by subtracting all locked values from 1.0f
             max = 1.0f;
             foreach (BoneWeight b in weights)
                 if (b.Locked)
                     max -= b.Weight;
 
+            //Get the new value for the target weight
+            //Clamp it between 0.0f and the max value
             switch (type)
             {
                 default:
@@ -546,46 +587,72 @@ namespace System.Windows.Forms
                     break;
             }
 
+            //Nothing to do if there's no change in value
             if (targetWeight.Weight == value) 
-                return;
+                return false;
 
+            //Collect all unlocked weights that are not the current weight
+            //These are weights that will be changed to accomodate the current weight edit
             List<int> editableWeights = new List<int>();
+            for (int i = 0; i < targetInf.Weights.Count; i++)
+                if (!targetInf.Weights[i].Locked && i != selectedIndex)
+                    editableWeights.Add(i);
 
-            int c = 0;
-            foreach (BoneWeight b in targetInf.Weights)
-            {
-                if (!b.Locked && c != selectedIndex)
-                    editableWeights.Add(c);
-                c++;
-            }
-
+            //Return if nothing can be edited
             if (editableWeights.Count == 0) 
-                return;
+                return false;
 
-            float diff = targetWeight.Weight - value;
+            //Set the current weight with the calculated value
             targetWeight.Weight = value;
 
-            float val = diff / (editableWeights.Count);
-            if (value != max)
+            //Get the change in value, divide it by all other editable weights,
+            //and then add that value to those weights to bring the overall weight sum back to 1.0f
+            float perBoneDiff = (targetWeight.Weight - value) / editableWeights.Count;
+            if (value < max)
                 foreach (int i in editableWeights)
-                    targetInf.Weights[i].Weight = (float)Math.Round((targetInf.Weights[i].Weight + val).Clamp(0.0f, 1.0f), 7);
+                    targetInf.Weights[i].Weight = RoundValue(targetInf.Weights[i].Weight + perBoneDiff, 1.0f);
             else
                 foreach (int i in editableWeights)
-                    targetInf.Weights[i].Weight = 0;
+                    targetInf.Weights[i].Weight = 0.0f;
 
-            //Don't want the modified value to be normalized
+            //Normalize the influence just in case, this will scale all weights so they add up to 1.0f
+            //Don't let the modified value be normalized, lock it
             bool locked = targetWeight.Locked;
             targetWeight.Locked = true;
             targetInf.Normalize();
             targetWeight.Locked = locked;
 
+            //Clean influence by removing zero weights
+            for (int i = 0; i < targetInf.Weights.Count; i++)
+                if (targetInf.Weights[i].Weight == 0.0f)
+                    targetInf.Weights.RemoveAt(i--);
+
             MDL0ObjectNode obj = vertex.Parent as MDL0ObjectNode;
+            MDL0Node model = obj.Model;
+            IMatrixNode matrixNode;
 
-            vertex.MatrixNode = obj.Model._influences.FindOrCreate(targetInf);
-            //obj.TryConvertMatrixToObject();
-            obj.Model.SignalPropertyChange();
+            //See if the influence is just one bone
+            if (targetInf.Weights.Count == 1)
+            {
+                matrixNode = targetInf.Weights[0].Bone;
+                if (!startsAsBone && !_anyConverted.Contains(obj))
+                    _anyConverted.Add(obj);
+            }
+            else
+            {
+                matrixNode = model._influences.FindOrCreate(targetInf);
+                if (startsAsBone && !_anyConverted.Contains(obj))
+                    _anyConverted.Add(obj);
+            }
 
-            _mainWindow.UpdateModel();
+            //Move influence to each vertex before modifying the influence of one vertex
+            if (obj.MatrixNode != null)
+                obj.TryConvertMatrixToVertex();
+
+            vertex.DeferUpdateAssets();
+            vertex.MatrixNode = matrixNode;
+
+            return true;
         }
         public void UpdateValues()
         {

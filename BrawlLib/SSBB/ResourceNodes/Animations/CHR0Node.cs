@@ -449,7 +449,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 switch (i)
                                 {
                                     //Translations
-                                    case 0x16: //Trans X
+                                    case 6: //Trans X
                                         if (Math.Round(kfe._value, 4) == Math.Round(extBone._bindState.Translate._x, 4))
                                             kfe._value = bone._bindState.Translate._x;
                                         else if (bone._bindState.Translate._x < extBone._bindState.Translate._x)
@@ -457,7 +457,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                         else if (bone._bindState.Translate._x > extBone._bindState.Translate._x)
                                             kfe._value += bone._bindState.Translate._x - extBone._bindState.Translate._x;
                                         break;
-                                    case 0x17: //Trans Y
+                                    case 7: //Trans Y
                                         if (Math.Round(kfe._value, 4) == Math.Round(extBone._bindState.Translate._y, 4))
                                             kfe._value = bone._bindState.Translate._y;
                                         else if (bone._bindState.Translate._y < extBone._bindState.Translate._y)
@@ -465,7 +465,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                                         else if (bone._bindState.Translate._y > extBone._bindState.Translate._y)
                                             kfe._value += bone._bindState.Translate._y - extBone._bindState.Translate._y;
                                         break;
-                                    case 0x18: //Trans Z
+                                    case 8: //Trans Z
                                         if (Math.Round(kfe._value, 4) == Math.Round(extBone._bindState.Translate._z, 4))
                                             kfe._value = bone._bindState.Translate._z;
                                         else if (bone._bindState.Translate._z < extBone._bindState.Translate._z)
@@ -475,19 +475,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                                         break;
 
                                     //Rotations
-                                    //case 0x13: //Rot X
+                                    //case 3: //Rot X
                                     //    difference = bone._bindState.Rotate._x - extBone._bindState.Rotate._x;
                                     //    kfe._value += difference;
                                     //    //if (difference != 0)
                                     //    //    FixChildren(bone, 0);
                                     //    break;
-                                    //case 0x14: //Rot Y
+                                    //case 4: //Rot Y
                                     //    difference = bone._bindState.Rotate._y - extBone._bindState.Rotate._y;
                                     //    kfe._value += difference;
                                     //    //if (difference != 0)
                                     //    //    FixChildren(bone, 1);
                                     //    break;
-                                    //case 0x15: //Rot Z
+                                    //case 5: //Rot Z
                                     //    difference = bone._bindState.Rotate._z - extBone._bindState.Rotate._z;
                                     //    kfe._value += difference;
                                     //    //if (difference != 0)

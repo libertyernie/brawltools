@@ -519,7 +519,12 @@ namespace BrawlLib.Modeling
                 model._matGroup.AddChild(mat);
 
                 foreach (MDL0ObjectNode obj in model._objList)
+                {
+                    if (obj._drawCalls.Count == 0)
+                        obj._drawCalls.Add(new DrawCall(obj));
+                    
                     obj._drawCalls[0].MaterialNode = mat;
+                }
             }
 
             Error = "There was a problem removing original color buffers.";
