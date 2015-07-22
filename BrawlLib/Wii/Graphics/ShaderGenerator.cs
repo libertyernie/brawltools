@@ -341,7 +341,7 @@ namespace BrawlLib.Wii.Graphics
                     //No point doing them if they'll be thrown out later
                     //This is a low priority optimization
                     Comment("Constant Alpha");
-                    wl("{0}.a = {1};", PrevRegName, (_material.ConstantAlphaValue / 255.0f).ToString(CultureInfo.InvariantCulture));
+                    wl("{0}.a = {1};", PrevRegName, ((float)_material.ConstantAlphaValue / 255.0f).ToString(CultureInfo.InvariantCulture));
                     wl();
                 }
 
@@ -716,7 +716,13 @@ namespace BrawlLib.Wii.Graphics
                 wl("{0}{3} *= satlf({1}) / ({2});", attnName, numerator, denominator, suffix);
 
                 if (fn == GXAttnFn.Specular)
+                {
                     CloseBracket();
+                    wl("else");
+                    OpenBracket();
+                    wl("{0}{1} *= 0.0;", attnName, suffix);
+                    CloseBracket();
+                }
             }
 
             //Add the light color multiplied by the attenuation
