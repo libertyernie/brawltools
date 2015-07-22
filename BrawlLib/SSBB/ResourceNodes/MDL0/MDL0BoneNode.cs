@@ -404,27 +404,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
             SetSizeInternal(header->_headerLen);
 
-            if (!_replaced)
-            {
-                //Assign true parent using parent header offset
-                int offset = header->_parentOffset;
-                //Offsets *should be* always < 0, 
-                //because parent entries are *usually* listed before children
-                //Doesn't need to be though
-                if (offset != 0)
-                {
-                    //Get address of parent header
-                    MDL0Bone* pHeader = (MDL0Bone*)((byte*)header + offset);
-                    //Search bone list for matching header
-                    foreach (MDL0BoneNode bone in Parent._children)
-                        if (pHeader == bone.Header)
-                        {
-                            _parent = bone;
-                            break;
-                        }
-                }
-            }
-
             //Conditional name assignment
             if (_name == null && header->_stringOffset != 0)
                 _name = header->ResourceString;
@@ -450,7 +429,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             (_userEntries = new UserDataCollection()).Read(header->UserDataAddress);
             
             //We don't want to process children because not all have been parsed yet.
-            //Child assigning will be handled by the parent group.
+            //Child assignments will be handled by the parent group.
             return false;
         }
 

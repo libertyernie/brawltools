@@ -112,21 +112,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Cache flat list
                 linker.BoneCache = _children.Select(x => x as MDL0BoneNode).ToArray();
 
-                //Make sure the node cache is the correct size
-                int highest = 0;
-                foreach (MDL0BoneNode b in linker.BoneCache)
-                    if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
-                        highest = b._nodeIndex;
-                if (highest >= linker.NodeCache.Length)
-                    linker.NodeCache = new IMatrixNode[highest + 1];
-
                 //Reset children so we can rebuild
                 _children.Clear();
 
                 //Assign children using each bones' parent offset in case NodeTree is corrupted.
                 //Bone parents are assigned when they are initialized in a flat array.
                 foreach (MDL0BoneNode b in linker.BoneCache)
+                {
+                    MDL0Bone* header = (MDL0Bone*)b.WorkingUncompressed.Address;
+
+                    //Assign true parent using parent header offset
+                    int offset = header->_parentOffset;
+                    if (offset != 0)
+                    {
+                        //Get address of parent header
+                        MDL0Bone* pHeader = (MDL0Bone*)((byte*)header + offset);
+                        //Search bone list for matching header
+                        foreach (MDL0BoneNode b2 in linker.BoneCache)
+                            if (pHeader == b2.Header)
+                            {
+                                b._parent = b2;
+                                break;
+                            }
+                    }
+                }
+
+                //Make sure the node cache is the correct size
+                int highest = 0;
+
+                //Add bones to their parent's child lists and find highest node id
+                foreach (MDL0BoneNode b in linker.BoneCache)
+                {
                     b._parent._children.Add(b);
+
+                    if (b._nodeIndex >= linker.NodeCache.Length && b._nodeIndex > highest)
+                        highest = b._nodeIndex;
+                }
+
+                if (highest >= linker.NodeCache.Length)
+                    linker.NodeCache = new IMatrixNode[highest + 1];
 
                 //Populate node cache
                 MDL0BoneNode bone = null;
