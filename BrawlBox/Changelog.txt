@@ -1,5 +1,5 @@
 ﻿
-BrawlBox Data Viewer - Version 0.76
+BrawlBox Data Viewer - Version 0.76b
 Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
@@ -13,6 +13,25 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.76b - BrawlLib v0.23b (8/9/2015)
+ . Added checkbox to the CHR0 editor in the model editor that appears only on frame 0 (the bind frame) called "Update Mesh Bind Pose". This will literally change the vertices and normals to match the bone position instead of treating the transformations like an animation.
+ . Added weight editor used to change a model's rigging, or the influence of bones over vertices. This editor can be toggled in the model editor under Tools->Weight Editor. 
+ With this you can even do things as extreme as creating a bone tree from scratch and rigging a static model completely within the program, or unrigging the entire model after posing the bind state on frame 0 and then deleting all but the root bone. "Update Mesh Bind Pose" (mentioned in the above addition) must be checked while posing or else the pose will revert once unrigged.
+ . Added button to toggle the vertex editor in the model editor under Tools->Vertex Editor. The editor itself is not a new feature.
+ . Added support for viewing SHP0 morphed normals and colors.
+ . Added support for permanently setting SHP0 morphed normals and colors to the model, along with morphed vertices. This is done via the "Set" button in the SHP0 editor in the model editor.
+ . Added support for viewing and editing property values of Havok Physics files and exporting them as HKX binary and XML text files. Unfortunately the exported XML file cannot be opened in the Havok preview tool yet and the binary format is not supported by the tool.
+ . Added bug report dialog that appears whenever the program throws an error. This will allow you to publicly report the bug to the developers on the github repository and try and save your work before the application attempts to continue (it may or may not crash).
+ . Fixed bug where the 1st person SCN0 camera button would do nothing
+ . Fixed rendering bug where if a model uses specular light but the applied SCN0 light doesn't have specular, the specular color would be all white instead of all black
+ . Fixed bug where normal rotations on a model would not be updated and saved when rotating a bone in "Bone Edit Mode" (renamed to "Move Bone Only")
+ . Fixed bug reading MDL0 models where if a bone's parent was located after it in the bone array, it would link improperly.
+ . Fixed bug dealing with CHR0, SRT0, SHP0 and SCN0 interpolation under certain circumstances. 
+ . Fixed bug where the "Save As" function in the file editor's right click menu in the model editor would do nothing
+ . Named some previously unknown values in STPM
+ . Downgraded BrawlBox back to .NET 4.0 for maximum compatibility and moved all .NET 4.5 code into the updater application. This means you will not be able to automatically update or submit bug reports without .NET 4.5, but BrawlBox itself will still work.
+ . Moved "Export GLSL Shader" on MDL0 material right click menu to be above the delete button.
 
  - v0.76 - BrawlLib v0.23
 
