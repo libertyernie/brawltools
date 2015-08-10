@@ -91,7 +91,19 @@ namespace System.Windows.Forms
 
         private bool SaveAs(ResourceNode r)
         {
-            return true;
+            using (SaveFileDialog d = new SaveFileDialog())
+            {
+                d.InitialDirectory = r._origPath.Substring(0, r._origPath.LastIndexOf('\\'));
+                d.Filter = String.Format("(*{0})|*{0}", Path.GetExtension(r._origPath));
+                d.Title = "Please choose a location to save this file.";
+                if (d.ShowDialog(this) == DialogResult.OK)
+                {
+                    r.Merge();
+                    r.Export(d.FileName);
+                    return true;
+                }
+            }
+            return false;
         }
 
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e)

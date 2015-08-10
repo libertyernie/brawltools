@@ -174,7 +174,7 @@ namespace BrawlBox.NodeWrappers
                     goto Top;
                 }
             }
-            MDL0BoneNode bone = new MDL0BoneNode() { Name = name };
+            MDL0BoneNode bone = new MDL0BoneNode() { Name = name, _entryIndex = model._linker.BoneCache.Length };
             bone.Scale = new Vector3(1);
 
             bone._bindMatrix = 
@@ -184,7 +184,7 @@ namespace BrawlBox.NodeWrappers
             Matrix.Identity;
 
             _resource.AddChild(bone, true);
-            bone.OnMoved();
+            model._linker.RegenerateBoneCache();
 
             TreeView.EndUpdate();
 

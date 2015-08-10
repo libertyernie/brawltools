@@ -18,9 +18,7 @@ namespace System.Windows.Forms
         private System.ComponentModel.IContainer components;
         private void InitializeComponent()
         {
-            this.lstBoneWeights = new System.Windows.Forms.RefreshableListBox();
             this.btnSetWeight = new System.Windows.Forms.Button();
-            this.numWeight = new System.Windows.Forms.NumericInputBox();
             this.btnBlend = new System.Windows.Forms.Button();
             this.btnAdd = new System.Windows.Forms.Button();
             this.btnSubtract = new System.Windows.Forms.Button();
@@ -28,29 +26,16 @@ namespace System.Windows.Forms
             this.lblBoneName = new System.Windows.Forms.Label();
             this.btnRemove = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.numMult = new System.Windows.Forms.NumericInputBox();
             this.btnMult = new System.Windows.Forms.Button();
             this.btnDiv = new System.Windows.Forms.Button();
-            this.numAdd = new System.Windows.Forms.NumericInputBox();
             this.btnPaste = new System.Windows.Forms.Button();
             this.btnCopy = new System.Windows.Forms.Button();
-            this.splitter1 = new System.Windows.Forms.Splitter();
-            this.splitter2 = new System.Windows.Forms.Splitter();
+            this.numMult = new System.Windows.Forms.NumericInputBox();
+            this.numAdd = new System.Windows.Forms.NumericInputBox();
+            this.numWeight = new System.Windows.Forms.NumericInputBox();
+            this.lstBoneWeights = new System.Windows.Forms.RefreshableListBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // lstBoneWeights
-            // 
-            this.lstBoneWeights.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.lstBoneWeights.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
-            this.lstBoneWeights.FormattingEnabled = true;
-            this.lstBoneWeights.IntegralHeight = false;
-            this.lstBoneWeights.Location = new System.Drawing.Point(0, 3);
-            this.lstBoneWeights.Name = "lstBoneWeights";
-            this.lstBoneWeights.Size = new System.Drawing.Size(127, 100);
-            this.lstBoneWeights.TabIndex = 0;
-            this.lstBoneWeights.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstBoneWeights_DrawItem);
-            this.lstBoneWeights.SelectedIndexChanged += new System.EventHandler(this.lstBoneWeights_SelectedIndexChanged);
             // 
             // btnSetWeight
             // 
@@ -61,18 +46,6 @@ namespace System.Windows.Forms
             this.btnSetWeight.Text = "Set";
             this.btnSetWeight.UseVisualStyleBackColor = true;
             this.btnSetWeight.Click += new System.EventHandler(this.btnSetWeight_Click);
-            // 
-            // numWeight
-            // 
-            this.numWeight.Integral = false;
-            this.numWeight.Location = new System.Drawing.Point(3, 29);
-            this.numWeight.MaximumValue = 3.402823E+38F;
-            this.numWeight.MinimumValue = -3.402823E+38F;
-            this.numWeight.Name = "numWeight";
-            this.numWeight.Size = new System.Drawing.Size(62, 20);
-            this.numWeight.TabIndex = 3;
-            this.numWeight.Text = "0";
-            this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
             // 
             // btnBlend
             // 
@@ -150,22 +123,11 @@ namespace System.Windows.Forms
             this.panel1.Controls.Add(this.btnLock);
             this.panel1.Controls.Add(this.lblBoneName);
             this.panel1.Controls.Add(this.btnRemove);
-            this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.panel1.Location = new System.Drawing.Point(130, 0);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(130, 103);
             this.panel1.TabIndex = 14;
-            // 
-            // numMult
-            // 
-            this.numMult.Integral = false;
-            this.numMult.Location = new System.Drawing.Point(3, 77);
-            this.numMult.MaximumValue = 3.402823E+38F;
-            this.numMult.MinimumValue = -3.402823E+38F;
-            this.numMult.Name = "numMult";
-            this.numMult.Size = new System.Drawing.Size(62, 20);
-            this.numMult.TabIndex = 16;
-            this.numMult.Text = "1.05";
             // 
             // btnMult
             // 
@@ -186,17 +148,6 @@ namespace System.Windows.Forms
             this.btnDiv.Text = "/";
             this.btnDiv.UseVisualStyleBackColor = true;
             this.btnDiv.Click += new System.EventHandler(this.btnDiv_Click);
-            // 
-            // numAdd
-            // 
-            this.numAdd.Integral = false;
-            this.numAdd.Location = new System.Drawing.Point(3, 53);
-            this.numAdd.MaximumValue = 3.402823E+38F;
-            this.numAdd.MinimumValue = -3.402823E+38F;
-            this.numAdd.Name = "numAdd";
-            this.numAdd.Size = new System.Drawing.Size(62, 20);
-            this.numAdd.TabIndex = 13;
-            this.numAdd.Text = "0.1";
             // 
             // btnPaste
             // 
@@ -220,38 +171,57 @@ namespace System.Windows.Forms
             this.btnCopy.Visible = false;
             this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
             // 
-            // splitter1
+            // numMult
             // 
-            this.splitter1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.splitter1.Location = new System.Drawing.Point(127, 0);
-            this.splitter1.Name = "splitter1";
-            this.splitter1.Size = new System.Drawing.Size(3, 103);
-            this.splitter1.TabIndex = 15;
-            this.splitter1.TabStop = false;
-            this.splitter1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitter1_MouseDown);
-            this.splitter1.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitter1_MouseMove);
-            this.splitter1.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitter1_MouseUp);
+            this.numMult.Integral = false;
+            this.numMult.Location = new System.Drawing.Point(3, 77);
+            this.numMult.MaximumValue = 3.402823E+38F;
+            this.numMult.MinimumValue = -3.402823E+38F;
+            this.numMult.Name = "numMult";
+            this.numMult.Size = new System.Drawing.Size(62, 20);
+            this.numMult.TabIndex = 16;
+            this.numMult.Text = "1.05";
             // 
-            // splitter2
+            // numAdd
             // 
-            this.splitter2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.splitter2.Location = new System.Drawing.Point(0, 0);
-            this.splitter2.Name = "splitter2";
-            this.splitter2.Size = new System.Drawing.Size(127, 3);
-            this.splitter2.TabIndex = 16;
-            this.splitter2.TabStop = false;
-            this.splitter2.Visible = false;
-            this.splitter2.SplitterMoving += new System.Windows.Forms.SplitterEventHandler(this.splitter2_SplitterMoving);
-            this.splitter2.MouseDown += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseDown);
-            this.splitter2.MouseMove += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseMove);
-            this.splitter2.MouseUp += new System.Windows.Forms.MouseEventHandler(this.splitter2_MouseUp);
+            this.numAdd.Integral = false;
+            this.numAdd.Location = new System.Drawing.Point(3, 53);
+            this.numAdd.MaximumValue = 3.402823E+38F;
+            this.numAdd.MinimumValue = -3.402823E+38F;
+            this.numAdd.Name = "numAdd";
+            this.numAdd.Size = new System.Drawing.Size(62, 20);
+            this.numAdd.TabIndex = 13;
+            this.numAdd.Text = "0.1";
+            // 
+            // numWeight
+            // 
+            this.numWeight.Integral = false;
+            this.numWeight.Location = new System.Drawing.Point(3, 29);
+            this.numWeight.MaximumValue = 3.402823E+38F;
+            this.numWeight.MinimumValue = -3.402823E+38F;
+            this.numWeight.Name = "numWeight";
+            this.numWeight.Size = new System.Drawing.Size(62, 20);
+            this.numWeight.TabIndex = 3;
+            this.numWeight.Text = "0";
+            this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
+            // 
+            // lstBoneWeights
+            // 
+            this.lstBoneWeights.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lstBoneWeights.DrawMode = System.Windows.Forms.DrawMode.OwnerDrawFixed;
+            this.lstBoneWeights.FormattingEnabled = true;
+            this.lstBoneWeights.IntegralHeight = false;
+            this.lstBoneWeights.Location = new System.Drawing.Point(0, 0);
+            this.lstBoneWeights.Name = "lstBoneWeights";
+            this.lstBoneWeights.Size = new System.Drawing.Size(130, 103);
+            this.lstBoneWeights.TabIndex = 0;
+            this.lstBoneWeights.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.lstBoneWeights_DrawItem);
+            this.lstBoneWeights.SelectedIndexChanged += new System.EventHandler(this.lstBoneWeights_SelectedIndexChanged);
             // 
             // WeightEditor
             // 
-            this.Controls.Add(this.lstBoneWeights);
-            this.Controls.Add(this.splitter2);
-            this.Controls.Add(this.splitter1);
             this.Controls.Add(this.panel1);
+            this.Controls.Add(this.lstBoneWeights);
             this.MinimumSize = new System.Drawing.Size(260, 103);
             this.Name = "WeightEditor";
             this.Size = new System.Drawing.Size(260, 103);
@@ -264,8 +234,6 @@ namespace System.Windows.Forms
         #endregion
 
         public WeightEditor() { InitializeComponent(); }
-
-        private RefreshableListBox lstBoneWeights;
         private BindingList<BoneWeight> _targetWeights;
 
         public IBoneNode[] Bones { get { return _targetWeights.Select(x => x.Bone).ToArray(); } }
@@ -299,6 +267,7 @@ namespace System.Windows.Forms
         private Button btnLock;
         private Button btnPaste;
         private Button btnCopy;
+        private RefreshableListBox lstBoneWeights;
 
         public List<Vertex3> _targetVertices;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -388,8 +357,6 @@ namespace System.Windows.Forms
         public BoneWeight _targetBoneWeight;
         private Button btnRemove;
         private Panel panel1;
-        private Splitter splitter1;
-        private Splitter splitter2;
         private NumericInputBox numMult;
         private Button btnMult;
         private Button btnDiv;

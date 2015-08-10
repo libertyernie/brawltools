@@ -201,23 +201,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("STPM Values")]
         public float Value49 { get { return _values.GetFloat(48); } set { _values.SetFloat(48, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public byte Value50a { get { return _values.GetByte(49, 0); } set { _values.SetByte(49, 0, value); SignalPropertyChange(); } }
+        public byte StageWindEnabled { get { return _values.GetByte(49, 0); } set { _values.SetByte(49, 0, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public byte Value50b { get { return _values.GetByte(49, 1); } set { _values.SetByte(49, 1, value); SignalPropertyChange(); } }
+        public bool CharacterWindEnabled { get { return _values.GetByte(49, 1) != 0; } set { _values.SetByte(49, 1, (byte)(value ? 1 : 0)); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public byte Value50c { get { return _values.GetByte(49, 2); } set { _values.SetByte(49, 2, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public byte Value50d { get { return _values.GetByte(49, 3); } set { _values.SetByte(49, 3, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value51 { get { return _values.GetFloat(50); } set { _values.SetFloat(50, value); SignalPropertyChange(); } }
+        public float WindStrength { get { return _values.GetFloat(50); } set { _values.SetFloat(50, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value52 { get { return _values.GetFloat(51); } set { _values.SetFloat(51, value); SignalPropertyChange(); } }
+        public float HorizontalWindRotation { get { return _values.GetFloat(51); } set { _values.SetFloat(51, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value53 { get { return _values.GetFloat(52); } set { _values.SetFloat(52, value); SignalPropertyChange(); } }
+        public float VerticalWindRotation { get { return _values.GetFloat(52); } set { _values.SetFloat(52, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public float Value54 { get { return _values.GetFloat(53); } set { _values.SetFloat(53, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public int Value55 { get { return _values.GetInt(54); } set { _values.SetInt(54, value); SignalPropertyChange(); } }
+        public RGBAPixel Value55 { get { return _values.GetRGBA(54); } set { _values.SetRGBA(54, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public int Value56 { get { return _values.GetInt(55); } set { _values.SetInt(55, value); SignalPropertyChange(); } }
         [Category("STPM Values")]

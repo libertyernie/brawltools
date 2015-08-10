@@ -230,13 +230,23 @@ namespace BrawlLib.Wii.Animations
             //Calculate a percentage from this keyframe to the next
             float time = offset / span; //Normalized, 0 to 1
 
+            bool prevDouble = _prev._index >= 0 && _prev._index == _index - 1;
+            bool nextDouble = next._next._index >= 0 && next._next._index == next._index + 1;
+            bool oneApart = _next._index == _index + 1;
+
             if (forceLinear)
                 return _value + diff * time;
+
+            float tan = _tangent, nextTan = next._tangent;
+            if (prevDouble || oneApart)
+                tan = (next._value - _value) / (next._index - _index);
+            if (nextDouble || oneApart)
+                nextTan = (next._value - _value) / (next._index - _index);
 
             //Interpolate using a hermite curve
             float inv = time - 1.0f; //-1 to 0
             return _value
-                + (offset * inv * ((inv * _tangent) + (time * next._tangent)))
+                + (offset * inv * ((inv * tan) + (time * nextTan)))
                 + ((time * time) * (3.0f - 2.0f * time) * diff);
         }
 

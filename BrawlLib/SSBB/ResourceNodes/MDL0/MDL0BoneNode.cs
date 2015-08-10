@@ -170,7 +170,32 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
         [Category("Bone"), Description("The index of this bone in the raw array of bones in the file.")]
-        public int BoneIndex { get { return _entryIndex; } set { _entryIndex = value; if (Model != null) { Model._linker.RegenerateBoneCache(); UpdateProperties(); } SignalPropertyChange(); } }
+        public int BoneIndex
+        {
+            get { return _entryIndex; }
+            set
+            {
+                if (_entryIndex == value)
+                    return;
+
+                bool down = value < _entryIndex;
+
+                _entryIndex = value;
+
+                MDL0Node model = Model;
+                if (model != null && model._linker != null && model._linker.BoneCache != null)
+                {
+                    if (down)
+                        foreach (MDL0BoneNode b in model._linker.BoneCache)
+                            if (b._entryIndex >= _entryIndex && b != this)
+                                b._entryIndex++;
+                    
+                    model._linker.RegenerateBoneCache();
+                    UpdateProperties();
+                }
+                SignalPropertyChange();
+            }
+        }
 
         [Category("Bone"), Description(@"This setting will rotate the bone and all influenced geometry in relation to the camera.
 If the setting is 'Perspective', the bone's Z axis points at the camera's position.

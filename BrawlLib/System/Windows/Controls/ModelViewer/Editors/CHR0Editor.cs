@@ -66,6 +66,7 @@ namespace System.Windows.Forms
             this.grpTransform = new System.Windows.Forms.GroupBox();
             this.FrameScale = new System.Windows.Forms.CheckBox();
             this.btnPaste = new System.Windows.Forms.Button();
+            this.chkUpdateBindPose = new System.Windows.Forms.CheckBox();
             this.FrameRot = new System.Windows.Forms.CheckBox();
             this.btnCopy = new System.Windows.Forms.Button();
             this.FrameTrans = new System.Windows.Forms.CheckBox();
@@ -82,7 +83,6 @@ namespace System.Windows.Forms
             this.lblTrans = new System.Windows.Forms.Label();
             this.lblRot = new System.Windows.Forms.Label();
             this.lblScale = new System.Windows.Forms.Label();
-            this.chkUpdateBindPose = new System.Windows.Forms.CheckBox();
             this.chkBoneEdit = new System.Windows.Forms.CheckBox();
             this.grpTransAll = new System.Windows.Forms.GroupBox();
             this.btnInsert = new System.Windows.Forms.Button();
@@ -119,6 +119,7 @@ namespace System.Windows.Forms
             // 
             this.grpTransform.Controls.Add(this.FrameScale);
             this.grpTransform.Controls.Add(this.btnPaste);
+            this.grpTransform.Controls.Add(this.chkUpdateBindPose);
             this.grpTransform.Controls.Add(this.FrameRot);
             this.grpTransform.Controls.Add(this.btnCopy);
             this.grpTransform.Controls.Add(this.FrameTrans);
@@ -166,6 +167,16 @@ namespace System.Windows.Forms
             this.btnPaste.Text = "Paste";
             this.btnPaste.UseVisualStyleBackColor = true;
             this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            // 
+            // chkUpdateBindPose
+            // 
+            this.chkUpdateBindPose.Location = new System.Drawing.Point(154, -1);
+            this.chkUpdateBindPose.Name = "chkUpdateBindPose";
+            this.chkUpdateBindPose.Size = new System.Drawing.Size(146, 17);
+            this.chkUpdateBindPose.TabIndex = 37;
+            this.chkUpdateBindPose.Text = "Update Mesh Bind Pose";
+            this.chkUpdateBindPose.UseVisualStyleBackColor = true;
+            this.chkUpdateBindPose.CheckedChanged += new System.EventHandler(this.chkUpdateBindPose_CheckedChanged);
             // 
             // FrameRot
             // 
@@ -367,16 +378,6 @@ namespace System.Windows.Forms
             this.lblScale.TabIndex = 6;
             this.lblScale.Text = "Scale:";
             this.lblScale.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // chkUpdateBindPose
-            // 
-            this.chkUpdateBindPose.Location = new System.Drawing.Point(181, -1);
-            this.chkUpdateBindPose.Name = "chkUpdateBindPose";
-            this.chkUpdateBindPose.Size = new System.Drawing.Size(119, 17);
-            this.chkUpdateBindPose.TabIndex = 37;
-            this.chkUpdateBindPose.Text = "Update Bind Pose";
-            this.chkUpdateBindPose.UseVisualStyleBackColor = true;
-            this.chkUpdateBindPose.CheckedChanged += new System.EventHandler(this.chkUpdateBindPose_CheckedChanged);
             // 
             // chkBoneEdit
             // 
@@ -623,7 +624,6 @@ namespace System.Windows.Forms
             // 
             // CHR0Editor
             // 
-            this.Controls.Add(this.chkUpdateBindPose);
             this.Controls.Add(this.chkBoneEdit);
             this.Controls.Add(this.grpTransAll);
             this.Controls.Add(this.grpTransform);
