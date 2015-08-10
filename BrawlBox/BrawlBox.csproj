@@ -120,9 +120,6 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Octokit">
-      <HintPath>..\packages\Octokit.0.6.1\lib\net45\Octokit.dll</HintPath>
-    </Reference>
     <Reference Include="OpenTK, Version=1.1.0.0, Culture=neutral, PublicKeyToken=bad199fe84eb3df4, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\BrawlLib\OpenTK.dll</HintPath>
@@ -147,6 +144,7 @@
     <Compile Include="NodeWrappers\RSARWrapper.cs" />
     <Compile Include="NodeWrappers\STDTWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />
+    <Compile Include="NodeWrappers\HavokWrapper.cs" />
     <Compile Include="NodeWrappers\TPLWrapper.cs" />
     <Compile Include="NodeWrappers\RWSDSoundGroupWrapper.cs" />
     <Compile Include="NodeWrappers\U8FolderWrapper.cs" />
@@ -162,7 +160,7 @@
     <Compile Include="NodeWrappers\STPMWrapper.cs" />
     <Compile Include="NodeWrappers\TEVStageWrapper.cs" />
     <Compile Include="NodeWrappers\REFTImageWrapper.cs" />
-    <None Include="NodeWrappers\MDefUneditableWrapper.cs" />
+    <Compile Include="NodeWrappers\NoEditWrapper.cs" />
     <None Include="NodeWrappers\MDefWrapper.cs" />
     <Compile Include="NodeWrappers\MDL0\MDL0MaterialWrapper.cs" />
     <Compile Include="NodeWrappers\MDL0\MDL0ShaderWrapper.cs" />
@@ -214,6 +212,12 @@
     </Compile>
     <Compile Include="UI\CollisionForm.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\IssueDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="UI\IssueDialog.Designer.cs">
+      <DependentUpon>IssueDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="UI\Model Previewer\ModelEditControl\Animation.cs">
       <SubType>UserControl</SubType>
@@ -287,6 +291,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="UI\CollisionForm.resx">
       <DependentUpon>CollisionForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\IssueDialog.resx">
+      <DependentUpon>IssueDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="UI\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>

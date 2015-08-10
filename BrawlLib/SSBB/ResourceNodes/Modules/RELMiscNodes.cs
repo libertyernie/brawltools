@@ -13,7 +13,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public class RELGroupNode : RELEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
     }
 
     public unsafe class RELEntryNode : ResourceNode

@@ -185,7 +185,7 @@ namespace System.Windows.Forms
         private ToolStripMenuItem afterRotationToolStripMenuItem;
         private ToolStripMenuItem btnWeightEditor;
         private ToolStripMenuItem btnVertexEditor;
-        private RightPanel rightPanel;
+        public RightPanel rightPanel;
 
         private void InitializeComponent()
         {
@@ -631,7 +631,7 @@ namespace System.Windows.Forms
             this.showRight,
             this.detachViewerToolStripMenuItem});
             this.editorsToolStripMenuItem.Name = "editorsToolStripMenuItem";
-            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.editorsToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.editorsToolStripMenuItem.Text = "Panels";
             // 
             // showTop
@@ -686,7 +686,7 @@ namespace System.Windows.Forms
             this.newToolStripMenuItem,
             this.removeCurrentViewportToolStripMenuItem});
             this.viewportToolStripMenuItem.Name = "viewportToolStripMenuItem";
-            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.viewportToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.viewportToolStripMenuItem.Text = "Viewport";
             // 
             // backgroundToolStripMenuItem
@@ -984,6 +984,7 @@ namespace System.Windows.Forms
             this.firstPersonCameraToolStripMenuItem.Name = "firstPersonCameraToolStripMenuItem";
             this.firstPersonCameraToolStripMenuItem.Size = new System.Drawing.Size(214, 22);
             this.firstPersonCameraToolStripMenuItem.Text = "1st Person SCN0 Camera";
+            this.firstPersonCameraToolStripMenuItem.Click += new System.EventHandler(this.firstPersonCameraToolStripMenuItem_Click);
             // 
             // newToolStripMenuItem
             // 
@@ -1028,7 +1029,7 @@ namespace System.Windows.Forms
             this.shadersToolStripMenuItem,
             this.chkBillboardBones});
             this.modelToolStripMenuItem.Name = "modelToolStripMenuItem";
-            this.modelToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.modelToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.modelToolStripMenuItem.Text = "Model";
             // 
             // toggleBones
@@ -1140,7 +1141,7 @@ namespace System.Windows.Forms
             this.playToolStripMenuItem,
             this.sCN0ToolStripMenuItem});
             this.fileTypesToolStripMenuItem.Name = "fileTypesToolStripMenuItem";
-            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.fileTypesToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.fileTypesToolStripMenuItem.Text = "Animations";
             // 
             // playToolStripMenuItem
@@ -1237,7 +1238,7 @@ namespace System.Windows.Forms
             // helpToolStripMenuItem
             // 
             this.helpToolStripMenuItem.Name = "helpToolStripMenuItem";
-            this.helpToolStripMenuItem.Size = new System.Drawing.Size(135, 22);
+            this.helpToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
             this.helpToolStripMenuItem.Text = "Help";
             this.helpToolStripMenuItem.Click += new System.EventHandler(this.helpToolStripMenuItem_Click);
             // 
@@ -1859,9 +1860,9 @@ namespace System.Windows.Forms
             // 
             this.weightEditor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.weightEditor.Location = new System.Drawing.Point(0, 0);
-            this.weightEditor.MinimumSize = new System.Drawing.Size(441, 103);
+            this.weightEditor.MinimumSize = new System.Drawing.Size(260, 103);
             this.weightEditor.Name = "weightEditor";
-            this.weightEditor.Size = new System.Drawing.Size(441, 103);
+            this.weightEditor.Size = new System.Drawing.Size(264, 103);
             this.weightEditor.TabIndex = 31;
             this.weightEditor.Visible = false;
             this.weightEditor.WeightIncrement = 0.1F;
@@ -1871,8 +1872,9 @@ namespace System.Windows.Forms
             this.vertexEditor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.vertexEditor.Enabled = false;
             this.vertexEditor.Location = new System.Drawing.Point(0, 0);
+            this.vertexEditor.MinimumSize = new System.Drawing.Size(230, 85);
             this.vertexEditor.Name = "vertexEditor";
-            this.vertexEditor.Size = new System.Drawing.Size(264, 60);
+            this.vertexEditor.Size = new System.Drawing.Size(264, 85);
             this.vertexEditor.TabIndex = 32;
             this.vertexEditor.Visible = false;
             // 

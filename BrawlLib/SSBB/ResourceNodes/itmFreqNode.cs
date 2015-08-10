@@ -8,7 +8,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class ItmFreqNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
         internal ItmFreqHeader* Header { get { return (ItmFreqHeader*)WorkingUncompressed.Address; } }
         internal ItmFreqTableList* TList
         {
@@ -155,7 +155,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableNode : ItmFreqBaseNode
     {
         internal ItmFreqOffEntry* Header { get { return (ItmFreqOffEntry*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
 
         private int _entryOffset;
         [Browsable(false)]
@@ -208,7 +208,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableGroupNode : ItmFreqBaseNode
     {
         internal ItmFreqGroup* Header { get { return (ItmFreqGroup*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
 
         private bint _unk0;
         [Category("Group Node")]

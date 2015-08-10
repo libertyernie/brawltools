@@ -135,7 +135,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //Moveset
         MDef = 0x4B1A,
-        NoEdit = 0x4C01,
+        NoEditFolder = 0x4C01,
+        NoEditEntry = 0x4C00,
         MDefActionGroup = 0x4D01,
         MDefSubActionGroup = 0x4E01,
         MDefMdlVisRef = 0x4F01,
@@ -172,5 +173,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         BGMG = 0x5F32,
 
         FMDL = 0x6D00,
+
+        Havok = 0x8500,
+        HavokGroup = 0x8501,
     }
 }

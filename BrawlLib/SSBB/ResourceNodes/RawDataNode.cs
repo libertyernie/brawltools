@@ -8,7 +8,13 @@ using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    unsafe class RawDataNode : ResourceNode
+    public interface IBufferNode
+    {
+        bool IsValid();
+        VoidPtr GetAddress();
+        int GetLength();
+    }
+    public unsafe class RawDataNode : ResourceNode, IBufferNode
     {
         internal byte* Header { get { return (byte*)WorkingUncompressed.Address; } }
 
@@ -16,6 +22,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public int Size { get { return WorkingUncompressed.Length; } }
 
+        public RawDataNode() { }
         public RawDataNode(string name) { _name = name; }
 
         [Browsable(true), TypeConverter(typeof(DropDownListCompression))]
@@ -53,6 +60,21 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             VoidPtr header = (VoidPtr)address;
             Memory.Move(header, _buffer.Address, (uint)length);
+        }
+
+        public VoidPtr GetAddress()
+        {
+            return _buffer.Address;
+        }
+
+        public int GetLength()
+        {
+            return _buffer.Length;
+        }
+
+        public bool IsValid()
+        {
+            return _buffer != null && _buffer.Length > 0;
         }
     }
 }

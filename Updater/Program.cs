@@ -48,11 +48,8 @@ namespace Net
                 //Find and close the brawlbox application that will be overwritten
                 Process[] px =  Process.GetProcessesByName("BrawlBox");
                 Process p = px.FirstOrDefault(x => x.MainModule.FileName.StartsWith(AppPath));
-                if (p != null && p != default(Process))
-                {
-                    p.CloseMainWindow();
+                if (p != null && p != default(Process) && p.CloseMainWindow())
                     p.Close();
-                }
             }
 
             using (WebClient client = new WebClient())
@@ -82,10 +79,10 @@ namespace Net
             try
             {
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-                IReadOnlyList<Release> release = null;
+                IReadOnlyList<Release> releases = null;
                 try
                 {
-                    release = await github.Release.GetAll("libertyernie", "brawltools");
+                    releases = await github.Release.GetAll("libertyernie", "brawltools");
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -93,12 +90,12 @@ namespace Net
                     return;
                 }
 
-                if (release != null &&
-                    release.Count > 0 &&
-                    !String.Equals(release[0].TagName, releaseTag, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
-                    release[0].Name.IndexOf("BrawlBox", StringComparison.InvariantCultureIgnoreCase) >= 0) //Make sure this is a BrawlBox release
+                if (releases != null &&
+                    releases.Count > 0 &&
+                    !String.Equals(releases[0].TagName, releaseTag, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
+                    releases[0].Name.IndexOf("BrawlBox", StringComparison.InvariantCultureIgnoreCase) >= 0) //Make sure this is a BrawlBox release
                 {
-                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
+                    DialogResult UpdateResult = MessageBox.Show(releases[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                     if (UpdateResult == DialogResult.Yes)
                     {
                         DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
@@ -122,20 +119,102 @@ namespace Net
 
     public static class BugSquish
     {
-        public static async Task CreateIssue(string Title, string IssueBody)
+        public static async Task CreateIssue(
+            string TagName,
+            string ExceptionMessage,
+            string StackTrace,
+            string Title,
+            string Description)
         {
-            Octokit.Credentials s = new Credentials("6c6b2a56408a04a1b1a002d60202df2b520c88a4");
-            GitHubClient github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
+            try
+            {
+                Octokit.Credentials s = new Credentials("9ce29bd6dd39792809e3ab498ea8ae9611b71bcb");
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
+                IReadOnlyList<Release> releases = null;
+                IReadOnlyList<Issue> issues = null;
+                try
+                {
+                    releases = await github.Release.GetAll("libertyernie", "brawltools");
+                    issues = await github.Issue.GetForRepository("libertyernie", "brawltools");
+                }
+                catch (System.Net.Http.HttpRequestException)
+                {
+                    MessageBox.Show("Unable to connect to the internet.");
+                    return;
+                }
 
-            // get repo, Release, and release assets
-            Repository repo = await github.Repository.Get("libertyernie", "brawltools");
-            NewIssue issue = new NewIssue(Title) { Body = IssueBody };
-            Issue x = await github.Issue.Create("libertyernie", "brawltools", issue);
+                if (releases != null && releases.Count > 0 && releases[0].TagName != TagName)
+                {
+                    //This build's version tag does not match the latest release's tag on the repository.
+                    //This bug may have been fixed by now. Tell the user to update to be allowed to submit bug reports.
+
+                    DialogResult UpdateResult = MessageBox.Show(releases[0].Name + " is available!\nYou cannot submit bug reports using an older version of the program.\nUpdate now?", "An update is available", MessageBoxButtons.YesNo);
+                    if (UpdateResult == DialogResult.Yes)
+                    {
+                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
+                        if (OverwriteResult != DialogResult.Cancel)
+                        {
+                            Task t = Updater.UpdateCheck(OverwriteResult == DialogResult.Yes);
+                            t.Wait();
+                        }
+                    }
+                }
+                else
+                {
+                    bool found = false;
+                    if (issues != null && !String.IsNullOrEmpty(StackTrace))
+                        foreach (Issue i in issues)
+                            if (i.State == ItemState.Open)
+                            {
+                                string desc = i.Body;
+                                if (desc.Contains(StackTrace) && 
+                                    desc.Contains(ExceptionMessage) && 
+                                    desc.Contains(TagName))
+                                {
+                                    found = true;
+                                    IssueUpdate update = i.ToUpdate();
+
+                                    update.Body =
+                                        Title +
+                                        Environment.NewLine +
+                                        Description +
+                                        Environment.NewLine +
+                                        Environment.NewLine +
+                                        i.Body;
+
+                                    Issue x = await github.Issue.Update("libertyernie", "brawltools", i.Number, update);
+                                }
+                            }
+                    
+                    if (!found)
+                    {
+                        NewIssue issue = new NewIssue(Title)
+                        {
+                            Body =
+                            Description +
+                            Environment.NewLine +
+                            Environment.NewLine +
+                            TagName +
+                            Environment.NewLine +
+                            ExceptionMessage +
+                            Environment.NewLine +
+                            StackTrace
+                        };
+                        Issue x = await github.Issue.Create("libertyernie", "brawltools", issue);
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("The application was unable to retrieve permission to send this issue.");
+            }
         }
     }
 
     class Program
     {
+        const string Usage = @"Usage: -r = Overwrite files in directory";
+
         static void Main(string[] args)
         {
             bool somethingDone = false;
@@ -149,10 +228,15 @@ namespace Net
                         Task t = Updater.UpdateCheck(true);
                         t.Wait();
                         break;
-                    case "-b": //brawlbox call
+                    case "-bu": //brawlbox update call
                         somethingDone = true;
                         Task t2 = Updater.CheckUpdates(args[1], args[2] != "0");
                         t2.Wait();
+                        break;
+                    case "-bi": //brawlbox issue call
+                        somethingDone = true;
+                        Task t3 = BugSquish.CreateIssue(args[1], args[2], args[3], args[4], args[5]);
+                        t3.Wait();
                         break;
                 }
             }
@@ -164,7 +248,7 @@ namespace Net
             }
 
             if (!somethingDone)
-                Console.WriteLine("Usage: -r = Overwrite files in directory");
+                Console.WriteLine(Usage);
         }
     }
 }

@@ -236,7 +236,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             } 
         }
 
-        private string GetName()
+        protected virtual string GetName()
         {
             return String.Format("{0}[{1}]", _fileType, _fileIndex);
         }

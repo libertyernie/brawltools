@@ -8,6 +8,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
 using BrawlLib;
+using Microsoft.Win32;
 
 namespace BrawlBox
 {
@@ -44,6 +45,44 @@ namespace BrawlBox
             _openDlg = new OpenFileDialog();
             _saveDlg = new SaveFileDialog();
             _folderDlg = new FolderBrowserDialog();
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        }
+
+        static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            List<ResourceNode> dirty = GetDirtyFiles();
+            Exception ex = e.Exception;
+            IssueDialog d = new IssueDialog(ex, dirty);
+            d.ShowDialog();
+        }
+
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception)
+            {
+                List<ResourceNode> dirty = GetDirtyFiles();
+                Exception ex = e.ExceptionObject as Exception;
+                IssueDialog d = new IssueDialog(ex, dirty);
+                d.ShowDialog();
+            }
+        }
+
+        private static List<ResourceNode> GetDirtyFiles()
+        {
+            List<ResourceNode> dirty = new List<ResourceNode>();
+
+            foreach (var control in ModelEditControl.Instances)
+                foreach (ResourceNode r in control.rightPanel.pnlOpenedFiles.OpenedFiles)
+                    if (r.IsDirty && !dirty.Contains(r))
+                        dirty.Add(r);
+
+            if (_rootNode != null && _rootNode.IsDirty && !dirty.Contains(_rootNode))
+                dirty.Add(_rootNode);
+
+            return dirty;
         }
 
         [STAThread]
@@ -366,6 +405,30 @@ namespace BrawlBox
                 #endif
             }
             return false;
+        }
+
+        public static bool CanRunGithubApp(bool showMessages, out string path)
+        {
+            path = System.Windows.Forms.Application.StartupPath + "\\Updater.exe";
+            if (!File.Exists(path))
+            {
+                if (showMessages)
+                    MessageBox.Show("Could not find " + path);
+                return false;
+            }
+
+            using (RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).
+                OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\"))
+            {
+                object o = ndpKey.GetValue("Release");
+                if (o == null)
+                    return false;
+
+                int releaseKey = Convert.ToInt32(o);
+                if (releaseKey < 378389)
+                    return false;
+            }
+            return true;
         }
     }
 }

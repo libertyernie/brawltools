@@ -66,6 +66,7 @@ namespace BrawlBox
             this.checkForUpdatesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.propertyGrid1 = new System.Windows.Forms.PropertyGrid();
+            this.hexBox1 = new Be.Windows.Forms.HexBox();
             this.mdL0ObjectControl1 = new System.Windows.Forms.MDL0ObjectControl();
             this.ppcDisassembler1 = new System.Windows.Forms.PPCDisassembler();
             this.texCoordControl1 = new System.Windows.Forms.TexCoordControl();
@@ -380,6 +381,7 @@ namespace BrawlBox
             // 
             // splitContainer2.Panel2
             // 
+            this.splitContainer2.Panel2.Controls.Add(this.hexBox1);
             this.splitContainer2.Panel2.Controls.Add(this.mdL0ObjectControl1);
             this.splitContainer2.Panel2.Controls.Add(this.ppcDisassembler1);
             this.splitContainer2.Panel2.Controls.Add(this.texCoordControl1);
@@ -416,6 +418,28 @@ namespace BrawlBox
             this.propertyGrid1.Size = new System.Drawing.Size(401, 205);
             this.propertyGrid1.TabIndex = 2;
             this.propertyGrid1.SelectedGridItemChanged += new System.Windows.Forms.SelectedGridItemChangedEventHandler(this.propertyGrid1_SelectedGridItemChanged);
+            // 
+            // hexBox1
+            // 
+            this.hexBox1.BlrColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(255)))), ((int)(((byte)(100)))));
+            this.hexBox1.BranchOffsetColor = System.Drawing.Color.Plum;
+            this.hexBox1.ColumnDividerColor = System.Drawing.Color.Empty;
+            this.hexBox1.CommandColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(255)))), ((int)(((byte)(200)))));
+            this.hexBox1.Font = new System.Drawing.Font("Courier New", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.hexBox1.InfoForeColor = System.Drawing.Color.Empty;
+            this.hexBox1.LinkedBranchColor = System.Drawing.Color.Orange;
+            this.hexBox1.Location = new System.Drawing.Point(85, 27);
+            this.hexBox1.Name = "hexBox1";
+            this.hexBox1.ReadOnly = true;
+            this.hexBox1.SectionEditor = null;
+            this.hexBox1.SelectedColor = System.Drawing.Color.FromArgb(((int)(((byte)(200)))), ((int)(((byte)(255)))), ((int)(((byte)(255)))));
+            this.hexBox1.ShadowSelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(60)))), ((int)(((byte)(188)))), ((int)(((byte)(255)))));
+            this.hexBox1.Size = new System.Drawing.Size(215, 130);
+            this.hexBox1.StringViewVisible = true;
+            this.hexBox1.TabIndex = 22;
+            this.hexBox1.UseFixedBytesPerLine = true;
+            this.hexBox1.Visible = false;
+            this.hexBox1.VScrollBarVisible = true;
             // 
             // mdL0ObjectControl1
             // 
@@ -676,6 +700,7 @@ namespace BrawlBox
         private TexCoordControl texCoordControl1;
         private PPCDisassembler ppcDisassembler1;
         private MDL0ObjectControl mdL0ObjectControl1;
+        private Be.Windows.Forms.HexBox hexBox1;
     }
 }
 

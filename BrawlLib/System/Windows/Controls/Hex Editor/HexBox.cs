@@ -2684,36 +2684,63 @@ namespace Be.Windows.Forms
 			bool isKeyInterpreterActive = _keyInterpreter == null || _keyInterpreter.GetType() == typeof(KeyInterpreter);
 			bool isStringKeyInterpreterActive = _keyInterpreter != null && _keyInterpreter.GetType() == typeof(StringKeyInterpreter);
 
-            long offset = startByte;
-            int index = (int)(offset / 4);
-			for (long x = startByte; x <= intern_endByte; x += 4, index++)
-			{
-                uint word =
-                    ((uint)_byteProvider.ReadByte(x + 0) << 24) |
-                    ((uint)_byteProvider.ReadByte(x + 1) << 16) |
-                    ((uint)_byteProvider.ReadByte(x + 2) << 8) |
-                    ((uint)_byteProvider.ReadByte(x + 3) << 0);
+            if (_sectionEditor != null)
+            {
+                long offset = startByte;
+                int index = (int)(offset / 4);
+                for (long x = startByte; x <= intern_endByte; x += 4, index++)
+                {
+                    uint word =
+                        ((uint)_byteProvider.ReadByte(x + 0) << 24) |
+                        ((uint)_byteProvider.ReadByte(x + 1) << 16) |
+                        ((uint)_byteProvider.ReadByte(x + 2) << 8) |
+                        ((uint)_byteProvider.ReadByte(x + 3) << 0);
 
-                RelCommand cmd = null;
-                if (_sectionEditor != null && (cmd = GetBrushes(index, ref foreBrush, ref backBrush)) != null)
-                    word = cmd.Apply(word, 0);
+                    RelCommand cmd = null;
+                    if (_sectionEditor != null && (cmd = GetBrushes(index, ref foreBrush, ref backBrush)) != null)
+                        word = cmd.Apply(word, 0);
 
-                bool half = cmd != null && cmd.IsHalf;
-                for (int u = 0; u < 4; u++, offset++, counter++)
+                    bool half = cmd != null && cmd.IsHalf;
+                    for (int u = 0; u < 4; u++, offset++, counter++)
+                    {
+                        Point gridPoint = GetGridBytePoint(counter);
+                        PointF byteStringPointF = GetByteStringPointF(gridPoint);
+
+                        if (half && u > 1)
+                            backBrush = CommandBrush;
+
+                        byte b = _byteProvider.ReadByte(x + u);
+                        if (cmd != null && _sectionEditor.displayInitialized.Checked)
+                            b = (byte)((word >> ((3 - u) * 8)) & 0xFF);
+
+                        bool isSelectedByte = offset >= _bytePos && offset <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
+
+                        PaintByte(b, offset, isSelectedByte, isKeyInterpreterActive, g, foreBrush, backBrush, gridPoint);
+
+                        string s = new String(ByteCharConverter.ToChar(b), 1);
+
+                        if (_stringViewVisible)
+                            if (isSelectedByte && isStringKeyInterpreterActive)
+                            {
+                                g.FillRectangle(_selectionBackBrush, byteStringPointF.X, byteStringPointF.Y, _charSize.Width, _charSize.Height);
+                                g.DrawString(s, Font, _selectionForeBrush, byteStringPointF, _stringFormat);
+                            }
+                            else
+                                g.DrawString(s, Font, foreBrush, byteStringPointF, _stringFormat);
+                    }
+                }
+            }
+            else
+            {
+                for (long x = startByte; x <= intern_endByte; x++, counter++)
                 {
                     Point gridPoint = GetGridBytePoint(counter);
                     PointF byteStringPointF = GetByteStringPointF(gridPoint);
 
-                    if (half && u > 1)
-                        backBrush = CommandBrush;
+                    byte b = _byteProvider.ReadByte(x);
+                    bool isSelectedByte = x >= _bytePos && x <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
 
-                    byte b = _byteProvider.ReadByte(x+u);
-                    if (cmd != null && _sectionEditor.displayInitialized.Checked)
-                        b = (byte)((word >> ((3 - u) * 8)) & 0xFF);
-
-                    bool isSelectedByte = offset >= _bytePos && offset <= (_bytePos + _selectionLength - 1) && _selectionLength != 0;
-
-                    PaintByte(b, offset, isSelectedByte, isKeyInterpreterActive, g, foreBrush, backBrush, gridPoint);
+                    PaintByte(b, x, isSelectedByte, isKeyInterpreterActive, g, foreBrush, backBrush, gridPoint);
 
                     string s = new String(ByteCharConverter.ToChar(b), 1);
 
@@ -2726,7 +2753,7 @@ namespace Be.Windows.Forms
                         else
                             g.DrawString(s, Font, foreBrush, byteStringPointF, _stringFormat);
                 }
-			}
+            }
 
             if (_shadowSelectionVisible)
                 PaintCurrentBytesSign(g);

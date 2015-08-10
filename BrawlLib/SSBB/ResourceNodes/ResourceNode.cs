@@ -909,6 +909,27 @@ namespace BrawlLib.SSBB.ResourceNodes
             return null;
         }
 
+        public ResourceNode[] FindChildrenByClassType(string path, Type type)
+        {
+            if (!String.IsNullOrEmpty(path))
+            {
+                ResourceNode node = FindChild(path, false);
+                if (node != null)
+                    return node.FindChildrenByClassType(null, type);
+            }
+
+            List<ResourceNode> nodes = new List<ResourceNode>();
+            this.EnumClassTypeInternal(nodes, type);
+            return nodes.ToArray();
+        }
+        private void EnumClassTypeInternal(List<ResourceNode> list, Type type)
+        {
+            if (GetType() == type)
+                list.Add(this);
+            foreach (ResourceNode n in Children)
+                n.EnumClassTypeInternal(list, type);
+        }
+
         public ResourceNode[] FindChildrenByType(string path, ResourceType type)
         {
             if (!String.IsNullOrEmpty(path))

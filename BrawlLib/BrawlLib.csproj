@@ -160,6 +160,32 @@
     <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\ClassMemberInstanceNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmStringNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmVariantNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmULongPtrNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmPointerNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmULongNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmFloatNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmVec4Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmMat3Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmMat4Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmQSTransformNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\Arrays.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmSByteNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmByteNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmShortNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmUShortNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmIntNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmUIntNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmLongNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmEnumNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmCharNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmBoolNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokMetaObjectNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokXML.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassEnumNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
@@ -210,6 +236,7 @@
     <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
+    <Compile Include="System\UInt64Extension.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -328,7 +355,7 @@
     <Compile Include="System\TypeConverters.cs" />
     <Compile Include="SSBB\ResourceNodes\RASDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0TEVStage.cs" />
-    <Compile Include="SSBB\ResourceNodes\PhysicsNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKGroupNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSEQ\RSEQLabelNode.cs" />
@@ -382,7 +409,7 @@
     <Compile Include="SSBB\Types\DOL.cs" />
     <Compile Include="SSBB\Types\U8.cs" />
     <Compile Include="SSBB\Types\RASD.cs" />
-    <Compile Include="SSBB\Types\Physics.cs" />
+    <Compile Include="SSBB\Types\HKX.cs" />
     <Compile Include="SSBB\Types\STPM.cs" />
     <Compile Include="SSBB\Types\REFT.cs" />
     <Compile Include="SSBB\Types\MRG.cs" />

@@ -72,6 +72,7 @@ namespace BrawlLib
             //Not only that, but '.dat' might be assigned to something else on their computer.
             //It's possible to assign a program (like a hex editor) to open files without extensions.
 
-
+        public static string Havok =
+            SupportedFilesHandler.GetCompleteFilter("hkx", "xml");
     }
 }

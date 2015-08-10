@@ -4,7 +4,6 @@ using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB;
 using BrawlLib.SSBB.ResourceNodes;
-using Microsoft.Win32;
 using System;
 using System.Audio;
 using System.Collections.Generic;
@@ -89,38 +88,14 @@ namespace BrawlBox
         {
             try
             {
-                string updater = System.Windows.Forms.Application.StartupPath + "/Updater.exe";
-                if (!File.Exists(updater))
-                {
-                    if (manual)
-                        MessageBox.Show("Could not find " + updater);
-                    return;
-                }
-
-                bool canRun = true;
-                using (RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).
-                    OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\"))
-                {
-                    object o = ndpKey.GetValue("Release");
-                    if (o == null)
-                    {
-                        canRun = false;
-                    }
-
-		            int releaseKey = Convert.ToInt32(o);
-                    if (releaseKey < 378389)
-                    {
-                        canRun = false;
-                    }
-                }
-
-                if (canRun)
+                string path;
+                if (Program.CanRunGithubApp(manual, out path))
                 {
                     Process.Start(new ProcessStartInfo()
                     {
-                        FileName = updater,
+                        FileName = path,
                         WindowStyle = ProcessWindowStyle.Hidden,
-                        Arguments = String.Format("-b {0} {1}",
+                        Arguments = String.Format("-bu {0} {1}",
                         Program.TagName, manual ? "1" : "0"),
                     });
                 }
@@ -234,7 +209,7 @@ namespace BrawlBox
 
         public Control _currentControl = null;
         private Control _secondaryControl = null;
-        public void resourceTree_SelectionChanged(object sender, EventArgs e)
+        public unsafe void resourceTree_SelectionChanged(object sender, EventArgs e)
         {
             audioPlaybackPanel1.TargetSource = null;
             animEditControl.TargetSequence = null;
@@ -251,6 +226,8 @@ namespace BrawlBox
             ppcDisassembler1.SetTarget(null, 0, null);
             modelPanel1.ClearAll();
             mdL0ObjectControl1.SetTarget(null);
+            if (hexBox1.ByteProvider != null)
+                ((Be.Windows.Forms.DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
             
             Control newControl = null;
             Control newControl2 = null;
@@ -262,6 +239,22 @@ namespace BrawlBox
             {
                 propertyGrid1.SelectedObject = node;
 
+#if DEBUG
+                if (node is IBufferNode)
+                {
+                    IBufferNode d = node as IBufferNode;
+                    if (d.IsValid())
+                    {
+                        hexBox1.ByteProvider = new Be.Windows.Forms.DynamicFileByteProvider(new UnmanagedMemoryStream(
+                                (byte*)d.GetAddress(),
+                                d.GetLength(),
+                                d.GetLength(),
+                                FileAccess.ReadWrite)) { _supportsInsDel = false };
+                        newControl = hexBox1;
+                    }
+                }
+                else 
+#endif
                 if (node is RELMethodNode)
                 {
                     ppcDisassembler1.SetTarget((RELMethodNode)node);
@@ -524,8 +517,7 @@ namespace BrawlBox
 
         private void gCTEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GCTEditor c = new GCTEditor();
-            c.Show();
+            new GCTEditor().Show();
         }
 
         private void recentFilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
