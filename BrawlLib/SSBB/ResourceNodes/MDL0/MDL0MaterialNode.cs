@@ -29,36 +29,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public MDL0MaterialNode()
         {
-            _normMapRefLight1 =
-            _normMapRefLight2 =
-            _normMapRefLight3 =
-            _normMapRefLight4 = -1;
-            //_numLights = 1;
-
-            _chan1 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, this);
-            _chan2 = new LightChannel(15, new RGBAPixel(0, 0, 0, 255), new RGBAPixel(), 0, 0, this);
-        }
-
-        //Just settings some extra, more brawl-specific defaults here
-        public void SetImportValues()
-        {
-            _lightSetIndex = 20;
-            _fogIndex = 4;
-            _activeStages = 3;
-
-            C1ColorEnabled = true;
-            C1AlphaMaterialSource = GXColorSrc.Vertex;
-            C1ColorMaterialSource = GXColorSrc.Vertex;
-            C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-            C1ColorAttenuation = GXAttnFn.Spotlight;
-            C1AlphaEnabled = true;
-            C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-            C1AlphaAttenuation = GXAttnFn.Spotlight;
-
-            C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-            C2ColorAttenuation = GXAttnFn.None;
-            C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-            C2AlphaAttenuation = GXAttnFn.None;
+            _chan1 = new LightChannel(
+                63,
+                new RGBAPixel(128, 128, 128, 255), 
+                new RGBAPixel(255, 255, 255, 255), 
+                new LightChannelControl(true, GXColorSrc.Register, GXColorSrc.Register, GXDiffuseFn.Clamped, GXAttnFn.Spotlight),
+                new LightChannelControl(true, GXColorSrc.Register, GXColorSrc.Register, GXDiffuseFn.Clamped, GXAttnFn.Spotlight),
+                this);
+            _chan2 = new LightChannel(
+                15, 
+                new RGBAPixel(0, 0, 0, 255), 
+                new RGBAPixel(), 
+                0,
+                0,
+                this);
         }
 
         #region Variables
@@ -75,13 +59,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             _activeStages,
             _activeIndStages,
             _depthTestBeforeTexture;
+
         public sbyte
-            _normMapRefLight1,
-            _normMapRefLight2,
-            _normMapRefLight3,
-            _normMapRefLight4,
-            _lightSetIndex = -1,
-            _fogIndex = -1;
+            _normMapRefLight1 = -1,
+            _normMapRefLight2 = -1,
+            _normMapRefLight3 = -1,
+            _normMapRefLight4 = -1,
+            _lightSetIndex = 20,
+            _fogIndex = 4;
+
         private Bin32 _usageFlags = new Bin32();
         public CullMode _cull = CullMode.Cull_None;
         public uint _texMtxFlags;
@@ -2001,13 +1987,27 @@ For example, if the shader has two stages but this number is 1, the second stage
             : this((LightingChannelFlags)flags, mat, amb, color, alpha, material) { }
         
         public LightChannel(LightingChannelFlags flags, RGBAPixel mat, RGBAPixel amb, uint color, uint alpha, MDL0MaterialNode material)
+            : this(flags, mat, amb, new LightChannelControl(color, null), new LightChannelControl(alpha, null), material) { }
+
+        public LightChannel(uint flags, RGBAPixel mat, RGBAPixel amb, LightChannelControl color, LightChannelControl alpha, MDL0MaterialNode material)
+            : this((LightingChannelFlags)flags, mat, amb, color, alpha, material) { }
+
+        public LightChannel(
+            LightingChannelFlags flags, 
+            RGBAPixel mat, 
+            RGBAPixel amb,
+            LightChannelControl color,
+            LightChannelControl alpha, 
+            MDL0MaterialNode material)
         {
             _parent = material;
             _flags = flags;
             _matColor = mat;
             _ambColor = amb;
-            _color = new LightChannelControl(color, this);
-            _alpha = new LightChannelControl(alpha, this);
+            _color = color;
+            _color._parent = this;
+            _alpha = color;
+            _alpha._parent = this;
         }
 
         [Category("Lighting Channel"), Description("Determines if this channel should pass a color value to the LightChannel property in shader stages.")]
@@ -2250,6 +2250,20 @@ For example, if the shader has two stages but this number is 1, the second stage
         {
             _parent = parent;
             _binary = new Bin32(ctrl);
+        }
+        public LightChannelControl(
+            bool enabled, 
+            GXColorSrc matSource, 
+            GXColorSrc ambSource, 
+            GXDiffuseFn diffuseFunc,
+            GXAttnFn atten)
+        {
+            _binary = 0;
+            Enabled = enabled;
+            MaterialSource = matSource;
+            AmbientSource = ambSource;
+            DiffuseFunction = diffuseFunc;
+            Attenuation = atten;
         }
 
         public Bin32 _binary;

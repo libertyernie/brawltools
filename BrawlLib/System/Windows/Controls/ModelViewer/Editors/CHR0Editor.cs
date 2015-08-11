@@ -861,7 +861,7 @@ namespace System.Windows.Forms
                     !_mainWindow._rotating &&
                     !_mainWindow._translating &&
                     !_mainWindow._scaling)
-                    bone.RecalcBindState(!chkBoneEdit.Checked);
+                    bone.RecalcBindState(true, !chkBoneEdit.Checked);
 
                 ((ResourceNode)bone).SignalPropertyChange();
             }
@@ -948,7 +948,7 @@ namespace System.Windows.Forms
                     }
                     bone._bindState.CalcTransforms();
                     if (chkUpdateBindPose.Checked)
-                        bone.RecalcBindState(!chkBoneEdit.Checked);
+                        bone.RecalcBindState(true, !chkBoneEdit.Checked);
                     bone.SignalPropertyChange();
                 }
             }

@@ -25,7 +25,8 @@ namespace BrawlLib.Modeling
         public static ImportType ModelType;
         private static Type BoneType;
         private static ResourceNode TempRootBone;
-
+        public static Matrix TransformMatrix = Matrix.Identity;
+        
         public enum ImportType
         {
             MDL0, //Wii SDK
@@ -41,6 +42,8 @@ namespace BrawlLib.Modeling
             ModelType = type;
 
             BoneType = ModelType == ImportType.MDL0 ? typeof(MDL0BoneNode) : null;
+
+            //TransformMatrix = Matrix.TransformMatrix(_importOptions._modifyScale, _importOptions._modifyRotation, new Vector3());
 
             switch (type)
             {
@@ -208,7 +211,7 @@ namespace BrawlLib.Modeling
                 //Extract bones and objects and create bone tree
                 foreach (SceneEntry scene in shell._scenes)
                     foreach (NodeEntry node in scene._nodes)
-                        EnumNode(node, boneGroup, scene, model, shell, _objects, Matrix.Identity);
+                        EnumNode(node, boneGroup, scene, model, shell, _objects, TransformMatrix, Matrix.Identity);
 
                 //Add root bone if there are no bones
                 if (boneGroup.Children.Count == 0)
@@ -217,7 +220,7 @@ namespace BrawlLib.Modeling
                         case ImportType.MDL0:
                             MDL0BoneNode bone = new MDL0BoneNode();
                             bone.Scale = new Vector3(1);
-                            bone.RecalcBindState();
+                            bone.RecalcBindState(false, false);
                             bone._name = "TopN";
                             TempRootBone = bone;
                             break;
@@ -279,7 +282,8 @@ namespace BrawlLib.Modeling
             IModel model,
             DecoderShell shell,
             List<ObjectInfo> objects,
-            Matrix bindMatrix)
+            Matrix bindMatrix,
+            Matrix parentInvMatrix)
         {
             bindMatrix *= node._matrix;
 
@@ -288,7 +292,6 @@ namespace BrawlLib.Modeling
                 Error = "There was a problem creating a new bone.";
 
                 Influence inf = null;
-                ResourceNode newParent = null;
 
                 switch (ModelType)
                 {
@@ -296,32 +299,29 @@ namespace BrawlLib.Modeling
                         MDL0BoneNode bone = new MDL0BoneNode();
                         bone._name = node._name != null ? node._name : node._id;
 
-                        bone._bindState = node._transform;
+                        bone._bindState = node._matrix.Derive();
                         node._node = bone;
 
                         parent._children.Add(bone);
                         bone._parent = parent;
 
-                        bone.RecalcBindState();
+                        bone.RecalcBindState(false, false);
                         bone.CalcFlags();
 
-                        newParent = bone;
+                        parent = bone;
 
                         inf = new Influence(bone);
                         break;
                 }
 
-                if (newParent != null)
-                    foreach (NodeEntry e in node._children)
-                        EnumNode(e, newParent, scene, model, shell, objects, bindMatrix);
-
                 if (inf != null)
                     model.Influences._influences.Add(inf);
             }
-            else
-                foreach (NodeEntry e in node._children)
-                    EnumNode(e, parent, scene, model, shell, objects, bindMatrix);
 
+            //parentInvMatrix *= node._matrix.Invert();
+            foreach (NodeEntry e in node._children)
+                EnumNode(e, parent, scene, model, shell, objects, bindMatrix, parentInvMatrix);
+            
             foreach (InstanceEntry inst in node._instances)
             {
                 if (inst._type == InstanceType.Controller)
@@ -350,7 +350,7 @@ namespace BrawlLib.Modeling
                 else
                     foreach (NodeEntry e in shell._nodes)
                         if (e._id == inst._url)
-                            EnumNode(e, parent, scene, model, shell, objects, bindMatrix);
+                            EnumNode(e, parent, scene, model, shell, objects, bindMatrix, parentInvMatrix);
             }
         }
 
@@ -439,6 +439,7 @@ namespace BrawlLib.Modeling
                 if (parent != null && parent is MDL0BoneNode)
                 {
                     MDL0BoneNode bone = (MDL0BoneNode)parent;
+                    poly.DeferUpdateAssets();
                     poly.MatrixNode = bone;
 
                     foreach (DrawCall c in poly._drawCalls)
@@ -457,7 +458,8 @@ namespace BrawlLib.Modeling
                         Parent = TempRootBone,
                     };
 
-                    bone.RecalcBindState();
+                    bone.RecalcBindState(false, false);
+                    poly.DeferUpdateAssets();
                     poly.MatrixNode = bone;
 
                     foreach (DrawCall c in poly._drawCalls)
@@ -507,7 +509,7 @@ namespace BrawlLib.Modeling
             Error = "There was a problem creating a default material and shader.";
             if (model._matList.Count == 0 && model._objList.Count != 0)
             {
-                MDL0MaterialNode mat = new MDL0MaterialNode() { Name = "Default", };
+                MDL0MaterialNode mat = new MDL0MaterialNode() { _name = "Default", };
                 (mat.ShaderNode = new MDL0ShaderNode()).AddChild(new TEVStageNode()
                 {
                     RasterColor = ColorSelChan.LightChannel0,
@@ -566,70 +568,11 @@ namespace BrawlLib.Modeling
             if (model._matList != null)
                 foreach (MDL0MaterialNode mat in model._matList)
                 {
-                    if (_importOptions._mdlType == 0)
-                    {
-                        mat._lightSetIndex = 20;
-                        mat._fogIndex = 4;
-                        mat._activeStages = mat.ShaderNode.Stages;
-
-                        mat.C1ColorEnabled = true;
-                        mat.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-                        mat.C1ColorAttenuation = GXAttnFn.Spotlight;
-                        mat.C1AlphaEnabled = true;
-                        mat.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-                        mat.C1AlphaAttenuation = GXAttnFn.Spotlight;
-
-                        mat.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-                        mat.C2ColorAttenuation = GXAttnFn.None;
-                        mat.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-                        mat.C2AlphaAttenuation = GXAttnFn.None;
-                    }
-                    else
+                    mat._activeStages = mat.ShaderNode.Stages;
+                    if (_importOptions._mdlType == ImportOptions.MDLType.Stage)
                     {
                         mat._lightSetIndex = 0;
                         mat._fogIndex = 0;
-                        mat._activeStages = 1;
-
-                        mat._chan1.Color = new LightChannelControl(1795);
-                        mat._chan1.Alpha = new LightChannelControl(1795);
-                        mat._chan2.Color = new LightChannelControl(1795);
-                        mat._chan2.Alpha = new LightChannelControl(1795);
-                    }
-                }
-
-            Error = "There was a problem setting material color sources.";
-            if (model._objList != null)
-                foreach (MDL0ObjectNode obj1 in model._objList)
-                {
-                    MDL0MaterialNode p = obj1._drawCalls[0].MaterialNode;
-
-                    //Set materials to use register color if option set
-                    if (_importOptions._useReg)
-                    {
-                        p.LightChannel0.RasterColorEnabled = true;
-                        p.LightChannel0.RasterAlphaEnabled = true;
-                        p.LightChannel1.RasterColorEnabled = false;
-                        p.LightChannel1.RasterAlphaEnabled = false;
-                        p.C1MaterialColor = _importOptions._dfltClr;
-                        p.C1ColorMaterialSource = GXColorSrc.Register;
-                        p.C1AlphaMaterialSource = GXColorSrc.Register;
-                    }
-                    else
-                    {
-                        if (obj1._colorSet[0] != null)
-                        {
-                            p.LightChannel0.RasterColorEnabled = true;
-                            p.LightChannel0.RasterAlphaEnabled = true;
-                            p.C1AlphaMaterialSource = GXColorSrc.Vertex;
-                            p.C1ColorMaterialSource = GXColorSrc.Vertex;
-                        }
-                        if (obj1._colorSet[1] != null)
-                        {
-                            p.LightChannel1.RasterColorEnabled = true;
-                            p.LightChannel1.RasterAlphaEnabled = true;
-                            p.C2AlphaMaterialSource = GXColorSrc.Vertex;
-                            p.C2ColorMaterialSource = GXColorSrc.Vertex;
-                        }
                     }
                 }
 
@@ -687,7 +630,11 @@ namespace BrawlLib.Modeling
             public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
             [Category("Model"), Description("Sets the model version number, which affects how some parts of the model are written. Only versions 8, 9, 10 and 11 are supported.")]
             public int ModelVersion { get { return _modelVersion; } set { _modelVersion = value.Clamp(8, 11); } }
-
+            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Rotates the entire model before importing. This can be used to fix a model's up axis, as BrawlBox uses Y-up while some other 3D programs use Z-up.")]
+            //public Vector3 ModifyRotation { get { return _modifyRotation; } set { _modifyRotation = value; } }
+            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlBox uses centimeters while other 3D programs uses units such as meters or inches.")]
+            //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
+            
             [Category("Materials"), Description("The default texture wrap for material texture references.")]
             public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
             [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
@@ -726,6 +673,8 @@ namespace BrawlLib.Modeling
             //[Category("Tristripper"), Description("If true, the tristripper will search for strips backwards as well as forwards.")]
             //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
 
+            //public Vector3 _modifyRotation;
+            //public Vector3 _modifyScale = new Vector3(1.0f);
             public MDLType _mdlType = MDLType.Character;
             public bool _fltVerts = true;
             public bool _fltNrms = true;

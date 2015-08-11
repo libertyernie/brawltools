@@ -222,7 +222,7 @@ namespace System.Windows.Forms
                             CurrentFrame == 0 &&
                             SelectedBone != null)
                         {
-                            SelectedBone.RecalcBindState(!CHR0Editor.chkBoneEdit.Checked);
+                            SelectedBone.RecalcBindState(true, !CHR0Editor.chkBoneEdit.Checked);
                             UpdateModel(TargetModel, CurrentFrame);
                         }
 

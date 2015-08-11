@@ -830,19 +830,33 @@ namespace BrawlLib.Modeling
                         node._type = (NodeType)Enum.Parse(typeof(NodeType), (string)_reader.Value, true);
 
                 Matrix m = Matrix.Identity;
+                Matrix mInv = Matrix.Identity;
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("matrix", true))
-                        m *= ParseMatrix();
+                    {
+                        Matrix matrix = ParseMatrix();
+                        m *= matrix;
+                        //mInv *= matrix.Invert();
+                    }
                     else if (_reader.Name.Equals("rotate", true))
                     {
                         Vector4 v = ParseVec4();
                         m *= Matrix.RotationMatrix(v._x * v._w, v._y * v._w, v._z * v._w);
+                        //mInv *= Matrix.ReverseRotationMatrix(v._x * v._w, v._y * v._w, v._z * v._w);
                     }
                     else if (_reader.Name.Equals("scale", true))
-                        m.Scale(ParseVec3());
+                    {
+                        Vector3 scale = ParseVec3();
+                        m *= Matrix.ScaleMatrix(scale);
+                        //mInv *= Matrix.ScaleMatrix(1.0f / scale);
+                    }
                     else if (_reader.Name.Equals("translate", true))
-                        m.Translate(ParseVec3());
+                    {
+                        Vector3 translate = ParseVec3();
+                        m *= Matrix.TranslationMatrix(translate);
+                        //mInv *= Matrix.TranslationMatrix(-translate);
+                    }
                     else if (_reader.Name.Equals("node", true))
                         node._children.Add(ParseNode());
                     else if (_reader.Name.Equals("instance_controller", true))
@@ -872,7 +886,8 @@ namespace BrawlLib.Modeling
 
                     _reader.EndElement();
                 }
-                node._transform = (node._matrix = m).Derive();
+                node._matrix = m;
+                node._invMatrix = mInv;
                 return node;
             }
 
@@ -1116,8 +1131,8 @@ namespace BrawlLib.Modeling
         private class NodeEntry : ColladaEntry
         {
             internal NodeType _type = NodeType.NONE;
-            internal FrameState _transform;
             internal Matrix _matrix = Matrix.Identity;
+            internal Matrix _invMatrix = Matrix.Identity;
             internal List<NodeEntry> _children = new List<NodeEntry>();
             internal List<InstanceEntry> _instances = new List<InstanceEntry>();
 

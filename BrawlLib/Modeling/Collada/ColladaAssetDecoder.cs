@@ -158,17 +158,18 @@ namespace BrawlLib.Modeling
 
                 Error = "There was a problem creating a vertex from the geometry entry " + geo._name + ".\nMake sure that all the vertices are weighted properly.";
 
+                Vector3 worldPos = bindMatrix * skin._bindMatrix * pVert[i];
                 Vertex3 v;
                 if (inf.Weights.Count > 1)
                 {
                     //Match with manager
                     inf = infManager.FindOrCreate(inf);
-                    v = new Vertex3(bindMatrix * skin._bindMatrix * pVert[i], inf); //World position
+                    v = new Vertex3(worldPos, inf); //World position
                 }
                 else
                 {
                     bone = inf.Weights[0].Bone;
-                    v = new Vertex3(bindMatrix * bone.InverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
+                    v = new Vertex3(bone.InverseBindMatrix * worldPos, bone); //Local position
                 }
 
                 ushort index = 0;
@@ -197,13 +198,14 @@ namespace BrawlLib.Modeling
                         v = vertList[*pVInd];
                     if (v != null && v.MatrixNode != null)
                         if (v.MatrixNode.Weights.Count > 1)
-                            pNorms[i] = 
-                                (bindMatrix * skin._bindMatrix).GetRotationMatrix() * 
+                            pNorms[i] =
+                                (bindMatrix * 
+                                skin._bindMatrix).GetRotationMatrix() * 
                                 pNorms[i];
                         else
-                            pNorms[i] = 
-                                (bindMatrix * 
-                                v.MatrixNode.Weights[0].Bone.InverseBindMatrix *
+                            pNorms[i] =
+                                (v.MatrixNode.Weights[0].Bone.InverseBindMatrix *
+                                bindMatrix * 
                                 skin._bindMatrix).GetRotationMatrix() * 
                                 pNorms[i];
                 }
