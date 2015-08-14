@@ -742,7 +742,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (first)
                         {
                             if (v.MatrixNode != null)
+                            {
+                                DeferUpdateAssets();
                                 MatrixNode = model._linker.NodeCache[v.MatrixNode.NodeIndex];
+                            }
 
                             first = false;
                         }

@@ -1873,7 +1873,14 @@ namespace BrawlLib.Modeling
             else
             {
                 node = new MDL0VertexNode();
-                obj.Model.VertexGroup.AddChild(node);
+                MDL0Node m = obj.Model;
+                if (m.VertexGroup == null)
+                {
+                    MDL0GroupNode g = new MDL0GroupNode(MDLResourceType.Vertices);
+                    m.LinkGroup(g);
+                    g.Parent = m;
+                }
+                m.VertexGroup.AddChild(node);
                 node.Name = node.FindName("Regenerated");
                 obj._vertexNode = node;
                 obj._vertexNode._objects.Add(obj);
@@ -1922,7 +1929,14 @@ namespace BrawlLib.Modeling
             else
             {
                 node = new MDL0NormalNode();
-                obj.Model.NormalGroup.AddChild(node);
+                MDL0Node m = obj.Model;
+                if (m.NormalGroup == null)
+                {
+                    MDL0GroupNode g = new MDL0GroupNode(MDLResourceType.Normals);
+                    m.LinkGroup(g);
+                    g.Parent = m;
+                }
+                m.NormalGroup.AddChild(node);
                 node.Name = node.FindName("Regenerated");
                 obj._normalNode = node;
                 obj._normalNode._objects.Add(obj);
@@ -1967,7 +1981,14 @@ namespace BrawlLib.Modeling
             else
             {
                 node = new MDL0ColorNode();
-                obj.Model.ColorGroup.AddChild(node);
+                MDL0Node m = obj.Model;
+                if (m.ColorGroup == null)
+                {
+                    MDL0GroupNode g = new MDL0GroupNode(MDLResourceType.Colors);
+                    m.LinkGroup(g);
+                    g.Parent = m;
+                }
+                m.ColorGroup.AddChild(node);
                 node.Name = node.FindName("Regenerated");
                 obj._colorSet[id] = node;
                 obj._colorSet[id]._objects.Add(obj);
@@ -2012,7 +2033,14 @@ namespace BrawlLib.Modeling
             else
             {
                 node = new MDL0UVNode();
-                obj.Model.UVGroup.AddChild(node);
+                MDL0Node m = obj.Model;
+                if (m.UVGroup == null)
+                {
+                    MDL0GroupNode g = new MDL0GroupNode(MDLResourceType.UVs);
+                    m.LinkGroup(g);
+                    g.Parent = m;
+                }
+                m.UVGroup.AddChild(node);
                 node.Name = node.FindName("Regenerated");
                 obj._uvSet[id] = node;
                 obj._uvSet[id]._objects.Add(obj);

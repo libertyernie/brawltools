@@ -641,84 +641,89 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         }
 
         //Change has been made to bind state, need to recalculate matrices
-        public void RecalcBindState(bool updateMesh = true)
+        public void RecalcBindState(bool updateMesh, bool moveMeshWithBone)
         {
-            //Get all objects that are influenced by these bones
-            List<MDL0ObjectNode> changed = new List<MDL0ObjectNode>();
-            RecursiveGetInfluencedObjects(ref changed);
-
-            if (!updateMesh) //Need to stop vertices rigged to one bone from moving
-                RecursiveRecalcBindState(false, false);
-            else //Need to move vertices rigged to influences to the new position
-            {
-                //Note: vertex position precision goes down over time for influences
-                //Try not to call this too much, or manual vertex fixes will be needed
-
-                Model.ApplyCHR(null, 0);
-                foreach (MDL0ObjectNode o in changed)
-                    if (o._manager != null)
-                    {
-                        Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
-                        if (o.MatrixNode != null)
-                        {
-                            if (o.MatrixNode is Influence)
-                            {
-                                Influence inf = (Influence)o.MatrixNode;
-                                foreach (Vertex3 v in o._manager._vertices)
-                                {
-                                    v._position *= inf.Matrix;
-                                    foreach (int i in v._faceDataIndices)
-                                        pData[i] *= inf.Matrix.GetRotationMatrix();
-                                }
-                            }
-                        }
-                        else
-                            foreach (Vertex3 v in o._manager._vertices)
-                                if (v.MatrixNode is Influence)
-                                {
-                                    Influence inf = (Influence)v.MatrixNode;
-                                    v._position *= inf.Matrix;
-                                    foreach (int i in v._faceDataIndices)
-                                        pData[i] *= inf.Matrix.GetRotationMatrix();
-                                }
-                    }
-
+            if (!updateMesh)
                 RecursiveRecalcBindState(true, false);
-                foreach (Influence inf in Model._influences._influences)
-                    inf.CalcMatrix();
+            else
+            {
+                //Get all objects that are influenced by these bones
+                List<MDL0ObjectNode> changed = new List<MDL0ObjectNode>();
+                RecursiveGetInfluencedObjects(ref changed);
 
-                foreach (MDL0ObjectNode o in changed)
-                    if (o._manager != null)
-                    {
-                        Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
-                        if (o.MatrixNode != null)
+                if (!moveMeshWithBone) //Need to stop vertices rigged to one bone from moving
+                    RecursiveRecalcBindState(false, false);
+                else //Need to move vertices rigged to influences to the new position
+                {
+                    //Note: vertex position precision goes down over time for influences
+                    //Try not to call this too much, or manual vertex fixes will be needed
+
+                    Model.ApplyCHR(null, 0);
+                    foreach (MDL0ObjectNode o in changed)
+                        if (o._manager != null)
                         {
-                            if (o.MatrixNode is Influence)
+                            Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
+                            if (o.MatrixNode != null)
                             {
-                                Influence inf = (Influence)o.MatrixNode;
-                                foreach (Vertex3 v in o._manager._vertices)
+                                if (o.MatrixNode is Influence)
                                 {
-                                    v._position *= inf.InverseMatrix;
-                                    foreach (int i in v._faceDataIndices)
-                                        pData[i] *= inf.InverseMatrix.GetRotationMatrix();
+                                    Influence inf = (Influence)o.MatrixNode;
+                                    foreach (Vertex3 v in o._manager._vertices)
+                                    {
+                                        v._position *= inf.Matrix;
+                                        foreach (int i in v._faceDataIndices)
+                                            pData[i] *= inf.Matrix.GetRotationMatrix();
+                                    }
                                 }
                             }
+                            else
+                                foreach (Vertex3 v in o._manager._vertices)
+                                    if (v.MatrixNode is Influence)
+                                    {
+                                        Influence inf = (Influence)v.MatrixNode;
+                                        v._position *= inf.Matrix;
+                                        foreach (int i in v._faceDataIndices)
+                                            pData[i] *= inf.Matrix.GetRotationMatrix();
+                                    }
                         }
-                        else
-                            foreach (Vertex3 v in o._manager._vertices)
-                                if (v.MatrixNode is Influence)
-                                {
-                                    Influence inf = (Influence)v.MatrixNode;
-                                    v._position *= inf.InverseMatrix;
-                                    foreach (int i in v._faceDataIndices)
-                                        pData[i] *= inf.InverseMatrix.GetRotationMatrix();
-                                }
-                    }
-            }
 
-            //Update the external arrays with the new unweighted vertices and normals
-            foreach (MDL0ObjectNode o in changed)
-                o.SetEditedAssets(false, true, true);
+                    RecursiveRecalcBindState(true, false);
+                    foreach (Influence inf in Model._influences._influences)
+                        inf.CalcMatrix();
+
+                    foreach (MDL0ObjectNode o in changed)
+                        if (o._manager != null)
+                        {
+                            Vector3* pData = (Vector3*)o._manager._faceData[1].Address;
+                            if (o.MatrixNode != null)
+                            {
+                                if (o.MatrixNode is Influence)
+                                {
+                                    Influence inf = (Influence)o.MatrixNode;
+                                    foreach (Vertex3 v in o._manager._vertices)
+                                    {
+                                        v._position *= inf.InverseMatrix;
+                                        foreach (int i in v._faceDataIndices)
+                                            pData[i] *= inf.InverseMatrix.GetRotationMatrix();
+                                    }
+                                }
+                            }
+                            else
+                                foreach (Vertex3 v in o._manager._vertices)
+                                    if (v.MatrixNode is Influence)
+                                    {
+                                        Influence inf = (Influence)v.MatrixNode;
+                                        v._position *= inf.InverseMatrix;
+                                        foreach (int i in v._faceDataIndices)
+                                            pData[i] *= inf.InverseMatrix.GetRotationMatrix();
+                                    }
+                        }
+                }
+
+                //Update the external arrays with the new unweighted vertices and normals
+                foreach (MDL0ObjectNode o in changed)
+                    o.SetEditedAssets(false, true, true);
+            }
         }
 
         private void RecursiveGetInfluencedObjects(ref List<MDL0ObjectNode> changed)

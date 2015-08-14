@@ -475,7 +475,7 @@ namespace BrawlLib.Modeling
                     bone._bindState._scale = new Vector3(1.0f);
                     bone._bindState._translate = new Vector3(b._wPos[0], b._wPos[1], b._wPos[2]);
                     bone._bindState.CalcTransforms();
-                    bone.RecalcBindState();
+                    bone.RecalcBindState(false, false);
                 }
 
                 BoneCache.Add(bone);
@@ -762,7 +762,7 @@ namespace BrawlLib.Modeling
 
                 //Derive to state and recalc bind matrices
                 cBone._bindState = m.Derive();
-                cBone.RecalcBindState();
+                cBone.RecalcBindState(false, false);
             }
             else //Parent not found, continue searching children.
                 foreach (MDL0BoneNode pMatch in pBone._children)

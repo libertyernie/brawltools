@@ -251,8 +251,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     };
 
                     _matGroup.AddChild(node);
-                    node.SetImportValues();
-
                     for (int i = 0; i <= n.Children.Count; i++)
                     {
                         MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
@@ -543,7 +541,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         newBone = n;
 
                         //Recalculate the bind matrices of the newly added bone chain
-                        root.RecalcBindState();
+                        root.RecalcBindState(false, false);
                     }
                 }
                 //Clean influence of possible unused users, just in case
@@ -578,7 +576,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 newBone._billboardFlags = bone._billboardFlags;
                 newBone._boneFlags = bone._boneFlags;
                 newBone._extents = bone._extents;
-                newBone.RecalcBindState(false);
+                newBone.RecalcBindState(false, false);
             }
 
             //Regenerate bone cache, the FindBone function uses it

@@ -25,7 +25,7 @@ namespace BrawlLib.Modeling
         List<Influence> LinkedInfluences { get; }
         bool IsRendering { get; set; }
         void Render(bool targetModel, ModelPanelViewport viewport, Vector3 position = new Vector3());
-        void RecalcBindState(bool updateMesh = true);
+        void RecalcBindState(bool updateMesh, bool moveMeshWithBone);
         void RecalcFrameState(ModelPanelViewport v = null);
     }
 }

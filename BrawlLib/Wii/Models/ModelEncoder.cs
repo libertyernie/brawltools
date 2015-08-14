@@ -452,6 +452,32 @@ namespace BrawlLib.Wii.Models
                 }
             }
 
+            if (model._isImport && model._objList != null)
+                foreach (MDL0ObjectNode obj1 in model._objList)
+                {
+                    if (obj1 == null || obj1._drawCalls == null || obj1._drawCalls.Count == 0)
+                        continue;
+
+                    MDL0MaterialNode p = obj1._drawCalls[0].MaterialNode;
+                    if (p == null)
+                        continue;
+
+                    //Set materials to use register color if option set
+                    if (!Collada._importOptions._useReg && 
+                        linker._colors != null && 
+                        linker._colors.Count > 0)
+                    {
+                        p.C1AlphaMaterialSource = GXColorSrc.Vertex;
+                        p.C1ColorMaterialSource = GXColorSrc.Vertex;
+                    }
+                    else
+                    {
+                        p.C1MaterialColor = Collada._importOptions._dfltClr;
+                        p.C1ColorMaterialSource = GXColorSrc.Register;
+                        p.C1AlphaMaterialSource = GXColorSrc.Register;
+                    }
+                }
+
             return
             (linker._headerLen = headerLen) +
             (linker._tableLen = tableLen) +
