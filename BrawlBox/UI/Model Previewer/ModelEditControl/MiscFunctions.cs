@@ -327,13 +327,6 @@ namespace System.Windows.Forms
 
             OnSelectedVerticesChanged();
 
-#if DEBUG
-            if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
-                weightEditor.TargetVertices = _selectedVertices;
-#endif
-            if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
-                vertexEditor.TargetVertices = _selectedVertices;
-
             ModelPanel.Invalidate();
 
             return true;
@@ -632,12 +625,8 @@ namespace System.Windows.Forms
 
         protected override void OnSelectedVerticesChanged()
         {
-//#if DEBUG
-//            if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
-//                weightEditor.TargetVertices = _selectedVertices;
-//#endif
-//            if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
-//                vertexEditor.TargetVertices = _selectedVertices;
+            //weightEditor.TargetVertices = _selectedVertices;
+            //vertexEditor.TargetVertices = _selectedVertices;
 
             base.OnSelectedVerticesChanged();
         }

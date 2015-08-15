@@ -2174,12 +2174,8 @@ namespace System.Windows.Forms
         {
             if (e.Button == Forms.MouseButtons.Left && !(_scaling || _translating || _rotating))
             {
-#if DEBUG
-                if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
-                    weightEditor.TargetVertices = _selectedVertices;
-#endif
-                if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
-                    vertexEditor.TargetVertices = _selectedVertices;
+                weightEditor.TargetVertices = _selectedVertices;
+                vertexEditor.TargetVertices = _selectedVertices;
             }
 
             base.modelPanel1_MouseUp(sender, e);
