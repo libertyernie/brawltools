@@ -2006,7 +2006,7 @@ For example, if the shader has two stages but this number is 1, the second stage
             _ambColor = amb;
             _color = color;
             _color._parent = this;
-            _alpha = color;
+            _alpha = alpha;
             _alpha._parent = this;
         }
 
