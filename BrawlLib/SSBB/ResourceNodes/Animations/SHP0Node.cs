@@ -63,20 +63,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             table.Add(Name);
 
-            //Need to assign all strings before clearing the string list!
-            Populate();
-
-            _strings.Clear();
-            foreach (SHP0EntryNode entry in Children)
-            {
-                if (!_strings.Contains(entry.Name))
-                    _strings.Add(entry.Name);
-
-                foreach (SHP0VertexSetNode n in entry.Children)
-                    if (!_strings.Contains(n.Name))
-                        _strings.Add(n.Name);
-            }
-
             foreach (string s in _strings)
                 table.Add(s);
 
@@ -178,13 +164,26 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             ((SHP0v3*)address)->_stringListOffset = (int)dataAddress - (int)address;
 
+            dataAddress += _strings.Count * 4;
+
             if (_userEntries.Count > 0 && _version == 4)
                 _userEntries.Write(((SHP0v4*)address)->UserData = dataAddress);
         }
 
         public override int OnCalculateSize(bool force)
         {
-            int size = (Version == 4 ? SHP0v4.Size : SHP0v3.Size) + 0x18 + Children.Count * 0x10;
+            _strings.Clear();
+            foreach (SHP0EntryNode entry in Children)
+            {
+                if (!_strings.Contains(entry.Name))
+                    _strings.Add(entry.Name);
+
+                foreach (SHP0VertexSetNode n in entry.Children)
+                    if (!_strings.Contains(n.Name))
+                        _strings.Add(n.Name);
+            }
+
+            int size = (Version == 4 ? SHP0v4.Size : SHP0v3.Size) + 0x18 + Children.Count * 0x10 + _strings.Count * 4;
             foreach (SHP0EntryNode entry in Children)
                 size += entry.CalculateSize(true) + entry.Children.Count * 4;
 
@@ -420,7 +419,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < _indexCount; i++)
             {
                 string name;
-                if (_indices[i] < ((SHP0Node)Parent)._strings.Count)
+                if (_indices[i] < ((SHP0Node)Parent)._strings.Count && _indices[i] >= 0)
                     name = ((SHP0Node)Parent)._strings[_indices[i]];
                 else
                     name = "Unknown";
