@@ -232,7 +232,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             e._enabled = codeEnabled ?? false;
                             e._lines = g.ToArray();
                             e._description = String.Join(Environment.NewLine, description);
-                            node.AddChild(e);
+                            node.AddChild(e, false);
                         }
                     }
                 }
@@ -295,7 +295,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     int index = -1;
                     if ((index = s.IndexOf(c._code)) >= 0)
                     {
-                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length), _enabled = true });
+                        g.AddChild(new GCTCodeEntryNode()
+                        {
+                            _name = c._name,
+                            _description = c._description,
+                            LinesNoSpaces = s.Substring(index, c._code.Length),
+                            _enabled = true }, false);
                         s = s.Remove(index, c._code.Length);
                     }
                 }
