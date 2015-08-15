@@ -65,6 +65,7 @@ namespace BrawlLib.Wii.Animations
                             if (line.CompareTo("Keyframe Data") == 0)
                             {
                                 CHR0EntryNode node = new CHR0EntryNode();
+                                chr0.AddChild(node);
                                 node.Name = reader.ReadLine();
                                 node.SetSize(keyFrameCount, chr0.Loop);
 
@@ -128,7 +129,6 @@ namespace BrawlLib.Wii.Animations
                                             node.SetKeyframe(8, frameCount, scale.z[frameCount]);
                                     }
                                 }
-                                chr0.AddChild(node);
                             }
                         }
                     }
