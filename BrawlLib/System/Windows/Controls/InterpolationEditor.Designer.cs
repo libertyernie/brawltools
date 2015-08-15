@@ -30,12 +30,21 @@
         {
             this.panel1 = new System.Windows.Forms.Panel();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.chkUseOut = new System.Windows.Forms.CheckBox();
+            this.label11 = new System.Windows.Forms.Label();
+            this.numOutFrame = new System.Windows.Forms.NumericInputBox();
+            this.label10 = new System.Windows.Forms.Label();
+            this.numInFrame = new System.Windows.Forms.NumericInputBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
+            this.numOutTan = new System.Windows.Forms.NumericInputBox();
+            this.numOutVal = new System.Windows.Forms.NumericInputBox();
             this.label5 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.numInTan = new System.Windows.Forms.NumericInputBox();
+            this.numInValue = new System.Windows.Forms.NumericInputBox();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.displayToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkViewOne = new System.Windows.Forms.ToolStripMenuItem();
@@ -57,20 +66,16 @@
             this.chkLinear = new System.Windows.Forms.ToolStripMenuItem();
             this.chkSmooth = new System.Windows.Forms.ToolStripMenuItem();
             this.chkFlat = new System.Windows.Forms.ToolStripMenuItem();
-            this.chkBreakKey = new System.Windows.Forms.ToolStripMenuItem();
+            this.BreakKey = new System.Windows.Forms.ToolStripMenuItem();
             this.cbTransform = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.interpolationViewer = new System.Windows.Forms.InterpolationViewer();
+            this.label9 = new System.Windows.Forms.Label();
             this.numPrecision = new System.Windows.Forms.NumericInputBox();
             this.nibTanLen = new System.Windows.Forms.NumericInputBox();
             this.numFrameVal = new System.Windows.Forms.NumericInputBox();
-            this.numOutTan = new System.Windows.Forms.NumericInputBox();
-            this.numOutVal = new System.Windows.Forms.NumericInputBox();
-            this.numInTan = new System.Windows.Forms.NumericInputBox();
-            this.numInValue = new System.Windows.Forms.NumericInputBox();
-            this.label9 = new System.Windows.Forms.Label();
+            this.interpolationViewer = new System.Windows.Forms.InterpolationViewer();
             this.panel1.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.menuStrip1.SuspendLayout();
@@ -90,6 +95,11 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.chkUseOut);
+            this.groupBox1.Controls.Add(this.label11);
+            this.groupBox1.Controls.Add(this.numOutFrame);
+            this.groupBox1.Controls.Add(this.label10);
+            this.groupBox1.Controls.Add(this.numInFrame);
             this.groupBox1.Controls.Add(this.label6);
             this.groupBox1.Controls.Add(this.label7);
             this.groupBox1.Controls.Add(this.label8);
@@ -109,12 +119,68 @@
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Edit Keyframe";
             // 
+            // chkUseOut
+            // 
+            this.chkUseOut.AutoSize = true;
+            this.chkUseOut.Location = new System.Drawing.Point(243, 21);
+            this.chkUseOut.Name = "chkUseOut";
+            this.chkUseOut.Size = new System.Drawing.Size(15, 14);
+            this.chkUseOut.TabIndex = 16;
+            this.chkUseOut.UseVisualStyleBackColor = true;
+            this.chkUseOut.CheckedChanged += new System.EventHandler(this.chkUseOut_CheckedChanged);
+            // 
+            // label11
+            // 
+            this.label11.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label11.Location = new System.Drawing.Point(351, 17);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(57, 20);
+            this.label11.TabIndex = 15;
+            this.label11.Text = "Frame:";
+            this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // numOutFrame
+            // 
+            this.numOutFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numOutFrame.Integral = true;
+            this.numOutFrame.Location = new System.Drawing.Point(407, 17);
+            this.numOutFrame.MaximumValue = 3.402823E+38F;
+            this.numOutFrame.MinimumValue = -3.402823E+38F;
+            this.numOutFrame.Name = "numOutFrame";
+            this.numOutFrame.Size = new System.Drawing.Size(60, 20);
+            this.numOutFrame.TabIndex = 14;
+            this.numOutFrame.Text = "0";
+            this.numOutFrame.ValueChanged += new System.EventHandler(this.numOutFrame_ValueChanged);
+            // 
+            // label10
+            // 
+            this.label10.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label10.Location = new System.Drawing.Point(121, 17);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(57, 20);
+            this.label10.TabIndex = 13;
+            this.label10.Text = "Frame:";
+            this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // numInFrame
+            // 
+            this.numInFrame.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numInFrame.Integral = true;
+            this.numInFrame.Location = new System.Drawing.Point(177, 17);
+            this.numInFrame.MaximumValue = 3.402823E+38F;
+            this.numInFrame.MinimumValue = -3.402823E+38F;
+            this.numInFrame.Name = "numInFrame";
+            this.numInFrame.Size = new System.Drawing.Size(60, 20);
+            this.numInFrame.TabIndex = 12;
+            this.numInFrame.Text = "0";
+            this.numInFrame.ValueChanged += new System.EventHandler(this.numInFrame_ValueChanged);
+            // 
             // label6
             // 
             this.label6.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label6.Location = new System.Drawing.Point(236, 17);
             this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(231, 20);
+            this.label6.Size = new System.Drawing.Size(116, 20);
             this.label6.TabIndex = 11;
             this.label6.Text = "Out";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -139,12 +205,38 @@
             this.label8.Text = "Value:";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
+            // numOutTan
+            // 
+            this.numOutTan.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numOutTan.Integral = false;
+            this.numOutTan.Location = new System.Drawing.Point(407, 36);
+            this.numOutTan.MaximumValue = 3.402823E+38F;
+            this.numOutTan.MinimumValue = -3.402823E+38F;
+            this.numOutTan.Name = "numOutTan";
+            this.numOutTan.Size = new System.Drawing.Size(60, 20);
+            this.numOutTan.TabIndex = 7;
+            this.numOutTan.Text = "0";
+            this.numOutTan.ValueChanged += new System.EventHandler(this.numOutTan_ValueChanged);
+            // 
+            // numOutVal
+            // 
+            this.numOutVal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numOutVal.Integral = false;
+            this.numOutVal.Location = new System.Drawing.Point(292, 36);
+            this.numOutVal.MaximumValue = 3.402823E+38F;
+            this.numOutVal.MinimumValue = -3.402823E+38F;
+            this.numOutVal.Name = "numOutVal";
+            this.numOutVal.Size = new System.Drawing.Size(60, 20);
+            this.numOutVal.TabIndex = 8;
+            this.numOutVal.Text = "0";
+            this.numOutVal.ValueChanged += new System.EventHandler(this.numOutVal_ValueChanged);
+            // 
             // label5
             // 
             this.label5.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.label5.Location = new System.Drawing.Point(6, 17);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(231, 20);
+            this.label5.Size = new System.Drawing.Size(116, 20);
             this.label5.TabIndex = 6;
             this.label5.Text = "In";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -168,6 +260,32 @@
             this.label2.TabIndex = 3;
             this.label2.Text = "Value:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // numInTan
+            // 
+            this.numInTan.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numInTan.Integral = false;
+            this.numInTan.Location = new System.Drawing.Point(177, 36);
+            this.numInTan.MaximumValue = 3.402823E+38F;
+            this.numInTan.MinimumValue = -3.402823E+38F;
+            this.numInTan.Name = "numInTan";
+            this.numInTan.Size = new System.Drawing.Size(60, 20);
+            this.numInTan.TabIndex = 0;
+            this.numInTan.Text = "0";
+            this.numInTan.ValueChanged += new System.EventHandler(this.numInTan_ValueChanged);
+            // 
+            // numInValue
+            // 
+            this.numInValue.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numInValue.Integral = false;
+            this.numInValue.Location = new System.Drawing.Point(62, 36);
+            this.numInValue.MaximumValue = 3.402823E+38F;
+            this.numInValue.MinimumValue = -3.402823E+38F;
+            this.numInValue.Name = "numInValue";
+            this.numInValue.Size = new System.Drawing.Size(60, 20);
+            this.numInValue.TabIndex = 2;
+            this.numInValue.Text = "0";
+            this.numInValue.ValueChanged += new System.EventHandler(this.numInValue_ValueChanged);
             // 
             // menuStrip1
             // 
@@ -216,12 +334,16 @@
             this.chkTanStrength.Name = "chkTanStrength";
             this.chkTanStrength.Size = new System.Drawing.Size(294, 22);
             this.chkTanStrength.Text = "Show tangent strength";
+            this.chkTanStrength.Visible = false;
+            this.chkTanStrength.Click += new System.EventHandler(this.chkTanStrength_Click);
             // 
             // chkTanAngle
             // 
             this.chkTanAngle.Name = "chkTanAngle";
             this.chkTanAngle.Size = new System.Drawing.Size(294, 22);
             this.chkTanAngle.Text = "Tangent angle (deg) instead of slope (y/x)";
+            this.chkTanAngle.Visible = false;
+            this.chkTanAngle.Click += new System.EventHandler(this.chkTanAngle_Click);
             // 
             // optionsToolStripMenuItem
             // 
@@ -328,7 +450,7 @@
             // 
             this.editKeyframeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.slopeToolStripMenuItem,
-            this.chkBreakKey});
+            this.BreakKey});
             this.editKeyframeToolStripMenuItem.Name = "editKeyframeToolStripMenuItem";
             this.editKeyframeToolStripMenuItem.Size = new System.Drawing.Size(85, 19);
             this.editKeyframeToolStripMenuItem.Text = "Edit Keyframe";
@@ -342,6 +464,7 @@
             this.slopeToolStripMenuItem.Name = "slopeToolStripMenuItem";
             this.slopeToolStripMenuItem.Size = new System.Drawing.Size(141, 22);
             this.slopeToolStripMenuItem.Text = "Slope";
+            this.slopeToolStripMenuItem.Visible = false;
             // 
             // chkLinear
             // 
@@ -364,12 +487,12 @@
             this.chkFlat.Text = "Make Flat";
             this.chkFlat.Click += new System.EventHandler(this.chkFlat_Click);
             // 
-            // chkBreakKey
+            // BreakKey
             // 
-            this.chkBreakKey.Name = "chkBreakKey";
-            this.chkBreakKey.Size = new System.Drawing.Size(141, 22);
-            this.chkBreakKey.Text = "Break In/Out";
-            this.chkBreakKey.Click += new System.EventHandler(this.chkBreakKey_Click);
+            this.BreakKey.Name = "BreakKey";
+            this.BreakKey.Size = new System.Drawing.Size(141, 22);
+            this.BreakKey.Text = "Break In/Out";
+            this.BreakKey.Click += new System.EventHandler(this.chkBreakKey_Click);
             // 
             // cbTransform
             // 
@@ -428,21 +551,16 @@
             this.panel2.Size = new System.Drawing.Size(570, 29);
             this.panel2.TabIndex = 4;
             // 
-            // interpolationViewer
+            // label9
             // 
-            this.interpolationViewer.AlterAdjTangent_OnSelectedDrag = true;
-            this.interpolationViewer.AlterSelectedTangent_OnDrag = true;
-            this.interpolationViewer.DisplayAllKeyframes = true;
-            this.interpolationViewer.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.interpolationViewer.DrawTangents = true;
-            this.interpolationViewer.GenerateTangents = false;
-            this.interpolationViewer.KeyDraggingAllowed = false;
-            this.interpolationViewer.Location = new System.Drawing.Point(0, 63);
-            this.interpolationViewer.Name = "interpolationViewer";
-            this.interpolationViewer.Size = new System.Drawing.Size(570, 108);
-            this.interpolationViewer.SyncStartEnd = false;
-            this.interpolationViewer.TabIndex = 3;
-            this.interpolationViewer.TangentLength = 5F;
+            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.label9.Location = new System.Drawing.Point(178, 5);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(134, 20);
+            this.label9.TabIndex = 9;
+            this.label9.Text = "Interpolation Precision:";
+            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // numPrecision
             // 
@@ -486,66 +604,21 @@
             this.numFrameVal.Text = "0";
             this.numFrameVal.ValueChanged += new System.EventHandler(this.numFrameVal_ValueChanged);
             // 
-            // numOutTan
+            // interpolationViewer
             // 
-            this.numOutTan.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numOutTan.Integral = false;
-            this.numOutTan.Location = new System.Drawing.Point(407, 36);
-            this.numOutTan.MaximumValue = 3.402823E+38F;
-            this.numOutTan.MinimumValue = -3.402823E+38F;
-            this.numOutTan.Name = "numOutTan";
-            this.numOutTan.Size = new System.Drawing.Size(60, 20);
-            this.numOutTan.TabIndex = 7;
-            this.numOutTan.Text = "0";
-            // 
-            // numOutVal
-            // 
-            this.numOutVal.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numOutVal.Integral = false;
-            this.numOutVal.Location = new System.Drawing.Point(292, 36);
-            this.numOutVal.MaximumValue = 3.402823E+38F;
-            this.numOutVal.MinimumValue = -3.402823E+38F;
-            this.numOutVal.Name = "numOutVal";
-            this.numOutVal.Size = new System.Drawing.Size(60, 20);
-            this.numOutVal.TabIndex = 8;
-            this.numOutVal.Text = "0";
-            // 
-            // numInTan
-            // 
-            this.numInTan.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numInTan.Integral = false;
-            this.numInTan.Location = new System.Drawing.Point(177, 36);
-            this.numInTan.MaximumValue = 3.402823E+38F;
-            this.numInTan.MinimumValue = -3.402823E+38F;
-            this.numInTan.Name = "numInTan";
-            this.numInTan.Size = new System.Drawing.Size(60, 20);
-            this.numInTan.TabIndex = 0;
-            this.numInTan.Text = "0";
-            this.numInTan.ValueChanged += new System.EventHandler(this.numInTan_ValueChanged);
-            // 
-            // numInValue
-            // 
-            this.numInValue.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numInValue.Integral = false;
-            this.numInValue.Location = new System.Drawing.Point(62, 36);
-            this.numInValue.MaximumValue = 3.402823E+38F;
-            this.numInValue.MinimumValue = -3.402823E+38F;
-            this.numInValue.Name = "numInValue";
-            this.numInValue.Size = new System.Drawing.Size(60, 20);
-            this.numInValue.TabIndex = 2;
-            this.numInValue.Text = "0";
-            this.numInValue.ValueChanged += new System.EventHandler(this.numInValue_ValueChanged);
-            // 
-            // label9
-            // 
-            this.label9.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.label9.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label9.Location = new System.Drawing.Point(178, 5);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(134, 20);
-            this.label9.TabIndex = 9;
-            this.label9.Text = "Interpolation Precision:";
-            this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.interpolationViewer.AlterAdjTangent_OnSelectedDrag = true;
+            this.interpolationViewer.AlterSelectedTangent_OnDrag = true;
+            this.interpolationViewer.DisplayAllKeyframes = true;
+            this.interpolationViewer.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.interpolationViewer.DrawTangents = true;
+            this.interpolationViewer.GenerateTangents = false;
+            this.interpolationViewer.KeyDraggingAllowed = false;
+            this.interpolationViewer.Location = new System.Drawing.Point(0, 63);
+            this.interpolationViewer.Name = "interpolationViewer";
+            this.interpolationViewer.Size = new System.Drawing.Size(570, 108);
+            this.interpolationViewer.SyncStartEnd = false;
+            this.interpolationViewer.TabIndex = 3;
+            this.interpolationViewer.TangentLength = 5F;
             // 
             // InterpolationEditor
             // 
@@ -609,8 +682,13 @@
         private ToolStripMenuItem chkLinear;
         private ToolStripMenuItem chkSmooth;
         private ToolStripMenuItem chkFlat;
-        private ToolStripMenuItem chkBreakKey;
+        private ToolStripMenuItem BreakKey;
         private NumericInputBox numPrecision;
         private Label label9;
+        private CheckBox chkUseOut;
+        private Label label11;
+        private NumericInputBox numOutFrame;
+        private Label label10;
+        private NumericInputBox numInFrame;
     }
 }

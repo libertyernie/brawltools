@@ -261,13 +261,14 @@ namespace System.Windows.Forms
                 return false;
             }
 
-            for (entry = root._next; (entry != root) && (entry._index < index); entry = entry._next)
+            for (entry = root._next; (entry != root) && (entry._index <= index); entry = entry._next)
                 if (entry._index == index)
                 {
                     if (entry._next._index == entry._index)
                     {
                         one = entry._value;
                         two = entry._next._value;
+                        return true;
                     }
                     else
                     {
@@ -605,14 +606,14 @@ namespace System.Windows.Forms
             {
                 int frameVal = (int)(e.X / _xScale + 0.5f);
                 KeyframeEntry entry;
-                for (entry = _keyRoot._next; 
-                    entry != _keyRoot && entry._index >= 0 && entry._index <= FrameLimit; 
+                for (entry = _keyRoot._next;
+                    entry != _keyRoot && entry._index >= 0 && entry._index <= FrameLimit;
                     entry = entry._next)
                     if (entry._index < frameVal)
                     {
                         if (entry.Second != null)
                             entry = entry.Second;
-                        
+
                         if (entry._next._index > frameVal || entry._next == _keyRoot)
                             break;
                     }
@@ -629,6 +630,9 @@ namespace System.Windows.Forms
                     _frame = _selKey._index;
                     Invalidate();
                 }
+
+                if (SignalChange != null)
+                    SignalChange(this, null);
             }
 
             if (keyChanged)
@@ -688,6 +692,21 @@ namespace System.Windows.Forms
             float i1 = -(_tanLen / 2);
             float i2 = (_tanLen / 2);
 
+            bool ignoreIn = false, ignoreOut = false;
+            if (e.Second != null)
+            {
+                if (e._next._index == e._index)
+                {
+                    ignoreOut = true;
+                    i2 = 0.0f;
+                }
+                else
+                {
+                    ignoreIn = true;
+                    i1 = 0.0f;
+                }
+            }
+
             float p = (float)Math.Sqrt(_precision / 4.0f);
             Vector2 one = new Vector2((xVal + i1 * p - xMin) * _xScale, (yVal - _minVal + tan * i1 * p) * _yScale);
             Vector2 two = new Vector2((xVal + i2 * p - xMin) * _xScale, (yVal - _minVal + tan * i2 * p) * _yScale);
@@ -697,8 +716,10 @@ namespace System.Windows.Forms
                 GL.Color4(Color.Purple);
                 GL.Begin(BeginMode.Points);
 
-                GL.Vertex2(one._x, one._y);
-                GL.Vertex2(two._x, two._y);
+                if (!ignoreIn)
+                    GL.Vertex2(one._x, one._y);
+                if (!ignoreOut)
+                    GL.Vertex2(two._x, two._y);
 
                 GL.End();
             }
@@ -708,29 +729,35 @@ namespace System.Windows.Forms
 
                 float angle = (float)Math.Atan((tan * _yScale) / _xScale) * Maths._rad2degf;
 
-                GL.PushMatrix();
-                GL.Translate(one._x, one._y, 0.0f);
-                GL.Rotate(angle - 180.0f, 0, 0, 1);
+                if (!ignoreIn)
+                {
+                    GL.PushMatrix();
+                    GL.Translate(one._x, one._y, 0.0f);
+                    GL.Rotate(angle - 180.0f, 0, 0, 1);
 
-                GL.Begin(BeginMode.LineStrip);
-                GL.Vertex2(-7.0f, 3.5f);
-                GL.Vertex2(0.0f, 0.0f);
-                GL.Vertex2(-7.0f, -3.5f);
-                GL.End();
+                    GL.Begin(BeginMode.LineStrip);
+                    GL.Vertex2(-7.0f, 3.5f);
+                    GL.Vertex2(0.0f, 0.0f);
+                    GL.Vertex2(-7.0f, -3.5f);
+                    GL.End();
 
-                GL.PopMatrix();
+                    GL.PopMatrix();
+                }
 
-                GL.PushMatrix();
-                GL.Translate(two._x, two._y, 0.0f);
-                GL.Rotate(angle, 0, 0, 1);
+                if (!ignoreOut)
+                {
+                    GL.PushMatrix();
+                    GL.Translate(two._x, two._y, 0.0f);
+                    GL.Rotate(angle, 0, 0, 1);
 
-                GL.Begin(BeginMode.LineStrip);
-                GL.Vertex2(-7.0f, 3.5f);
-                GL.Vertex2(0.0f, 0.0f);
-                GL.Vertex2(-7.0f, -3.5f);
-                GL.End();
+                    GL.Begin(BeginMode.LineStrip);
+                    GL.Vertex2(-7.0f, 3.5f);
+                    GL.Vertex2(0.0f, 0.0f);
+                    GL.Vertex2(-7.0f, -3.5f);
+                    GL.End();
 
-                GL.PopMatrix();
+                    GL.PopMatrix();
+                }
             }
 
             GL.Begin(BeginMode.LineStrip);
@@ -789,15 +816,18 @@ namespace System.Windows.Forms
                 GL.Color4(Color.Red);
                 GL.Begin(BeginMode.LineStrip);
 
-                for (float i = 0; i < (float)_frameLimit; i += (1 / _precision))
+                for (KeyframeEntry entry = _keyRoot._next; (entry != _keyRoot); entry = entry._next)
                 {
-                    has2nd = GetFrameValue(i, out one, out two);
-                    GL.Vertex2(i * _xScale, (one - _minVal) * _yScale);
-                    if (has2nd)
+                    for (float i = entry._index; i < (entry._next == _keyRoot ? (float)_frameLimit : entry._next._index); i += (1.0f / _precision))
                     {
-                        GL.End();
-                        GL.Begin(BeginMode.LineStrip);
-                        GL.Vertex2(i * _xScale, (two - _minVal) * _yScale);
+                        has2nd = GetFrameValue(i, out one, out two);
+                        GL.Vertex2(i * _xScale, (one - _minVal) * _yScale);
+                        if (has2nd)
+                        {
+                            GL.End();
+                            GL.Begin(BeginMode.LineStrip);
+                            GL.Vertex2(i * _xScale, (two - _minVal) * _yScale);
+                        }
                     }
                 }
                 GL.End();

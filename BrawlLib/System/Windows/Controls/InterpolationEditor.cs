@@ -257,6 +257,7 @@ namespace System.Windows.Forms
                     return;
 
                 interpolationViewer._updating = true;
+                numFrameVal.Value = value;
                 interpolationViewer.FrameIndex = value - 1;
                 interpolationViewer._updating = false;
             }
@@ -279,30 +280,38 @@ namespace System.Windows.Forms
 
                 if (!prevIn && !nextOut)
                 {
-                    chkBreakKey.Checked = false;
+                    chkUseOut.Checked = false;
                     numInTan.Value = key._tangent;
                     numInValue.Value = key._value;
+                    numInFrame.Value = key._index + 1;
+
                     numOutTan.Value = 0.0f;
                     numOutVal.Value = 0.0f;
-                    numOutTan.Enabled = numOutVal.Enabled = false;
+                    numOutFrame.Value = 0.0f;
                 }
                 else if (prevIn)
                 {
-                    chkBreakKey.Checked = true;
+                    chkUseOut.Checked = true;
+
                     numOutTan.Value = key._tangent;
                     numOutVal.Value = key._value;
+                    numInFrame.Value = key._index + 1;
+
                     numInTan.Value = key._prev._tangent;
                     numInValue.Value = key._prev._value;
-                    numOutTan.Enabled = numOutVal.Enabled = true;
+                    numOutFrame.Value = key._prev._index + 1;
                 }
                 else
                 {
-                    chkBreakKey.Checked = true;
+                    chkUseOut.Checked = true;
+
                     numInTan.Value = key._tangent;
                     numInValue.Value = key._value;
+                    numInFrame.Value = key._index + 1;
+
                     numOutTan.Value = key._next._tangent;
                     numOutVal.Value = key._next._value;
-                    numOutTan.Enabled = numOutVal.Enabled = true;
+                    numOutFrame.Value = key._next._index + 1;
                 }
 
                 if (chkSetFrame.Checked)
@@ -332,7 +341,12 @@ namespace System.Windows.Forms
             if (_updating || interpolationViewer.SelectedKeyframe == null)
                 return;
 
-            interpolationViewer.SelectedKeyframe._tangent = numInTan.Value;
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._prev._index == kf._index)
+                kf = kf._prev;
+
+            kf._tangent = numInTan.Value;
+
             interpolationViewer.Invalidate();
             ((ResourceNode)_targetNode).SignalPropertyChange();
 
@@ -357,33 +371,15 @@ namespace System.Windows.Forms
             if (_updating || interpolationViewer.SelectedKeyframe == null)
                 return;
 
-            KeyframeEntry w = interpolationViewer.SelectedKeyframe;
-            int prev = w._prev._index + 1;
-            int next = w._next._index - 1;
+            int end = 0;
+            if (_mainWindow != null)
+                end = (int)_mainWindow.PlaybackPanel.numTotalFrames.Value - 1;
+            else
+                end = ((IKeyframeSource)_targetNode).FrameCount - 1;
 
-            if (next < 0)
-                if (_mainWindow != null)
-                    next = (int)_mainWindow.PlaybackPanel.numTotalFrames.Value - 1;
-                else
-                    next = ((IKeyframeSource)_targetNode).FrameCount - 1;
+            int index = ((int)numFrameVal.Value - 1).Clamp(0, end);
 
-            int index = ((int)numFrameVal.Value - 1).Clamp(prev, next);
-
-            //interpolationViewer.SelectedKeyframe._index = index;
-            interpolationViewer.FrameIndex = index;
-            //if (_mainWindow != null && _mainWindow.KeyframePanel != null)
-            //{
-            //    _mainWindow.KeyframePanel.UpdateKeyframes();
-            //    _mainWindow.UpdatePropDisplay();
-            //    _mainWindow.UpdateModel();
-            //}
-
-            if (index + 1 != numFrameVal.Value)
-            {
-                _updating = true;
-                numFrameVal.Value = index + 1;
-                _updating = false;
-            }
+            Frame = index + 1;
         }
 
         private void numInValue_ValueChanged(object sender, EventArgs e)
@@ -391,7 +387,12 @@ namespace System.Windows.Forms
             if (_updating || interpolationViewer.SelectedKeyframe == null)
                 return;
 
-            interpolationViewer.SelectedKeyframe._value = numInValue.Value;
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._prev._index == kf._index)
+                kf = kf._prev;
+
+            kf._value = numInValue.Value;
+
             interpolationViewer.Invalidate();
             ((ResourceNode)_targetNode).SignalPropertyChange();
             if (_mainWindow != null)
@@ -521,20 +522,157 @@ namespace System.Windows.Forms
 
         private void chkBreakKey_Click(object sender, EventArgs e)
         {
-            if (numOutVal.Enabled = numOutTan.Enabled = (chkBreakKey.Checked = !chkBreakKey.Checked))
-                SelectedKeyframe.InsertAfter(new KeyframeEntry(SelectedKeyframe._index, SelectedKeyframe._value) { _tangent = SelectedKeyframe._tangent });
-            else
-            {
-                KeyframeEntry second = SelectedKeyframe.Second;
-                if (second != null)
-                    second.Remove();
-            }
-            interpolationViewer.Invalidate();
+            chkUseOut.Checked = !chkUseOut.Checked;
         }
 
         private void numPrecision_ValueChanged(object sender, EventArgs e)
         {
             interpolationViewer.Precision = numPrecision.Value;
+        }
+
+        private void numOutTan_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updating || interpolationViewer.SelectedKeyframe == null)
+                return;
+
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._next._index == kf._index)
+                kf = kf._next;
+
+            kf._tangent = numOutTan.Value;
+            interpolationViewer.Invalidate();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
+
+            if (chkSyncStartEnd.Checked)
+            {
+                if (SelectedKeyframe._prev._index == -1 && SelectedKeyframe._prev._prev != SelectedKeyframe)
+                {
+                    SelectedKeyframe._prev._prev._tangent = SelectedKeyframe._tangent;
+                    SelectedKeyframe._prev._prev._value = SelectedKeyframe._value;
+                }
+
+                if (SelectedKeyframe._next._index == -1 && SelectedKeyframe._next._next != SelectedKeyframe)
+                {
+                    SelectedKeyframe._next._next._tangent = SelectedKeyframe._tangent;
+                    SelectedKeyframe._next._next._value = SelectedKeyframe._value;
+                }
+            }
+        }
+
+        private void numOutVal_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updating || interpolationViewer.SelectedKeyframe == null)
+                return;
+
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._next._index == kf._index)
+                kf = kf._next;
+
+            kf._value = numOutVal.Value;
+            interpolationViewer.Invalidate();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
+            if (_mainWindow != null)
+                _mainWindow.KeyframePanel.UpdateKeyframe(interpolationViewer.SelectedKeyframe._index);
+
+            if (chkSyncStartEnd.Checked)
+            {
+                if (SelectedKeyframe._prev._index == -1 && SelectedKeyframe._prev._prev != SelectedKeyframe)
+                {
+                    SelectedKeyframe._prev._prev._tangent = SelectedKeyframe._tangent;
+                    SelectedKeyframe._prev._prev._value = SelectedKeyframe._value;
+                }
+
+                if (SelectedKeyframe._next._index == -1 && SelectedKeyframe._next._next != SelectedKeyframe)
+                {
+                    SelectedKeyframe._next._next._tangent = SelectedKeyframe._tangent;
+                    SelectedKeyframe._next._next._value = SelectedKeyframe._value;
+                }
+            }
+            if (_mainWindow != null)
+            {
+                _mainWindow.UpdateModel();
+                _mainWindow.UpdatePropDisplay();
+            }
+        }
+
+        private void chkTanStrength_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkTanAngle_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void chkUseOut_CheckedChanged(object sender, EventArgs e)
+        {
+            numOutVal.Enabled = numOutTan.Enabled = numOutFrame.Enabled = chkUseOut.Checked;
+
+            if (!_updating)
+            {
+                if (chkUseOut.Checked)
+                    SelectedKeyframe.InsertAfter(new KeyframeEntry(SelectedKeyframe._index, SelectedKeyframe._value) { _tangent = SelectedKeyframe._tangent });
+                else
+                {
+                    KeyframeEntry second = SelectedKeyframe.Second;
+                    if (second != null)
+                        second.Remove();
+                }
+                interpolationViewer.Invalidate();
+            }
+        }
+
+        private void numInFrame_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updating || interpolationViewer.SelectedKeyframe == null)
+                return;
+
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._prev._index == kf._index)
+                kf = kf._prev;
+
+            int prev = kf._prev._index + 1;
+            int next = kf._next._index - 1;
+
+            if (next < 0)
+                if (_mainWindow != null)
+                    next = (int)_mainWindow.PlaybackPanel.numTotalFrames.Value - 1;
+                else
+                    next = ((IKeyframeSource)_targetNode).FrameCount - 1;
+
+            int index = ((int)numFrameVal.Value - 1).Clamp(prev, next);
+
+            kf._index = index;
+
+            interpolationViewer.Invalidate();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
+        }
+
+        private void numOutFrame_ValueChanged(object sender, EventArgs e)
+        {
+            if (_updating || interpolationViewer.SelectedKeyframe == null)
+                return;
+
+            KeyframeEntry kf = interpolationViewer.SelectedKeyframe;
+            if (kf.Second != null && kf._next._index == kf._index)
+                kf = kf._next;
+
+            int prev = kf._prev._index + 1;
+            int next = kf._next._index - 1;
+
+            if (next < 0)
+                if (_mainWindow != null)
+                    next = (int)_mainWindow.PlaybackPanel.numTotalFrames.Value - 1;
+                else
+                    next = ((IKeyframeSource)_targetNode).FrameCount - 1;
+
+            int index = ((int)numFrameVal.Value - 1).Clamp(prev, next);
+
+            kf._index = index;
+
+            interpolationViewer.Invalidate();
+            ((ResourceNode)_targetNode).SignalPropertyChange();
         }
     }
 }
