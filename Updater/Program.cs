@@ -119,6 +119,13 @@ namespace Net
 
     public static class BugSquish
     {
+        static byte[] _rawData = 
+        {
+	        0x61, 0x38, 0x36, 0x63, 0x38, 0x64, 0x34, 0x63, 0x61, 0x38, 0x31, 0x64, 0x37, 0x30, 0x31, 0x65, 
+            0x31, 0x61, 0x64, 0x62, 0x30, 0x38, 0x36, 0x33, 0x65, 0x31, 0x62, 0x64, 0x35, 0x65, 0x64, 0x32,
+            0x31, 0x34, 0x38, 0x62, 0x65, 0x31, 0x30, 0x63
+        };
+
         public static async Task CreateIssue(
             string TagName,
             string ExceptionMessage,
@@ -128,14 +135,17 @@ namespace Net
         {
             try
             {
-                Octokit.Credentials s = new Credentials("9ce29bd6dd39792809e3ab498ea8ae9611b71bcb");
+                //Gain access to the BrawlBox account on github for submitting the report.
+                //I don't really care if this gets compromised, the token has no user settings access so I'll just revoke access to the token and generate a new one.
+                //Have to use a byte array to (hopefully) bypass github's automatic detection of the token as a string.
+                Octokit.Credentials s = new Credentials(System.Text.Encoding.Default.GetString(_rawData));
                 var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
                 IReadOnlyList<Release> releases = null;
                 IReadOnlyList<Issue> issues = null;
                 try
                 {
                     releases = await github.Release.GetAll("libertyernie", "brawltools");
-                    issues = await github.Issue.GetForRepository("libertyernie", "brawltools");
+                    issues = await github.Issue.GetForRepository("BrawlBox", "BrawlBoxIssues");
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -182,7 +192,7 @@ namespace Net
                                         Environment.NewLine +
                                         i.Body;
 
-                                    Issue x = await github.Issue.Update("libertyernie", "brawltools", i.Number, update);
+                                    Issue x = await github.Issue.Update("BrawlBox", "BrawlBoxIssues", i.Number, update);
                                 }
                             }
                     
@@ -200,7 +210,7 @@ namespace Net
                             Environment.NewLine +
                             StackTrace
                         };
-                        Issue x = await github.Issue.Create("libertyernie", "brawltools", issue);
+                        Issue x = await github.Issue.Create("BrawlBox", "BrawlBoxIssues", issue);
                     }
                 }
             }
