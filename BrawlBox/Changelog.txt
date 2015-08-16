@@ -14,7 +14,30 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.76b - BrawlLib v0.23b (8/9/2015)
+ - v0.76b - BrawlLib v0.23b
+
+ Hotfix 1 (8/15/15)
+ . Fixed bug where double clicking on a GCT associated with BrawlBox would open the editor but not the actual file clicked on
+ . Fixed bug where the weight editor would not update when selecting vertices in the model viewer
+ . Fixed bug where if the weight editor or vertex editor were not visible, they would not update with vertex selections
+ . Fixed bug importing PMD models
+ . Fixed bug where all objects in DAE models without any bones would be moved up half of their height after importing
+ . Fixed bug where GCT files would open and immediately be "changed", causing a pop-up asking if you want to save to appear when closing even if no changes were made
+ . Fixed bug saving SHP0 files where the names of entries would randomly be lost or corrupted
+ . Fixed bug where alpha settings in MDL0 material light channels were synchronized with the color settings, which is not what's supposed to happen
+ . Removed unfinished buttons from the interpolation editor
+ . Updated the interpolation editor to properly display and edit in and out keyframes (two keyframes that are on the same frame)
+ . Fixed bug where the value and tangent of an out keyframe could not be edited
+ . Fixed bug where the "Move bone only" checkbox in the CHR0 editor in the model viewer would be enabled at the wrong times
+ . Fixed bug in the weight editor where the range of the addition/subtraction value box was from 0 to 1 instead of from 0 to 100
+ . Added option to create a new child bone by holding alt while translating, rotating or scaling a bone with the transform tool.
+ . Fixed bug where holding ctrl while selecting vertices using click and drag in the model viewer would not allow you to select more vertices
+ . Fixed bug importing an animation from a text file
+ . Fixed bug where the bug reporter didn't send the report to github
+ . Fixed bug where the link to the issues page in the bug reporter would not open when clicked
+ . Changed bug reporter to submit the issue to https://github.com/BrawlBox/BrawlBoxIssues/issues
+
+ Initial Release (8/9/2015)
  . Added checkbox to the CHR0 editor in the model editor that appears only on frame 0 (the bind frame) called "Update Mesh Bind Pose". This will literally change the vertices and normals to match the bone position instead of treating the transformations like an animation.
  . Added weight editor used to change a model's rigging, or the influence of bones over vertices. This editor can be toggled in the model editor under Tools->Weight Editor. 
  With this you can even do things as extreme as creating a bone tree from scratch and rigging a static model completely within the program, or unrigging the entire model after posing the bind state on frame 0 and then deleting all but the root bone. "Update Mesh Bind Pose" (mentioned in the above addition) must be checked while posing or else the pose will revert once unrigged.
