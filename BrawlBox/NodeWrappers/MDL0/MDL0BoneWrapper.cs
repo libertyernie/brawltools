@@ -175,7 +175,7 @@ namespace BrawlBox.NodeWrappers
                 }
             }
             MDL0BoneNode bone = new MDL0BoneNode() { Name = name, _entryIndex = model._linker.BoneCache.Length };
-            bone.Scale = new Vector3(1);
+            bone.Scale = new Vector3(1.0f);
 
             bone._bindMatrix = 
             bone._inverseBindMatrix = 

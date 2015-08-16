@@ -26,13 +26,13 @@ namespace System.Windows.Forms
             this.lblBoneName = new System.Windows.Forms.Label();
             this.btnRemove = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.numMult = new System.Windows.Forms.NumericInputBox();
             this.btnMult = new System.Windows.Forms.Button();
             this.btnDiv = new System.Windows.Forms.Button();
-            this.btnPaste = new System.Windows.Forms.Button();
-            this.btnCopy = new System.Windows.Forms.Button();
-            this.numMult = new System.Windows.Forms.NumericInputBox();
             this.numAdd = new System.Windows.Forms.NumericInputBox();
             this.numWeight = new System.Windows.Forms.NumericInputBox();
+            this.btnPaste = new System.Windows.Forms.Button();
+            this.btnCopy = new System.Windows.Forms.Button();
             this.lstBoneWeights = new System.Windows.Forms.RefreshableListBox();
             this.panel1.SuspendLayout();
             this.SuspendLayout();
@@ -129,6 +129,17 @@ namespace System.Windows.Forms
             this.panel1.Size = new System.Drawing.Size(130, 103);
             this.panel1.TabIndex = 14;
             // 
+            // numMult
+            // 
+            this.numMult.Integral = false;
+            this.numMult.Location = new System.Drawing.Point(3, 77);
+            this.numMult.MaximumValue = 3.402823E+38F;
+            this.numMult.MinimumValue = -3.402823E+38F;
+            this.numMult.Name = "numMult";
+            this.numMult.Size = new System.Drawing.Size(62, 20);
+            this.numMult.TabIndex = 16;
+            this.numMult.Text = "1.05";
+            // 
             // btnMult
             // 
             this.btnMult.Location = new System.Drawing.Point(67, 76);
@@ -148,6 +159,29 @@ namespace System.Windows.Forms
             this.btnDiv.Text = "/";
             this.btnDiv.UseVisualStyleBackColor = true;
             this.btnDiv.Click += new System.EventHandler(this.btnDiv_Click);
+            // 
+            // numAdd
+            // 
+            this.numAdd.Integral = false;
+            this.numAdd.Location = new System.Drawing.Point(3, 53);
+            this.numAdd.MaximumValue = 3.402823E+38F;
+            this.numAdd.MinimumValue = -3.402823E+38F;
+            this.numAdd.Name = "numAdd";
+            this.numAdd.Size = new System.Drawing.Size(62, 20);
+            this.numAdd.TabIndex = 13;
+            this.numAdd.Text = "10";
+            // 
+            // numWeight
+            // 
+            this.numWeight.Integral = false;
+            this.numWeight.Location = new System.Drawing.Point(3, 29);
+            this.numWeight.MaximumValue = 3.402823E+38F;
+            this.numWeight.MinimumValue = -3.402823E+38F;
+            this.numWeight.Name = "numWeight";
+            this.numWeight.Size = new System.Drawing.Size(62, 20);
+            this.numWeight.TabIndex = 3;
+            this.numWeight.Text = "0";
+            this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
             // 
             // btnPaste
             // 
@@ -170,40 +204,6 @@ namespace System.Windows.Forms
             this.btnCopy.UseVisualStyleBackColor = true;
             this.btnCopy.Visible = false;
             this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
-            // 
-            // numMult
-            // 
-            this.numMult.Integral = false;
-            this.numMult.Location = new System.Drawing.Point(3, 77);
-            this.numMult.MaximumValue = 3.402823E+38F;
-            this.numMult.MinimumValue = -3.402823E+38F;
-            this.numMult.Name = "numMult";
-            this.numMult.Size = new System.Drawing.Size(62, 20);
-            this.numMult.TabIndex = 16;
-            this.numMult.Text = "1.05";
-            // 
-            // numAdd
-            // 
-            this.numAdd.Integral = false;
-            this.numAdd.Location = new System.Drawing.Point(3, 53);
-            this.numAdd.MaximumValue = 3.402823E+38F;
-            this.numAdd.MinimumValue = -3.402823E+38F;
-            this.numAdd.Name = "numAdd";
-            this.numAdd.Size = new System.Drawing.Size(62, 20);
-            this.numAdd.TabIndex = 13;
-            this.numAdd.Text = "0.1";
-            // 
-            // numWeight
-            // 
-            this.numWeight.Integral = false;
-            this.numWeight.Location = new System.Drawing.Point(3, 29);
-            this.numWeight.MaximumValue = 3.402823E+38F;
-            this.numWeight.MinimumValue = -3.402823E+38F;
-            this.numWeight.Name = "numWeight";
-            this.numWeight.Size = new System.Drawing.Size(62, 20);
-            this.numWeight.TabIndex = 3;
-            this.numWeight.Text = "0";
-            this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
             // 
             // lstBoneWeights
             // 
@@ -274,7 +274,7 @@ namespace System.Windows.Forms
         public List<Vertex3> TargetVertices
         {
             get { return _targetVertices; }
-            set { SetVertices(value); }
+            set { if (_targetVertices != value) SetVertices(value); }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public BoneWeight TargetBoneWeight
@@ -689,13 +689,13 @@ namespace System.Windows.Forms
         
         private void btnSubtract_Click(object sender, EventArgs e)
         {
-            IncrementWeight(-_increment);
+            IncrementWeight(-_increment / 100.0f);
             ResetList();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            IncrementWeight(_increment);
+            IncrementWeight(_increment / 100.0f);
             ResetList();
         }
 

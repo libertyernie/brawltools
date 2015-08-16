@@ -421,12 +421,17 @@ namespace System.Windows.Forms
             _updating = true;
 
             if (_targetVertices != null && _targetVertices.Count != 0)
-                Enabled = true;
+            {
+                if (Enabled != true)
+                    Enabled = true;
+            }
             else
-                Enabled = false;
+            {
+                if (Enabled != false)
+                    Enabled = false;
+            }
 
             Vertex3 vertex = TargetVertex;
-
             if (vertex == null || _targetVertices.Count > 1)
             {
                 numPosX.Value = 0;
@@ -485,8 +490,15 @@ namespace System.Windows.Forms
         public List<Vertex3> TargetVertices 
         {
             get { return _targetVertices; }
-            set { _targetVertices = value.ToList(); UpdatePropDisplay(); }
-        }        
+            set
+            {
+                if (_targetVertices != value)
+                {
+                    _targetVertices = value.ToList(); 
+                    UpdatePropDisplay();
+                }
+            }
+        }
         public List<Vertex3> _targetVertices;
 
         private void numPosX_TextChanged(object sender, EventArgs e)
