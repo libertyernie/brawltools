@@ -96,11 +96,7 @@ namespace System.Windows.Forms
 
         private void txtDescription_Enter(object sender, EventArgs e)
         {
-            if (txtDescription.ForeColor == Color.Gray)
-            {
-                txtDescription.ForeColor = Color.Black;
-                txtDescription.Text = "";
-            }
+
         }
 
         private void txtDescription_Leave(object sender, EventArgs e)
@@ -108,7 +104,7 @@ namespace System.Windows.Forms
             if (String.IsNullOrEmpty(txtDescription.Text))
             {
                 txtDescription.ForeColor = Color.Gray;
-                txtDescription.Text = "Explain what you were doing that caused the bug. This will be posted publicly at https://www.github.com/libertyernie/brawltools/issues, so do not put any personal information here. It may be beneficial to you to sign your report with a username unless you wish to stay anonymous.";
+                txtDescription.Text = "Explain what you were doing that caused the bug. This will be posted publicly at https://github.com/BrawlBox/BrawlBoxIssues/issues, so do not put any personal information here. It may be beneficial to you to sign your report with a username unless you wish to stay anonymous.";
             }
         }
 
@@ -166,6 +162,20 @@ namespace System.Windows.Forms
                 saveToolStripMenuItem.Enabled = file.IsDirty;
             else
                 e.Cancel = true;
+        }
+
+        private void txtDescription_LinkClicked(object sender, LinkClickedEventArgs e)
+        {
+            System.Diagnostics.Process.Start(e.LinkText);
+        }
+
+        private void txtDescription_MouseUp(object sender, MouseEventArgs e)
+        {
+            if (txtDescription.ForeColor == Color.Gray)
+            {
+                txtDescription.ForeColor = Color.Black;
+                txtDescription.Text = "";
+            }
         }
     }
 }

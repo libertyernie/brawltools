@@ -97,8 +97,10 @@
             this.txtDescription.Size = new System.Drawing.Size(304, 104);
             this.txtDescription.TabIndex = 3;
             this.txtDescription.Text = resources.GetString("txtDescription.Text");
+            this.txtDescription.LinkClicked += new System.Windows.Forms.LinkClickedEventHandler(this.txtDescription_LinkClicked);
             this.txtDescription.Enter += new System.EventHandler(this.txtDescription_Enter);
             this.txtDescription.Leave += new System.EventHandler(this.txtDescription_Leave);
+            this.txtDescription.MouseDown += new System.Windows.Forms.MouseEventHandler(this.txtDescription_MouseUp);
             // 
             // txtStack
             // 
