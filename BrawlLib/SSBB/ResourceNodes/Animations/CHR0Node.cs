@@ -709,7 +709,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public static bool _alterAdjTangents_KeyFrame_Set = true;
         public static bool _alterAdjTangents_KeyFrame_Del = true;
 
-        public float GetFrameValue(int arrayIndex, float index) { return Keyframes.GetFrameValue(arrayIndex, index); }
+        public float GetFrameValue(int arrayIndex, float index, bool returnOutValue = false) { return Keyframes.GetFrameValue(arrayIndex, index, returnOutValue); }
 
         public KeyframeEntry GetKeyframe(int arrayIndex, int index) { return Keyframes.GetKeyframe(arrayIndex, index); }
         public KeyframeEntry SetKeyframe(int arrayIndex, int index, float value)
@@ -835,14 +835,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < 3; i++)
                 RemoveKeyframe(i, index);
         }
-        public CHRAnimationFrame GetAnimFrame(int index)
+        public CHRAnimationFrame GetAnimFrame(int index, bool returnOutFrame = false)
         {
             CHRAnimationFrame frame = new CHRAnimationFrame() { Index = index };
             float* dPtr = (float*)&frame;
             for (int x = 0; x < 9; x++)
             {
                 frame.SetBool(x, Keyframes.GetKeyframe(x, index) != null);
-                *dPtr++ = GetFrameValue(x, index);
+                *dPtr++ = GetFrameValue(x, index, returnOutFrame);
             }
             return frame;
         }

@@ -75,9 +75,9 @@ namespace BrawlLib.Wii.Animations
             return _keyArrays[arrayIndex].GetKeyframe(index);
         }
 
-        public float GetFrameValue(int arrayIndex, float index)
+        public float GetFrameValue(int arrayIndex, float index, bool returnOutValue = false)
         {
-            return _keyArrays[arrayIndex].GetFrameValue(index);
+            return _keyArrays[arrayIndex].GetFrameValue(index, returnOutValue);
         }
 
         internal KeyframeEntry Remove(int arrayIndex, int index)
@@ -403,8 +403,8 @@ namespace BrawlLib.Wii.Animations
                 return entry;
             return null;
         }
-        
-        public float GetFrameValue(float index)
+
+        public float GetFrameValue(float index, bool returnOutValue = false)
         {
             KeyframeEntry entry;
 
@@ -442,10 +442,14 @@ namespace BrawlLib.Wii.Animations
             //Find the entry just before the specified index
             for (entry = _keyRoot._next; //Get the first entry
                 (entry != _keyRoot) && //Make sure it's not the root
-                (entry._index < index);  //Its index must be less than the current index
+                (entry._index <= index);  //Its index must be less than or equal to the current index
                 entry = entry._next) //Get the next entry
-                if (entry._index == index) //The index is a keyframe
+                if (entry._index == index)
+                {
+                    //The index is a keyframe
+                    if (returnOutValue) while (entry._next != null && entry._next._index == entry._index) entry = entry._next;
                     return entry._value; //Return the value of the keyframe.
+                }
 
             //Frame lies between two keyframes. Interpolate between them
             return entry._prev.Interpolate(index - entry._prev._index);

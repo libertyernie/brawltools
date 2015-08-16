@@ -160,8 +160,18 @@ namespace BrawlLib.Wii.Textures
             int w = src.Width, h = src.Height;
             int bw = BlockWidth, bh = BlockHeight;
 
-            PixelFormat fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
-
+            PixelFormat fmt;
+			switch (RawFormat) {
+				case WiiPixelFormat.CI4:
+				case WiiPixelFormat.CI8:
+				case WiiPixelFormat.CMPR:
+					fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
+					break;
+				default:
+					fmt = PixelFormat.Format32bppArgb;
+					break;
+			}
+			
             FileMap fileView = FileMap.FromTempFile(GetFileSize(w, h, mipLevels) + 0x40);
             try
             {
