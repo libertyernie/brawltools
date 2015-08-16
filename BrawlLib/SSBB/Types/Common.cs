@@ -348,7 +348,7 @@ namespace BrawlLib.SSBBTypes
 
             //Get the length of the string
             int strLen = pString->_length;
-            if (strLen < 0) return;
+            if (strLen < 0 || strLen > ushort.MaxValue) return;
             
             //Create a byte pointer to the struct's string data
             byte* pChar = (byte*)pString + 4, sChar;
