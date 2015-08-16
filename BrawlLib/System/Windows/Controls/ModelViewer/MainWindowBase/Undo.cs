@@ -88,7 +88,7 @@ namespace System.Windows.Forms
                 _frameStates = bones.Select(x => x.FrameState).ToArray(),
                 _animation = SelectedCHR0,
                 _frameIndex = CurrentFrame,
-                _updateBoneOnly = CHR0Editor.chkBoneEdit.Checked,
+                _updateBoneOnly = CHR0Editor.chkMoveBoneOnly.Checked,
                 _updateBindState = CHR0Editor.chkUpdateBindPose.Checked,
             };
 
@@ -190,7 +190,7 @@ namespace System.Windows.Forms
             SelectedCHR0 = state._animation;
             CurrentFrame = state._frameIndex;
             CHR0Editor.chkUpdateBindPose.Checked = state._updateBindState;
-            CHR0Editor.chkBoneEdit.Checked = state._updateBoneOnly;
+            CHR0Editor.chkMoveBoneOnly.Checked = state._updateBoneOnly;
             for (int i = 0; i < state._bones.Length; i++)
             {
                 SelectedBone = state._bones[i];

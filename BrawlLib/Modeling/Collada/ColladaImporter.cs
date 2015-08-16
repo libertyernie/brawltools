@@ -458,9 +458,9 @@ namespace BrawlLib.Modeling
                         Parent = TempRootBone,
                     };
 
-                    bone.RecalcBindState(false, false);
                     poly.DeferUpdateAssets();
                     poly.MatrixNode = bone;
+                    ((MDL0BoneNode)TempRootBone).RecalcBindState(true, false, false);
 
                     foreach (DrawCall c in poly._drawCalls)
                         c.VisibilityBoneNode = bone;

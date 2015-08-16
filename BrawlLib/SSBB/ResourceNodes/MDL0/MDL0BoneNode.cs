@@ -44,7 +44,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public bool _locked; //For the weight editor
-        public bool _moved = false;
 
         public Box _extents = new Box();
         public BoneFlags _boneFlags = (BoneFlags)0x11F;
@@ -571,8 +570,6 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             }
             else
                 header->_userDataOffset = 0;
-
-            _moved = false;
         }
 
         protected internal override void PostProcess(VoidPtr mdlAddress, VoidPtr dataAddress, StringTable stringTable)
@@ -641,7 +638,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         }
 
         //Change has been made to bind state, need to recalculate matrices
-        public void RecalcBindState(bool updateMesh, bool moveMeshWithBone)
+        public void RecalcBindState(bool updateMesh, bool moveMeshWithBone, bool updateAssetLists = true)
         {
             if (!updateMesh)
                 RecursiveRecalcBindState(true, false);
@@ -721,8 +718,9 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 }
 
                 //Update the external arrays with the new unweighted vertices and normals
-                foreach (MDL0ObjectNode o in changed)
-                    o.SetEditedAssets(false, true, true);
+                if (updateAssetLists)
+                    foreach (MDL0ObjectNode o in changed)
+                        o.SetEditedAssets(false, true, true);
             }
         }
 
