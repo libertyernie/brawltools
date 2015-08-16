@@ -154,6 +154,8 @@ namespace System.Windows.Forms
 
         protected virtual void modelPanel1_MouseDown(object sender, MouseEventArgs e)
         {
+            _createdNewBone = false;
+
             ModelPanel panel = sender as ModelPanel;
             ModelPanelViewport viewport = panel.CurrentViewport;
 
@@ -177,7 +179,7 @@ namespace System.Windows.Forms
                 {
                     if (CurrentFrame == 0 &&
                         TargetAnimType == NW4RAnimType.CHR &&
-                        CHR0Editor.chkBoneEdit.Checked &&
+                        CHR0Editor.chkMoveBoneOnly.Checked &&
                         TargetModel != null &&
                         TargetModel is MDL0Node)
                     {
@@ -199,6 +201,8 @@ namespace System.Windows.Forms
 
         protected virtual void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
+            _createdNewBone = false;
+
             bool temp = TargetModel != null && TargetModel is MDL0Node;
             if (temp)
             {
@@ -222,7 +226,7 @@ namespace System.Windows.Forms
                             CurrentFrame == 0 &&
                             SelectedBone != null)
                         {
-                            SelectedBone.RecalcBindState(true, !CHR0Editor.chkBoneEdit.Checked);
+                            SelectedBone.RecalcBindState(true, !CHR0Editor.chkMoveBoneOnly.Checked);
                             UpdateModel(TargetModel, CurrentFrame);
                         }
 
@@ -376,6 +380,7 @@ namespace System.Windows.Forms
                 return SelectedBone.FrameState._transform;
         }
 
+        bool _createdNewBone = false;
         protected unsafe virtual void modelPanel1_MouseMove(object sender, MouseEventArgs e)
         {
             if (_playing)
@@ -396,6 +401,52 @@ namespace System.Windows.Forms
                         GetBoneInvWorldMtx(),
                         GetBoneParentTransformMtx(),
                         out point);
+
+                    if (Alt && !_createdNewBone)
+                    {
+                        if (SelectedBone is MDL0BoneNode)
+                        {
+                            _createdNewBone = true;
+
+                            MDL0BoneNode b = SelectedBone as MDL0BoneNode;
+                            MDL0Node model = b.Model;
+                            MDL0BoneNode newBone = new MDL0BoneNode();
+                            newBone.Scale = new Vector3(1.0f);
+                            newBone._bindMatrix =
+                            newBone._inverseBindMatrix =
+                            newBone._frameMatrix =
+                            newBone._inverseFrameMatrix =
+                            Matrix.Identity;
+                            if (model != null)
+                            {
+                                int id = 1;
+                                string name = "NewBone0";
+                            Top:
+                                foreach (MDL0BoneNode x in model._linker.BoneCache)
+                                {
+                                    if (x.Name == name)
+                                    {
+                                        name = "NewBone" + id++;
+                                        goto Top;
+                                    }
+                                }
+                                newBone.Name = name;
+                                newBone._entryIndex = model._linker.BoneCache.Length;
+                                b.AddChild(newBone);
+                                model._linker.RegenerateBoneCache();
+                            }
+                            else
+                            {
+                                newBone.Name = "NewBone";
+                                b.AddChild(newBone);
+                            }
+
+                            if (BonesPanel != null)
+                                BonesPanel.Reset();
+
+                            SelectedBone = newBone;
+                        }
+                    }
 
                     if (point != null)
                     {
@@ -841,7 +892,7 @@ namespace System.Windows.Forms
                     {
                         if (Alt)
                             SelectVertex(v, false);
-                        else if (!v._selected && !Ctrl)
+                        else if (!v._selected)
                             SelectVertex(v, true);
                     }
                 }
