@@ -434,6 +434,7 @@ namespace BrawlLib.Modeling
             Collada._importOptions._fltVerts = true;
             Collada._importOptions._fltNrms = true;
             Collada._importOptions._fltUVs = true;
+            Collada.CurrentModel = model;
 
             model.BeginImport();
             model._version = 9;
@@ -749,6 +750,7 @@ namespace BrawlLib.Modeling
             //        model._matList.RemoveAt(i--);
 
             model.FinishImport();
+            Collada.CurrentModel = null;
         }
         public static void AssignParent(MDL0BoneNode pBone, ModelBone child, MDL0BoneNode cBone, ModelBone parent)
         {
