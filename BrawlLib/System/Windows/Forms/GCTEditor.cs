@@ -245,7 +245,8 @@ namespace System.Windows.Forms
             int i = lstCodes.SelectedIndices[0];
             lstCodes.Items[i].Remove();
             i = i.Clamp(-1, TargetNode.Children.Count - 1);
-            lstCodes.Items[i].Selected = true;
+            if (i >= 0 && i < lstCodes.Items.Count)
+                lstCodes.Items[i].Selected = true;
         }
 
         private void btnNewCode_Click(object sender, EventArgs e)

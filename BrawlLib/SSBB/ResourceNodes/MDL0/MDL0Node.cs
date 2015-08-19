@@ -1113,19 +1113,22 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             MDL0Props* props = header->Properties;
 
-            _scalingRule = props->_scalingRule;
-            _texMtxMode = props->_texMatrixMode;
-            _numFacepoints = props->_numVertices;
-            _numTriangles = props->_numTriangles;
-            _numNodes = props->_numNodes;
-            _needsNrmMtxArray = props->_needNrmMtxArray != 0;
-            _needsTexMtxArray = props->_needTexMtxArray != 0;
-            _extents = props->_extents;
-            _enableExtents = props->_enableExtents != 0;
-            _envMtxMode = props->_envMtxMode;
+            if (props != null)
+            {
+                _scalingRule = props->_scalingRule;
+                _texMtxMode = props->_texMatrixMode;
+                _numFacepoints = props->_numVertices;
+                _numTriangles = props->_numTriangles;
+                _numNodes = props->_numNodes;
+                _needsNrmMtxArray = props->_needNrmMtxArray != 0;
+                _needsTexMtxArray = props->_needTexMtxArray != 0;
+                _extents = props->_extents;
+                _enableExtents = props->_enableExtents != 0;
+                _envMtxMode = props->_envMtxMode;
 
-            if (props->_origPathOffset > 0 && props->_origPathOffset > header->_header._size)
-                _originalPath = props->OrigPath;
+                if (props->_origPathOffset > 0 && props->_origPathOffset > header->_header._size)
+                    _originalPath = props->OrigPath;
+            }
 
             (_userEntries = new UserDataCollection()).Read(header->UserData);
 
@@ -1134,43 +1137,49 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            InitGroups();
-            _linker = new ModelLinker(Header) { Model = this };
-            _assets = new AssetStorage(_linker);
             try
             {
-                //Set def flags
-                _hasMix = _hasOpa = _hasTree = _hasXlu = false;
-                if (_linker.Defs != null)
-                    foreach (ResourcePair p in *_linker.Defs)
-                        if (p.Name == "NodeTree") _hasTree = true;
-                        else if (p.Name == "NodeMix") _hasMix = true;
-                        else if (p.Name == "DrawOpa") _hasOpa = true;
-                        else if (p.Name == "DrawXlu") _hasXlu = true;
+                InitGroups();
+                _linker = new ModelLinker(Header) { Model = this };
+                _assets = new AssetStorage(_linker);
 
-                //These cause some complications if not parsed...
-                _texGroup.Parse(this);
-                _pltGroup.Parse(this);
-
-                _defGroup.Parse(this);
-                _boneGroup.Parse(this);
-                _matGroup.Parse(this);
-                _shadGroup.Parse(this);
-                _vertGroup.Parse(this);
-                _normGroup.Parse(this);
-                _uvGroup.Parse(this);
-                _colorGroup.Parse(this);
-
-                if (Version >= 10)
+                if (_version >= 9 && _version <= 11)
                 {
-                    _furVecGroup.Parse(this);
-                    _furPosGroup.Parse(this);
+                    //Set def flags
+                    _hasMix = _hasOpa = _hasTree = _hasXlu = false;
+                    if (_linker.Defs != null)
+                        foreach (ResourcePair p in *_linker.Defs)
+                            if (p.Name == "NodeTree") _hasTree = true;
+                            else if (p.Name == "NodeMix") _hasMix = true;
+                            else if (p.Name == "DrawOpa") _hasOpa = true;
+                            else if (p.Name == "DrawXlu") _hasXlu = true;
+
+                    //These cause some complications if not parsed...
+                    _texGroup.Parse(this);
+                    _pltGroup.Parse(this);
+
+                    _defGroup.Parse(this);
+                    _boneGroup.Parse(this);
+                    _matGroup.Parse(this);
+                    _shadGroup.Parse(this);
+                    _vertGroup.Parse(this);
+                    _normGroup.Parse(this);
+                    _uvGroup.Parse(this);
+                    _colorGroup.Parse(this);
+
+                    if (Version >= 10)
+                    {
+                        _furVecGroup.Parse(this);
+                        _furPosGroup.Parse(this);
+                    }
+
+                    _objGroup.Parse(this); //Parse objects last!
+
+                    _texList.Sort();
+                    _pltList.Sort();
                 }
-
-                _objGroup.Parse(this); //Parse objects last!
-
-                _texList.Sort();
-                _pltList.Sort();
+                else if (!Properties.Settings.Default.HideMDL0Errors)
+                    MessageBox.Show("The model " + _name + " has a version of " + _version.ToString() + " which is not supported. The model may be corrupt. The original data cannot be edited but will be retained as long as you do not change the model node in any way.");
             }
             finally //Clean up!
             {
@@ -1189,7 +1198,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
                     foreach (string s in _errors)
                         message += "\n - " + s;
-					if (!Properties.Settings.Default.HideMDL0Errors) MessageBox.Show(message);
+					if (!Properties.Settings.Default.HideMDL0Errors) 
+                        MessageBox.Show(message);
                 }
             }
         }
@@ -1767,7 +1777,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (MDL0ObjectNode poly in _objList)
                 {
                     PrimitiveManager p = poly._manager;
-                    if (p == null)
+                    if (p == null || p._vertices == null || p._faceData == null)
                         continue;
 
                     //Reset this object's normal buffer to default
@@ -1777,21 +1787,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                     for (int i = 0; i < p._vertices.Count; i++)
                     {
                         Vertex3 v = p._vertices[i];
-                        for (int m = 0; m < v._faceDataIndices.Count; m++)
-                        {
-                            int fIndex = v._faceDataIndices[m];
-                            if (p._faceData[1] != null && poly._normalNode != null)
+                        if (v._faceDataIndices != null)
+                            for (int m = 0; m < v._faceDataIndices.Count; m++)
                             {
-                                ((Vector3*)p._faceData[1].Address)[fIndex] =
-                                    poly._normalNode.Normals[v._facepoints[m]._normalIndex];
+                                int fIndex = v._faceDataIndices[m];
+                                if (fIndex < p._pointCount)
+                                {
+                                    if (p._faceData[1] != null && poly._normalNode != null)
+                                    {
+                                        ((Vector3*)p._faceData[1].Address)[fIndex] =
+                                            poly._normalNode.Normals[v._facepoints[m]._normalIndex];
+                                    }
+                                    if ((node == null || index == 0) && poly._colorSet != null)
+                                        for (int c = 0; c < 2; c++)
+                                            if (p._faceData[c + 2] != null && poly._colorSet[c] != null)
+                                            {
+                                                ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
+                                                    poly._colorSet[c].Colors[v._facepoints[m]._colorIndices[c]];
+                                            }
+                                }
                             }
-                            //for (int c = 0; c < 2; c++)
-                            //    if (p._faceData[c + 2] != null && poly._colorSet[c] != null)
-                            //    {
-                            //        ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
-                            //            poly._colorSet[c].Colors[v._facepoints[m]._colorIndices[c]];
-                            //    }
-                        }
                     }
 
                     if (node == null || index == 0)
@@ -1816,26 +1831,27 @@ namespace BrawlLib.SSBB.ResourceNodes
                             nodes[shpSet.Index] = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
 
                         //Calculate barycenter per vertex and set as weighted pos
-                        for (int i = 0; i < p._vertices.Count; i++)
-                        {
-                            int x = 0;
-                            Vertex3 v3 = p._vertices[i];
-                            v3._weightedPosition *= baseWeight;
-
-                            foreach (MDL0VertexNode vNode in nodes)
+                        if (p._vertices != null)
+                            for (int i = 0; i < p._vertices.Count; i++)
                             {
-                                if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
-                                    v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x];
-                                x++;
+                                int x = 0;
+                                Vertex3 v3 = p._vertices[i];
+                                v3._weightedPosition *= baseWeight;
+
+                                foreach (MDL0VertexNode vNode in nodes)
+                                {
+                                    if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
+                                        v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x];
+                                    x++;
+                                }
+
+                                v3._weightedPosition /= total;
+
+                                v3._weights = weights;
+                                v3._nodes = nodes;
+                                v3._baseWeight = baseWeight;
+                                v3._bCenter = v3._weightedPosition;
                             }
-
-                            v3._weightedPosition /= total;
-
-                            v3._weights = weights;
-                            v3._nodes = nodes;
-                            v3._baseWeight = baseWeight;
-                            v3._bCenter = v3._weightedPosition;
-                        }
                     }
 
                     if ((entry = node.FindChild(poly.NormalNode, true) as SHP0EntryNode) != null && 
@@ -1861,31 +1877,32 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             Vector3* pData = (Vector3*)buf.Address;
 
-                            for (int i = 0; i < p._vertices.Count; i++)
-                            {
-                                Vertex3 v3 = p._vertices[i];
-                                int m = 0;
-                                foreach (Facepoint r in v3._facepoints)
+                            if (p._vertices != null)
+                                for (int i = 0; i < p._vertices.Count; i++)
                                 {
-                                    int nIndex = v3._faceDataIndices[m++];
-
-                                    Vector3 weightedNormal =
-                                        v3.GetMatrix().GetRotationMatrix() * pData[nIndex] * baseWeight;
-
-                                    int x = 0;
-                                    foreach (MDL0NormalNode n in nodes)
+                                    Vertex3 v3 = p._vertices[i];
+                                    int m = 0;
+                                    foreach (Facepoint r in v3._facepoints)
                                     {
-                                        if (n != null && r._normalIndex < n.Normals.Length)
-                                            weightedNormal += 
-                                                v3.GetMatrix().GetRotationMatrix() * 
-                                                n.Normals[r._normalIndex] * 
-                                                weights[x];
-                                        x++;
-                                    }
+                                        int nIndex = v3._faceDataIndices[m++];
 
-                                    pData[nIndex] = v3.GetInvMatrix().GetRotationMatrix() * (weightedNormal / total).Normalize();
+                                        Vector3 weightedNormal =
+                                            v3.GetMatrix().GetRotationMatrix() * pData[nIndex] * baseWeight;
+
+                                        int x = 0;
+                                        foreach (MDL0NormalNode n in nodes)
+                                        {
+                                            if (n != null && r._normalIndex < n.Normals.Length)
+                                                weightedNormal += 
+                                                    v3.GetMatrix().GetRotationMatrix() * 
+                                                    n.Normals[r._normalIndex] * 
+                                                    weights[x];
+                                            x++;
+                                        }
+
+                                        pData[nIndex] = v3.GetInvMatrix().GetRotationMatrix() * (weightedNormal / total).Normalize();
+                                    }
                                 }
-                            }
                         }
                         p._dirty[1] = true;
                     }
@@ -1916,27 +1933,30 @@ namespace BrawlLib.SSBB.ResourceNodes
                             {
                                 RGBAPixel* pData = (RGBAPixel*)buf.Address;
 
-                                for (int i = 0; i < p._vertices.Count; i++)
-                                {
-                                    Vertex3 v3 = p._vertices[i];
-                                    int m = 0;
-                                    foreach (Facepoint r in v3._facepoints)
+                                if (p._vertices != null)
+                                    for (int i = 0; i < p._vertices.Count; i++)
                                     {
-                                        int cIndex = v3._faceDataIndices[m++];
-
-                                        Vector4 color = (Vector4)poly._colorSet[x].Colors[r._colorIndices[x]] * baseWeight;
-
-                                        int w = 0;
-                                        foreach (MDL0ColorNode n in nodes)
+                                        Vertex3 v3 = p._vertices[i];
+                                        int m = 0;
+                                        foreach (Facepoint r in v3._facepoints)
                                         {
-                                            if (n != null && r._colorIndices[x] < n.Colors.Length)
-                                                color += (Vector4)n.Colors[r._colorIndices[x]] * weights[w];
-                                            w++;
-                                        }
+                                            int cIndex = v3._faceDataIndices[m++];
+                                            if (cIndex < p._pointCount)
+                                            {
+                                                Vector4 color = (Vector4)poly._colorSet[x].Colors[r._colorIndices[x]] * baseWeight;
 
-                                        pData[cIndex] = color / total;
+                                                int w = 0;
+                                                foreach (MDL0ColorNode n in nodes)
+                                                {
+                                                    if (n != null && r._colorIndices[x] < n.Colors.Length)
+                                                        color += (Vector4)n.Colors[r._colorIndices[x]] * weights[w];
+                                                    w++;
+                                                }
+
+                                                pData[cIndex] = color / total;
+                                            }
+                                        }
                                     }
-                                }
                             }
                             p._dirty[x + 2] = true;
                         }

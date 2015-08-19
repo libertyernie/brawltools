@@ -16,6 +16,22 @@ they be held accountable for the manner in which it is used.
 
  - v0.76b - BrawlLib v0.23b
 
+ Hotfix 2 (8/19/15)
+ . Removed '.obj' from filters when replacing an MDL0 object, replacing with an obj is not supported
+ . Fixed bug in collision editor where no models would render if you had not viewed them before opening the editor
+ . Fixed bug linking and unlinking a bone in the collision editor where the collisions would not stay in place
+ . Fixed bug where bones would not render in the collision editor
+ . Fixed bug where the weight editor would not do anything
+ . Fixed bug where buttons in the weight editor would be enabled at the wrong times and do nothing
+ . Fixed bug where the 'Remove' button in the weight editor would throw an error when clicked
+ . Fixed bug where clicking out of the box next to 'Set' in the weight editor would automatically apply the value (press 'Set' instead)
+ . Fixed bug where if Ctrl+A was used to select all vertices in the viewport, the weight and vertex editors would not update
+ . Fixed bug where models with a corrupted header or improper header version would crash the program (now they are simply not read)
+ . Fixed bug where pressing the dropdown button to select one of an object's assets would throw an error if the asset group did not already exist
+ . Fixed bug where copying or pasting an SRT0 frame would throw an error
+ . Fixed bug where removing the last code from a GCT in the GCT editor would throw an error
+ . Fixed bug in the CHR0 text importer where scale and translation values would be switched
+
  Hotfix 1 (8/15/15)
  . Fixed bug where double clicking on a GCT associated with BrawlBox would open the editor but not the actual file clicked on
  . Fixed bug where the weight editor would not update when selecting vertices in the model viewer

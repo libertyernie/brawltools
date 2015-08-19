@@ -190,7 +190,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (p.LinkLeft != null)
                             p.LinkLeft._rawValue = _linkedBone.Matrix * p.LinkLeft._rawValue;
                         if (p.LinkRight != null)
-                            p.LinkRight._rawValue = _linkedBone.Matrix * p.LinkLeft._rawValue;
+                            p.LinkRight._rawValue = _linkedBone.Matrix * p.LinkRight._rawValue;
                     }
                 }
 
@@ -206,7 +206,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (p.LinkLeft != null)
                             p.LinkLeft._rawValue = _linkedBone.InverseMatrix * p.LinkLeft._rawValue;
                         if (p.LinkRight != null)
-                            p.LinkRight._rawValue = _linkedBone.InverseMatrix * p.LinkLeft._rawValue;
+                            p.LinkRight._rawValue = _linkedBone.InverseMatrix * p.LinkRight._rawValue;
                     }
                 }
                 else

@@ -88,7 +88,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._colorList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._colorList != null ? model._colorList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -98,7 +98,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._vertList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._vertList != null ? model._vertList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -108,7 +108,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._normList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._normList != null ? model._normList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -118,7 +118,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._uvList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._uvList != null ? model._uvList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -128,7 +128,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._furPosList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._furPosList != null ? model._furPosList.Select(n => n.ToString()).ToList() : null);
         }
     }
     
@@ -138,7 +138,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._furVecList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._furVecList != null ? model._furVecList.Select(n => n.ToString()).ToList() : null);
         }
     }
 

@@ -39,6 +39,7 @@ namespace System.Windows.Forms
             // 
             // btnSetWeight
             // 
+            this.btnSetWeight.Enabled = false;
             this.btnSetWeight.Location = new System.Drawing.Point(67, 28);
             this.btnSetWeight.Name = "btnSetWeight";
             this.btnSetWeight.Size = new System.Drawing.Size(61, 22);
@@ -60,6 +61,7 @@ namespace System.Windows.Forms
             // 
             // btnAdd
             // 
+            this.btnAdd.Enabled = false;
             this.btnAdd.Location = new System.Drawing.Point(67, 52);
             this.btnAdd.Name = "btnAdd";
             this.btnAdd.Size = new System.Drawing.Size(30, 22);
@@ -70,6 +72,7 @@ namespace System.Windows.Forms
             // 
             // btnSubtract
             // 
+            this.btnSubtract.Enabled = false;
             this.btnSubtract.Location = new System.Drawing.Point(98, 52);
             this.btnSubtract.Name = "btnSubtract";
             this.btnSubtract.Size = new System.Drawing.Size(30, 22);
@@ -80,6 +83,7 @@ namespace System.Windows.Forms
             // 
             // btnLock
             // 
+            this.btnLock.Enabled = false;
             this.btnLock.Location = new System.Drawing.Point(2, 4);
             this.btnLock.Name = "btnLock";
             this.btnLock.Size = new System.Drawing.Size(64, 22);
@@ -99,6 +103,7 @@ namespace System.Windows.Forms
             // 
             // btnRemove
             // 
+            this.btnRemove.Enabled = false;
             this.btnRemove.Location = new System.Drawing.Point(67, 4);
             this.btnRemove.Name = "btnRemove";
             this.btnRemove.Size = new System.Drawing.Size(61, 22);
@@ -131,6 +136,7 @@ namespace System.Windows.Forms
             // 
             // numMult
             // 
+            this.numMult.Enabled = false;
             this.numMult.Integral = false;
             this.numMult.Location = new System.Drawing.Point(3, 77);
             this.numMult.MaximumValue = 3.402823E+38F;
@@ -142,6 +148,7 @@ namespace System.Windows.Forms
             // 
             // btnMult
             // 
+            this.btnMult.Enabled = false;
             this.btnMult.Location = new System.Drawing.Point(67, 76);
             this.btnMult.Name = "btnMult";
             this.btnMult.Size = new System.Drawing.Size(30, 22);
@@ -152,6 +159,7 @@ namespace System.Windows.Forms
             // 
             // btnDiv
             // 
+            this.btnDiv.Enabled = false;
             this.btnDiv.Location = new System.Drawing.Point(98, 76);
             this.btnDiv.Name = "btnDiv";
             this.btnDiv.Size = new System.Drawing.Size(30, 22);
@@ -162,6 +170,7 @@ namespace System.Windows.Forms
             // 
             // numAdd
             // 
+            this.numAdd.Enabled = false;
             this.numAdd.Integral = false;
             this.numAdd.Location = new System.Drawing.Point(3, 53);
             this.numAdd.MaximumValue = 3.402823E+38F;
@@ -173,6 +182,7 @@ namespace System.Windows.Forms
             // 
             // numWeight
             // 
+            this.numWeight.Enabled = false;
             this.numWeight.Integral = false;
             this.numWeight.Location = new System.Drawing.Point(3, 29);
             this.numWeight.MaximumValue = 3.402823E+38F;
@@ -352,6 +362,9 @@ namespace System.Windows.Forms
             btnSubtract.Enabled = canSub;
             btnDiv.Enabled = canDiv;
             btnRemove.Enabled = canRemove;
+            numWeight.Enabled = btnSetWeight.Enabled = _targetBone != null;
+            numAdd.Enabled = canAdd || canSub;
+            numMult.Enabled = canMul || canDiv;
         }
 
         public BoneWeight _targetBoneWeight;
@@ -591,7 +604,7 @@ namespace System.Windows.Forms
 
             //Clean influence by removing zero weights
             for (int i = 0; i < targetInf.Weights.Count; i++)
-                if (targetInf.Weights[i].Weight == 0.0f)
+                if (targetInf.Weights[i].Weight <= 0.0f)
                     targetInf.Weights.RemoveAt(i--);
 
             MDL0ObjectNode obj = vertex.Parent as MDL0ObjectNode;
@@ -630,10 +643,7 @@ namespace System.Windows.Forms
             if (_targetBoneWeight != null)
                 numWeight.Value = _targetBoneWeight.Weight * 100.0f;
         }
-        public void BoneChanged()
-        {
-            TargetBone = SelectedBone;
-        }
+        public void BoneChanged() { TargetBone = SelectedBone; }
 
         private void lstBoneWeights_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -662,25 +672,8 @@ namespace System.Windows.Forms
         {
             if (TargetBoneWeight != null && lstBoneWeights.SelectedIndex != -1)
             {
-                //int i = lstBoneWeights.SelectedIndex;
-                if (_bones.Count == 2)
-                    _bones[0].Locked = false;
                 SetWeight(0.0f);
-                int x;
-                foreach (Vertex3 v in TargetVertices)
-                    if (v.MatrixNode != null)
-                    {
-                        if (v.MatrixNode.Users.Count > 1)
-                            if (v.MatrixNode is Influence)
-                                _vertex.MatrixNode = (v.MatrixNode as Influence).Clone();
-                            else
-                                _vertex.MatrixNode = new Influence(v.MatrixNode as MDL0BoneNode);
-
-                        if ((x = v.IndexOfBone(TargetBone)) != -1)
-                            v.MatrixNode.Weights.RemoveAt(x);
-                    }
                 ResetList();
-                //lstBoneWeights.SelectedIndex = i.Clamp(0, lstBoneWeights.Items.Count - 1);
             }
         }
 
@@ -781,7 +774,7 @@ namespace System.Windows.Forms
 
         private void numWeight_ValueChanged(object sender, EventArgs e)
         {
-            btnSetWeight_Click(sender, e);
+            //btnSetWeight_Click(sender, e);
         }
 
         private void btnMult_Click(object sender, EventArgs e)

@@ -129,20 +129,24 @@ namespace BrawlLib.Wii.Models
         {
             Header = pModel;
             Version = pModel->_header._version;
-            NodeCache = new IMatrixNode[pModel->Properties->_numNodes];
+            NodeCache = pModel->Properties == null ? 
+                new IMatrixNode[0] : 
+                new IMatrixNode[pModel->Properties->_numNodes];
+            BoneCache = new MDL0BoneNode[0];
 
             bint* offsets = (bint*)((byte*)pModel + 0x10);
-            List<MDLResourceType> iList = IndexBank[Version];
-            int groupCount = iList.Count;
-            int offset;
+            if (Version >= 9 && Version <= 11)
+            {
+                List<MDLResourceType> iList = IndexBank[Version];
+                int groupCount = iList.Count;
+                int offset;
 
-            //Extract resource addresses
-            fixed (ResourceGroup** gList = &Defs)
-                for (int i = 0; i < groupCount; i++)
-                    if ((offset = offsets[i]) > 0)
-                        gList[(int)iList[i]] = (ResourceGroup*)((byte*)pModel + offset);
-                    //else if (offset > 0 && (iList[i] == MR.FurLayerCoords || iList[i] == MR.FurVectors))
-                    //    MessageBox.Show("Unsupported Fur Data is used!");
+                //Extract resource addresses
+                fixed (ResourceGroup** gList = &Defs)
+                    for (int i = 0; i < groupCount; i++)
+                        if ((offset = offsets[i]) > 0)
+                            gList[(int)iList[i]] = (ResourceGroup*)((byte*)pModel + offset);
+            }
         }
 
         public void RegenerateBoneCache(bool remake = false)

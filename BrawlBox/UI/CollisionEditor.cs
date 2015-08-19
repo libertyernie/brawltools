@@ -1105,6 +1105,7 @@ namespace System.Windows.Forms
                         modelNode.Nodes.Add(new TreeNode(bone._name) { Tag = bone, Checked = true });
 
                     _modelPanel.AddTarget(n);
+                    n.ResetToBindState();
                 }
 
             modelTree.EndUpdate();
@@ -1671,6 +1672,11 @@ namespace System.Windows.Forms
             if (_targetNode != null)
                 _targetNode.Render();
 
+            if (_modelPanel.RenderBones)
+                foreach (IRenderedObject o in _modelPanel._renderList)
+                    if (o is IModel)
+                        ((IModel)o).RenderBones(_modelPanel.CurrentViewport);
+
             //Render selection box
             if (!_selecting)
                 return;
@@ -2016,7 +2022,7 @@ namespace System.Windows.Forms
                 return;
 
             txtBone.Text = _selectedObject._boneName = node.Text;
-            _selectedObject._linkedBone = ((MDL0BoneNode)node.Tag);
+            _selectedObject.LinkedBone = ((MDL0BoneNode)node.Tag);
             txtModel.Text = _selectedObject._modelName = node.Parent.Text;
         }
 

@@ -73,6 +73,9 @@ namespace System.Windows.Forms
             leftPanel.Reset();
             rightPanel.Reset();
 
+            weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor.TargetVertices = _selectedVertices;
+
             _updating = false;
         }
 
@@ -182,10 +185,7 @@ namespace System.Windows.Forms
 
         protected override void OnSelectedBoneChanged()
         {
-#if DEBUG
-            if (weightEditor.Visible)
-                weightEditor.BoneChanged();
-#endif
+            weightEditor.BoneChanged();
             chkZoomExtents.Enabled = AllowZoomExtents;
         }
         public override void UpdateUndoButtons()
@@ -193,12 +193,6 @@ namespace System.Windows.Forms
             btnUndo.Enabled = CanUndo;
             btnRedo.Enabled = CanRedo;
         }
-        //protected override void OnSelectedVerticesChanged()
-        //{
-        //    base.OnSelectedVerticesChanged();
-
-
-        //}
 
         public override void UpdateAnimationPanelDimensions()
         {
@@ -326,6 +320,9 @@ namespace System.Windows.Forms
                 SelectAllVertices(TargetModel);
 
             OnSelectedVerticesChanged();
+
+            weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor.TargetVertices = _selectedVertices;
 
             ModelPanel.Invalidate();
 

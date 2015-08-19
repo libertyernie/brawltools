@@ -46,7 +46,7 @@ namespace System.Windows.Forms
             //Remove changes made after the current state
             //BEFORE adding new saves for this state
             int i = _saveIndex + 1;
-            if (_undoSaves.Count > i)
+            if (_undoSaves.Count > i && _undoSaves.Count - i > 0)
             {
                 _undoSaves.RemoveRange(i, _undoSaves.Count - i);
                 _redoSaves.RemoveRange(i, _redoSaves.Count - i);

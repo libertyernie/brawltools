@@ -1268,22 +1268,26 @@ namespace System.Windows.Forms
             IDataObject da = Clipboard.GetDataObject();
             if (da.GetDataPresent("AnimationFrame"))
             {
-                CHRAnimationFrame frame = (CHRAnimationFrame)da.GetData("AnimationFrame");
-
-                float* p = (float*)&frame;
-
-                BoxChangedCreateUndo(this, null);
-
-                for (int i = 0; i < 9; i++)
+                object o = da.GetData("AnimationFrame");
+                if (o != null && o is CHRAnimationFrame)
                 {
-                    if ((FrameScale.Checked && i < 3) ||
-                        (FrameRot.Checked && i >= 3 && i < 6) ||
-                        (FrameTrans.Checked && i >= 6))
-                        if (_transBoxes[i].Value != p[i] && (!_onlyKeys || frame.GetBool(i)))
-                        {
-                            _transBoxes[i].Value = p[i];
-                            BoxChanged(_transBoxes[i], null);
-                        }
+                    CHRAnimationFrame frame = (CHRAnimationFrame)o;
+
+                    float* p = (float*)&frame;
+
+                    BoxChangedCreateUndo(this, null);
+
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if ((FrameScale.Checked && i < 3) ||
+                            (FrameRot.Checked && i >= 3 && i < 6) ||
+                            (FrameTrans.Checked && i >= 6))
+                            if (_transBoxes[i].Value != p[i] && (!_onlyKeys || frame.GetBool(i)))
+                            {
+                                _transBoxes[i].Value = p[i];
+                                BoxChanged(_transBoxes[i], null);
+                            }
+                    }
                 }
             }
         }
