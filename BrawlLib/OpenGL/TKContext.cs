@@ -72,7 +72,7 @@ namespace BrawlLib.OpenGL
             if (!_anyContextInitialized)
             {
                 // Check for GLSL support
-                string[] version = GL.GetString(StringName.Version).Split('.');
+                string[] version = GL.GetString(StringName.Version).Split('.', ' ');
                 _versionMax = int.Parse(version[0].ToString());
                 _versionMin = int.Parse(version[1].ToString());
 
