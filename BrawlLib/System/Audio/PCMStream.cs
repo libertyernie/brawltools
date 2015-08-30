@@ -48,6 +48,18 @@ namespace System.Audio
 
             _source = (short*)(_sourceMap.Address + header->GetSize());
             _samplePos = 0;
+
+            _looped = false;
+            _loopStart = 0;
+            _loopEnd = _numSamples;
+
+            smplLoop[] loops = header->_smplLoops;
+            if (loops.Length > 0)
+            {
+                _looped = true;
+                _loopStart = (int)loops[0]._dwStart;
+                _loopEnd = (int)loops[0]._dwEnd;
+            }
         }
 
         internal PCMStream(short* source, int samples, int sampleRate, int channels, int bps)

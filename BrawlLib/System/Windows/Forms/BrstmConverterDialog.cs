@@ -668,12 +668,17 @@ namespace System.Windows.Forms
             customTrackBar1.TickFrequency = _sourceStream.Samples / 8;
             customTrackBar1.TickStyle = TickStyle.BottomRight;
 
-            numLoopStart.Value = 0;
             numLoopStart.Maximum = numLoopEnd.Maximum = _sourceStream.Samples;
-            numLoopEnd.Value = _sourceStream.Samples;
+            if (!_sourceStream.IsLooping) {
+                numLoopStart.Value = 0;
+                numLoopEnd.Value = _sourceStream.Samples;
 
-            pnlLoopStart.Width = 0;
-            pnlLoopEnd.Width = 0;
+                pnlLoopStart.Width = 0;
+                pnlLoopEnd.Width = 0;
+            } else {
+                numLoopStart.Value = _sourceStream.LoopStartSample;
+                numLoopEnd.Value = _sourceStream.LoopEndSample;
+            }
 
             btnOkay.Enabled = true;
 

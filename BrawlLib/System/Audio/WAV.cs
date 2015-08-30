@@ -210,6 +210,27 @@ namespace System.Audio
             set { *(dataChunk*)(Address + 12 + _fmtChunk.GetSize()) = value; }
         }
 
+        public smplLoop[] _smplLoops 
+        {
+            get
+            {
+                // Get first chunk in file
+                byte* ptr = Address + 12;
+                byte* end = Address + _length;
+                while (ptr < end)
+                {
+                    // There is more data in the file
+                    smplChunk* chunk = (smplChunk*)ptr;
+					if (chunk->_chunkTag == smplChunk.smplTag) // This is a real smpl chunk
+                        return chunk->_smplLoops;
+                    else // skip chunk and keep looking
+                        ptr += chunk->_chunkSize + 8;
+                }
+
+                return new smplLoop[0];
+            }
+        }
+
         public RIFFHeader(int format, int channels, int bitsPerSample, int sampleRate, int numSamples)
         {
             _tag = RIFFTag;
@@ -280,6 +301,57 @@ namespace System.Audio
         internal byte* Address { get { fixed (void* ptr = &this)return (byte*)ptr; } }
     }
 
+    // http://www.piclist.com/techref/io/serial/midi/wave.html
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe struct smplChunk
+    {
+        public const uint smplTag = 0x6c706d73;
+
+        public uint _chunkTag;
+        public uint _chunkSize;
+        public uint _dwManufacturer;
+        public uint _dwProduct;
+        public uint _dwSamplePeriod;
+        public uint _dwMIDIUnityNote;
+        public uint _dwMIDIPitchFraction;
+        public uint _dwSMPTEFormat;
+        public uint _dwSMPTEOffset;
+        public uint _cSampleLoops;
+        public uint _cbSamplerData;
+
+        internal byte* Address { get { fixed (void* ptr = &this)return (byte*)ptr; } }
+
+        public smplLoop[] _smplLoops 
+        {
+            get
+            {
+                smplLoop[] arr = new smplLoop[_cSampleLoops];
+                for (int i = 0; i < arr.Length; i++) {
+                    byte* thisaddr = Address;
+                    smplChunk* cc = (smplChunk*)Address;
+                    byte* thataddr = Address + 0x2C + i*0xC;
+                    arr[i] = *((smplLoop*)thataddr);
+                }
+                return arr;
+            }
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    unsafe struct smplLoop {
+        public uint _dwIdentifier;
+        public uint _dwType;
+        public uint _dwStart;
+        public uint _dwEnd;
+        public uint _dwFraction;
+        public uint _dwPlayCount;
+
+        public override string ToString() {
+            return "Loop from " + _dwStart + " to " + _dwEnd;
+        }
+    }
+
     public unsafe static class WAV
     {
         public static IAudioStream FromFile(string path)
@@ -289,21 +361,21 @@ namespace System.Audio
 
         public static void ToFile(IAudioStream source, string path, int samplePosition = 0, int maxSampleCount = int.MaxValue)
         {
-			int sampleCount = Math.Min(maxSampleCount, (source.Samples - samplePosition));
+            int sampleCount = Math.Min(maxSampleCount, (source.Samples - samplePosition));
             using (FileStream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
             {
                 //Estimate size
-				int outLen = 44 + (sampleCount * source.Channels * 2);
+                int outLen = 44 + (sampleCount * source.Channels * 2);
 
                 //Create file map
                 stream.SetLength(outLen);
                 using (FileMap map = FileMap.FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, outLen))
                 {
                     RIFFHeader* riff = (RIFFHeader*)map.Address;
-					*riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, sampleCount);
+                    *riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, sampleCount);
 
-					source.SamplePosition = samplePosition;
-					source.ReadSamples(map.Address + 44, sampleCount);
+                    source.SamplePosition = samplePosition;
+                    source.ReadSamples(map.Address + 44, sampleCount);
                 }
             }
         }
