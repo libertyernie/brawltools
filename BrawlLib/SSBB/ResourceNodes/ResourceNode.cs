@@ -1053,46 +1053,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         /// <summary>
-        /// Determines whether all of this node's direct children are contained between the start and end of its own data.
-        /// If the result is false, an identical MD5() result will not guarantee that the node's children have not changed.
-        /// </summary>
-        /// Or you could just use HasMerged...
-        public unsafe bool DataSourceContainsAllChildren()
-        {
-            DataSource data = OriginalSource;
-            int paddr = (int)OriginalSource.Address.address;
-            int plen = OriginalSource.Length;
-
-            // initialize queue
-            Queue<ResourceNode> queue = new Queue<ResourceNode>(this.Children);
-            while (queue.Count > 0)
-            {
-                ResourceNode c = queue.Dequeue();
-                if (c.OriginalSource.Address == null || c.OriginalSource.Length == 0)
-                {
-                    foreach (ResourceNode c2 in c.Children)
-                    {
-                        queue.Enqueue(c2);
-                    }
-                }
-                else
-                {
-                    int addr = (int)c.OriginalSource.Address.address;
-                    int len = c.OriginalSource.Length;
-                    if (addr >= paddr && addr < paddr + plen)
-                    {
-                        // nothing
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-
-        /// <summary>
         /// Get the result of the MD5() function as a string of hexadecimal digits.
         /// If MD5() returns null, this method will return an empty string.
         /// </summary>
