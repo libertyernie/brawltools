@@ -64,7 +64,7 @@ namespace BrawlLib.SSBBTypes
         public void Set(int size, int channels)
         {
             RuintList* list;
-            uint offset = _entries.Address;
+            VoidPtr offset = _entries.Address;
             int dataOffset = 0x60 + (channels * 8);
 
             _tag = Tag;

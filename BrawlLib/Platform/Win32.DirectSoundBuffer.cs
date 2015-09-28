@@ -16,8 +16,6 @@ namespace System
             [StructLayout(LayoutKind.Sequential, Pack = 1)]
             internal unsafe struct DSBufferDesc
             {
-                public const uint Size = 36;
-
                 public uint dwSize;
                 public DSBufferCapsFlags dwFlags;
                 public uint dwBufferBytes;
@@ -28,7 +26,7 @@ namespace System
                 public DSBufferDesc(uint bufferSize, DSBufferCapsFlags bufferCaps) : this(bufferSize, bufferCaps, null, Guid.Empty) { }
                 public DSBufferDesc(uint bufferSize, DSBufferCapsFlags bufferCaps, WaveFormatEx* format, Guid algorithm)
                 {
-                    dwSize = Size;
+                    dwSize = (uint)sizeof(DSBufferDesc);
                     dwFlags = bufferCaps;
                     dwBufferBytes = bufferSize;
                     dwReserved = 0;

@@ -23,8 +23,7 @@ namespace BrawlLib.Wii.Audio
             int nBits = 3;
             //while ((1 << ++nBits) < 8) ;
 
-            int* bufferArrayData = stackalloc int[8];
-            double** bufferArray = (double**)bufferArrayData;
+            double** bufferArray = stackalloc double*[8];
             for (int z = 0; z < 8; z++)
                 bufferArray[z] = (double*)Marshal.AllocHGlobal(3 * 8);
 
@@ -38,8 +37,7 @@ namespace BrawlLib.Wii.Audio
             double* sChunkBuffer = stackalloc double[3];
             double* omgBuffer = stackalloc double[3];
 
-            int* pChannelData = stackalloc int[3];
-            double** pChannels = (double**)pChannelData;
+            double** pChannels = stackalloc double*[3];
             for (int z = 0; z <= 2; z++)
                 pChannels[z] = (double*)Marshal.AllocHGlobal(3 * 8);
 
@@ -325,8 +323,7 @@ namespace BrawlLib.Wii.Audio
 
         private static unsafe void Something10(double** bufferArray, int mask, double** multiBuffer, int multiIndex, double val)
         {
-            int* bufferListData = stackalloc int[mask];
-            double** bufferList = (double**)bufferListData;
+            double** bufferList = stackalloc double*[mask];
 
             int* buffer1 = stackalloc int[mask];
             double* buffer2 = stackalloc double[3];

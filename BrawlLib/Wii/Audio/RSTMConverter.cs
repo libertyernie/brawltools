@@ -72,9 +72,9 @@ namespace BrawlLib.Wii.Audio
 
             //Get section pointers
             RSTMHeader* rstm = (RSTMHeader*)map.Address;
-            HEADHeader* head = (HEADHeader*)((int)rstm + rstmSize);
-            ADPCHeader* adpc = (ADPCHeader*)((int)head + headSize);
-            RSTMDATAHeader* data = (RSTMDATAHeader*)((int)adpc + adpcSize);
+            HEADHeader* head = (HEADHeader*)((VoidPtr)rstm + rstmSize);
+            ADPCHeader* adpc = (ADPCHeader*)((VoidPtr)head + headSize);
+            RSTMDATAHeader* data = (RSTMDATAHeader*)((VoidPtr)adpc + adpcSize);
 
             //Initialize sections
             rstm->Set(headSize, adpcSize, dataSize);

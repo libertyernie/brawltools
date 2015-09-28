@@ -17,20 +17,25 @@ namespace System
         public int Int { get { return *(bint*)address; } }
         public float Single { get { return *(bfloat*)address; } }
 
-        public static VoidPtr operator +(VoidPtr p1, VoidPtr p2) { return new VoidPtr() { address = (void*)((uint)p1.address + (uint)p2.address) }; }
-        public static VoidPtr operator -(VoidPtr p1, VoidPtr p2) { return new VoidPtr() { address = (void*)((uint)p1.address - (uint)p2.address) }; }
+        public static int operator -(VoidPtr p1, VoidPtr p2) {
+            long diff = (byte*)p1.address - (byte*)p2.address;
+            if (diff < int.MinValue || diff > int.MaxValue) {
+                throw new Exception("Pointer difference does not fall within the range of int");
+            }
+            return (int)diff;
+        }
         
-        public static VoidPtr operator +(VoidPtr p1, uint addr) { return new VoidPtr() { address = (void*)((uint)p1.address + addr) }; }
-        public static VoidPtr operator -(VoidPtr p1, uint addr) { return new VoidPtr() { address = (void*)((uint)p1.address - addr) }; }
+        public static VoidPtr operator +(VoidPtr p1, uint addr) { return new VoidPtr() { address = ((byte*)p1.address + addr) }; }
+        public static VoidPtr operator -(VoidPtr p1, uint addr) { return new VoidPtr() { address = ((byte*)p1.address - addr) }; }
 
-        public static VoidPtr operator +(VoidPtr p1, int addr) { return new VoidPtr() { address = (void*)((uint)p1.address + addr) }; }
-        public static VoidPtr operator -(VoidPtr p1, int addr) { return new VoidPtr() { address = (void*)((uint)p1.address - addr) }; }
-        
-        public static VoidPtr operator +(VoidPtr p1, ulong addr) { return new VoidPtr() { address = (void*)((uint)p1.address + addr) }; }
-        public static VoidPtr operator -(VoidPtr p1, ulong addr) { return new VoidPtr() { address = (void*)((uint)p1.address - addr) }; }
+        public static VoidPtr operator +(VoidPtr p1, int addr) { return new VoidPtr() { address = ((byte*)p1.address + addr) }; }
+        public static VoidPtr operator -(VoidPtr p1, int addr) { return new VoidPtr() { address = ((byte*)p1.address - addr) }; }
 
-        public static VoidPtr operator +(VoidPtr p1, long addr) { return new VoidPtr() { address = (void*)((uint)p1.address + addr) }; }
-        public static VoidPtr operator -(VoidPtr p1, long addr) { return new VoidPtr() { address = (void*)((uint)p1.address - addr) }; }
+        public static VoidPtr operator +(VoidPtr p1, ulong addr) { return new VoidPtr() { address = ((byte*)p1.address + addr) }; }
+        public static VoidPtr operator -(VoidPtr p1, ulong addr) { return new VoidPtr() { address = ((byte*)p1.address - addr) }; }
+
+        public static VoidPtr operator +(VoidPtr p1, long addr) { return new VoidPtr() { address = ((byte*)p1.address + addr) }; }
+        public static VoidPtr operator -(VoidPtr p1, long addr) { return new VoidPtr() { address = ((byte*)p1.address - addr) }; }
 
         public static bool operator >(VoidPtr p1, VoidPtr p2) { return p1.address > p2.address; }
         public static bool operator <(VoidPtr p1, VoidPtr p2) { return p1.address < p2.address; }
