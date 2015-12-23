@@ -281,9 +281,9 @@ namespace System.Windows.Forms
             if (_section.HasCode && ppcDisassembler1.Visible && !ppcDisassembler1._updating)
             {
                 int i = SelectedRelocationIndex - _startIndex;
-                if (i >= 0 && 
+                if (i >= 0 &&
                     i < ppcDisassembler1.grdDisassembler.Rows.Count &&
-                    !(ppcDisassembler1.grdDisassembler.SelectedRows.Count > 0 && 
+                    !(ppcDisassembler1.grdDisassembler.SelectedRows.Count > 0 &&
                     ppcDisassembler1.grdDisassembler.SelectedRows[0].Index == i))
                 {
                     ppcDisassembler1.grdDisassembler.ClearSelection();
@@ -327,7 +327,7 @@ namespace System.Windows.Forms
                 _targetBranch = null;
 
                 _selectedRelocationIndex = value;
-                
+
                 int index = _selectedRelocationIndex;
 
                 lstLinked.Items.Clear();
@@ -395,7 +395,7 @@ namespace System.Windows.Forms
                     else if (_targetBranchOffsetRelocation != null)
                         _targetBranchOffsetRelocation = null;
                 }
-                
+
                 CommandChanged();
             }
         }
@@ -411,7 +411,7 @@ namespace System.Windows.Forms
             //    btnRemoveWord.Enabled = false;
             //}
             //else 
-                if ((propertyGrid1.SelectedObject = _manager.GetCommand(SelectedRelocationIndex)) != null)
+            if ((propertyGrid1.SelectedObject = _manager.GetCommand(SelectedRelocationIndex)) != null)
             {
                 btnNewCmd.Enabled = false;
                 btnDelCmd.Enabled = true;
@@ -576,10 +576,10 @@ namespace System.Windows.Forms
                         }
                         else
                             if (s._isBSSSection)
-                            {
-                                found = true;
-                                break;
-                            }
+                        {
+                            found = true;
+                            break;
+                        }
                         if (!found)
                             return;
                     }
@@ -941,16 +941,9 @@ namespace System.Windows.Forms
             d._supportsInsDel = true;
             d.InsertBytes(offset, new byte[] { 0, 0, 0, 0 });
             d._supportsInsDel = false;
+            FixRelocations(1, offset);
 
-            //if (index == _relocations.Count)
-            //    _relocations.Add(new Relocation(_section, (int)index));
-            //else
-            //{
-            //    _relocations.Insert((int)index, new Relocation(_section, (int)index));
-            //    foreach (ModuleDataNode s in ((ModuleNode)_section.Root).Sections)
-            //        foreach (Relocation r in s.Relocations)
-            //            FixRelocation(r, 1, offset);
-            //}
+
 
             //for (int i = (int)index + 1; i < _relocations.Count; i++)
             //    _relocations[i]._index++;
@@ -958,13 +951,28 @@ namespace System.Windows.Forms
             PosChanged();
         }
 
-        //private void FixRelocation(Relocation w, int amt, long offset)
-        //{
-        //    foreach (Relocation l in w.Linked)
-        //        if (l.Command != null)
-        //            if (l.Command.TargetSectionID == _section.Index && l.Command._addend >= offset)
-        //                l.Command._addend = (uint)((int)l.Command._addend + amt * 4);
-        //}
+        private void FixRelocations(int amt, long offset)
+        {
+            foreach (ModuleDataNode s in ((ModuleNode)_section.Root).Sections)
+            {
+                Dictionary<int, RelCommand> ctmp;
+                foreach (RelCommand command in s._manager._commands.Values)
+                {
+                    if (command.TargetSectionID == _section.Index && command._addend >= offset)
+                        command._addend = (uint)((int)command._addend + (amt * 4));
+                }
+                if (s.Index == _section.Index)
+                {
+                    ctmp = new Dictionary<int, RelCommand>(s._manager._commands);
+                    s._manager._commands.Clear();
+
+                    for (int i = 0; i < ctmp.Count; i++)
+                        s._manager.SetCommand(ctmp.Keys.ToArray()[i] + (ctmp.Keys.ToArray()[i] >= offset / 4 ? amt : 0),
+                            ctmp.Values.ToArray()[i]);
+                    ctmp.Clear();
+                }
+            }
+        }
 
         private void btnRemoveWord_Click(object sender, EventArgs e)
         {
@@ -1045,7 +1053,7 @@ namespace System.Windows.Forms
                 if (chkDestructor.Checked)
                 {
                     if (_manager._destructorIndex != -1)
-                       _manager._destructorIndex = -1;
+                        _manager._destructorIndex = -1;
                     _manager._destructorIndex = SelectedRelocationIndex;
                 }
             }
@@ -1074,10 +1082,10 @@ namespace System.Windows.Forms
 
         public RelocationTarget GetBranchOffsetRelocation()
         {
-            if (TargetBranch != null && 
-                !(TargetBranch is PPCblr) && 
+            if (TargetBranch != null &&
+                !(TargetBranch is PPCblr) &&
                 !(TargetBranch is PPCbctr))
-                return new RelocationTarget(_section.ModuleID, _section.Index, 
+                return new RelocationTarget(_section.ModuleID, _section.Index,
                     !TargetBranch.Absolute ?
                     (SelectedRelocationIndex * 4 + (TargetBranch.DataOffset).RoundDown(4)) / 4 :
                     0 //Absolute from start of section, start of file, or start of memory?

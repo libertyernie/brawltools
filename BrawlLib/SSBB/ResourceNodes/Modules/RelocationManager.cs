@@ -14,9 +14,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public ModuleDataNode DataNode { get { return _reference == null ? _data : _reference; } }
 
-        private Dictionary<int, List<RelocationTarget>> _linkedCommands;
+        public SortedList<int, List<RelocationTarget>> _linkedCommands;
         private Dictionary<int, List<RelocationTarget>> _linkedBranches;
-        private Dictionary<int, RelocationTarget> _targetRelocations;
+        public Dictionary<int, RelocationTarget> _targetRelocations;
         private Dictionary<int, List<string>> _tags;
         internal Dictionary<int, RelCommand> _commands;
         private Dictionary<int, SolidBrush> _colors;
@@ -35,7 +35,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (DataNode == null || DataNode._manager == null)
             {
                 //Initialize
-                _linkedCommands = new Dictionary<int, List<RelocationTarget>>();
+                _linkedCommands = new SortedList<int, List<RelocationTarget>>();
                 _linkedBranches = new Dictionary<int, List<RelocationTarget>>();
                 _targetRelocations = new Dictionary<int, RelocationTarget>();
                 _tags = new Dictionary<int, List<string>>();
