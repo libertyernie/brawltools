@@ -57,7 +57,7 @@ namespace BrawlBox.NodeWrappers
         public void ChangeSound()
         {
             RSARSoundNode n = _resource as RSARSoundNode;
-            if (n.SoundDataNode != null)
+            if (n.SoundDataNode != null && n._dataNode != null)
             {
                 if (n._dataNode._refs.Count > 1)
                 {

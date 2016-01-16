@@ -1789,19 +1789,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                             for (int m = 0; m < v._faceDataIndices.Count; m++)
                             {
                                 int fIndex = v._faceDataIndices[m];
-                                if (fIndex < p._pointCount)
+                                if (fIndex < p._pointCount && fIndex >= 0)
                                 {
                                     if (p._faceData[1] != null && poly._normalNode != null)
                                     {
-                                        ((Vector3*)p._faceData[1].Address)[fIndex] =
-                                            poly._normalNode.Normals[v._facepoints[m]._normalIndex];
+                                        int normalIndex = v._facepoints[m]._normalIndex;
+                                        if (normalIndex >= 0 && normalIndex < poly._normalNode.Normals.Length)
+                                            ((Vector3*)p._faceData[1].Address)[fIndex] =
+                                                poly._normalNode.Normals[normalIndex];
                                     }
                                     if ((node == null || index == 0) && poly._colorSet != null)
                                         for (int c = 0; c < 2; c++)
                                             if (p._faceData[c + 2] != null && poly._colorSet[c] != null)
                                             {
-                                                ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
-                                                    poly._colorSet[c].Colors[v._facepoints[m]._colorIndices[c]];
+                                                int colorIndex = v._facepoints[m]._colorIndices[c];
+                                                if (colorIndex >= 0 && colorIndex < poly._colorSet[c].Colors.Length)
+                                                    ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
+                                                        poly._colorSet[c].Colors[colorIndex];
                                             }
                                 }
                             }
