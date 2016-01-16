@@ -50,7 +50,7 @@ namespace BrawlLib.SSBBTypes
     #region SYMB
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct SYMBHeader
+    public unsafe struct SYMBHeader
     {
         public const uint Tag = 0x424D5953;
 
@@ -97,6 +97,8 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct SYMBMaskHeader
     {
+        public const int Size = 8;
+
         public bint _rootId; //index of the first entry non leafed entry with the lowest bit value
         public bint _numEntries;
 
@@ -127,7 +129,7 @@ namespace BrawlLib.SSBBTypes
             _index = index;
         }
 
-        private SYMBMaskEntry* Address { get { fixed (SYMBMaskEntry* ptr = &this)return ptr; } }
+        private SYMBMaskEntry* Address { get { fixed (SYMBMaskEntry* ptr = &this) return ptr; } }
 
         public SYMBMaskHeader* Parent
         {
@@ -139,76 +141,243 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        //    public static void Build(SYMBMaskHeader* group, int index)
-        //    {
-        //        //Get the first entry in the group, which is empty
-        //        SYMBMaskEntry* list = group->Entries;
-        //        //Get the entry that will be modified
-        //        SYMBMaskEntry* entry = &list[index];
-        //        //Get the first entry again
-        //        SYMBMaskEntry* prev = &list[0];
-        //        //Get the entry that the first entry's left index points to
-        //        SYMBMaskEntry* current = &list[prev->_leftId];
-        //        //The index of the current entry
-        //        int currentIndex = prev->_leftId;
+        //Code written by Mawootad
+        public static void Build(int[] indices, SYMBHeader* header, SYMBMaskHeader* maskHeader, SYMBMaskEntry* entries)
+        {
+            //initialization
+            maskHeader->_rootId = 0;
+            maskHeader->_numEntries = 0;
 
-        //        bool isRight = false;
+            //Loop over indicies and add them.  This seems to be roughly how the file is normally built, as it has the same resulting leaf-node-leaf-node pattern
+            foreach (int id in indices)
+            {
+                AddToTrie(entries, maskHeader, id, header);
+            }
+        }
 
-        //        //Get the length of the string
-        //        int strLen = pString->_length;
+        private static bool CheckBit(string val, int bit)
+        {
+            //Returns true if the given bit in the string is 1 and false if the bit is 0
+            return (((int)val[bit / 8]) & ((1 << 7) >> (bit % 8))) != 0;
+        }
 
-        //        //Create a byte pointer to the struct's string data
-        //        byte* pChar = (byte*)pString + 4, sChar;
+        private static void AddToTrie(SYMBMaskEntry* trie, SYMBMaskHeader* head, int id, SYMBHeader* table)
+        {
+            //If list is empty add the node and quit
+            if (head->_numEntries == 0)
+            {
+                trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, 0));
+                return;
+            }
 
-        //        int eIndex = strLen - 1, eBits = pChar[eIndex].CompareBits(0), val;
-        //        *entry = new ResourceEntry((eIndex << 3) | eBits, index, index, (int)dataAddress - (int)group, (int)pChar - (int)group);
+            string value = (*table).GetStringEntry(id);
 
-        //        //Continue while the previous id is greater than the current. Loop backs will stop the processing.
-        //        //Continue while the entry id is less than or equal the current id. Being higher than the current id means we've found a place to insert.
-        //        while ((entry->_bit <= current->_bit) && (prev->_bit > current->_bit))
-        //        {
-        //            if (entry->_bit == current->_bit)
-        //            {
-        //                sChar = (byte*)group + current->_stringOffset;
+            //String.IsNullOrEmpty(value)
+            if ((value ?? "") == "") throw new ArgumentException("String is null or whitespace");
 
-        //                //Rebuild new id relative to current entry
-        //                for (eIndex = strLen; (eIndex-- > 0) && (pChar[eIndex] == sChar[eIndex]); ) ;
-        //                eBits = pChar[eIndex].CompareBits(sChar[eIndex]);
 
-        //                entry->_bit = (ushort)((eIndex << 3) | eBits);
+            SYMBMaskEntry search = trie[head->_rootId];
+            List<int> path = new List<int>();
+            path.Add(head->_rootId);
 
-        //                if (((sChar[eIndex] >> eBits) & 1) != 0)
-        //                {
-        //                    entry->_leftId = (ushort)index;
-        //                    entry->_rightId = currentIndex;
-        //                }
-        //                else
-        //                {
-        //                    entry->_leftId = currentIndex;
-        //                    entry->_rightId = (ushort)index;
-        //                }
-        //            }
+            //Find the string that matches the current string in the trie.  Needs to be done in order to determine where the important bit is in the string
+            while (search._flags == 0)
+            {
+                //Assume that strings are treated as having an infinite number of null chars following them
+                if (search._bit / 8 >= value.Length)
+                {
+                    path.Add(search._leftId);
+                    search = trie[search._leftId];
+                    continue;
+                }
 
-        //            //Is entry to the right or left of current?
-        //            isRight = ((val = current->_bit >> 3) < strLen) && (((pChar[val] >> (current->_bit & 7)) & 1) != 0);
+                // _leftId corresponds to bit=0, _rightId corresponds to bit=1
+                if (CheckBit(value, search._bit))
+                {
+                    path.Add(search._rightId);
+                    search = trie[search._rightId];
+                }
+                else {
+                    path.Add(search._leftId);
+                    search = trie[search._leftId];
+                }
+            }
 
-        //            prev = current;
-        //            current = &list[currentIndex = (isRight) ? current->_rightId : current->_leftId];
-        //        }
+            string searchVal = (*table).GetStringEntry(search._stringId);
 
-        //        sChar = (current->_stringOffset == 0) ? null : (byte*)group + current->_stringOffset;
-        //        val = sChar == null ? 0 : (int)(*(bint*)(sChar - 4));
+            //Can't add duplicate strings
+            if (searchVal == value) throw new ArgumentException("Duplicate string");
 
-        //        if ((val == strLen) && (((sChar[eIndex] >> eBits) & 1) != 0))
-        //            entry->_rightId = currentIndex;
-        //        else
-        //            entry->_leftId = currentIndex;
+            bool mismatch = false;
+            int minLength = Math.Min(searchVal.Length, value.Length);
+            short bit = 0;
 
-        //        if (isRight)
-        //            prev->_rightId = (ushort)index;
-        //        else
-        //            prev->_leftId = (ushort)index;
-        //    }
+            //Locate mismatching character between the two strings
+            for (short i = 0; i < minLength; i++)
+            {
+                if (value[i] != searchVal[i])
+                {
+                    mismatch = true;
+                    bit = (short)(8 * i);
+                    break;
+                }
+            }
+
+            bool right;
+
+            //If a char was different one string does not contain the other
+            if (mismatch)
+            {
+                //Find where the bits differed
+                int cmpint = value[bit / 8] ^ searchVal[bit / 8];
+                for (short i = 0; i < 8; i++)
+                {
+                    if ((cmpint & ((1 << 7) >> i)) != 0)
+                    {
+                        bit += i;
+                        break;
+                    }
+                }
+
+                //If the bit is 1 the string being added takes the left fork
+                right = CheckBit(value, bit);
+
+                if (head->_numEntries == 1)
+                {
+                    trie[1] = (new SYMBMaskEntry(1, -1, -1, -1, id, 1));
+                    trie[2] = (new SYMBMaskEntry(0, bit, right ? 0 : 1, right ? 1 : 0, -1, -1));
+                    head->_numEntries = 3;
+                    head->_rootId = 2;
+                    return;
+                }
+
+                //If the mismatch bit is lower than the first mismatch bit the new branch will be the root of the tree
+                if (bit < trie[path[0]]._bit)
+                {
+                    trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, head->_numEntries / 2));
+
+                    if (right)
+                    {
+                        trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[0], head->_numEntries - 2, -1, -1));
+                    }
+                    else
+                    {
+                        trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, head->_numEntries - 2, path[0], -1, -1));
+                    }
+                    head->_rootId = head->_numEntries - 1;
+                    return;
+                }
+
+                //Locate where the branch needs to be inserted
+                for (int i = 1; i < path.Count; i++)
+                {
+                    if (trie[path[i]]._bit > bit || trie[path[i]]._flags == 1)
+                    {
+                        //Add leaf
+                        trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, head->_numEntries / 2));
+
+                        //Remap previous branch to point to new branch
+                        if (trie[path[i - 1]]._leftId == path[i])
+                        {
+                            trie[path[i - 1]]._leftId = head->_numEntries;
+                        }
+                        else {
+                            trie[path[i - 1]]._rightId = head->_numEntries;
+                        }
+
+                        //Create new branch
+                        if (right)
+                        {
+                            trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[i], head->_numEntries - 2, -1, -1));
+                        }
+                        else
+                        {
+                            trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, head->_numEntries - 2, path[i], -1, -1));
+                        }
+
+                        return;
+                    }
+                }
+
+                //This should never happen
+                throw new Exception("Error building tree, unexpected structure");
+            }
+
+            //Since mismatch is false, one string is a substring of the other
+
+            //The longer string is the one that takes the left branch
+            right = value.Length > searchVal.Length;
+            bit = (short)(minLength * 8);
+
+            if (right)
+            {
+                //Find the first bit after the substring that's 1 
+                for (; !CheckBit(value, bit); bit++) { }
+
+                //If path.Count == 1 the only value is a leaf
+                if (path.Count == 1)
+                {
+                    trie[1] = (new SYMBMaskEntry(1, -1, -1, -1, id, 1));
+                    trie[2] = (new SYMBMaskEntry(0, bit, 0, 1, -1, -1));
+                    head->_numEntries = 3;
+                    head->_rootId = 2;
+                    return;
+                }
+
+                //Update old branch, insert new branch and node, and quit.  trie[path[path.Count-2]] is the last branch that was a comparison.
+                trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, head->_numEntries / 2));
+
+                if (trie[path[path.Count - 2]]._leftId == path[path.Count - 1])
+                {
+                    trie[path[path.Count - 2]]._leftId = head->_numEntries;
+                }
+                else {
+                    trie[path[path.Count - 2]]._rightId = head->_numEntries;
+                }
+
+                trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[path.Count - 1], head->_numEntries - 2, -1, -1));
+
+                return;
+            }
+
+            //Find first bit comparison that happens after the substring ends
+            int index;
+            for (index = 0; trie[path[index]]._flags == 0 && trie[path[index]]._bit <= bit; index++) { }
+
+            //Find the first bit that's 1 and isn't already used in the trie
+            for (; (trie[path[index]]._flags == 0 && trie[path[index]]._bit == bit) || (!CheckBit(searchVal, bit)); bit++)
+            {
+                //Keep possible comparison overlap checking fresh
+                if (trie[path[index]]._flags == 0 && trie[path[index]]._bit <= bit)
+                {
+                    index++;
+                }
+            }
+
+            //If the trie is a single leaf the new branch is the root of the trie
+            if (head->_numEntries == 1)
+            {
+                trie[1] = (new SYMBMaskEntry(1, -1, -1, -1, id, 1));
+                trie[2] = (new SYMBMaskEntry(0, bit, 1, 0, -1, -1));
+                head->_numEntries = 3;
+                head->_rootId = 2;
+                return;
+            }
+
+            //Update old branch, insert new branch and node, and quit
+            trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, head->_numEntries / 2));
+
+            if (trie[path[index - 1]]._leftId == path[index])
+            {
+                trie[path[index - 1]]._leftId = head->_numEntries;
+            }
+            else {
+                trie[path[index - 1]]._rightId = head->_numEntries;
+            }
+            trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, head->_numEntries - 2, path[index], -1, -1));
+
+            return;
+        }
     }
 
     #endregion

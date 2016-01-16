@@ -215,11 +215,15 @@ namespace BrawlLib.Wii.Audio
                 fileHdr->_entryNumber = -1;
                 if (file is RSARExtFileNode)
                 {
+                    uint extFileSize = 0;
+
                     //Make an attempt to get current file size
-                    uint s = 0;
                     if (file.ExternalFileInfo.Exists)
-                        s = (uint)file.ExternalFileInfo.Length;
-                    if (file._extFileSize != s && s != 0) file._extFileSize = s;
+                        extFileSize = (uint)file.ExternalFileInfo.Length;
+
+                    if (file._extFileSize != extFileSize && extFileSize != 0)
+                        file._extFileSize = extFileSize;
+
                     //Shouldn't matter if 0
                     fileHdr->_headerLen = file._extFileSize;
 
@@ -319,7 +323,7 @@ namespace BrawlLib.Wii.Audio
 
             return len;
         }
-        internal int EncodeFILEBlock(FILEHeader* header, RSAREntryList entries, RSARNode node)
+        internal int EncodeFILEBlock(FILEHeader* header, VoidPtr baseAddress, RSAREntryList entries, RSARNode node)
         {
             int len = 0;
             VoidPtr baseAddr = (VoidPtr)header + 0x20;
@@ -332,7 +336,7 @@ namespace BrawlLib.Wii.Audio
                 int headerLen = 0, audioLen = 0;
                 int i = 0;
                 INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)g._rebuildAddr + INFOGroupHeader.Size + 4 + g._files.Count * 8);
-                g._rebuildAddr->_headerOffset = (int)(addr - node._rebuildBase);
+                g._rebuildAddr->_headerOffset = (int)(addr - baseAddress);
                 foreach (RSARFileNode f in g.Files)
                 {
                     e[i]._headerLength = f._headerLen;
@@ -342,18 +346,17 @@ namespace BrawlLib.Wii.Audio
                 }
                 i = 0;
                 VoidPtr wave = addr + headerLen;
-                g._rebuildAddr->_waveDataOffset = (int)(wave - node._rebuildBase);
+                g._rebuildAddr->_waveDataOffset = (int)(wave - baseAddress);
                 foreach (RSARFileNode f in g.Files)
                 {
                     f._rebuildAudioAddr = wave + audioLen;
-
                     f.Rebuild(addr, f._headerLen, true);
-                    addr += f._headerLen;
 
+                    addr += f._headerLen;
+                    audioLen += f._audioLen;
+                    
                     e[i]._dataLength = f._audioLen;
                     e[i++]._dataOffset = f._audioLen == 0 ? 0 : audioLen;
-
-                    audioLen += f._audioLen;
                 }
 
                 addr += audioLen;
@@ -370,394 +373,10 @@ namespace BrawlLib.Wii.Audio
             return len;
         }
 
-        //Failed attempts at generating symb ids commented out below, enjoy
-
-        //static void GenIds(SYMBHeader* symb, SYMBMaskHeader* header, int index, ushort allowedBit)
-        //{
-        //    SYMBMaskEntry* first = &header->Entries[index];
-        //    string mainName = symb->GetStringEntry(first->_stringId);
-
-        //    for (int i = 1; i < header->_numEntries; i += 2)
-        //    {
-        //        SYMBMaskEntry* secName = &header->Entries[i];
-        //        SYMBMaskEntry* secBit = &header->Entries[i + 1];
-
-        //        if (i == index || secBit->_bit != allowedBit)
-        //            continue;
-
-        //        string compName = symb->GetStringEntry(secName->_stringId);
-
-        //        int bitIndex = mainName.CompareBits(compName);
-        //        if (bitIndex >= 0)
-        //        {
-        //            //Set the bit index
-        //            secBit->_bit = (ushort)bitIndex;
-
-        //            int bit = bitIndex % 8;
-        //            int byteIndex = (bitIndex - bit) / 8;
-
-        //            bool leftFound = false, rightFound = false;
-
-        //            mainName = compName;
-
-        //            //Keeping looking down the list for the left and right entries
-        //            for (int x = i + 2; x < header->_numEntries; x += 2)
-        //            {
-        //                SYMBMaskEntry* lrName = &header->Entries[x];
-        //                SYMBMaskEntry* lrBit = &header->Entries[x + 1];
-        //                compName = symb->GetStringEntry(lrName->_stringId);
-
-        //                if (x == index || lrBit->_bit != allowedBit)
-        //                    continue;
-
-        //                bool forceLeft = false;
-
-        //                if (byteIndex >= Math.Min(mainName.Length, compName.Length))
-        //                    forceLeft = true;
-
-        //                if (forceLeft || mainName.AtBit(bitIndex) != compName.AtBit(bitIndex))
-        //                {
-        //                    if (leftFound)
-        //                        continue;
-
-        //                    leftFound = true;
-
-        //                    secBit->_leftId = x + 1;
-        //                    GenIds(symb, header, x, lrBit->_bit);
-        //                }
-        //                else
-        //                {
-        //                    if (rightFound)
-        //                        continue;
-
-        //                    rightFound = true;
-
-        //                    secBit->_rightId = x + 1;
-        //                    GenIds(symb, header, x, lrBit->_bit);
-        //                }
-        //            }
-
-        //            if (!leftFound) //No strings matched
-        //                secBit->_leftId = i;
-        //            else if (!rightFound) //All strings matched
-        //                secBit->_rightId = i;
-
-        //            break;
-        //        }
-        //    }
-        //}
-
-        //String Table to convert to a tree
-        //string[] stringTable = new string[] { "SDPLAYER_BGM", "SDPLAYER_SE", "SDPLAYER_VOICE", "SDPLAYER_SYSTEM", "SDPLAYER_LOOP", "SDPLAYER_VOICE2", "SDPLAYER_SE_NOEFFECT" };
-
-        //public class TEntry
-        //{
-        //    public string _string;
-        //    public string _binary;
-        //    public int _bit = -1;
-        //    public int _leftID = -1;
-        //    public int _rightID = -1;
-        //    public int _stringID;
-        //    public int _id;
-
-        //    public TEntry(RSAREntryState s)
-        //    {
-        //        _binary = (_string = s._node._fullPath).ToBinaryArray();
-        //        _stringID = s._stringId;
-        //        _id = s._index;
-        //    }
-        //}
-
-        //Making the output table to save me buttloads of time >.>
-        //public void convertToBinary(string):
-        //    ''' Converts a text string to a string representation of itself in binary. '''
-        //    return ''.join(['%08d'%int(bin(ord(i))[2:]) for i in string])
-
-        //Populating an empty table for my own convenience.
-        //I assume the stringlist is ordered by ID, and is the first and only segment in the symb.
-        //Cause I'm a lazy bastard.
-
-        //Normal String, String (in binary), bit, LeftID, RightID, StringID, ID
-
-        //outputTable = [{'string':stringTable[x], 'binary':convertToBinary(stringTable[x]), 
-        //                'bit':-1, 'LeftID':-1, 'RightID':-1, 'StringID':x, 'ID':x} for x in xrange(len(stringTable))]
-
-        //private static void WriteData(List<TEntry> Left, List<TEntry> Right, int bit)
-        //{
-        //    //Writes all the necessary information to the node
-
-        //    TEntry currentNode = Right[0];
-
-        //    //Write Position
-        //    currentNode._bit = bit;
-
-        //    //Write the left branch (matching) This is a bit fugly, because of how I handle the output table.
-        //    //I basically determine the 'line' based off the ID.
-        //    if (Left.Count > 1)
-        //        currentNode._leftID = Left[0]._id * 2;
-        //    else
-        //    {
-        //        currentNode._leftID = Left[0]._id * 2 - 1;
-        //        //Edge case for the first node, who has no -1 line.
-        //        if (currentNode._leftID < 0)
-        //            currentNode._leftID = 0;
-        //    }
-
-        //    if (Right.Count > 1)
-        //        currentNode._rightID = Right[1]._id * 2;
-        //    else
-        //    {
-        //        currentNode._rightID = Right[0]._id * 2 - 1;
-        //        //Edge case for the first node, who has no -1 line.
-        //        if (currentNode._rightID < 0)
-        //            currentNode._rightID = 0;
-        //    }
-        //}
-
-        //private static void SplitTable(List<TEntry> outputTable, out List<TEntry> Left, out List<TEntry> Right)
-        //{
-        //    //Splits the table in two and writes the data
-
-        //    TEntry originalNode = outputTable[0];
-        //    List<TEntry> Temp;
-
-        //    //Iterate bit by bit
-        //    int bit = 0, entry = 0;
-        //    for (bit = 0; bit < originalNode._binary.Length; bit++)
-        //    {
-        //        char compareBit = originalNode._binary[bit];
-
-        //        //Go over the table
-        //        for (entry = 0; entry < outputTable.Count; entry++)
-        //        {
-        //            //Fucking Ugly edge case - initial string is too long to compare
-        //            if (bit >= outputTable[entry]._binary.Length)
-        //            {
-        //                //Python stuff to change the 'start' of the table to the current position
-        //                Temp = outputTable.ShiftFirst(entry);
-
-        //                //Split the ordered table there into Left (matching) and right (non-matching)
-        //                Left = new List<TEntry> { outputTable[entry] };
-
-        //                Right = new List<TEntry>();
-        //                foreach (TEntry t in Temp)
-        //                    if (t._id != outputTable[entry]._id)
-        //                        Right.Add(t);
-
-        //                WriteData(Left, Right, bit);
-
-        //                //It splits!
-        //                return;
-        //            }
-
-        //            //This is the normal case - applies 90% of the time, I find.
-        //            if (outputTable[entry]._binary[bit] != compareBit)
-        //            {
-        //                //Python stuff to change the 'start' of the table to the current position
-        //                Temp = outputTable.ShiftFirst(entry);
-
-        //                //Split the ordered table there into Left (matching) and right (non-matching)
-        //                Left = new List<TEntry>();
-        //                foreach (TEntry t in Temp)
-        //                    if (t._binary[bit] == '0')
-        //                        Left.Add(t);
-
-        //                Right = new List<TEntry>();
-        //                foreach (TEntry t in Temp)
-        //                    if (t._binary[bit] == '1')
-        //                        Right.Add(t);
-
-        //                WriteData(Left, Right, bit);
-
-        //                //It splits!
-        //                return;
-        //            }
-        //        }
-        //    }
-
-        //    //If it got this far, then it ran out of bits.
-        //    //So now we gotta
-
-        //    //Split the ordered table there into Left (matching) and right (non-matching)
-        //    Left = new List<TEntry> { originalNode };
-        //    Right = new List<TEntry>();
-        //    foreach (TEntry t in outputTable)
-        //        if (t._id != originalNode._id)
-        //            Right.Add(t);
-
-        //    WriteData(Left, Right, bit);
-
-        //    //It splits!
-        //    return;
-        //}
-
-        //public static void CalcMatch(List<TEntry> outputTable)
-        //{
-        //    //Split the Table by node
-        //    List<TEntry> Left, Right;
-        //    SplitTable(outputTable, out Left, out Right);
-
-        //    //foreach (TEntry t in Left)
-        //    //    Console.WriteLine(String.Format("Left: {0} {1} {2} {3} ", t._string, t._bit, t._leftID, t._rightID));
-
-        //    //Console.WriteLine("-------------------------------------------------");
-
-        //    //foreach (TEntry t in Right)
-        //    //    Console.WriteLine(String.Format("Right: {0} {1} {2} {3} ", t._string, t._bit, t._leftID, t._rightID));
-
-        //    if (Left.Count > 1)
-        //        CalcMatch(Left);
-        //    if (Right.Count > 1)
-        //        CalcMatch(Right);
-        //}
-
-        //public class PatriciaTree
-        //{
-        //    public string[] strings;
-        //    public string[] bin_strings;
-        //    public int out_node_idx = 0;
-
-        //    public PatriciaTree(string[] str)
-        //    {
-        //        strings = str;
-        //        bin_strings = strings.Select(x => x.ToBinaryArray()).ToArray();
-        //    }
-
-        //    public int[] partition_tree(List<int> idx_list, int position)
-        //    {
-        //        List<int> left = new List<int>(), right = new List<int>();
-        //        for (int i = 0; i < idx_list.Count; i++ )
-        //        {
-        //            string bstr = bin_strings[i];
-        //            if (position >= bstr.Length || position < 0)
-        //                left.Add(i);
-        //            else
-        //            {
-        //                char ch = bstr[position];
-        //                if (ch == '1')
-        //                    right.Add(i);
-        //                else
-        //                    left.Add(i);
-        //            }
-        //        }
-        //        int total = left.Count + right.Count;
-        //        if (total == 1)
-        //        {
-        //            //This is a leaf, woo
-
-        //            int pos = -1, t;
-
-        //            if (left.Count > 0)
-        //                t = left[0];
-        //            else
-        //                t = right[0];
-
-        //            return new int[] { pos, t };
-        //        }
-        //        else if (left.Count == 0 || right.Count == 0)
-        //            //This is not a branch, let's try the next bit
-        //            if (left.Count > 0)
-        //                return partition_tree(left, position + 1);
-        //            else
-        //                return partition_tree(right, position + 1);
-        //        else
-        //        {
-        //            int[] l = partition_tree(left, position + 1);
-        //            int[] r = partition_tree(right, position + 1);
-        //            return new int[] { position }.Append(l).Append(r);
-        //        }
-        //    }
-        //    public int tree_size(int[] node)
-        //    {
-        //        //Node is the return from partition_tree()
-        //        if (node[0] == -1)
-        //            return 1;
-        //        else
-        //            return 1 + tree_size(new int[] { node[1] }) + tree_size(new int[] { node[2] });
-        //    }
-        //    public void dump_tree(int[] tree)
-        //    {
-        //        out_node_idx = 0;
-        //        _dump_node(tree);
-        //    }
-        //    public void _dump_node(int[] node)
-        //    {
-        //        //Node is the return from partition_tree()
-        //        int bit_id = node[0];
-        //        if (bit_id == -1)
-        //        {
-        //            //We're packing a leaf
-        //            Console.WriteLine(String.Format("{0} leaf  : {1}", out_node_idx, strings[node[1]]));
-        //            out_node_idx += 1;
-        //        }
-        //        else
-        //        {
-        //            //We're packing a branch
-        //            int left_size = tree_size(new int[] { node[1] });
-        //            int left_idx = out_node_idx + 1;
-        //            int right_idx = left_idx + left_size;
-        //            Console.WriteLine(String.Format("{0} branch: bit={1} left={2} right={3}", out_node_idx, bit_id, left_idx, right_idx));
-        //            out_node_idx += 1;
-        //            dump_tree(new int[] { node[1] });
-        //            dump_tree(new int[] { node[2] });
-        //        }
-        //    }
-        //}
-
-        //tree = PatriciaTree(('BANK_HOMEBUTTON','BANK_SYSTEM_SE','BANK_BGM','BANK_SOFTWARE_KEYBOARD_SE'))
-        //print(tree.partition_tree())
-        //tree.dump_tree(tree.partition_tree())
-
-        private static int EncodeMaskGroup(SYMBHeader* symb, SYMBMaskHeader* header, List<RSAREntryState> group, RSARNode n, int grp)
+        private static int EncodeMaskGroup(SYMBHeader* symb, SYMBMaskHeader* header, List<RSAREntryState> gList, RSARNode n, int grp)
         {
-            SYMBMaskEntry* entry = header->Entries;
-            //List<TEntry> outputTable = new List<TEntry>();
-
-            int i = 0;
-            foreach (RSAREntryState s in group)
-            {
-                entry[i++] = new SYMBMaskEntry(1, -1, -1, -1, s._stringId, s._index);
-                if (s._index != 0)
-                {
-                    //entry[i++] = new SYMBMaskEntry(0, 0, 0, 0, -1, -1);
-                    entry[i] = n._symbCache[grp][i++];
-                }
-                //outputTable.Add(new TEntry(s));
-            }
-
-            header->_numEntries = group.Count * 2 - 1;
-            header->_rootId = n._rootIds[grp];
-
-            //GenIds(symb, header, 0, 0);
-            //CalcMatch(outputTable);
-
-            //foreach (TEntry t in outputTable)
-            //{
-            //    *entry++ = new SYMBMaskEntry(1, -1, -1, -1, t._stringID, t._id);
-            //    if (t._id != 0)
-            //        *entry++ = new SYMBMaskEntry(0, (short)t._bit, t._leftID, t._rightID, -1, -1);
-            //}
-
-            //PatriciaTree t = new PatriciaTree(group.Select(x => x._node._fullPath).ToArray());
-            //int[] p = t.partition_tree(new List<int>(t.strings.Length), 0);
-            //t.dump_tree(p);
-
-            int len = 8 + i * SYMBMaskEntry.Size;
-
-            //int rootId = 0;
-            //int lowestBit = int.MaxValue;
-            //entry = header->Entries;
-            //for (int i = 2; i < header->_numEntries; i += 2)
-            //{
-            //    if (entry[i]._bit < lowestBit)
-            //    {
-            //        lowestBit = entry[i]._bit;
-            //        rootId = i;
-            //    }
-            //}
-            //header->_rootId = rootId;
-
-            return len;
+            SYMBMaskEntry.Build(gList.Select(x => x._stringId).ToArray(), symb, header, header->Entries);
+            return SYMBMaskHeader.Size + (gList.Count * 2 - 1) * SYMBMaskEntry.Size;
         }
     }
 

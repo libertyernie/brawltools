@@ -57,7 +57,7 @@ namespace BrawlLib.SSBBTypes
         }
     }
 
-    struct DataBlock
+    public struct DataBlock
     {
         private VoidPtr _address;
         private uint _length;
@@ -211,7 +211,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct SSBBEntryHeader
+    public unsafe struct SSBBEntryHeader
     {
         public const uint Size = 8;
 
