@@ -4,7 +4,6 @@ using System.ComponentModel;
 using BrawlLib.Wii.Textures;
 using BrawlLib.Imaging;
 using System.Drawing;
-using System.Collections.Generic;
 using BrawlLib.IO;
 using System.Drawing.Imaging;
 using System.IO;

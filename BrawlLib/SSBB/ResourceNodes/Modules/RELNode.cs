@@ -5,8 +5,6 @@ using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using System.Drawing;
-using BrawlLib.IO;
 using System.PowerPcAssembly;
 using System.Windows.Forms;
 using System.Globalization;

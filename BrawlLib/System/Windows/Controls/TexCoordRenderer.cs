@@ -1,18 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 using BrawlLib.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
-using BrawlLib.Wii.Animations;
 using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {

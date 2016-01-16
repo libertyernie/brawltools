@@ -1,13 +1,10 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using System.Collections.Generic;
-using BrawlLib.Wii.Compression;
 using System.IO;
 using System.Drawing;
 using BrawlLib.IO;
 using System.Windows.Forms;
-using BrawlLib.Wii.Textures;
 using Gif.Components;
 using System.Linq;
 using System.Drawing.Drawing2D;

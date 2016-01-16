@@ -3,8 +3,6 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {

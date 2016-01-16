@@ -1,11 +1,8 @@
 ﻿using System;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.Imaging;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
@@ -13,11 +10,6 @@ using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public interface ITexture
-    {
-
-    }
-
     public unsafe class MDL0TextureNode : MDL0EntryNode, IComparable
     {
         static MDL0TextureNode()

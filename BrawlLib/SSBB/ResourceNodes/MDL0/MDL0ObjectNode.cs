@@ -7,11 +7,8 @@ using BrawlLib.Modeling;
 using BrawlLib.Wii.Models;
 using BrawlLib.Wii.Graphics;
 using System.Windows.Forms;
-using BrawlLib.Imaging;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
-using BrawlLib.Modeling.Triangle_Converter;
 using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes

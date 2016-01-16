@@ -1,13 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using System.IO;
-using System.Drawing;
-using BrawlLib.IO;
-using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {

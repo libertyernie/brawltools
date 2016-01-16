@@ -4,7 +4,6 @@ using System.IO;
 using System.Collections.Generic;
 using BrawlLib.Wii.Audio;
 using System.ComponentModel;
-using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {

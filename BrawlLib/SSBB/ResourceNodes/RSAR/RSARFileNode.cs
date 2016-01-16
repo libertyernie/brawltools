@@ -1,5 +1,4 @@
 using System;
-using BrawlLib.SSBBTypes;
 using System.IO;
 using BrawlLib.IO;
 using System.Linq;

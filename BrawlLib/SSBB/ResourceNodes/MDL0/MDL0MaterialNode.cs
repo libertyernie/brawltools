@@ -1,19 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using BrawlLib.OpenGL;
-using System.Drawing;
 using System.IO;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Graphics;
-using BrawlLib.Wii.Models;
 using System.Windows.Forms;
 using BrawlLib.IO;
 using OpenTK.Graphics.OpenGL;
-using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
 using BrawlLib.Wii.Animations;
 

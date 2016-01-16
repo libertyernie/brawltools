@@ -2,7 +2,6 @@
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Wii.Textures;
-using System.Collections.Generic;
 using System.Drawing.Imaging;
 using BrawlLib.Imaging;
 using System.Drawing;
