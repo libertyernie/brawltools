@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Imaging;
+using System.IO;
+using BrawlLib.IO;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -74,7 +76,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public CLR0MaterialNode CreateEntry()
+        public CLR0MaterialEntryNode CreateEntry()
         {
             CLR0MaterialNode node = new CLR0MaterialNode();
             CLR0MaterialEntryNode entry = new CLR0MaterialEntryNode();
@@ -84,10 +86,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             entry.NumEntries = _numFrames;
             entry.Constant = true;
             entry.SolidColor = new ARGBPixel();
-            node.Name = this.FindName(null);
+            node.Name = this.FindName("MaterialName");
             this.AddChild(node);
             node.AddChild(entry);
-            return node;
+            return entry;
         }
 
         public override int OnCalculateSize(bool force)
@@ -300,7 +302,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             for (int i = 0; i < _entries.Count; i++)
-                new CLR0MaterialEntryNode() { _target = (EntryTarget)_entries[i], _constant = ((((uint)_flags >> _entries[i] * 2) & 2) == 2) }.Initialize(this, (VoidPtr)Header + 8 + i * 8, 8);
+                new CLR0MaterialEntryNode()
+                {
+                    _target = (EntryTarget)_entries[i],
+                    _constant = ((((uint)_flags >> _entries[i] * 2) & 2) == 2)
+                }
+                .Initialize(this, (VoidPtr)Header + 8 + i * 8, 8);
         }
 
         protected internal virtual void PostProcess(VoidPtr dataAddress, StringTable stringTable)
@@ -309,13 +316,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->ResourceStringAddress = stringTable[Name] + 4;
         }
 
-        public void CreateEntry()
+        public CLR0MaterialEntryNode CreateEntry()
         {
-            int value = 0; Top:
+            int value = 0;
+
+            Top:
             foreach (CLR0MaterialEntryNode t in Children)
-                if ((int)t._target == value) { value++; goto Top; }
+                if ((int)t._target == value)
+                {
+                    value++;
+                    goto Top;
+                }
+
             if (value >= 11)
-                return;
+                return null;
 
             CLR0MaterialEntryNode entry = new CLR0MaterialEntryNode();
             entry._target = (EntryTarget)value;
@@ -323,6 +337,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             entry._numEntries = -1;
             entry.NumEntries = ((CLR0Node)Parent)._numFrames;
             AddChild(entry);
+            return entry;
         }
     }
 
@@ -357,7 +372,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             set 
             {
                 foreach (CLR0MaterialEntryNode t in Parent.Children)
-                    if (t._target == value) return;
+                    if (t._target == value)
+                        return;
 
                 _target = value;
                 Name = _target.ToString();
@@ -402,25 +418,68 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override bool OnInitialize()
         {
+            _colors.Clear();
+
             _colorMask = (ARGBPixel)Header->_colorMask;
 
-            _colors.Clear();
-            if (_constant)
+            if (_replaced && WorkingUncompressed.Length >= 16 && Header->_data == 8)
             {
-                _numEntries = 0;
-                _solidColor = (ARGBPixel)Header->SolidColor;
+                _numEntries = *((bint*)Header + 2);
+                _constant = _numEntries == 0;
+                RGBAPixel* data = Header->Data;
+                if (_constant)
+                    _solidColor = *data;
+                else
+                {
+                    int frameCount = ((CLR0Node)Parent.Parent)._numFrames;
+                    for (int i = 0; i < frameCount; i++)
+                        _colors.Add(i >= _numEntries ? new ARGBPixel() : (ARGBPixel)(*data++));
+                    _numEntries = frameCount;
+                }
             }
             else
             {
-                _numEntries = ((CLR0Node)Parent.Parent)._numFrames;
-                RGBAPixel* data = Header->Data;
-                for (int i = 0; i < _numEntries; i++)
-                    _colors.Add((ARGBPixel)(*data++));
+                if (_constant)
+                {
+                    _numEntries = 0;
+                    _solidColor = (ARGBPixel)Header->SolidColor;
+                }
+                else
+                {
+                    _numEntries = ((CLR0Node)Parent.Parent)._numFrames;
+                    RGBAPixel* data = Header->Data;
+                    for (int i = 0; i < _numEntries; i++)
+                        _colors.Add((ARGBPixel)(*data++));
+                }
             }
 
             _name = _target.ToString();
 
             return false;
+        }
+
+        public override unsafe void Export(string outPath)
+        {
+            int length = 12 + (_numEntries != 0 ? _colors.Count * 4 : 4);
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            {
+                stream.SetLength(length);
+                using (FileMap map = FileMap.FromStream(stream))
+                {
+                    CLR0MaterialEntry* entry = (CLR0MaterialEntry*)map.Address;
+
+                    entry->_colorMask = _colorMask;
+                    entry->_data = 8;
+                    *((bint*)entry + 2) = _numEntries;
+
+                    RGBAPixel* pData = entry->Data;
+                    if (_numEntries != 0)
+                        foreach (ARGBPixel p in _colors)
+                            *pData++ = (RGBAPixel)p;
+                    else
+                        *pData = _solidColor;
+                }
+            }
         }
 
         public void MakeSolid(ARGBPixel color)
@@ -436,12 +495,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             int entries = ((CLR0Node)Parent._parent)._numFrames;
             _numEntries = _colors.Count;
             NumEntries = entries;
-        }
-
-        protected internal virtual void PostProcess(VoidPtr dataAddress, StringTable stringTable)
-        {
-            CLR0Material* header = (CLR0Material*)dataAddress;
-            header->ResourceStringAddress = stringTable[Name] + 4;
         }
 
         #region IColorSource Members

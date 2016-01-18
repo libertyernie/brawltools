@@ -4,6 +4,8 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Wii.Animations;
 using System.Windows.Forms;
+using System.IO;
+using BrawlLib.IO;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -471,9 +473,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->Indicies[p.Index] = (short)((SHP0Node)Parent)._strings.IndexOf(p.Name);
                 if (p._isFixed)
                 {
-                    KeyframeEntry kf; float value = 0;
+                    float value = 0;
+                    KeyframeEntry kf;
                     if ((kf = p.Keyframes.GetKeyframe(0)) != null)
                         value = kf._value;
+
                     ((bfloat*)header->EntryOffset)[p.Index] = value;
                     fixedflags |= (1u << p.Index);
                 }
@@ -546,7 +550,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            return _dataLen = ((_isFixed = Keyframes._keyCount <= 1) ? 0 : Keyframes._keyCount * 12 + 8);
+            return _dataLen = ((_isFixed = Keyframes._keyCount <= 1) ? 0 : Keyframes._keyCount * 12 + 4);
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -559,6 +563,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             KeyframeEntry frame, root = Keyframes._keyRoot;
             for (frame = root._next; frame._index != -1; frame = frame._next)
                 *entry++ = new Vector3(frame._tangent, frame._index, frame._value);
+        }
+
+        public override unsafe void Export(string outPath)
+        {
+            int length = OnCalculateSize(true);
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            {
+                stream.SetLength(length);
+                using (FileMap map = FileMap.FromStream(stream))
+                    OnRebuild(map.Address, length, true);
+            }
         }
 
         #region Keyframe Management
