@@ -18,7 +18,26 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         internal virtual int StringId { get { return 0; } }
 
-        public int InfoIndex { get { return _infoIndex; } }
+        public int InfoIndex
+        {
+            get
+            {
+                return _infoIndex;
+            }
+            set
+            {
+                Type t = GetType();
+                int i = 0;
+                switch (GetType().ToString())
+                {
+                    case "RSARSoundNode": i = 0; break;
+                    case "RSARBankNode": i = 1; break;
+                    case "RSARPlayerInfoNode": i = 2; break;
+                    case "RSARGroupNode": i = 4; break;
+                }
+                _infoIndex = value;
+            }
+        }
         public int _infoIndex;
         internal VoidPtr Data { get { return (VoidPtr)WorkingUncompressed.Address; } }
 

@@ -144,6 +144,15 @@ namespace BrawlBox
             _newNode.Name = name;
             _parentNode.AddChild(_newNode);
 
+            if (treeResource.SelectedNode != null)
+            {
+                RSARSoundNode existing = ((BaseWrapper)treeResource.SelectedNode).ResourceNode as RSARSoundNode;
+                if (existing != null)
+                {
+                    
+                }
+            }
+
             this.DialogResult = DialogResult.OK;
             Close();
         }

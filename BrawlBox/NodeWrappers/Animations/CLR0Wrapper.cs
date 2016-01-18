@@ -52,7 +52,13 @@ namespace BrawlBox
 
         private void NewCLR()
         {
-            ((CLR0Node)this._resource).CreateEntry();
+            CLR0MaterialEntryNode n = ((CLR0Node)this._resource).CreateEntry();
+            if (n != null)
+            {
+                BaseWrapper b = FindResource(n, true);
+                if (b != null)
+                    b.EnsureVisible();
+            }
         }
     }
 
@@ -100,7 +106,13 @@ namespace BrawlBox
 
         private void NewCLR()
         {
-            ((CLR0MaterialNode)this._resource).CreateEntry();
+            CLR0MaterialEntryNode n = ((CLR0MaterialNode)this._resource).CreateEntry();
+            if (n != null)
+            {
+                BaseWrapper b = FindResource(n, true);
+                if (b != null)
+                    b.EnsureVisible();
+            }
         }
     }
 

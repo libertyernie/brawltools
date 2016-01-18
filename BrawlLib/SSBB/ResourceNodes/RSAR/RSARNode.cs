@@ -69,12 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Iterate through group types
             for (int i = 0; i < 5; i++)
             {
-                _infoCache[i] = new List<RSAREntryNode>();
                 Type t = null;
-
-                RuintList* list = (RuintList*)((uint)baseAddr + typeList[i]);
-                sbyte* str, end;
-
                 switch (i)
                 {
                     case 0: t = typeof(RSARSoundNode); break;
@@ -84,6 +79,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     case 4: t = typeof(RSARGroupNode); break; //Last group entry is null
                 }
 
+                _infoCache[i] = new List<RSAREntryNode>();
+                RuintList* list = (RuintList*)((uint)baseAddr + typeList[i]);
+                sbyte* str, end;
+
                 for (int x = 0; x < list->_numEntries; x++)
                 {
                     VoidPtr addr = list->Get(baseAddr, x);
@@ -91,7 +90,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ResourceNode parent = this;
                     RSAREntryNode n = Activator.CreateInstance(t) as RSAREntryNode;
                     n._origSource = n._uncompSource = new DataSource(addr, 0);
-                    n._infoIndex = x;
 
                     if (i == 4 && x == list->_numEntries - 1)
                     {
@@ -115,6 +113,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             n._name = new String(str);
                     }
 
+                    n._infoIndex = x;
                     n.Initialize(parent, addr, 0);
                     _infoCache[i].Add(n);
                 }
@@ -124,23 +123,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (RSARFileNode n in Files)
                 if (!(n is RSARExtFileNode))
                     n.GetName();
-
-            _rootIds = new int[4];
-            _symbCache = new List<SYMBMaskEntry>[4];
-            bint* offsets = (bint*)((VoidPtr)symb + 12);
-            for (int i = 0; i < 4; i++)
-            {
-                _symbCache[i] = new List<SYMBMaskEntry>();
-                SYMBMaskHeader* hdr = (SYMBMaskHeader*)((VoidPtr)symb + 8 + offsets[i]);
-                _rootIds[i] = hdr->_rootId;
-                for (int x = 0; x < hdr->_numEntries; x++)
-                    _symbCache[i].Add(hdr->Entries[x]);
-            }
-            //Sort(true);
         }
-
-        public int[] _rootIds;
-        public List<SYMBMaskEntry>[] _symbCache;
 
         private void GetFiles()
         {
@@ -212,29 +195,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //foreach (ResourceNode r in _files)
             //    r.Populate();
-        }
-
-        internal void Sort(bool sortChildren)
-        {
-            if (_children != null)
-            {
-                _children.Sort(CompareNodes);
-                if (sortChildren)
-                    foreach (ResourceNode n in _children)
-                        if (n is RSARFolderNode)
-                            ((RSARFolderNode)n).Sort(true);
-            }
-        }
-
-        internal static int CompareNodes(ResourceNode n1, ResourceNode n2)
-        {
-            bool is1Folder = n1 is RSARFolderNode;
-            bool is2Folder = n2 is RSARFolderNode;
-
-            if (is1Folder != is2Folder)
-                return is1Folder ? -1 : 1;
-
-            return String.Compare(n1._name, n2._name);
         }
 
         private ResourceNode CreatePath(ResourceNode parent, sbyte* str, int length)
