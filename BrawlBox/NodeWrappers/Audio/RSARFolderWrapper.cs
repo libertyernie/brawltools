@@ -14,13 +14,13 @@ namespace BrawlBox.NodeWrappers
         static RSARFolderWrapper()
         {
             _menu = new ContextMenuStrip();
-            _menu.Items.Add(new ToolStripMenuItem("Ne&w", null,
+            _menu.Items.Add(new ToolStripMenuItem("New", null,
                 new ToolStripMenuItem("Folder", null, NewFolderAction),
                 new ToolStripMenuItem("Sound", null,
                     new ToolStripMenuItem("From File", null, ImportSoundAction),
-                    new ToolStripMenuItem("From Existing", null, NewSoundAction)),
+                    new ToolStripMenuItem("From Existing", null, CopySoundAction)),
                 new ToolStripMenuItem("Bank", null, NewBankAction),
-                new ToolStripMenuItem("Type", null, NewTypeAction),
+                new ToolStripMenuItem("PlayerInfo", null, NewTypeAction),
                 new ToolStripMenuItem("Group", null, NewGroupAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
@@ -34,7 +34,7 @@ namespace BrawlBox.NodeWrappers
         }
         protected static void NewFolderAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewFolder(); }
         protected static void ImportSoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().ImportSound(); }
-        protected static void NewSoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewSound(); }
+        protected static void CopySoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().CopySound(); }
         protected static void NewBankAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewBank(); }
         protected static void NewTypeAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewType(); }
         protected static void NewGroupAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewGroup(); }
@@ -53,13 +53,14 @@ namespace BrawlBox.NodeWrappers
 
         public RSARFolderWrapper() 
         {
-            //ContextMenuStrip = _menu; 
-            ContextMenuStrip = null; 
+            ContextMenuStrip = _menu; 
         }
 
         public void NewFolder()
         {
-
+            RSARFolderNode folder = new RSARFolderNode();
+            folder.Name = _resource.FindName("NewFolder");
+            _resource.AddChild(folder);
         }
 
         public void ImportSound()
@@ -67,25 +68,31 @@ namespace BrawlBox.NodeWrappers
 
         }
 
-        public void NewSound()
+        public void CopySound()
         {
             using (CloneSoundDialog dlg = new CloneSoundDialog())
-                dlg.ShowDialog(null, this.ResourceNode as RSARFolderNode);
+                dlg.ShowDialog(null, ResourceNode as RSARFolderNode);
         }
 
         public void NewBank()
         {
-
+            RSARBankNode folder = new RSARBankNode();
+            folder.Name = _resource.FindName("NewBank");
+            _resource.AddChild(folder);
         }
 
         public void NewType()
         {
-
+            RSARPlayerInfoNode folder = new RSARPlayerInfoNode();
+            folder.Name = _resource.FindName("NewPlayerInfo");
+            _resource.AddChild(folder);
         }
 
         public void NewGroup()
         {
-
+            RSARGroupNode folder = new RSARGroupNode();
+            folder.Name = _resource.FindName("NewGroup");
+            _resource.AddChild(folder);
         }
     }
 }
