@@ -114,8 +114,7 @@ namespace System.Windows.Forms
         }
 
         #endregion
-
-        private bool _updating = false;
+        
         private bool _loop = false;
         private bool _isPlaying = false;
         //private bool _isScrolling = false;
@@ -169,7 +168,7 @@ namespace System.Windows.Forms
                     if (!_loop)
                         Stop();
                     else
-                        _frame = -1;
+                        _frame = 0;
             }
         }
 
@@ -224,12 +223,11 @@ namespace System.Windows.Forms
 
             if (_targetSource.FrameRate > 0)
                 _frameTime = new DateTime((long)((float)_targetSource.NumFrames * 10000000.0f / _targetSource.FrameRate));
-
-            trackBar1.Value = 0;
+            
             trackBar1.TickStyle = TickStyle.None;
             trackBar1.Maximum = (int)_targetSource.NumFrames;
-            trackBar1.TickFrequency = (int)_targetSource.NumFrames;
-            trackBar1.TickStyle = TickStyle.BottomRight;
+            trackBar1.Minimum = 1;
+            trackBar1.Value = 1;
 
             if (_targetSource.FrameRate > 0)
                 UpdateTimeDisplay();
@@ -240,9 +238,9 @@ namespace System.Windows.Forms
         private void UpdateTimeDisplay()
         {
             if (_targetSource == null) return;
-            _frame = trackBar1.Value;
-            DateTime t = new DateTime((long)((float)trackBar1.Value * 10000000.0f / _targetSource.FrameRate));
-            lblProgress.Text = String.Format("{0:mm:ss.ff} / {1:mm:ss.ff} - Frame {2} of {3}", t, _frameTime, _frame, TargetSource.NumFrames);
+            _frame = trackBar1.Value - 1;
+            DateTime t = new DateTime((long)((float)(trackBar1.Value - 1) * 10000000.0f / _targetSource.FrameRate));
+            lblProgress.Text = String.Format("{0:mm:ss.ff} / {1:mm:ss.ff} - Frame {2} of {3}", t, _frameTime, _frame + 1, TargetSource.NumFrames);
 
             previewPanel1.CurrentIndex = _targetSource.GetImageIndexAtFrame(_frame);
         }
@@ -256,7 +254,8 @@ namespace System.Windows.Forms
                 Stop();
             }
 
-            _frame = trackBar1.Value = frame.Clamp(0, (int)_targetSource.NumFrames - 1);
+            _frame = frame.Clamp(0, (int)_targetSource.NumFrames - 1);
+            trackBar1.Value = _frame + 1;
 
             if (_buffer != null)
                 _buffer.Seek((int)Math.Round(frame / _targetSource.FrameRate * _targetSource.Frequency, 0));
@@ -277,7 +276,7 @@ namespace System.Windows.Forms
 
             //Start from beginning if at end
             if (trackBar1.Value == _targetSource.NumFrames)
-                trackBar1.Value = 0;
+                trackBar1.Value = 1;
 
             btnPlay.Text = "Stop";
             previewPanel1.btnLeft.Visible = previewPanel1.btnRight.Visible = false;
@@ -285,7 +284,7 @@ namespace System.Windows.Forms
             if (_buffer != null)
             {
                 //Seek buffer to current sample
-                _buffer.Seek((int)Math.Round(trackBar1.Value / _targetSource.FrameRate * _targetSource.Frequency, 0));
+                _buffer.Seek((int)Math.Round((trackBar1.Value - 1) / _targetSource.FrameRate * _targetSource.Frequency, 0));
 
                 //Fill initial buffer
                 _buffer.Fill();
@@ -332,6 +331,6 @@ namespace System.Windows.Forms
 
         private void btnRewind_Click(object sender, EventArgs e) { Seek(0); }
         private void trackBar1_ValueChanged(object sender, EventArgs e) { UpdateTimeDisplay(); }
-        private void trackBar1_UserSeek(object sender, EventArgs e) { Seek(trackBar1.Value); }
+        private void trackBar1_UserSeek(object sender, EventArgs e) { Seek(trackBar1.Value - 1); }
     }
 }
