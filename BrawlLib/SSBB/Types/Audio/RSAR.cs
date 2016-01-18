@@ -161,6 +161,25 @@ namespace BrawlLib.SSBBTypes
             return (((int)val[bit / 8]) & ((1 << 7) >> (bit % 8))) != 0;
         }
 
+        //Lookup table to compute the 
+        public static readonly byte[] clz8 = {
+            8, 7, 6, 6, 5, 5, 5, 5, 4, 4, 4, 4, 4, 4, 4, 4,
+            3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
         private static void AddToTrie(SYMBMaskEntry* trie, SYMBMaskHeader* head, int id, SYMBHeader* table)
         {
             //If list is empty add the node and quit
@@ -170,11 +189,10 @@ namespace BrawlLib.SSBBTypes
                 return;
             }
 
-            string value = (*table).GetStringEntry(id);
+            string value = table->GetStringEntry(id);
 
             //String.IsNullOrEmpty(value)
             if ((value ?? "") == "") throw new ArgumentException("String is null or whitespace");
-
 
             SYMBMaskEntry search = trie[head->_rootId];
             List<int> path = new List<int>();
@@ -197,13 +215,14 @@ namespace BrawlLib.SSBBTypes
                     path.Add(search._rightId);
                     search = trie[search._rightId];
                 }
-                else {
+                else
+                {
                     path.Add(search._leftId);
                     search = trie[search._leftId];
                 }
             }
 
-            string searchVal = (*table).GetStringEntry(search._stringId);
+            string searchVal = table->GetStringEntry(search._stringId);
 
             //Can't add duplicate strings
             if (searchVal == value) throw new ArgumentException("Duplicate string");
@@ -230,14 +249,7 @@ namespace BrawlLib.SSBBTypes
             {
                 //Find where the bits differed
                 int cmpint = value[bit / 8] ^ searchVal[bit / 8];
-                for (short i = 0; i < 8; i++)
-                {
-                    if ((cmpint & ((1 << 7) >> i)) != 0)
-                    {
-                        bit += i;
-                        break;
-                    }
-                }
+                bit += clz8[cmpint];
 
                 //If the bit is 1 the string being added takes the left fork
                 right = CheckBit(value, bit);
@@ -281,7 +293,8 @@ namespace BrawlLib.SSBBTypes
                         {
                             trie[path[i - 1]]._leftId = head->_numEntries;
                         }
-                        else {
+                        else
+                        {
                             trie[path[i - 1]]._rightId = head->_numEntries;
                         }
 
@@ -311,8 +324,8 @@ namespace BrawlLib.SSBBTypes
 
             if (right)
             {
-                //Find the first bit after the substring that's 1 
-                for (; !CheckBit(value, bit); bit++) { }
+                //Find the first bit after the substring that's 1.  Will always occur in the first 8 bits because 0x00 denotes string termination and thus isn't in value
+                bit += clz8[value[bit / 8]];
 
                 //If path.Count == 1 the only value is a leaf
                 if (path.Count == 1)
@@ -327,16 +340,30 @@ namespace BrawlLib.SSBBTypes
                 //Update old branch, insert new branch and node, and quit.  trie[path[path.Count-2]] is the last branch that was a comparison.
                 trie[head->_numEntries++] = (new SYMBMaskEntry(1, -1, -1, -1, id, head->_numEntries / 2));
 
-                if (trie[path[path.Count - 2]]._leftId == path[path.Count - 1])
+                int trace = path.Count - 2;
+
+                if (trie[path[trace]]._leftId == path[trace + 1])
                 {
-                    trie[path[path.Count - 2]]._leftId = head->_numEntries;
+                    //Handling an extremely specific and annoying edge case
+                    while (trie[path[trace]]._bit > bit)
+                    {
+                        trace--;
+                        if (trace < 0)
+                        {
+                            //This node is actually the root of the tree
+                            trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[0], head->_numEntries - 2, -1, -1));
+                            head->_rootId = head->_numEntries - 2;
+                            return;
+                        }
+                    }
+                    trie[path[trace]]._leftId = head->_numEntries;
                 }
-                else {
-                    trie[path[path.Count - 2]]._rightId = head->_numEntries;
+                else
+                {
+                    trie[path[trace]]._rightId = head->_numEntries;
                 }
 
-                trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[path.Count - 1], head->_numEntries - 2, -1, -1));
-
+                trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, path[trace + 1], head->_numEntries - 2, -1, -1));
                 return;
             }
 
@@ -345,13 +372,29 @@ namespace BrawlLib.SSBBTypes
             for (index = 0; trie[path[index]]._flags == 0 && trie[path[index]]._bit <= bit; index++) { }
 
             //Find the first bit that's 1 and isn't already used in the trie
-            for (; (trie[path[index]]._flags == 0 && trie[path[index]]._bit == bit) || (!CheckBit(searchVal, bit)); bit++)
+            int cmpVal = searchVal[bit / 8];
+            byte clzVal;
+            bool test = trie[path[index]]._flags == 0;
+            while (true)
             {
-                //Keep possible comparison overlap checking fresh
-                if (trie[path[index]]._flags == 0 && trie[path[index]]._bit <= bit)
+                clzVal = clz8[cmpVal];
+                if (clzVal == 8)
                 {
-                    index++;
+                    bit += 8;
+                    cmpVal = searchVal[bit / 8];
+                    continue;
                 }
+                if (test && trie[path[index]]._bit <= bit + clzVal)
+                {
+                    if (trie[path[index]]._bit == bit + clzVal)
+                    {
+                        cmpVal ^= (1 << 7) >> clzVal;
+                    }
+                    test = trie[path[++index]]._flags == 0;
+                    continue;
+                }
+                bit += clzVal;
+                break;
             }
 
             //If the trie is a single leaf the new branch is the root of the trie
@@ -371,9 +414,11 @@ namespace BrawlLib.SSBBTypes
             {
                 trie[path[index - 1]]._leftId = head->_numEntries;
             }
-            else {
+            else
+            {
                 trie[path[index - 1]]._rightId = head->_numEntries;
             }
+
             trie[head->_numEntries++] = (new SYMBMaskEntry(0, bit, head->_numEntries - 2, path[index], -1, -1));
 
             return;
