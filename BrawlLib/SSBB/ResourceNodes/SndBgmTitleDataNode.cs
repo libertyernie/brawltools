@@ -30,8 +30,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             BaseAddress = (VoidPtr)Header + sizeof(SndBgmTitleHeader);
 
-            if (_name == null)
-                _name = "Background Music Title Data";
+			//if (_name == null)
+			//	_name = "Background Music Title Data";
 
             return true;
         }
