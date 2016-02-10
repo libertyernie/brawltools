@@ -12,9 +12,8 @@ namespace BrawlLib.SSBB.Types
         public bint _Length;
         public bint _DataLength;
 
-        // I don't know how these fields might work, but I treat them the same (for size calculation purposes) as _OffCount and _DataTable in ItmFreqHeader.
-        public bint _unknown1; // == 0
-        public bint _unknown2; // == 1
+        public bint _OffCount; // always 0
+        public bint _DataTable; // always 1 entry, which is a concatenation of several SndBgmTitleEntry structures
 
         public int _pad0;
         public int _pad1;
@@ -22,7 +21,7 @@ namespace BrawlLib.SSBB.Types
         public int _pad3;
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public string Str { get { return new string((sbyte*)Address + sizeof(SndBgmTitleHeader) + _DataLength + (_unknown1 * 4) + (_unknown2 * 8)); } }
+        public string Str { get { return new string((sbyte*)Address + sizeof(SndBgmTitleHeader) + _DataLength + (_OffCount * 4) + (_DataTable * 8)); } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
