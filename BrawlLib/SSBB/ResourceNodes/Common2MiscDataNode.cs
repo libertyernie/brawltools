@@ -9,12 +9,6 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe interface ICommon2MiscDataEntry
-    {
-        VoidPtr Address { get; }
-        int Length { get; }
-    }
-
     public unsafe class Common2MiscDataEntry : ICommon2MiscDataEntry, IDisposable
     {
         public VoidPtr Address { get; private set; }
@@ -22,7 +16,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public Common2MiscDataEntry(DataSource source)
         {
-            Console.WriteLine(source.Length);
             Address = Marshal.AllocHGlobal(source.Length);
             Memory.Move(Address, source.Address, (uint)source.Length);
             Length = source.Length;
@@ -36,11 +29,21 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Address = null;
             }
         }
+
+        public void CopyTo(VoidPtr address)
+        {
+            Memory.Move(address, this.Address, (uint)Length);
+        }
+
+        public int GetSize()
+        {
+            return Length;
+        }
     }
 
     public unsafe class Common2MiscDataNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
+        //public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
         internal Common2TblHeader* Header { get { return (Common2TblHeader*)WorkingUncompressed.Address; } }
 
         // Header variables
@@ -85,7 +88,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 o.dataOffset = *(ptr++);
                 o.nameOffset = *(ptr++);
                 offsets.Add(o);
-                Console.WriteLine(o.dataOffset.ToString("X4") + " " + o.nameOffset.ToString("X4"));
             }
 
             offsets = offsets.OrderBy(o => o.dataOffset).ToList();
@@ -101,9 +103,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     throw new Exception("Invalid data length (less than data offset) in common2 data");
 
                 DataSource source = new DataSource(BaseAddress + o.dataOffset, o.dataEnd - o.dataOffset);
-                var node = new Common2TblEntryNode();
+                string name = new string((sbyte*)stringList + o.nameOffset);
+                ResourceNode node = name == "sndBgmTitleData"
+                    ? new SndBgmTitleDataNode()
+                    : (ResourceNode)new GenericCommon2TblEntryNode();
                 node.Initialize(this, source);
-                node.Name = new string((sbyte*)stringList + o.nameOffset);
+                node.Name = name;
             }
         }
 
@@ -158,14 +163,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (Header->_Length != length)
             {
-                using (System.IO.FileStream fs = new System.IO.FileStream("C:/Users/Owner/Desktop/dump.dat", System.IO.FileMode.Create, System.IO.FileAccess.ReadWrite))
-                {
-                    for (int i = 0; i < Math.Max(Header->_Length, length); i++)
-                    {
-                        fs.WriteByte(((byte*)address)[i]);
-                    }
-                    fs.Flush();
-                }
                 throw new Exception("Wrong amount of memory allocated for rebuild of common2 data");
             }
         }
@@ -186,11 +183,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             Common2TblHeader* header = (Common2TblHeader*)source.Address;
             return header->_Length == source.Length &&
-                header->_DataLength < source.Length ? new Common2MiscDataNode() : null;
+                header->_DataLength < source.Length &&
+                header->Str != "sndBgmTitleData"
+                ? new Common2MiscDataNode() : null;
         }
     }
 
-    public unsafe class Common2TblEntryNode : ResourceNode
+    public unsafe abstract class Common2TblEntryNode : ResourceNode
     {
         [Browsable(false)]
         public Common2MiscDataNode Root
@@ -223,10 +222,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Entry")]
         public string Length { get { return WorkingUncompressed.Length.ToString("x"); } }
 
-        //internal SndBgmTitleEntry* Header { get { return (SndBgmTitleEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+    }
 
-        ICommon2MiscDataEntry _data;
+    public unsafe class GenericCommon2TblEntryNode : Common2TblEntryNode
+    {
+        [Browsable(true)]
+        public Common2MiscDataEntry _data { get; set; }
 
         public override bool OnInitialize()
         {
@@ -238,12 +240,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            if (length != _data.Length) throw new Exception("Wrong size for common2 data rebuild");
-            Memory.Move(address, _data.Address, (uint)length);
+            if (length != _data.GetSize()) throw new Exception("Wrong size for common2 data rebuild");
+            _data.CopyTo(address);
         }
         public override int OnCalculateSize(bool force)
         {
-            return _data.Length;
+            return _data.GetSize();
         }
     }
 }
