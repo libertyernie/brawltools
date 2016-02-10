@@ -30,9 +30,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             BaseAddress = (VoidPtr)Header + sizeof(SndBgmTitleHeader);
 
-			//if (_name == null)
-			//	_name = "Background Music Title Data";
-
             return true;
         }
 
@@ -135,7 +132,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Song")]
         [DisplayName("Song ID")]
         [Description("The ID of the song to show the title for.")]
-        public bint ID { get; set; }
+        public int ID { get; set; }
         [Browsable(false)]
         public bint Unknown04 { get; set; }
         [Browsable(false)]
@@ -146,7 +143,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Song")]
         [DisplayName("Song Title Index")]
         [Description("The index of the song title in info.pac (MiscData[140]) and other files.")]
-        public bint SongTitleIndex { get; set; }
+        public int SongTitleIndex { get; set; }
         [Browsable(false)]
         public bint Unknown14 { get; set; }
         [Browsable(false)]
