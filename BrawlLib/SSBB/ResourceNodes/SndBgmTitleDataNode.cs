@@ -11,7 +11,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class SndBgmTitleDataNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
+        public override ResourceType ResourceType { get { return ResourceType.SndBgmTitleDataFolder; } }
 
         private static byte[] EndString = Encoding.ASCII.GetBytes("sndBgmTitleData\0");
 
@@ -80,6 +80,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_DataLength < source.Length &&
                 header->Str == "sndBgmTitleData" ? new SndBgmTitleDataNode() : null;
         }
+
+        public void CreateEntry()
+        {
+            int maxID = 0, maxSongIndex = 0;
+            foreach (SndBgmTitleEntryNode entry in this.Children) {
+                maxID = Math.Max(entry.ID, maxID);
+                maxSongIndex = Math.Max(entry.SongTitleIndex, maxSongIndex);
+            }
+            SndBgmTitleEntryNode n = new SndBgmTitleEntryNode();
+            n.ID = maxID + 1;
+            n.SongTitleIndex = maxSongIndex + 1;
+            AddChild(n);
+        }
     }
 
     public unsafe class SndBgmTitleEntryNode : ResourceNode
@@ -100,18 +113,29 @@ namespace BrawlLib.SSBB.ResourceNodes
         //internal SndBgmTitleEntry* Header { get { return (SndBgmTitleEntry*)WorkingUncompressed.Address; } }
         public SndBgmTitleEntry Data;
 
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.SndBgmTitleDataEntry; } }
 
         [Category("Song")]
         [DisplayName("Song ID")]
         [Description("The ID of the song to show the title for.")]
-        public int ID { get { return Data._ID; } set { Data._ID = value;  } }
+        public int ID { get { return Data._ID; } set { Data._ID = value; SignalPropertyChange(); UpdateName(); } }
 
         [Category("Song")]
         [DisplayName("Song Title Index")]
         [Description("The index of the song title in info.pac (MiscData[140]) and other files.")]
-        public int SongTitleIndex { get { return Data._SongTitleIndex; } set { Data._SongTitleIndex = value; } }
+        public int SongTitleIndex { get { return Data._SongTitleIndex; } set { Data._SongTitleIndex = value; SignalPropertyChange(); UpdateName(); } }
 
+        public SndBgmTitleEntryNode()
+        {
+            Data._unknown08 = 0x13;
+            Data._unknown18 = -1;
+            Data._unknown1c = -1;
+            Data._unknown20 = -1;
+            Data._unknown24 = -1;
+            Data._unknown28 = -1;
+            Data._unknown2c = 0x0B;
+        }
+        
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -122,8 +146,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             // Copy the data from the address
             Data = *(SndBgmTitleEntry*)WorkingUncompressed.Address;
 
-            if (_name == null)
-                _name = ID.ToString("X4");
+            if (_name == null) UpdateName();
 
             return false;
         }
@@ -139,7 +162,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void UpdateName()
         {
-            Name = ((int)ID).ToString("X4");
+            Name = ID.ToString("X4") + " --> " + SongTitleIndex;
         }
     }
 }
