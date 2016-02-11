@@ -45,7 +45,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             int dataLength = Header->_DataLength;
-            VoidPtr offsetTable = BaseAddress + dataLength;
+            VoidPtr offsetTable = BaseAddress + dataLength + Header->_OffCount * 4;
             VoidPtr stringList = offsetTable + Header->_DataTable * 8;
             List<OffsetPair> offsets = new List<OffsetPair>();
 
@@ -150,6 +150,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Common2TblHeader* header = (Common2TblHeader*)source.Address;
             return header->_Length == source.Length &&
                 header->_DataLength < source.Length &&
+                header->_OffCount == 0 && // BrawlLib cannot properly rebuild nodes with _OffCount != 0 yet
                 header->Str != "sndBgmTitleData"
                 ? new Common2MiscDataNode() : null;
         }
