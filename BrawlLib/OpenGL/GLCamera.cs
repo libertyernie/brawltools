@@ -200,8 +200,8 @@ namespace BrawlLib.OpenGL
             //This needs to be a Vector4 converted to a Vector3 in order to work
             //Also the order of the matrix multiplication matters
             return (Vector3)(_matrixInverse * _projectionInverse * new Vector4(
-                2.0f * (x / (float)Width) - 1.0f,
-                2.0f * (((float)Height - y) / (float)Height) - 1.0f,
+                2.0f * (x / Width) - 1.0f,
+                2.0f * ((Height - y) / Height) - 1.0f,
                 2.0f * z - 1.0f,
                 1.0f));
         }
@@ -223,8 +223,8 @@ namespace BrawlLib.OpenGL
             if (t2._w == 0) return new Vector3();
             Vector3 v = (Vector3)t2;
             return new Vector3(
-                (v._x / 2.0f + 0.5f) * (float)Width,
-                (float)Height - ((v._y / 2.0f + 0.5f) * (float)Height), 
+                (v._x / 2.0f + 0.5f) * Width,
+                Height - ((v._y / 2.0f + 0.5f) * Height), 
                 (v._z + 1.0f) / 2.0f);
         }
 

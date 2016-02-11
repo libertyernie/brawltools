@@ -398,7 +398,7 @@ namespace BrawlBox
 
             good = CompareTypes(dragging, dropping);
 
-            if (dropping.Parent is BRESGroupNode)
+            //if (dropping.Parent is BRESGroupNode)
                 foreach (Type t in dropping.Parent.AllowedChildTypes)
                     if (good = CompareToType(dragging.GetType(), t))
                         break;
