@@ -495,7 +495,7 @@ namespace BrawlLib.SSBBTypes
         public VoidPtr GetSoundInfoRef(VoidPtr baseAddr) { return (baseAddr + _soundInfoRef); }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct Sound3DParam
+    public unsafe struct Sound3DParam
     {
         public const int Size = 0xC;
 
@@ -507,7 +507,7 @@ namespace BrawlLib.SSBBTypes
         public buint _reserved;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct SeqSoundInfo
+    public unsafe struct SeqSoundInfo
     {
         public const int Size = 0x14;
 
@@ -521,7 +521,7 @@ namespace BrawlLib.SSBBTypes
         public buint _reserved;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct StrmSoundInfo
+    public unsafe struct StrmSoundInfo
     {
         public const int Size = 0xC;
 
@@ -531,7 +531,7 @@ namespace BrawlLib.SSBBTypes
         public buint _reserved;
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct WaveSoundInfo
+    public unsafe struct WaveSoundInfo
     {
         public const int Size = 0x10;
 
