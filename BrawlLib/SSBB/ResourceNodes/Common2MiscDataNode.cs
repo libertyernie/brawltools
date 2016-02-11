@@ -9,41 +9,9 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class Common2MiscDataEntry : ICommon2MiscDataEntry, IDisposable
-    {
-        public VoidPtr Address { get; private set; }
-        public int Length { get; private set; }
-
-        public Common2MiscDataEntry(DataSource source)
-        {
-            Address = Marshal.AllocHGlobal(source.Length);
-            Memory.Move(Address, source.Address, (uint)source.Length);
-            Length = source.Length;
-        }
-
-        public void Dispose()
-        {
-            if (Address != null)
-            {
-                Marshal.FreeHGlobal(Address);
-                Address = null;
-            }
-        }
-
-        public void CopyTo(VoidPtr address)
-        {
-            Memory.Move(address, this.Address, (uint)Length);
-        }
-
-        public int GetSize()
-        {
-            return Length;
-        }
-    }
-
     public unsafe class Common2MiscDataNode : ARCEntryNode
     {
-        //public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
+        public override ResourceType ResourceType { get { return ResourceType.Container; } }
         internal Common2TblHeader* Header { get { return (Common2TblHeader*)WorkingUncompressed.Address; } }
 
         // Header variables
@@ -104,9 +72,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 DataSource source = new DataSource(BaseAddress + o.dataOffset, o.dataEnd - o.dataOffset);
                 string name = new string((sbyte*)stringList + o.nameOffset);
-                ResourceNode node = name == "sndBgmTitleData"
-                    ? new SndBgmTitleDataNode()
-                    : (ResourceNode)new GenericCommon2TblEntryNode();
+                ResourceNode node = new RawDataNode();
                 node.Initialize(this, source);
                 node.Name = name;
             }
@@ -186,66 +152,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_DataLength < source.Length &&
                 header->Str != "sndBgmTitleData"
                 ? new Common2MiscDataNode() : null;
-        }
-    }
-
-    public unsafe abstract class Common2TblEntryNode : ResourceNode
-    {
-        [Browsable(false)]
-        public Common2MiscDataNode Root
-        {
-            get
-            {
-                return _parent as Common2MiscDataNode;
-            }
-        }
-        [Browsable(false)]
-        public VoidPtr Data { get { return (VoidPtr)WorkingUncompressed.Address; } }
-        [Browsable(false)]
-        public VoidPtr BaseAddress
-        {
-            get
-            {
-                if (Root == null)
-                    return 0;
-                return Root.BaseAddress;
-            }
-        }
-        [Browsable(false)]
-        public int _FileOffset { get { if (Data != null) return (int)Data - (int)BaseAddress; else return 0; } }
-
-        [Browsable(true)]
-        [Category("Entry")]
-        public string FileOffset { get { return _FileOffset.ToString("x"); } }
-
-        [Browsable(true)]
-        [Category("Entry")]
-        public string Length { get { return WorkingUncompressed.Length.ToString("x"); } }
-
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-    }
-
-    public unsafe class GenericCommon2TblEntryNode : Common2TblEntryNode
-    {
-        [Browsable(true)]
-        public Common2MiscDataEntry _data { get; set; }
-
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-
-            _data = new Common2MiscDataEntry(WorkingUncompressed);
-
-            return false;
-        }
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            if (length != _data.GetSize()) throw new Exception("Wrong size for common2 data rebuild");
-            _data.CopyTo(address);
-        }
-        public override int OnCalculateSize(bool force)
-        {
-            return _data.GetSize();
         }
     }
 }
