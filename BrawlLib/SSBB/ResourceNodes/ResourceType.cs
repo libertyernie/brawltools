@@ -56,6 +56,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         STPM = 0x1520,
         STDT = 0x5B26,
         SCLA = 0x6D00,
+        SndBgmTitleDataEntry = 0x6E00,
+        SndBgmTitleDataFolder = 0x6E01,
 
         //AI
         AI = 0x1616,
