@@ -146,7 +146,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             // Copy the data from the address
             Data = *(SndBgmTitleEntry*)WorkingUncompressed.Address;
 
-            if (_name == null) UpdateName();
+            if (_name == null)
+            {
+                bool changed = HasChanged;
+                UpdateName();
+                HasChanged = changed;
+            }
 
             return false;
         }
