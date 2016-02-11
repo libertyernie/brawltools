@@ -188,6 +188,7 @@
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
@@ -221,6 +222,7 @@
     <Compile Include="SSBB\Types\LM BIN.cs" />
     <None Include="SSBB\Types\BTI.cs" />
     <Compile Include="SSBB\Types\ItmFreq.cs" />
+    <Compile Include="SSBB\Types\SndBgmTitle.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\BGMG.cs" />
     <Compile Include="SSBB\Types\Subspace\Objects\GBLK.cs" />
