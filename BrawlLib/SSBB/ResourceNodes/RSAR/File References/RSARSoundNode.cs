@@ -15,20 +15,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override ResourceType ResourceType { get { return ResourceType.RSARSound; } }
 
-        Sound3DParam _sound3dParam;
-        WaveSoundInfo _waveInfo = new WaveSoundInfo();
-        StrmSoundInfo _strmInfo = new StrmSoundInfo();
-        SeqSoundInfo _seqInfo = new SeqSoundInfo();
-
-        public enum SndType
-        {
-            //Invalid = 0,
-
-            SEQ = 1,
-            STRM = 2,
-            WAVE = 3
-        }
-
+        public Sound3DParam _sound3dParam;
+        public WaveSoundInfo _waveInfo = new WaveSoundInfo();
+        public StrmSoundInfo _strmInfo = new StrmSoundInfo();
+        public SeqSoundInfo _seqInfo = new SeqSoundInfo();
+        public RSEQLabelNode _seqLabl;
+        public RSARFileNode _soundFileNode;
+        public RWSDDataNode _waveDataNode;
         public int _fileId;
         public int _playerId;
         public byte _volume;
@@ -38,86 +31,93 @@ namespace BrawlLib.SSBB.ResourceNodes
         public byte _panMode;
         public byte _panCurve;
         public byte _actorPlayerId;
+        public int _p1, _p2;
 
-        RSARFileNode _soundNode;
+        public enum SndType
+        {
+            //Invalid = 0,
 
+            SEQ = 1,
+            STRM = 2,
+            WAVE = 3
+        }
+        
         //internal VoidPtr _dataAddr;
 
         [Browsable(false)]
-        public RSARFileNode SoundNode
+        public RSARFileNode SoundFileNode
         {
-            get { return _soundNode; }
+            get { return _soundFileNode; }
             set
             {
-                if (_soundNode != value)
-                    _soundNode = value;
+                if (_soundFileNode != value)
+                    _soundFileNode = value;
             }
         }
-        [Category("a RSAR Sound"), Browsable(true), TypeConverter(typeof(DropDownListRSARFiles))]
+        [Category("RSAR Sound"), Browsable(true), TypeConverter(typeof(DropDownListNonBankFiles))]
         public string SoundFile
         {
-            get { return _soundNode == null ? "<null>" : _soundNode._name; }
+            get { return _soundFileNode == null ? "<null>" : _soundFileNode._name; }
             set
             {
                 if (String.IsNullOrEmpty(value))
-                    SoundNode = null;
+                    SoundFileNode = null;
                 else
                 {
                     Type e;
                     switch (SoundType)
                     {
-                        //case SndType.Invalid: 
                         default: return;
                         case SndType.SEQ: e = typeof(RSEQNode); break;
                         case SndType.STRM: e = typeof(RSTMNode); break;
                         case SndType.WAVE: e = typeof(RWSDNode); break;
                     }
-                    RSARFileNode node = null; int t = 0;
+
+                    int t = 0;
+                    RSARFileNode node = null;
+                    Type ext = typeof(RSARExtFileNode);
                     foreach (RSARFileNode r in RSARNode.Files)
                     {
-                        if (r.Name == value) { node = r; break; }
+                        if (r.Name == value)
+                        {
+                            Type thisType = r.GetType();
+                            if (thisType == e || thisType == ext)
+                            {
+                                node = r;
+                                break;
+                            }
+                        }
                         t++;
                     }
                     if (node != null)
                     {
-                        SoundNode = node;
+                        SoundFileNode = node;
                         _fileId = t;
                         SignalPropertyChange();
                     }
                 }
             }
         }
-        RSARBankNode _rbnk 
-        {
-            get
-            {
-                if (SoundType == SndType.SEQ && _seqInfo._bankId < RSARNode._infoCache[1].Count)
-                    return RSARNode._infoCache[1][_seqInfo._bankId] as RSARBankNode;
-                else return null;
-            }
-        }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public int PlayerId { get { return _playerId; } set { _playerId = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public byte Volume { get { return _volume; } set { _volume = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public byte PlayerPriority { get { return _playerPriority; } set { _playerPriority = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public SndType SoundType { get { return (SndType)_soundType; } set { _soundType = ((byte)value).Clamp(1, 3); SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public byte RemoteFilter { get { return _remoteFilter; } set { _remoteFilter = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public PanMode PanMode { get { return (PanMode)_panMode; } set { _panMode = (byte)value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public PanCurve PanCurve { get { return (PanCurve)_panCurve; } set { _panCurve = (byte)value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public byte ActorPlayerId { get { return _actorPlayerId; } set { _actorPlayerId = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public int UserParam1 { get { return _p1; } set { _p1 = value; SignalPropertyChange(); } }
-        [Category("a RSAR Sound")]
+        [Category("RSAR Sound")]
         public int UserParam2 { get { return _p2; } set { _p2 = value; SignalPropertyChange(); } }
-
-        public int _p1, _p2;
 
         [Flags]
         public enum Sound3DFlags
@@ -129,29 +129,27 @@ namespace BrawlLib.SSBB.ResourceNodes
             Filter = 16
         }
 
-        [Category("b RSAR Sound 3D Param")]
+        [Category("Sound 3D Param")]
         public Sound3DFlags Flags { get { return (Sound3DFlags)(uint)_sound3dParam._flags; } set { _sound3dParam._flags = (uint)value; SignalPropertyChange(); } }
-        [Category("b RSAR Sound 3D Param")]
+        [Category("Sound 3D Param")]
         public DecayCurve DecayCurve { get { return (DecayCurve)_sound3dParam._decayCurve; } set { _sound3dParam._decayCurve = (byte)value; SignalPropertyChange(); } }
-        [Category("b RSAR Sound 3D Param")]
+        [Category("Sound 3D Param")]
         public byte DecayRatio { get { return _sound3dParam._decayRatio; } set { _sound3dParam._decayRatio = value; SignalPropertyChange(); } }
-        [Category("b RSAR Sound 3D Param")]
+        [Category("Sound 3D Param")]
         public byte DopplerFactor { get { return _sound3dParam._dopplerFactor; } set { _sound3dParam._dopplerFactor = value; SignalPropertyChange(); } }
 
-        RSEQLabelNode labl;
-
-        [Category("c RSAR Seq Sound Info"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSeqLabls))]
+        [Category("SEQ Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSeqLabls))]
         public string SeqLabelEntry
         {
-            get { return labl == null ? "<null>" : labl._name; }
+            get { return _seqLabl == null ? "<null>" : _seqLabl._name; }
             set
             {
                 if (String.IsNullOrEmpty(value))
                     _seqInfo._dataOffset = 0;
                 else
                 {
-                    if (SoundNode is RSEQNode)
-                        foreach (RSEQLabelNode r in SoundNode.Children)
+                    if (SoundFileNode is RSEQNode)
+                        foreach (RSEQLabelNode r in SoundFileNode.Children)
                             if (r.Name == value)
                             {
                                 _seqInfo._dataOffset = r.Id;
@@ -161,15 +159,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-
+        RSARBankNode RBNKRef
+        {
+            get
+            {
+                if (SoundType == SndType.SEQ && _seqInfo._bankId < RSARNode._infoCache[1].Count)
+                    return RSARNode._infoCache[1][_seqInfo._bankId] as RSARBankNode;
+                else return null;
+            }
+        }
         //[Category("c RSAR Seq Sound Info")]
         //public uint SeqEntryId { get { return _seqInfo._dataOffset; } set { _seqInfo._dataOffset = value; SignalPropertyChange(); } }
         //[Category("c RSAR Seq Sound Info")]
         //public uint BankId { get { return _seqInfo._bankId; } set { _seqInfo._bankId = value; SignalPropertyChange(); } }
-        [Category("c RSAR Seq Sound Info"), Browsable(true), TypeConverter(typeof(DropDownListRSARFiles))]
+        [Category("SEQ Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARBankRefFiles))]
         public string BankFile
         {
-            get { return _rbnk == null ? "<null>" : _rbnk.TreePath; }
+            get { return RBNKRef == null ? "<null>" : RBNKRef.TreePath; }
             set
             {
                 if (String.IsNullOrEmpty(value))
@@ -190,41 +196,39 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        [Category("c RSAR Seq Sound Info"), TypeConverter(typeof(Bin32StringConverter))]
+        [Category("SEQ Params"), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 SeqAllocTrack { get { return new Bin32(_seqInfo._allocTrack); } set { _seqInfo._allocTrack = value._data; SignalPropertyChange(); } }
-        [Category("c RSAR Seq Sound Info")]
+        [Category("SEQ Params")]
         public byte SeqChannelPriority { get { return _seqInfo._channelPriority; } set { _seqInfo._channelPriority = value; SignalPropertyChange(); } }
-        [Category("c RSAR Seq Sound Info")]
+        [Category("SEQ Params")]
         public byte SeqReleasePriorityFix { get { return _seqInfo._releasePriorityFix; } set { _seqInfo._releasePriorityFix = value; SignalPropertyChange(); } }
         
-        [Category("d RSAR Strm Sound Info")]
+        [Category("STRM Params")]
         public uint StartPosition { get { return _strmInfo._startPosition; } set { _strmInfo._startPosition = value; SignalPropertyChange(); } }
-        [Category("d RSAR Strm Sound Info")]
+        [Category("STRM Params")]
         public ushort AllocChannelCount { get { return _strmInfo._allocChannelCount; } set { _strmInfo._allocChannelCount = value; SignalPropertyChange(); } }
-        [Category("d RSAR Strm Sound Info")]
+        [Category("STRM Params")]
         public ushort AllocTrackFlag { get { return _strmInfo._allocTrackFlag; } set { _strmInfo._allocTrackFlag = value; SignalPropertyChange(); } }
 
-        public RWSDDataNode _dataNode;
-
-        [Category("e RSAR Wave Sound Info"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSound))]
+        [Category("WAVE Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSound))]
         public string SoundDataNode
         {
-            get { return _dataNode == null ? "<null>" : _dataNode._name; }
+            get { return _waveDataNode == null ? "<null>" : _waveDataNode._name; }
             set
             {
                 if (String.IsNullOrEmpty(value))
                 {
                     _waveInfo._soundIndex = -1;
-                    _dataNode._refs.Remove(this);
-                    _dataNode = null;
+                    _waveDataNode._refs.Remove(this);
+                    _waveDataNode = null;
                 }
                 else
                 {
-                    if (SoundNode == null || SoundType != SndType.WAVE) return;
+                    if (SoundFileNode == null || SoundType != SndType.WAVE) return;
 
                     RWSDDataNode node = null; int t = 0;
                     if (value == null) goto skip;
-                    foreach (RWSDDataNode r in SoundNode.Children[0].Children)
+                    foreach (RWSDDataNode r in SoundFileNode.Children[0].Children)
                     {
                         if (r.Name == value) { node = r; break; }
                         t++;
@@ -233,14 +237,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (node != null)
                     {
                         _waveInfo._soundIndex = t;
-                        _dataNode._refs.Remove(this);
-                        _dataNode = node;
-                        _dataNode._refs.Add(this);
+                        _waveDataNode._refs.Remove(this);
+                        _waveDataNode = node;
+                        _waveDataNode._refs.Add(this);
                     }
                     else
                     {
                         _waveInfo._soundIndex = -1;
-                        _dataNode = null;
+                        _waveDataNode = null;
                     }
                     SignalPropertyChange();
                 }
@@ -248,25 +252,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         //[Category("e RSAR Wave Sound Info")]
         //public int PackIndex { get { return _waveInfo._soundIndex; } set { _waveInfo._soundIndex = value; SignalPropertyChange(); } }
-        [Category("e RSAR Wave Sound Info")]
+        [Category("WAVE Params")]
         public uint AllocTrack { get { return _waveInfo._allocTrack; } set { _waveInfo._allocTrack = value; SignalPropertyChange(); } }
-        [Category("e RSAR Wave Sound Info")]
+        [Category("WAVE Params")]
         public byte ChannelPriority { get { return _waveInfo._channelPriority; } set { _waveInfo._channelPriority = value; SignalPropertyChange(); } }
-        [Category("e RSAR Wave Sound Info")]
+        [Category("WAVE Params")]
         public byte ReleasePriorityFix { get { return _waveInfo._releasePriorityFix; } set { _waveInfo._releasePriorityFix = value; SignalPropertyChange(); } }
 
         [Category("Audio Stream")]
-        public WaveEncoding Encoding { get { return _dataNode == null ? WaveEncoding.ADPCM : _dataNode.Encoding; } }
+        public WaveEncoding Encoding { get { return _waveDataNode == null ? WaveEncoding.ADPCM : _waveDataNode.Encoding; } }
         [Category("Audio Stream")]
-        public int Channels { get { return _dataNode == null ? 0 : _dataNode.Channels; } }
+        public int Channels { get { return _waveDataNode == null ? 0 : _waveDataNode.Channels; } }
         [Category("Audio Stream")]
-        public bool IsLooped { get { return _dataNode == null ? false : _dataNode.IsLooped; } }
+        public bool IsLooped { get { return _waveDataNode == null ? false : _waveDataNode.IsLooped; } }
         [Category("Audio Stream")]
-        public int SampleRate { get { return _dataNode == null ? 0 : _dataNode.SampleRate; } }
+        public int SampleRate { get { return _waveDataNode == null ? 0 : _waveDataNode.SampleRate; } }
         [Category("Audio Stream")]
-        public int LoopStartSample { get { return _dataNode == null ? 0 : _dataNode.LoopStartSample; } }
+        public int LoopStartSample { get { return _waveDataNode == null ? 0 : _waveDataNode.LoopStartSample; } }
         [Category("Audio Stream")]
-        public int NumSamples { get { return _dataNode == null ? 0 : _dataNode.NumSamples; } }
+        public int NumSamples { get { return _waveDataNode == null ? 0 : _waveDataNode.NumSamples; } }
 
         public override bool OnInitialize()
         {
@@ -290,29 +294,27 @@ namespace BrawlLib.SSBB.ResourceNodes
             VoidPtr addr = Header->GetSoundInfoRef(&info->_collection);
             switch (Header->_soundInfoRef._dataType)
             {
-                case 1:
-                    _seqInfo = *(SeqSoundInfo*)addr;
-                    break;
-                case 2:
-                    _strmInfo = *(StrmSoundInfo*)addr;
-                    break;
-                case 3:
-                    _waveInfo = *(WaveSoundInfo*)addr;
-                    break;
+                case 1: _seqInfo = *(SeqSoundInfo*)addr; break;
+                case 2: _strmInfo = *(StrmSoundInfo*)addr; break;
+                case 3: _waveInfo = *(WaveSoundInfo*)addr; break;
             }
 
-            _soundNode = RSARNode.Files[_fileId];
-            _soundNode.AddSoundRef(this);
+            _soundFileNode = RSARNode.Files[_fileId];
+            _soundFileNode.AddSoundRef(this);
 
-            if (SoundNode is RSEQNode)
-                foreach (RSEQLabelNode r in SoundNode.Children)
-                    if (_seqInfo._dataOffset == r.Id) { labl = r; break; }
+            if (SoundFileNode is RSEQNode)
+                foreach (RSEQLabelNode r in SoundFileNode.Children)
+                    if (_seqInfo._dataOffset == r.Id) { _seqLabl = r; break; }
 
-            if (SoundType == SndType.WAVE && _soundNode != null && !(_soundNode is RSARExtFileNode) && _soundNode.Children[0].Children.Count > _waveInfo._soundIndex && _waveInfo._soundIndex >= 0)
+            if (SoundType == SndType.WAVE && 
+                _soundFileNode != null && 
+                !(_soundFileNode is RSARExtFileNode) && 
+                _soundFileNode.Children[0].Children.Count > _waveInfo._soundIndex && 
+                _waveInfo._soundIndex >= 0)
             {
-                _dataNode = _soundNode.Children[0].Children[_waveInfo._soundIndex] as RWSDDataNode;
-                if (_dataNode != null)
-                    _dataNode._refs.Add(this);
+                _waveDataNode = _soundFileNode.Children[0].Children[_waveInfo._soundIndex] as RWSDDataNode;
+                if (_waveDataNode != null)
+                    _waveDataNode._refs.Add(this);
             }
 
             return false;
@@ -321,11 +323,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         public IAudioStream[] CreateStreams()
         {
             _stream = null;
-            if (_soundNode is RWSDNode)
+            if (_soundFileNode is RWSDNode)
             {
-                RWSDDataNode d = _dataNode as RWSDDataNode;
-                if (d != null && _soundNode.Children.Count > 1 && _soundNode.Children[1].Children.Count > d._part3._waveIndex && d._part3._waveIndex >= 0)
-                    _stream = (_soundNode.Children[1].Children[d._part3._waveIndex] as RSARFileAudioNode).CreateStreams()[0];
+                RWSDDataNode d = _waveDataNode as RWSDDataNode;
+                if (d != null && _soundFileNode.Children.Count > 1 && _soundFileNode.Children[1].Children.Count > d._part3._waveIndex && d._part3._waveIndex >= 0)
+                    _stream = (_soundFileNode.Children[1].Children[d._part3._waveIndex] as RSARFileAudioNode).CreateStreams()[0];
             }
             return new IAudioStream[] { _stream };
         }

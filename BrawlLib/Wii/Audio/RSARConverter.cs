@@ -340,9 +340,11 @@ namespace BrawlLib.Wii.Audio
                 foreach (RSARFileNode f in g.Files)
                 {
                     e[i]._headerLength = f._headerLen;
-                    e[i++]._headerOffset = headerLen;
+                    e[i]._headerOffset = headerLen;
 
                     headerLen += f._headerLen;
+
+                    ++i;
                 }
                 i = 0;
                 VoidPtr wave = addr + headerLen;
@@ -351,12 +353,14 @@ namespace BrawlLib.Wii.Audio
                 {
                     f._rebuildAudioAddr = wave + audioLen;
                     f.Rebuild(addr, f._headerLen, true);
+                    
+                    e[i]._dataOffset = f._audioLen == 0 ? 0 : audioLen;
+                    e[i]._dataLength = f._audioLen;
 
                     addr += f._headerLen;
                     audioLen += f._audioLen;
-                    
-                    e[i]._dataLength = f._audioLen;
-                    e[i++]._dataOffset = f._audioLen == 0 ? 0 : audioLen;
+
+                    ++i;
                 }
 
                 addr += audioLen;

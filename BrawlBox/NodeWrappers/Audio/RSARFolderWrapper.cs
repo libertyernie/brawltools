@@ -17,7 +17,8 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("New", null,
                 new ToolStripMenuItem("Folder", null, NewFolderAction),
                 new ToolStripMenuItem("Sound", null,
-                    new ToolStripMenuItem("From File", null, ImportSoundAction),
+                    new ToolStripMenuItem("New", null, NewSoundAction),
+                    //new ToolStripMenuItem("From File", null, ImportSoundAction),
                     new ToolStripMenuItem("From Existing", null, CopySoundAction)),
                 new ToolStripMenuItem("Bank", null, NewBankAction),
                 new ToolStripMenuItem("PlayerInfo", null, NewTypeAction),
@@ -33,7 +34,8 @@ namespace BrawlBox.NodeWrappers
             _menu.Closing += MenuClosing;
         }
         protected static void NewFolderAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewFolder(); }
-        protected static void ImportSoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().ImportSound(); }
+        protected static void NewSoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewSound(); }
+        //protected static void ImportSoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().ImportSound(); }
         protected static void CopySoundAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().CopySound(); }
         protected static void NewBankAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewBank(); }
         protected static void NewTypeAction(object sender, EventArgs e) { GetInstance<RSARFolderWrapper>().NewType(); }
@@ -58,14 +60,23 @@ namespace BrawlBox.NodeWrappers
 
         public void NewFolder()
         {
-            RSARFolderNode folder = new RSARFolderNode();
-            folder.Name = _resource.FindName("NewFolder");
-            _resource.AddChild(folder);
+            RSARFolderNode node = new RSARFolderNode();
+            node.Name = _resource.FindName("NewFolder");
+            _resource.AddChild(node);
         }
 
-        public void ImportSound()
+        public void NewSound()
         {
-
+            RSARSoundNode node = new RSARSoundNode();
+            node.Name = _resource.FindName("NewSound");
+            RSARFolderNode folder = _resource as RSARFolderNode;
+            RSARNode rsar = folder.RSARNode;
+            if (rsar != null)
+            {
+                node._infoIndex = rsar._infoCache[0].Count;
+                rsar._infoCache[0].Add(node);
+            }
+            _resource.AddChild(node);
         }
 
         public void CopySound()
@@ -76,23 +87,44 @@ namespace BrawlBox.NodeWrappers
 
         public void NewBank()
         {
-            RSARBankNode folder = new RSARBankNode();
-            folder.Name = _resource.FindName("NewBank");
-            _resource.AddChild(folder);
+            RSARBankNode node = new RSARBankNode();
+            node.Name = _resource.FindName("NewBank");
+            RSARFolderNode folder = _resource as RSARFolderNode;
+            RSARNode rsar = folder.RSARNode;
+            if (rsar != null)
+            {
+                node._infoIndex = rsar._infoCache[1].Count;
+                rsar._infoCache[1].Add(node);
+            }
+            _resource.AddChild(node);
         }
 
         public void NewType()
         {
-            RSARPlayerInfoNode folder = new RSARPlayerInfoNode();
-            folder.Name = _resource.FindName("NewPlayerInfo");
-            _resource.AddChild(folder);
+            RSARPlayerInfoNode node = new RSARPlayerInfoNode();
+            node.Name = _resource.FindName("NewPlayerInfo");
+            RSARFolderNode folder = _resource as RSARFolderNode;
+            RSARNode rsar = folder.RSARNode;
+            if (rsar != null)
+            {
+                node._infoIndex = rsar._infoCache[2].Count;
+                rsar._infoCache[2].Add(node);
+            }
+            _resource.AddChild(node);
         }
 
         public void NewGroup()
         {
-            RSARGroupNode folder = new RSARGroupNode();
-            folder.Name = _resource.FindName("NewGroup");
-            _resource.AddChild(folder);
+            RSARGroupNode node = new RSARGroupNode();
+            node.Name = _resource.FindName("NewGroup");
+            RSARFolderNode folder = _resource as RSARFolderNode;
+            RSARNode rsar = folder.RSARNode;
+            if (rsar != null)
+            {
+                node._infoIndex = rsar._infoCache[4].Count;
+                rsar._infoCache[4].Add(node);
+            }
+            _resource.AddChild(node);
         }
     }
 }

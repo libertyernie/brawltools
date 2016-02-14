@@ -6,6 +6,13 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class RSAREntryNode : ResourceNode
     {
+        public override bool AllowDuplicateNames
+        {
+            get
+            {
+                return false;
+            }
+        }
         [Browsable(false)]
         public RSARNode RSARNode
         {
@@ -26,8 +33,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             set
             {
-                Type t = GetType();
-                int i = 0;
+                Type t = GetType(); int i = 0;
                 switch (GetType().ToString())
                 {
                     case "RSARSoundNode": i = 0; break;
@@ -35,7 +41,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                     case "RSARPlayerInfoNode": i = 2; break;
                     case "RSARGroupNode": i = 4; break;
                 }
-                _infoIndex = value;
+
+                var list = RSARNode._infoCache[i];
+                int prevIndex = _infoIndex;
+                _infoIndex = value.Clamp(0, list.Count - 1);
+                if (_infoIndex == prevIndex)
+                    return;
+
+                var temp = list[_infoIndex];
+                list[_infoIndex] = this;
+                list[prevIndex] = temp;
+                RSARNode._infoCache[i] = list;
             }
         }
         public int _infoIndex;

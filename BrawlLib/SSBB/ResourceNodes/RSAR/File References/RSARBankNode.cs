@@ -23,7 +23,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _rbnk = value;
             }
         }
-        [Category("INFO Bank"), Browsable(true), TypeConverter(typeof(DropDownListRSARFiles))]
+        [Category("INFO Bank"), Browsable(true), TypeConverter(typeof(DropDownListBankFiles))]
         public string BankFile
         {
             get { return _rbnk == null ? null : _rbnk._name; }
@@ -33,10 +33,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     BankNode = null;
                 else
                 {
-                    RBNKNode node = null; int t = 0;
+                    int t = 0;
+                    RBNKNode node = null;
                     foreach (ResourceNode r in RSARNode.Files)
                     {
-                        if (r.Name == value && r is RBNKNode) { node = r as RBNKNode; break; }
+                        if (r.Name == value && r is RBNKNode)
+                        {
+                            node = r as RBNKNode;
+                            break;
+                        }
                         t++;
                     }
                     if (node != null)

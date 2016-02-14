@@ -1,6 +1,7 @@
 ﻿using BrawlLib.Wii.Audio;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
+using System;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -8,7 +9,21 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal RSARHeader* Header { get { return (RSARHeader*)WorkingSource.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RSARFolder; } }
-
+        public override Type[] AllowedChildTypes
+        {
+            get
+            {
+                return new Type[]
+                {
+                    typeof(RSARFolderNode),
+                    typeof(RSARSoundNode),
+                    typeof(RSARBankNode),
+                    typeof(RSARGroupNode),
+                    typeof(RSARPlayerInfoNode),
+                };
+            }
+        }
+        
         public int _listIndex;
 
         [Browsable(false)]

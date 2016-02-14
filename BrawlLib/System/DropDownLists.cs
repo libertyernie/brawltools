@@ -200,7 +200,36 @@ namespace System
 
     #region RSAR
 
-    public class DropDownListRSARFiles : StringConverter
+    public class DropDownListBankFiles : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            RSAREntryNode n = context.Instance as RSAREntryNode;
+            return new StandardValuesCollection(n.RSARNode.Files.Where(x => x is RBNKNode).Select(r => r.ToString()).ToList());
+        }
+    }
+
+    public class DropDownListNonBankFiles : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            Type e;
+            RSARSoundNode n = context.Instance as RSARSoundNode;
+            switch (n.SoundType)
+            {
+                default: return null;
+                case RSARSoundNode.SndType.SEQ: e = typeof(RSEQNode); break;
+                case RSARSoundNode.SndType.STRM: e = typeof(RSTMNode); break;
+                case RSARSoundNode.SndType.WAVE: e = typeof(RWSDNode); break;
+            }
+            Type ext = typeof(RSARExtFileNode);
+            return new StandardValuesCollection(
+                n.RSARNode.Files.Where(x => x.GetType() == e || x.GetType() == ext).Select(r => r.ToString()).ToList());
+        }
+    }
+    public class DropDownListRSARBankRefFiles : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
@@ -226,8 +255,8 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSARSoundNode n = context.Instance as RSARSoundNode;
-            if (n.SoundNode == null) return null;
-            return new StandardValuesCollection(n.SoundNode.Children[0].Children.Select(r => r.ToString()).ToList());
+            if (n.SoundFileNode == null) return null;
+            return new StandardValuesCollection(n.SoundFileNode.Children[0].Children.Select(r => r.ToString()).ToList());
         }
     }
     
@@ -237,8 +266,11 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSARSoundNode n = context.Instance as RSARSoundNode;
-            if (n.SoundNode == null || n.SoundType != RSARSoundNode.SndType.SEQ) return null;
-            return new StandardValuesCollection(n.SoundNode.Children.Select(r => r.ToString()).ToList());
+
+            if (n.SoundFileNode != null && n.SoundType == RSARSoundNode.SndType.SEQ)
+                return new StandardValuesCollection(n.SoundFileNode.Children.Select(r => r.ToString()).ToList());
+
+            return null;
         }
     }
 

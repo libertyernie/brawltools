@@ -38,11 +38,13 @@ namespace BrawlBox.NodeWrappers
         protected static void ViewFileAction(object sender, EventArgs e) { GetInstance<RSARSoundWrapper>().ViewFile(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[5].Enabled = true;
+            _menu.Items[0].Enabled = _menu.Items[3].Enabled = _menu.Items[5].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             RSARSoundWrapper w = GetInstance<RSARSoundWrapper>();
+            RSARSoundNode n = w._resource as RSARSoundNode;
+            _menu.Items[0].Enabled = n._waveDataNode != null;
             _menu.Items[3].Enabled = w.Parent != null;
             _menu.Items[5].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
         }
@@ -54,12 +56,12 @@ namespace BrawlBox.NodeWrappers
         public void ChangeSound()
         {
             RSARSoundNode n = _resource as RSARSoundNode;
-            if (n.SoundDataNode != null && n._dataNode != null)
+            if (n._waveDataNode != null)
             {
-                if (n._dataNode._refs.Count > 1)
+                if (n._waveDataNode._refs.Count > 1)
                 {
                     string s = "The following entries also use this sound:\n";
-                    foreach (RSARSoundNode x in n._dataNode._refs)
+                    foreach (RSARSoundNode x in n._waveDataNode._refs)
                         s += x.TreePath + "\n";
                     s += "\nDo you still want to replace this sound?";
                     if (MessageBox.Show(s, "Continue?", MessageBoxButtons.YesNo) == DialogResult.No)
@@ -71,8 +73,8 @@ namespace BrawlBox.NodeWrappers
                 if (index != 0)
                 {
                     FileType = inPath.Substring(inPath.LastIndexOf(".") + 1);
-                    n._dataNode.Sound.Replace(inPath);
-                    n._dataNode.Sound.Parent.Parent.SignalPropertyChange();
+                    n._waveDataNode.Sound.Replace(inPath);
+                    n._waveDataNode.Sound.Parent.Parent.SignalPropertyChange();
                     n.RSARNode.SignalPropertyChange();
                     MainForm.Instance.resourceTree_SelectionChanged(null, null);
                 }
@@ -81,7 +83,7 @@ namespace BrawlBox.NodeWrappers
         public void ViewFile()
         {
             RSARFileNode n;
-            if ((n = (_resource as RSARSoundNode).SoundNode) == null)
+            if ((n = (_resource as RSARSoundNode).SoundFileNode) == null)
                 return;
             if (n is RSARExtFileNode)
             {
