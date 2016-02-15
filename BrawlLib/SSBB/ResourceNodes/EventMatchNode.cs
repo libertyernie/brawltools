@@ -9,6 +9,9 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
+    /// <summary>
+    /// A class that wraps the data represented by the EventMatchFighterData structure in a class with properties, so it can be modified by PropertyGrid.
+    /// </summary>
     public unsafe class EventMatchFighterDataWrapper
     {
         private ResourceNode parent;
@@ -20,7 +23,26 @@ namespace BrawlLib.SSBB.ResourceNodes
             this.data = data;
         }
 
-        public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
+        //public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
+
+        [Category("Match")]
+        [TypeConverter(typeof(DropDownListFighterIDs))]
+        public string FighterName
+        {
+            get
+            {
+                Fighter fighter = Fighter.Fighters.Where(s => s.ID == data._fighterID).FirstOrDefault();
+                return data._fighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
+            }
+            set
+            {
+                // Don't try to set the stage ID if it's not a stage module
+                if (value.Length < 2) return;
+                data._fighterID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+                parent.SignalPropertyChange();
+            }
+        }
+
         public byte Status { get { return data._status; } set { data._status = value; parent.SignalPropertyChange(); } }
         public byte Unknown02 { get { return data._unknown02; } set { data._unknown02 = value; parent.SignalPropertyChange(); } }
         public byte Unknown03 { get { return data._unknown03; } set { data._unknown03 = value; parent.SignalPropertyChange(); } }
@@ -37,16 +59,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString()
         {
-            return "Event Match Fighter Data" + (FighterID == 0x3E ? " - Disabled" : "");
-        }
-    }
-    public unsafe class EventMatchFighterDataSelfWrapper : EventMatchFighterDataWrapper
-    {
-        public EventMatchFighterDataSelfWrapper(ResourceNode parent, EventMatchFighterData data) : base(parent, data) { }
-
-        public override string ToString()
-        {
-            return "Event Match Fighter Data" + (FighterID == 0x3E ? " - Choose" : "");
+            return "Event Match Fighter Data: " + FighterName;
         }
     }
 
@@ -182,7 +195,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
             _header = *dataPtr;
 
-            FighterData0 = new EventMatchFighterDataSelfWrapper(this, dataPtr->FighterDataPtr[0]);
+            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
             FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
             FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
             FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);

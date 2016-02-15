@@ -143,6 +143,7 @@
     <Compile Include="Modeling\PMDModel.cs" />
     <Compile Include="OpenGL\GLViewport.cs" />
     <Compile Include="SSBB\IBoolArraySource.cs" />
+    <Compile Include="SSBB\Fighter.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDBoneNode.cs" />
