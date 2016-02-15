@@ -73,10 +73,10 @@ namespace BrawlLib.SSBB
             new Fighter(0x2b, "Sonic"),
             new Fighter(0x2c, "Giga Bowser"),
             new Fighter(0x2d, "Warioman"),
-            new Fighter(0x2e, "Red Alloy"),
-            new Fighter(0x2f, "Blue Alloy"),
-            new Fighter(0x30, "Yellow Alloy"),
-            new Fighter(0x31, "Green Alloy"),
+            new Fighter(0x2e, "Red Alloy (don't use in event matches)"),
+            new Fighter(0x2f, "Blue Alloy (don't use in event matches)"),
+            new Fighter(0x30, "Yellow Alloy (don't use in event matches)"),
+            new Fighter(0x31, "Green Alloy (don't use in event matches)"),
 
             // Event Matches
             new Fighter(0x3e, "None / Select Character"),

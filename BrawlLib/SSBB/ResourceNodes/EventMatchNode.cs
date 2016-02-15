@@ -14,6 +14,13 @@ namespace BrawlLib.SSBB.ResourceNodes
     /// </summary>
     public unsafe class EventMatchFighterDataWrapper
     {
+        public enum StatusEnum : byte
+        {
+            Normal = 0,
+            Metal = 1,
+            Invisible = 2
+        }
+
         private ResourceNode parent;
         private EventMatchFighterData data;
 
@@ -25,7 +32,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
 
-        [Category("Match")]
         [TypeConverter(typeof(DropDownListFighterIDs))]
         public string FighterName
         {
@@ -43,14 +49,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public byte Status { get { return data._status; } set { data._status = value; parent.SignalPropertyChange(); } }
-        public byte Unknown02 { get { return data._unknown02; } set { data._unknown02 = value; parent.SignalPropertyChange(); } }
-        public byte Unknown03 { get { return data._unknown03; } set { data._unknown03 = value; parent.SignalPropertyChange(); } }
-        public float Scale { get { return data._scale; } set { data._scale = value; parent.SignalPropertyChange(); } }
-        public byte Team { get { return data._team; } set { data._team = value; parent.SignalPropertyChange(); } }
-        public byte Unknown09 { get { return data._unknown09; } set { data._unknown09 = value; parent.SignalPropertyChange(); } }
-        public byte Unknown0a { get { return data._unknown0a; } set { data._unknown0a = value; parent.SignalPropertyChange(); } }
-        public byte Unknown0b { get { return data._unknown0b; } set { data._unknown0b = value; parent.SignalPropertyChange(); } }
+        public StatusEnum Status { get { return (StatusEnum)data._status; } set { data._status = (byte)value; parent.SignalPropertyChange(); } }
+        public byte Unknown02    { get { return data._unknown02; }          set { data._unknown02 = value;    parent.SignalPropertyChange(); } }
+        public byte Unknown03    { get { return data._unknown03; }          set { data._unknown03 = value;    parent.SignalPropertyChange(); } }
+        public float Scale       { get { return data._scale; }              set { data._scale = value;        parent.SignalPropertyChange(); } }
+        public byte Team         { get { return data._team; }               set { data._team = value;         parent.SignalPropertyChange(); } }
+        public byte Unknown09    { get { return data._unknown09; }          set { data._unknown09 = value;    parent.SignalPropertyChange(); } }
+        public byte Unknown0a    { get { return data._unknown0a; }          set { data._unknown0a = value;    parent.SignalPropertyChange(); } }
+        public byte Unknown0b    { get { return data._unknown0b; }          set { data._unknown0b = value;    parent.SignalPropertyChange(); } }
 
         public static explicit operator EventMatchFighterData(EventMatchFighterDataWrapper w)
         {
@@ -65,6 +71,22 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public unsafe class EventMatchNode : ResourceNode
     {
+        public enum ItemLevelEnum : short
+        {
+            Off = 0,
+            Low = 1,
+            Medium = 2,
+            High = 3,
+            Raining = 4
+        }
+
+        public enum MatchTypeEnum : byte
+        {
+            Time = 0,
+            Stock = 1,
+            Coin = 2
+        }
+
         public static ResourceNode Create(int length)
         {
             length -= sizeof(EventMatchTblHeader);
@@ -94,96 +116,197 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
         public EventMatchFighterDataWrapper FighterData3 { get; set; }
 
-        public bint Unknown00 { get { return _header._unknown00; } set { _header._unknown00 = value; } }
-        public bint Unknown04 { get { return _header._unknown04; } set { _header._unknown04 = value; } }
+        [DisplayName("Event Extension")]
+        public bint EventExtension { get { return _header._eventExtension; } }
 
-        [Category("Match")]
+        //public bint Unknown04 { get { return _header._unknown04; } set { _header._unknown04 = value; } }
+
         [DisplayName("Match Type")]
-        public byte MatchType { get { return _header._matchType; } set { _header._matchType = value; SignalPropertyChange(); } }
+        public MatchTypeEnum MatchType { get { return (MatchTypeEnum)_header._matchType; } set { _header._matchType = (byte)value; SignalPropertyChange(); } }
 
-        public byte Unknown09 { get { return _header._unknown09; } set { _header._unknown09 = value; } }
-        public byte Unknown0a { get { return _header._unknown0a; } set { _header._unknown0a = value; } }
-        public byte Unknown0b { get { return _header._unknown0b; } set { _header._unknown0b = value; } }
+        //public byte Unknown09 { get { return _header._unknown09; } set { _header._unknown09 = value; SignalPropertyChange(); } }
+        //public byte Unknown0a { get { return _header._unknown0a; } set { _header._unknown0a = value; SignalPropertyChange(); } }
+        //public byte Unknown0b { get { return _header._unknown0b; } set { _header._unknown0b = value; SignalPropertyChange(); } }
 
-        [Category("Match")]
         [DisplayName("Time Limit")]
         public int TimeLimit { get { return _header._timeLimit; } set { _header._timeLimit = value; SignalPropertyChange(); } }
 
-        public byte Unknown10 { get { return _header._unknown10; } set { _header._unknown10 = value; } }
-        public byte Unknown11 { get { return _header._unknown10; } set { _header._unknown10 = value; } }
-        public byte Unknown12 { get { return _header._unknown10; } set { _header._unknown10 = value; } }
-        public byte Unknown13 { get { return _header._unknown10; } set { _header._unknown10 = value; } }
-        public float Unknown14 { get { return _header._unknown14; } set { _header._unknown14 = value; } }
+        [DisplayName("Timer Visible")]
+        public bool TimerVisible
+        {
+            get
+            {
+                return (_header._flags10 & 0x20000000) != 0;
+            }
+            set
+            {
+                SignalPropertyChange();
+                if (value)
+                    _header._flags10 |= 0x20000000;
+                else
+                    _header._flags10 &= ~0x20000000;
+            }
+        }
 
-        [Category("Match")]
-        [DisplayName("Item Frequency")]
-        public short ItemFrequency { get { return _header._itemFrequency; } set { _header._itemFrequency = value; SignalPropertyChange(); } }
+        [DisplayName("Hide Countdown")]
+        public bool HideCountdown
+        {
+            get
+            {
+                return (_header._flags10 & 0x40000000) != 0;
+            }
+            set
+            {
+                SignalPropertyChange();
+                if (value)
+                    _header._flags10 |= 0x40000000;
+                else
+                    _header._flags10 &= ~0x40000000;
+            }
+        }
 
-        public short Unknown1a { get { return _header._unknown1a; } set { _header._unknown1a = value; } }
-        public byte Unknown1c { get { return _header._unknown1c; } set { _header._unknown1c = value; } }
-        public byte Unknown1d { get { return _header._unknown1d; } set { _header._unknown1d = value; } }
-        public byte Unknown1e { get { return _header._unknown1e; } set { _header._unknown1e = value; } }
+        //public bool UnknownFlag_10_80000000
+        //{
+        //    get
+        //    {
+        //        return (_header._flags10 & 0x80000000) != 0;
+        //    }
+        //    set
+        //    {
+        //        SignalPropertyChange();
+        //        if (value)
+        //            _header._flags10 |= unchecked((int)0x80000000);
+        //        else
+        //            _header._flags10 &= ~unchecked((int)0x80000000);
+        //    }
+        //}
 
-        //[Category("Match")]
-        //[DisplayName("Stage ID")]
-        //public byte StageID { get { return _header._stageID; } set { _header._stageID = value; SignalPropertyChange(); } }
+        //public float Unknown14 { get { return _header._unknown14; } set { _header._unknown14 = value; SignalPropertyChange(); } }
 
-        [Category("Match")]
+        [DisplayName("Hide Damage Values")]
+        public bool HideDamageValues
+        {
+            get
+            {
+                return (_header._flags18 & 0x80) != 0;
+            }
+            set
+            {
+                SignalPropertyChange();
+                if (value)
+                    _header._flags18 |= 0x80;
+                else
+                    _header._flags18 &= unchecked((byte)~0x80);
+            }
+        }
+
+        [DisplayName("Team Match")]
+        public bool IsTeamGame
+        {
+            get
+            {
+                return _header._isTeamGame != 0;
+            }
+            set
+            {
+                SignalPropertyChange();
+                _header._isTeamGame = (byte)(value ? 1 : 0);
+            }
+        }
+
+        [DisplayName("Item Level")]
+        public ItemLevelEnum ItemLevel { get { return (ItemLevelEnum)(short)_header._itemLevel; } set { _header._itemLevel = (short)value; SignalPropertyChange(); } }
+
+        //public byte Unknown1c { get { return _header._unknown1c; } set { _header._unknown1c = value; SignalPropertyChange(); } }
+        //public byte Unknown1d { get { return _header._unknown1d; } set { _header._unknown1d = value; SignalPropertyChange(); } }
+
+        [DisplayName("Stage")]
         [TypeConverter(typeof(DropDownListStageIDs))]
         public string StageName
         {
             get
             {
                 Stage stage = Stage.Stages.Where(s => s.ID == _header._stageID).FirstOrDefault();
-                return _header._stageID.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+                return ((short)_header._stageID).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
             }
             set
             {
-                // Don't try to set the stage ID if it's not a stage module
                 if (value.Length < 2) return;
                 _header._stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
                 SignalPropertyChange();
             }
         }
 
-        public byte Unknown20 { get { return _header._unknown20; } set { _header._unknown20 = value; } }
-        public byte Unknown21 { get { return _header._unknown21; } set { _header._unknown21 = value; } }
-        public byte Unknown22 { get { return _header._unknown22; } set { _header._unknown22 = value; } }
-        public byte Unknown23 { get { return _header._unknown23; } set { _header._unknown23 = value; } }
-        public int Unknown24 { get { return _header._unknown24; } set { _header._unknown24 = value; } }
-        public int Unknown28 { get { return _header._unknown28; } set { _header._unknown28 = value; } }
-        public int Unknown2c { get { return _header._unknown2c; } set { _header._unknown2c = value; } }
-        public int Unknown30 { get { return _header._unknown30; } set { _header._unknown30 = value; } }
-        public int Unknown34 { get { return _header._unknown34; } set { _header._unknown34 = value; } }
+        [DisplayName("Players On Screen")]
+        public int PlayersOnScreen
+        {
+            get
+            {
+                return (_header._flags20 >> 21) & 7;
+            }
+            set
+            {
+                SignalPropertyChange();
+                _header._flags20 &= ~0xE00000;
+                _header._flags20 |= (int)((value & 7) << 21);
+            }
+        }
 
-        [Category("Match")]
+        //public bool UnknownFlag_20_10000000
+        //{
+        //    get
+        //    {
+        //        return (_header._flags20 & 0x10000000) != 0;
+        //    }
+        //    set
+        //    {
+        //        SignalPropertyChange();
+        //        if (value)
+        //            _header._flags20 |= unchecked((int)0x10000000);
+        //        else
+        //            _header._flags20 &= ~unchecked((int)0x10000000);
+        //    }
+        //}
+
+        //public int Unknown24 { get { return _header._unknown24; } set { _header._unknown24 = value; SignalPropertyChange(); } }
+        //public int Unknown28 { get { return _header._unknown28; } set { _header._unknown28 = value; SignalPropertyChange(); } }
+        //public int Unknown2c { get { return _header._unknown2c; } set { _header._unknown2c = value; SignalPropertyChange(); } }
+        //public int Unknown30 { get { return _header._unknown30; } set { _header._unknown30 = value; SignalPropertyChange(); } }
+        //public int Unknown34 { get { return _header._unknown34; } set { _header._unknown34 = value; SignalPropertyChange(); } }
+
         [DisplayName("Game Speed")]
         public float GameSpeed { get { return _header._gameSpeed; } set { _header._gameSpeed = value; SignalPropertyChange(); } }
 
-        [Category("Match")]
         [DisplayName("Camera Shake Control")]
         public float CameraShakeControl { get { return _header._cameraShakeControl; } set { _header._cameraShakeControl = value; SignalPropertyChange(); } }
 
-        public byte Unknown40 { get { return _header._unknown40; } set { _header._unknown40 = value; } }
-        public byte Unknown41 { get { return _header._unknown41; } set { _header._unknown41 = value; } }
-        public byte Unknown42 { get { return _header._unknown42; } set { _header._unknown42 = value; } }
-        public byte Unknown43 { get { return _header._unknown43; } set { _header._unknown43 = value; } }
-        public byte Unknown44 { get { return _header._unknown44; } set { _header._unknown44 = value; } }
-        public byte Unknown45 { get { return _header._unknown45; } set { _header._unknown45 = value; } }
+        //public bool UnknownFlag_40_80000000
+        //{
+        //    get
+        //    {
+        //        return (_header._flags40 & 0x80000000) != 0;
+        //    }
+        //    set
+        //    {
+        //        SignalPropertyChange();
+        //        if (value)
+        //            _header._flags40 |= unchecked((int)0x80000000);
+        //        else
+        //            _header._flags40 &= ~unchecked((int)0x80000000);
+        //    }
+        //}
 
-        [Category("Match")]
         [DisplayName("Song ID")]
-        public short SongID { get { return _header._songID; } set { _header._songID = value; SignalPropertyChange(); } }
+        public int SongID { get { return _header._songID; } set { _header._songID = value; SignalPropertyChange(); } }
 
-        [Category("Match")]
         [DisplayName("Global Offense Ratio")]
         public short GlobalOffenseRatio { get { return _header._globalOffenseRatio; } set { _header._globalOffenseRatio = value; SignalPropertyChange(); } }
 
-        [Category("Match")]
         [DisplayName("Global Defense Ratio")]
         public short GlobalDefenseRatio { get { return _header._globalDefenseRatio; } set { _header._globalDefenseRatio = value; SignalPropertyChange(); } }
 
-        public bint Unknown4c { get { return _header._unknown4c; } set { _header._unknown4c = value; } }
+        //[DisplayName("Unknown")]
+        //public bint Unknown4c { get { return _header._unknown4c; } set { _header._unknown4c = value; SignalPropertyChange(); } }
 
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
