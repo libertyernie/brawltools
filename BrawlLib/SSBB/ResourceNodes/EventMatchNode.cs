@@ -21,6 +21,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             Invisible = 2
         }
 
+        public enum AiType : byte
+        {
+            Normal = 0,
+            Stop = 1,
+            Walk = 2,
+            Jump = 3,
+            Defend = 4,
+            EventSpecific = 11
+        }
+
         private ResourceNode parent;
         private EventMatchFighterData data;
 
@@ -42,7 +52,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             set
             {
-                // Don't try to set the stage ID if it's not a stage module
                 if (value.Length < 2) return;
                 data._fighterID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
                 parent.SignalPropertyChange();
@@ -50,13 +59,46 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public StatusEnum Status { get { return (StatusEnum)data._status; } set { data._status = (byte)value; parent.SignalPropertyChange(); } }
-        public byte Unknown02    { get { return data._unknown02; }          set { data._unknown02 = value;    parent.SignalPropertyChange(); } }
-        public byte Unknown03    { get { return data._unknown03; }          set { data._unknown03 = value;    parent.SignalPropertyChange(); } }
+        //public byte Unknown02  { get { return data._unknown02; }          set { data._unknown02 = value;    parent.SignalPropertyChange(); } }
+        //public byte Unknown03  { get { return data._unknown03; }          set { data._unknown03 = value;    parent.SignalPropertyChange(); } }
         public float Scale       { get { return data._scale; }              set { data._scale = value;        parent.SignalPropertyChange(); } }
         public byte Team         { get { return data._team; }               set { data._team = value;         parent.SignalPropertyChange(); } }
-        public byte Unknown09    { get { return data._unknown09; }          set { data._unknown09 = value;    parent.SignalPropertyChange(); } }
-        public byte Unknown0a    { get { return data._unknown0a; }          set { data._unknown0a = value;    parent.SignalPropertyChange(); } }
-        public byte Unknown0b    { get { return data._unknown0b; }          set { data._unknown0b = value;    parent.SignalPropertyChange(); } }
+        //public byte Unknown09  { get { return data._unknown09; }          set { data._unknown09 = value;    parent.SignalPropertyChange(); } }
+        //public byte Unknown0a  { get { return data._unknown0a; }          set { data._unknown0a = value;    parent.SignalPropertyChange(); } }
+        //public byte Unknown0b  { get { return data._unknown0b; }          set { data._unknown0b = value;    parent.SignalPropertyChange(); } }
+
+        public byte EasyCpuLevel          { get { return data._easy._cpuLevel; }         set { data._easy._cpuLevel = value;         parent.SignalPropertyChange(); } }
+        //public byte EasyUnknown01       { get { return data._easy._unknown01; }        set { data._easy._unknown01 = value;        parent.SignalPropertyChange(); } }
+        public ushort EasyOffenseRatio    { get { return data._easy._offenseRatio; }     set { data._easy._offenseRatio = value;     parent.SignalPropertyChange(); } }
+        public ushort EasyDefenseRatio    { get { return data._easy._defenseRatio; }     set { data._easy._defenseRatio = value;     parent.SignalPropertyChange(); } }
+        public AiType EasyAiType          { get { return (AiType)data._easy._aiType; }   set { data._easy._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte EasyCostume           { get { return data._easy._costume; }          set { data._easy._costume = value;          parent.SignalPropertyChange(); } }
+        public byte EasyStockCount        { get { return data._easy._stockCount; }       set { data._easy._stockCount = value;       parent.SignalPropertyChange(); } }
+        //public byte EasyUnknown09       { get { return data._easy._unknown09; }        set { data._easy._unknown09 = value;        parent.SignalPropertyChange(); } }
+        public short EasyInitialHitPoints { get { return data._easy._initialHitPoints; } set { data._easy._initialHitPoints = value; parent.SignalPropertyChange(); } }
+        public short EasyStartingDamage   { get { return data._easy._startingDamage; }   set { data._easy._startingDamage = value;   parent.SignalPropertyChange(); } }
+
+        public byte NormalCpuLevel          { get { return data._normal._cpuLevel; }         set { data._normal._cpuLevel = value;         parent.SignalPropertyChange(); } }
+        //public byte NormalUnknown01       { get { return data._normal._unknown01; }        set { data._normal._unknown01 = value;        parent.SignalPropertyChange(); } }
+        public ushort NormalOffenseRatio    { get { return data._normal._offenseRatio; }     set { data._normal._offenseRatio = value;     parent.SignalPropertyChange(); } }
+        public ushort NormalDefenseRatio    { get { return data._normal._defenseRatio; }     set { data._normal._defenseRatio = value;     parent.SignalPropertyChange(); } }
+        public AiType NormalAiType          { get { return (AiType)data._normal._aiType; }   set { data._normal._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte NormalCostume           { get { return data._normal._costume; }          set { data._normal._costume = value;          parent.SignalPropertyChange(); } }
+        public byte NormalStockCount        { get { return data._normal._stockCount; }       set { data._normal._stockCount = value;       parent.SignalPropertyChange(); } }
+        //public byte NormalUnknown09       { get { return data._normal._unknown09; }        set { data._normal._unknown09 = value;        parent.SignalPropertyChange(); } }
+        public short NormalInitialHitPoints { get { return data._normal._initialHitPoints; } set { data._normal._initialHitPoints = value; parent.SignalPropertyChange(); } }
+        public short NormalStartingDamage   { get { return data._normal._startingDamage; }   set { data._normal._startingDamage = value;   parent.SignalPropertyChange(); } }
+
+        public byte HardCpuLevel          { get { return data._hard._cpuLevel; }         set { data._hard._cpuLevel = value;         parent.SignalPropertyChange(); } }
+        //public byte HardUnknown01       { get { return data._hard._unknown01; }        set { data._hard._unknown01 = value;        parent.SignalPropertyChange(); } }
+        public ushort HardOffenseRatio    { get { return data._hard._offenseRatio; }     set { data._hard._offenseRatio = value;     parent.SignalPropertyChange(); } }
+        public ushort HardDefenseRatio    { get { return data._hard._defenseRatio; }     set { data._hard._defenseRatio = value;     parent.SignalPropertyChange(); } }
+        public AiType HardAiType          { get { return (AiType)data._hard._aiType; }   set { data._hard._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte HardCostume           { get { return data._hard._costume; }          set { data._hard._costume = value;          parent.SignalPropertyChange(); } }
+        public byte HardStockCount        { get { return data._hard._stockCount; }       set { data._hard._stockCount = value;       parent.SignalPropertyChange(); } }
+        //public byte HardUnknown09       { get { return data._hard._unknown09; }        set { data._hard._unknown09 = value;        parent.SignalPropertyChange(); } }
+        public short HardInitialHitPoints { get { return data._hard._initialHitPoints; } set { data._hard._initialHitPoints = value; parent.SignalPropertyChange(); } }
+        public short HardStartingDamage   { get { return data._hard._startingDamage; }   set { data._hard._startingDamage = value;   parent.SignalPropertyChange(); } }
 
         public static explicit operator EventMatchFighterData(EventMatchFighterDataWrapper w)
         {

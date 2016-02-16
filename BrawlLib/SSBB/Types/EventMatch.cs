@@ -77,7 +77,7 @@ namespace BrawlLib.SSBB.Types
         public byte _unknown01;
         public bushort _offenseRatio;
         public bushort _defenseRatio;
-        public byte _aiControllerType;
+        public byte _aiType;
         public byte _costume;
         public byte _stockCount;
         public byte _unknown09;
