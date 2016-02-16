@@ -133,18 +133,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public string StageID {
-            get {
-                if (_stageID == null) return "N/A";
-                Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
-                return "0x" + _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+        public byte StageID
+        {
+            get
+            {
+                return (byte)(ushort)_stageID;
             }
-            set {
-                string field0 = (value ?? "").Split(' ')[0];
-                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
-                    ? 16
-                    : 10;
-                _stageID = (byte)Convert.ToByte(field0, fromBase);
+            set
+            {
+                _stageID = value;
                 SignalPropertyChange();
             }
         }

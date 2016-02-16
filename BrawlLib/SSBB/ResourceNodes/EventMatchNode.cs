@@ -264,20 +264,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [DisplayName("Stage")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public string Stage
+        public byte StageID
         {
             get
             {
-                Stage stage = BrawlLib.SSBB.Stage.Stages.Where(s => s.ID == _header._stageID).FirstOrDefault();
-                return "0x" + ((short)_header._stageID).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+                return (byte)(ushort)_header._stageID;
             }
             set
             {
-                string field0 = (value ?? "").Split(' ')[0];
-                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
-                    ? 16
-                    : 10;
-                _header._stageID = (byte)Convert.ToByte(field0, fromBase);
+                _header._stageID = value;
                 SignalPropertyChange();
             }
         }
