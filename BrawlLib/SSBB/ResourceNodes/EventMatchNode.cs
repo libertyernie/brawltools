@@ -111,7 +111,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class EventMatchNode : ResourceNode
+    public unsafe abstract class EventMatchNode : ResourceNode
     {
         public enum ItemLevelEnum : short
         {
@@ -129,34 +129,24 @@ namespace BrawlLib.SSBB.ResourceNodes
             Coin = 2
         }
 
-        public static ResourceNode Create(int length)
+        public static ResourceNode Create(VoidPtr address)
         {
-            length -= sizeof(EventMatchTblHeader);
-            if (length % sizeof(EventMatchFighterData) != 0)
-                throw new Exception("Cannot create EventMatchNode with size " + length);
-            length /= sizeof(EventMatchFighterData);
+            EventMatchTblHeader* header = (EventMatchTblHeader*)address;
 
-            switch (length)
+            switch (header->_eventExtension)
             {
-                case 4:
-                case 9:
-                case 38:
-                    return new EventMatchNode();
+                case 0:
+                    return new EventMatchNode4();
+                case 1:
+                    return new EventMatchNode9();
+                case 2:
+                    return new EventMatchNode38();
                 default:
-                    throw new Exception("Cannot create EventMatchNode with size " + length);
+                    throw new Exception("Cannot create EventMatchNode with unknown EventExtension = " + header->_eventExtension);
             }
         }
 
         private EventMatchTblHeader _header;
-
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData0 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData1 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData2 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData3 { get; set; }
 
         [DisplayName("Event Extension")]
         public bint EventExtension { get { return _header._eventExtension; } }
@@ -360,6 +350,34 @@ namespace BrawlLib.SSBB.ResourceNodes
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
             _header = *dataPtr;
 
+            return false;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
+            *dataPtr = _header;
+        }
+    }
+
+    public unsafe class EventMatchNode4 : EventMatchNode
+    {
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData0 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData1 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData2 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData3 { get; set; }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+
+            // Copy the data from the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
+
             FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
             FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
             FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
@@ -371,7 +389,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             // Copy the data back to the address
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
-            *dataPtr = _header;
+
             dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
             dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
             dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
@@ -380,6 +398,254 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override int OnCalculateSize(bool force)
         {
             return sizeof(EventMatchTblHeader) + 4 * sizeof(EventMatchFighterData);
+        }
+    }
+
+    public unsafe class EventMatchNode9 : EventMatchNode
+    {
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData0 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData1 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData2 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData3 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData4 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData5 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData6 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData7 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData8 { get; set; }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+
+            // Copy the data from the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
+
+            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
+            FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
+            FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
+            FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
+
+            FighterData4 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[4]);
+            FighterData5 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[5]);
+            FighterData6 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[6]);
+            FighterData7 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[7]);
+            FighterData8 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[8]);
+
+            return false;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
+
+            dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
+            dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
+            dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
+            dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
+            
+            dataPtr->FighterDataPtr[4] = (EventMatchFighterData)FighterData4;
+            dataPtr->FighterDataPtr[5] = (EventMatchFighterData)FighterData5;
+            dataPtr->FighterDataPtr[6] = (EventMatchFighterData)FighterData6;
+            dataPtr->FighterDataPtr[7] = (EventMatchFighterData)FighterData7;
+            dataPtr->FighterDataPtr[8] = (EventMatchFighterData)FighterData8;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            return sizeof(EventMatchTblHeader) + 9 * sizeof(EventMatchFighterData);
+        }
+    }
+
+    public unsafe class EventMatchNode38 : EventMatchNode
+    {
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData0 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData1 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData2 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData3 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData4 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData5 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData6 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData7 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData8 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData9 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData10 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData11 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData12 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData13 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData14 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData15 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData16 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData17 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData18 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData19 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData20 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData21 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData22 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData23 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData24 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData25 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData26 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData27 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData28 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData29 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData30 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData31 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData32 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData33 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData34 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData35 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData36 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData37 { get; set; }
+        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
+        public EventMatchFighterDataWrapper FighterData38 { get; set; }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+
+            // Copy the data from the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
+
+            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
+            FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
+            FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
+            FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
+
+            FighterData4 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[4]);
+            FighterData5 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[5]);
+            FighterData6 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[6]);
+            FighterData7 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[7]);
+            FighterData8 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[8]);
+
+            FighterData9 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[9]);
+            FighterData10 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[10]);
+            FighterData11 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[11]);
+            FighterData12 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[12]);
+            FighterData13 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[13]);
+            FighterData14 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[14]);
+            FighterData15 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[15]);
+            FighterData16 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[16]);
+            FighterData17 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[17]);
+            FighterData18 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[18]);
+            FighterData19 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[19]);
+            FighterData20 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[20]);
+            FighterData21 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[21]);
+            FighterData22 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[22]);
+            FighterData23 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[23]);
+            FighterData24 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[24]);
+            FighterData25 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[25]);
+            FighterData26 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[26]);
+            FighterData27 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[27]);
+            FighterData28 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[28]);
+            FighterData29 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[29]);
+            FighterData30 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[30]);
+            FighterData31 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[31]);
+            FighterData32 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[32]);
+            FighterData33 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[33]);
+            FighterData34 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[34]);
+            FighterData35 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[35]);
+            FighterData36 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[36]);
+            FighterData37 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[37]);
+            FighterData38 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[38]);
+
+            return false;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
+
+            dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
+            dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
+            dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
+            dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
+
+            dataPtr->FighterDataPtr[4] = (EventMatchFighterData)FighterData4;
+            dataPtr->FighterDataPtr[5] = (EventMatchFighterData)FighterData5;
+            dataPtr->FighterDataPtr[6] = (EventMatchFighterData)FighterData6;
+            dataPtr->FighterDataPtr[7] = (EventMatchFighterData)FighterData7;
+            dataPtr->FighterDataPtr[8] = (EventMatchFighterData)FighterData8;
+
+            dataPtr->FighterDataPtr[9] = (EventMatchFighterData)FighterData9;
+            dataPtr->FighterDataPtr[10] = (EventMatchFighterData)FighterData10;
+            dataPtr->FighterDataPtr[11] = (EventMatchFighterData)FighterData11;
+            dataPtr->FighterDataPtr[12] = (EventMatchFighterData)FighterData12;
+            dataPtr->FighterDataPtr[13] = (EventMatchFighterData)FighterData13;
+            dataPtr->FighterDataPtr[14] = (EventMatchFighterData)FighterData14;
+            dataPtr->FighterDataPtr[15] = (EventMatchFighterData)FighterData15;
+            dataPtr->FighterDataPtr[16] = (EventMatchFighterData)FighterData16;
+            dataPtr->FighterDataPtr[17] = (EventMatchFighterData)FighterData17;
+            dataPtr->FighterDataPtr[18] = (EventMatchFighterData)FighterData18;
+            dataPtr->FighterDataPtr[19] = (EventMatchFighterData)FighterData19;
+            dataPtr->FighterDataPtr[20] = (EventMatchFighterData)FighterData20;
+            dataPtr->FighterDataPtr[21] = (EventMatchFighterData)FighterData21;
+            dataPtr->FighterDataPtr[22] = (EventMatchFighterData)FighterData22;
+            dataPtr->FighterDataPtr[23] = (EventMatchFighterData)FighterData23;
+            dataPtr->FighterDataPtr[24] = (EventMatchFighterData)FighterData24;
+            dataPtr->FighterDataPtr[25] = (EventMatchFighterData)FighterData25;
+            dataPtr->FighterDataPtr[26] = (EventMatchFighterData)FighterData26;
+            dataPtr->FighterDataPtr[27] = (EventMatchFighterData)FighterData27;
+            dataPtr->FighterDataPtr[28] = (EventMatchFighterData)FighterData28;
+            dataPtr->FighterDataPtr[29] = (EventMatchFighterData)FighterData29;
+            dataPtr->FighterDataPtr[30] = (EventMatchFighterData)FighterData30;
+            dataPtr->FighterDataPtr[31] = (EventMatchFighterData)FighterData31;
+            dataPtr->FighterDataPtr[32] = (EventMatchFighterData)FighterData32;
+            dataPtr->FighterDataPtr[33] = (EventMatchFighterData)FighterData33;
+            dataPtr->FighterDataPtr[34] = (EventMatchFighterData)FighterData34;
+            dataPtr->FighterDataPtr[35] = (EventMatchFighterData)FighterData35;
+            dataPtr->FighterDataPtr[36] = (EventMatchFighterData)FighterData36;
+            dataPtr->FighterDataPtr[37] = (EventMatchFighterData)FighterData37;
+            dataPtr->FighterDataPtr[38] = (EventMatchFighterData)FighterData38;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            return sizeof(EventMatchTblHeader) + 38 * sizeof(EventMatchFighterData);
         }
     }
 }

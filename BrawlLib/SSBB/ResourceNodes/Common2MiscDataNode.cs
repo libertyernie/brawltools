@@ -73,7 +73,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 DataSource source = new DataSource(BaseAddress + o.dataOffset, o.dataEnd - o.dataOffset);
                 string name = new string((sbyte*)stringList + o.nameOffset);
                 ResourceNode node = name.StartsWith("eventStage")
-                    ? EventMatchNode.Create(source.Length)
+                    ? EventMatchNode.Create(source.Address)
                     : (ResourceNode)new RawDataNode();
                 node.Initialize(this, source);
                 node.Name = name;

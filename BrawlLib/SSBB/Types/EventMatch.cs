@@ -12,6 +12,8 @@ namespace BrawlLib.SSBB.Types
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct EventMatchTblHeader
     {
+        public const int Size = 0x50;
+
         public bint _eventExtension; // 0 = 4 entries, 1 = 9 entries, 2 = 38 entries
         public bint _unknown04;
         public byte _matchType; // 0 = time, 1 = stock, 2 = coin
@@ -57,6 +59,8 @@ namespace BrawlLib.SSBB.Types
 
     public unsafe struct EventMatchFighterData
     {
+        public const int Size = 0x36;
+
         public byte _fighterID;
         public byte _status; // normal, metal, invisible
         public byte _unknown02;
@@ -73,6 +77,8 @@ namespace BrawlLib.SSBB.Types
 
     public unsafe struct EventMatchDifficultyData
     {
+        public const int Size = 0x0E;
+
         public byte _cpuLevel;
         public byte _unknown01;
         public bushort _offenseRatio;
