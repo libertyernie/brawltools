@@ -43,11 +43,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         //public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
 
         [TypeConverter(typeof(DropDownListFighterIDs))]
-        public string FighterName
+        public string Fighter
         {
             get
             {
-                Fighter fighter = Fighter.Fighters.Where(s => s.ID == data._fighterID).FirstOrDefault();
+                Fighter fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == data._fighterID).FirstOrDefault();
                 return data._fighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
             }
             set
@@ -107,7 +107,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString()
         {
-            return "Event Match Fighter Data: " + FighterName;
+            return "Event Match Fighter Data: " + Fighter;
         }
     }
 
@@ -264,17 +264,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [DisplayName("Stage")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public string StageName
+        public string Stage
         {
             get
             {
-                Stage stage = Stage.Stages.Where(s => s.ID == _header._stageID).FirstOrDefault();
-                return ((short)_header._stageID).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+                Stage stage = BrawlLib.SSBB.Stage.Stages.Where(s => s.ID == _header._stageID).FirstOrDefault();
+                return "0x" + ((short)_header._stageID).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
             }
             set
             {
-                if (value.Length < 2) return;
-                _header._stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+                string field0 = (value ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                _header._stageID = (byte)Convert.ToByte(field0, fromBase);
                 SignalPropertyChange();
             }
         }

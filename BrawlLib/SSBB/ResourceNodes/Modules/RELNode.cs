@@ -137,13 +137,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             get {
                 if (_stageID == null) return "N/A";
                 Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
-                return _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+                return "0x" + _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
             }
             set {
-                // Don't try to set the stage ID if it's not a stage module
-                if (_stageID == null) return;
-				if (value.Length < 2) return;
-                _stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+                string field0 = (value ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                _stageID = (byte)Convert.ToByte(field0, fromBase);
                 SignalPropertyChange();
             }
         }
