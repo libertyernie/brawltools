@@ -21,16 +21,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             Invisible = 2
         }
 
-        public enum AiType : byte
-        {
-            Normal = 0,
-            Stop = 1,
-            Walk = 2,
-            Jump = 3,
-            Defend = 4,
-            EventSpecific = 11
-        }
-
         private ResourceNode parent;
         private EventMatchFighterData data;
 
@@ -71,7 +61,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //public byte EasyUnknown01       { get { return data._easy._unknown01; }        set { data._easy._unknown01 = value;        parent.SignalPropertyChange(); } }
         public ushort EasyOffenseRatio    { get { return data._easy._offenseRatio; }     set { data._easy._offenseRatio = value;     parent.SignalPropertyChange(); } }
         public ushort EasyDefenseRatio    { get { return data._easy._defenseRatio; }     set { data._easy._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public AiType EasyAiType          { get { return (AiType)data._easy._aiType; }   set { data._easy._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte EasyAiType            { get { return data._easy._aiType; }           set { data._easy._aiType = value;           parent.SignalPropertyChange(); } }
         public byte EasyCostume           { get { return data._easy._costume; }          set { data._easy._costume = value;          parent.SignalPropertyChange(); } }
         public byte EasyStockCount        { get { return data._easy._stockCount; }       set { data._easy._stockCount = value;       parent.SignalPropertyChange(); } }
         //public byte EasyUnknown09       { get { return data._easy._unknown09; }        set { data._easy._unknown09 = value;        parent.SignalPropertyChange(); } }
@@ -82,7 +72,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //public byte NormalUnknown01       { get { return data._normal._unknown01; }        set { data._normal._unknown01 = value;        parent.SignalPropertyChange(); } }
         public ushort NormalOffenseRatio    { get { return data._normal._offenseRatio; }     set { data._normal._offenseRatio = value;     parent.SignalPropertyChange(); } }
         public ushort NormalDefenseRatio    { get { return data._normal._defenseRatio; }     set { data._normal._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public AiType NormalAiType          { get { return (AiType)data._normal._aiType; }   set { data._normal._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte NormalAiType            { get { return data._normal._aiType; }           set { data._normal._aiType = value;           parent.SignalPropertyChange(); } }
         public byte NormalCostume           { get { return data._normal._costume; }          set { data._normal._costume = value;          parent.SignalPropertyChange(); } }
         public byte NormalStockCount        { get { return data._normal._stockCount; }       set { data._normal._stockCount = value;       parent.SignalPropertyChange(); } }
         //public byte NormalUnknown09       { get { return data._normal._unknown09; }        set { data._normal._unknown09 = value;        parent.SignalPropertyChange(); } }
@@ -93,7 +83,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //public byte HardUnknown01       { get { return data._hard._unknown01; }        set { data._hard._unknown01 = value;        parent.SignalPropertyChange(); } }
         public ushort HardOffenseRatio    { get { return data._hard._offenseRatio; }     set { data._hard._offenseRatio = value;     parent.SignalPropertyChange(); } }
         public ushort HardDefenseRatio    { get { return data._hard._defenseRatio; }     set { data._hard._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public AiType HardAiType          { get { return (AiType)data._hard._aiType; }   set { data._hard._aiType = (byte)value;     parent.SignalPropertyChange(); } }
+        public byte HardAiType            { get { return data._hard._aiType; }           set { data._hard._aiType =  value;          parent.SignalPropertyChange(); } }
         public byte HardCostume           { get { return data._hard._costume; }          set { data._hard._costume = value;          parent.SignalPropertyChange(); } }
         public byte HardStockCount        { get { return data._hard._stockCount; }       set { data._hard._stockCount = value;       parent.SignalPropertyChange(); } }
         //public byte HardUnknown09       { get { return data._hard._unknown09; }        set { data._hard._unknown09 = value;        parent.SignalPropertyChange(); } }
@@ -111,7 +101,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe abstract class EventMatchNode : ResourceNode
+    public unsafe class EventMatchNode : ResourceNode
     {
         public enum ItemLevelEnum : short
         {
@@ -127,23 +117,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             Time = 0,
             Stock = 1,
             Coin = 2
-        }
-
-        public static ResourceNode Create(VoidPtr address)
-        {
-            EventMatchTblHeader* header = (EventMatchTblHeader*)address;
-
-            switch (header->_eventExtension)
-            {
-                case 0:
-                    return new EventMatchNode4();
-                case 1:
-                    return new EventMatchNode9();
-                case 2:
-                    return new EventMatchNode38();
-                default:
-                    throw new Exception("Cannot create EventMatchNode with unknown EventExtension = " + header->_eventExtension);
-            }
         }
 
         private EventMatchTblHeader _header;
@@ -342,130 +315,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-
-            // Copy the data from the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
-            _header = *dataPtr;
-
-            return false;
-        }
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            // Copy the data back to the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
-            *dataPtr = _header;
-        }
-    }
-
-    public unsafe class EventMatchNode4 : EventMatchNode
-    {
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData0 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData1 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData2 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData3 { get; set; }
-
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-
-            // Copy the data from the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
-
-            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
-            FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
-            FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
-            FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
-
-            return false;
-        }
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            // Copy the data back to the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
-
-            dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
-            dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
-            dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
-            dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
-        }
-        public override int OnCalculateSize(bool force)
-        {
-            return sizeof(EventMatchTblHeader) + 4 * sizeof(EventMatchFighterData);
-        }
-    }
-
-    public unsafe class EventMatchNode9 : EventMatchNode
-    {
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData0 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData1 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData2 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData3 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData4 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData5 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData6 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData7 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData8 { get; set; }
-
-        public override bool OnInitialize()
-        {
-            base.OnInitialize();
-
-            // Copy the data from the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
-
-            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
-            FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
-            FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
-            FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
-
-            FighterData4 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[4]);
-            FighterData5 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[5]);
-            FighterData6 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[6]);
-            FighterData7 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[7]);
-            FighterData8 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[8]);
-
-            return false;
-        }
-        public override void OnRebuild(VoidPtr address, int length, bool force)
-        {
-            // Copy the data back to the address
-            EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
-
-            dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
-            dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
-            dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
-            dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
-            
-            dataPtr->FighterDataPtr[4] = (EventMatchFighterData)FighterData4;
-            dataPtr->FighterDataPtr[5] = (EventMatchFighterData)FighterData5;
-            dataPtr->FighterDataPtr[6] = (EventMatchFighterData)FighterData6;
-            dataPtr->FighterDataPtr[7] = (EventMatchFighterData)FighterData7;
-            dataPtr->FighterDataPtr[8] = (EventMatchFighterData)FighterData8;
-        }
-        public override int OnCalculateSize(bool force)
-        {
-            return sizeof(EventMatchTblHeader) + 9 * sizeof(EventMatchFighterData);
-        }
-    }
-
-    public unsafe class EventMatchNode38 : EventMatchNode
-    {
         [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
         public EventMatchFighterDataWrapper FighterData0 { get; set; }
         [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
@@ -551,17 +400,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             // Copy the data from the address
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
+            _header = *dataPtr;
 
             FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
             FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
             FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
             FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
+            if (dataPtr->_eventExtension == 0) return false;
 
             FighterData4 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[4]);
             FighterData5 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[5]);
             FighterData6 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[6]);
             FighterData7 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[7]);
             FighterData8 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[8]);
+            if (dataPtr->_eventExtension == 1) return false;
 
             FighterData9 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[9]);
             FighterData10 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[10]);
@@ -600,17 +452,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             // Copy the data back to the address
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
+            *dataPtr = _header;
 
             dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
             dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
             dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
             dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
+            if (dataPtr->_eventExtension == 0) return;
 
             dataPtr->FighterDataPtr[4] = (EventMatchFighterData)FighterData4;
             dataPtr->FighterDataPtr[5] = (EventMatchFighterData)FighterData5;
             dataPtr->FighterDataPtr[6] = (EventMatchFighterData)FighterData6;
             dataPtr->FighterDataPtr[7] = (EventMatchFighterData)FighterData7;
             dataPtr->FighterDataPtr[8] = (EventMatchFighterData)FighterData8;
+            if (dataPtr->_eventExtension == 1) return;
 
             dataPtr->FighterDataPtr[9] = (EventMatchFighterData)FighterData9;
             dataPtr->FighterDataPtr[10] = (EventMatchFighterData)FighterData10;
@@ -645,7 +500,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public override int OnCalculateSize(bool force)
         {
-            return sizeof(EventMatchTblHeader) + 38 * sizeof(EventMatchFighterData);
+            int entries =
+                  _header._eventExtension == 0 ? 4
+                : _header._eventExtension == 1 ? 9
+                : 38;
+            return sizeof(EventMatchTblHeader) + entries * sizeof(EventMatchFighterData);
         }
     }
 }
