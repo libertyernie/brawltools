@@ -473,7 +473,7 @@ namespace System
             return new StandardValuesCollection(values);
         }
     }
-    public class DropDownListStageIDs : TypeConverter
+    public class DropDownListStageIDs : ByteConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
@@ -506,16 +506,37 @@ namespace System
             return base.ConvertTo(context, culture, value, destinationType);
         }
     }
-    public class DropDownListItemIDs : StringConverter
+    public class DropDownListItemIDs : Int32Converter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            return new StandardValuesCollection(BrawlLib.SSBB.Item.Items.Select(s => s.ID.ToString("X2") + " - " + s.Name).ToList());
+            return new StandardValuesCollection(BrawlLib.SSBB.Item.Items.Select(s => "0x" + s.ID.ToString("X2") + " - " + s.Name).ToList());
         }
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            return base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+        }
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value.GetType() == typeof(string))
+            {
+                string field0 = (value.ToString() ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                return Convert.ToInt32(field0, fromBase);
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value.GetType() == typeof(int))
+            {
+                var item = BrawlLib.SSBB.Item.Items.Where(s => s.ID == (int)value).FirstOrDefault();
+                return "0x" + ((int)value).ToString("X2") + (item == null ? "" : (" - " + item.Name));
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
     public class DropDownListFighterIDs : StringConverter

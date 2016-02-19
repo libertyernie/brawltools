@@ -133,14 +133,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte StageID
+        public byte? StageID
         {
             get
             {
-                return (byte)(ushort)_stageID;
+                return _stageID;
             }
             set
             {
+                if (_stageID == null || value == null) return;
                 _stageID = value;
                 SignalPropertyChange();
             }
@@ -148,31 +149,67 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListItemIDs))]
-        public string ItemID {
+        public int? ItemID1 {
             get {
-                if (_itemIDs == null) return "N/A";
-                if (_itemIDs.Distinct().Count() > 1) {
-                    // If the four IDs are different (not sure why they would be)
-                    return "Mismatched (" + string.Join(",", _itemIDs.Select(b => b.ToString("X2"))) + ")";
-                }
-                Item item = Item.Items.Where(s => s.ID == _itemIDs[0]).FirstOrDefault();
-                return _stageID.Value.ToString("X2") + (item == null ? "" : (" - " + item.Name));
+                if (_itemIDs == null) return null;
+                return _itemIDs[0];
             }
             set {
                 // Don't try to set the item ID if it's not an Online Training Room module
-                if (_itemIDs == null) return;
-				if (value.Length < 2) return;
-				if (value.Contains("(")) value = value.Substring(value.IndexOf("(")+1);
-				if (value.Contains(")")) value = value.Substring(0, value.IndexOf(")"));
-				string[] split = value.Split(',');
-				if (split.Length == 4) {
-					for (int i = 0; i < 4; i++) _itemIDs[i] = byte.Parse(split[i], NumberStyles.HexNumber);
-					SignalPropertyChange();
-				} else {
-					byte b = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
-					for (int i = 0; i < 4; i++) _itemIDs[i] = b;
-					SignalPropertyChange();
-				}
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[0] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID2 {
+            get {
+                if (_itemIDs == null) return null;
+                return _itemIDs[1];
+            }
+            set {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[1] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID3
+        {
+            get
+            {
+                if (_itemIDs == null) return null;
+                return _itemIDs[2];
+            }
+            set
+            {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[2] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID4
+        {
+            get
+            {
+                if (_itemIDs == null) return null;
+                return _itemIDs[3];
+            }
+            set
+            {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[3] = (byte)value.Value;
+                SignalPropertyChange();
             }
         }
         #endregion
@@ -653,7 +690,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_itemIDs != null) {
                 // File must be online training room .rel file
                 for (int i = 0; i < _itemIDs.Length; i++) {
-                    bptr[OTrainItemOffsets[i]] = _itemIDs[i];
+                    int offset = OTrainItemOffsets[i];
+                    if (bptr[offset - 3] != 0x38 || bptr[offset - 2] != 0x80 || bptr[offset - 1] != 0x00)
+                    {
+                        throw new Exception("Rebuilding st_otrain module file has moved the item IDs");
+                    }
+                    bptr[offset] = _itemIDs[i];
                 }
             }
         }
