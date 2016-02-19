@@ -40,23 +40,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             this.data = data;
         }
 
-        //public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
-
         [TypeConverter(typeof(DropDownListFighterIDs))]
-        public string Fighter
-        {
-            get
-            {
-                Fighter fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == data._fighterID).FirstOrDefault();
-                return data._fighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
-            }
-            set
-            {
-                if (value.Length < 2) return;
-                data._fighterID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
-                parent.SignalPropertyChange();
-            }
-        }
+        public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
 
         public StatusEnum Status { get { return (StatusEnum)data._status; } set { data._status = (byte)value; parent.SignalPropertyChange(); } }
         //public byte Unknown02  { get { return data._unknown02; }          set { data._unknown02 = value;    parent.SignalPropertyChange(); } }
@@ -107,7 +92,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override string ToString()
         {
-            return "Event Match Fighter Data: " + Fighter;
+            var fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
+            return "Event Match Fighter Data: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
         }
     }
 
