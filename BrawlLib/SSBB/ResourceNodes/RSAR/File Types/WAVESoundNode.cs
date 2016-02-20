@@ -29,7 +29,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             if (_name == null)
-                _name = String.Format("Audio[{0}]", Index);
+                _name = String.Format("[{0}]Audio", Index);
             
             Info = *(WaveInfo*)WorkingUncompressed.Address;
 

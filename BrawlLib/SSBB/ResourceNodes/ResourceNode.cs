@@ -691,7 +691,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //Node MUST dispose of and assign both repl sources before exiting. (Not exactly, see Rebuild())
         public virtual void OnRebuild(VoidPtr address, int length, bool force)
         {
-            Memory.Move(address, WorkingUncompressed.Address, (uint)length);
+            MoveRawUncompressed(address, length);
         }
 
         //Shouldn't this move compressed data? YES!
@@ -740,7 +740,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal virtual void MoveUncompressed(VoidPtr address, int length)
+        internal virtual void MoveRawUncompressed(VoidPtr address, int length)
         {
             Memory.Move(address, WorkingUncompressed.Address, (uint)length);
             DataSource newsrc = new DataSource(address, length);
@@ -748,10 +748,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             int offset = address - WorkingUncompressed.Address;
             foreach (ResourceNode n in Children)
                 n.OnParentMovedUncompressed(offset);
-
-            _replSrc.Close();
+            
             _replUncompSrc.Close();
-            _replSrc = _replUncompSrc = newsrc;
+            _replUncompSrc = newsrc;
         }
         internal virtual void OnParentMovedUncompressed(int offset)
         {

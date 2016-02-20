@@ -13,23 +13,29 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override ResourceType ResourceType { get { return ResourceType.RSARGroup; } }
 
-        internal List<RSARFileNode> _files = new List<RSARFileNode>();
+        internal BindingList<RSARFileNode> _files = new BindingList<RSARFileNode>();
 
-        private int _entryNo;
+        private int _entryNumber = -1;
         private int _extFilePathRef;
 
         [Category("Group")]
-        public int EntryNumber { get { return _entryNo; } }
+        public int EntryNumber
+        {
+            get { return _entryNumber; }
+            set { _entryNumber = value; SignalPropertyChange(); }
+        }
         [Category("Group")]
-        public int ExtFilePathRef { get { return _extFilePathRef; } }
-
-        public List<RSARFileNode> Files { get { return _files; } }
+        public int ExtFilePathRef
+        {
+            get { return _extFilePathRef; }
+            set { _extFilePathRef = value; SignalPropertyChange(); }
+        }
 
         public override bool OnInitialize()
         {
             base.OnInitialize();
 
-            _entryNo = Header->_entryNum;
+            _entryNumber = Header->_entryNum;
             _extFilePathRef = Header->_extFilePathRef;
 
             //Get file references
@@ -42,7 +48,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 INFOGroupEntry* entry = (INFOGroupEntry*)list->Get(offset, i);
                 int id = entry->_fileId;
                 _files.Add(rsar.Files[id] as RSARFileNode);
-                rsar.Files[id]._groups.Add(this);
+                rsar.Files[id]._groupRefs.Add(this);
             }
 
             SetSizeInternal(INFOGroupHeader.Size + 4 + _files.Count * (8 + INFOGroupEntry.Size));
@@ -63,7 +69,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             RuintList* list = (RuintList*)(address + INFOGroupHeader.Size);
             INFOGroupEntry* entries = (INFOGroupEntry*)((VoidPtr)list + 4 + _files.Count * 8);
             
-            header->_entryNum = -1;
+            header->_entryNum = _entryNumber;
+            header->_extFilePathRef = _extFilePathRef;
             header->_stringId = _rebuildStringId;
             //header->_extFilePathRef = 0;
             //header->_extFilePathRef._dataType = 0;

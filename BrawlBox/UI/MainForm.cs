@@ -253,9 +253,14 @@ namespace BrawlBox
                         newControl = hexBox1;
                     }
                 }
-                else 
+                else
 #endif
-                if (node is RELMethodNode)
+                if (node is RSARGroupNode)
+                {
+                    rsarGroupEditor.LoadGroup(node as RSARGroupNode);
+                    newControl = rsarGroupEditor;
+                }
+                else if (node is RELMethodNode)
                 {
                     ppcDisassembler1.SetTarget((RELMethodNode)node);
                     newControl = ppcDisassembler1;

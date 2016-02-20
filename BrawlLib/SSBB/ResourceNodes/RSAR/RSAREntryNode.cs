@@ -6,13 +6,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class RSAREntryNode : ResourceNode
     {
-        public override bool AllowDuplicateNames
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public override bool AllowDuplicateNames { get { return false; } }
+
         [Browsable(false)]
         public RSARNode RSARNode
         {
@@ -27,10 +22,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public int InfoIndex
         {
-            get
-            {
-                return _infoIndex;
-            }
+            get { return _infoIndex; }
             set
             {
                 Type t = GetType(); int i = 0;
@@ -99,13 +91,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             fixed (char* s = _name)
                 for (int x = 0; i < len; )
                     chars[i++] = (sbyte)s[x++];
-
-            if (len != 0)
-                _fullPath = new String(chars, 0, len);
-            else
-                _fullPath = "";
-
-            list.AddEntry(_fullPath, this);
+            
+            list.AddEntry(_fullPath = len != 0 ? new String(chars, 0, len) : "", this);
         }
     }
 }

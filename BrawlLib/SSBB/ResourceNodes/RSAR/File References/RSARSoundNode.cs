@@ -2,7 +2,6 @@
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Audio;
-using BrawlLib.Wii.Audio;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -10,6 +9,22 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal INFOSoundEntry* Header { get { return (INFOSoundEntry*)WorkingUncompressed.Address; } }
         
+        public RSARSoundNode()
+        {
+            Volume = 50;
+            SoundType = SndType.WAVE;
+            PlayerPriority = 64;
+            PanMode = PanMode.Dual;
+            PanCurve = PanCurve.Sqrt;
+
+            Flags = Sound3DFlags.NotVolume | Sound3DFlags.NotSurroundPan;
+            DecayCurve = DecayCurve.Logarithmic;
+            DecayRatio = 128;
+
+            AllocTrack = 1;
+            ChannelPriority = 64;
+        }
+
         [Browsable(false)]
         internal override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
 
@@ -42,8 +57,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             WAVE = 3
         }
         
-        //internal VoidPtr _dataAddr;
-
         [Browsable(false)]
         public RSARFileNode SoundFileNode
         {
@@ -219,27 +232,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (String.IsNullOrEmpty(value))
                 {
                     _waveInfo._soundIndex = -1;
-                    _waveDataNode._refs.Remove(this);
-                    _waveDataNode = null;
+                    if (_waveDataNode != null)
+                    {
+                        _waveDataNode._refs.Remove(this);
+                        _waveDataNode.GetName();
+                        _waveDataNode = null;
+                    }
                 }
                 else
                 {
-                    if (SoundFileNode == null || SoundType != SndType.WAVE) return;
+                    if (SoundFileNode == null || SoundType != SndType.WAVE)
+                        return;
 
-                    RWSDDataNode node = null; int t = 0;
-                    if (value == null) goto skip;
-                    foreach (RWSDDataNode r in SoundFileNode.Children[0].Children)
-                    {
-                        if (r.Name == value) { node = r; break; }
-                        t++;
-                    }
-                skip:
+                    RWSDDataNode node = null;
+                    int t = 0;
+
+                    if (value != null)
+                        foreach (RWSDDataNode r in SoundFileNode.Children[0].Children)
+                        {
+                            if (r.Name == value)
+                            {
+                                node = r;
+                                break;
+                            }
+                            t++;
+                        }
+
                     if (node != null)
                     {
                         _waveInfo._soundIndex = t;
-                        _waveDataNode._refs.Remove(this);
+
+                        if (_waveDataNode != null)
+                        {
+                            _waveDataNode._refs.Remove(this);
+                            _waveDataNode.GetName();
+                        }
+
                         _waveDataNode = node;
                         _waveDataNode._refs.Add(this);
+                        _waveDataNode.GetName();
                     }
                     else
                     {
@@ -250,7 +281,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        //[Category("e RSAR Wave Sound Info")]
+        //[Category("WAVE Params")]
         //public int PackIndex { get { return _waveInfo._soundIndex; } set { _waveInfo._soundIndex = value; SignalPropertyChange(); } }
         [Category("WAVE Params")]
         public uint AllocTrack { get { return _waveInfo._allocTrack; } set { _waveInfo._allocTrack = value; SignalPropertyChange(); } }
@@ -304,7 +335,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (SoundFileNode is RSEQNode)
                 foreach (RSEQLabelNode r in SoundFileNode.Children)
-                    if (_seqInfo._dataOffset == r.Id) { _seqLabl = r; break; }
+                    if (_seqInfo._dataOffset == r.Id)
+                    {
+                        _seqLabl = r;
+                        break;
+                    }
 
             if (SoundType == SndType.WAVE && 
                 _soundFileNode != null && 

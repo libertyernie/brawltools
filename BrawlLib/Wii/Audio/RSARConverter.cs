@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
 using System.Linq;
+using System.ComponentModel;
 
 namespace BrawlLib.Wii.Audio
 {
@@ -60,14 +61,15 @@ namespace BrawlLib.Wii.Audio
             foreach (RSAREntryState s in entries._groups)
                 groups += s._node.CalculateSize(true);
             groups += INFOGroupHeader.Size + 4; //Null group at the end
-            groups += node._nullGroup.Files.Count * 32;
+            groups += node._nullGroup._files.Count * 32;
             foreach (RSARFileNode s in entries._files)
             {
-                files += INFOFileHeader.Size + 4;
-                if (!(s is RSARExtFileNode))
-                    files += s._groups.Count * (8 + INFOFileEntry.Size);
-                else
-                    files += (s._extPath.Length + 1).Align(4);
+                if (s._groupRefs.Count == 0 && !(s is RSARExtFileNode))
+                    Console.WriteLine(s.Name);
+                
+                files += INFOFileHeader.Size + 4 + (!(s is RSARExtFileNode) ? 
+                (s._groupRefs.Count * (8 + INFOFileEntry.Size)) :
+                (s._extPath.Length + 1).Align(4));
             }
 
             //Footer and Align
@@ -80,10 +82,10 @@ namespace BrawlLib.Wii.Audio
             foreach (RSAREntryState r in entries._groups)
             {
                 RSARGroupNode g = r._node as RSARGroupNode;
-                foreach (RSARFileNode f in g.Files)
+                foreach (RSARFileNode f in g._files)
                     _fileLen += f.CalculateSize(true);
             }
-            foreach (RSARFileNode f in node._nullGroup.Files)
+            foreach (RSARFileNode f in node._nullGroup._files)
                 _fileLen += f.CalculateSize(true);
 
             //Align
@@ -208,6 +210,9 @@ namespace BrawlLib.Wii.Audio
             //Write file entries
             foreach (RSARFileNode file in entries._files)
             {
+                //if (file._groupRefs.Count == 0 && !(file is RSARExtFileNode))
+                //    continue;
+
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
                 INFOFileHeader* fileHdr = (INFOFileHeader*)dataAddr;
                 dataAddr += INFOFileHeader.Size;
@@ -243,11 +248,11 @@ namespace BrawlLib.Wii.Audio
                     fileHdr->_dataLen = (uint)file._audioLen;
                     //fileHdr->_stringOffset = 0;
                     fileHdr->_listOffset = (uint)((VoidPtr)list - (VoidPtr)baseAddr);
-                    list->_numEntries = file._groups.Count;
-                    INFOFileEntry* fileEntries = (INFOFileEntry*)((VoidPtr)list + 4 + file._groups.Count * 8);
+                    list->_numEntries = file._groupRefs.Count;
+                    INFOFileEntry* fileEntries = (INFOFileEntry*)((VoidPtr)list + 4 + file._groupRefs.Count * 8);
                     int z = 0;
                     List<int> used = new List<int>();
-                    foreach (RSARGroupNode g in file._groups)
+                    foreach (RSARGroupNode g in file._groupRefs)
                     {
                         list->Entries[z] = (uint)((VoidPtr)(&fileEntries[z]) - baseAddr);
                         fileEntries[z]._groupId = g._rebuildIndex;
@@ -265,7 +270,7 @@ namespace BrawlLib.Wii.Audio
                             fileEntries[z]._index = g._files.IndexOf(file);
                         z++;
                     }
-                    dataAddr = (VoidPtr)fileEntries + file._groups.Count * INFOFileEntry.Size;
+                    dataAddr = (VoidPtr)fileEntries + file._groupRefs.Count * INFOFileEntry.Size;
                 }
             }
             index = 0;
@@ -299,10 +304,10 @@ namespace BrawlLib.Wii.Audio
             grp->_listOffset = (uint)((VoidPtr)(dataAddr + INFOGroupHeader.Size) - baseAddr);
             dataAddr += INFOGroupHeader.Size;
             RuintList* l = (RuintList*)dataAddr;
-            INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)l + 4 + node._nullGroup.Files.Count * 8);
-            l->_numEntries = node._nullGroup.Files.Count;
+            INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)l + 4 + node._nullGroup._files.Count * 8);
+            l->_numEntries = node._nullGroup._files.Count;
             int y = 0;
-            foreach (RSARFileNode file in node._nullGroup.Files)
+            foreach (RSARFileNode file in node._nullGroup._files)
             {
                 l->Entries[y] = (uint)((VoidPtr)(&e[y]) - baseAddr);
                 e[y++]._fileId = file._fileIndex;
@@ -311,7 +316,7 @@ namespace BrawlLib.Wii.Audio
                 //entries[i]._headerLength = 0;
                 //entries[i]._headerOffset = 0;
             }
-            dataAddr = (VoidPtr)e + node._nullGroup.Files.Count * 0x18;
+            dataAddr = (VoidPtr)e + node._nullGroup._files.Count * 0x18;
 
             //Write footer
             values[5] = (uint)dataAddr - (uint)baseAddr;
@@ -337,7 +342,7 @@ namespace BrawlLib.Wii.Audio
                 int i = 0;
                 INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)g._rebuildAddr + INFOGroupHeader.Size + 4 + g._files.Count * 8);
                 g._rebuildAddr->_headerOffset = (int)(addr - baseAddress);
-                foreach (RSARFileNode f in g.Files)
+                foreach (RSARFileNode f in g._files)
                 {
                     e[i]._headerLength = f._headerLen;
                     e[i]._headerOffset = headerLen;
@@ -349,7 +354,7 @@ namespace BrawlLib.Wii.Audio
                 i = 0;
                 VoidPtr wave = addr + headerLen;
                 g._rebuildAddr->_waveDataOffset = (int)(wave - baseAddress);
-                foreach (RSARFileNode f in g.Files)
+                foreach (RSARFileNode f in g._files)
                 {
                     f._rebuildAudioAddr = wave + audioLen;
                     f.Rebuild(addr, f._headerLen, true);
@@ -413,7 +418,7 @@ namespace BrawlLib.Wii.Audio
         public List<RSAREntryState> _playerInfo = new List<RSAREntryState>();
         public List<RSAREntryState> _groups = new List<RSAREntryState>();
         public List<RSAREntryState> _banks = new List<RSAREntryState>();
-        public List<RSARFileNode> _files;
+        public BindingList<RSARFileNode> _files;
 
         public void AddEntry(string path, RSAREntryNode node)
         {

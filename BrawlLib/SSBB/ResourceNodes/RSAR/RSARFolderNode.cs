@@ -2,6 +2,7 @@
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System;
+using System.Collections.Generic;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -37,7 +38,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal virtual void GetStrings(sbyte* path, int pathLen, RSAREntryList list)
+        internal virtual void GetStrings(sbyte* path, int pathLen, RSAREntryList list, ref List<string> unusedFolders)
         {
             int len = _name.Length;
             int i = 0;
@@ -59,13 +60,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int x = 0; i < len; )
                     chars[i++] = (sbyte)s[x++];
 
-            foreach (ResourceNode n in Children)
-            {
-                if (n is RSARFolderNode)
-                    ((RSARFolderNode)n).GetStrings(chars, len, list);
-                else if (n is RSAREntryNode)
-                    ((RSAREntryNode)n).GetStrings(chars, len, list);
-            }
+            if (Children.Count == 0)
+                unusedFolders.Add(len != 0 ? new String(chars, 0, len).Replace("_", "/") : "");
+            else
+                foreach (ResourceNode n in Children)
+                {
+                    if (n is RSARFolderNode)
+                        ((RSARFolderNode)n).GetStrings(chars, len, list, ref unusedFolders);
+                    else if (n is RSAREntryNode)
+                        ((RSAREntryNode)n).GetStrings(chars, len, list);
+                }
         }
     }
 }

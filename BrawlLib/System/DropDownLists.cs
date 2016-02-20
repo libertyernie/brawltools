@@ -255,7 +255,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSARSoundNode n = context.Instance as RSARSoundNode;
-            if (n.SoundFileNode == null) return null;
+            if (n.SoundFileNode == null || n.SoundFileNode is RSARExtFileNode) return null;
             return new StandardValuesCollection(n.SoundFileNode.Children[0].Children.Select(r => r.ToString()).ToList());
         }
     }

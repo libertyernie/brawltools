@@ -4,6 +4,8 @@ using System.IO;
 using System.Collections.Generic;
 using BrawlLib.Wii.Audio;
 using System.ComponentModel;
+using System.Windows.Forms;
+using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -31,9 +33,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal INFOFooter ftr;
 
-        private List<RSARFileNode> _files;
+        private BindingList<RSARFileNode> _files;
         [Browsable(false)]
-        public List<RSARFileNode> Files { get { return _files; } }
+        public BindingList<RSARFileNode> Files { get { return _files; } }
 
         public override bool OnInitialize()
         {
@@ -45,7 +47,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                     _name = "Sound Archive";
 
-            _files = new List<RSARFileNode>();
+            _files = new BindingList<RSARFileNode>();
             _children = new List<ResourceNode>();
 
             //Retrieve all files to attach to entries
@@ -248,11 +250,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             _entryList._files = Files;
             _converter = new RSARConverter();
 
+            List<string> unusedFolders = new List<string>();
             foreach (ResourceNode n in Children)
                 if (n is RSARFolderNode)
-                    ((RSARFolderNode)n).GetStrings(null, 0, _entryList);
+                    ((RSARFolderNode)n).GetStrings(null, 0, _entryList, ref unusedFolders);
                 else if (n is RSAREntryNode)
                     ((RSAREntryNode)n).GetStrings(null, 0, _entryList);
+
+            if (unusedFolders.Count > 0)
+                MessageBox.Show(_mainForm, 
+                    String.Format("The following path{0} ha{1} no entries and will be lost:\n" +
+                    unusedFolders.Aggregate((current, next) => current + "\n" + next), 
+                    unusedFolders.Count > 1 ? "s" : "",
+                    unusedFolders.Count > 1 ? "ve" : "s"), 
+                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
             _entryList.SortStrings();
             _nullGroup._rebuildIndex = _entryList._groups.Count;

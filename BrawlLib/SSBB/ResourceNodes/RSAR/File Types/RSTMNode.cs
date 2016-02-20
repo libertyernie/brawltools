@@ -32,7 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Data"), Browsable(false)]
         public override string DataLength { get { return WorkingUncompressed.Length.ToString("X"); } }
         [Browsable(false)]
-        public override string[] GroupRefs { get { return _groups.Select(x => x.TreePath).ToArray(); } }
+        public override string[] GroupRefs { get { return _groupRefs.Select(x => x.TreePath).ToArray(); } }
         [Browsable(false)]
         public override string[] EntryRefs { get { return _references.ToArray(); } }
 

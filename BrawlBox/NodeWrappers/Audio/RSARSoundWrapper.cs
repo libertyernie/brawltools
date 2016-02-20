@@ -38,13 +38,14 @@ namespace BrawlBox.NodeWrappers
         protected static void ViewFileAction(object sender, EventArgs e) { GetInstance<RSARSoundWrapper>().ViewFile(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[0].Enabled = _menu.Items[3].Enabled = _menu.Items[5].Enabled = true;
+            _menu.Items[0].Enabled = _menu.Items[1].Enabled = _menu.Items[3].Enabled = _menu.Items[5].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             RSARSoundWrapper w = GetInstance<RSARSoundWrapper>();
             RSARSoundNode n = w._resource as RSARSoundNode;
             _menu.Items[0].Enabled = n._waveDataNode != null;
+            _menu.Items[1].Enabled = n.SoundFileNode != null;
             _menu.Items[3].Enabled = w.Parent != null;
             _menu.Items[5].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
         }
@@ -68,14 +69,10 @@ namespace BrawlBox.NodeWrappers
                         return;
                 }
                 string inPath;
-                string FileType;
                 int index = Program.OpenFile(ReplaceFilter, out inPath);
                 if (index != 0)
                 {
-                    FileType = inPath.Substring(inPath.LastIndexOf(".") + 1);
                     n._waveDataNode.Sound.Replace(inPath);
-                    n._waveDataNode.Sound.Parent.Parent.SignalPropertyChange();
-                    n.RSARNode.SignalPropertyChange();
                     MainForm.Instance.resourceTree_SelectionChanged(null, null);
                 }
             }

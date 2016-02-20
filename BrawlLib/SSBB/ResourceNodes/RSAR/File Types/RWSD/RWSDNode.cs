@@ -1,10 +1,5 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Linq;
-using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -13,34 +8,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal RWSDHeader* Header { get { return (RWSDHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RWSD; } }
 
+        public void InitGroups()
+        {
+            RWSDDataGroupNode group0 = new RWSDDataGroupNode();
+            group0.Parent = this;
+            RWSDSoundGroupNode group1 = new RWSDSoundGroupNode();
+            group1.Parent = this;
+        }
+
         protected override void GetStrings(LabelBuilder builder)
         {
             foreach (RWSDDataNode node in Children[0].Children)
                 builder.Add((uint)node.Index, node._name);
         }
-
-        //Finds labels using LABL block between header and footer, also initializes array
-        protected bool GetLabels(int count)
-        {
-            RWSDHeader* header = (RWSDHeader*)WorkingUncompressed.Address;
-            int len = header->_header._length;
-            LABLHeader* labl = (LABLHeader*)((int)header + len);
-
-            if ((WorkingUncompressed.Length > len) && (labl->_tag == LABLHeader.Tag))
-            {
-                _labels = new LabelItem[count];
-                count = labl->_numEntries;
-                for (int i = 0; i < count; i++)
-                {
-                    LABLEntry* entry = labl->Get(i);
-                    _labels[i] = new LabelItem() { String = entry->Name, Tag = entry->_id };
-                }
-                return true;
-            }
-
-            return false;
-        }
-
+        
         private void ParseBlocks()
         {
             VoidPtr dataAddr = Header;
@@ -120,25 +101,25 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Get labels
             RSARNode parent;
-            int count2 = Header->Data->_list._numEntries;
-            if ((_labels == null) && ((parent = RSARNode) != null))
+            if (_labels == null && (parent = RSARNode) != null)
             {
                 //Get them from RSAR
                 SYMBHeader* symb2 = parent.Header->SYMBBlock;
                 INFOHeader* info = parent.Header->INFOBlock;
 
                 VoidPtr offset = &info->_collection;
-                RuintList* soundList2 = info->Sounds;
-                count2 = soundList2->_numEntries;
+                RuintList* soundList = info->Sounds;
+                int count2 = soundList->_numEntries;
 
                 _labels = new LabelItem[count2];
 
                 INFOSoundEntry* entry;
                 for (uint i = 0; i < count2; i++)
-                    if ((entry = (INFOSoundEntry*)soundList2->Get(offset, (int)i))->_fileId == _fileIndex)
+                    if ((entry = (INFOSoundEntry*)soundList->Get(offset, (int)i))->_fileId == _fileIndex)
                     {
                         int x = ((WaveSoundInfo*)entry->GetSoundInfoRef(offset))->_soundIndex;
-                        _labels[x] = new LabelItem() { Tag = i, String = symb2->GetStringEntry(entry->_stringId) };
+                        if (x >= 0 && x < count2)
+                            _labels[x] = new LabelItem() { Tag = i, String = symb2->GetStringEntry(entry->_stringId) };
                     }
             }
 

@@ -2,7 +2,6 @@
 using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -10,9 +9,6 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class RWSDDataNode : RSARFileEntryNode
     {
         internal RWSD_DATAEntry* Header { get { return (RWSD_DATAEntry*)WorkingUncompressed.Address; } }
-
-        //private List<RWSD_NoteEvent> _part2 = new List<RWSD_NoteEvent>();
-        //private List<RWSD_NoteInfo> _part3 = new List<RWSD_NoteInfo>();
 
         public RWSD_WSDEntry _part1;
         public RWSD_NoteEvent _part2;
@@ -204,6 +200,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.SoundDataNode = null;
 
             base.Remove();
+        }
+
+        internal void GetName()
+        {
+            RSARNode r = RSARNode;
         }
     }
 }

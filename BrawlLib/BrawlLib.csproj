@@ -142,6 +142,11 @@
     <None Include="Modeling\XMLExporter.cs" />
     <Compile Include="Modeling\PMDModel.cs" />
     <Compile Include="OpenGL\GLViewport.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SSBB\IBoolArraySource.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
@@ -288,9 +293,7 @@
     <Compile Include="OpenGL\TKContext.cs" />
     <Compile Include="OpenGL\GLCamera.cs" />
     <Compile Include="OpenGL\GLDisplayList.cs" />
-    <Compile Include="OpenGL\GLPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="OpenGL\GLPanel.cs" />
     <Compile Include="OpenGL\GLTexture.cs" />
     <Compile Include="OpenGL\IRenderedObject.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />
@@ -402,7 +405,7 @@
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDGroupNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDNode.cs" />
-    <Compile Include="SSBB\ResourceNodes\RSTMNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSTMNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\WAVESoundNode.cs" />
     <Compile Include="SSBB\StringTable.cs" />
     <Compile Include="SSBB\Types\AI.cs" />
@@ -496,6 +499,12 @@
     </Compile>
     <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.Designer.cs">
       <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RSARGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RSARGroupEditor.Designer.cs">
+      <DependentUpon>RSARGroupEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Windows\Controls\TexCoordControl.cs">
       <SubType>UserControl</SubType>
@@ -899,6 +908,10 @@
     <EmbeddedResource Include="OpenGL\GLPanel.resx">
       <DependentUpon>GLPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\AttributeGrid.resx">
       <DependentUpon>AttributeGrid.cs</DependentUpon>
     </EmbeddedResource>
@@ -964,6 +977,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\RSARGroupEditor.resx">
+      <DependentUpon>RSARGroupEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\TexCoordControl.resx">
       <DependentUpon>TexCoordControl.cs</DependentUpon>
