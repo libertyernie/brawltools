@@ -148,6 +148,7 @@
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="SSBB\IBoolArraySource.cs" />
+    <Compile Include="SSBB\Fighter.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDBoneNode.cs" />
@@ -165,6 +166,7 @@
     <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\EventMatchNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\ClassMemberInstanceNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmStringNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmVariantNode.cs" />
@@ -193,11 +195,14 @@
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\Common2Tbl.cs" />
+    <Compile Include="SSBB\Types\EventMatch.cs" />
     <Compile Include="SSBB\Types\SCLA.cs" />
     <None Include="SSBB\Types\Wii U\BFRES.cs" />
     <None Include="SSBB\Types\Wii U\Embedded.cs" />

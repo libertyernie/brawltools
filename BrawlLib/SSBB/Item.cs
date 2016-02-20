@@ -15,9 +15,6 @@ namespace BrawlLib.SSBB
         /// The Item name (e.g. "Heart Container").
         /// </summary>
         public string Name { get; private set; }
-        /// <summary>
-        /// The .rel filename (e.g. "st_gw.rel").
-        /// </summary>
 
         public Item(int id, string name )
         {
