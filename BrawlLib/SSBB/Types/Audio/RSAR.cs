@@ -150,9 +150,8 @@ namespace BrawlLib.SSBBTypes
 
             //Loop over indicies and add them.  This seems to be roughly how the file is normally built, as it has the same resulting leaf-node-leaf-node pattern
             foreach (int id in indices)
-            {
-                AddToTrie(entries, maskHeader, id, header);
-            }
+                if (id >= 0)
+                    AddToTrie(entries, maskHeader, id, header);
         }
 
         private static bool CheckBit(string val, int bit)

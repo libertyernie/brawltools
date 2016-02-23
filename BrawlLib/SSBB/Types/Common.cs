@@ -167,7 +167,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct RuintList
+    public unsafe struct RuintList
     {
         //This address is the base of all ruint entry offsets
 

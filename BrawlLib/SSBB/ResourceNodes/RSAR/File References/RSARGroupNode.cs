@@ -1,6 +1,5 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
-using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -9,7 +8,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal INFOGroupHeader* Header { get { return (INFOGroupHeader*)WorkingUncompressed.Address; } }
         [Browsable(false)]
-        internal override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
+        public override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
 
         public override ResourceType ResourceType { get { return ResourceType.RSARGroup; } }
 

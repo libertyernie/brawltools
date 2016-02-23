@@ -195,7 +195,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //Can be any of the following: children have branched, children have changed, current has changed
         //Node needs to be rebuilt.
+#if DEBUG
+        [Browsable(true), Category("DEBUG")]
+#else
         [Browsable(false)]
+#endif
         public bool IsDirty
         {
             get
@@ -245,9 +249,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        #endregion
+#endregion
 
-        #region Disposal
+#region Disposal
 
         ~ResourceNode() { Dispose(); }
         public virtual void Dispose()
@@ -286,7 +290,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             GC.SuppressFinalize(this);
         }
 
-        #endregion
+#endregion
 
         public void SelectChildAtIndex(int index)
         {
@@ -304,7 +308,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 UpdateControl(this, null);
         }
 
-        #region Moving
+#region Moving
 
         public virtual bool MoveUp()
         {
@@ -388,9 +392,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return false;
         }
 
-        #endregion
+#endregion
 
-        #region Child Population
+#region Child Population
         public bool _isPopulating;
         public void Populate(int levels = -1)
         {
@@ -411,9 +415,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         //Called when children are first requested. Allows node to cache child nodes.
         public virtual void OnPopulate() { }
-        #endregion
+#endregion
 
-        #region Initialization
+#region Initialization
         public void Initialize(ResourceNode parent, FileMap source) { Initialize(parent, new DataSource(source)); }
         public void Initialize(ResourceNode parent, VoidPtr address, int length) { Initialize(parent, new DataSource(address, length)); }
         public void Initialize(ResourceNode parent, DataSource origSource) { Initialize(parent, origSource, origSource); }
@@ -466,9 +470,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (Restored != null)
                 Restored(this);
         }
-        #endregion
+#endregion
 
-        #region Adding/Removing
+#region Adding/Removing
 
         public virtual void Remove()
         {
@@ -507,7 +511,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _changed = true;
         }
 
-        #endregion
+#endregion
 
         public void SetSizeInternal(int size)
         {
@@ -523,7 +527,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _origSource.Length = _uncompSource.Length = size;
         }
 
-        #region Replacing
+#region Replacing
 
         //Causes a deviation in the resource tree. This node and all child nodes will be backed by a temporary file until the tree is merged.
         //Causes parent node(s) to become dirty.
@@ -578,9 +582,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Replaced(this);
         }
 
-        #endregion
+#endregion
 
-        #region Export
+#region Export
 
         public unsafe virtual void Export(string outPath)
         {
@@ -631,9 +635,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 MessageBox.Show("Data was empty!");
         }
 
-        #endregion
+#endregion
 
-        #region Rebuilding
+#region Rebuilding
 
         //Combines node and children into single (temp) file map.
         //Does nothing if node is not dirty or rebuild is not forced.
@@ -764,9 +768,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     n.OnParentMovedUncompressed(offset);
         }
 
-        #endregion
+#endregion
 
-        #region Size Calculation
+#region Size Calculation
 
         //Calculate size to be passed to parent node.
         //If node is compressed, rebuild now and compress to temp file. Return temp file size.
@@ -790,9 +794,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return WorkingUncompressed.Length;
         }
 
-        #endregion
+#endregion
 
-        #region Merging
+#region Merging
 
         //Combines deviated tree into backing tree. Backing tree will have moved completely to a temporary file.
         //All references to backing tree will be gone! Including file handles.
@@ -831,9 +835,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        #endregion
+#endregion
 
-        #region Child Node Searches
+#region Child Node Searches
 
         public static ResourceNode FindNode(ResourceNode root, string path, bool searchChildren)
         {
@@ -1019,9 +1023,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return null;
         }
 
-        #endregion
+#endregion
 
-        #region MD5
+#region MD5
         private static MD5CryptoServiceProvider _md5provider;
         protected static MD5CryptoServiceProvider MD5Provider
         {
@@ -1074,7 +1078,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return "----AccessViolationException----";
             }
         }
-        #endregion
+#endregion
 
         public override string ToString()
         {

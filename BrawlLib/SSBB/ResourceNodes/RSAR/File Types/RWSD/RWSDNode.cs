@@ -53,6 +53,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void GetName()
         {
             base.GetName();
+            //string closestOverallMatch = "";
             foreach (RWSDDataNode n in Children[0].Children)
             {
                 string closestMatch = "";
@@ -74,7 +75,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
                 n._name = String.Format("{0}", closestMatch);
+
+                //if (closestOverallMatch == "")
+                //    closestOverallMatch = n._name;
+                //else
+                //{
+                //    int one = closestOverallMatch.Length;
+                //    int two = n._name.Length;
+                //    int min = Math.Min(one, two);
+                //    for (int i = 0; i < min; i++)
+                //        if (Char.ToLower(n._name[i]) != Char.ToLower(closestOverallMatch[i]) && i > 1)
+                //        {
+                //            closestOverallMatch = closestOverallMatch.Substring(0, i - 1);
+                //            break;
+                //        }
+                //}
             }
+            //_name = String.Format("[{0}] {1}", _fileIndex, closestOverallMatch);
         }
 
         public override bool OnInitialize()

@@ -78,7 +78,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     case 1: t = typeof(RSARBankNode); break;
                     case 2: t = typeof(RSARPlayerInfoNode); break;
                     case 3: continue; //Files
-                    case 4: t = typeof(RSARGroupNode); break; //Last group entry is null
+                    case 4: t = typeof(RSARGroupNode); break; //Last group entry has no name
                 }
 
                 _infoCache[i] = new List<RSAREntryNode>();
@@ -112,8 +112,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             n._name = new String(end + 1);
                         }
                         else
-                            n._name = new String(str);
-                    }
+                        n._name = new String(str);
 
                     n._infoIndex = x;
                     n.Initialize(parent, addr, 0);
@@ -138,26 +137,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             DataSource source;
             RSARHeader* rsar = Header;
 
-            //SYMBHeader* symb = rsar->SYMBBlock;
-            //sbyte* offset = (sbyte*)symb + 8;
-            //buint* stringOffsets = symb->StringOffsets;
+            //sounds, banks, types, files, groups
 
             //Get ruint collection from info header
             VoidPtr infoCollection = rsar->INFOBlock->_collection.Address;
-
-            //Info has 5 groups:
-            //Sounds 0
-            //Banks 1
-            //Types 2
-            //Files 3
-            //Groups 4
-
             //Convert to ruint buffer
             ruint* groups = (ruint*)infoCollection;
-
             //Get file ruint list at file offset (groups[3])
             RuintList* fileList = (RuintList*)((uint)groups + groups[3]);
-
             //Get the info list
             RuintList* groupList = rsar->INFOBlock->Groups;
 
@@ -190,6 +177,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     n._infoHdr = fileHeader;
                 }
                 n._fileIndex = x;
+                n._entryNumber = fileHeader->_entryNumber;
                 n._parent = this; //This is so that the node won't add itself to the child list.
                 n.Initialize(this, source);
                 _files.Add(n);
@@ -287,8 +275,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             rsar->Set(symbLen, infoLen, fileLen, VersionMinor);
 
             _entryList.Clear();
-
-            //IsDirty = false;
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((RSARHeader*)source.Address)->_header._tag == RSARHeader.Tag ? new RSARNode() : null; }

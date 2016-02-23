@@ -11,22 +11,26 @@ namespace BrawlLib.SSBB.ResourceNodes
         
         public RSARSoundNode()
         {
-            Volume = 50;
-            SoundType = SndType.WAVE;
-            PlayerPriority = 64;
-            PanMode = PanMode.Dual;
-            PanCurve = PanCurve.Sqrt;
+            _volume = 50;
+            _soundType = (byte)SndType.WAVE;
+            _playerPriority = 64;
+            _panMode = (byte)PanMode.Dual;
+            _panCurve = (byte)PanCurve.Sqrt;
 
-            Flags = Sound3DFlags.NotVolume | Sound3DFlags.NotSurroundPan;
-            DecayCurve = DecayCurve.Logarithmic;
-            DecayRatio = 128;
+            _sound3dParam._flags = (uint)(Sound3DFlags.NotVolume | Sound3DFlags.NotSurroundPan);
+            _sound3dParam._decayCurve = (byte)DecayCurve.Logarithmic;
+            _sound3dParam._decayRatio = 128;
 
-            AllocTrack = 1;
-            ChannelPriority = 64;
+            _waveInfo._allocTrack = 1;
+            _waveInfo._channelPriority = 64;
         }
 
+#if DEBUG
+        [Browsable(true), Category("DEBUG")]
+#else
         [Browsable(false)]
-        internal override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
+#endif
+        public override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
 
         public override ResourceType ResourceType { get { return ResourceType.RSARSound; } }
 

@@ -18,7 +18,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return n as RSARNode;
             }
         }
-        internal virtual int StringId { get { return 0; } }
+#if DEBUG
+        [Browsable(true), Category("DEBUG")]
+#else
+        [Browsable(false)]
+#endif
+        public virtual int StringId { get { return 0; } }
 
         public int InfoIndex
         {

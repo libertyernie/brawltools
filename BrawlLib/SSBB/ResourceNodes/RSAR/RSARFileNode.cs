@@ -4,6 +4,7 @@ using BrawlLib.IO;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
+using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -103,6 +104,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         public FileInfo ExternalFileInfo
         {
             get { return FullExtPath == null ? null : new FileInfo(FullExtPath); }
+        }
+
+        internal int _entryNumber;
+        [Category("Data"), Browsable(false)]
+        public int EntryNumber
+        {
+            get { return _entryNumber; }
         }
 
         [Category("Data"), Browsable(false)]
