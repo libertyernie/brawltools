@@ -4,7 +4,7 @@ using BrawlLib.Wii.Graphics;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe partial class TEVStageNode : MDL0EntryNode
+    public unsafe partial class MDL0TEVStageNode : MDL0EntryNode
     {
         public override ResourceType ResourceType { get { return ResourceType.TEVStage; } }
         public override string Name
@@ -13,8 +13,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { base.Name = value; }
         }
 
-        public TEVStageNode() { Default(false); }
-        public TEVStageNode(ColorEnv colEnv, AlphaEnv alphaEnv, CMD cmd, TevKColorSel kc, TevKAlphaSel ka, TexMapID id, TexCoordID coord, ColorSelChan col, bool useTex) 
+        public MDL0TEVStageNode() { Default(false); }
+        public MDL0TEVStageNode(ColorEnv colEnv, AlphaEnv alphaEnv, CMD cmd, TevKColorSel kc, TevKAlphaSel ka, TexMapID id, TexCoordID coord, ColorSelChan col, bool useTex) 
         {
             _colorEnv = colEnv;
             _alphaEnv = alphaEnv;

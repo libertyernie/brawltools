@@ -162,7 +162,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _ref6 =
             _ref7 = -1;
 
-            TEVStageNode stage = new TEVStageNode();
+            MDL0TEVStageNode stage = new MDL0TEVStageNode();
             AddChild(stage, change);
         }
 
@@ -194,10 +194,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             Children.Clear();
 
             int i = 0;
-            TEVStageNode s;
+            MDL0TEVStageNode s;
             while (i++ < 4)
             {
-                AddChild(s = new TEVStageNode());
+                AddChild(s = new MDL0TEVStageNode());
                 s.DefaultAsMetal(texcount - 1);
             }
         }
@@ -242,7 +242,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int r = 0; r < 8; r++, grp = grp->Next)
                 if (grp->mask.Reg == 0x61)
                 {
-                    TEVStageNode s0 = new TEVStageNode();
+                    MDL0TEVStageNode s0 = new MDL0TEVStageNode();
 
                     KSel ksel = new KSel(grp->ksel.Data.Value);
                     RAS1_TRef tref = new RAS1_TRef(grp->tref.Data.Value);
@@ -264,7 +264,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     if (grp->oClrEnv.Reg == 0x61 && grp->oAlpEnv.Reg == 0x61 && grp->oCMD.Reg == 0x61)
                     {
-                        TEVStageNode s1 = new TEVStageNode();
+                        MDL0TEVStageNode s1 = new MDL0TEVStageNode();
 
                         s1._colorEnv = grp->oClrEnv.Data;
                         s1._alphaEnv = grp->oAlpEnv.Data;
@@ -313,7 +313,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             StageGroup* grp = (StageGroup*)(address + 0x80);
             for (int i = 0; i < Children.Count; i++)
             {
-                TEVStageNode c = (TEVStageNode)Children[i]; //Current Stage
+                MDL0TEVStageNode c = (MDL0TEVStageNode)Children[i]; //Current Stage
 
                 if (i % 2 == 0) //Even Stage
                 {
@@ -334,7 +334,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
                 else //Odd Stage
                 {
-                    TEVStageNode p = (TEVStageNode)Children[i - 1]; //Previous Stage
+                    MDL0TEVStageNode p = (MDL0TEVStageNode)Children[i - 1]; //Previous Stage
 
                     grp->SetStage(i);
 

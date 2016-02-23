@@ -779,7 +779,7 @@ namespace BrawlLib.Modeling
                 shader.TextureRef0 = true;
                 shader.TextureRef1 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFF8;
@@ -791,7 +791,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
@@ -803,7 +803,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
@@ -815,7 +815,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -827,7 +827,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -849,7 +849,7 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFFA;
@@ -861,7 +861,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
                 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
@@ -873,7 +873,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
@@ -885,7 +885,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -897,7 +897,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -919,7 +919,7 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFF8;
@@ -931,7 +931,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = true;
                 s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -943,7 +943,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
@@ -964,7 +964,7 @@ namespace BrawlLib.Modeling
             {
                 MDL0ShaderNode shader = new MDL0ShaderNode();
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFFA;
@@ -976,7 +976,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
@@ -988,7 +988,7 @@ namespace BrawlLib.Modeling
                 s.TextureEnabled = false;
                 s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;

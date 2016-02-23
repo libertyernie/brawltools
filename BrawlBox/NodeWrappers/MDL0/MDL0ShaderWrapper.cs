@@ -42,7 +42,7 @@ namespace BrawlBox.NodeWrappers
         {
             if (_resource.Children.Count < 16)
             {
-                TEVStageNode stage = new TEVStageNode();
+                MDL0TEVStageNode stage = new MDL0TEVStageNode();
                 _resource.AddChild(stage, true);
 
                 Nodes[Nodes.Count - 1].EnsureVisible();

@@ -744,7 +744,7 @@ namespace BrawlLib.Wii.Graphics
             bool[] usesReg = new bool[3];
             
             int x = 1;
-            foreach (TEVStageNode stage in _shaderNode.Children)
+            foreach (MDL0TEVStageNode stage in _shaderNode.Children)
             {
                 if (!usesTex) usesTex = stage.AnyTextureSourceUsed();
                 if (!usesRas) usesRas = stage.AnyRasterSourceUsed();
@@ -779,7 +779,7 @@ namespace BrawlLib.Wii.Graphics
             return arr;
         }
 
-        public static string WriteStage(TEVStageNode stage)
+        public static string WriteStage(MDL0TEVStageNode stage)
         {
             string identifier = String.Format("{0} {1}", stage.Parent.Name, stage.Name);
 
