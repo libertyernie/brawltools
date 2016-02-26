@@ -110,15 +110,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte Stage1 { get { return (byte)_stage1; } set { _stage1 = (sbyte)value; SignalPropertyChange(); } }
+        public int Stage1 { get { return _stage1; } set { _stage1 = value; SignalPropertyChange(); } }
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte Stage2 { get { return (byte)_stage2; } set { _stage2 = (sbyte)value; SignalPropertyChange(); } }
+        public int Stage2 { get { return _stage2; } set { _stage2 = value; SignalPropertyChange(); } }
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte Stage3 { get { return (byte)_stage3; } set { _stage3 = (sbyte)value; SignalPropertyChange(); } }
+        public int Stage3 { get { return _stage3; } set { _stage3 = value; SignalPropertyChange(); } }
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte Stage4 { get { return (byte)_stage4; } set { _stage4 = (sbyte)value; SignalPropertyChange(); } }
+        public int Stage4 { get { return _stage4; } set { _stage4 = value; SignalPropertyChange(); } }
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte Stage5 { get { return (byte)_stage5; } set { _stage5 = (sbyte)value; SignalPropertyChange(); } }
+        public int Stage5 { get { return _stage5; } set { _stage5 = value; SignalPropertyChange(); } }
 
         [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
         public AllstarFighterDataWrapper Opponent1 { get; set; }

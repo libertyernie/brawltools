@@ -133,7 +133,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte? StageID
+        public int? StageID
         {
             get
             {
@@ -142,7 +142,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             set
             {
                 if (_stageID == null || value == null) return;
-                _stageID = value;
+                _stageID = (byte)value;
                 SignalPropertyChange();
             }
         }
