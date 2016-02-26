@@ -348,6 +348,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (SoundType == SndType.WAVE && 
                 _soundFileNode != null && 
                 !(_soundFileNode is RSARExtFileNode) && 
+                _soundFileNode.Children.Count > 0 &&
                 _soundFileNode.Children[0].Children.Count > _waveInfo._soundIndex && 
                 _waveInfo._soundIndex >= 0)
             {

@@ -15,23 +15,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.RSAR; } }
 
         [Category("Sound Archive")]
-        public ushort SeqSoundCount { get { return ftr._seqSoundCount; } set { ftr._seqSoundCount = value; SignalPropertyChange(); } }
+        public ushort SeqSoundCount { get { return _ftr._seqSoundCount; } set { _ftr._seqSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort SeqTrackCount { get { return ftr._seqTrackCount; } set { ftr._seqTrackCount = value; SignalPropertyChange(); } }
+        public ushort SeqTrackCount { get { return _ftr._seqTrackCount; } set { _ftr._seqTrackCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmSoundCount { get { return ftr._strmSoundCount; } set { ftr._strmSoundCount = value; SignalPropertyChange(); } }
+        public ushort StrmSoundCount { get { return _ftr._strmSoundCount; } set { _ftr._strmSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmTrackCount { get { return ftr._strmTrackCount; } set { ftr._strmTrackCount = value; SignalPropertyChange(); } }
+        public ushort StrmTrackCount { get { return _ftr._strmTrackCount; } set { _ftr._strmTrackCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmChannelCount { get { return ftr._strmChannelCount; } set { ftr._strmChannelCount = value; SignalPropertyChange(); } }
+        public ushort StrmChannelCount { get { return _ftr._strmChannelCount; } set { _ftr._strmChannelCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort WaveSoundCount { get { return ftr._waveSoundCount; } set { ftr._waveSoundCount = value; SignalPropertyChange(); } }
+        public ushort WaveSoundCount { get { return _ftr._waveSoundCount; } set { _ftr._waveSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort WaveTrackCount { get { return ftr._waveTrackCount; } set { ftr._waveTrackCount = value; SignalPropertyChange(); } }
+        public ushort WaveTrackCount { get { return _ftr._waveTrackCount; } set { _ftr._waveTrackCount = value; SignalPropertyChange(); } }
 
         public List<RSAREntryNode>[] _infoCache = new List<RSAREntryNode>[5];
 
-        internal INFOFooter ftr;
+        internal INFOFooter _ftr;
 
         private BindingList<RSARFileNode> _files;
         [Browsable(false)]
@@ -56,7 +56,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return true;
         }
 
-        public RSARGroupNode _nullGroup;
+        //public RSARGroupNode _nullGroup;
         public override void OnPopulate()
         {
             //Enumerate entries, attaching them to the files.
@@ -93,37 +93,29 @@ namespace BrawlLib.SSBB.ResourceNodes
                     RSAREntryNode n = Activator.CreateInstance(t) as RSAREntryNode;
                     n._origSource = n._uncompSource = new DataSource(addr, 0);
 
-                    if (i == 4 && x == list->_numEntries - 1)
+                    str = offset + stringOffsets[n.StringId];
+
+                    for (end = str; *end != 0; end++) ;
+                    while ((--end > str) && (*end != '_')) ;
+
+                    if (end > str)
                     {
-                        n._name = "<null>";
-                        n._parent = this;
-                        _nullGroup = n as RSARGroupNode;
+                        parent = CreatePath(parent, str, (int)end - (int)str);
+                        n._name = new String(end + 1);
                     }
                     else
-                    {
-                        str = offset + stringOffsets[n.StringId];
-
-                        for (end = str; *end != 0; end++) ;
-                        while ((--end > str) && (*end != '_')) ;
-
-                        if (end > str)
-                        {
-                            parent = CreatePath(parent, str, (int)end - (int)str);
-                            n._name = new String(end + 1);
-                        }
-                        else
                         n._name = new String(str);
 
                     n._infoIndex = x;
                     n.Initialize(parent, addr, 0);
                     _infoCache[i].Add(n);
                 }
-            }
-            ftr = *(INFOFooter*)((uint)baseAddr + typeList[5]);
+                _ftr = *(INFOFooter*)((uint)baseAddr + typeList[5]);
 
-            foreach (RSARFileNode n in Files)
-                if (!(n is RSARExtFileNode))
-                    n.GetName();
+                foreach (RSARFileNode n in Files)
+                    if (!(n is RSARExtFileNode))
+                        n.GetName();
+            }
         }
 
         private void GetFiles()
@@ -254,7 +246,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
             _entryList.SortStrings();
-            _nullGroup._rebuildIndex = _entryList._groups.Count;
+            //_nullGroup._rebuildIndex = _entryList._groups.Count;
 
             return _converter.CalculateSize(_entryList, this);
         }

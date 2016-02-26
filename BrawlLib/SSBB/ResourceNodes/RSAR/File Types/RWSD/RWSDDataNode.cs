@@ -204,7 +204,25 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal void GetName()
         {
-            RSARNode r = RSARNode;
+            string closestMatch = "";
+            foreach (string s in References)
+            {
+                if (closestMatch == "")
+                    closestMatch = s;
+                else
+                {
+                    int one = closestMatch.Length;
+                    int two = s.Length;
+                    int min = Math.Min(one, two);
+                    for (int i = 0; i < min; i++)
+                        if (Char.ToLower(s[i]) != Char.ToLower(closestMatch[i]) && i > 1)
+                        {
+                            closestMatch = closestMatch.Substring(0, i - 1);
+                            break;
+                        }
+                }
+            }
+            _name = String.Format("{0}", closestMatch);
         }
     }
 }

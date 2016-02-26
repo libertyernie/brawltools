@@ -4,7 +4,6 @@ using BrawlLib.IO;
 using System.Linq;
 using System.ComponentModel;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {

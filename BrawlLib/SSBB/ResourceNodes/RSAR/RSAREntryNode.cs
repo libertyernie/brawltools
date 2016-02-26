@@ -46,9 +46,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return;
 
                 var temp = list[_infoIndex];
+                temp._infoIndex = prevIndex;
                 list[_infoIndex] = this;
                 list[prevIndex] = temp;
-                RSARNode._infoCache[i] = list;
             }
         }
         public int _infoIndex;

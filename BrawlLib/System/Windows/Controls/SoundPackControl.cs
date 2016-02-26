@@ -455,7 +455,7 @@ namespace System.Windows.Forms
 
         private void rSTMToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (OpenFileDialog ofd = new OpenFileDialog() { Filter = "PCM Audio (*.wav)|*.wav" })
+            using (OpenFileDialog ofd = new OpenFileDialog() { Filter = SupportedFilesHandler.GetCompleteFilter("wav") })
                 if (ofd.ShowDialog() == DialogResult.OK)
                 {
                     RSTMNode r = new RSTMNode() { _fileIndex = _targetNode.Files.Count };
@@ -490,7 +490,8 @@ namespace System.Windows.Forms
             _node = file;
 
             string s = file.ResourceType.ToString();
-            if (s == "Unknown") s = "External";
+            if (file is RSARExtFileNode)
+                s = "External";
             SubItems.Add(s);
             int i = Helpers.FindFirst(file.Name, 0, ']');
             SubItems.Add(file.Name.Substring(i + 1));

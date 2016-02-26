@@ -417,7 +417,7 @@ namespace System.Windows.Forms
                 dataListBox.Items.AddRange(TargetNode.Children.ToArray());
                 if (dataListBox.Items.Count > 0) dataListBox.SelectedIndex = 0;
             }
-            else
+            else if (TargetNode is RBNKNode || TargetNode is RWSDNode)
             {
                 splitter2.Visible = panel4.Visible = audioPlaybackPanel1.Visible = true;
 
