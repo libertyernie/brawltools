@@ -166,6 +166,7 @@
     <None Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <None Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\AllstarStageTblNode.cs" />
     <Compile Include="SSBB\ResourceNodes\EventMatchNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\ClassMemberInstanceNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmStringNode.cs" />
@@ -202,6 +203,7 @@
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
+    <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
     <Compile Include="SSBB\Types\EventMatch.cs" />
     <Compile Include="SSBB\Types\SCLA.cs" />
     <None Include="SSBB\Types\Wii U\BFRES.cs" />
