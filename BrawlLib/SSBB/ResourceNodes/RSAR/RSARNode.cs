@@ -93,18 +93,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                     RSAREntryNode n = Activator.CreateInstance(t) as RSAREntryNode;
                     n._origSource = n._uncompSource = new DataSource(addr, 0);
 
-                    str = offset + stringOffsets[n.StringId];
-
-                    for (end = str; *end != 0; end++) ;
-                    while ((--end > str) && (*end != '_')) ;
-
-                    if (end > str)
+                    if (n.StringId >= 0)
                     {
-                        parent = CreatePath(parent, str, (int)end - (int)str);
-                        n._name = new String(end + 1);
+                        str = offset + stringOffsets[n.StringId];
+
+                        for (end = str; *end != 0; end++) ;
+                        while ((--end > str) && (*end != '_')) ;
+
+                        if (end > str)
+                        {
+                            parent = CreatePath(parent, str, (int)end - (int)str);
+                            n._name = new String(end + 1);
+                        }
+                        else
+                            n._name = new String(str);
                     }
                     else
-                        n._name = new String(str);
+                        n._name = null;
 
                     n._infoIndex = x;
                     n.Initialize(parent, addr, 0);

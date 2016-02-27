@@ -193,6 +193,7 @@
     <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokXML.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassEnumNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\ISONode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
@@ -203,6 +204,7 @@
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
     <Compile Include="SSBB\Types\EventMatch.cs" />
+    <Compile Include="SSBB\Types\ISO.cs" />
     <Compile Include="SSBB\Types\SCLA.cs" />
     <None Include="SSBB\Types\Wii U\BFRES.cs" />
     <None Include="SSBB\Types\Wii U\Embedded.cs" />
