@@ -75,6 +75,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ResourceNode node =
                       name.StartsWith("eventStage") ? new EventMatchNode()
                     : name.StartsWith("allstar") ? new AllstarStageTblNode()
+                    : name.StartsWith("simpleStage") ? new ClassicStageTblNode()
                     : (ResourceNode)new RawDataNode();
                 node.Initialize(this, source);
                 node.Name = name;

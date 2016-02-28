@@ -196,6 +196,7 @@
     <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
     <Compile Include="SSBB\ResourceNodes\ISONode.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
+    <Compile Include="SSBB\ResourceNodes\ClassicStageTblNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
