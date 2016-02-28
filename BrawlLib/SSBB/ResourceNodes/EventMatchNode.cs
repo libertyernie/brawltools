@@ -213,15 +213,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         [DisplayName("Stage")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public byte StageID
+        public int StageID
         {
             get
             {
-                return (byte)(ushort)_header._stageID;
+                return (ushort)_header._stageID;
             }
             set
             {
-                _header._stageID = value;
+                _header._stageID = (ushort)value;
                 SignalPropertyChange();
             }
         }
