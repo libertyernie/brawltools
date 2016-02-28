@@ -76,6 +76,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                       name.StartsWith("eventStage") ? new EventMatchNode()
                     : name.StartsWith("allstar") ? new AllstarStageTblNode()
                     : name.StartsWith("simpleStage") ? new ClassicStageTblNode()
+                    : name == "sndBgmTitleData" ? new SndBgmTitleDataNode()
                     : (ResourceNode)new RawDataNode();
                 node.Initialize(this, source);
                 node.Name = name;
@@ -155,8 +156,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Common2TblHeader* header = (Common2TblHeader*)source.Address;
             return header->_Length == source.Length &&
                 header->_DataLength < source.Length &&
-                header->_OffCount == 0 && // BrawlLib cannot properly rebuild nodes with _OffCount != 0 yet
-                header->Str != "sndBgmTitleData"
+                header->_OffCount == 0 // BrawlLib cannot properly rebuild nodes with _OffCount != 0 yet
                 ? new Common2MiscDataNode() : null;
         }
     }
