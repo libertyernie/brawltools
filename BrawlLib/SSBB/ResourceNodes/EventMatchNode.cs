@@ -9,10 +9,7 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    /// <summary>
-    /// A class that wraps the data represented by the EventMatchFighterData structure in a class with properties, so it can be modified by PropertyGrid.
-    /// </summary>
-    public unsafe class EventMatchFighterDataWrapper
+    public unsafe class EventMatchFighterNode : ResourceNode
     {
         public enum StatusEnum : byte
         {
@@ -21,74 +18,99 @@ namespace BrawlLib.SSBB.ResourceNodes
             Invisible = 2
         }
 
-        private ResourceNode parent;
         private EventMatchFighterData data;
 
-        public EventMatchFighterDataWrapper(ResourceNode parent, EventMatchFighterData data)
-        {
-            this.parent = parent;
-            this.data = data;
-        }
+        // Hack to maintain ordering from replacement file upon replace
+        private int _origIndex;
+        public EventMatchFighterNode(int index) : base() { _origIndex = index; }
 
         [TypeConverter(typeof(DropDownListFighterIDs))]
-        public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; parent.SignalPropertyChange(); } }
+        public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; SignalPropertyChange(); } }
 
-        public StatusEnum Status { get { return (StatusEnum)data._status; } set { data._status = (byte)value; parent.SignalPropertyChange(); } }
-        //public byte Unknown02  { get { return data._unknown02; }          set { data._unknown02 = value;    parent.SignalPropertyChange(); } }
-        //public byte Unknown03  { get { return data._unknown03; }          set { data._unknown03 = value;    parent.SignalPropertyChange(); } }
-        public float Scale       { get { return data._scale; }              set { data._scale = value;        parent.SignalPropertyChange(); } }
-        public byte Team         { get { return data._team; }               set { data._team = value;         parent.SignalPropertyChange(); } }
-        //public byte Unknown09  { get { return data._unknown09; }          set { data._unknown09 = value;    parent.SignalPropertyChange(); } }
-        //public byte Unknown0a  { get { return data._unknown0a; }          set { data._unknown0a = value;    parent.SignalPropertyChange(); } }
-        //public byte Unknown0b  { get { return data._unknown0b; }          set { data._unknown0b = value;    parent.SignalPropertyChange(); } }
+        public StatusEnum Status { get { return (StatusEnum)data._status; } set { data._status = (byte)value; SignalPropertyChange(); } }
+        //public byte Unknown02  { get { return data._unknown02; }          set { data._unknown02 = value;    SignalPropertyChange(); } }
+        //public byte Unknown03  { get { return data._unknown03; }          set { data._unknown03 = value;    SignalPropertyChange(); } }
+        public float Scale       { get { return data._scale; }              set { data._scale = value;        SignalPropertyChange(); } }
+        public byte Team         { get { return data._team; }               set { data._team = value;         SignalPropertyChange(); } }
+        //public byte Unknown09  { get { return data._unknown09; }          set { data._unknown09 = value;    SignalPropertyChange(); } }
+        //public byte Unknown0a  { get { return data._unknown0a; }          set { data._unknown0a = value;    SignalPropertyChange(); } }
+        //public byte Unknown0b  { get { return data._unknown0b; }          set { data._unknown0b = value;    SignalPropertyChange(); } }
 
-        public byte EasyCpuLevel          { get { return data._easy._cpuLevel; }         set { data._easy._cpuLevel = value;         parent.SignalPropertyChange(); } }
-        //public byte EasyUnknown01       { get { return data._easy._unknown01; }        set { data._easy._unknown01 = value;        parent.SignalPropertyChange(); } }
-        public ushort EasyOffenseRatio    { get { return data._easy._offenseRatio; }     set { data._easy._offenseRatio = value;     parent.SignalPropertyChange(); } }
-        public ushort EasyDefenseRatio    { get { return data._easy._defenseRatio; }     set { data._easy._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public byte EasyAiType            { get { return data._easy._aiType; }           set { data._easy._aiType = value;           parent.SignalPropertyChange(); } }
-        public byte EasyCostume           { get { return data._easy._costume; }          set { data._easy._costume = value;          parent.SignalPropertyChange(); } }
-        public byte EasyStockCount        { get { return data._easy._stockCount; }       set { data._easy._stockCount = value;       parent.SignalPropertyChange(); } }
-        //public byte EasyUnknown09       { get { return data._easy._unknown09; }        set { data._easy._unknown09 = value;        parent.SignalPropertyChange(); } }
-        public short EasyInitialHitPoints { get { return data._easy._initialHitPoints; } set { data._easy._initialHitPoints = value; parent.SignalPropertyChange(); } }
-        public short EasyStartingDamage   { get { return data._easy._startingDamage; }   set { data._easy._startingDamage = value;   parent.SignalPropertyChange(); } }
+        public byte EasyCpuLevel          { get { return data._easy._cpuLevel; }         set { data._easy._cpuLevel = value;         SignalPropertyChange(); } }
+        //public byte EasyUnknown01       { get { return data._easy._unknown01; }        set { data._easy._unknown01 = value;        SignalPropertyChange(); } }
+        public ushort EasyOffenseRatio    { get { return data._easy._offenseRatio; }     set { data._easy._offenseRatio = value;     SignalPropertyChange(); } }
+        public ushort EasyDefenseRatio    { get { return data._easy._defenseRatio; }     set { data._easy._defenseRatio = value;     SignalPropertyChange(); } }
+        public byte EasyAiType            { get { return data._easy._aiType; }           set { data._easy._aiType = value;           SignalPropertyChange(); } }
+        public byte EasyCostume           { get { return data._easy._costume; }          set { data._easy._costume = value;          SignalPropertyChange(); } }
+        public byte EasyStockCount        { get { return data._easy._stockCount; }       set { data._easy._stockCount = value;       SignalPropertyChange(); } }
+        //public byte EasyUnknown09       { get { return data._easy._unknown09; }        set { data._easy._unknown09 = value;        SignalPropertyChange(); } }
+        public short EasyInitialHitPoints { get { return data._easy._initialHitPoints; } set { data._easy._initialHitPoints = value; SignalPropertyChange(); } }
+        public short EasyStartingDamage   { get { return data._easy._startingDamage; }   set { data._easy._startingDamage = value;   SignalPropertyChange(); } }
 
-        public byte NormalCpuLevel          { get { return data._normal._cpuLevel; }         set { data._normal._cpuLevel = value;         parent.SignalPropertyChange(); } }
-        //public byte NormalUnknown01       { get { return data._normal._unknown01; }        set { data._normal._unknown01 = value;        parent.SignalPropertyChange(); } }
-        public ushort NormalOffenseRatio    { get { return data._normal._offenseRatio; }     set { data._normal._offenseRatio = value;     parent.SignalPropertyChange(); } }
-        public ushort NormalDefenseRatio    { get { return data._normal._defenseRatio; }     set { data._normal._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public byte NormalAiType            { get { return data._normal._aiType; }           set { data._normal._aiType = value;           parent.SignalPropertyChange(); } }
-        public byte NormalCostume           { get { return data._normal._costume; }          set { data._normal._costume = value;          parent.SignalPropertyChange(); } }
-        public byte NormalStockCount        { get { return data._normal._stockCount; }       set { data._normal._stockCount = value;       parent.SignalPropertyChange(); } }
-        //public byte NormalUnknown09       { get { return data._normal._unknown09; }        set { data._normal._unknown09 = value;        parent.SignalPropertyChange(); } }
-        public short NormalInitialHitPoints { get { return data._normal._initialHitPoints; } set { data._normal._initialHitPoints = value; parent.SignalPropertyChange(); } }
-        public short NormalStartingDamage   { get { return data._normal._startingDamage; }   set { data._normal._startingDamage = value;   parent.SignalPropertyChange(); } }
+        public byte NormalCpuLevel          { get { return data._normal._cpuLevel; }         set { data._normal._cpuLevel = value;         SignalPropertyChange(); } }
+        //public byte NormalUnknown01       { get { return data._normal._unknown01; }        set { data._normal._unknown01 = value;        SignalPropertyChange(); } }
+        public ushort NormalOffenseRatio    { get { return data._normal._offenseRatio; }     set { data._normal._offenseRatio = value;     SignalPropertyChange(); } }
+        public ushort NormalDefenseRatio    { get { return data._normal._defenseRatio; }     set { data._normal._defenseRatio = value;     SignalPropertyChange(); } }
+        public byte NormalAiType            { get { return data._normal._aiType; }           set { data._normal._aiType = value;           SignalPropertyChange(); } }
+        public byte NormalCostume           { get { return data._normal._costume; }          set { data._normal._costume = value;          SignalPropertyChange(); } }
+        public byte NormalStockCount        { get { return data._normal._stockCount; }       set { data._normal._stockCount = value;       SignalPropertyChange(); } }
+        //public byte NormalUnknown09       { get { return data._normal._unknown09; }        set { data._normal._unknown09 = value;        SignalPropertyChange(); } }
+        public short NormalInitialHitPoints { get { return data._normal._initialHitPoints; } set { data._normal._initialHitPoints = value; SignalPropertyChange(); } }
+        public short NormalStartingDamage   { get { return data._normal._startingDamage; }   set { data._normal._startingDamage = value;   SignalPropertyChange(); } }
 
-        public byte HardCpuLevel          { get { return data._hard._cpuLevel; }         set { data._hard._cpuLevel = value;         parent.SignalPropertyChange(); } }
-        //public byte HardUnknown01       { get { return data._hard._unknown01; }        set { data._hard._unknown01 = value;        parent.SignalPropertyChange(); } }
-        public ushort HardOffenseRatio    { get { return data._hard._offenseRatio; }     set { data._hard._offenseRatio = value;     parent.SignalPropertyChange(); } }
-        public ushort HardDefenseRatio    { get { return data._hard._defenseRatio; }     set { data._hard._defenseRatio = value;     parent.SignalPropertyChange(); } }
-        public byte HardAiType            { get { return data._hard._aiType; }           set { data._hard._aiType =  value;          parent.SignalPropertyChange(); } }
-        public byte HardCostume           { get { return data._hard._costume; }          set { data._hard._costume = value;          parent.SignalPropertyChange(); } }
-        public byte HardStockCount        { get { return data._hard._stockCount; }       set { data._hard._stockCount = value;       parent.SignalPropertyChange(); } }
-        //public byte HardUnknown09       { get { return data._hard._unknown09; }        set { data._hard._unknown09 = value;        parent.SignalPropertyChange(); } }
-        public short HardInitialHitPoints { get { return data._hard._initialHitPoints; } set { data._hard._initialHitPoints = value; parent.SignalPropertyChange(); } }
-        public short HardStartingDamage   { get { return data._hard._startingDamage; }   set { data._hard._startingDamage = value;   parent.SignalPropertyChange(); } }
+        public byte HardCpuLevel          { get { return data._hard._cpuLevel; }         set { data._hard._cpuLevel = value;         SignalPropertyChange(); } }
+        //public byte HardUnknown01       { get { return data._hard._unknown01; }        set { data._hard._unknown01 = value;        SignalPropertyChange(); } }
+        public ushort HardOffenseRatio    { get { return data._hard._offenseRatio; }     set { data._hard._offenseRatio = value;     SignalPropertyChange(); } }
+        public ushort HardDefenseRatio    { get { return data._hard._defenseRatio; }     set { data._hard._defenseRatio = value;     SignalPropertyChange(); } }
+        public byte HardAiType            { get { return data._hard._aiType; }           set { data._hard._aiType =  value;          SignalPropertyChange(); } }
+        public byte HardCostume           { get { return data._hard._costume; }          set { data._hard._costume = value;          SignalPropertyChange(); } }
+        public byte HardStockCount        { get { return data._hard._stockCount; }       set { data._hard._stockCount = value;       SignalPropertyChange(); } }
+        //public byte HardUnknown09       { get { return data._hard._unknown09; }        set { data._hard._unknown09 = value;        SignalPropertyChange(); } }
+        public short HardInitialHitPoints { get { return data._hard._initialHitPoints; } set { data._hard._initialHitPoints = value; SignalPropertyChange(); } }
+        public short HardStartingDamage   { get { return data._hard._startingDamage; }   set { data._hard._startingDamage = value;   SignalPropertyChange(); } }
 
-        public static explicit operator EventMatchFighterData(EventMatchFighterDataWrapper w)
+        public override bool OnInitialize()
         {
-            return w.data;
-        }
+            base.OnInitialize();
 
-        public override string ToString()
+            if (WorkingUncompressed.Length != sizeof(EventMatchFighterData))
+                throw new Exception("Wrong size for EventMatchFighterNode");
+
+            // Copy the data from the address
+            data = *(EventMatchFighterData*)WorkingUncompressed.Address;
+
+            if (_name == null)
+            {
+                bool changed = HasChanged;
+                UpdateName();
+                HasChanged = changed;
+            }
+
+            return false;
+        }
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            *(EventMatchFighterData*)address = data;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            // Constant size (48 bytes)
+            return sizeof(EventMatchFighterData);
+        }
+        public void UpdateName()
         {
             var fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
-            return "Event Match Fighter Data: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
+            Name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
+            // Hack to maintain ordering from replacement file upon replace
+            Name = "#" + _origIndex + " " + Name;
         }
     }
 
     public unsafe class EventMatchNode : ResourceNode
     {
+        public override ResourceType ResourceType { get { return ResourceType.Container; } }
+
         public enum ItemLevelEnum : short
         {
             Off = 0,
@@ -297,87 +319,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         //[DisplayName("Unknown")]
         //public bint Unknown4c { get { return _header._unknown4c; } set { _header._unknown4c = value; SignalPropertyChange(); } }
 
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData0 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData1 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData2 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData3 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData4 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData5 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData6 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData7 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData8 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData9 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData10 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData11 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData12 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData13 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData14 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData15 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData16 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData17 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData18 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData19 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData20 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData21 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData22 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData23 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData24 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData25 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData26 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData27 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData28 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData29 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData30 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData31 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData32 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData33 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData34 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData35 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData36 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData37 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public EventMatchFighterDataWrapper FighterData38 { get; set; }
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -386,109 +327,62 @@ namespace BrawlLib.SSBB.ResourceNodes
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)WorkingUncompressed.Address;
             _header = *dataPtr;
 
-            FighterData0 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[0]);
-            FighterData1 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[1]);
-            FighterData2 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[2]);
-            FighterData3 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[3]);
-            if (dataPtr->_eventExtension == 0) return false;
-
-            FighterData4 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[4]);
-            FighterData5 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[5]);
-            FighterData6 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[6]);
-            FighterData7 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[7]);
-            FighterData8 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[8]);
-            if (dataPtr->_eventExtension == 1) return false;
-
-            FighterData9 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[9]);
-            FighterData10 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[10]);
-            FighterData11 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[11]);
-            FighterData12 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[12]);
-            FighterData13 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[13]);
-            FighterData14 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[14]);
-            FighterData15 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[15]);
-            FighterData16 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[16]);
-            FighterData17 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[17]);
-            FighterData18 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[18]);
-            FighterData19 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[19]);
-            FighterData20 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[20]);
-            FighterData21 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[21]);
-            FighterData22 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[22]);
-            FighterData23 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[23]);
-            FighterData24 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[24]);
-            FighterData25 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[25]);
-            FighterData26 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[26]);
-            FighterData27 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[27]);
-            FighterData28 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[28]);
-            FighterData29 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[29]);
-            FighterData30 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[30]);
-            FighterData31 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[31]);
-            FighterData32 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[32]);
-            FighterData33 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[33]);
-            FighterData34 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[34]);
-            FighterData35 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[35]);
-            FighterData36 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[36]);
-            FighterData37 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[37]);
-            FighterData38 = new EventMatchFighterDataWrapper(this, dataPtr->FighterDataPtr[38]);
-
-            return false;
+            return true;
         }
+
+        public override void OnPopulate()
+        {
+            int numFighters =
+                _header._eventExtension == 0 ? 4
+                : _header._eventExtension == 1 ? 9
+                : _header._eventExtension == 2 ? 38
+                : 0;
+
+            VoidPtr ptr = (VoidPtr)(WorkingUncompressed.Address + sizeof(EventMatchTblHeader));
+            for (int i = 0; i < numFighters; i++)
+            {
+                DataSource source = new DataSource(ptr, sizeof(EventMatchFighterData));
+                new EventMatchFighterNode(i).Initialize(this, source);
+                ptr += sizeof(EventMatchFighterData);
+            }
+        }
+
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
+            switch (Children.Count)
+            {
+                case 4:
+                    _header._eventExtension = 0;
+                    break;
+                case 9:
+                    _header._eventExtension = 1;
+                    break;
+                case 38:
+                    _header._eventExtension = 2;
+                    break;
+                default:
+                    throw new Exception("Invalid number of children for EventMatchNode (must be 4, 9, or 38)");
+            }
+
             // Copy the data back to the address
             EventMatchTblHeader* dataPtr = (EventMatchTblHeader*)address;
             *dataPtr = _header;
 
-            dataPtr->FighterDataPtr[0] = (EventMatchFighterData)FighterData0;
-            dataPtr->FighterDataPtr[1] = (EventMatchFighterData)FighterData1;
-            dataPtr->FighterDataPtr[2] = (EventMatchFighterData)FighterData2;
-            dataPtr->FighterDataPtr[3] = (EventMatchFighterData)FighterData3;
-            if (dataPtr->_eventExtension == 0) return;
-
-            dataPtr->FighterDataPtr[4] = (EventMatchFighterData)FighterData4;
-            dataPtr->FighterDataPtr[5] = (EventMatchFighterData)FighterData5;
-            dataPtr->FighterDataPtr[6] = (EventMatchFighterData)FighterData6;
-            dataPtr->FighterDataPtr[7] = (EventMatchFighterData)FighterData7;
-            dataPtr->FighterDataPtr[8] = (EventMatchFighterData)FighterData8;
-            if (dataPtr->_eventExtension == 1) return;
-
-            dataPtr->FighterDataPtr[9] = (EventMatchFighterData)FighterData9;
-            dataPtr->FighterDataPtr[10] = (EventMatchFighterData)FighterData10;
-            dataPtr->FighterDataPtr[11] = (EventMatchFighterData)FighterData11;
-            dataPtr->FighterDataPtr[12] = (EventMatchFighterData)FighterData12;
-            dataPtr->FighterDataPtr[13] = (EventMatchFighterData)FighterData13;
-            dataPtr->FighterDataPtr[14] = (EventMatchFighterData)FighterData14;
-            dataPtr->FighterDataPtr[15] = (EventMatchFighterData)FighterData15;
-            dataPtr->FighterDataPtr[16] = (EventMatchFighterData)FighterData16;
-            dataPtr->FighterDataPtr[17] = (EventMatchFighterData)FighterData17;
-            dataPtr->FighterDataPtr[18] = (EventMatchFighterData)FighterData18;
-            dataPtr->FighterDataPtr[19] = (EventMatchFighterData)FighterData19;
-            dataPtr->FighterDataPtr[20] = (EventMatchFighterData)FighterData20;
-            dataPtr->FighterDataPtr[21] = (EventMatchFighterData)FighterData21;
-            dataPtr->FighterDataPtr[22] = (EventMatchFighterData)FighterData22;
-            dataPtr->FighterDataPtr[23] = (EventMatchFighterData)FighterData23;
-            dataPtr->FighterDataPtr[24] = (EventMatchFighterData)FighterData24;
-            dataPtr->FighterDataPtr[25] = (EventMatchFighterData)FighterData25;
-            dataPtr->FighterDataPtr[26] = (EventMatchFighterData)FighterData26;
-            dataPtr->FighterDataPtr[27] = (EventMatchFighterData)FighterData27;
-            dataPtr->FighterDataPtr[28] = (EventMatchFighterData)FighterData28;
-            dataPtr->FighterDataPtr[29] = (EventMatchFighterData)FighterData29;
-            dataPtr->FighterDataPtr[30] = (EventMatchFighterData)FighterData30;
-            dataPtr->FighterDataPtr[31] = (EventMatchFighterData)FighterData31;
-            dataPtr->FighterDataPtr[32] = (EventMatchFighterData)FighterData32;
-            dataPtr->FighterDataPtr[33] = (EventMatchFighterData)FighterData33;
-            dataPtr->FighterDataPtr[34] = (EventMatchFighterData)FighterData34;
-            dataPtr->FighterDataPtr[35] = (EventMatchFighterData)FighterData35;
-            dataPtr->FighterDataPtr[36] = (EventMatchFighterData)FighterData36;
-            dataPtr->FighterDataPtr[37] = (EventMatchFighterData)FighterData37;
-            dataPtr->FighterDataPtr[38] = (EventMatchFighterData)FighterData38;
+            // Rebuild children using new address
+            VoidPtr ptr = (VoidPtr)(address + sizeof(EventMatchTblHeader));
+            for (int i = 0; i < Children.Count; i++)
+            {
+                Children[i].Rebuild(ptr, sizeof(EventMatchFighterData), true);
+                ptr += sizeof(EventMatchFighterData);
+            }
         }
+
         public override int OnCalculateSize(bool force)
         {
-            int entries =
-                  _header._eventExtension == 0 ? 4
-                : _header._eventExtension == 1 ? 9
-                : 38;
-            return sizeof(EventMatchTblHeader) + entries * sizeof(EventMatchFighterData);
+            int size = sizeof(EventMatchTblHeader);
+            foreach (ResourceNode node in Children)
+                size += node.CalculateSize(true);
+            return size;
         }
     }
 }
