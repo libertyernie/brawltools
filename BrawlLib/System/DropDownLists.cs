@@ -473,7 +473,7 @@ namespace System
             return new StandardValuesCollection(values);
         }
     }
-    public class DropDownListStageIDs : ByteConverter
+    public class DropDownListStageIDs : Int32Converter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
@@ -492,16 +492,16 @@ namespace System
                 int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
                     ? 16
                     : 10;
-                return Convert.ToByte(field0, fromBase);
+                return Convert.ToInt32(field0, fromBase);
             }
             return base.ConvertFrom(context, culture, value);
         }
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value.GetType() == typeof(byte))
+            if (destinationType == typeof(string) && value != null && value.GetType() == typeof(int))
             {
-                var stage = BrawlLib.SSBB.Stage.Stages.Where(s => s.ID == (byte)value).FirstOrDefault();
-                return "0x" + ((byte)value).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+                var stage = BrawlLib.SSBB.Stage.Stages.Where(s => s.ID == (int)value).FirstOrDefault();
+                return "0x" + ((int)value).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
             }
             return base.ConvertTo(context, culture, value, destinationType);
         }
@@ -531,7 +531,7 @@ namespace System
         }
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            if (destinationType == typeof(string) && value.GetType() == typeof(int))
+            if (destinationType == typeof(string) && value != null && value.GetType() == typeof(int))
             {
                 var item = BrawlLib.SSBB.Item.Items.Where(s => s.ID == (int)value).FirstOrDefault();
                 return "0x" + ((int)value).ToString("X2") + (item == null ? "" : (" - " + item.Name));
