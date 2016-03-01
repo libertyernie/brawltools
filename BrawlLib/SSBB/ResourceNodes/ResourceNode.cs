@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using BrawlLib.IO;
 using System.ComponentModel;
 using BrawlLib.Wii.Compression;
-using System.Reflection;
 using System.IO;
 using System.Windows.Forms;
 using System.Security.Cryptography;
@@ -93,7 +92,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public string FilePath { get { return _origPath; } }
         [Browsable(false)]
-        public ResourceNode RootNode { get { return _parent == null ? this : _parent.RootNode; } }
+        public ResourceNode RootNode { get { return _parent == null || _parent == this ? this : _parent.RootNode; } }
         [Browsable(false)]
         public DataSource OriginalSource { get { return _origSource; } }
         [Browsable(false)]

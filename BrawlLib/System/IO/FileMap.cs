@@ -16,6 +16,8 @@ namespace BrawlLib.IO
         public int Length { get { return _length; } set { _length = value; } }
         public string FilePath { get { return _path; } }
 
+        public FileStream BaseStream { get { return _baseStream; } }
+
         ~FileMap() { Dispose(); }
         public virtual void Dispose() 
         {
