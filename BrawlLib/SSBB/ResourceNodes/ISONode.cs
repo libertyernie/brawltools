@@ -5,71 +5,20 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe abstract class ISOEntryNode : ResourceNode
-    {
-        //ISOs are too big for file mapping,
-        //so we need to use some special functions to get data from the base stream.
-
-        public long _rootOffset;
-        List<UnsafeBuffer> _childBuffers = new List<UnsafeBuffer>();
-
-        public virtual string DataSize { get { return "0x" + WorkingUncompressed.Length.ToString("X"); } }
-        protected ISONode ISORoot { get { return RootNode as ISONode; } }
-
-        public T Get<T>(long offset, bool relative = false) where T : struct
-        {
-            FileStream s = RootNode.WorkingUncompressed.Map.BaseStream;
-            s.Seek(relative ? _rootOffset + offset : offset, SeekOrigin.Begin);
-
-            int size = Marshal.SizeOf(default(T));
-            byte[] data = new byte[size];
-            s.Read(data, 0, size);
-
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            T dataStruct = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
-            handle.Free();
-
-            return dataStruct;
-        }
-        public UnsafeBuffer GetData(long offset, int size, bool relative = false)
-        {
-            byte[] data = GetBytes(offset, size, relative);
-            UnsafeBuffer buffer = new UnsafeBuffer(size);
-            fixed (byte* b = &data[0])
-                Memory.Move(buffer.Address, b, (uint)size);
-            return buffer;
-        }
-        public byte[] GetBytes(long offset, int size, bool relative = false)
-        {
-            FileStream s = RootNode.WorkingUncompressed.Map.BaseStream;
-            s.Seek(relative ? _rootOffset + offset : offset, SeekOrigin.Begin);
-            byte[] data = new byte[size];
-            s.Read(data, 0, size);
-            return data;
-        }
-        public void Create(ISOEntryNode parent, long offset, int size, bool relativeOffset)
-        {
-            _rootOffset = relativeOffset ? parent._rootOffset + offset : offset;
-
-            _parent = parent;
-            UnsafeBuffer buffer = GetData(_rootOffset, size);
-            _parent = null;
-
-            Initialize(parent, buffer.Address, buffer.Length);
-
-            parent._childBuffers.Add(buffer);
-        }
-    }
     public unsafe class ISONode : ISOEntryNode
     {
+        internal static byte[] LoadedKey = null;
+
         internal ISO* Header { get { return (ISO*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         public override string DataSize { get { return "0x" + WorkingUncompressed.Map.BaseStream.Length.ToString("X"); } }
 
         string _gameName;
+        public bool _isGC = false;
 
         [Category("ISO Disc Image")]
         public string GameName
@@ -94,15 +43,32 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 long offset = i < pCount ? (p.PartitionOffset + i * 8L) : (p.ChannelOffset + (i - pCount) * 8L);
                 PartitionTableEntry e = Get<PartitionTableEntry>(offset);
-                new ISOPartitionNode(e, i >= pCount).Create(this, e._offset * 4L, 0x8000, false);
+                new ISOPartitionNode(e, i >= pCount).Create(this, e._offset * OffMult, 0x8000, false);
             }
         }
-
         internal static ResourceNode TryParse(DataSource source)
         {
             ISO* header = (ISO*)source.Address;
-            uint tag = header->_tag;
-            return tag == ISO.Tag ? new ISONode() : null;
+            bool GCMatch = header->_tagGC == ISO.GCTag;
+            bool WiiMatch = header->_tagWii == ISO.WiiTag;
+            if ((GCMatch || WiiMatch) && (LoadedKey != null || LoadKey()))
+                return new ISONode() { _isGC = GCMatch };
+            return null;
+        }
+        private static bool LoadKey()
+        {
+            if (File.Exists("key.bin"))
+            {
+                FileStream s = File.OpenRead("key.bin");
+                if (s.Length == 16)
+                {
+                    LoadedKey = new byte[16];
+                    s.Read(LoadedKey, 0, 16);
+                    return true;
+                }
+            }
+            MessageBox.Show("Unable to load key.bin");
+            return false;
         }
     }
     public unsafe class ISOPartitionNode : ISOEntryNode, IBufferNode
@@ -151,7 +117,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("TMD")]
         public short BootIndex { get { return _tmd._bootIndex; } }
         [Category("TMD")]
-        public TMDEntry[] Entries { get { return _tmdEntries.ToArray(); } }
+        public TMDEntry[] Entries { get { return _tmdEntries != null ? _tmdEntries.ToArray() : null; } }
         [Category("TMD")]
         public byte[] TitleKey { get { return _titleKey; } }
         [Category("TMD")]
@@ -203,10 +169,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
+            const int apploaderOffset = 0x2440;
+
             _name = String.Format("[{0}] {1}", Index, PartitionType.ToString());
             PartitionInfo info = Get<PartitionInfo>(0x2A4, true);
             
-            long tmdOffset = info._tmdOffset * 4L;
+            long tmdOffset = info._tmdOffset * OffMult;
             uint sigType = Get<buint>(tmdOffset, true);
             _rsaType = (RSAType)sigType;
             if (sigType != 0)
@@ -227,36 +195,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < _tmd._numContents; ++i)
                     _tmdEntries.Add(Get<TMDEntry>(tmdOffset + i * TMDEntry.Size, true));
 
-                _titleKey = GetBytes(0x1BF, 16, true);
+                byte[] encryptedKey = GetBytes(0x1BF, 16, true);
                 _iv = GetBytes(0x1DC, 8, true);
                 Array.Resize(ref _iv, 16);
 
-                byte[] decryptedKey = new byte[16];
-
-                AesManaged m = new AesManaged();
-                m.Key = _titleKey;
-                m.IV = _iv;
-                m.BlockSize = 128;
-                m.KeySize = size;
-                m.Mode = CipherMode.CBC;
-
-                var d = m.CreateDecryptor();
                 using (AesManaged aesAlg = new AesManaged())
                 {
-                    aesAlg.Key = _titleKey;
+                    aesAlg.Key = ISONode.LoadedKey;
                     aesAlg.IV = _iv;
-                    
+                    aesAlg.Mode = CipherMode.CBC;
+                    aesAlg.Padding = PaddingMode.Zeros;
+
+                    _titleKey = new byte[16];
                     ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-                    using (MemoryStream msDecrypt = new MemoryStream())
-                    {
-                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Write))
-                        {
-                            using (BinaryReader swDecrypt = new BinaryReader(csDecrypt))
-                            {
-                                
-                            }
-                        }
-                    }
+                    using (MemoryStream msDecrypt = new MemoryStream(encryptedKey))
+                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                            csDecrypt.Read(_titleKey, 0, 16);
                 }
             }
 
@@ -276,6 +230,64 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int GetLength()
         {
             return WorkingUncompressed.Length;
+        }
+    }
+    public unsafe abstract class ISOEntryNode : ResourceNode
+    {
+        //ISOs are too big for file mapping,
+        //so we need to use some special functions to get data from the base stream.
+
+        public long _rootOffset;
+
+        //Store the buffers the children are initialized on so that they are not disposed of before the node is
+        List<UnsafeBuffer> _childBuffers = new List<UnsafeBuffer>();
+
+        public virtual string DataSize { get { return "0x" + WorkingUncompressed.Length.ToString("X"); } }
+        protected ISONode ISORoot { get { return RootNode as ISONode; } }
+        protected long OffMult { get { return ISORoot._isGC ? 0L : 4L; } }
+
+        public T Get<T>(long offset, bool relative = false) where T : struct
+        {
+            FileStream s = RootNode.WorkingUncompressed.Map.BaseStream;
+            s.Seek(relative ? _rootOffset + offset : offset, SeekOrigin.Begin);
+
+            int size = Marshal.SizeOf(default(T));
+            byte[] data = new byte[size];
+            s.Read(data, 0, size);
+
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            T dataStruct = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
+            handle.Free();
+
+            return dataStruct;
+        }
+        public UnsafeBuffer GetData(long offset, int size, bool relative = false)
+        {
+            byte[] data = GetBytes(offset, size, relative);
+            UnsafeBuffer buffer = new UnsafeBuffer(size);
+            fixed (byte* b = &data[0])
+                Memory.Move(buffer.Address, b, (uint)size);
+            return buffer;
+        }
+        public byte[] GetBytes(long offset, int size, bool relative = false)
+        {
+            FileStream s = RootNode.WorkingUncompressed.Map.BaseStream;
+            s.Seek(relative ? _rootOffset + offset : offset, SeekOrigin.Begin);
+            byte[] data = new byte[size];
+            s.Read(data, 0, size);
+            return data;
+        }
+        public void Create(ISOEntryNode parent, long offset, int size, bool relativeOffset)
+        {
+            _rootOffset = relativeOffset ? parent._rootOffset + offset : offset;
+
+            _parent = parent;
+            UnsafeBuffer buffer = GetData(_rootOffset, size);
+            _parent = null;
+
+            Initialize(parent, buffer.Address, buffer.Length);
+
+            parent._childBuffers.Add(buffer);
         }
     }
 }

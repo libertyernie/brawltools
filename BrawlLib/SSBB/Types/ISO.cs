@@ -6,7 +6,8 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ISO
     {
-        public const uint Tag = 0xA39E1C5D;
+        public const uint WiiTag = 0xA39E1C5D;
+        public const uint GCTag = 0x3D9F33C2;
 
         public byte _console;
         public byte _title0;
@@ -15,8 +16,8 @@ namespace BrawlLib.SSBBTypes
         public bushort _publisher;
         public bushort _unk1;
         public fixed byte _pad1[0x10];
-        public uint _tag;
-        public uint _pad2;
+        public uint _tagWii;
+        public uint _tagGC;
         public fixed sbyte _name[0x60];
 
         public string GameName
@@ -113,9 +114,9 @@ namespace BrawlLib.SSBBTypes
         public buint _certOffset;
 
         public buint _h3Offset;
-        public buint _dataLength;
         public buint _dataOffset;
-
+        public buint _dataLength;
+        
         private VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
