@@ -9,97 +9,118 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    /// <summary>
-    /// A class that wraps the data represented by the AllstarDifficultyData structure in a class with properties, so it can be modified by PropertyGrid.
-    /// </summary>
-    public unsafe class AllstarDifficultyDataWrapper
+    public unsafe class AllstarDifficultyNode : ResourceNode
     {
-        private ResourceNode parent;
         private AllstarDifficultyData data;
 
-        public byte Unknown00 { get { return data._unknown00; } set { data._unknown00 = value; parent.SignalPropertyChange(); } }
-        public byte Unknown01 { get { return data._unknown01; } set { data._unknown01 = value; parent.SignalPropertyChange(); } }
-        public byte Unknown02 { get { return data._unknown02; } set { data._unknown02 = value; parent.SignalPropertyChange(); } }
-        public byte Unknown03 { get { return data._unknown03; } set { data._unknown03 = value; parent.SignalPropertyChange(); } }
+        public byte Unknown00 { get { return data._unknown00; } set { data._unknown00 = value; SignalPropertyChange(); } }
+        public byte Unknown01 { get { return data._unknown01; } set { data._unknown01 = value; SignalPropertyChange(); } }
+        public byte Unknown02 { get { return data._unknown02; } set { data._unknown02 = value; SignalPropertyChange(); } }
+        public byte Unknown03 { get { return data._unknown03; } set { data._unknown03 = value; SignalPropertyChange(); } }
 
-        public short OffenseRatio { get { return data._offenseRatio; } set { data._offenseRatio = value; parent.SignalPropertyChange(); } }
-        public short DefenseRatio { get { return data._defenseRatio; } set { data._defenseRatio = value; parent.SignalPropertyChange(); } }
+        public short OffenseRatio { get { return data._offenseRatio; } set { data._offenseRatio = value; SignalPropertyChange(); } }
+        public short DefenseRatio { get { return data._defenseRatio; } set { data._defenseRatio = value; SignalPropertyChange(); } }
 
-        public byte Unknown08 { get { return data._unknown08; } set { data._unknown08 = value; parent.SignalPropertyChange(); } }
-        public byte Color { get { return data._color; } set { data._color = value; parent.SignalPropertyChange(); } }
-        public byte Stock { get { return data._stock; } set { data._stock = value; parent.SignalPropertyChange(); } }
-        public byte Unknown0b { get { return data._unknown0b; } set { data._unknown0b = value; parent.SignalPropertyChange(); } }
+        public byte Unknown08 { get { return data._unknown08; } set { data._unknown08 = value; SignalPropertyChange(); } }
+        public byte Color     { get { return data._color; }     set { data._color = value;     SignalPropertyChange(); } }
+        public byte Stock     { get { return data._stock; }     set { data._stock = value;     SignalPropertyChange(); } }
+        public byte Unknown0b { get { return data._unknown0b; } set { data._unknown0b = value; SignalPropertyChange(); } }
 
-        public bshort Unknown0c { get { return data._unknown0c; } set { data._unknown0c = value; parent.SignalPropertyChange(); } }
+        public short Unknown0c { get { return data._unknown0c; } set { data._unknown0c = value; SignalPropertyChange(); } }
 
-        public AllstarDifficultyDataWrapper(ResourceNode parent, AllstarDifficultyData data)
+        public override bool OnInitialize()
         {
-            this.parent = parent;
-            this.data = data;
+            base.OnInitialize();
+
+            if (WorkingUncompressed.Length != sizeof(AllstarDifficultyData))
+                throw new Exception("Wrong size for AllstarDifficultyNode");
+
+            // Copy the data from the address
+            data = *(AllstarDifficultyData*)WorkingUncompressed.Address;
+
+            return false;
         }
-
-        public static explicit operator AllstarDifficultyData(AllstarDifficultyDataWrapper w)
+        public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            return w.data;
+            // Copy the data back to the address
+            *(AllstarDifficultyData*)address = data;
+        }
+        public override int OnCalculateSize(bool force)
+        {
+            return sizeof(AllstarDifficultyData);
         }
     }
 
-    /// <summary>
-    /// A class that wraps the data represented by the AllstarFighterData structure in a class with properties, so it can be modified by PropertyGrid.
-    /// </summary>
-    public unsafe class AllstarFighterDataWrapper
+    public unsafe class AllstarFighterNode : ResourceNode
     {
-        private ResourceNode parent;
-
         private byte _fighterID;
         private float _unknown04;
 
         [TypeConverter(typeof(DropDownListFighterIDs))]
-        public byte FighterID { get { return _fighterID; } set { _fighterID = value; parent.SignalPropertyChange(); } }
-        public float Unknown04 { get { return _unknown04; } set { _unknown04 = value; parent.SignalPropertyChange(); } }
+        public byte FighterID { get { return _fighterID; } set { _fighterID = value; SignalPropertyChange(); } }
+        public float Unknown04 { get { return _unknown04; } set { _unknown04 = value; SignalPropertyChange(); } }
 
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarDifficultyDataWrapper VeryEasy { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarDifficultyDataWrapper Easy { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarDifficultyDataWrapper Normal { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarDifficultyDataWrapper Hard { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarDifficultyDataWrapper VeryHard { get; set; }
+        // Hack to maintain ordering from replacement file upon replace
+        private static ushort _staticCounter;
 
-        public AllstarFighterDataWrapper(ResourceNode parent, AllstarFighterData data)
+        public override bool OnInitialize()
         {
-            this.parent = parent;
+            base.OnInitialize();
 
-            _fighterID = data._fighterID;
-            _unknown04 = data._unknown04;
-            VeryEasy = new AllstarDifficultyDataWrapper(parent, data._difficulty1);
-            Easy = new AllstarDifficultyDataWrapper(parent, data._difficulty2);
-            Normal = new AllstarDifficultyDataWrapper(parent, data._difficulty3);
-            Hard = new AllstarDifficultyDataWrapper(parent, data._difficulty4);
-            VeryHard = new AllstarDifficultyDataWrapper(parent, data._difficulty5);
-        }
+            if (WorkingUncompressed.Length != sizeof(AllstarFighterData))
+                throw new Exception("Wrong size for AllstarFighterNode");
 
-        public static explicit operator AllstarFighterData(AllstarFighterDataWrapper w)
-        {
-            return new AllstarFighterData
+            // Copy the data from the address
+            AllstarFighterData* ptr = (AllstarFighterData*)WorkingUncompressed.Address;
+            _fighterID = ptr->_fighterID;
+            _unknown04 = ptr->_unknown04;
+
+            if (_name == null)
             {
-                _fighterID = w._fighterID,
-                _unknown04 = w._unknown04,
-                _difficulty1 = (AllstarDifficultyData)w.VeryEasy,
-                _difficulty2 = (AllstarDifficultyData)w.Easy,
-                _difficulty3 = (AllstarDifficultyData)w.Normal,
-                _difficulty4 = (AllstarDifficultyData)w.Hard,
-                _difficulty5 = (AllstarDifficultyData)w.VeryHard
-            };
+                var fighter = Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
+                _name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name)) + " ";
+                // Hack to maintain ordering from replacement file upon replace. The Unicode block from U+2500 to U+25FF is all populated with various symbols.
+                _name += (char)(0x2500 + _staticCounter / 256);
+                _name += (char)(0x2500 + _staticCounter % 256);
+                _staticCounter++;
+            }
+
+            return true;
         }
 
-        public override string ToString()
+        public override void OnPopulate()
         {
-            var fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
-            return "All-Star Fighter Data: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
+            VoidPtr ptr = WorkingUncompressed.Address + 8;
+            foreach (string s in new string[] { "Very Easy", "Easy", "Normal", "Hard", "Very Hard" })
+            {
+                DataSource source = new DataSource(ptr, sizeof(AllstarDifficultyData));
+                var node = new AllstarDifficultyNode();
+                node.Initialize(this, source);
+                node.Name = s;
+                node.IsDirty = false;
+                ptr += sizeof(AllstarDifficultyData);
+            }
+        }
+
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            AllstarFighterData* header_ptr = (AllstarFighterData*)address;
+            header_ptr->_fighterID = _fighterID;
+            header_ptr->_unknown04 = _unknown04;
+
+            // Rebuild children using new address
+            VoidPtr ptr = address + 8;
+            for (int i = 0; i < Children.Count; i++)
+            {
+                Children[i].Rebuild(ptr, sizeof(AllstarDifficultyData), true);
+                ptr += sizeof(AllstarDifficultyData);
+            }
+        }
+
+        public override int OnCalculateSize(bool force)
+        {
+            return sizeof(AllstarFighterData);
         }
     }
 
@@ -120,17 +141,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [TypeConverter(typeof(DropDownListStageIDs))]
         public int Stage5 { get { return _stage5; } set { _stage5 = value; SignalPropertyChange(); } }
 
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarFighterDataWrapper Opponent1 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarFighterDataWrapper Opponent2 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarFighterDataWrapper Opponent3 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarFighterDataWrapper Opponent4 { get; set; }
-        [Category("Fighters"), TypeConverter(typeof(ExpandableObjectConverter))]
-        public AllstarFighterDataWrapper Opponent5 { get; set; }
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -143,14 +153,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             _stage4 = dataPtr->_stage4;
             _stage5 = dataPtr->_stage5;
 
-            Opponent1 = new AllstarFighterDataWrapper(this, dataPtr->_opponent1);
-            Opponent2 = new AllstarFighterDataWrapper(this, dataPtr->_opponent2);
-            Opponent3 = new AllstarFighterDataWrapper(this, dataPtr->_opponent3);
-            Opponent4 = new AllstarFighterDataWrapper(this, dataPtr->_opponent4);
-            Opponent5 = new AllstarFighterDataWrapper(this, dataPtr->_opponent5);
-
-            return false;
+            return true;
         }
+
+        public override void OnPopulate()
+        {
+            AllstarFighterData* ptr = &((AllstarStageTbl*)WorkingUncompressed.Address)->_opponent1;
+            for (int i = 0; i < 5; i++)
+            {
+                DataSource source = new DataSource(ptr, sizeof(AllstarFighterData));
+                new AllstarFighterNode().Initialize(this, source);
+                ptr++;
+            }
+        }
+
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             // Copy the data back to the address
@@ -161,11 +177,13 @@ namespace BrawlLib.SSBB.ResourceNodes
             dataPtr->_stage4 = _stage4;
             dataPtr->_stage5 = _stage5;
 
-            dataPtr->_opponent1 = (AllstarFighterData)Opponent1;
-            dataPtr->_opponent2 = (AllstarFighterData)Opponent2;
-            dataPtr->_opponent3 = (AllstarFighterData)Opponent3;
-            dataPtr->_opponent4 = (AllstarFighterData)Opponent4;
-            dataPtr->_opponent5 = (AllstarFighterData)Opponent5;
+            // Rebuild children using new address
+            AllstarFighterData* ptr = &((AllstarStageTbl*)address)->_opponent1;
+            for (int i = 0; i < Children.Count; i++)
+            {
+                Children[i].Rebuild(ptr, sizeof(AllstarFighterData), true);
+                ptr++;
+            }
         }
         public override int OnCalculateSize(bool force)
         {
