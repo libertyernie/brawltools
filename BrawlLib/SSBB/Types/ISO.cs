@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace BrawlLib.SSBBTypes
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ISO
+    public unsafe struct ISOPartitionHeader
     {
         public const uint WiiTag = 0xA39E1C5D;
         public const uint GCTag = 0x3D9F33C2;
@@ -14,11 +14,21 @@ namespace BrawlLib.SSBBTypes
         public byte _title1;
         public byte _region;
         public bushort _publisher;
-        public bushort _unk1;
-        public fixed byte _pad1[0x10];
+        public byte _discNumber;
+        public byte _discVersion;
+        public byte _audioStreaming;
+        public byte _streamingBufferSize;
+        public fixed byte _pad1[14];
         public uint _tagWii;
         public uint _tagGC;
-        public fixed sbyte _name[0x60];
+        public fixed sbyte _name[64];
+        public byte _disableHashVerification;
+        public byte _disableDiscEncryption;
+        public fixed byte _pad2[0x19A]; //Pad to 0x400
+        public fixed byte _pad3[0x20];
+        public buint _dolOffset;
+        public buint _fstOffset;
+        public buint _fstLength;
 
         public string GameName
         {
@@ -54,14 +64,39 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        public PartitionHeader* Partitions
+        public ISOPartLists* Partitions
         {
-            get { return (PartitionHeader*)(Address + 0x40000); }
+            get { return (ISOPartLists*)(Address + 0x40000); }
         }
         private VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct PartitionHeader
+    public unsafe struct ISOCommonPartInfo
+    {
+        public buint _unk1;
+        public buint _unk2;
+        public fixed uint _pad1[6];
+
+        public buint _dolOffset;
+        public buint _fstOffset;
+        public buint _fstLength;
+        public buint _fstLength2;
+
+        public buint _unk3;
+        public buint _unk4;
+        public buint _unk5;
+        public fixed uint _pad2[2];
+
+        public buint _unk6;
+        public fixed uint _pad3[4];
+        public buint _unk7; //1
+        public buint _unk8; //1
+        public buint _unk9; //1
+
+        private VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
+    }
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct ISOPartLists
     {
         public bint _partitionCount;
         public buint _partitionOffset;

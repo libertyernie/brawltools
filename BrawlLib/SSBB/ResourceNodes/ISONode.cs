@@ -13,12 +13,13 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal static byte[] LoadedKey = null;
 
-        internal ISO* Header { get { return (ISO*)WorkingUncompressed.Address; } }
+        internal ISOPartitionHeader* Header { get { return (ISOPartitionHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         public override string DataSize { get { return "0x" + WorkingUncompressed.Map.BaseStream.Length.ToString("X"); } }
 
         string _gameName;
         public bool _isGC = false;
+        protected ISOCommonPartInfo _partInfo;
 
         [Category("ISO Disc Image")]
         public string GameName
@@ -30,12 +31,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             _name = Header->GameID;
             _gameName = Header->GameName;
-            PartitionHeader p = Get<PartitionHeader>(0x40000);
+            _partInfo = Get<ISOCommonPartInfo>(0x400);
+            ISOPartLists p = Get<ISOPartLists>(0x40000);
             return p._partitionCount > 0 || p._channelCount > 0;
         }
         public override void OnPopulate()
         {
-            PartitionHeader p = Get<PartitionHeader>(0x40000);
+            ISOPartLists p = Get<ISOPartLists>(0x40000);
             int pCount = p._partitionCount;
             int total = p._channelCount + pCount;
             
@@ -48,9 +50,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         internal static ResourceNode TryParse(DataSource source)
         {
-            ISO* header = (ISO*)source.Address;
-            bool GCMatch = header->_tagGC == ISO.GCTag;
-            bool WiiMatch = header->_tagWii == ISO.WiiTag;
+            ISOPartitionHeader* header = (ISOPartitionHeader*)source.Address;
+            bool GCMatch = header->_tagGC == ISOPartitionHeader.GCTag;
+            bool WiiMatch = header->_tagWii == ISOPartitionHeader.WiiTag;
             if ((GCMatch || WiiMatch) && (LoadedKey != null || LoadKey()))
                 return new ISONode() { _isGC = GCMatch };
             return null;
@@ -81,8 +83,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         byte[] _rsaSig;
         TMDInfo _tmd;
         List<TMDEntry> _tmdEntries;
-        bool _encrypted = false;
         uint _cachedBlock = uint.MaxValue;
+        PartitionInfo _info;
+        byte[] _titleKey, _iv;
+        ISOPartitionHeader _header;
 
         [Category("TMD")]
         public RSAType RSA { get { return _rsaType; } }
@@ -122,8 +126,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public byte[] TitleKey { get { return _titleKey; } }
         [Category("TMD")]
         public byte[] IV { get { return _iv; } }
-
-        byte[] _titleKey, _iv;
 
         [Category("ISO Partition")]
         public PartitionTableEntry.Type PartitionType
@@ -169,12 +171,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
+            const int headerSize = 0x440;
+            const int bi2Size = 0x2000;
             const int apploaderOffset = 0x2440;
 
             _name = String.Format("[{0}] {1}", Index, PartitionType.ToString());
-            PartitionInfo info = Get<PartitionInfo>(0x2A4, true);
+            _info = Get<PartitionInfo>(0x2A4, true);
             
-            long tmdOffset = info._tmdOffset * OffMult;
+            long tmdOffset = _info._tmdOffset * OffMult;
             uint sigType = Get<buint>(tmdOffset, true);
             _rsaType = (RSAType)sigType;
             if (sigType != 0)
@@ -214,23 +218,94 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
+            byte[] b = GetPartitionData(0, 0x440);
+            _header = ToStruct<ISOPartitionHeader>(b);
+
+            byte[] dol = GetPartitionData(_header._dolOffset * OffMult, 0x100);
+            DOLHeader dolHdr = ToStruct<DOLHeader>(dol);
+
+            byte[] fullDol = GetPartitionData(_header._dolOffset * OffMult, (int)dolHdr.GetSize());
+            UnsafeBuffer dolBuf = GetBuffer(fullDol);
+            _childBuffers.Add(dolBuf);
+            new DOLNode().Initialize(this, dolBuf.Address, dolBuf.Length);
+
             return true;
         }
+        
+        const int BlockHeaderSize = 0x400;
+        const int BlockDataSize = 0x7C00;
+        const int BlockSize = BlockHeaderSize + BlockDataSize;
 
-        public bool IsValid()
+        public void GetDC(long nOffset, long nSize, out long decOffset, out long decSize)
         {
-            return GetLength() > 0;
+            if (_rsaType != RSAType.None)
+            {
+                decOffset = nOffset / BlockDataSize * BlockSize;
+                decSize = (nSize / BlockDataSize + 1) * BlockSize + (nOffset % BlockDataSize);
+            }
+            else
+            {
+                decOffset = nOffset;
+                decSize = nSize;
+            }
         }
+        public byte[] DecryptBlock(uint block)
+        {
+	        if (block == _cachedBlock)
+		        return null;
+            
+            byte[] blockData = GetBytes(_info._dataOffset + BlockSize * block, BlockSize, true);
+            byte[] enc = blockData.SubArray(BlockHeaderSize, BlockDataSize);
+            byte[] dec = new byte[BlockDataSize];
 
-        public VoidPtr GetAddress()
-        {
-            return WorkingUncompressed.Address;
-        }
+            using (AesManaged aesAlg = new AesManaged())
+            {
+                aesAlg.Key = _titleKey;
+                aesAlg.IV = blockData.SubArray(0x3D0, 0x10);
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.Zeros;
+                
+                ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
+                using (MemoryStream msDecrypt = new MemoryStream(enc))
+                    using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        csDecrypt.Read(dec, 0, BlockDataSize);
+            }
 
-        public int GetLength()
-        {
-            return WorkingUncompressed.Length;
+            _cachedBlock = block;
+            
+	        return dec;
         }
+        public byte[] GetPartitionData(long offset, int size)
+        {
+            if (_rsaType == RSAType.None)
+                return GetBytes(offset, size, true);
+
+            List<byte> buffer = new List<byte>(size);
+	        uint block = (uint)(offset / BlockDataSize);
+            int cacheOffset = (int)(offset % BlockDataSize);
+            int cacheSize;
+            
+	        while (size > 0)
+            {
+                byte[] cache = DecryptBlock(block);
+
+		        cacheSize = size;
+		        if (cacheSize + cacheOffset > BlockDataSize)
+			        cacheSize = BlockDataSize - cacheOffset;
+
+                buffer.AddRange(cache.SubArray(cacheOffset, cacheSize));
+                
+		        size -= cacheSize;
+		        cacheOffset = 0;
+		
+		        block++;
+	        }
+	
+	        return buffer.ToArray();
+        }
+        public bool IsValid() { return GetLength() > 0; }
+        public VoidPtr GetAddress() { return WorkingUncompressed.Address; }
+        public int GetLength() { return WorkingUncompressed.Length; }
     }
     public unsafe abstract class ISOEntryNode : ResourceNode
     {
@@ -240,33 +315,33 @@ namespace BrawlLib.SSBB.ResourceNodes
         public long _rootOffset;
 
         //Store the buffers the children are initialized on so that they are not disposed of before the node is
-        List<UnsafeBuffer> _childBuffers = new List<UnsafeBuffer>();
+        protected List<UnsafeBuffer> _childBuffers = new List<UnsafeBuffer>();
 
         public virtual string DataSize { get { return "0x" + WorkingUncompressed.Length.ToString("X"); } }
         protected ISONode ISORoot { get { return RootNode as ISONode; } }
         protected long OffMult { get { return ISORoot._isGC ? 0L : 4L; } }
 
-        public T Get<T>(long offset, bool relative = false) where T : struct
+        public T ToStruct<T>(byte[] bytes) where T : struct
         {
-            FileStream s = RootNode.WorkingUncompressed.Map.BaseStream;
-            s.Seek(relative ? _rootOffset + offset : offset, SeekOrigin.Begin);
-
-            int size = Marshal.SizeOf(default(T));
-            byte[] data = new byte[size];
-            s.Read(data, 0, size);
-
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            GCHandle handle = GCHandle.Alloc(bytes, GCHandleType.Pinned);
             T dataStruct = (T)Marshal.PtrToStructure(handle.AddrOfPinnedObject(), typeof(T));
             handle.Free();
 
             return dataStruct;
         }
-        public UnsafeBuffer GetData(long offset, int size, bool relative = false)
+        public T Get<T>(long offset, bool relative = false) where T : struct
         {
-            byte[] data = GetBytes(offset, size, relative);
-            UnsafeBuffer buffer = new UnsafeBuffer(size);
-            fixed (byte* b = &data[0])
-                Memory.Move(buffer.Address, b, (uint)size);
+            return ToStruct<T>(GetBytes(offset, Marshal.SizeOf(default(T)), relative));
+        }
+        public UnsafeBuffer GetBuffer(long offset, int size, bool relative = false)
+        {
+            return GetBuffer(GetBytes(offset, size, relative));
+        }
+        public UnsafeBuffer GetBuffer(byte[] bytes)
+        {
+            UnsafeBuffer buffer = new UnsafeBuffer(bytes.Length);
+            fixed (byte* b = &bytes[0])
+                Memory.Move(buffer.Address, b, (uint)bytes.Length);
             return buffer;
         }
         public byte[] GetBytes(long offset, int size, bool relative = false)
@@ -282,12 +357,25 @@ namespace BrawlLib.SSBB.ResourceNodes
             _rootOffset = relativeOffset ? parent._rootOffset + offset : offset;
 
             _parent = parent;
-            UnsafeBuffer buffer = GetData(_rootOffset, size);
+            UnsafeBuffer buffer = GetBuffer(_rootOffset, size);
             _parent = null;
 
             Initialize(parent, buffer.Address, buffer.Length);
 
             parent._childBuffers.Add(buffer);
+        }
+        public void CreateChild(ResourceNode child, long offset, int size, bool relativeOffset)
+        {
+            if (child is ISOEntryNode)
+                ((ISOEntryNode)child)._rootOffset = relativeOffset ? _rootOffset + offset : offset;
+
+            child._parent = this;
+            UnsafeBuffer buffer = GetBuffer(_rootOffset, size);
+            child._parent = null;
+
+            Initialize(this, buffer.Address, buffer.Length);
+
+            _childBuffers.Add(buffer);
         }
     }
 }

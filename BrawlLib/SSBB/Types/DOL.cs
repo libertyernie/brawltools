@@ -80,5 +80,15 @@ namespace BrawlLib.SSBBTypes
         public buint* DataLoadAddr { get { return ((buint*)Address + 25); } }
         public buint* TextSize { get { return ((buint*)Address + 36); } }
         public buint* DataSize { get { return ((buint*)Address + 43); } }
+
+        public uint GetSize()
+        {
+            buint* offsets = TextOffset;
+            buint* sizes = TextSize;
+            uint maxLen = 0;
+            for (int i = 0; i < 18; ++i)
+                maxLen = Math.Max(offsets[i] + sizes[i], maxLen);
+            return maxLen + 0x100;
+        }
     }
 }
