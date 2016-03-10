@@ -1,5 +1,8 @@
 ﻿using System;
+#if RSTMLIB
+#else
 using BrawlLib.IO;
+#endif
 using System.Audio;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
@@ -9,7 +12,11 @@ namespace BrawlLib.Wii.Audio
 {
     public static class RSTMConverter
     {
+#if RSTMLIB
+        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
+#else
         public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress)
+#endif
         {
             int tmp;
             bool looped = stream.IsLooping;
@@ -67,11 +74,18 @@ namespace BrawlLib.Wii.Audio
             int adpcSize = ((blocks - 1) * 4 * channels + 0x10).Align(0x20);
             int dataSize = ((blocks - 1) * 0x2000 + lbTotal) * channels + 0x20;
 
+#if RSTMLIB
+            //Create byte array
+            byte[] array = new byte[rstmSize + headSize + adpcSize + dataSize];
+            fixed (byte* address = array) {
+#else
             //Create file map
             FileMap map = FileMap.FromTempFile(rstmSize + headSize + adpcSize + dataSize);
+            VoidPtr address = map.Address;
+#endif
 
             //Get section pointers
-            RSTMHeader* rstm = (RSTMHeader*)map.Address;
+            RSTMHeader* rstm = (RSTMHeader*)address;
             HEADHeader* head = (HEADHeader*)((int)rstm + rstmSize);
             ADPCHeader* adpc = (ADPCHeader*)((int)head + headSize);
             RSTMDATAHeader* data = (RSTMDATAHeader*)((int)adpc + adpcSize);
@@ -213,7 +227,12 @@ namespace BrawlLib.Wii.Audio
             if (progress != null)
                 progress.Finish();
 
+#if RSTMLIB
+            }
+            return array;
+#else
             return map;
+#endif
         }
     }
 }

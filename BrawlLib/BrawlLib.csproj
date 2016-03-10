@@ -252,6 +252,7 @@
     <None Include="SSBB\Types\Wii U\FTEX.cs" />
     <None Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
     <Compile Include="System\UInt64Extension.cs" />

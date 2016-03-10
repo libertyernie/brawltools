@@ -153,6 +153,8 @@ namespace System
         }
     }
 
+#if RSTMLIB
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2
     {
@@ -338,4 +340,5 @@ namespace System
             return bm;
         }
     }
+#endif
 }
