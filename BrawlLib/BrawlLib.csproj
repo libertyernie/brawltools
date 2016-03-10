@@ -204,6 +204,7 @@
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
     <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
     <Compile Include="SSBB\Types\EventMatch.cs" />

@@ -5,83 +5,122 @@ using System.Text;
 using System.IO;
 using BrawlLib.IO;
 using System.ComponentModel;
+using BrawlLib.SSBB.Types;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class ClassicStageTblNode : ResourceNode, IBufferNode
+    public unsafe class ClassicStageBlockNode : ResourceNode
     {
-        internal byte* Header { get { return (byte*)WorkingUncompressed.Address; } }
+        private ClassicStageBlock data;
 
-        public UnsafeBuffer _buffer;
+        // Hack to maintain ordering from replacement file upon replace
+        private static ushort _staticCounter;
 
-        private string GetStageID(int index)
-        {
-            bint* ptr = (bint*)(_buffer.Address) + 1 + index;
-            List<int> stageIDs = new List<int>();
-            while (ptr < _buffer.Address + _buffer.Length)
-            {
-                stageIDs.Add(*ptr);
-                ptr += 0x41;
-            }
-            return string.Join(",", stageIDs);
-        }
-
-        public int Size { get { return WorkingUncompressed.Length; } }
-
-        public double SectionsOf260Bytes { get { return Size / 260; } }
-        public double ExtraBytes { get { return Size % 260; } }
-
-        public string StageIDs1 { get { return GetStageID(0); } }
-        public string StageIDs2 { get { return GetStageID(1); } }
-        public string StageIDs3 { get { return GetStageID(2); } }
-        public string StageIDs4 { get { return GetStageID(3); } }
-
-        public ClassicStageTblNode() { }
-        public ClassicStageTblNode(string name) { _name = name; }
+        [TypeConverter(typeof(DropDownListStageIDs))]
+        public int StageID1 { get { return data._stageID1; } set { data._stageID1 = (ushort)value; SignalPropertyChange(); } }
+        [TypeConverter(typeof(DropDownListStageIDs))]
+        public int StageID2 { get { return data._stageID2; } set { data._stageID2 = (ushort)value; SignalPropertyChange(); } }
+        [TypeConverter(typeof(DropDownListStageIDs))]
+        public int StageID3 { get { return data._stageID3; } set { data._stageID3 = (ushort)value; SignalPropertyChange(); } }
+        [TypeConverter(typeof(DropDownListStageIDs))]
+        public int StageID4 { get { return data._stageID4; } set { data._stageID4 = (ushort)value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
         {
-            _buffer = new UnsafeBuffer(WorkingUncompressed.Length);
+            base.OnInitialize();
 
-            Memory.Move(_buffer.Address, (VoidPtr)Header, (uint)_buffer.Length);
+            if (WorkingUncompressed.Length != sizeof(ClassicStageBlock))
+                throw new Exception("Wrong size for ClassicStageBlockNode");
+
+            // Copy the data from the address
+            data = *(ClassicStageBlock*)WorkingUncompressed.Address;
+
+            List<string> stageList = new List<string>();
+            foreach (int stageID in new int[] { StageID1, StageID2, StageID3, StageID4 }) {
+                if (stageID == 255) continue;
+                Stage found = Stage.Stages.FirstOrDefault(s => s.ID == stageID);
+                stageList.Add(found == null ? stageID.ToString() : found.PacBasename);
+            }
+
+            _name = "Classic Stage Block (" + string.Join(", ", stageList) + ") ";
+            // Hack to maintain ordering from replacement file upon replace. The Unicode block from U+2500 to U+25FF is all populated with various symbols.
+            _name += (char)(0x2500 + _staticCounter / 256);
+            _name += (char)(0x2500 + _staticCounter % 256);
+            _staticCounter++;
 
             return false;
         }
-
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            // Copy the data back to the address
+            *(ClassicStageBlock*)address = data;
+        }
         public override int OnCalculateSize(bool force)
         {
-            return _buffer.Length;
+            // Constant size (260 bytes)
+            return sizeof(ClassicStageBlock);
+        }
+    }
+
+    public unsafe class ClassicStageTblNode : ResourceNode
+    {
+        public override ResourceType ResourceType { get { return ResourceType.Container; } }
+
+        private List<int> _padding;
+
+        public string Padding { get { return string.Join(", ", _padding); } }
+
+        public override bool OnInitialize()
+        {
+            base.OnInitialize();
+
+            VoidPtr ptr = WorkingUncompressed.Address;
+            int numEntries = WorkingUncompressed.Length / sizeof(ClassicStageBlock);
+            for (int i=0; i<numEntries; i++) ptr += sizeof(ClassicStageBlock);
+
+            _padding = new List<int>();
+            bint* ptr2 = (bint*)ptr;
+            while (ptr2 < WorkingUncompressed.Address + WorkingUncompressed.Length)
+            {
+                _padding.Add(*(ptr2++));
+            }
+
+            return true;
         }
 
-        public override unsafe void Export(string outPath)
+        public override void OnPopulate()
         {
-            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
+            int numEntries = WorkingUncompressed.Length / sizeof(ClassicStageBlock);
+
+            ClassicStageBlock* ptr = (ClassicStageBlock*)WorkingUncompressed.Address;
+            for (int i = 0; i < numEntries; i++)
             {
-                stream.SetLength(_buffer.Length);
-                using (FileMap map = FileMap.FromStream(stream))
-                    Memory.Move(map.Address, _buffer.Address, (uint)_buffer.Length);
+                DataSource source = new DataSource(ptr, sizeof(ClassicStageBlock));
+                new ClassicStageBlockNode().Initialize(this, source);
+                ptr++;
             }
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            VoidPtr header = (VoidPtr)address;
-            Memory.Move(header, _buffer.Address, (uint)length);
+            // Rebuild children using new address
+            ClassicStageBlock* ptr = (ClassicStageBlock*)address;
+            for (int i = 0; i < Children.Count; i++)
+            {
+                Children[i].Rebuild(ptr, sizeof(ClassicStageBlock), true);
+                ptr++;
+            }
+
+            bint* ptr2 = (bint*)ptr;
+            foreach (int pad in Padding)
+            {
+                *(ptr2++) = pad;
+            }
         }
 
-        public VoidPtr GetAddress()
+        public override int OnCalculateSize(bool force)
         {
-            return _buffer.Address;
-        }
-
-        public int GetLength()
-        {
-            return _buffer.Length;
-        }
-
-        public bool IsValid()
-        {
-            return _buffer != null && _buffer.Length > 0;
+            return sizeof(ClassicStageBlock) * Children.Count + Padding.Length * sizeof(bint);
         }
     }
 }

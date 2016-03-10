@@ -17,15 +17,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         // Header variables
         bint _offCount = 0;
 
-        public VoidPtr BaseAddress;
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
 
             _offCount = Header->_OffCount;
-
-            BaseAddress = (VoidPtr)Header + sizeof(Common2TblHeader);
 
             return true;
         }
@@ -44,8 +40,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
+            VoidPtr baseAddress = WorkingUncompressed.Address + sizeof(Common2TblHeader);
+
             int dataLength = Header->_DataLength;
-            VoidPtr offsetTable = BaseAddress + dataLength + Header->_OffCount * 4;
+            VoidPtr offsetTable = baseAddress + dataLength + Header->_OffCount * 4;
             VoidPtr stringList = offsetTable + Header->_DataTable * 8;
             List<OffsetPair> offsets = new List<OffsetPair>();
 
@@ -70,7 +68,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (o.dataEnd <= o.dataOffset)
                     throw new Exception("Invalid data length (less than data offset) in common2 data");
 
-                DataSource source = new DataSource(BaseAddress + o.dataOffset, o.dataEnd - o.dataOffset);
+                DataSource source = new DataSource(baseAddress + o.dataOffset, o.dataEnd - o.dataOffset);
                 string name = new string((sbyte*)stringList + o.nameOffset);
                 ResourceNode node =
                       name.StartsWith("eventStage") ? new EventMatchNode()
@@ -87,7 +85,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             // Update base address for children.
-            BaseAddress = (VoidPtr)address + sizeof(Common2TblHeader);
+            VoidPtr baseAddress = address + sizeof(Common2TblHeader);
 
             // Initiate header struct
             Common2TblHeader* Header = (Common2TblHeader*)address;
@@ -99,7 +97,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             Dictionary<ResourceNode, VoidPtr> dataLocations = new Dictionary<ResourceNode, VoidPtr>();
 
-            VoidPtr ptr = BaseAddress;
+            VoidPtr ptr = baseAddress;
             foreach (var child in Children)
             {
                 int size = child.CalculateSize(false);
@@ -107,7 +105,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 child.Rebuild(ptr, size, false);
                 ptr += size;
             }
-            Header->_DataLength = (int)(ptr - BaseAddress);
+            Header->_DataLength = (int)(ptr - baseAddress);
 
             bint* dataPointers = (bint*)ptr;
             bint* stringPointers = dataPointers + 1;
@@ -116,7 +114,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             foreach (var child in Children)
             {
-                *dataPointers = (int)(dataLocations[child] - BaseAddress);
+                *dataPointers = (int)(dataLocations[child] - baseAddress);
                 dataPointers += 2;
                 *stringPointers = (int)(currentString - strings);
                 stringPointers += 2;

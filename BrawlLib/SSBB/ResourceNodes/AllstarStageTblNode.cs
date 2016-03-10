@@ -91,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             VoidPtr ptr = WorkingUncompressed.Address + 8;
-            foreach (string s in new string[] { "Very Easy", "Easy", "Normal", "Hard", "Very Hard" })
+            foreach (string s in new string[] { "Easy", "Normal", "Hard", "Very Hard", "Intense" })
             {
                 DataSource source = new DataSource(ptr, sizeof(AllstarDifficultyData));
                 var node = new AllstarDifficultyNode();
@@ -128,7 +128,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         private int _stage1, _stage2, _stage3, _stage4, _stage5;
 
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.Container; } }
 
         [TypeConverter(typeof(DropDownListStageIDs))]
         public int Stage1 { get { return _stage1; } set { _stage1 = value; SignalPropertyChange(); } }
