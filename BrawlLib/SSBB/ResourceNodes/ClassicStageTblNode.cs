@@ -13,9 +13,6 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         private ClassicStageBlock data;
 
-        // Hack to maintain ordering from replacement file upon replace
-        private static ushort _staticCounter;
-
         [TypeConverter(typeof(DropDownListStageIDs))]
         public int StageID1 { get { return data._stageID1; } set { data._stageID1 = (ushort)value; SignalPropertyChange(); } }
         [TypeConverter(typeof(DropDownListStageIDs))]
@@ -42,11 +39,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 stageList.Add(found == null ? stageID.ToString() : found.PacBasename);
             }
 
-            _name = "Classic Stage Block (" + string.Join(", ", stageList) + ") ";
-            // Hack to maintain ordering from replacement file upon replace. The Unicode block from U+2500 to U+25FF is all populated with various symbols.
-            _name += (char)(0x2500 + _staticCounter / 256);
-            _name += (char)(0x2500 + _staticCounter % 256);
-            _staticCounter++;
+            _name = "Classic Stage Block (" + string.Join(", ", stageList) + ")";
 
             return false;
         }

@@ -60,9 +60,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public byte FighterID { get { return _fighterID; } set { _fighterID = value; SignalPropertyChange(); } }
         public float Unknown04 { get { return _unknown04; } set { _unknown04 = value; SignalPropertyChange(); } }
 
-        // Hack to maintain ordering from replacement file upon replace
-        private static ushort _staticCounter;
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -78,11 +75,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_name == null)
             {
                 var fighter = Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
-                _name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name)) + " ";
-                // Hack to maintain ordering from replacement file upon replace. The Unicode block from U+2500 to U+25FF is all populated with various symbols.
-                _name += (char)(0x2500 + _staticCounter / 256);
-                _name += (char)(0x2500 + _staticCounter % 256);
-                _staticCounter++;
+                _name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
             }
 
             return true;

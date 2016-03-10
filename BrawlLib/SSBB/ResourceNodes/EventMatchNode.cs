@@ -52,9 +52,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         private EventMatchFighterHeader data;
 
-        // Hack to maintain ordering from replacement file upon replace
-        private static ushort _staticCounter;
-
         [TypeConverter(typeof(DropDownListFighterIDs))]
         public byte FighterID { get { return data._fighterID; } set { data._fighterID = value; SignalPropertyChange(); } }
 
@@ -122,11 +119,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void UpdateName()
         {
             var fighter = Fighter.Fighters.Where(s => s.ID == FighterID).FirstOrDefault();
-            Name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name)) + " ";
-            // Hack to maintain ordering from replacement file upon replace. The Unicode block from U+2500 to U+25FF is all populated with various symbols.
-            _name += (char)(0x2500 + _staticCounter / 256);
-            _name += (char)(0x2500 + _staticCounter % 256);
-            _staticCounter++;
+            Name = "Fighter: 0x" + FighterID.ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
         }
     }
 

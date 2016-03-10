@@ -68,6 +68,9 @@ namespace BrawlBox
                             {
                                 tn.Link(n);
                                 found = true;
+                                // Move node to bottom, to ensure that nodes are shown and saved in the same order as in the original data
+                                nodes.Remove(tn);
+                                nodes.Add(tn);
                                 break;
                             }
 
