@@ -9,11 +9,9 @@ using System.Text;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class SndBgmTitleDataNode : ARCEntryNode
+    public unsafe class SndBgmTitleDataNode : ResourceNode
     {
         public override ResourceType ResourceType { get { return ResourceType.SndBgmTitleDataFolder; } }
-
-        private static byte[] EndString = Encoding.ASCII.GetBytes("sndBgmTitleData\0");
 
         public override bool OnInitialize()
         {
@@ -24,61 +22,26 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            int dataLength = ((SndBgmTitleHeader*)WorkingUncompressed.Address)->_DataLength;
-            for (int i = 0; i < dataLength; i += sizeof(SndBgmTitleEntry))
+            for (int i = 0; i < WorkingUncompressed.Length; i += sizeof(SndBgmTitleEntry))
             {
-                DataSource source = new DataSource(WorkingUncompressed.Address + sizeof(SndBgmTitleHeader) + i, sizeof(SndBgmTitleEntry));
+                DataSource source = new DataSource(WorkingUncompressed.Address + i, sizeof(SndBgmTitleEntry));
                 new SndBgmTitleEntryNode().Initialize(this, source);
             }
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            // Update base address for children.
-            VoidPtr BaseAddress = (VoidPtr)address + sizeof(SndBgmTitleHeader);
-
-            // Calculate data length
-            int dataLength = sizeof(SndBgmTitleEntry) * Children.Count;
-            VoidPtr stringAddress = BaseAddress + dataLength + 8;
-            VoidPtr endAddress = stringAddress + EndString.Length;
-            int fileSize = endAddress - address;
-
-            if (fileSize != length)
-                throw new Exception("Wrong amount of memory allocated for rebuild of sndBgmTitleData");
-
-            // Create header struct at address
-            SndBgmTitleHeader* header = (SndBgmTitleHeader*)address;
-            header->_Length = fileSize;
-            header->_DataLength = dataLength;
-            header->_OffCount = 0;
-            header->_DataTable = 1;
-            header->_pad0 = header->_pad1 =
-            header->_pad2 = header->_pad3 = 0;
-
             // Rebuild children using new address
             for (int i = 0; i < Children.Count; i++)
-                Children[i].Rebuild(BaseAddress + (i * sizeof(SndBgmTitleEntry)), sizeof(SndBgmTitleEntry), true);
-
-            // Finally, write the string
-            Marshal.Copy(EndString, 0, stringAddress, EndString.Length);
+                Children[i].Rebuild(address + (i * sizeof(SndBgmTitleEntry)), sizeof(SndBgmTitleEntry), true);
         }
 
         public override int OnCalculateSize(bool force)
         {
-            int size = sizeof(SndBgmTitleHeader);
+            int size = 0;
             foreach (SndBgmTitleEntryNode node in Children)
                 size += node.CalculateSize(true);
-            size += 8;
-            size += EndString.Length;
             return size;
-        }
-
-        internal static ResourceNode TryParse(DataSource source)
-        {
-            SndBgmTitleHeader* header = (SndBgmTitleHeader*)source.Address;
-            return header->_Length == source.Length &&
-                header->_DataLength < source.Length &&
-                header->Str == "sndBgmTitleData" ? new SndBgmTitleDataNode() : null;
         }
 
         public void CreateEntry()

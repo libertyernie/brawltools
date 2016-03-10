@@ -61,6 +61,15 @@ namespace BrawlLib.SSBB.Types
     {
         public const int Size = 0x36;
 
+        public EventMatchFighterHeader _header;
+        public EventMatchDifficultyData _easy;
+        public EventMatchDifficultyData _normal;
+        public EventMatchDifficultyData _hard;
+    }
+
+    public unsafe struct EventMatchFighterHeader {
+        public const int Size = 0x0C;
+
         public byte _fighterID;
         public byte _status; // normal, metal, invisible
         public byte _unknown02;
@@ -70,9 +79,6 @@ namespace BrawlLib.SSBB.Types
         public byte _unknown09;
         public byte _unknown0a;
         public byte _unknown0b;
-        public EventMatchDifficultyData _easy;
-        public EventMatchDifficultyData _normal;
-        public EventMatchDifficultyData _hard;
     }
 
     public unsafe struct EventMatchDifficultyData
