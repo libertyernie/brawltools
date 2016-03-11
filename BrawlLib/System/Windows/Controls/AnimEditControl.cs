@@ -55,10 +55,15 @@ namespace System.Windows.Forms
             {
                 if (_target.FrameCount > 0)
                 {
-                    CHRAnimationFrame a;
+                    CHRAnimationFrame ain, aout;
                     for (int x = 0; x < _target.FrameCount; x++)
-                        if ((a = _target.GetAnimFrame(x)).HasKeys)
-                            listKeyframes.Items.Add(a);
+                        if ((ain = _target.GetAnimFrame(x)).HasKeys)
+                        {
+                            listKeyframes.Items.Add(ain);
+                            aout = _target.GetAnimFrame(x, true);
+                            if (!ain.Equals(aout))
+                                listKeyframes.Items.Add(aout);
+                        }
 
                     _numFrames = _target.FrameCount;
 
