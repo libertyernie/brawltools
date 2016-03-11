@@ -30,8 +30,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _infoIndex; }
             set
             {
-                Type t = GetType(); int i = 0;
-                switch (GetType().ToString())
+                int i = 0;
+                Type t = GetType();
+                switch (t.Name)
                 {
                     case "RSARSoundNode": i = 0; break;
                     case "RSARBankNode": i = 1; break;

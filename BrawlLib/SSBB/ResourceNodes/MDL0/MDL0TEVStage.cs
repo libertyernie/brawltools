@@ -364,7 +364,7 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x28F8AF;
                 _alphaEnv = 0x08F2F0;
-                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)0;
                 TextureCoordID = TexCoordID.TexCoord0 + texIndex;
@@ -375,7 +375,7 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x08AFF0;
                 _alphaEnv = 0x08FF80;
-                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)1;
                 TextureCoordID = TexCoordID.TexCoord7;
@@ -386,7 +386,7 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x08FEB0;
                 _alphaEnv = 0x081FF0;
-                ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
                 ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)0;
                 TextureCoordID = TexCoordID.TexCoord7;
@@ -397,7 +397,7 @@ Register2: sets the alpha of the 3rd color register in the material's TEV Color 
             {
                 _colorEnv = 0x0806EF;
                 _alphaEnv = 0x081FF0;
-                ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 _colorChan = (ColorSelChan)7;
                 TextureCoordID = TexCoordID.TexCoord7;

@@ -84,8 +84,9 @@ namespace BrawlBox.NodeWrappers
                 return;
             if (n is RSARExtFileNode)
             {
-                if (File.Exists(n.FullExtPath)) 
-                    Process.Start(n.FullExtPath);
+                RSARExtFileNode ext = n as RSARExtFileNode;
+                if (File.Exists(ext.FullExtPath)) 
+                    Process.Start(ext.FullExtPath);
             }
             else
                 new EditRSARFileDialog().ShowDialog(MainForm.Instance, n);

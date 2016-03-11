@@ -75,36 +75,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal string _extPath;
         internal int _fileIndex;
         internal LabelItem[] _labels;
 
-        public uint _extFileSize = 0;
-
         [Category("File Node"), Browsable(true)]
         public virtual int FileNodeIndex { get { return _fileIndex; } }
-        [Browsable(false)]
-        public string ExtPath { get { return _extPath; } set { _extPath = value; SignalPropertyChange(); } }
-        [Browsable(false)]
-        public string FullExtPath
-        {
-            get { return ExtPath == null ? null : RootNode._origPath.Substring(0, RootNode._origPath.LastIndexOf('\\')) + "\\" + ExtPath.Replace('/', '\\'); }
-            set
-            {
-                if (!value.Contains(".") || !value.Contains("\\"))
-                    _extPath = "";
-                else
-                    _extPath = value.Substring(RootNode._origPath.Substring(0, RootNode._origPath.LastIndexOf('\\')).Length + 1).Replace('\\', '/');
-
-                SignalPropertyChange();
-            }
-        }
-        [Browsable(false), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public FileInfo ExternalFileInfo
-        {
-            get { return FullExtPath == null ? null : new FileInfo(FullExtPath); }
-        }
-
+        
         internal int _entryNumber;
         [Category("Data"), Browsable(false)]
         public int EntryNumber
@@ -126,12 +102,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public virtual string DataOffset { get { if (RSARNode != null && Data != null) return ((uint)(Data - (VoidPtr)RSARNode.Header)).ToString("X"); else return "0"; } }
 
         protected virtual void GetStrings(LabelBuilder builder) { }
-
-        public void GetExtSize()
-        {
-            if (ExternalFileInfo.Exists)
-                _extFileSize = (uint)ExternalFileInfo.Length;
-        }
 
         public override bool OnInitialize()
         {

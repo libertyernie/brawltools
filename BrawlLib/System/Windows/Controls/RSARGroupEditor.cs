@@ -82,16 +82,17 @@ namespace System.Windows.Forms
             RSARFileNode file = lstFiles.SelectedItem as RSARFileNode;
             if (file is RSARExtFileNode)
             {
-                if (File.Exists(file.FullExtPath))
-                    Process.Start(file.FullExtPath);
+                RSARExtFileNode m = file as RSARExtFileNode;
+                if (File.Exists(m.FullExtPath))
+                    Process.Start(m.FullExtPath);
                 else
                     using (SoundPathChanger dlg = new SoundPathChanger())
                     {
-                        RSARNode rsar = file.RSARNode;
-                        dlg.FilePath = file.FullExtPath;
+                        RSARNode rsar = m.RSARNode;
+                        dlg.FilePath = m.FullExtPath;
                         dlg.dlg.InitialDirectory = rsar._origPath.Substring(0, rsar._origPath.LastIndexOf('\\'));
                         if (dlg.ShowDialog() == DialogResult.OK)
-                            file.FullExtPath = dlg.FilePath;
+                            m.FullExtPath = dlg.FilePath;
                     }
             }
             else

@@ -80,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             CLR0MaterialNode node = new CLR0MaterialNode();
             CLR0MaterialEntryNode entry = new CLR0MaterialEntryNode();
-            entry._target = EntryTarget.Color0;
+            entry._target = EntryTarget.ColorRegister0;
             entry._name = entry._target.ToString();
             entry._numEntries = -1;
             entry.NumEntries = _numFrames;

@@ -784,7 +784,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FFF8;
                 s._alphaEnv = 0x8FFC0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor3_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor3_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor3_Alpha;
                 s.TextureMapID = TexMapID.TexMap0;
                 s.TextureCoordID = TexCoordID.TexCoord0;
@@ -808,7 +808,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x28F0AF;
                 s._alphaEnv = 0x8FF80;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -820,7 +820,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -832,7 +832,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -854,7 +854,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FFFA;
                 s._alphaEnv = 0x8FFD0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor3_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor3_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor3_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -878,7 +878,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x28F0AF;
                 s._alphaEnv = 0x8FF80;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -890,7 +890,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -902,7 +902,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -924,7 +924,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x28FFF8;
                 s._alphaEnv = 0x8FFC0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap0;
                 s.TextureCoordID = TexCoordID.TexCoord0;
@@ -936,7 +936,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -948,7 +948,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -969,7 +969,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x28FFFA;
                 s._alphaEnv = 0x8FFD0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -981,7 +981,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor1_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;
@@ -993,7 +993,7 @@ namespace BrawlLib.Modeling
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.ConstantColorSelection = TevKColorSel.ConstantColor0_Value;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
                 s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
                 s.TextureCoordID = TexCoordID.TexCoord7;

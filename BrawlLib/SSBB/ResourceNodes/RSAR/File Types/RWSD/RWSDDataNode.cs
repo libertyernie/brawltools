@@ -132,7 +132,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _part3 = *(RWSD_NoteInfo*)list->Get(_offset, 0);
 
             if (_name == null)
-                _name = String.Format("Sound[{0}]", Index);
+                _name = String.Format("[{0}]Data", Index);
 
             if (Parent.Parent.Children.Count > 1 && _part3._waveIndex < Parent.Parent.Children[1].Children.Count)
                 _soundNode = Parent.Parent.Children[1].Children[_part3._waveIndex] as RSARFileAudioNode;
@@ -222,7 +222,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         }
                 }
             }
-            _name = String.Format("{0}", closestMatch);
+            _name = String.Format("{0}", String.IsNullOrEmpty(closestMatch) ? "[" + Index + "]Data" : closestMatch);
         }
     }
 }

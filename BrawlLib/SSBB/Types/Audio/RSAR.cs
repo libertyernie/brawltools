@@ -509,7 +509,7 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x14;
 
-        public buint _dataOffset;
+        public buint _dataID;
         public bint _bankId;
         public buint _allocTrack;
         public byte _channelPriority;

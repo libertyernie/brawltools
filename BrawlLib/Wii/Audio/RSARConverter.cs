@@ -67,7 +67,7 @@ namespace BrawlLib.Wii.Audio
                 
                 files += INFOFileHeader.Size + 4 + (!(s is RSARExtFileNode) ? 
                 (s._groupRefs.Count * (8 + INFOFileEntry.Size)) :
-                (s._extPath.Length + 1).Align(4));
+                (((RSARExtFileNode)s)._extPath.Length + 1).Align(4));
             }
 
             //Footer and Align
@@ -215,21 +215,23 @@ namespace BrawlLib.Wii.Audio
                 {
                     uint extFileSize = 0;
 
-                    //Make an attempt to get current file size
-                    if (file.ExternalFileInfo.Exists)
-                        extFileSize = (uint)file.ExternalFileInfo.Length;
+                    RSARExtFileNode ext = file as RSARExtFileNode;
 
-                    if (file._extFileSize != extFileSize && extFileSize != 0)
-                        file._extFileSize = extFileSize;
+                    //Make an attempt to get current file size
+                    if (ext.ExternalFileInfo.Exists)
+                        extFileSize = (uint)ext.ExternalFileInfo.Length;
+
+                    if (ext._extFileSize != extFileSize && extFileSize != 0)
+                        ext._extFileSize = extFileSize;
 
                     //Shouldn't matter if 0
-                    fileHdr->_headerLen = file._extFileSize;
+                    fileHdr->_headerLen = ext._extFileSize;
 
                     fileHdr->_dataLen = 0;
                     fileHdr->_stringOffset = (uint)((VoidPtr)list - (VoidPtr)baseAddr);
 
                     sbyte* dPtr = (sbyte*)list;
-                    file._extPath.Write(ref dPtr);
+                    ext._extPath.Write(ref dPtr);
                     dataAddr += ((int)((VoidPtr)dPtr - (VoidPtr)dataAddr)).Align(4);
 
                     fileHdr->_listOffset = (uint)((VoidPtr)dataAddr - (VoidPtr)baseAddr);
@@ -301,8 +303,7 @@ namespace BrawlLib.Wii.Audio
             //Build files - order by groups
             foreach (RSARGroupNode g in entries._groups)
             {
-                int headerLen = 0, audioLen = 0;
-                int i = 0;
+                int headerLen = 0, audioLen = 0, i = 0;
                 INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)g._headerAddr + INFOGroupHeader.Size + 4 + g._files.Count * 8);
                 g._headerAddr->_headerOffset = (int)(addr - baseAddress);
                 foreach (RSARFileNode f in g._files)
@@ -405,8 +406,7 @@ namespace BrawlLib.Wii.Audio
 
             str._type = type;
             str._index = node.InfoIndex;
-
-            node._rebuildIndex = group.Count;
+            
             group.Add(node);
 
             if (String.IsNullOrEmpty(str._name))
@@ -454,6 +454,19 @@ namespace BrawlLib.Wii.Audio
             _playerInfo.Sort(Compare);
             _groups.Sort(Compare);
             _banks.Sort(Compare);
+
+            int m = 0;
+            foreach (RSAREntryNode r in _sounds)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _playerInfo)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _groups)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _banks)
+                r._rebuildIndex = m++;
         }
 
         public static int Compare(RSAREntryNode n1, RSAREntryNode n2)

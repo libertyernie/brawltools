@@ -251,7 +251,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
 
             _entryList.SortStrings();
-            //_nullGroup._rebuildIndex = _entryList._groups.Count;
 
             return _converter.CalculateSize(_entryList, this);
         }

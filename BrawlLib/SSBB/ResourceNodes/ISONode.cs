@@ -218,16 +218,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
-            byte[] b = GetPartitionData(0, 0x440);
-            _header = ToStruct<ISOPartitionHeader>(b);
+            //byte[] b = GetPartitionData(0, 0x440);
+            //_header = ToStruct<ISOPartitionHeader>(b);
 
-            byte[] dol = GetPartitionData(_header._dolOffset * OffMult, 0x100);
-            DOLHeader dolHdr = ToStruct<DOLHeader>(dol);
+            //byte[] dol = GetPartitionData(_header._dolOffset * OffMult, 0x100);
+            //DOLHeader dolHdr = ToStruct<DOLHeader>(dol);
 
-            byte[] fullDol = GetPartitionData(_header._dolOffset * OffMult, (int)dolHdr.GetSize());
-            UnsafeBuffer dolBuf = GetBuffer(fullDol);
-            _childBuffers.Add(dolBuf);
-            new DOLNode().Initialize(this, dolBuf.Address, dolBuf.Length);
+            //byte[] fullDol = GetPartitionData(_header._dolOffset * OffMult, (int)dolHdr.GetSize());
+            //UnsafeBuffer dolBuf = GetBuffer(fullDol);
+            //_childBuffers.Add(dolBuf);
+            //new DOLNode().Initialize(this, dolBuf.Address, dolBuf.Length);
 
             return true;
         }

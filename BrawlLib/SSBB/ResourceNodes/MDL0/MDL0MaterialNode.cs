@@ -1821,17 +1821,17 @@ For example, if the shader has two stages but this number is 1, the second stage
                     RGBAPixel mask = e.ColorMask;
                     switch (e.Target)
                     {
-                        case EntryTarget.Ambient0: amb1 = (C1AmbientColor & mask) | color; break;
-                        case EntryTarget.Ambient1: amb2 = (C2AmbientColor & mask) | color; break;
-                        case EntryTarget.Color0: clr1 = (C1MaterialColor & mask) | color; break;
-                        case EntryTarget.Color1: clr2 = (C2MaterialColor & mask) | color; break;
-                        case EntryTarget.TevColorReg0: c1 = ((RGBAPixel)Color0 & mask) | color; break;
-                        case EntryTarget.TevColorReg1: c2 = ((RGBAPixel)Color1 & mask) | color; break;
-                        case EntryTarget.TevColorReg2: c3 = ((RGBAPixel)Color2 & mask) | color; break;
-                        case EntryTarget.TevKonstReg0: k1 = ((RGBAPixel)ConstantColor0 & mask) | color; break;
-                        case EntryTarget.TevKonstReg1: k2 = ((RGBAPixel)ConstantColor1 & mask) | color; break;
-                        case EntryTarget.TevKonstReg2: k3 = ((RGBAPixel)ConstantColor2 & mask) | color; break;
-                        case EntryTarget.TevKonstReg3: k4 = ((RGBAPixel)ConstantColor3 & mask) | color; break;
+                        case EntryTarget.LightChannel0AmbientColor: amb1 = (C1AmbientColor & mask) | color; break;
+                        case EntryTarget.LightChannel1AmbientColor: amb2 = (C2AmbientColor & mask) | color; break;
+                        case EntryTarget.LightChannel0MaterialColor: clr1 = (C1MaterialColor & mask) | color; break;
+                        case EntryTarget.LightChannel1MaterialColor: clr2 = (C2MaterialColor & mask) | color; break;
+                        case EntryTarget.ColorRegister0: c1 = ((RGBAPixel)Color0 & mask) | color; break;
+                        case EntryTarget.ColorRegister1: c2 = ((RGBAPixel)Color1 & mask) | color; break;
+                        case EntryTarget.ColorRegister2: c3 = ((RGBAPixel)Color2 & mask) | color; break;
+                        case EntryTarget.ConstantColorRegister0: k1 = ((RGBAPixel)ConstantColor0 & mask) | color; break;
+                        case EntryTarget.ConstantColorRegister1: k2 = ((RGBAPixel)ConstantColor1 & mask) | color; break;
+                        case EntryTarget.ConstantColorRegister2: k3 = ((RGBAPixel)ConstantColor2 & mask) | color; break;
+                        case EntryTarget.ConstantColorRegister3: k4 = ((RGBAPixel)ConstantColor3 & mask) | color; break;
                     }
                 }
         }

@@ -206,7 +206,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSAREntryNode n = context.Instance as RSAREntryNode;
-            return new StandardValuesCollection(n.RSARNode.Files.Where(x => x is RBNKNode).Select(r => r.ToString()).ToList());
+            return new StandardValuesCollection(n.RSARNode.Files.Where(x => x is RBNKNode || x is RSARExtFileNode).Select(r => r.ToString()).ToList());
         }
     }
 

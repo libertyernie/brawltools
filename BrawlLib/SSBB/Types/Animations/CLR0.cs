@@ -138,17 +138,17 @@ namespace BrawlLib.SSBBTypes
 
     public enum EntryTarget
     {
-        Color0,        // GX_COLOR0A0
-        Color1,        // GX_COLOR1A1
-        Ambient0,      // GX_COLOR0A0
-        Ambient1,      // GX_COLOR1A1
-        TevColorReg0,  // GX_TEVREG0
-        TevColorReg1,  // GX_TEVREG1
-        TevColorReg2,  // GX_TEVREG2
-        TevKonstReg0,  // GX_KCOLOR0
-        TevKonstReg1,  // GX_KCOLOR1
-        TevKonstReg2,  // GX_KCOLOR2
-        TevKonstReg3,  // GX_KCOLOR3
+        LightChannel0MaterialColor,     // GX_COLOR0A0
+        LightChannel1MaterialColor,     // GX_COLOR1A1
+        LightChannel0AmbientColor,      // GX_COLOR0A0
+        LightChannel1AmbientColor,      // GX_COLOR1A1
+        ColorRegister0,                 // GX_TEVREG0
+        ColorRegister1,                 // GX_TEVREG1
+        ColorRegister2,                 // GX_TEVREG2
+        ConstantColorRegister0,         // GX_KCOLOR0
+        ConstantColorRegister1,         // GX_KCOLOR1
+        ConstantColorRegister2,         // GX_KCOLOR2
+        ConstantColorRegister3,         // GX_KCOLOR3
     }
 
     [Flags]
