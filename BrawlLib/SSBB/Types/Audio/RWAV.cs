@@ -174,15 +174,12 @@ namespace BrawlLib.SSBBTypes
 
         public fixed short _coefs[16];
 
-        // TODO: Values below should probably be little endian, and they need to be written in the proper location too. Seems like they're all two bytes ahead of the proper location?? -libertyernie
-
-        public bushort _gain;
-        public bshort _ps; //Predictor and scale. This will be initialized to the predictor and scale value of the sample's first frame.
-        public bshort _yn1; //History data; used to maintain decoder state during sample playback.
-        public bshort _yn2; //History data; used to maintain decoder state during sample playback.
-        public bshort _lps; //Predictor/scale for the loop point frame. If the sample does not loop, this value is zero.
-        public bshort _lyn1; //History data for the loop point. If the sample does not loop, this value is zero.
-        public bshort _lyn2; //History data for the loop point. If the sample does not loop, this value is zero.
-        public bshort _pad;
+        public short _ps; //Predictor and scale. This will be initialized to the predictor and scale value of the sample's first frame.
+        public short _yn1; //History data; used to maintain decoder state during sample playback.
+        public short _yn2; //History data; used to maintain decoder state during sample playback.
+        public short _lps; //Predictor/scale for the loop point frame. If the sample does not loop, this value is zero.
+        public short _lyn1; //History data for the loop point. If the sample does not loop, this value is zero.
+        public short _lyn2; //History data for the loop point. If the sample does not loop, this value is zero.
+        public short _pad;
     }
 }
