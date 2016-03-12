@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SSBB\Types\Audio\CSTM.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\StringExtension.cs" />
     <Compile Include="Wii\Audio\AudioConverter.cs" />
@@ -55,6 +56,7 @@
     <Compile Include="System\Int64Extension.cs" />
     <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
     <Compile Include="SSBB\Types\Audio\RSTM.cs" />
+    <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\RSTMConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SSBB\Types\Audio\RWAV.cs" />
