@@ -61,15 +61,10 @@ namespace BrawlLib.Wii.Audio
             foreach (RSAREntryNode s in entries._groups)
                 groups += s.CalculateSize(true);
             foreach (RSARFileNode s in entries._files)
-            {
-                if (s._groupRefs.Count == 0 && !(s is RSARExtFileNode))
-                    Console.WriteLine(s.Name);
-                
                 files += INFOFileHeader.Size + 4 + (!(s is RSARExtFileNode) ? 
-                (s._groupRefs.Count * (8 + INFOFileEntry.Size)) :
-                (((RSARExtFileNode)s)._extPath.Length + 1).Align(4));
-            }
-
+                    (s._groupRefs.Count * (8 + INFOFileEntry.Size)) :
+                    (((RSARExtFileNode)s)._extPath.Length + 1).Align(4));
+            
             //Footer and Align
             _infoLen = ((_infoLen += (sounds + banks + playerInfo + files + groups)) + 0x10).Align(0x20);
 
