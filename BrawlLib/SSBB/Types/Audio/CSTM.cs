@@ -284,13 +284,13 @@ namespace BrawlLib.SSBBTypes
             _tag = Tag;
             _length = length;
             // _dataOffset = 0x18 matches froggestspirit's BRSTM2BCSTM converter.
-            // To match the behavior of soneek's PHP converter, set this to 0 but change _dataOffset reference in Data property below to a hardcoded 0x18.
+            // To match the behavior of soneek's PHP converter, set this to 0.
             _dataOffset = 0x18;
             _pad1 = 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public VoidPtr Data { get { return Address + 8 + _dataOffset; } }
+        public VoidPtr Data { get { return Address + 0x20; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

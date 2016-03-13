@@ -64,21 +64,76 @@ namespace BrawlLib.Wii.Audio
 
         internal static unsafe byte[] ToRSTM(CSTMHeader* cstm)
         {
-            throw new NotImplementedException();
+            CSTMDataInfo cstmDataInfo = cstm->INFOData->_dataInfo;
+            int channels = cstmDataInfo._format._channels;
+
+            // Get section sizes from the BRSTM - BCSTM is such a similar format that we can assume the sizes will match.
+            int rstmSize = 0x40;
+            int infoSize = cstm->_infoBlockSize;
+            int seekSize = cstm->_seekBlockSize;
+            int dataSize = cstm->_dataBlockSize;
+
+            //Create byte array
+            byte[] array = new byte[rstmSize + infoSize + seekSize + dataSize];
+
+            fixed (byte* address = array)
+            {
+                //Get section pointers
+                RSTMHeader* rstm = (RSTMHeader*)address;
+                HEADHeader* info = (HEADHeader*)((byte*)rstm + rstmSize);
+                ADPCHeader* seek = (ADPCHeader*)((byte*)info + infoSize);
+                RSTMDATAHeader* data = (RSTMDATAHeader*)((byte*)seek + seekSize);
+
+                //Initialize sections
+                rstm->Set(infoSize, seekSize, dataSize);
+                info->Set(infoSize, channels);
+                seek->Set(seekSize);
+                data->Set(cstm->DATAData->_length);
+
+                //Set HEAD data
+                *info->Part1 = new StrmDataInfo(cstmDataInfo, rstmSize + infoSize + seekSize + 0x20);
+
+                //Create one ADPCMInfo for each channel
+                IntPtr* adpcData = stackalloc IntPtr[channels];
+                ADPCMInfo** pAdpcm = (ADPCMInfo**)adpcData;
+                for (int i = 0; i < channels; i++)
+                    *(pAdpcm[i] = info->GetChannelInfo(i)) = new ADPCMInfo(*cstm->INFOData->GetChannelInfo(i));
+
+                bshort* seekFrom = (bshort*)cstm->SEEKData->Data;
+                short* seekTo = (short*)seek->Data;
+                for (int i = 0; i < seek->_length / 2 - 8; i++)
+                {
+                    *(seekTo++) = *(seekFrom++);
+                }
+
+                VoidPtr dataFrom = cstm->DATAData->Data;
+                VoidPtr dataTo = data->Data;
+                Memory.Move(dataTo, dataFrom, (uint)data->_length - 8);
+            }
+            return array;
         }
 
 #if RSTMLIB
-#else
-        public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress)
+        public static unsafe byte[] FromRSTM(byte[] rstm)
         {
-            using (FileMap rstmMap = RSTMConverter.Encode(stream, progress))
+            fixed (byte* ptr = rstm)
             {
-                byte[] cstmArray = FromRSTM((RSTMHeader*)rstmMap.Address);
-                FileMap newMap = FileMap.FromTempFile(cstmArray.Length);
-                Marshal.Copy(cstmArray, 0, newMap.Address, cstmArray.Length);
-                return newMap;
+                return FromRSTM((RSTMHeader*)ptr);
             }
         }
-    }
+
+        public static unsafe byte[] ToRSTM(byte[] cstm)
+        {
+            fixed (byte* ptr = cstm)
+            {
+                return ToRSTM((CSTMHeader*)ptr);
+            }
+        }
+
+        public static unsafe byte[] Encode(IAudioStream stream, IProgressTracker progress)
+        {
+            throw new NotImplementedException();
+        }
 #endif
+    }
 }

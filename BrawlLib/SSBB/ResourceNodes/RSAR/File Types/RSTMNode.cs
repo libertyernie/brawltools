@@ -71,7 +71,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             base.OnInitialize();
 
-            TryConversionFromCSTM();
+            if (Header->_header._tag == CSTMHeader.Tag)
+            {
+                byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
+                fixed (byte* ptr = brstm_temp)
+                {
+                    ReplaceRaw(ptr, brstm_temp.Length);
+                    return false;
+                }
+            }
 
             StrmDataInfo* part1 = Header->HEADData->Part1;
 
@@ -94,14 +102,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             return false;
-        }
-
-        private bool TryConversionFromCSTM()
-        {
-            if (Header->_header._tag != CSTMHeader.Tag) return false;
-
-            throw new NotImplementedException();
-            return true;
         }
 
         public override unsafe void Export(string outPath)
@@ -162,7 +162,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 try { ReplaceRaw(RSTMConverter.Encode(stream, null)); }
                 finally { stream.Dispose(); }
 
-            TryConversionFromCSTM();
+            if (Header->_header._tag == CSTMHeader.Tag)
+            {
+                // Untested
+                byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
+                fixed (byte* ptr = brstm_temp)
+                {
+                    ReplaceRaw(ptr, brstm_temp.Length);
+                    return;
+                }
+            }
 
             int offset = ((int)(Header->DATAData->Data) - (int)(Header));
             if (offset < WorkingUncompressed.Length)
