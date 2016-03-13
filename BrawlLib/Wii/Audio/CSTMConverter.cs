@@ -130,9 +130,9 @@ namespace BrawlLib.Wii.Audio
             }
         }
 
-        public static unsafe byte[] Encode(IAudioStream stream, IProgressTracker progress)
+        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
         {
-            throw new NotImplementedException();
+            return FromRSTM(RSTMConverter.EncodeToByteArray(stream, progress));
         }
 #endif
     }
