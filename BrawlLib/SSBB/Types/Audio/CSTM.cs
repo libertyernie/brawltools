@@ -24,8 +24,6 @@ namespace BrawlLib.SSBBTypes
         public RefType _type;
         public short _padding;
         public int _dataOffset;
-
-        //public VoidPtr Offset(VoidPtr baseAddr) { return baseAddr + _dataOffset; }
     }
 
     /// <summary>
@@ -37,9 +35,6 @@ namespace BrawlLib.SSBBTypes
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
         public CSTMReference* Entries { get { return (CSTMReference*)(Address + 4); } }
-        //public VoidPtr Data { get { return Address + _numEntries * 8 + 4; } }
-
-        //public VoidPtr Get(VoidPtr offset, int index) { return offset + Entries[index]._dataOffset; }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -229,6 +224,28 @@ namespace BrawlLib.SSBBTypes
         public int _dataInterval;
 
         public CSTMReference _sampleDataRef;
+
+        public CSTMDataInfo(StrmDataInfo o, int dataOffset = 0x18)
+        {
+            _format = o._format;
+            _sampleRate = o._sampleRate;
+            _loopStartSample = o._loopStartSample;
+            _numSamples = o._numSamples;
+
+            _numBlocks = o._numBlocks;
+            _blockSize = o._blockSize;
+            _samplesPerBlock = o._samplesPerBlock;
+            _lastBlockSize = o._lastBlockSize;
+
+            _lastBlockSamples = o._lastBlockSamples;
+            _lastBlockTotal = o._lastBlockTotal;
+            _bitsPerSample = o._bitsPerSample;
+            _dataInterval = o._dataInterval;
+
+            _sampleDataRef._type = CSTMReference.RefType.SampleData;
+            _sampleDataRef._padding = 0;
+            _sampleDataRef._dataOffset = dataOffset;
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -274,5 +291,37 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
         public VoidPtr Data { get { return Address + 8 + _dataOffset; } }
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct ADPCMInfo_LE
+    {
+        public const int Size = 0x2E;
+
+        public fixed short _coefs[16];
+
+        public short _ps; //Predictor and scale. This will be initialized to the predictor and scale value of the sample's first frame.
+        public short _yn1; //History data; used to maintain decoder state during sample playback.
+        public short _yn2; //History data; used to maintain decoder state during sample playback.
+        public short _lps; //Predictor/scale for the loop point frame. If the sample does not loop, this value is zero.
+        public short _lyn1; //History data for the loop point. If the sample does not loop, this value is zero.
+        public short _lyn2; //History data for the loop point. If the sample does not loop, this value is zero.
+        public short _pad;
+
+        public ADPCMInfo_LE(ADPCMInfo o)
+        {
+            short[] c = o.Coefs;
+            fixed (short* ptr = _coefs)
+                for (int i = 0; i < 16; i++)
+                    ptr[i] = c[i];
+
+            _ps = o._ps;
+            _yn1 = o._yn1;
+            _yn2 = o._yn2;
+            _lps = o._lps;
+            _lyn1 = o._lyn1;
+            _lyn2 = o._lyn2;
+            _pad = o._pad;
+        }
     }
 }
