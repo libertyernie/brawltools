@@ -527,8 +527,7 @@ namespace BrawlBox
 
         private void recentFilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            RecentFileHandler.FileMenuItem fmi = (RecentFileHandler.FileMenuItem)e.ClickedItem;
-            Program.Open(fmi.FileName);
+            Program.Open(((RecentFileHandler.FileMenuItem)e.ClickedItem).FileName);
         }
 
         private void checkForUpdatesToolStripMenuItem_Click_1(object sender, EventArgs e)

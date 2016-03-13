@@ -191,6 +191,15 @@ namespace BrawlBox
 
         public static bool Open(string path)
         {
+            if (String.IsNullOrEmpty(path))
+                return false;
+
+            if (!File.Exists(path))
+            {
+                Say("File does not exist.");
+                return false;
+            }
+
             if (path.EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
             {
                 GCTEditor editor = new GCTEditor();
