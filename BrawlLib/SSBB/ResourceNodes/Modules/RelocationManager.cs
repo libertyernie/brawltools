@@ -20,7 +20,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal Dictionary<int, RelCommand> _commands;
         private Dictionary<int, SolidBrush> _colors;
 
-        public uint BaseOffset { get { return DataNode.Data - ((ResourceNode)_module).WorkingUncompressed.Address; } }
+        public int BaseOffset { get { return DataNode.Data - ((ResourceNode)_module).WorkingUncompressed.Address; } }
         public KeyValuePair<int, RelCommand>[] GetCommands() { return _commands.OrderBy(x => x.Key).ToArray(); }
 
         public int _constructorIndex, _destructorIndex, _unresolvedIndex;

@@ -10,7 +10,7 @@ using System.Windows.Forms;
 
 namespace BrawlLib.Wii.Audio
 {
-    public static class RSTMConverter
+    public static class CSTMConverter
     {
 #if RSTMLIB
         public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
@@ -68,56 +68,55 @@ namespace BrawlLib.Wii.Audio
                 lbTotal = lbSize = 0x2000;
             }
 
-            //Get section sizes
+            //Get section sizes - these were copied from the RSTM encoder and may not hold up for files with >2 channels
             int rstmSize = 0x40;
-            int headSize = (0x68 + (channels * 0x40)).Align(0x20);
-            int adpcSize = ((blocks - 1) * 4 * channels + 0x10).Align(0x20);
+            int infoSize = (0x68 + (channels * 0x40)).Align(0x20);
+            int seekSize = ((blocks - 1) * 4 * channels + 0x10).Align(0x20);
             int dataSize = ((blocks - 1) * 0x2000 + lbTotal) * channels + 0x20;
 
 #if RSTMLIB
             //Create byte array
-            byte[] array = new byte[rstmSize + headSize + adpcSize + dataSize];
+            byte[] array = new byte[rstmSize + infoSize + seekSize + dataSize];
             fixed (byte* address = array) {
 #else
             //Create file map
-            FileMap map = FileMap.FromTempFile(rstmSize + headSize + adpcSize + dataSize);
+            FileMap map = FileMap.FromTempFile(rstmSize + infoSize + seekSize + dataSize);
             VoidPtr address = map.Address;
 #endif
 
             //Get section pointers
-            RSTMHeader* rstm = (RSTMHeader*)address;
-            HEADHeader* head = (HEADHeader*)((byte*)rstm + rstmSize);
-            ADPCHeader* adpc = (ADPCHeader*)((byte*)head + headSize);
-            RSTMDATAHeader* data = (RSTMDATAHeader*)((byte*)adpc + adpcSize);
+            CSTMHeader* rstm = (CSTMHeader*)address;
+            CSTMINFOHeader* info = (CSTMINFOHeader*)((byte*)rstm + rstmSize);
+            CSTMSEEKHeader* seek = (CSTMSEEKHeader*)((byte*)info + infoSize);
+            CSTMDATAHeader* data = (CSTMDATAHeader*)((byte*)seek + seekSize);
 
             //Initialize sections
-            rstm->Set(headSize, adpcSize, dataSize);
-            head->Set(headSize, channels);
-            adpc->Set(adpcSize);
+            rstm->Set(infoSize, seekSize, dataSize);
+            info->Set(infoSize, channels);
+            seek->Set(seekSize);
             data->Set(dataSize);
 
             //Set HEAD data
-            StrmDataInfo* part1 = head->Part1;
-            part1->_format = new AudioFormatInfo(2, (byte)(looped ? 1 : 0), (byte)channels, 0);
-            part1->_sampleRate = (ushort)sampleRate;
-            part1->_blockHeaderOffset = 0;
-            part1->_loopStartSample = loopStart;
-            part1->_numSamples = totalSamples;
-            part1->_dataOffset = rstmSize + headSize + adpcSize + 0x20;
-            part1->_numBlocks = blocks;
-            part1->_blockSize = 0x2000;
-            part1->_samplesPerBlock = 0x3800;
-            part1->_lastBlockSize = lbSize;
-            part1->_lastBlockSamples = lbSamples;
-            part1->_lastBlockTotal = lbTotal;
-            part1->_dataInterval = 0x3800;
-            part1->_bitsPerSample = 4;
+            info->_dataInfo._format = new AudioFormatInfo(2, (byte)(looped ? 1 : 0), (byte)channels, 0);
+            info->_dataInfo._sampleRate = (ushort)sampleRate;
+            info->_dataInfo._loopStartSample = loopStart;
+            info->_dataInfo._numSamples = totalSamples;
+            info->_dataInfo._sampleDataRef._type = CSTMReference.RefType.SampleData;
+            info->_dataInfo._sampleDataRef._dataOffset = 0x18;
+            info->_dataInfo._numBlocks = blocks;
+            info->_dataInfo._blockSize = 0x2000;
+            info->_dataInfo._samplesPerBlock = 0x3800;
+            info->_dataInfo._lastBlockSize = lbSize;
+            info->_dataInfo._lastBlockSamples = lbSamples;
+            info->_dataInfo._lastBlockTotal = lbTotal;
+            info->_dataInfo._dataInterval = 0x3800;
+            info->_dataInfo._bitsPerSample = 4;
             
             //Create one ADPCMInfo for each channel
             int* adpcData = stackalloc int[channels];
-            ADPCMInfo** pAdpcm = (ADPCMInfo**)adpcData;
+            ADPCMInfo_LE** pAdpcm = (ADPCMInfo_LE**)adpcData;
             for (int i = 0; i < channels; i++)
-                *(pAdpcm[i] = head->GetChannelInfo(i)) = new ADPCMInfo() { _pad = 0 };
+                *(pAdpcm[i] = info->GetChannelInfo(i)) = new ADPCMInfo_LE() { _pad = 0 };
 
             //Create buffer for each channel
             int* bufferData = stackalloc int[channels];
@@ -148,11 +147,19 @@ namespace BrawlLib.Wii.Audio
 
             //Calculate coefs
             for (int i = 0; i < channels; i++)
+            {
                 AudioConverter.CalcCoefs(channelBuffers[i] + 2, totalSamples, (short*)pAdpcm[i], progress);
+
+                //short* from = (short*)pAdpcm[i];
+                //bshort* to = (bshort*)from;
+                //for (int j=0; j<16; j++) { 
+                //    *(to++) = *(from++);
+                //}
+            }
 
             //Encode blocks
             byte* dPtr = (byte*)data->Data;
-            bshort* pyn = (bshort*)adpc->Data;
+            short* pyn = (short*)seek->Data;
             for (int sIndex = 0, bIndex = 1; sIndex < totalSamples; sIndex += 0x3800, bIndex++)
             {
                 int blockSamples = Math.Min(totalSamples - sIndex, 0x3800);
@@ -194,12 +201,12 @@ namespace BrawlLib.Wii.Audio
             }
 
             //Reverse coefs
-            for (int i = 0; i < channels; i++)
-            {
-                short* p = pAdpcm[i]->_coefs;
-                for (int x = 0; x < 16; x++, p++)
-                    *p = p->Reverse();
-            }
+            //for (int i = 0; i < channels; i++)
+            //{
+            //    short* p = pAdpcm[i]->_coefs;
+            //    for (int x = 0; x < 16; x++, p++)
+            //        *p = p->Reverse();
+            //}
 
             //Write loop states
             if (looped)

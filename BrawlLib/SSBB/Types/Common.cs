@@ -108,7 +108,7 @@ namespace BrawlLib.SSBBTypes
 
         public DataBlockCollection Entries { get { return new DataBlockCollection(DataBlock); } }
     }
-
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct NW4FCommonHeader
     {
@@ -210,6 +210,8 @@ namespace BrawlLib.SSBBTypes
         }
     }
 
+#if RSTMLIB
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct SSBBEntryHeader
     {
@@ -413,4 +415,5 @@ namespace BrawlLib.SSBBTypes
             }
         }
     }
+#endif
 }

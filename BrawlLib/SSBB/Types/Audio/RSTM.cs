@@ -42,7 +42,15 @@ namespace BrawlLib.SSBBTypes
             _header._length = len + dataLen;
 
             //Fill padding
+#if RSTMLIB
+            byte* start = (byte*)Address + 0x28;
+            byte* end = start + 0x18;
+            for (byte* ptr = start; ptr < end; ptr++) {
+                *ptr = 0;
+            }
+#else
             Memory.Fill(Address + 0x28, 0x18, 0);
+#endif
         }
 
         public HEADHeader* HEADData { get { return (HEADHeader*)(Address + _headOffset); } }
@@ -64,7 +72,7 @@ namespace BrawlLib.SSBBTypes
         public void Set(int size, int channels)
         {
             RuintList* list;
-            uint offset = _entries.Address;
+            VoidPtr offset = _entries.Address;
             int dataOffset = 0x60 + (channels * 8);
 
             _tag = Tag;

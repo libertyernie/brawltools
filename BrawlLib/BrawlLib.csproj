@@ -204,6 +204,7 @@
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\Audio\CSTM.cs" />
     <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
     <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
@@ -252,6 +253,7 @@
     <None Include="SSBB\Types\Wii U\FTEX.cs" />
     <None Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
     <Compile Include="System\UInt64Extension.cs" />
@@ -829,6 +831,7 @@
     <None Include="WiiU\ElementCodec.cs" />
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
+    <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
     <Compile Include="Wii\Audio\RSARSoundConverter.cs" />
     <Compile Include="Wii\Compression\Huffman.cs" />
