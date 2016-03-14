@@ -71,6 +71,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             base.OnInitialize();
 
+            if (Header->_header._tag == CSTMHeader.Tag)
+            {
+                byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
+                fixed (byte* ptr = brstm_temp)
+                {
+                    ReplaceRaw(ptr, brstm_temp.Length);
+                    return false;
+                }
+            }
+
             StrmDataInfo* part1 = Header->HEADData->Part1;
 
             _encoding = part1->_format._encoding;
@@ -122,6 +132,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                             //Append audio samples to the end
                             Memory.Move(addr, _audioSource.Address, (uint)_audioSource.Length);
+
+                            if (outPath.EndsWith(".bcstm"))
+                            {
+                                byte[] bcstm_temp = CSTMConverter.FromRSTM(hdr);
+                                fixed (byte* ptr = bcstm_temp)
+                                {
+                                    Memory.Move(map.Address, ptr, (uint)bcstm_temp.Length);
+                                }
+                            }
                         }
                     }
                 }
@@ -143,6 +162,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 try { ReplaceRaw(RSTMConverter.Encode(stream, null)); }
                 finally { stream.Dispose(); }
 
+            if (Header->_header._tag == CSTMHeader.Tag)
+            {
+                // Untested
+                byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
+                fixed (byte* ptr = brstm_temp)
+                {
+                    ReplaceRaw(ptr, brstm_temp.Length);
+                    return;
+                }
+            }
+
             int offset = ((int)(Header->DATAData->Data) - (int)(Header));
             if (offset < WorkingUncompressed.Length)
             {
@@ -151,6 +181,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal static ResourceNode TryParse(DataSource source) { return ((RSTMHeader*)source.Address)->_header._tag == RSTMHeader.Tag ? new RSTMNode() : null; }
+        internal static ResourceNode TryParse(DataSource source) {
+            BinTag tag = ((RSTMHeader*)source.Address)->_header._tag;
+            return tag == RSTMHeader.Tag || tag == CSTMHeader.Tag ? new RSTMNode() : null;
+        }
     }
 }

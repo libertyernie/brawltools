@@ -15,7 +15,9 @@ namespace System.Windows.Forms
         private System.ComponentModel.IContainer components;
         private ComboBox lstStreams;
         private CustomTrackBar trackBarVolume;
+        private Panel panel1;
         private Panel panel2;
+        private Panel panel3;
         private CheckBox chkLoop;
 
         private void InitializeComponent()
@@ -27,19 +29,24 @@ namespace System.Windows.Forms
             this.lblProgress = new System.Windows.Forms.Label();
             this.tmrUpdate = new System.Windows.Forms.Timer(this.components);
             this.lstStreams = new System.Windows.Forms.ComboBox();
+            this.panel1 = new System.Windows.Forms.Panel();
             this.panel2 = new System.Windows.Forms.Panel();
+            this.panel3 = new System.Windows.Forms.Panel();
             this.trackBarVolume = new System.Windows.Forms.CustomTrackBar();
             this.trackBarPosition = new System.Windows.Forms.CustomTrackBar();
+            this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
+            this.panel3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarVolume)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPosition)).BeginInit();
             this.SuspendLayout();
             // 
             // btnPlay
             // 
-            this.btnPlay.Location = new System.Drawing.Point(35, 4);
+            this.btnPlay.AutoSize = true;
+            this.btnPlay.Location = new System.Drawing.Point(34, 3);
             this.btnPlay.Name = "btnPlay";
-            this.btnPlay.Size = new System.Drawing.Size(73, 20);
+            this.btnPlay.Size = new System.Drawing.Size(73, 23);
             this.btnPlay.TabIndex = 1;
             this.btnPlay.Text = "Play";
             this.btnPlay.UseVisualStyleBackColor = true;
@@ -47,9 +54,10 @@ namespace System.Windows.Forms
             // 
             // btnRewind
             // 
-            this.btnRewind.Location = new System.Drawing.Point(5, 4);
+            this.btnRewind.AutoSize = true;
+            this.btnRewind.Location = new System.Drawing.Point(3, 3);
             this.btnRewind.Name = "btnRewind";
-            this.btnRewind.Size = new System.Drawing.Size(24, 20);
+            this.btnRewind.Size = new System.Drawing.Size(25, 23);
             this.btnRewind.TabIndex = 2;
             this.btnRewind.Text = "|<";
             this.btnRewind.UseVisualStyleBackColor = true;
@@ -57,9 +65,10 @@ namespace System.Windows.Forms
             // 
             // chkLoop
             // 
-            this.chkLoop.Location = new System.Drawing.Point(114, 5);
+            this.chkLoop.AutoSize = true;
+            this.chkLoop.Location = new System.Drawing.Point(113, 7);
             this.chkLoop.Name = "chkLoop";
-            this.chkLoop.Size = new System.Drawing.Size(50, 20);
+            this.chkLoop.Size = new System.Drawing.Size(50, 17);
             this.chkLoop.TabIndex = 3;
             this.chkLoop.Text = "Loop";
             this.chkLoop.UseVisualStyleBackColor = true;
@@ -67,11 +76,10 @@ namespace System.Windows.Forms
             // 
             // lblProgress
             // 
-            this.lblProgress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.lblProgress.Location = new System.Drawing.Point(0, 31);
+            this.lblProgress.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.lblProgress.Location = new System.Drawing.Point(0, 0);
             this.lblProgress.Name = "lblProgress";
-            this.lblProgress.Size = new System.Drawing.Size(377, 23);
+            this.lblProgress.Size = new System.Drawing.Size(259, 27);
             this.lblProgress.TabIndex = 4;
             this.lblProgress.Text = "0/0";
             this.lblProgress.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -83,35 +91,55 @@ namespace System.Windows.Forms
             // 
             // lstStreams
             // 
-            this.lstStreams.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)));
+            this.lstStreams.Dock = System.Windows.Forms.DockStyle.Right;
             this.lstStreams.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.lstStreams.FormattingEnabled = true;
-            this.lstStreams.Location = new System.Drawing.Point(219, 34);
+            this.lstStreams.Location = new System.Drawing.Point(259, 0);
             this.lstStreams.Name = "lstStreams";
             this.lstStreams.Size = new System.Drawing.Size(73, 21);
             this.lstStreams.TabIndex = 5;
             this.lstStreams.SelectedIndexChanged += new System.EventHandler(this.lstStreams_SelectedIndexChanged);
             // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.lblProgress);
+            this.panel1.Controls.Add(this.lstStreams);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(0, 45);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(332, 27);
+            this.panel1.TabIndex = 10;
+            // 
             // panel2
             // 
-            this.panel2.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.panel2.Controls.Add(this.btnPlay);
-            this.panel2.Controls.Add(this.btnRewind);
-            this.panel2.Controls.Add(this.chkLoop);
-            this.panel2.Location = new System.Drawing.Point(116, 61);
+            this.panel2.Controls.Add(this.panel3);
+            this.panel2.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.panel2.Location = new System.Drawing.Point(0, 72);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(167, 30);
-            this.panel2.TabIndex = 9;
+            this.panel2.Size = new System.Drawing.Size(332, 48);
+            this.panel2.TabIndex = 12;
+            // 
+            // panel3
+            // 
+            this.panel3.Anchor = System.Windows.Forms.AnchorStyles.Top;
+            this.panel3.AutoSize = true;
+            this.panel3.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.panel3.Controls.Add(this.chkLoop);
+            this.panel3.Controls.Add(this.btnPlay);
+            this.panel3.Controls.Add(this.btnRewind);
+            this.panel3.Location = new System.Drawing.Point(83, 6);
+            this.panel3.Name = "panel3";
+            this.panel3.Size = new System.Drawing.Size(166, 29);
+            this.panel3.TabIndex = 12;
             // 
             // trackBarVolume
             // 
-            this.trackBarVolume.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.trackBarVolume.Location = new System.Drawing.Point(329, 31);
+            this.trackBarVolume.Dock = System.Windows.Forms.DockStyle.Right;
+            this.trackBarVolume.Location = new System.Drawing.Point(332, 45);
             this.trackBarVolume.Maximum = 100;
             this.trackBarVolume.Name = "trackBarVolume";
             this.trackBarVolume.Orientation = System.Windows.Forms.Orientation.Vertical;
-            this.trackBarVolume.Size = new System.Drawing.Size(45, 89);
+            this.trackBarVolume.Size = new System.Drawing.Size(45, 75);
             this.trackBarVolume.TabIndex = 6;
             this.trackBarVolume.TickFrequency = 25;
             this.trackBarVolume.Value = 100;
@@ -119,9 +147,8 @@ namespace System.Windows.Forms
             // 
             // trackBarPosition
             // 
-            this.trackBarPosition.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.trackBarPosition.Location = new System.Drawing.Point(0, 4);
+            this.trackBarPosition.Dock = System.Windows.Forms.DockStyle.Top;
+            this.trackBarPosition.Location = new System.Drawing.Point(0, 0);
             this.trackBarPosition.Name = "trackBarPosition";
             this.trackBarPosition.Size = new System.Drawing.Size(377, 45);
             this.trackBarPosition.TabIndex = 0;
@@ -131,14 +158,17 @@ namespace System.Windows.Forms
             // 
             // AudioPlaybackPanel
             // 
-            this.Controls.Add(this.lstStreams);
             this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel1);
             this.Controls.Add(this.trackBarVolume);
-            this.Controls.Add(this.lblProgress);
             this.Controls.Add(this.trackBarPosition);
             this.Name = "AudioPlaybackPanel";
             this.Size = new System.Drawing.Size(377, 120);
+            this.panel1.ResumeLayout(false);
             this.panel2.ResumeLayout(false);
+            this.panel2.PerformLayout();
+            this.panel3.ResumeLayout(false);
+            this.panel3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarVolume)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trackBarPosition)).EndInit();
             this.ResumeLayout(false);

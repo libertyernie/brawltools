@@ -2,6 +2,7 @@
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
+using System.Collections.Generic;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -51,6 +52,25 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _name = String.Format("[{0}] {1}", _fileIndex, _extPath);
             _extFileSize = Header->_headerLen;
             return false;
+        }
+
+        public List<RSARBankNode> _rsarBankEntries = new List<RSARBankNode>();
+        internal void AddBankRef(RSARBankNode n)
+        {
+            if (!_rsarBankEntries.Contains(n))
+            {
+                _rsarBankEntries.Add(n);
+                _references.Add(n.TreePath);
+            }
+        }
+
+        public void RemoveBankRef(RSARBankNode n)
+        {
+            if (_rsarBankEntries.Contains(n))
+            {
+                _rsarBankEntries.Remove(n);
+                _references.Remove(n.TreePath);
+            }
         }
     }
 }

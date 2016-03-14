@@ -88,6 +88,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _waveDataNode.GetName();
                         _waveDataNode = null;
                     }
+                    if (_seqLabl != null)
+                    {
+                        _seqInfo._dataID = 0;
+                        _se = null;
+                    }
                     _soundFileNode = value;
                     SignalPropertyChange();
                 }
@@ -179,7 +184,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("SEQ Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSeqLabls))]
         public string SeqLabelEntry
         {
-            get { return _seqLabl == null ? _seqInfo._dataID < 0 ? "<null>" : _seqInfo._dataID.ToString() : _seqLabl._name; }
+            get
+            {
+                return _seqLabl == null ? 
+                    (_soundFileNode is RSARExtFileNode && SoundType == SndType.SEQ) ? "<null>" : 
+                    _seqInfo._dataID.ToString() : _seqLabl._name;
+            }
             set
             {
                 if (String.IsNullOrEmpty(value))

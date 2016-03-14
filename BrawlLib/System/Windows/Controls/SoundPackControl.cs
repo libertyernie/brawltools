@@ -565,31 +565,40 @@ namespace System.Windows.Forms
                             g._files.RemoveAt(m--);
                         }
                 }
-                if (i._node is RWSDNode)
-                {
-                    if (i._node.Children.Count > 0)
-                        foreach (RWSDDataNode d in i._node.Children[0].Children)
-                        {
-                            foreach (RSARSoundNode r in d._refs)
-                            {
+                //if (i._node is RWSDNode)
+                //{
+                //    if (i._node.Children.Count > 0)
+                //        foreach (RWSDDataNode d in i._node.Children[0].Children)
+                //        {
+                //            foreach (RSARSoundNode r in d._refs)
+                //            {
 
-                            }
-                        }
-                }
-                else if (i._node is RSEQNode)
+                //            }
+                //        }
+                //}
+                //else if (i._node is RSEQNode)
+                //{
+                //    foreach (RSEQLabelNode d in i._node.Children)
+                //    {
+
+                //    }
+                //}
+                //else 
+                List<RSARBankNode> rbnkRefs = null;
+                if (i._node is RBNKNode)
                 {
-                    foreach (RSEQLabelNode d in i._node.Children)
+                    RBNKNode rbnk = i._node as RBNKNode;
+                    rbnkRefs = rbnk._rsarBankEntries;
+                    for (int j = 0; j < rbnk._rsarBankEntries.Count; ++j)
                     {
-
+                        RSARBankNode b = rbnk._rsarBankEntries[j];
+                        b.BankNode = null;
                     }
-                }
-                else if (i._node is RBNKNode)
-                {
-                    if (i._node.Children.Count > 0)
-                        foreach (RBNKDataEntryNode d in i._node.Children[0].Children)
-                        {
-                            
-                        }
+                    //if (i._node.Children.Count > 0)
+                    //    foreach (RBNKDataEntryNode d in i._node.Children[0].Children)
+                    //    {
+
+                    //    }
                 }
 
                 _targetNode.Files.RemoveAt(i.Index);
@@ -601,8 +610,14 @@ namespace System.Windows.Forms
 
                 ext.ExtPath = (dir + fileName).Replace('\\', '/');
                 ext.Name = String.Format("[{0}] {1}", i.Index, ext.ExtPath);
-                i._node = ext;
-                
+
+                if ((i._node is RBNKNode || i._node is RSARExtFileNode) && rbnkRefs != null)
+                {
+                    RBNKNode rbnk = i._node as RBNKNode;
+                    foreach (RSARBankNode b in rbnkRefs)
+                        b.BankNode = ext;
+                }
+
                 //Remake references
                 for (int groupID = 0; groupID < refs.Length; ++groupID)
                 {
@@ -613,7 +628,10 @@ namespace System.Windows.Forms
                     
                     ext._groupRefs.Add(group);
                 }
+
+                i._node = ext;
             }
+            _targetNode.IsDirty = true;
             Update(lstSets);
         }
 

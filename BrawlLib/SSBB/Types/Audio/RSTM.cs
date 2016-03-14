@@ -62,7 +62,7 @@ namespace BrawlLib.SSBBTypes
         public void Set(int size, int channels)
         {
             RuintList* list;
-            uint offset = _entries.Address;
+            VoidPtr offset = _entries.Address;
             int dataOffset = 0x60 + (channels * 8);
 
             _tag = Tag;
@@ -150,6 +150,24 @@ namespace BrawlLib.SSBBTypes
         public bint _lastBlockTotal; //Includes padding
         public bint _dataInterval; //0x3800
         public bint _bitsPerSample;
+
+        public unsafe StrmDataInfo(CSTMDataInfo o, int dataOffset)
+        {
+            _format = o._format;
+            _sampleRate = checked((ushort)o._sampleRate);
+            _blockHeaderOffset = 0;
+            _loopStartSample = o._loopStartSample;
+            _numSamples = o._numSamples;
+            _dataOffset = dataOffset;
+            _numBlocks = o._numBlocks;
+            _blockSize = o._blockSize;
+            _samplesPerBlock = o._samplesPerBlock;
+            _lastBlockSize = o._lastBlockSize;
+            _lastBlockSamples = o._lastBlockSamples;
+            _lastBlockTotal = o._lastBlockTotal;
+            _dataInterval = o._dataInterval;
+            _bitsPerSample = o._bitsPerSample;
+        }
 
         //public void Set(int sampleRate, int loopStart, int numSamples, int channels, int dataOffset)
         //{

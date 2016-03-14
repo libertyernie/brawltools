@@ -122,6 +122,8 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -204,6 +206,7 @@
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\Audio\CSTM.cs" />
     <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
     <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
@@ -252,6 +255,7 @@
     <None Include="SSBB\Types\Wii U\FTEX.cs" />
     <None Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
     <Compile Include="System\UInt64Extension.cs" />
@@ -304,7 +308,9 @@
     <Compile Include="OpenGL\TKContext.cs" />
     <Compile Include="OpenGL\GLCamera.cs" />
     <Compile Include="OpenGL\GLDisplayList.cs" />
-    <Compile Include="OpenGL\GLPanel.cs" />
+    <Compile Include="OpenGL\GLPanel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="OpenGL\GLTexture.cs" />
     <Compile Include="OpenGL\IRenderedObject.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />
@@ -827,8 +833,10 @@
       <DependentUpon>TransformAttributesForm.cs</DependentUpon>
     </Compile>
     <None Include="WiiU\ElementCodec.cs" />
+    <Compile Include="Wii\Animations\CHR0JsonImporter.cs" />
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
+    <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
     <Compile Include="Wii\Audio\RSARSoundConverter.cs" />
     <Compile Include="Wii\Compression\Huffman.cs" />

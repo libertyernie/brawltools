@@ -15,16 +15,47 @@ namespace BrawlLib.SSBB.ResourceNodes
 #endif
         public override int StringId { get { return Header == null ? -1 : (int)Header->_stringId; } }
 
-        internal RBNKNode _rbnk;
+        private RSARFileNode _rbnk;
 
         [Browsable(false)]
-        public RBNKNode BankNode
+        public RSARFileNode BankNode
         {
             get { return _rbnk; }
             set
             {
                 if (_rbnk != value)
-                    _rbnk = value;
+                {
+                    if (_rbnk != null)
+                    {
+                        if (_rbnk is RSARExtFileNode)
+                        {
+                            RSARExtFileNode ext = _rbnk as RSARExtFileNode;
+                            ext.RemoveBankRef(this);
+                        }
+                        else if (_rbnk is RBNKNode)
+                        {
+                            RBNKNode ext = _rbnk as RBNKNode;
+                            ext.RemoveBankRef(this);
+                        }
+                        _rbnk = null;
+                    }
+
+                    if (value is RBNKNode || value is RSARExtFileNode)
+                    {
+                        _rbnk = value;
+                        if (_rbnk is RSARExtFileNode)
+                        {
+                            RSARExtFileNode ext = _rbnk as RSARExtFileNode;
+                            ext.AddBankRef(this);
+                        }
+                        else if (_rbnk is RBNKNode)
+                        {
+                            RBNKNode ext = _rbnk as RBNKNode;
+                            ext.AddBankRef(this);
+                        }
+                    }
+                }
+                SignalPropertyChange();
             }
         }
         [Category("INFO Bank"), Browsable(true), TypeConverter(typeof(DropDownListBankFiles))]
@@ -38,12 +69,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                 {
                     int t = 0;
-                    RBNKNode node = null;
-                    foreach (ResourceNode r in RSARNode.Files)
+                    RSARFileNode node = null;
+                    foreach (RSARFileNode r in RSARNode.Files)
                     {
-                        if (r.Name == value && r is RBNKNode)
+                        if (r.Name == value && (r is RBNKNode || r is RSARExtFileNode))
                         {
-                            node = r as RBNKNode;
+                            node = r;
                             break;
                         }
                         t++;
@@ -52,7 +83,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         BankNode = node;
                         _fileId = t;
-                        SignalPropertyChange();
                     }
                 }
             }
@@ -69,9 +99,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             _fileId = Header->_fileId;
 
             if (_fileId >= 0 && _fileId < RSARNode.Files.Count)
-                _rbnk = RSARNode.Files[_fileId] as RBNKNode;
-            if (_rbnk != null)
-                _rbnk.AddBankRef(this);
+            {
+                _rbnk = RSARNode.Files[_fileId];
+                if (_rbnk is RSARExtFileNode)
+                {
+                    RSARExtFileNode ext = _rbnk as RSARExtFileNode;
+                    ext.AddBankRef(this);
+                }
+                else if (_rbnk is RBNKNode)
+                {
+                    RBNKNode ext = _rbnk as RBNKNode;
+                    ext.AddBankRef(this);
+                }
+            }
 
             return false;
         }
