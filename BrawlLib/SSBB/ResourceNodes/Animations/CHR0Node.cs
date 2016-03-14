@@ -150,6 +150,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return NodeFactory.FromFile(null, path) as CHR0Node;
             if (path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
                 return CHR0TextImporter.Convert(path);
+            if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                return CHR0JsonImporter.Convert(path);
             if (path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
                 return AnimFormat.Read(path);
             //if (path.EndsWith(".bvh", StringComparison.OrdinalIgnoreCase))
@@ -709,36 +711,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public float GetFrameValue(int arrayIndex, float index, bool returnOutValue = false) { return Keyframes.GetFrameValue(arrayIndex, index, returnOutValue); }
 
         public KeyframeEntry GetKeyframe(int arrayIndex, int index) { return Keyframes.GetKeyframe(arrayIndex, index); }
-        public KeyframeEntry SetKeyframe(int arrayIndex, int index, float value)
+        public KeyframeEntry SetKeyframe(int arrayIndex, int index, float value, bool forceNoGenTans = false, bool parsing = false)
         {
-            bool exists = Keyframes.GetKeyframe(arrayIndex, index) != null;
-            KeyframeEntry k = Keyframes.SetFrameValue(arrayIndex, index, value);
+            KeyframeEntry k = Keyframes.SetFrameValue(arrayIndex, index, value, parsing);
 
-            if (!exists && !_generateTangents)
-                k.GenerateTangent();
-
-            if (_generateTangents)
+            if (!forceNoGenTans)
             {
-                k.GenerateTangent();
-
-                if (_alterAdjTangents && _alterAdjTangents_KeyFrame_Set)
-                {
-                    k._prev.GenerateTangent();
-                    k._next.GenerateTangent();
-                }
-            }
-
-            SignalPropertyChange(); 
-            return k;
-        }
-        public KeyframeEntry SetKeyframe(int arrayIndex, int index, float value, bool forceNoGenTans)
-        {
-            KeyframeEntry k = Keyframes.SetFrameValue(arrayIndex, index, value);
-            if (_generateTangents && !forceNoGenTans)
-            {
-                k.GenerateTangent();
-
-                if (_alterAdjTangents && _alterAdjTangents_KeyFrame_Set)
+                bool exists = Keyframes.GetKeyframe(arrayIndex, index) != null;
+                if (_generateTangents || !exists)
+                    k.GenerateTangent();
+                if (_generateTangents && _alterAdjTangents && _alterAdjTangents_KeyFrame_Set)
                 {
                     k._prev.GenerateTangent();
                     k._next.GenerateTangent();
