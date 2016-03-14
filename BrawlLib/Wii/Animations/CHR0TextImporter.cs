@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using BrawlLib.SSBBTypes;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.OpenGL;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,9 +7,7 @@ using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
-using BrawlLib.Imaging;
 using System.IO;
-using System.Runtime.Serialization;
 
 namespace System.Windows.Forms
 {

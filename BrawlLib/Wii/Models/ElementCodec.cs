@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Graphics;
 using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
-using System.Windows.Forms;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.Wii.Models
 {

@@ -1,7 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-
-namespace System.Windows.Forms
+﻿namespace System.Windows.Forms
 {
     public class ProxySplitter : Control
     {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using BrawlLib.IO;
 using System.Audio;
 using BrawlLib.Wii.Audio;

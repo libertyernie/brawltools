@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using System.Threading;
-using System.Drawing;
-using OpenTK.Platform;
 using OpenTK.Graphics.OpenGL;
-using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing.Imaging;
 using System.Collections.Generic;
 using System.Reflection;

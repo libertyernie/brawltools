@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlLib.Imaging;
 using BrawlLib.OpenGL;

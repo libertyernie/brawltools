@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Windows.Forms;
 using BrawlLib.IO;
 using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
-using BrawlLib;
 using Microsoft.Win32;
 
 namespace BrawlBox

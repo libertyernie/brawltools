@@ -1,5 +1,4 @@
-﻿using System;
-namespace System.Audio
+﻿namespace System.Audio
 {
     public interface IAudioStream: IDisposable
     {

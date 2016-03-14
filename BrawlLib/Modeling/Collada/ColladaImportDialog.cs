@@ -1,19 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.IO;
 using System.Windows.Forms;
-using BrawlLib.Wii.Models;
-using BrawlLib.Imaging;
-using BrawlLib.SSBBTypes;
-using BrawlLib.Wii.Graphics;
-using System.Globalization;
-using System.Threading;
-using System.Drawing;
-using System.ComponentModel;
 using System.Reflection;
 
 namespace BrawlLib.Modeling

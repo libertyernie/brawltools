@@ -1,7 +1,6 @@
 using System;
 using System.Drawing;
 using System.Windows.Forms;
-using System.Runtime.InteropServices;
 using System.ComponentModel;
 using System.Security.Permissions;
 using System.Windows.Forms.VisualStyles;
@@ -13,10 +12,10 @@ using System.Globalization;
 
 namespace Be.Windows.Forms
 {
-	/// <summary>
-	/// Represents a hex box control.
-	/// </summary>
-	[ToolboxBitmap(typeof(HexBox), "HexBox.bmp")]
+    /// <summary>
+    /// Represents a hex box control.
+    /// </summary>
+    [ToolboxBitmap(typeof(HexBox), "HexBox.bmp")]
 	public class HexBox : Control
 	{
         const bool _debug = false;

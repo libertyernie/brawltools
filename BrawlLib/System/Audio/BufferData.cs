@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace System.Audio
+﻿namespace System.Audio
 {
     public struct BufferData
     {

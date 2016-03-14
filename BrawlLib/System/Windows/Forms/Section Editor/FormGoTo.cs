@@ -1,15 +1,9 @@
-using System;
-using System.Drawing;
-using System.Collections;
-using System.ComponentModel;
-using System.Windows.Forms;
-
 namespace System.Windows.Forms
 {
-	/// <summary>
-	/// Summary description for FormGoTo.
-	/// </summary>
-	public class FormGoTo : System.Windows.Forms.Form
+    /// <summary>
+    /// Summary description for FormGoTo.
+    /// </summary>
+    public class FormGoTo : System.Windows.Forms.Form
     {
 		private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Button btnOK;

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Text;
-using System.Collections.Generic;
 using System.IO;
 using BrawlLib.IO;
 using System.Collections.ObjectModel;

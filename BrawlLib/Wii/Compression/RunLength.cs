@@ -1,16 +1,10 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
-using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-using System.IO.Compression;
-using BrawlLib.IO;
 using BrawlLib.SSBB.ResourceNodes;
-using System.Linq;
 
 namespace BrawlLib.Wii.Compression
 {

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
-using BrawlLib.OpenGL;
 using System.Drawing;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.Modeling
 {

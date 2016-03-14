@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace System.Audio
+﻿namespace System.Audio
 {
     public abstract class AudioBuffer : IDisposable
     {

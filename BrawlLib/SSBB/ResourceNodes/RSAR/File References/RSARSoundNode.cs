@@ -43,7 +43,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public RSARFileNode _soundFileNode;
         public RWSDDataNode _waveDataNode;
         [Browsable(false)]
-        public RSARBankNode _rbnk
+        public RSARBankNode RBNKNode
         {
             get
             {
@@ -206,7 +206,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("SEQ Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARBankRefFiles))]
         public string BankFile
         {
-            get { return _rbnk == null ? "<null>" : _rbnk.TreePath; }
+            get { return RBNKNode == null ? "<null>" : RBNKNode.TreePath; }
             set
             {
                 if (String.IsNullOrEmpty(value))

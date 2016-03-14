@@ -1,6 +1,4 @@
 ﻿using BrawlLib.Imaging;
-using BrawlLib.SSBB.ResourceNodes;
-using System;
 using System.Audio;
 using System.ComponentModel;
 

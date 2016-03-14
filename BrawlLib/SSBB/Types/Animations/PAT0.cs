@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.SSBBTypes
 {

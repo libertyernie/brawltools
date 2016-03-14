@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.IO;
-using BrawlLib.IO;
 using System.ComponentModel;
 using BrawlLib.SSBB.Types;
 

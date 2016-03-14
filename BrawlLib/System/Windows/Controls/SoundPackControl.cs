@@ -1,11 +1,9 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
 using System.Collections;
 using BrawlLib;
 using System.ComponentModel;
-using System.Threading;
 using BrawlLib.SSBB;
 using System.Collections.Generic;
 

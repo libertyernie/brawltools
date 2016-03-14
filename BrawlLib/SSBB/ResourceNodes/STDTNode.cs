@@ -1,16 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using BrawlLib.IO;
 using BrawlLib.SSBBTypes;
-using System.Drawing.Design;
 using System.Linq;
 using System.Windows.Forms;
-using System.Text;
 
-namespace BrawlLib.SSBB.ResourceNodes {
+namespace BrawlLib.SSBB.ResourceNodes
+{
     public unsafe class STDTNode : ARCEntryNode, IAttributeList {
         public override ResourceType ResourceType { get { return ResourceType.STDT; } }
         internal STDT* Header { get { return (STDT*)WorkingUncompressed.Address; } }

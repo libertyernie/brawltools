@@ -1,10 +1,6 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-
 namespace System.Collections.Generic
 {
-	public partial class Deque<T>
+    public partial class Deque<T>
 	{
         #region SynchronizedDeque Class
 

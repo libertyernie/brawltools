@@ -1,11 +1,9 @@
-﻿using System;
-using BrawlLib.Wii.Animations;
+﻿using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
 using System.ComponentModel;
 using System.Drawing;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Models;
 
 namespace System.Windows.Forms

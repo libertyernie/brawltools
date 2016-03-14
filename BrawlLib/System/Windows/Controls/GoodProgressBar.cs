@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace System.Windows.Forms

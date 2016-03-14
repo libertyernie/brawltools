@@ -8,8 +8,6 @@ using BrawlLib.OpenGL;
 using System.Drawing;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
-using System.Windows.Forms;
-using System.Linq;
 using BrawlLib.Modeling.Triangle_Converter;
 
 namespace BrawlLib.Modeling

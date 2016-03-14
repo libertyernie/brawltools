@@ -1,10 +1,6 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using BrawlLib.SSBB.ResourceNodes;
-using System.Collections.Generic;
-using System.Linq;
-using BrawlLib.SSBBTypes;
 
 namespace System
 {

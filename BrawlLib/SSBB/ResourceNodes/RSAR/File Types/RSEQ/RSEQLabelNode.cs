@@ -1,7 +1,4 @@
-﻿using System;
-using BrawlLib.SSBBTypes;
-using System.Audio;
-using BrawlLib.Wii.Audio;
+﻿using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes

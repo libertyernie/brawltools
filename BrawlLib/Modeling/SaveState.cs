@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
-using System.Windows.Forms;
 
 namespace BrawlLib.Modeling
 {

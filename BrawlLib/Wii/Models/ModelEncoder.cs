@@ -5,8 +5,6 @@ using BrawlLib.SSBBTypes;
 using BrawlLib.Modeling;
 using System.Collections;
 using BrawlLib.Imaging;
-using System.Windows.Forms;
-using BrawlLib.Wii.Graphics;
 using System.Linq;
 
 namespace BrawlLib.Wii.Models

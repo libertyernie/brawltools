@@ -1,5 +1,4 @@
-﻿using System;
-using BrawlLib.OpenGL;
+﻿using BrawlLib.OpenGL;
 
 namespace System.Windows.Forms
 {

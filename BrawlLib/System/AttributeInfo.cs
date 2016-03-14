@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
 
-namespace System {
-	public class AttributeInfo {
+namespace System
+{
+    public class AttributeInfo {
 		public string _name;
 		public string _description;
 		public int _type;

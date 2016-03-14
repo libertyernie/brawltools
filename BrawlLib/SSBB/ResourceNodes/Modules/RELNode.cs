@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
 using System.PowerPcAssembly;
 using System.Windows.Forms;
-using System.Globalization;
 using System.Diagnostics;
 
 namespace BrawlLib.SSBB.ResourceNodes

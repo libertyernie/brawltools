@@ -3,16 +3,11 @@ using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Windows.Input;
 
 namespace System.Windows.Forms
 {

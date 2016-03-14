@@ -1,5 +1,4 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib;
 
 namespace BrawlBox.NodeWrappers

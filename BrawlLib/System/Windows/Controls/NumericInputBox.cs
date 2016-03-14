@@ -1,6 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.Globalization;
+﻿using System.ComponentModel;
 
 namespace System.Windows.Forms
 {

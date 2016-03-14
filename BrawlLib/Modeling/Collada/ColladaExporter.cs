@@ -1,18 +1,13 @@
 ﻿using System;
 using System.IO;
 using System.Xml;
-using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Modeling;
 using System.Collections.Generic;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Models;
 using System.Windows.Forms;
-using OpenTK.Graphics.OpenGL;
-using System.Reflection;
 using System.Globalization;
 using BrawlLib.Wii.Animations;
-using System.Linq;
 
 namespace BrawlLib.Modeling
 {

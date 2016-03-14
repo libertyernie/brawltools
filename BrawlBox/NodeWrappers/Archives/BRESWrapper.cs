@@ -5,9 +5,6 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib;
 using System.Collections.Generic;
-using BrawlLib.IO;
-using BrawlLib.SSBB;
-using BrawlLib.Modeling;
 
 namespace BrawlBox
 {

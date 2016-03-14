@@ -1,5 +1,4 @@
-﻿using System;
-using BrawlLib.IO;
+﻿using BrawlLib.IO;
 using BrawlLib.SSBBTypes;
 
 namespace System.Audio

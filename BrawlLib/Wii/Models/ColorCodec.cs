@@ -2,8 +2,6 @@
 using BrawlLib.Imaging;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Textures;
-using System.Collections.Generic;
-using System.Collections;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.Wii.Models

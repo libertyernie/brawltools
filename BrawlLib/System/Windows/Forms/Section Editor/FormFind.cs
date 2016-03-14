@@ -1,19 +1,13 @@
-using System;
-using System.Drawing;
-using System.Collections;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 using Be.Windows.Forms;
-using System.Collections.Generic;
-using System.Text;
 
 namespace System.Windows.Forms
 {
-	/// <summary>
-	/// Summary description for FormFind.
-	/// </summary>
-	public class FormFind : System.Windows.Forms.Form
+    /// <summary>
+    /// Summary description for FormFind.
+    /// </summary>
+    public class FormFind : System.Windows.Forms.Form
 	{
 		private Be.Windows.Forms.HexBox hexFind;
 		private System.Windows.Forms.TextBox txtFind;

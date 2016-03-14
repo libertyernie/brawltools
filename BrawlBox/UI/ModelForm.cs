@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BrawlLib.OpenGL;
 using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.IO;
-using System.IO;
 using System.Drawing;
-using BrawlLib.Properties;
-using System.Runtime.InteropServices;
 
 namespace BrawlBox
 {

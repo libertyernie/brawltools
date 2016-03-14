@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
 using System.Runtime.Serialization;
 using BrawlLib.Wii.Models;

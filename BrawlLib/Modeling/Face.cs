@@ -2,9 +2,7 @@
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
 using System.Collections.Generic;
-using BrawlLib.Imaging;
 using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.Modeling
 {

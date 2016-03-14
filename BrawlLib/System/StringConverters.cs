@@ -1,10 +1,7 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using BrawlLib.Imaging;
 using System.Windows.Forms;
-using System.Drawing;
-using BrawlLib.SSBBTypes;
 
 namespace System
 {

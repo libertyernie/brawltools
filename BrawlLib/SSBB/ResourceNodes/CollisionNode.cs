@@ -2,7 +2,6 @@
 using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
 using BrawlLib.OpenGL;
-using System.Windows.Forms;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.ComponentModel;

@@ -1,10 +1,8 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
 using System.Audio;
-using BrawlLib.Wii.Audio;
 using System.IO;
 using BrawlLib.IO;
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes

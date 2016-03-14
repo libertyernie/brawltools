@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using System.Drawing.Imaging;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Wii.Textures;
 using BrawlLib.Imaging;
-using System.Windows.Forms;
 
 namespace BrawlLib.OpenGL
 {

@@ -1,11 +1,7 @@
 ﻿using System;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
-using BrawlLib;
 using System.ComponentModel;
-using BrawlLib.IO;
-using BrawlLib.SSBBTypes;
-using System.IO;
 
 namespace BrawlBox.NodeWrappers
 {

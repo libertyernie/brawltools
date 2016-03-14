@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BrawlLib.SSBB.ResourceNodes
+﻿namespace BrawlLib.SSBB.ResourceNodes
 {
     //Lower byte is resource type (used for icon index)
     //Upper byte is entry type/flags

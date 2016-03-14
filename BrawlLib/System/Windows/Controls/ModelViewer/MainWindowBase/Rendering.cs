@@ -2,12 +2,7 @@
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Linq;
-using System.Text;
 
 namespace System.Windows.Forms
 {

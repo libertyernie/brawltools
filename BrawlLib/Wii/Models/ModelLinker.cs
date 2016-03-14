@@ -5,7 +5,6 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 using MR = BrawlLib.Wii.Models.MDLResourceType;
 using BrawlLib.Modeling;
-using System.Windows.Forms;
 using System.Linq;
 
 namespace BrawlLib.Wii.Models

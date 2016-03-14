@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-namespace BrawlLib.SSBB {
+namespace BrawlLib.SSBB
+{
     public class Stage {
         /// <summary>
         /// The stage ID, as used by the module files and the Custom SSS code.

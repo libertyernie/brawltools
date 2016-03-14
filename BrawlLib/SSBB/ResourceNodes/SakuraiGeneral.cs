@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Collections;
-using BrawlLib.SSBB.ResourceNodes;
 using System.Reflection;
 
 namespace BrawlLib.SSBBTypes

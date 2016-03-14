@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
 using BrawlLib.Wii.Animations;
 using System.Globalization;

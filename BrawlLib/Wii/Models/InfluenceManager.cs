@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
-using System.Windows.Forms;
 using System.ComponentModel;
 
 namespace BrawlLib.Wii.Models

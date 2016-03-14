@@ -1,5 +1,4 @@
 ﻿using BrawlLib.SSBB;
-using System;
 
 namespace BrawlLib
 {

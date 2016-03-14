@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using BrawlLib.IO;
 using BrawlLib.Wii.Compression;
 using System.IO;
-using System.Windows.Forms;
-using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {

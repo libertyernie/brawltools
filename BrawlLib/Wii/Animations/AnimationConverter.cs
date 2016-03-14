@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using BrawlLib.SSBBTypes;
 using BrawlLib.SSBB.ResourceNodes;
 

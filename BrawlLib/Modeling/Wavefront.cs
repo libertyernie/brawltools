@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
-using BrawlLib.Wii.Models;
 
 namespace BrawlLib.Modeling
 {

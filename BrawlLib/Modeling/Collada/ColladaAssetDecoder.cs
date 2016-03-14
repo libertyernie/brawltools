@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
-using BrawlLib.Imaging;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
-using OpenTK.Graphics.OpenGL;
 
 namespace BrawlLib.Modeling
 {

@@ -4,7 +4,6 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing.Design;
-using System.Windows.Forms.Design;
 using System.Runtime.Serialization;
 
 namespace BrawlLib.Imaging

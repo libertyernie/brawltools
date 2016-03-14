@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-
-using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Textures;
 using BrawlLib.SSBB.ResourceNodes;

@@ -1,15 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BrawlLib.OpenGL;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using OpenTK.Graphics;
-using BrawlLib.Modeling;
 
 namespace BrawlLib.OpenGL
 {

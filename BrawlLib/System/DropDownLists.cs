@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;

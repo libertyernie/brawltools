@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 
-namespace BrawlLib.SSBBTypes {
-	[StructLayout(LayoutKind.Sequential, Pack = 1)]
+namespace BrawlLib.SSBBTypes
+{
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
 	public unsafe struct STDT//Stage Trap Data Table
    {
 		public const uint Tag = 0x54445453;

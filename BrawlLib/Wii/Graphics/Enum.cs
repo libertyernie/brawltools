@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BrawlLib.Wii.Graphics
+﻿namespace BrawlLib.Wii.Graphics
 {
     public enum GXListCommand : byte
     {

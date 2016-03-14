@@ -1,13 +1,9 @@
-﻿using System;
-using BrawlLib.Imaging;
-using BrawlLib.SSBBTypes;
+﻿using BrawlLib.Imaging;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using System.Drawing;
 

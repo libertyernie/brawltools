@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace System.Windows.Forms {
-	public class MultipleInterpretationAttributeGrid : AttributeGrid {
+namespace System.Windows.Forms
+{
+    public class MultipleInterpretationAttributeGrid : AttributeGrid {
 		private ComboBox chooser;
 
 		public MultipleInterpretationAttributeGrid() : base() {

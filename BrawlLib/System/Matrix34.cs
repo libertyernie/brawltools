@@ -3,8 +3,6 @@ using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Animations;
-using OpenTK.Graphics.OpenGL;
-using System;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 

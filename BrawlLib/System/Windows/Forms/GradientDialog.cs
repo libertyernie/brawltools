@@ -1,5 +1,4 @@
-﻿using System;
-using BrawlLib.Imaging;
+﻿using BrawlLib.Imaging;
 using System.Drawing;
 using System.ComponentModel;
 using System.Drawing.Drawing2D;

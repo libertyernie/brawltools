@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.OpenGL;
+﻿using BrawlLib.OpenGL;
 using BrawlLib.Imaging;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;

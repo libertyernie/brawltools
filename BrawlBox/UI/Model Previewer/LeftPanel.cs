@@ -3,7 +3,6 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlLib.Modeling;
 using System.ComponentModel;
-using BrawlLib.OpenGL;
 using BrawlLib;
 using System.IO;
 using System.Linq;

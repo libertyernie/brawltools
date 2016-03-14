@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using System.IO;
 using System.Windows.Forms;
-using BrawlLib.SSBBTypes;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 
