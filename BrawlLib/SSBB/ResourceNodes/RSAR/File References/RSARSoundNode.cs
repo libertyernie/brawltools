@@ -91,7 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (_seqLabl != null)
                     {
                         _seqInfo._dataID = 0;
-                        _se = null;
+                        _seqLabl = null;
                     }
                     _soundFileNode = value;
                     SignalPropertyChange();
@@ -254,17 +254,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             Track6 = 0x20,
             Track7 = 0x40,
             Track8 = 0x80,
-            Track9 = 0x1,
-            Track10 = 0x2,
-            Track11 = 0x4,
-            Track12 = 0x8,
-            Track13 = 0x10,
-            Track14 = 0x20,
-            Track15 = 0x40,
-            Track16 = 0x80,
+            Track9 = 0x100,
+            Track10 = 0x200,
+            Track11 = 0x400,
+            Track12 = 0x800,
+            Track13 = 0x1000,
+            Track14 = 0x2000,
+            Track15 = 0x4000,
+            Track16 = 0x8000,
         }
         [Category("SEQ Params")]
-        public AllocTrackEnum SeqAllocTrack { get { return (AllocTrackEnum)(uint)_seqInfo._allocTrack; } set { _seqInfo._allocTrack = (uint)value; SignalPropertyChange(); } }
+        public AllocTrackEnum RSEQAllocTrack { get { return (AllocTrackEnum)(uint)_seqInfo._allocTrack; } set { _seqInfo._allocTrack = (uint)value; SignalPropertyChange(); } }
         [Category("SEQ Params")]
         public byte SeqChannelPriority { get { return _seqInfo._channelPriority; } set { _seqInfo._channelPriority = value; SignalPropertyChange(); } }
         [Category("SEQ Params")]
@@ -275,7 +275,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("STRM Params")]
         public ushort AllocChannelCount { get { return _strmInfo._allocChannelCount; } set { _strmInfo._allocChannelCount = value; SignalPropertyChange(); } }
         [Category("STRM Params")]
-        public AllocTrackEnum AllocTrackFlag { get { return (AllocTrackEnum)(ushort)_strmInfo._allocTrackFlag; } set { _strmInfo._allocTrackFlag = (ushort)value; SignalPropertyChange(); } }
+        public AllocTrackEnum RSTMAllocTrack { get { return (AllocTrackEnum)(ushort)_strmInfo._allocTrackFlag; } set { _strmInfo._allocTrackFlag = (ushort)value; SignalPropertyChange(); } }
 
         [Category("WAVE Params"), Browsable(true), TypeConverter(typeof(DropDownListRSARInfoSound))]
         public string SoundDataNode
@@ -338,7 +338,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         //[Category("WAVE Params")]
         //public int PackIndex { get { return _waveInfo._soundIndex; } set { _waveInfo._soundIndex = value; SignalPropertyChange(); } }
         [Category("WAVE Params")]
-        public uint AllocTrack { get { return _waveInfo._allocTrack; } set { _waveInfo._allocTrack = value; SignalPropertyChange(); } }
+        public AllocTrackEnum RWSDAllocTrack { get { return (AllocTrackEnum)(uint)_waveInfo._allocTrack; } set { _waveInfo._allocTrack = (uint)value; SignalPropertyChange(); } }
         [Category("WAVE Params")]
         public byte ChannelPriority { get { return _waveInfo._channelPriority; } set { _waveInfo._channelPriority = value; SignalPropertyChange(); } }
         [Category("WAVE Params")]
