@@ -31,7 +31,7 @@ namespace BrawlLib
         public static string MSBin = 
             SupportedFilesHandler.GetCompleteFilter("msbin", "txt");
         public static string RSTM = 
-            SupportedFilesHandler.GetCompleteFilter("brstm", "bcstm", "wav");
+            SupportedFilesHandler.GetCompleteFilter("brstm", "bcstm", "bfstm", "wav");
         public static string RWSD =
             SupportedFilesHandler.GetCompleteFilter("brwsd");
         public static string RBNK =

@@ -206,6 +206,7 @@
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\Audio\FSTM.cs" />
     <Compile Include="SSBB\Types\Audio\CSTM.cs" />
     <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
@@ -836,6 +837,7 @@
     <Compile Include="Wii\Animations\CHR0JsonImporter.cs" />
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
+    <Compile Include="Wii\Audio\FSTMConverter.cs" />
     <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
     <Compile Include="Wii\Audio\RSARSoundConverter.cs" />

@@ -80,6 +80,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return false;
                 }
             }
+            else if (Header->_header._tag == FSTMHeader.Tag)
+            {
+                byte[] brstm_temp = FSTMConverter.ToRSTM((FSTMHeader*)Header);
+                fixed (byte* ptr = brstm_temp)
+                {
+                    ReplaceRaw(ptr, brstm_temp.Length);
+                    return false;
+                }
+            }
 
             StrmDataInfo* part1 = Header->HEADData->Part1;
 
@@ -141,6 +150,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                                     Memory.Move(map.Address, ptr, (uint)bcstm_temp.Length);
                                 }
                             }
+                            else if (outPath.EndsWith(".bfstm"))
+                            {
+                                byte[] bfstm_temp = FSTMConverter.FromRSTM(hdr);
+                                fixed (byte* ptr = bfstm_temp)
+                                {
+                                    Memory.Move(map.Address, ptr, (uint)bfstm_temp.Length);
+                                }
+                            }
                         }
                     }
                 }
@@ -162,15 +179,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 try { ReplaceRaw(RSTMConverter.Encode(stream, null)); }
                 finally { stream.Dispose(); }
 
-            if (Header->_header._tag == CSTMHeader.Tag)
+            if (Header->_header._tag == CSTMHeader.Tag || Header->_header._tag == FSTMHeader.Tag)
             {
-                // Untested
-                byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
-                fixed (byte* ptr = brstm_temp)
-                {
-                    ReplaceRaw(ptr, brstm_temp.Length);
-                    return;
-                }
+                throw new NotImplementedException();
             }
 
             int offset = ((int)(Header->DATAData->Data) - (int)(Header));
@@ -183,7 +194,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         internal static ResourceNode TryParse(DataSource source) {
             BinTag tag = ((RSTMHeader*)source.Address)->_header._tag;
-            return tag == RSTMHeader.Tag || tag == CSTMHeader.Tag ? new RSTMNode() : null;
+            return tag == RSTMHeader.Tag || tag == CSTMHeader.Tag || tag == FSTMHeader.Tag ? new RSTMNode() : null;
         }
     }
 }

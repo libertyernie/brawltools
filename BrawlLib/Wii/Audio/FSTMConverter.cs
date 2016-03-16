@@ -10,14 +10,14 @@ using System.Windows.Forms;
 
 namespace BrawlLib.Wii.Audio
 {
-    public static class CSTMConverter
+    public static class FSTMConverter
     {
         internal static unsafe byte[] FromRSTM(RSTMHeader* rstm)
         {
             StrmDataInfo strmDataInfo = *rstm->HEADData->Part1;
             int channels = strmDataInfo._format._channels;
 
-            // Get section sizes from the BRSTM - BCSTM is such a similar format that we can assume the sizes will match.
+            // Get section sizes from the BRSTM - BFSTM is such a similar format that we can assume the sizes will match.
             int rstmSize = 0x40;
             int infoSize = rstm->_headLength;
             int seekSize = rstm->_adpcLength;
@@ -28,28 +28,28 @@ namespace BrawlLib.Wii.Audio
 
             fixed (byte* address = array) {
                 //Get section pointers
-                CSTMHeader* cstm = (CSTMHeader*)address;
-                CSTMINFOHeader* info = (CSTMINFOHeader*)((byte*)cstm + rstmSize);
-                CSTMSEEKHeader* seek = (CSTMSEEKHeader*)((byte*)info + infoSize);
-                CSTMDATAHeader* data = (CSTMDATAHeader*)((byte*)seek + seekSize);
+                FSTMHeader* fstm = (FSTMHeader*)address;
+                FSTMINFOHeader* info = (FSTMINFOHeader*)((byte*)fstm + rstmSize);
+                FSTMSEEKHeader* seek = (FSTMSEEKHeader*)((byte*)info + infoSize);
+                FSTMDATAHeader* data = (FSTMDATAHeader*)((byte*)seek + seekSize);
 
                 //Initialize sections
-                cstm->Set(infoSize, seekSize, dataSize);
+                fstm->Set(infoSize, seekSize, dataSize);
                 info->Set(infoSize, channels);
                 seek->Set(seekSize);
-                data->Set(rstm->DATAData->_length);
+                data->Set(dataSize);
 
                 //Set HEAD data
-                info->_dataInfo = new CSTMDataInfo(strmDataInfo);
+                info->_dataInfo = new FSTMDataInfo(strmDataInfo);
 
                 //Create one ADPCMInfo for each channel
                 IntPtr* adpcData = stackalloc IntPtr[channels];
-                CSTMADPCMInfo** pAdpcm = (CSTMADPCMInfo**)adpcData;
+                FSTMADPCMInfo** pAdpcm = (FSTMADPCMInfo**)adpcData;
                 for (int i = 0; i < channels; i++)
-                    *(pAdpcm[i] = info->GetChannelInfo(i)) = new CSTMADPCMInfo(*rstm->HEADData->GetChannelInfo(i));
+                    *(pAdpcm[i] = info->GetChannelInfo(i)) = new FSTMADPCMInfo(*rstm->HEADData->GetChannelInfo(i));
 
                 bshort* seekFrom = (bshort*)rstm->ADPCData->Data;
-                short* seekTo = (short*)seek->Data;
+                bshort* seekTo = (bshort*)seek->Data;
                 for (int i = 0; i < seek->_length / 2 - 8; i++)
                 {
                     *(seekTo++) = *(seekFrom++);
@@ -57,21 +57,21 @@ namespace BrawlLib.Wii.Audio
 
                 VoidPtr dataFrom = rstm->DATAData->Data;
                 VoidPtr dataTo = data->Data;
-                Memory.Move(dataTo, dataFrom, (uint)data->_length - 8);
+                Memory.Move(dataTo, dataFrom, (uint)data->_length);
             }
             return array;
         }
 
-        internal static unsafe byte[] ToRSTM(CSTMHeader* cstm)
+        internal static unsafe byte[] ToRSTM(FSTMHeader* fstm)
         {
-            CSTMDataInfo cstmDataInfo = cstm->INFOData->_dataInfo;
-            int channels = cstmDataInfo._format._channels;
+            FSTMDataInfo fstmDataInfo = fstm->INFOData->_dataInfo;
+            int channels = fstmDataInfo._format._channels;
 
-            // Get section sizes from the BRSTM - BCSTM is such a similar format that we can assume the sizes will match.
+            // Get section sizes from the BRSTM - BFSTM is such a similar format that we can assume the sizes will match.
             int rstmSize = 0x40;
-            int infoSize = cstm->_infoBlockSize;
-            int seekSize = cstm->_seekBlockSize;
-            int dataSize = cstm->_dataBlockSize;
+            int infoSize = fstm->_infoBlockSize;
+            int seekSize = fstm->_seekBlockSize;
+            int dataSize = fstm->_dataBlockSize;
 
             //Create byte array
             byte[] array = new byte[rstmSize + infoSize + seekSize + dataSize];
@@ -88,25 +88,25 @@ namespace BrawlLib.Wii.Audio
                 rstm->Set(infoSize, seekSize, dataSize);
                 info->Set(infoSize, channels);
                 seek->Set(seekSize);
-                data->Set(cstm->DATAData->_length);
+                data->Set(fstm->DATAData->_length);
 
                 //Set HEAD data
-                *info->Part1 = new StrmDataInfo(cstmDataInfo, rstmSize + infoSize + seekSize + 0x20);
+                *info->Part1 = new StrmDataInfo(fstmDataInfo, rstmSize + infoSize + seekSize + 0x20);
 
                 //Create one ADPCMInfo for each channel
                 IntPtr* adpcData = stackalloc IntPtr[channels];
                 ADPCMInfo** pAdpcm = (ADPCMInfo**)adpcData;
                 for (int i = 0; i < channels; i++)
-                    *(pAdpcm[i] = info->GetChannelInfo(i)) = new ADPCMInfo(*cstm->INFOData->GetChannelInfo(i));
+                    *(pAdpcm[i] = info->GetChannelInfo(i)) = new ADPCMInfo(*fstm->INFOData->GetChannelInfo(i));
 
-                bshort* seekFrom = (bshort*)cstm->SEEKData->Data;
-                short* seekTo = (short*)seek->Data;
+                bshort* seekFrom = (bshort*)fstm->SEEKData->Data;
+                bshort* seekTo = (bshort*)seek->Data;
                 for (int i = 0; i < seek->_length / 2 - 8; i++)
                 {
                     *(seekTo++) = *(seekFrom++);
                 }
 
-                VoidPtr dataFrom = cstm->DATAData->Data;
+                VoidPtr dataFrom = fstm->DATAData->Data;
                 VoidPtr dataTo = data->Data;
                 Memory.Move(dataTo, dataFrom, (uint)data->_length - 8);
             }
@@ -122,11 +122,11 @@ namespace BrawlLib.Wii.Audio
             }
         }
 
-        public static unsafe byte[] ToRSTM(byte[] cstm)
+        public static unsafe byte[] ToRSTM(byte[] fstm)
         {
-            fixed (byte* ptr = cstm)
+            fixed (byte* ptr = fstm)
             {
-                return ToRSTM((CSTMHeader*)ptr);
+                return ToRSTM((FSTMHeader*)ptr);
             }
         }
 

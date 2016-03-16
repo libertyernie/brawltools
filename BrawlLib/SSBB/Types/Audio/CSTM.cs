@@ -95,7 +95,7 @@ namespace BrawlLib.SSBBTypes
     /// Represents a single TrackInfo segment (with the assumption that there will be only one in a file.) Some unknown data (the Byte Table) is hardcoded in the constructor.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct TrackInfoStub {
+    public unsafe struct CSTMTrackInfoStub {
         public byte _volume;
         public byte _pan;
         public short _padding;
@@ -103,7 +103,7 @@ namespace BrawlLib.SSBBTypes
         public int _byteTableCount;
         public bint _byteTable;
 
-        public TrackInfoStub(byte volume, byte pan) {
+        public CSTMTrackInfoStub(byte volume, byte pan) {
             _volume = volume;
             _pan = pan;
             _padding = 0;
@@ -149,13 +149,13 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        public TrackInfoStub* TrackInfo {
+        public CSTMTrackInfoStub* TrackInfo {
             get {
                 int* ptr = (int*)ChannelInfoRefTable;
                 int count = *ptr;
                 if (count == 0) throw new Exception("Channel info's ref table must be populated before track info can be accessed.");
                 ptr += 1 + count * 2;
-                return (TrackInfoStub*)ptr;
+                return (CSTMTrackInfoStub*)ptr;
             }
         }
 
@@ -166,9 +166,9 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        public ADPCMInfo_LE* GetChannelInfo(int index) {
+        public CSTMADPCMInfo* GetChannelInfo(int index) {
             if (ChannelInfoEntries[index]._dataOffset == 0) throw new Exception("Channel info entries must be populated with references to ADPCM data before ADPCM data can be accessed.");
-            return (ADPCMInfo_LE*)((byte*)(ChannelInfoEntries + index) + ChannelInfoEntries[index]._dataOffset);
+            return (CSTMADPCMInfo*)((byte*)(ChannelInfoEntries + index) + ChannelInfoEntries[index]._dataOffset);
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
@@ -189,7 +189,7 @@ namespace BrawlLib.SSBBTypes
             _channelInfoRefTableRef._dataOffset = (byte*)ChannelInfoRefTable - (Address + 8);
 
             //Set single track info
-            *TrackInfo = new TrackInfoStub(0x7F, 0x40);
+            *TrackInfo = new CSTMTrackInfoStub(0x7F, 0x40);
             TrackInfoRefTable->Entries[0]._type = CSTMReference.RefType.TrackInfo;
             TrackInfoRefTable->Entries[0]._dataOffset = ((VoidPtr)TrackInfo - TrackInfoRefTable);
 
@@ -294,7 +294,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    public unsafe struct ADPCMInfo_LE
+    public unsafe struct CSTMADPCMInfo
     {
         public const int Size = 0x2E;
 
@@ -308,7 +308,7 @@ namespace BrawlLib.SSBBTypes
         public short _lyn2; //History data for the loop point. If the sample does not loop, this value is zero.
         public short _pad;
 
-        public ADPCMInfo_LE(ADPCMInfo o)
+        public CSTMADPCMInfo(ADPCMInfo o)
         {
             short[] c = o.Coefs;
             fixed (short* ptr = _coefs)
