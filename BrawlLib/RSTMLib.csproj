@@ -48,6 +48,7 @@
     <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
     <Compile Include="SSBB\Types\Audio\CSTM.cs" />
+    <Compile Include="SSBB\Types\Audio\FSTM.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Memory.cs" />
     <Compile Include="System\StringExtension.cs" />
@@ -61,6 +62,7 @@
     <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
     <Compile Include="SSBB\Types\Audio\RSTM.cs" />
     <Compile Include="Wii\Audio\CSTMConverter.cs" />
+    <Compile Include="Wii\Audio\FSTMConverter.cs" />
     <Compile Include="Wii\Audio\RSTMConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SSBB\Types\Audio\RWAV.cs" />

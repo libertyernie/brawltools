@@ -135,7 +135,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             //Set the offset to the audio samples (_dataLocation)
                             RSTMHeader* hdr = (RSTMHeader*)addr;
                             hdr->_header._length = WorkingUncompressed.Length + _audioSource.Length;
-                            hdr->DATAData->Set(_audioSource.Length);
+                            hdr->DATAData->Set(_audioSource.Length + 0x20);
 
                             addr += WorkingUncompressed.Length;
 

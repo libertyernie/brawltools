@@ -88,7 +88,7 @@ namespace BrawlLib.Wii.Audio
                 rstm->Set(infoSize, seekSize, dataSize);
                 info->Set(infoSize, channels);
                 seek->Set(seekSize);
-                data->Set(fstm->DATAData->_length);
+                data->Set(dataSize);
 
                 //Set HEAD data
                 *info->Part1 = new StrmDataInfo(fstmDataInfo, rstmSize + infoSize + seekSize + 0x20);
