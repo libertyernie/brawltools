@@ -127,42 +127,81 @@ namespace BrawlLib.SSBBTypes
         public CSTMReference _channelInfoRefTableRef;
         public CSTMDataInfo _dataInfo;
 
-        // Below properties will find different parts of the INFO header, assuming that there is only one Track Info.
-
-        public CSTMReferenceList* TrackInfoRefTable {
+        private VoidPtr DataInfoEnd {
             get {
                 fixed (CSTMDataInfo* dataInfoPtr = &_dataInfo)
                 {
                     byte* endptr = (byte*)(dataInfoPtr + 1);
-                    return (CSTMReferenceList*)endptr;
+                    return endptr;
                 }
+            }
+        }
+
+        // Below properties will find different parts of the INFO header, assuming that there are zero or one TrackInfo structures.
+
+        public CSTMReferenceList* TrackInfoRefTable {
+            get {
+                return (CSTMReferenceList*)DataInfoEnd;
             }
         }
         public CSTMReferenceList* ChannelInfoRefTable {
             get {
-                int* ptr = (int*)TrackInfoRefTable;
-                int count = *ptr;
+                if (_trackInfoRefTableRef._dataOffset == -1) {
+                    fixed (CSTMReference* x = &_streamInfoRef)
+                    {
+                        // Look to see what the _channelInfoRefTableRef says - but if it's a file we're building, it may not have been filled in yet.
+                        CSTMReferenceList* fromRef = (CSTMReferenceList*)((VoidPtr)x + _channelInfoRefTableRef._dataOffset);
+                        // If it's not filled in, give a 0x0C gap to allow for the TrackInfoRefTable.
+                        CSTMReferenceList* guess = (CSTMReferenceList*)(DataInfoEnd + 0x0C);
+                        if (fromRef > guess) {
+                            Console.Error.WriteLine("There is extra data between the DataInfo and ChannelInfoRefTable that will be discarded.");
+                            return fromRef;
+                        }
+                        return guess;
+                    }
+                }
+
+                CSTMReferenceList* prevTable = TrackInfoRefTable;
+                int* ptr = (int*)prevTable;
+                int count = prevTable->_numEntries;
                 if (count == 0) throw new Exception("Track info's ref table must be populated before channel info's ref table can be accessed.");
-                if (count > 1) throw new Exception("BCSTM files with more than one track data section are not supported.");
+                if (count == 16777216) {
+                    count = 1;
+                }
+                if (count != 1) throw new Exception("BCSTM files with more than one track data section are not supported.");
                 ptr += 1 + count * 2;
                 return (CSTMReferenceList*)ptr;
             }
         }
 
+        private VoidPtr ChannelInfoRefTableEnd {
+            get {
+                CSTMReferenceList* prevTable = ChannelInfoRefTable;
+                int count = prevTable->_numEntries;
+                if (count == 0) throw new Exception("Channel info's ref table must be populated before track info can be accessed.");
+                if (count > 255 || count < 0) throw new Exception("This file seems to have an absurd number of channels");
+                int* ptr = (int*)prevTable;
+                ptr += 1 + count * 2;
+                return ptr;
+            }
+        }
+
         public CSTMTrackInfoStub* TrackInfo {
             get {
-                int* ptr = (int*)ChannelInfoRefTable;
-                int count = *ptr;
-                if (count == 0) throw new Exception("Channel info's ref table must be populated before track info can be accessed.");
-                ptr += 1 + count * 2;
-                return (CSTMTrackInfoStub*)ptr;
+                if (_trackInfoRefTableRef._dataOffset == -1) return null;
+
+                return (CSTMTrackInfoStub*)ChannelInfoRefTableEnd;
             }
         }
 
         public CSTMReference* ChannelInfoEntries {
             get {
-                int* ptr = (int*)(TrackInfo + 1);
-                return (CSTMReference*)ptr;
+                if (_trackInfoRefTableRef._dataOffset == -1) {
+                    return (CSTMReference*)ChannelInfoRefTableEnd;
+                } else {
+                    int* ptr = (int*)(TrackInfo + 1);
+                    return (CSTMReference*)ptr;
+                }
             }
         }
 

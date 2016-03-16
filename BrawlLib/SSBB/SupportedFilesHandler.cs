@@ -60,6 +60,7 @@ namespace BrawlLib.SSBB
             //NW4R Audio
             new SupportedFileInfo(true, "NW4R Audio Stream", "brstm"),
             new SupportedFileInfo(true, "NW4C Audio Stream", "bcstm"),
+            new SupportedFileInfo(true, "NW4F Audio Stream", "bfstm"),
             new SupportedFileInfo(true, "NW4R Sound Archive", "brsar"),
             new SupportedFileInfo(true, "NW4R RSAR Sound File", "brwsd"),
             new SupportedFileInfo(true, "NW4R RSAR Sound Bank File", "brbnk"),

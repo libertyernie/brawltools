@@ -137,7 +137,7 @@ namespace BrawlLib.SSBBTypes
             }
         }
 
-        // Below properties will find different parts of the INFO header, assuming that there is only one Track Info.
+        // Below properties will find different parts of the INFO header, assuming that there are zero or one TrackInfo structures.
 
         public FSTMReferenceList* TrackInfoRefTable {
             get {
@@ -147,13 +147,27 @@ namespace BrawlLib.SSBBTypes
         public FSTMReferenceList* ChannelInfoRefTable {
             get {
                 if (_trackInfoRefTableRef._dataOffset == -1) {
-                    return (FSTMReferenceList*)(DataInfoEnd + 0x0C);
+                    fixed (FSTMReference* x = &_streamInfoRef)
+                    {
+                        // Look to see what the _channelInfoRefTableRef says - but if it's a file we're building, it may not have been filled in yet.
+                        FSTMReferenceList* fromRef = (FSTMReferenceList*)((VoidPtr)x + _channelInfoRefTableRef._dataOffset);
+                        // If it's not filled in, give a 0x0C gap to allow for the TrackInfoRefTable.
+                        FSTMReferenceList* guess = (FSTMReferenceList*)(DataInfoEnd + 0x0C);
+                        if (fromRef > guess) {
+                            Console.Error.WriteLine("There is extra data between the DataInfo and ChannelInfoRefTable that will be discarded.");
+                            return fromRef;
+                        }
+                        return guess;
+                    }
                 }
 
                 FSTMReferenceList* prevTable = TrackInfoRefTable;
                 int* ptr = (int*)prevTable;
                 int count = prevTable->_numEntries;
                 if (count == 0) throw new Exception("Track info's ref table must be populated before channel info's ref table can be accessed.");
+                if (count == 16777216) {
+                    count = 1;
+                }
                 if (count != 1) throw new Exception("BFSTM files with more than one track data section are not supported.");
                 ptr += 1 + count * 2;
                 return (FSTMReferenceList*)ptr;
