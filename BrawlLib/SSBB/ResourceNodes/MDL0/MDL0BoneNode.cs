@@ -432,8 +432,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             _nodeIndex = header->_nodeId;
             _entryIndex = header->_index;
 
-            _bbRefNode = !_replaced && _boneFlags.HasFlag(BoneFlags.HasBillboardParent) ?
-                Model._linker.NodeCache[header->_bbNodeId] as MDL0BoneNode : null;
+            //Bone cache isn't done parsing yet, so set billboard ref node later
 
             if (_billboardFlags != BillboardFlags.Off)
                 Model._billboardBones.Add(this); //Update mesh in T-Pose
@@ -549,7 +548,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             header->_nodeId = _nodeIndex;
             header->_flags = (uint)_boneFlags;
             header->_bbFlags = (uint)_billboardFlags;
-            header->_bbNodeId = _bbRefNode == null ? 0 : (uint)_bbRefNode.NodeIndex;
+            header->_bbIndex = _bbRefNode == null ? 0 : (uint)_bbRefNode._entryIndex;
             header->_scale = _bindState._scale;
             header->_rotation = _bindState._rotate;
             header->_translation = _bindState._translate;

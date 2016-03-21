@@ -479,7 +479,7 @@ namespace BrawlLib.SSBBTypes
         public bint _nodeId;
         public buint _flags;
         public buint _bbFlags;
-        public buint _bbNodeId;
+        public buint _bbIndex;
 
         public BVec3 _scale;
         public BVec3 _rotation;

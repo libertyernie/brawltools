@@ -117,7 +117,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Bone parents are assigned when they are initialized in a flat array.
                 foreach (MDL0BoneNode b in linker.BoneCache)
                 {
-                    MDL0Bone* header = (MDL0Bone*)b.WorkingUncompressed.Address;
+                    MDL0Bone* header = b.Header;
 
                     //Assign true parent using parent header offset
                     int offset = header->_parentOffset;
@@ -133,6 +133,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 break;
                             }
                     }
+
+                    if (b._boneFlags.HasFlag(BoneFlags.HasBillboardParent))
+                        b._bbRefNode = model._linker.BoneCache[header->_bbIndex] as MDL0BoneNode;
                 }
 
                 //Make sure the node cache is the correct size
@@ -156,7 +159,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 int count = linker.BoneCache.Length;
                 for (int i = 0; i < count; i++)
                     linker.NodeCache[(bone = linker.BoneCache[i] as MDL0BoneNode)._nodeIndex] = bone;
-
+                
                 int nullCount = 0;
 
                 bool nodeTreeError = false;
