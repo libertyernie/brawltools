@@ -570,17 +570,19 @@ namespace Ikarus.UI
                 comboActionEntry.SelectedIndex = _subActionIndex;
 
             SubActionEntry grp = RunTime.CurrentSubaction;
-            inTransTime.Value = grp._inTransTime;
-            chkNoOutTrans.Checked = grp._flags.HasFlag(AnimationFlags.NoOutTransition);
-            chkTransOutStart.Checked = grp._flags.HasFlag(AnimationFlags.TransitionOutFromStart);
-            chkMovesChar.Checked = grp._flags.HasFlag(AnimationFlags.MovesCharacter);
-            chkLoop.Checked = grp._flags.HasFlag(AnimationFlags.Loop);
-            chkUnk.Checked = grp._flags.HasFlag(AnimationFlags.Unknown);
-            chkFixedScale.Checked = grp._flags.HasFlag(AnimationFlags.FixedScale);
-            chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
-            chkFixedTrans.Checked = grp._flags.HasFlag(AnimationFlags.FixedTranslation);
-
-            lblActionName.Text = RunTime.CurrentSubaction.Name;
+            if (grp != null)
+            {
+                inTransTime.Value = grp._inTransTime;
+                chkNoOutTrans.Checked = grp._flags.HasFlag(AnimationFlags.NoOutTransition);
+                chkTransOutStart.Checked = grp._flags.HasFlag(AnimationFlags.TransitionOutFromStart);
+                chkMovesChar.Checked = grp._flags.HasFlag(AnimationFlags.MovesCharacter);
+                chkLoop.Checked = grp._flags.HasFlag(AnimationFlags.Loop);
+                chkUnk.Checked = grp._flags.HasFlag(AnimationFlags.Unknown);
+                chkFixedScale.Checked = grp._flags.HasFlag(AnimationFlags.FixedScale);
+                chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
+                chkFixedTrans.Checked = grp._flags.HasFlag(AnimationFlags.FixedTranslation);
+                lblActionName.Text = grp.Name;
+            }
         }
 
         /// <summary>
