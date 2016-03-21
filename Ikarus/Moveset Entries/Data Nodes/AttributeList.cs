@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile

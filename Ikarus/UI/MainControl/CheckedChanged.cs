@@ -1,21 +1,6 @@
 ﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
@@ -133,23 +118,23 @@ namespace Ikarus.UI
         }
         private void chkShaders_CheckedChanged(object sender, EventArgs e)
         {
-            if (modelPanel.Context != null)
-            {
-                if (modelPanel.Context._version < 2 && chkShaders.Checked)
-                {
-                    MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //if (modelPanel.Context != null)
+            //{
+            //    if (modelPanel.Context._version < 2 && chkShaders.Checked)
+            //    {
+            //        MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
+            //        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                    chkShaders.Checked = false;
-                    return;
-                }
-                else
-                {
-                    if (modelPanel.Context._shadersSupported && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
-                    modelPanel.Context._shadersSupported = chkShaders.Checked;
-                }
-            }
-            modelPanel.Invalidate();
+            //        chkShaders.Checked = false;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        if (modelPanel.Context._shadersSupported && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
+            //        modelPanel.Context._shadersSupported = chkShaders.Checked;
+            //    }
+            //}
+            //modelPanel.Invalidate();
         }
 
         private void showCameraCoordinatesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -320,21 +305,21 @@ namespace Ikarus.UI
             if (modelListsPanel1._syncObjTex)
                 modelListsPanel1.UpdateTextures();
 
-            if (TargetAnimType == NW4RAnimType.VIS)
-                if (listPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
-                {
-                    int x = 0;
-                    foreach (object i in vis0Editor.listBox1.Items)
-                        if (i.ToString() == listPanel.TargetObject.VisibilityBone)
-                        {
-                            vis0Editor.listBox1.SelectedIndex = x;
-                            break;
-                        }
-                        else
-                            x++;
-                    if (x == vis0Editor.listBox1.Items.Count)
-                        vis0Editor.listBox1.SelectedIndex = -1;
-                }
+            //if (TargetAnimType == NW4RAnimType.VIS)
+            //    if (listPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
+            //    {
+            //        int x = 0;
+            //        foreach (object i in vis0Editor.listBox1.Items)
+            //            if (i.ToString() == listPanel.TargetObject.VisibilityBone)
+            //            {
+            //                vis0Editor.listBox1.SelectedIndex = x;
+            //                break;
+            //            }
+            //            else
+            //                x++;
+            //        if (x == vis0Editor.listBox1.Items.Count)
+            //            vis0Editor.listBox1.SelectedIndex = -1;
+            //    }
 
             modelPanel.Invalidate(); 
         }

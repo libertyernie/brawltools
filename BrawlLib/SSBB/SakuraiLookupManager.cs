@@ -51,11 +51,6 @@ namespace BrawlLib.SSBBTypes
             address += Write(address);
         }
 
-        public void Merge(LookupManager other)
-        {
-            Add(other.ToArray());
-        }
-
         public IEnumerator<VoidPtr> GetEnumerator() { return _values.GetEnumerator(); }
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
     }

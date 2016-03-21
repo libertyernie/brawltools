@@ -1,19 +1,5 @@
 ﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
 using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
 using Ikarus.ModelViewer;
 
@@ -257,19 +243,19 @@ namespace Ikarus.UI
             if (KeyframePanel != null)
                 KeyframePanel.numFrame_ValueChanged();
 
-            if (_capture)
-            {
-                RenderToGIF(images.ToArray());
+            //if (_capture)
+            //{
+            //    RenderToGIF(images.ToArray());
 
-                images.Clear();
-                _capture = false;
+            //    images.Clear();
+            //    _capture = false;
 
-                if (InterpolationEditor != null)
-                    InterpolationEditor.Enabled = true;
+            //    if (InterpolationEditor != null)
+            //        InterpolationEditor.Enabled = true;
 
-                ModelPanel.Enabled = true;
-                Enabled = true;
-            }
+            //    ModelPanel.Enabled = true;
+            //    Enabled = true;
+            //}
         }
     }
 }

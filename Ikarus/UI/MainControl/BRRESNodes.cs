@@ -1,19 +1,4 @@
-﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 
 namespace Ikarus.UI
@@ -40,21 +25,21 @@ namespace Ikarus.UI
                 //if (TargetAnimation != null && _vis0.FrameCount != TargetAnimation.tFrameCount)
                 //    UpdateVis0(null, null);
 
-                foreach (string n in VIS0Indices.Keys)
-                {
-                    VIS0EntryNode node = null;
-                    List<int> indices = VIS0Indices[n];
-                    for (int i = 0; i < indices.Count; i++)
-                    {
-                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
-                        {
-                            if (node._entryCount != 0 && _animFrame > 0)
-                                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node.GetEntry((int)_animFrame - 1));
-                            else
-                                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node._flags.HasFlag(VIS0Flags.Enabled));
-                        }
-                    }
-                }
+                //foreach (string n in VIS0Indices.Keys)
+                //{
+                //    VIS0EntryNode node = null;
+                //    List<int> indices = VIS0Indices[n];
+                //    for (int i = 0; i < indices.Count; i++)
+                //    {
+                //        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)modelListsPanel1.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
+                //        {
+                //            if (node._entryCount != 0 && _animFrame > 0)
+                //                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node.GetEntry((int)_animFrame - 1));
+                //            else
+                //                modelListsPanel1.lstObjects.SetItemChecked(indices[i], node._flags.HasFlag(VIS0Flags.Enabled));
+                //        }
+                //    }
+                //}
             }
             VIS0Updating = false;
         }

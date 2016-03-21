@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
-using System.Windows.Forms;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Audio;
 using System.Globalization;
 using System.Threading;

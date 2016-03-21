@@ -1,14 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using Ikarus;
-using Ikarus.MovesetFile;
+﻿using Ikarus;
 using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms

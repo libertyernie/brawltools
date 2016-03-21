@@ -1,7 +1,4 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
-using System.ComponentModel;
-using System.Drawing;
+﻿using System.ComponentModel;
 using Ikarus;
 
 namespace System.Windows.Forms

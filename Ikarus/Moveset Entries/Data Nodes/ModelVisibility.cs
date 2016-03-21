@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
-using Ikarus;
 using System.Collections;
 using BrawlLib.SSBB.ResourceNodes;
 
@@ -286,7 +283,7 @@ namespace Ikarus.MovesetFile
                         foreach (BoneIndexValue b in Group._bones)
                             if (b.BoneNode != null)
                                 foreach (MDL0ObjectNode p in b.BoneNode._visibilityObjects)
-                                    p._render = false;
+                                    p.IsRendering = false;
                     i++;
                 }
             }
@@ -299,7 +296,7 @@ namespace Ikarus.MovesetFile
                     foreach (BoneIndexValue b in Group._bones)
                         if (b.BoneNode != null)
                             foreach (MDL0ObjectNode p in b.BoneNode._visibilityObjects)
-                                p._render = true;
+                                p.IsRendering = true;
                 }
         }
 
@@ -321,7 +318,7 @@ namespace Ikarus.MovesetFile
                 foreach (BoneIndexValue b in grp._bones)
                     if (b.BoneNode != null)
                         foreach (MDL0ObjectNode obj in b.BoneNode._visibilityObjects)
-                            obj._render = false;
+                            obj.IsRendering = false;
 
             //Check if the group id is usable
             if (groupID >= switchEntry.Count || groupID < 0)
@@ -333,7 +330,7 @@ namespace Ikarus.MovesetFile
                 foreach (BoneIndexValue b in group._bones)
                     if (b.BoneNode != null)
                         foreach (MDL0ObjectNode obj in b.BoneNode._visibilityObjects)
-                            obj._render = true;
+                            obj.IsRendering = true;
         }
     }
 

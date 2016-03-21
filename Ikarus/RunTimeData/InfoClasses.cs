@@ -1,12 +1,9 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.MovesetFile;
-using System.Windows.Forms;
 using System;
 using System.Audio;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using Ikarus.UI;
 using BrawlLib.SSBBTypes;
 
@@ -88,7 +85,7 @@ namespace Ikarus.ModelViewer
                     _article._mdlVis.ResetVisibility();
                 else
                     foreach (MDL0ObjectNode o in _model._objList)
-                        o._render = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                        o.IsRendering = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
 
             Running = false;
         }

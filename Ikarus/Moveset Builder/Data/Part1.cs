@@ -1,9 +1,5 @@
-﻿using BrawlLib.SSBBTypes;
-using Ikarus.MovesetFile;
-using System;
-using System.Collections.Generic;
+﻿using Ikarus.MovesetFile;
 using System.Linq;
-using System.Text;
 
 namespace Ikarus.MovesetBuilder
 {

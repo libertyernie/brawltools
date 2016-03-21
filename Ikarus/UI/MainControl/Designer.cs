@@ -1,21 +1,11 @@
 ﻿using System;
-using BrawlLib.OpenGL;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
 using BrawlLib.Modeling;
 using System.Drawing;
-using BrawlLib.Wii.Animations;
 using System.Collections.Generic;
 using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.ModelViewer;
 using Ikarus.MovesetFile;
 
@@ -1885,8 +1875,8 @@ namespace Ikarus.UI
 
         protected override void OnModelChanged()
         {
-            if (_targetModel != null)
-                listPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
+            //if (_targetModel != null)
+            //    listPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
 
             hurtboxEditor._mainControl_TargetModelChanged(null, null);
             modelListsPanel1.Reset();

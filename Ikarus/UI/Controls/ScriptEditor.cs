@@ -1,12 +1,8 @@
 ﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
-using System.Drawing;
 using System.Collections.Generic;
-using System.IO;
 using System.Windows.Forms;
 using Ikarus.MovesetFile;
-using Ikarus;
 using BrawlLib.SSBBTypes;
 
 namespace Ikarus.UI

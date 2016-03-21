@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
-using BrawlLib.OpenGL;
-using System.Windows.Forms;
-using Ikarus;
-using OpenTK.Graphics.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.ModelViewer;
 

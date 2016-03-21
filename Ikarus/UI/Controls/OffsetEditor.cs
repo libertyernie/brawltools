@@ -1,10 +1,5 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
-using System.ComponentModel;
-using System.Drawing;
-using Ikarus;
+﻿using System.ComponentModel;
 using Ikarus.MovesetFile;
-using System.Windows.Forms;
 using Ikarus.ModelViewer;
 using BrawlLib.SSBBTypes;
 

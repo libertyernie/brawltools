@@ -1,17 +1,11 @@
-﻿using Ikarus;
-using Ikarus.MovesetFile;
+﻿using Ikarus.MovesetFile;
 using System.Windows.Forms;
 using System;
 using System.Audio;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.UI;
-using System.Reflection;
-using System.Globalization;
 using BrawlLib.SSBBTypes;
 
 namespace Ikarus.ModelViewer

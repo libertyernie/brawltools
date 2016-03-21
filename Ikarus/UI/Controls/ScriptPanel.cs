@@ -1,18 +1,7 @@
 ﻿using System;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Drawing;
-using BrawlLib.Modeling;
-using System.IO;
 using System.ComponentModel;
-using BrawlLib;
-using System.Collections.Generic;
-using BrawlLib.Wii.Models;
-using BrawlLib.SSBBTypes;
-using System.Globalization;
-using System.Timers;
 using System.Windows.Forms;
-using System.Audio;
 using Ikarus.MovesetFile;
 using Ikarus.ModelViewer;
 

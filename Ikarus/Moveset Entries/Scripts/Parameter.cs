@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using System.Windows.Forms;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
-using Ikarus;
-using Ikarus.MovesetBuilder;
 using Ikarus.ModelViewer;
 
 namespace Ikarus.MovesetFile

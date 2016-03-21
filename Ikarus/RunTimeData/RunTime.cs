@@ -1,13 +1,11 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.MovesetFile;
 using System.Windows.Forms;
-using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using WiimoteLib;
 using Ikarus.UI;
 
@@ -141,12 +139,12 @@ namespace Ikarus.ModelViewer
         {
             Timer.Stop(); 
             Playing = false; 
-            if (MainWindow._capture)
-            {
-                MainWindow.RenderToGIF(MainWindow.images.ToArray());
-                MainWindow.images.Clear();
-                MainWindow._capture = false;
-            }
+            //if (MainWindow._capture)
+            //{
+            //    MainWindow.RenderToGIF(MainWindow.images.ToArray());
+            //    MainWindow.images.Clear();
+            //    MainWindow._capture = false;
+            //}
         }
 
         public static void TogglePlay()
@@ -366,8 +364,8 @@ namespace Ikarus.ModelViewer
                     if (a != null && a.Running)
                         a.SetFrame(frame - 1);
 
-            if (MainWindow._capture && Playing)
-                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
+            //if (MainWindow._capture && Playing)
+            //    MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
         }
 
         private static void UpdateScripts(int index)
