@@ -92,13 +92,7 @@ namespace Ikarus.MovesetFile
             sParameter* hdr = (sParameter*)address;
             _value = hdr->_data;
         }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 8;
-        }
-
+        protected override int OnGetSize() { return 8; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;
@@ -288,19 +282,20 @@ namespace Ikarus.MovesetFile
             get { return Data; }
             set
             {
-                //if (value < 0)
-                //{
-                //    _value = value;
-                //    list = 4;
-                //    type = -1;
-                //    index = -1;
-                //    SignalPropertyChange();
-                //    return;
-                //}
+                if (value < 0)
+                {
+                    Data = value;
+                    _offsetInfo._list = ListValue.Null;
+                    _offsetInfo._type = TypeValue.None;
+                    _offsetInfo._index = -1;
+                    SignalPropertyChange();
+                    return;
+                }
                 SakuraiEntryNode r = _root.GetEntry(value);
                 if (r != null && r is Script)
                     Data = value;
-                else MessageBox.Show("An action could not be located.");
+                else
+                    MessageBox.Show("An action could not be located.");
             }
         }
         [Category("Event Offset"), Browsable(true), TypeConverter(typeof(DropDownListExtNodesMDef))]
@@ -319,8 +314,8 @@ namespace Ikarus.MovesetFile
                         _externalEntry = e;
                         e.References.Add(this);
                         _script = null;
-                        _offsetInfo.list = ListValue.References;
-                        _offsetInfo.index = _externalEntry.Index;
+                        _offsetInfo._list = ListValue.References;
+                        _offsetInfo._index = _externalEntry.Index;
                     }
             }
         }
@@ -332,44 +327,11 @@ namespace Ikarus.MovesetFile
         internal Script GetScript() { return ((MovesetNode)_root).GetScript(RawOffset); }
         public Script _script;
 
-        protected override void OnParse(VoidPtr address)
-        {
-            base.OnParse(address);
-            
-            //if (RawOffset > 0)
-            //{
-            //    _root.GetScriptLocation(RawOffset, out _offsetInfo);
-            //    if (!External)
-            //    {
-            //        _script = _root.GetScript(_offsetInfo);
-            //        if (_script == null)
-            //            _script = GetScript();
-            //    }
-            //}
-            //else
-            //{
-            //    _script = null;
-            //    _offsetInfo.type = (TypeValue)(-1);
-            //    if (RawOffset < 0 && External)
-            //    {
-            //        _offsetInfo.index = _externalEntry.Index;
-            //        _offsetInfo.list = ListValue.References;
-            //    }
-            //    else
-            //    {
-            //        _offsetInfo.index = -1;
-            //        _offsetInfo.list = ListValue.Null;
-            //    }
-            //}
-        }
-
         public override void PostParse()
         {
-            LinkScript();
-        }
+            //Get script node using raw offset
+            //This happens in post parse so that all scripts have been parsed already
 
-        internal void LinkScript()
-        {
             MovesetNode node = (MovesetNode)_root;
 
             SakuraiEntryNode e = _root.GetEntry(RawOffset);
@@ -378,20 +340,20 @@ namespace Ikarus.MovesetFile
             _offsetInfo = node.GetScriptLocation(RawOffset);
 
             Script a;
-            if (_offsetInfo.list == ListValue.Null && !exist)
+            if (_offsetInfo._list == ListValue.Null && !exist)
                 node.SubRoutines.Add(a = Parse<Script>(RawOffset));
-            else if (_offsetInfo.list != ListValue.References)
+            else if (_offsetInfo._list != ListValue.References)
                 a = node.GetScript(_offsetInfo);
             else
             {
-                if (_externalEntry == null && _offsetInfo.index >= 0 && _offsetInfo.index < _root.ReferenceList.Count)
+                if (_externalEntry == null && _offsetInfo._index >= 0 && _offsetInfo._index < _root.ReferenceList.Count)
                 {
-                    _externalEntry = _root.ReferenceList[_offsetInfo.index];
+                    _externalEntry = _root.ReferenceList[_offsetInfo._index];
                     _externalEntry.References.Add(this);
                 }
                 return;
             }
-            
+
             if (a == null)
                 a = GetScript();
 
@@ -403,13 +365,8 @@ namespace Ikarus.MovesetFile
             _script = a;
         }
 
-        protected override int OnGetSize()
-        {
-            if (_script != null)
-                _lookupCount = 1;
-            return 8;
-        }
-
+        protected override int OnGetLookupCount() { return _script != null ? 1 : 0; }
+        protected override int OnGetSize() { return 8; }
         protected override void PostProcess(LookupManager lookupOffsets)
         {
             sParameter* arg = (sParameter*)RebuildAddress;
@@ -446,16 +403,16 @@ namespace Ikarus.MovesetFile
             if (_externalEntry != null)
                 return "Ref." + _externalEntry.Name;
             string add = "";
-            if (_offsetInfo.list != ListValue.Null)
-                add += String.Format("[{0}]", _offsetInfo.index.ToString());
-            if ((int)_offsetInfo.list < 2)
+            if (_offsetInfo._list != ListValue.Null)
+                add += String.Format("[{0}]", _offsetInfo._index.ToString());
+            if ((int)_offsetInfo._list < 2)
             {
-                string v = _offsetInfo.type.ToString();
-                if (_offsetInfo.list == ListValue.SubActions && (int)_offsetInfo.type < 2)
-                    if (_offsetInfo.type == TypeValue.Entry) v = "Main"; else v = "GFX";
+                string v = _offsetInfo._type.ToString();
+                if (_offsetInfo._list == ListValue.SubActions && (int)_offsetInfo._type < 2)
+                    if (_offsetInfo._type == TypeValue.Entry) v = "Main"; else v = "GFX";
                 add += String.Format(".{0}", v);
             }
-            return "Script." + _offsetInfo.list.ToString() + add;
+            return "Script." + _offsetInfo._list.ToString() + add;
         }
     }
 

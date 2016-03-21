@@ -21,12 +21,8 @@ namespace Ikarus.MovesetFile
                 _indices.Add(Parse<IndexValue>(entry++));
         }
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = (_indices.Count > 0 ? 1 : 0);
-            return _indices.Count * 4 + 8;
-        }
-
+        protected override int OnGetLookupCount() { return _indices.Count > 0 ? 1 : 0; }
+        protected override int OnGetSize() { return _indices.Count * 4 + 8; }
         protected override void OnWrite(VoidPtr address)
         {
             bint* addr = (bint*)address;
@@ -42,7 +38,7 @@ namespace Ikarus.MovesetFile
             if (_indices.Count > 0)
             {
                 header->_startOffset = Offset(address);
-                _lookupOffsets.Add(header->_startOffset.Address);
+                Lookup(header->_startOffset.Address);
             }
 
             header->_listCount = _indices.Count;

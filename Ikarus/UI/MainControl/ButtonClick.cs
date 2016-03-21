@@ -533,7 +533,10 @@ namespace Ikarus.UI
 
             modelPanel.Invalidate();
         }
-        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e) { new ModelViewerSettingsDialog().Show(this); }
+        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //new ModelViewerSettingsDialog().Show(this);
+        }
         private void hitboxesOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
             chkHitboxes.Checked = !chkHitboxes.Checked;

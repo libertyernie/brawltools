@@ -44,17 +44,8 @@ namespace Ikarus.MovesetFile
 
         public override string Name { get { return Bone; } }
 
-        protected override void OnParse(VoidPtr address)
-        {
-            boneIndex = *(bint*)address;
-        }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 4;
-        }
-
+        protected override void OnParse(VoidPtr address) { boneIndex = *(bint*)address; }
+        protected override int OnGetSize() { return 4; }
         protected override void OnWrite(VoidPtr address)
         {
             *(bint*)(RebuildAddress = address) = boneIndex;
@@ -145,7 +136,6 @@ namespace Ikarus.MovesetFile
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             _entryLength = attributeBuffer.Length;
             return _entryLength;
         }

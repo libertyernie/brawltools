@@ -24,24 +24,24 @@ namespace Ikarus.ModelViewer
         {
             _script = s;
         }
-        static Scriptor()
-        {
-            var m = typeof(Scriptor).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
-            foreach (MethodInfo method in m)
-            {
-                string s = method.Name.Substring(1);
-                if (s.StartsWith("0x"))
-                    s = s.Substring(2);
+        //static Scriptor()
+        //{
+        //    var m = typeof(Scriptor).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.InvokeMethod);
+        //    foreach (MethodInfo method in m)
+        //    {
+        //        string s = method.Name.Substring(1);
+        //        if (s.StartsWith("0x"))
+        //            s = s.Substring(2);
 
-                uint i;
-                if (!uint.TryParse(s, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out i))
-                    continue;
+        //        uint i;
+        //        if (!uint.TryParse(s, System.Globalization.NumberStyles.HexNumber, CultureInfo.InvariantCulture, out i))
+        //            continue;
 
-                _actions.Add(i, method);
-            }
-        }
+        //        _events.Add(i, method);
+        //    }
+        //}
 
-        private static Dictionary<uint, MethodInfo> _actions = new Dictionary<uint, MethodInfo>();
+        //private static Dictionary<uint, MethodInfo> _events = new Dictionary<uint, MethodInfo>();
 
         public int Count { get { return _script.Count; } }
         public Event this[int i]
@@ -237,8 +237,9 @@ namespace Ikarus.ModelViewer
             if (e == null || !_runEvents && !_runExceptions.Contains(eventId >> 16))
                 return;
 
-            if (_actions.ContainsKey(eventId))
-                _actions[eventId].Invoke(this, null);
+            uint eventIdTemp = eventId & 0xFFFFFF00; //Cut out unk value
+            //if (_events.ContainsKey(eventIdTemp))
+            //    _events[eventIdTemp].Invoke(this, null);
 
             //Variables that are used often
             int id;
@@ -252,7 +253,7 @@ namespace Ikarus.ModelViewer
             SubActionChangeInfo sChangeInfo;
 
             //Code what to do for each event here!
-            switch (eventId)
+            switch (eventIdTemp)
             {
                 case 0x01000000: //Loop Rest 1 for Goto
                     Application.DoEvents();
@@ -639,11 +640,12 @@ namespace Ikarus.ModelViewer
                     if (RunTime._muteSFX)
                         break;
 
-                    id = e[0];
                     if (Manager.SoundArchive != null)
                     {
                         RSARNode node = Manager.SoundArchive;
                         List<RSAREntryNode> sounds = node._infoCache[0];
+
+                        id = e[0];
                         if (sounds != null && id >= 0 && id < sounds.Count)
                         {
                             RSARSoundNode s = sounds[id] as RSARSoundNode;
@@ -857,15 +859,6 @@ namespace Ikarus.ModelViewer
                     
                     break;
             }
-        }
-
-        private void _0x01000000()
-        {
-            Application.DoEvents();
-        }
-        private void _0x00010100()
-        {
-            _waitFrames = (int)(e[0].RealValue + 0.5f);
         }
 
         /// <summary>

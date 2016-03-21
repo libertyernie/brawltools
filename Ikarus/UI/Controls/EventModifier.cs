@@ -541,11 +541,11 @@ namespace System.Windows.Forms
                 EventOffset offset = value as EventOffset;
 
                 _updating = true;
-                comboBox1.SelectedIndex = (int)offset._offsetInfo.list;
-                if (offset._offsetInfo.type != TypeValue.None)
-                    comboBox3.SelectedIndex = (int)offset._offsetInfo.type;
-                if (offset._offsetInfo.index != -1)
-                    comboBox2.SelectedIndex = offset._offsetInfo.index;
+                comboBox1.SelectedIndex = (int)offset._offsetInfo._list;
+                if (offset._offsetInfo._type != TypeValue.None)
+                    comboBox3.SelectedIndex = (int)offset._offsetInfo._type;
+                if (offset._offsetInfo._index != -1)
+                    comboBox2.SelectedIndex = offset._offsetInfo._index;
                 _updating = false;
             }
             else 

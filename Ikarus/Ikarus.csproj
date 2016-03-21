@@ -124,14 +124,12 @@
     <Compile Include="Moveset Builder\DataCommon\Part3.cs" />
     <Compile Include="Moveset Builder\DataCommon\Part2.cs" />
     <Compile Include="Moveset Builder\DataCommon\Part1.cs" />
-    <Compile Include="Moveset Builder\Data\Part7.cs" />
-    <Compile Include="Moveset Builder\Data\Part6.cs" />
     <Compile Include="Moveset Builder\Data\Part5.cs" />
     <Compile Include="Moveset Builder\Data\Part4.cs" />
     <Compile Include="Moveset Builder\Data\Part3.cs" />
     <Compile Include="Moveset Builder\Data\Part2.cs" />
     <Compile Include="Moveset Builder\Data\Part1.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscSoundData.cs" />
+    <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscArrayOfIndexArrays.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscCrawl.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscGlide.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Misc Nodes\MiscMultiJump.cs" />
@@ -164,7 +162,7 @@
       <DependentUpon>SyntaxHighlightingTextBox.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Moveset Entries\CharacterSpecific.cs" />
-    <Compile Include="Moveset Entries\DataCommon Nodes\DataCommonSection.cs" />
+    <Compile Include="Moveset Entries\Sections\DataCommonSection.cs" />
     <Compile Include="Moveset Entries\DataCommon Nodes\CmnPatternPowerMulNode.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionFlags.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ActionInterrupts.cs" />
@@ -174,7 +172,7 @@
     <Compile Include="Moveset Entries\Data Nodes\AttributeList.cs" />
     <Compile Include="Moveset Entries\Data Nodes\BoneReferences2.cs" />
     <Compile Include="Moveset Entries\Data Nodes\CollisionData.cs" />
-    <Compile Include="Moveset Entries\Data Nodes\DataSection.cs" />
+    <Compile Include="Moveset Entries\Sections\DataSection.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ItemAnchor.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Miscellaneous.cs" />
     <Compile Include="Moveset Entries\Data Nodes\ModelVisibility.cs" />
@@ -182,7 +180,7 @@
     <Compile Include="Moveset Entries\Data Nodes\Unknown22.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Unknown24.cs" />
     <Compile Include="Moveset Entries\Data Nodes\Unknown7.cs" />
-    <Compile Include="Moveset Entries\Items\AnimParamNode.cs" />
+    <Compile Include="Moveset Entries\Sections\AnimParamSection.cs" />
     <None Include="Moveset Entries\Lookup.cs" />
     <Compile Include="Moveset Entries\RawParamList.cs" />
     <Compile Include="Moveset Entries\Scripts\Scriptor.cs" />

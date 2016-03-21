@@ -20,7 +20,7 @@ namespace Ikarus.MovesetFile
             return name == "dataCommon" ? new DataCommonSection() : null;
         }
 
-        CommonHeader hdr;
+        DataCommonHeader hdr;
         
         [Category("Data Offsets")]
         public int GlobalICBasics { get { return hdr.GlobalICs; } }
@@ -108,7 +108,7 @@ namespace Ikarus.MovesetFile
         
         protected override void OnParse(VoidPtr address)
         {
-            hdr = *(CommonHeader*)address;
+            hdr = *(DataCommonHeader*)address;
             bint* v = (bint*)address;
             int offset = 0;
 
@@ -158,6 +158,9 @@ namespace Ikarus.MovesetFile
 
             //Unk12 and Unk13 are copies of the same parameters
             //with some different values
+
+            //Unk23 is one value (0) in Global IC-Basics - offset to data at start of section child data
+            //Params24 is one value (32) in IC-Basics
         }
 
         private void ParseScripts(bint* hdr, int[] sizes)
@@ -387,7 +390,6 @@ namespace Ikarus.MovesetFile
 
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             return 12;
         }
 
@@ -417,13 +419,7 @@ namespace Ikarus.MovesetFile
             unk1 = hdr->_unk1;
             unk2 = hdr->_unk2;
         }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 12;
-        }
-
+        protected override int OnGetSize() { return 8; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

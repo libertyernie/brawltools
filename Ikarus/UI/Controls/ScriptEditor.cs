@@ -509,16 +509,16 @@ namespace Ikarus.UI
             if (node._externalEntry != null)
                 return "External: " + node._externalEntry.Name;
 
-            if (node._offsetInfo.list == ListValue.Null)
+            if (node._offsetInfo._list == ListValue.Null)
                 return "0x" + Util.Hex(node.Data);
             else
             {
                 string name = "", t = "", grp = "";
-                switch (node._offsetInfo.list)
+                switch (node._offsetInfo._list)
                 {
                     case ListValue.Actions:
                         grp = "Action ";
-                        switch (node._offsetInfo.type)
+                        switch (node._offsetInfo._type)
                         {
                             case TypeValue.Entry: t = "Entry"; break;
                             case TypeValue.Exit: t = "Exit"; break;
@@ -526,7 +526,7 @@ namespace Ikarus.UI
                         break;
                     case ListValue.SubActions:
                         grp = "SubAction ";
-                        switch (node._offsetInfo.type)
+                        switch (node._offsetInfo._type)
                         {
                             case TypeValue.Main: t = "Main"; break;
                             case TypeValue.GFX: t = "GFX"; break;
@@ -546,7 +546,7 @@ namespace Ikarus.UI
                         break;
                 }
 
-                return grp + node._offsetInfo.index.ToString() + ((int)node._offsetInfo.list >= 2 ? "" : " " + t);
+                return grp + node._offsetInfo._index.ToString() + ((int)node._offsetInfo._list >= 2 ? "" : " " + t);
             }
         }
          

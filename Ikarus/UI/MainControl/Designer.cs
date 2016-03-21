@@ -1542,13 +1542,18 @@ namespace Ikarus.UI
             Manager.RootChanged += new EventHandler(FolderManager_RootChanged);
             Manager.TargetCharacterChanged += new EventHandler(FolderManager_TargetCharacterChanged);
 
-            modelPanel.BackColor = Color.FromArgb(0, 45, 45, 65);
-            modelPanel.Ambient = new Vector4(65.0f / 255.0f, 78.0f / 255.0f, 94.0f / 255.0f, 255.0f / 255.0f);
             _floorHue = Color.FromArgb(255, 99, 101, 107);
 
-            modelPanel.DefaultTranslate = new Vector3(-25.0f, 15.0f, 50.0f);
-            modelPanel.DefaultRotate = new Vector3(-5.0f, -30.0f, 0.0f);
-            modelPanel.ResetCamera();
+            //modelPanel.RenderShaders = false;
+
+            ModelPanelViewport v = modelPanel.CurrentViewport;
+
+            v.BackgroundColor = Color.FromArgb(0, 45, 45, 65);
+            v.Ambient = new Vector4(65.0f / 255.0f, 78.0f / 255.0f, 94.0f / 255.0f, 255.0f / 255.0f);
+            v.DefaultTranslate = new Vector3(-25.0f, 15.0f, 50.0f);
+            v.DefaultRotate = new Vector3(-5.0f, -30.0f, 0.0f);
+            v.ResetCamera();
+
             _updating = false;
 
             PostConstruct();
@@ -1758,8 +1763,6 @@ namespace Ikarus.UI
                 listPanel.UpdateAnimations();
 
                 ResetBoneColors();
-
-                RunTime.ResetSubactionVariables();
                 RunTime.SetFrame(1);
             }
             else
@@ -1776,7 +1779,7 @@ namespace Ikarus.UI
             if (Manager.Moveset != null && Manager.Moveset.Data != null)
             {
                 RunTime._articles = new ArticleInfo[Manager.Moveset.Data._articles.Count];
-                foreach (ArticleNode article in Manager.Moveset.Data._articles.Values)
+                foreach (ArticleNode article in Manager.Moveset.Data._articles)
                 {
                     ArticleInfo articleInfo = new ArticleInfo(article, null, false);
 

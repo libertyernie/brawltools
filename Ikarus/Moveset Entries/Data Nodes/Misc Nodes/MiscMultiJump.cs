@@ -91,7 +91,7 @@ namespace Ikarus.MovesetFile
             {
                 header->_unkListOffset = Offset(addr);
                 if (header->_unkListOffset > 0)
-                    _lookupOffsets.Add(&header->_unkListOffset);
+                    Lookup(&header->_unkListOffset);
 
                 foreach (float f in _unks)
                     *addr++ = f;
@@ -105,7 +105,7 @@ namespace Ikarus.MovesetFile
             {
                 header->_hopListOffset = Offset(addr);
                 if (header->_hopListOffset > 0)
-                    _lookupOffsets.Add(&header->_hopListOffset);
+                    Lookup(&header->_hopListOffset);
 
                 foreach (float f in _hops)
                     *addr++ = f;

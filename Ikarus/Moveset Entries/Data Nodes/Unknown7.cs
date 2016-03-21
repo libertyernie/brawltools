@@ -59,13 +59,7 @@ namespace Ikarus.MovesetFile
             v1 = new Bin32(*(buint*)address);
             v2 = new Bin32(*(buint*)(address + 4));
         }
-
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 8;
-        }
-
+        protected override int OnGetSize() { return 8; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

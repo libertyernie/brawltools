@@ -16,16 +16,11 @@ namespace Ikarus.MovesetBuilder
 {
     public unsafe partial class DataCommonBuilder : BuilderBase
     {
-        SakuraiEntryNode[] _orderedDataCommon;
         DataCommonSection _dataCommon;
 
         public DataCommonBuilder(DataCommonSection dataCommon)
         {
             _moveset = (_dataCommon = dataCommon)._root as MovesetNode;
-            _orderedDataCommon = new SakuraiEntryNode[]
-            {
-                
-            };
             _getPartSize = new Action[]
             {
                 GetSizePart1,
@@ -38,6 +33,15 @@ namespace Ikarus.MovesetBuilder
                 BuildPart2,
                 BuildPart3,
             };
+        }
+
+        DataCommonHeader* dataCommonHeader;
+
+        public override void Build(VoidPtr address)
+        {
+            dataCommonHeader = (DataCommonHeader*)(address + _dataCommon._childLength);
+
+            base.Build(address);
         }
     }
 }

@@ -96,7 +96,11 @@ namespace Ikarus.ModelViewer
         public static ArticleInfo[] _articles;
         public static List<HitBox> _hitBoxes = new List<HitBox>();
 
+#if DEBUG
+        public static bool _muteSFX = true;
+#else
         public static bool _muteSFX = false;
+#endif
 
         public static CoolTimer Timer { get { return MainWindow._timer; } }
         public static bool IsRunning { get { return Timer.IsRunning; } }
@@ -298,19 +302,16 @@ namespace Ikarus.ModelViewer
                     if (i == null)
                         continue;
 
-                    i.Running = true;
-                    i.SubactionIndex = -1;
+                    i.ResetSubactionVariables();
                 }
 
             //Reset model visiblity to its default state
             if (MainWindow.TargetModel != null && 
                 MainWindow.TargetModel.Objects.Length > 0 && 
-                Manager.Moveset != null)
-            {
-                ModelVisibility node = Manager.Moveset.Data._modelVis;
-                if (node != null)
-                    node.ResetVisibility(0);
-            }
+                Manager.Moveset != null &&
+                Manager.Moveset.Data != null &&
+                Manager.Moveset.Data._modelVis != null)
+                Manager.Moveset.Data._modelVis.ResetVisibility();
         }
 
         public static void ResetCharPos()

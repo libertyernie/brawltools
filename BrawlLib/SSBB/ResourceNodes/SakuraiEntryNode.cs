@@ -18,7 +18,7 @@ namespace BrawlLib.SSBBTypes
                 return RebuildAddress == null 
                     || BaseAddress == null 
                     || RebuildAddress < BaseAddress ? 
-                    -1 : (int)RebuildAddress - (int)BaseAddress;
+                    -1 : Offset(RebuildAddress);
             }
         }
         [Browsable(false)]
@@ -28,8 +28,21 @@ namespace BrawlLib.SSBBTypes
         [Browsable(false)]
         public bool HasChanged
         {
-            get { return _changed || (_root != null && _root.ChangedEntries.Contains(this)); }
-            set { _changed = value; if (_root != null) _root.ChangedEntries.Remove(this); }
+            get { return _root != null && _root.ChangedEntries.Contains(this); }
+            set
+            {
+                if (_root != null)
+                    if (value)
+                    {
+                        if (!_root.ChangedEntries.Contains(this))
+                            _root.ChangedEntries.Add(this);
+                    }
+                    else
+                    {
+                        if (_root.ChangedEntries.Contains(this))
+                            _root.ChangedEntries.Remove(this);
+                    }
+            }
         }
         [Browsable(false)]
         public virtual string Name { get { return _name; } }
@@ -45,19 +58,20 @@ namespace BrawlLib.SSBBTypes
             {
                 if (_root.IsRebuilding)
                     _rebuildAddress = value;
-                else //DEBUG
+#if DEBUG
+                else
                     throw new Exception("Can't set rebuild address when the file isn't being rebuilt.");
+#endif
             }
         }
         [Browsable(false)]
-        public virtual bool IsDirty { get { return HasChanged; } set { HasChanged = value; } }
+        public virtual bool IsDirty { get { return _root.ChangedEntries.Contains(this); } set { HasChanged = value; } }
         [Browsable(false)]
         public virtual int Index { get { return _index; } }
         [Browsable(false)]
         public int TotalSize { get { return _entryLength + _childLength; } }
 
         public string _name;
-        private bool _changed;
         public SakuraiEntryNode _parent;
         public SakuraiArchiveNode _root;
         public int
@@ -77,13 +91,13 @@ namespace BrawlLib.SSBBTypes
         public int LookupCount { get { return _lookupCount; } }
         private int _lookupCount = 0;
 
-        public List<VoidPtr> _lookupOffsets;
+        private List<VoidPtr> _lookupAddresses;
         
         //Functions
         /// <summary>
         /// Call this when an entry's size changes
         /// </summary>
-        public void SignalRebuildChange() { if (_root != null) _root.RebuildNeeded = true; HasChanged = true; }
+        public void SignalRebuildChange() { if (_root != null) _root.RebuildEntries.Add(this); HasChanged = true; }
         /// <summary>
         /// Call this when a property has been changed but the size remains the same
         /// </summary>
@@ -194,24 +208,34 @@ namespace BrawlLib.SSBBTypes
         /// </summary>
         public int Write(VoidPtr address)
         {
+            if (External)
+                throw new Exception("Trying to write an external data entry inside of a section's child data!");
+
             //Reset list of lookup offsets
             //Addresses will be added in OnWrite.
-            _lookupOffsets = new List<VoidPtr>();
-            
+            _lookupAddresses = new List<VoidPtr>();
+
+            //Reset the rebuild address to be set in OnWrite
+            //Set to 'address' instead? I just don't want to forget to set this 
+            //in nodes that don't use the start address
+            RebuildAddress = null;
+
             //Write this node's data to the address.
             //Sets RebuildAddress to the location of the header.
             //The header is often not the first thing written to the given address.
             //Children are always written first.
             OnWrite(address);
 
-            if (_lookupOffsets.Count != _lookupCount) //DEBUG
+#if DEBUG
+            if (_lookupAddresses.Count != _lookupCount)
                 throw new Exception("Number of actual lookup offsets does not match the calculated count.");
+
+            if (!RebuildAddress)
+                throw new Exception("RebuildAddress was not set.");
+#endif
 
             //Reset for next calc size
             _lookupCount = 0;
-
-            if (!RebuildAddress) //DEBUG
-                throw new Exception("RebuildAddress was not set.");
 
             //Return the offset to the header
             return RebuildOffset;
@@ -228,8 +252,21 @@ namespace BrawlLib.SSBBTypes
         //DO NOT send the offset itself as the address!
         protected void Lookup(VoidPtr address)
         {
-            _lookupOffsets.Add(Offset(address));
+#if DEBUG
+            if ((int)address < (int)BaseAddress)
+                throw new Exception("Offset value set in lookup, not the address of the offset value.");
+#endif
+
+            _lookupAddresses.Add(address);
         }
+
+        protected void Lookup(List<VoidPtr> values)
+        {
+            _lookupAddresses.AddRange(values);
+        }
+
+        [Browsable(false)]
+        public List<VoidPtr> LookupAddresses { get { return _lookupAddresses; } }
 
         //Overridable functions
         protected virtual void OnParse(VoidPtr address) { }
