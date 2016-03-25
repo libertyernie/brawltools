@@ -67,6 +67,11 @@ namespace BrawlLib.Wii.Audio
             CSTMDataInfo cstmDataInfo = cstm->INFOData->_dataInfo;
             int channels = cstmDataInfo._format._channels;
 
+            if (cstm->_seekBlockRef._type != CSTMReference.RefType.SeekBlock)
+            {
+                throw new Exception("BrawlLib does not recognize this type of CSTM file (the SEEK block is missing or in an unexpected location.)");
+            }
+
             // Get section sizes from the BRSTM - BCSTM is such a similar format that we can assume the sizes will match.
             int rstmSize = 0x40;
             int infoSize = cstm->_infoBlockSize;
