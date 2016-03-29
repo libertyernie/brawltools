@@ -52,6 +52,8 @@
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Memory.cs" />
     <Compile Include="System\StringExtension.cs" />
+    <Compile Include="Wii\Audio\ADPCMState.cs" />
+    <Compile Include="Wii\Audio\ADPCMStream.cs" />
     <Compile Include="Wii\Audio\AudioConverter.cs" />
     <Compile Include="System\BigEndianTypes.cs" />
     <Compile Include="SSBB\Types\Common.cs" />

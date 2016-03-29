@@ -13,6 +13,20 @@ namespace BrawlLib.Wii.Audio
     public static class RSTMConverter
     {
 #if RSTMLIB
+        public static unsafe IAudioStream[] CreateStreams(byte[] rstm)
+        {
+            fixed (byte* ptr = rstm)
+            {
+                return CreateStreams((RSTMHeader*)ptr);
+            }
+        }
+        static unsafe IAudioStream[] CreateStreams(RSTMHeader* rstm)
+        {
+            return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
+        }
+#endif
+
+#if RSTMLIB
         public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
 #else
         public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress)
