@@ -6,109 +6,102 @@ namespace BrawlLib.Wii.Audio
 {
     public unsafe class AudioConverter
     {
-        public static void CalcCoefs(short* source, int samples, short* dest, IProgressTracker progress)
+        /* Temporal Vector
+         * A contiguous history of 3 samples starting with
+         * 'current' and going 2 backwards
+         */
+        public unsafe struct tvec
         {
-            //short[,] coefs = new short[8,2];
+            fixed double values[3];
 
-            //double d10 = 10.0;
-            //int channels = 2;
-            //int num2 = 2;
-            //int chunkSamples = 14;
-            //int var30 = 0;
-            short* sPtr = source;
-            int numBlocks = (samples + 13) / 14;
+            public unsafe double this[int index]
+            {
+                get
+                {
+                    fixed (double* ptr = values) return ptr[index];
+                }
+                set
+                {
+                    fixed (double* ptr = values) ptr[index] = value;
+                }
+            }
+        }
 
-            int nBits = 3;
-            //while ((1 << ++nBits) < 8) ;
+        public static void CalcCoefs(short* source, int samples, short* coefsOut, IProgressTracker progress)
+        {
+            int numFrames = (samples + 13) / 14;
+            int frameSamples;
 
-            double** bufferArray = stackalloc double*[8];
-            for (int z = 0; z < 8; z++)
-                bufferArray[z] = (double*)Marshal.AllocHGlobal(3 * 8);
+            short* blockBuffer = stackalloc short[0x3800];
+            short* pcmHistBuffer0 = stackalloc short[14];
+            Memory.Fill(pcmHistBuffer0, (uint)(sizeof(tvec) * 14), 0);
+            short* pcmHistBuffer1 = stackalloc short[14];
+            Memory.Fill(pcmHistBuffer1, (uint)(sizeof(tvec) * 14), 0);
 
-            double* buffer2 = stackalloc double[3];
-            short* sampleBuffer = (short*)Marshal.AllocHGlobal(0x7000);
-            short* chunkBuffer = stackalloc short[28];
-            //double** chunkBuffer = (double**)chunkBufferData;
-            for (int z = 0; z < 28; z++)
-                chunkBuffer[z] = 0;
+            tvec vec1;
+            tvec vec2;
 
-            double* sChunkBuffer = stackalloc double[3];
-            double* omgBuffer = stackalloc double[3];
+            tvec* mtx = stackalloc tvec[3];
+            int* vecIdxs = stackalloc int[3];
 
-			double** pChannels = stackalloc double*[3];
-            for (int z = 0; z <= 2; z++)
-                pChannels[z] = (double*)Marshal.AllocHGlobal(3 * 8);
+            tvec* records = (tvec*)Marshal.AllocHGlobal(sizeof(tvec) * numFrames * 2);
+            Memory.Fill(records, (uint)(sizeof(tvec) * numFrames * 2), 0);
+            int recordCount = 0;
 
-            int* anotherBuffer = stackalloc int[3];
-
-            double** multiBuffer = (double**)Marshal.AllocHGlobal(numBlocks * 4 * 2);
-            int unused = 0;
-            int multiIndex = 0;
-
-            int blockSamples;
-            int temp;
+            tvec* vecBest = stackalloc tvec[8];
 
             float initValue = 0;
             int lastUpdate = 0;
             if (progress != null)
                 initValue = progress.CurrentValue;
 
-            for (int x = samples; x > 0; )
+            /* Iterate though 1024-block frames */
+            for (int x = samples; x>0 ;)
             {
-                if (x > 0x3800)
+                if (x > 0x3800) /* Full 1024-block frame */
                 {
-                    blockSamples = 0x3800;
+                    frameSamples = 0x3800;
                     x -= 0x3800;
                 }
-                else
+                else /* Partial frame */
                 {
-                    blockSamples = x;
-                    for (int z = 0; (z < 14) && ((z + blockSamples) < 0x3800); z++)
-                        sampleBuffer[blockSamples + z] = 0;
+                    /* Zero lingering block samples */
+                    frameSamples = x;
+                    for (int z = 0; z< 14 && z+frameSamples<0x3800 ; z++)
+                        blockBuffer[frameSamples + z] = 0;
                     x = 0;
                 }
 
-                short* tPtr = sampleBuffer;
-                for (int z = 0; z < blockSamples; z++)
-                    *tPtr++ = *sPtr++;
+                /* Copy (potentially non-frame-aligned PCM samples into aligned buffer) */
+                Memory.Move(blockBuffer, source, (uint)(frameSamples * sizeof(short)));
+                source += frameSamples;
 
-                for (int i = 0; i < blockSamples; )
+
+                for (int i = 0; i<frameSamples ;)
                 {
-                    for (int z = 0; z < 14; z++)
-                        chunkBuffer[z] = chunkBuffer[z + 14];
-                    for (int z = 0; z < 14; z++)
-                        chunkBuffer[z + 14] = sampleBuffer[i++];
+                    for (int z = 0; z < 14 ; z++)
+                        pcmHistBuffer0[z] = pcmHistBuffer1[z];
+                    for (int z = 0; z < 14 ; z++)
+                        pcmHistBuffer1[z] = blockBuffer[i++];
 
-                    Something1(&chunkBuffer[14], sChunkBuffer);
-                    if (Math.Abs(sChunkBuffer[0]) > 10.0)
+                    InnerProductMerge(vec1, pcmHistBuffer1);
+                    if (Math.Abs(vec1[0]) > 10.0)
                     {
-                        Something2(&chunkBuffer[14], pChannels);
-                        if (!Something3(pChannels, anotherBuffer, &temp))
+                        OuterProductMerge(mtx, pcmHistBuffer1);
+                        if (!AnalyzeRanges(mtx, vecIdxs))
                         {
-                            Something4(pChannels, anotherBuffer, sChunkBuffer);
-                            sChunkBuffer[0] = 1.0;
-                            if (Something5(sChunkBuffer, omgBuffer) == 0)
+                            BidirectionalFilter(mtx, vecIdxs, vec1);
+                            if (!QuadraticMerge(vec1))
                             {
-                                multiBuffer[multiIndex] = (double*)Marshal.AllocHGlobal(3 * 8);
-                                multiBuffer[multiIndex][0] = 1.0;
-                                for (int z = 1; z <= 2; z++)
-                                {
-                                    if(omgBuffer[z] >= 1.0)
-                                        omgBuffer[z] = 0.9999999999;
-                                    if(omgBuffer[z] <= -1.0)
-                                        omgBuffer[z] = -0.9999999999;
-                                }
-                                Something6(omgBuffer, multiBuffer[multiIndex]);
-                                multiIndex++;
+                                FinishRecord(vec1, records[recordCount]);
+                                recordCount++;
                             }
                         }
                     }
-                    unused++;
                 }
-
                 if (progress != null)
                 {
-                    lastUpdate += blockSamples;
+                    lastUpdate += frameSamples;
                     if ((lastUpdate % 0x3800) == 0)
                         progress.Update(progress.CurrentValue + 0x3800);
                 }
@@ -117,121 +110,115 @@ namespace BrawlLib.Wii.Audio
             if (progress != null)
                 progress.Update(initValue + samples);
 
-            sChunkBuffer[0] = 1.0;
-            for (int y = 1; y <= 2; y++)
-                sChunkBuffer[y] = 0.0;
+            vec1[0] = 1.0;
+            vec1[1] = 0.0;
+            vec1[2] = 0.0;
 
-            for (int z = 0; z < multiIndex; z++)
+            for (int z = 0; z<recordCount ; z++)
             {
-                Something7(multiBuffer[z], bufferArray[0]);
-                for (int y = 1; y <= 2; y++)
-                    sChunkBuffer[y] = sChunkBuffer[y] + bufferArray[0][y];
+                MatrixFilter(records[z], vecBest[0]);
+                for (int y = 1; y <= 2 ; y++)
+                    vec1[y] += vecBest[0][y];
+            }
+            for (int y = 1; y <= 2 ; y++)
+                vec1[y] /= recordCount;
+
+            MergeFinishRecord(vec1, vecBest[0]);
+
+
+            int exp = 1;
+            for (int w = 0; w<3 ;)
+            {
+                vec2[0] = 0.0;
+                vec2[1] = -1.0;
+                vec2[2] = 0.0;
+                for (int i = 0; i<exp ; i++)
+                    for (int y = 0; y <= 2 ; y++)
+                        vecBest[exp + i][y] = (0.01 * vec2[y]) + vecBest[i][y];
+                ++w;
+                exp = 1 << w;
+                FilterRecords(vecBest, exp, records, recordCount);
             }
 
-            for (int y = 1; y <= 2; y++)
-                sChunkBuffer[y] /= multiIndex;
-
-            double tmp;
-            Something8(sChunkBuffer, omgBuffer, bufferArray[0], &tmp);
-            for (int y = 1; y <= 2; y++)
+            // Write output
+            for (int z = 0; z<8 ; z++)
             {
-                if (omgBuffer[y] >= 1.0)
-                    omgBuffer[y] = 0.9999999999;
-                if (omgBuffer[y] <= -1.0)
-                    omgBuffer[y] = -0.9999999999;
-            }
-            Something6(omgBuffer, bufferArray[0]);
+                double d;
+                d = -vecBest[z][1] * 2048.0;
+                if (d > 0.0)
+                    coefsOut[z * 2] = (d > 32767.0) ? (short)32767 : (short)Math.Round(d, MidpointRounding.AwayFromZero);
+                else
+                    coefsOut[z * 2] = (d< -32768.0) ? (short)-32768 : (short)Math.Round(d, MidpointRounding.AwayFromZero);
 
-            for (int w = 0; w < nBits; )
-            {
-                //int mask = 1 << w;
-                for (int z = 0; z <= 2; z++)
-                    buffer2[z] = 0.0;
-                buffer2[1] = -1.0;
-                Something9(bufferArray, buffer2, 1 << w++, 0.01);
-                //w++;
-                Something10(bufferArray, 1 << w, multiBuffer, multiIndex, 0.0);
+                d = -vecBest[z][2] * 2048.0;
+                if (d > 0.0)
+                    coefsOut[z * 2 + 1] = (d > 32767.0) ? (short)32767 : (short)Math.Round(d, MidpointRounding.AwayFromZero);
+                else
+                    coefsOut[z * 2 + 1] = (d< -32768.0) ? (short)-32768 : (short)Math.Round(d, MidpointRounding.AwayFromZero);
             }
-
-            //Write output
-            for (int z = 0; z < 8; z++)
-                for (int y = 0; y < 2; y++)
-                {
-                    double d = -bufferArray[z][y + 1] * 2048.0;
-                    if (d > 0.0)
-                        dest[(z << 1) + y] = (d > 32767.0) ? (short)32767 : (short)(d + 0.5);
-                    else
-                        dest[(z << 1) + y] = (d < -32768.0) ? (short)-32768 : (short)(d - 0.5);
-                }
 
             //Free memory
-            for (int i = 0; i < multiIndex; i++)
-                Marshal.FreeHGlobal((IntPtr)multiBuffer[i]);
-            Marshal.FreeHGlobal((IntPtr)multiBuffer);
+            Marshal.FreeHGlobal((IntPtr)records);
 
-            for (int i = 0; i <= 2; i++)
-                Marshal.FreeHGlobal((IntPtr)pChannels[i]);
-
-            for (int i = 0; i < 8; i++)
-                Marshal.FreeHGlobal((IntPtr)bufferArray[i]);
-
-            Marshal.FreeHGlobal((IntPtr)sampleBuffer);
-
-            //return coefs;
         }
 
         public static unsafe void EncodeBlock(short* source, int samples, byte* dest, short* coefs)
         {
             for (int i = 0; i < samples; i += 14, source += 14, dest += 8)
-                EncodeChunk(source, Math.Min(samples - i, 14), dest, coefs);
+                DSPEncodeFrame(source, Math.Min(samples - i, 14), dest, coefs);
         }
 
-        //Make sure source includes the yn values (16 samples total)
-        private static unsafe void EncodeChunk(short* source, int samples, byte* dest, short* coefs)
+        /* Make sure source includes the yn values (16 samples total) */
+        public static void DSPEncodeFrame(short* pcmInOut, int sampleCount, byte* adpcmOut, short* coefsIn)
         {
-            //int* sampleBuffer = stackalloc int[14];
             int* buffer1 = stackalloc int[128];
             int* buffer2 = stackalloc int[112];
 
-            long bestDistance = long.MaxValue, distAccum;
+            int bestDistance = int.MaxValue;
+            int distAccum;
             int bestIndex = 0;
             int bestScale = 0;
 
             int distance, index, scale;
 
-            int* p1, p2, t1, t2;
+            int* p1;
+            int* p2;
+            int* t1;
+            int* t2;
             short* sPtr;
             int v1, v2, v3;
 
-            //Iterate through each coef set, finding the set with the smallest error
-            p1 = buffer1; 
+            //Iterate through each coef set, finding the set with the smallest error */
+            p1 = buffer1;
             p2 = buffer2;
-            for (int i = 0; i < 8; i++, p1 += 16, p2 += 14, coefs += 2)
+            for (int i = 0; i < 8; i++, p1 += 16, p2 += 14, coefsIn += 2)
             {
                 //Set yn values
                 t1 = p1;
-                *t1++ = source[0];
-                *t1++ = source[1];
+                *t1++ = pcmInOut[0];
+                *t1++ = pcmInOut[1];
 
                 //Round and clamp samples for this coef set
                 distance = 0;
-                sPtr = source;
-                for (int y = 0; y < samples; y++)
+                sPtr = pcmInOut;
+                for (int y = 0; y < sampleCount; y++)
                 {
                     //Multiply previous samples by coefs
-                    *t1++ = v1 = ((*sPtr++ * coefs[1]) + (*sPtr++ * coefs[0])) >> 11;
+                    *t1++ = v1 = ((sPtr[0] * coefsIn[1]) + (sPtr[1] * coefsIn[0])) >> 11;
                     //Subtract from current sample
-                    v2 = *sPtr-- - v1;
+                    v2 = sPtr[2] - v1;
                     //Clamp
                     v3 = (v2 >= 32767) ? 32767 : (v2 <= -32768) ? -32768 : v2;
                     //Compare distance
                     if (Math.Abs(v3) > Math.Abs(distance))
                         distance = v3;
+
+                    sPtr += 1;
                 }
 
                 //Set initial scale
                 for (scale = 0; (scale <= 12) && ((distance > 7) || (distance < -8)); scale++, distance >>= 1) ;
-                scale = (scale <= 1) ? -1 : scale - 2;
+                    scale = (scale <= 1) ? -1 : scale - 2;
 
                 do
                 {
@@ -241,18 +228,18 @@ namespace BrawlLib.Wii.Audio
 
                     t1 = p1;
                     t2 = p2;
-                    sPtr = source + 2;
-                    for (int y = 0; y < samples; y++)
+                    sPtr = pcmInOut + 2;
+                    for (int y = 0; y < sampleCount; y++)
                     {
-                        //Multiply previous 
-                        v1 = ((*t1++ * coefs[1]) + (*t1++ * coefs[0]));
+                        //Multiply previous
+                        v1 = ((t1[0] * coefsIn[1]) + (t1[1] * coefsIn[0]));
                         //Evaluate from real sample
                         v2 = ((*sPtr << 11) - v1) / 2048;
                         //Round to nearest sample
                         v3 = (v2 > 0) ? (int)((double)v2 / (1 << scale) + 0.4999999f) : (int)((double)v2 / (1 << scale) - 0.4999999f);
 
                         //Clamp sample and set index
-                        if(v3 < -8)
+                        if (v3 < -8)
                         {
                             if (index < (v3 = -8 - v3))
                                 index = v3;
@@ -271,10 +258,12 @@ namespace BrawlLib.Wii.Audio
                         //Round and expand
                         v1 = (v1 + ((v3 * (1 << scale)) << 11) + 1024) >> 11;
                         //Clamp and store
-                        *t1-- = v2 = (v1 >= 32767) ? 32767 : (v1 <= -32768) ? -32768 : v1;
+                        t1[2] = v2 = (v1 >= 32767) ? 32767 : (v1 <= -32768) ? -32768 : v1;
                         //Accumulate distance
                         v3 = *sPtr++ - v2;
                         distAccum += v3 * v3;
+
+                        t1 += 1;
 
                         //Break if we're higher than a previous search
                         if (distAccum >= bestDistance)
@@ -295,58 +284,54 @@ namespace BrawlLib.Wii.Audio
                 }
             }
 
-            p1 = buffer1 + (bestIndex << 4) + 2;
+            p1 = buffer1 + (bestIndex * 16) + 2;
             p2 = buffer2 + (bestIndex * 14);
 
-            //Set resulting yn values
-            //*yn++ = (short)*p1++;
-            //*yn++ = (short)*p1++;
-
             //Write converted samples
-            sPtr = source + 2;
-            for (int i = 0; i < samples; i++)
+            sPtr = pcmInOut + 2;
+            for (int i = 0; i < sampleCount; i++)
                 *sPtr++ = (short)*p1++;
 
             //Write ps
-            *dest++ = (byte)((bestIndex << 4) | (bestScale & 0xF));
+            *adpcmOut++ = (byte)((bestIndex << 4) | (bestScale & 0xF));
 
             //Zero remaining samples
-            for (int i = samples; i < 14; i++)
+            for (int i = sampleCount; i < 14; i++)
                 p2[i] = 0;
 
             //Write output samples
-            for (int y = 0; y++ < 7; )
-                *dest++ = (byte)((*p2++ << 4) | (*p2++ & 0xF));
+            for (int y = 0; y++ < 7;)
+            {
+                *adpcmOut++ = (byte)((p2[0] << 4) | (p2[1] & 0xF));
+                p2 += 2;
+            }
         }
 
-        private static unsafe void Something10(double** bufferArray, int mask, double** multiBuffer, int multiIndex, double val)
+        static void FilterRecords(tvec* vecBest, int exp, tvec* records, int recordCount)
         {
-            double** bufferList = stackalloc double*[mask];
+            tvec* bufferList = stackalloc tvec[8];
 
-            int* buffer1 = stackalloc int[mask];
-            double* buffer2 = stackalloc double[3];
+            int* buffer1 = stackalloc int[8];
+            tvec buffer2;
 
             int index;
             double value, tempVal = 0;
 
-            for (int i = 0; i < mask; i++)
-                bufferList[i] = (double*)Marshal.AllocHGlobal(8 * 3);
-
             for (int x = 0; x < 2; x++)
             {
-                for (int y = 0; y < mask; y++)
+                for (int y = 0; y < exp; y++)
                 {
                     buffer1[y] = 0;
                     for (int i = 0; i <= 2; i++)
                         bufferList[y][i] = 0.0;
                 }
-                for (int z = 0; z < multiIndex; z++)
+                for (int z = 0; z < recordCount; z++)
                 {
                     index = 0;
-                    value= 1.0e30;
-                    for (int i = 0; i < mask; i++)
+                    value = 1.0e30;
+                    for (int i = 0; i < exp; i++)
                     {
-                        tempVal = Something11(bufferArray[i], multiBuffer[z]);
+                        tempVal = ContrastVectors(vecBest[i], records[z]);
                         if (tempVal < value)
                         {
                             value = tempVal;
@@ -354,64 +339,47 @@ namespace BrawlLib.Wii.Audio
                         }
                     }
                     buffer1[index]++;
-                    Something7(multiBuffer[z], buffer2);
+                    MatrixFilter(records[z], buffer2);
                     for (int i = 0; i <= 2; i++)
                         bufferList[index][i] += buffer2[i];
                 }
 
-                for (int i = 0; i < mask; i++)
-                    if(buffer1[i] > 0)
+                for (int i = 0; i < exp; i++)
+                    if (buffer1[i] > 0)
                         for (int y = 0; y <= 2; y++)
                             bufferList[i][y] /= buffer1[i];
 
-                for (int i = 0; i < mask; i++)
-                {
-                    Something8(bufferList[i], buffer2, bufferArray[i], &tempVal);
-                    for (int y = 1; y <= 2; y++)
-                    {
-                        if(buffer2[y] >= 1.0)
-                            buffer2[y] = 0.9999999999;
-                        if (buffer2[y] <= -1.0)
-                            buffer2[y] = -0.9999999999;
-                    }
-                    Something6(buffer2, bufferArray[i]);
-                }
+                for (int i = 0; i < exp; i++)
+                    MergeFinishRecord(bufferList[i], vecBest[i]);
             }
-
-            for (int i = 0; i < mask; i++)
-                Marshal.FreeHGlobal((IntPtr)bufferList[i]);
         }
 
-        private static unsafe double Something11(double* source1, double* source2)
+        static double ContrastVectors(tvec source1, tvec source2)
         {
-            double* b = stackalloc double[3];
-            Something12(source2, b);
+            double val = (source2[2] * source2[1] + -source2[1]) / (1.0 - source2[2] * source2[2]);
             double val1 = (source1[0] * source1[0]) + (source1[1] * source1[1]) + (source1[2] * source1[2]);
             double val2 = (source1[0] * source1[1]) + (source1[1] * source1[2]);
             double val3 = source1[0] * source1[2];
-            return (b[0] * val1) + (2.0 * b[1] * val2) + (2.0 * b[2] * val3);
+            return val1 + (2.0 * val * val2) + (2.0 * (-source2[1] * val + -source2[2]) * val3);
         }
 
-        private static unsafe void Something12(double* source, double* dest)
+        static void FinishRecord(tvec inp, tvec outp)
         {
-            double v2 = -source[1], v3 = -source[2];
-            double val = (v3 * v2 + v2) / (1.0 - v3 * v3);
-
-            dest[0] = 1.0;
-            dest[1] = val * dest[0];
-            dest[2] = (v2 * dest[1]) + (v3 * dest[0]);
+            for (int z = 1; z <= 2; z++)
+            {
+                if (inp[z] >= 1.0)
+                    inp[z] = 0.9999999999;
+                else if (inp[z] <= -1.0)
+                    inp[z] = -0.9999999999;
+            }
+            outp[0] = 1.0;
+            outp[1] = (inp[2] * inp[1]) + inp[1];
+            outp[2] = inp[2];
         }
 
-        private static unsafe void Something9(double** bufferArray, double* buffer2, int mask, double value)
+        static void MergeFinishRecord(tvec src, tvec dst)
         {
-            for (int i = 0; i < mask; i++)
-                for (int y = 0; y <= 2; y++)
-                    bufferArray[mask + i][y] = (value * buffer2[y]) + bufferArray[i][y];
-        }
-
-        private static unsafe int Something8(double* src, double* omgBuffer, double* dst, double* outVar)
-        {
-            int count = 0;
+            tvec tmp;
             double val = src[0];
 
             dst[0] = 1.0;
@@ -426,10 +394,7 @@ namespace BrawlLib.Wii.Audio
                 else
                     dst[i] = 0.0;
 
-                omgBuffer[i] = dst[i];
-
-                if (Math.Abs(omgBuffer[i]) > 1.0)
-                    count++;
+                tmp[i] = dst[i];
 
                 for (int y = 1; y < i; y++)
                     dst[y] += dst[i] * dst[i - y];
@@ -437,44 +402,22 @@ namespace BrawlLib.Wii.Audio
                 val *= 1.0 - (dst[i] * dst[i]);
             }
 
-            *outVar = val;
-            return count;
+            FinishRecord(tmp, dst);
         }
 
-        private static unsafe void Something7(double* src, double* dst)
+        static void MatrixFilter(tvec src, tvec dst)
         {
-            //double v1, v2, v3;
-            double* buffer = stackalloc double[9];
-            //DVector3* p = (DVector3*)buffer;
+            tvec* mtx = stackalloc tvec[3];
 
-            //p[2] = new DVector3(1.0, -src[1], -src[2]);
-            //for (int i = 2; i > 0; i--)
-            //{
-            //    //v3 = 1.0 - (v2 = (v1 = p[i][i]) * v1);
-            //    v1 = p[i][i];
-            //    v2 = v1 * v1;
-            //    v3 = 1.0 - v2;
-            //    for (int y = 1; y <= i; y++)
-            //        p[i - 1][y] = (v2 + v1) / v3;
-            //}
-
-            //dst[0] = 1.0;
-            //for (int i = 1; i <= 2; i++)
-            //{
-            //    dst[i] = 0.0;
-            //    for (int y = 1; y <= i; y++)
-            //        dst[i] += p[i][y] * dst[i - y];
-            //}
-      
-            buffer[2 * 3] = 1.0;
+            mtx[2][0] = 1.0;
             for (int i = 1; i <= 2; i++)
-                buffer[2 * 3 + i] = -src[i];
+                mtx[2][i] = -src[i];
 
             for (int i = 2; i > 0; i--)
             {
-                double val = 1.0 - (buffer[i * 3 + i] * buffer[i * 3 + i]);
+                double val = 1.0 - (mtx[i][i] * mtx[i][i]);
                 for (int y = 1; y <= i; y++)
-                    buffer[(i - 1) * 3 + y] = ((buffer[i * 3 + i] * buffer[i * 3 + y]) + buffer[i * 3 + y]) / val;
+                    mtx[i - 1][y] = ((mtx[i][i] * mtx[i][y]) + mtx[i][y]) / val;
             }
 
             dst[0] = 1.0;
@@ -482,75 +425,66 @@ namespace BrawlLib.Wii.Audio
             {
                 dst[i] = 0.0;
                 for (int y = 1; y <= i; y++)
-                    dst[i] += buffer[i * 3 + y] * dst[i - y];
+                    dst[i] += mtx[i][y] * dst[i - y];
             }
         }
 
-
-        private static void Something1(short* source, double* dest)
+        static void InnerProductMerge(tvec vecOut, short* pcmBuf)
         {
             for (int i = 0; i <= 2; i++)
             {
-                dest[i] = 0.0f;
+                vecOut[i] = 0.0f;
                 for (int x = 0; x < 14; x++)
-                    dest[i] -= source[x - i] * source[x];
+                    vecOut[i] -= pcmBuf[x - i] * pcmBuf[x];
             }
         }
 
-        private static void Something2(short* source, double** outList)
+        static void OuterProductMerge(tvec* mtxOut, short* pcmBuf)
         {
             for (int x = 1; x <= 2; x++)
                 for (int y = 1; y <= 2; y++)
                 {
-                    outList[x][y] = 0.0;
+                    mtxOut[x][y] = 0.0;
                     for (int z = 0; z < 14; z++)
-                        outList[x][y] += source[z - x] * source[z - y];
+                        mtxOut[x][y] += pcmBuf[z - x] * pcmBuf[z - y];
                 }
         }
 
-        private static bool Something3(double** outList, int* dest, int* unk)
+        static bool AnalyzeRanges(tvec* mtx, int* vecIdxsOut)
         {
-            double* buffer = stackalloc double[3];
+            double* recips = stackalloc double[3];
             double val, tmp, min, max;
 
-            *unk = 1;
-
-            //Get greatest distance from zero
+            /* Get greatest distance from zero */
             for (int x = 1; x <= 2; x++)
             {
-                val = 0.0;
-                for (int i = 1; i <= 2; i++)
-                {
-                    tmp = Math.Abs(outList[x][i]);
-                    if (tmp > val)
-                        val = tmp;
-                }
-                if (val == 0.0)
+                val = Math.Max(Math.Abs(mtx[x][1]), Math.Abs(mtx[x][2]));
+                if (val < Double.Epsilon)
                     return true;
 
-                buffer[x] = 1.0 / val;
+                recips[x] = 1.0 / val;
             }
 
             int maxIndex = 0;
             for (int i = 1; i <= 2; i++)
             {
-                for (int x = 1; x < i ; x++)
+                for (int x = 1; x < i; x++)
                 {
-                    tmp = outList[x][i];
+                    tmp = mtx[x][i];
                     for (int y = 1; y < x; y++)
-                        tmp -= outList[x][y] * outList[y][i];
-                    outList[x][i] = tmp;
+                        tmp -= mtx[x][y] * mtx[y][i];
+                    mtx[x][i] = tmp;
                 }
 
                 val = 0.0;
                 for (int x = i; x <= 2; x++)
                 {
-                    tmp = outList[x][i];
+                    tmp = mtx[x][i];
                     for (int y = 1; y < i; y++)
-                        tmp -= outList[x][y] * outList[y][i];
+                        tmp -= mtx[x][y] * mtx[y][i];
 
-                    outList[x][i] = tmp;
-                    tmp = Math.Abs(tmp) * buffer[x];
+                    mtx[x][i] = tmp;
+                    tmp = Math.Abs(tmp) * recips[x];
                     if (tmp >= val)
                     {
                         val = tmp;
@@ -562,34 +496,32 @@ namespace BrawlLib.Wii.Audio
                 {
                     for (int y = 1; y <= 2; y++)
                     {
-                        tmp = outList[maxIndex][y];
-                        outList[maxIndex][y] = outList[i][y];
-                        outList[i][y] = tmp;
+                        tmp = mtx[maxIndex][y];
+                        mtx[maxIndex][y] = mtx[i][y];
+                        mtx[i][y] = tmp;
                     }
-                    *unk = -*unk;
-                    buffer[maxIndex] = buffer[i];
+                    recips[maxIndex] = recips[i];
                 }
 
-                dest[i] = maxIndex;
+                vecIdxsOut[i] = maxIndex;
 
-                if (outList[i][i] == 0.0)
+                if (mtx[i][i] == 0.0)
                     return true;
 
                 if (i != 2)
                 {
-                    tmp = 1.0 / outList[i][i];
+                    tmp = 1.0 / mtx[i][i];
                     for (int x = i + 1; x <= 2; x++)
-                        outList[x][i] *= tmp;
+                        mtx[x][i] *= tmp;
                 }
             }
-            //no need for buffer anymore
 
             //Get range
             min = 1.0e10;
             max = 0.0;
             for (int i = 1; i <= 2; i++)
             {
-                tmp = Math.Abs(outList[i][i]);
+                tmp = Math.Abs(mtx[i][i]);
                 if (tmp < min)
                     min = tmp;
                 if (tmp > max)
@@ -602,117 +534,49 @@ namespace BrawlLib.Wii.Audio
             return false;
         }
 
-        private static void Something4(double** outList, int* dest, double* block)
+        static void BidirectionalFilter(tvec* mtx, int* vecIdxs, tvec vecOut)
         {
-            int index;
             double tmp;
 
             for (int i = 1, x = 0; i <= 2; i++)
             {
-                index = dest[i];
-                tmp = block[index];
-                block[index] = block[i];
+                int index = vecIdxs[i];
+                tmp = vecOut[index];
+                vecOut[index] = vecOut[i];
                 if (x != 0)
                     for (int y = x; y <= i - 1; y++)
-                        tmp -= block[y] * outList[i][y];
-                else if(tmp != 0.0)
+                        tmp -= vecOut[y] * mtx[i][y];
+                else if (tmp != 0.0)
                     x = i;
-                block[i] = tmp;
+                vecOut[i] = tmp;
             }
 
-            for(int i = 2; i > 0 ; i--)
+            for (int i = 2; i > 0; i--)
             {
-                tmp = block[i];
+                tmp = vecOut[i];
                 for (int y = i + 1; y <= 2; y++)
-                    tmp -= block[y] * outList[i][y];
-                block[i] = tmp / outList[i][i];
+                    tmp -= vecOut[y] * mtx[i][y];
+                vecOut[i] = tmp / mtx[i][i];
             }
+
+            vecOut[0] = 1.0;
         }
 
-        private static int Something5(double* block, double* buffer)
+        static bool QuadraticMerge(tvec inOutVec)
         {
-            //int count = 0;
-            //double* dBuffer = stackalloc double[3];
+            double v0, v1, v2 = inOutVec[2];
+            double tmp = 1.0 - (v2 * v2);
 
-            //buffer[2] = block[2];
+            if (tmp == 0.0)
+                return true;
 
-            //for (int i = 1; i > 0; i--)
-            //{
-            //    for (int x = 0; x <= i; x++)
-            //    {
-            //        double dTemp = 1.0 - (buffer[i + 1] * buffer[i + 1]);
-            //        if (dTemp == 0.0)
-            //            return 1;
+            v0 = (inOutVec[0] - (v2 * v2)) / tmp;
+            v1 = (inOutVec[1] - (inOutVec[1] * v2)) / tmp;
 
-            //        dBuffer[x] = (block[x] - (block[i + 1 - x] * buffer[i + 1])) / dTemp;
-            //    }
+            inOutVec[0] = v0;
+            inOutVec[1] = v1;
 
-            //    for (int x = 0; x <= i; x++)
-            //        block[x] = dBuffer[x];
-
-            //    buffer[i] = dBuffer[i];
-            //    if (Math.Abs(buffer[i]) > 1.0)
-            //        count++;
-            //}
-            //return count;
-
-            //Collapsed:
-            //double val = buffer[2] = block[2];
-
-            //double tmp = 1.0 - (buffer[2] * buffer[2]);
-            //if (tmp == 0.0)
-            //    return 1;
-
-            //dBuffer[0] = (block[0] - (block[2] * buffer[2])) / tmp;
-            //dBuffer[1] = (block[1] - (block[1] * buffer[2])) / tmp;
-
-            //block[0] = dBuffer[0];
-            //block[1] = dBuffer[1];
-
-            //buffer[1] = dBuffer[1];
-            //if (Math.Abs(buffer[1]) > 1.0)
-            //    return 1;
-            //return 0;
-
-            double v0, v1, v2 = block[2];
-            double tmp;
-
-            if ((tmp = 1.0 - (v2 * v2)) == 0.0)
-                return 1;
-
-            v0 = (block[0] - (v2 * v2)) / tmp;
-            v1 = (block[1] - (block[1] * v2)) / tmp;
-
-            block[0] = v0;
-            block[1] = v1;
-
-            buffer[1] = v1;
-            buffer[2] = v2;
-
-            return (Math.Abs(v1) > 1.0) ? 1 : 0;
-        }
-
-        private static unsafe void Something6(double* omgBuffer, double* buffer)
-        {
-            //buffer[0] = 1.0;
-
-            //for (int i = 1; i <= 2; i++)
-            //{
-            //    buffer[i] = omgBuffer[i];
-            //    for (int x = 1; x < i; x++)
-            //        buffer[x] = (buffer[i] * buffer[i - x]) + buffer[x];
-            //}
-
-            //Collapsed:
-            //buffer[1] = omgBuffer[1];
-            //buffer[2] = omgBuffer[2];
-            //buffer[1] = (buffer[2] * buffer[1]) + buffer[1];
-
-            double d1 = omgBuffer[1], d2 = omgBuffer[2];
-
-            buffer[0] = 1.0;
-            buffer[1] = (d2 * d1) + d1;
-            buffer[2] = d2;
+            return Math.Abs(v1) > 1.0;
         }
     }
 }
