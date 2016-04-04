@@ -33,10 +33,9 @@ namespace BrawlLib.Wii.Audio
             int frameSamples;
 
             short* blockBuffer = stackalloc short[0x3800];
-            short* pcmHistBuffer0 = stackalloc short[14];
-            Memory.Fill(pcmHistBuffer0, (uint)(sizeof(tvec) * 14), 0);
-            short* pcmHistBuffer1 = stackalloc short[14];
-            Memory.Fill(pcmHistBuffer1, (uint)(sizeof(tvec) * 14), 0);
+            short* pcmHistBuffer0 = stackalloc short[28];
+            Memory.Fill(pcmHistBuffer0, (uint)(sizeof(tvec) * 28), 0);
+            short* pcmHistBuffer1 = pcmHistBuffer0 + 14;
 
             tvec vec1;
             tvec vec2;
@@ -84,16 +83,16 @@ namespace BrawlLib.Wii.Audio
                     for (int z = 0; z < 14 ; z++)
                         pcmHistBuffer1[z] = blockBuffer[i++];
 
-                    InnerProductMerge(vec1, pcmHistBuffer1);
+                    InnerProductMerge(ref vec1, pcmHistBuffer1); // Something1
                     if (Math.Abs(vec1[0]) > 10.0)
                     {
-                        OuterProductMerge(mtx, pcmHistBuffer1);
-                        if (!AnalyzeRanges(mtx, vecIdxs))
+                        OuterProductMerge(mtx, pcmHistBuffer1); // Something2
+                        if (!AnalyzeRanges(mtx, vecIdxs)) // Something3
                         {
-                            BidirectionalFilter(mtx, vecIdxs, vec1);
-                            if (!QuadraticMerge(vec1))
+                            BidirectionalFilter(mtx, vecIdxs, ref vec1); // Something4
+                            if (!QuadraticMerge(ref vec1)) // Something5
                             {
-                                FinishRecord(vec1, records[recordCount]);
+                                FinishRecord(vec1, ref records[recordCount]);
                                 recordCount++;
                             }
                         }
@@ -116,14 +115,14 @@ namespace BrawlLib.Wii.Audio
 
             for (int z = 0; z<recordCount ; z++)
             {
-                MatrixFilter(records[z], vecBest[0]);
+                MatrixFilter(records[z], ref vecBest[0]);
                 for (int y = 1; y <= 2 ; y++)
                     vec1[y] += vecBest[0][y];
             }
             for (int y = 1; y <= 2 ; y++)
                 vec1[y] /= recordCount;
 
-            MergeFinishRecord(vec1, vecBest[0]);
+            MergeFinishRecord(vec1, ref vecBest[0]);
 
 
             int exp = 1;
@@ -339,7 +338,7 @@ namespace BrawlLib.Wii.Audio
                         }
                     }
                     buffer1[index]++;
-                    MatrixFilter(records[z], buffer2);
+                    MatrixFilter(records[z], ref buffer2);
                     for (int i = 0; i <= 2; i++)
                         bufferList[index][i] += buffer2[i];
                 }
@@ -350,7 +349,7 @@ namespace BrawlLib.Wii.Audio
                             bufferList[i][y] /= buffer1[i];
 
                 for (int i = 0; i < exp; i++)
-                    MergeFinishRecord(bufferList[i], vecBest[i]);
+                    MergeFinishRecord(bufferList[i], ref vecBest[i]);
             }
         }
 
@@ -363,7 +362,7 @@ namespace BrawlLib.Wii.Audio
             return val1 + (2.0 * val * val2) + (2.0 * (-source2[1] * val + -source2[2]) * val3);
         }
 
-        static void FinishRecord(tvec inp, tvec outp)
+        static void FinishRecord(tvec inp, ref tvec outp)
         {
             for (int z = 1; z <= 2; z++)
             {
@@ -377,7 +376,7 @@ namespace BrawlLib.Wii.Audio
             outp[2] = inp[2];
         }
 
-        static void MergeFinishRecord(tvec src, tvec dst)
+        static void MergeFinishRecord(tvec src, ref tvec dst)
         {
             tvec tmp;
             double val = src[0];
@@ -402,10 +401,10 @@ namespace BrawlLib.Wii.Audio
                 val *= 1.0 - (dst[i] * dst[i]);
             }
 
-            FinishRecord(tmp, dst);
+            FinishRecord(tmp, ref dst);
         }
 
-        static void MatrixFilter(tvec src, tvec dst)
+        static void MatrixFilter(tvec src, ref tvec dst)
         {
             tvec* mtx = stackalloc tvec[3];
 
@@ -429,7 +428,7 @@ namespace BrawlLib.Wii.Audio
             }
         }
 
-        static void InnerProductMerge(tvec vecOut, short* pcmBuf)
+        static void InnerProductMerge(ref tvec vecOut, short* pcmBuf)
         {
             for (int i = 0; i <= 2; i++)
             {
@@ -534,7 +533,7 @@ namespace BrawlLib.Wii.Audio
             return false;
         }
 
-        static void BidirectionalFilter(tvec* mtx, int* vecIdxs, tvec vecOut)
+        static void BidirectionalFilter(tvec* mtx, int* vecIdxs, ref tvec vecOut)
         {
             double tmp;
 
@@ -562,7 +561,7 @@ namespace BrawlLib.Wii.Audio
             vecOut[0] = 1.0;
         }
 
-        static bool QuadraticMerge(tvec inOutVec)
+        static bool QuadraticMerge(ref tvec inOutVec)
         {
             double v0, v1, v2 = inOutVec[2];
             double tmp = 1.0 - (v2 * v2);
