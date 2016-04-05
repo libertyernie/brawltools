@@ -584,7 +584,7 @@ namespace Ikarus.UI
         }
 
         //Bone Name - Attached Polygon Indices
-        public Dictionary<string, List<int>> VIS0Indices = new Dictionary<string, List<int>>();
+        public Dictionary<string, Dictionary<int, List<int>>> VIS0Indices = new Dictionary<string, Dictionary<int, List<int>>>();
 
         public ListsPanel()
         {

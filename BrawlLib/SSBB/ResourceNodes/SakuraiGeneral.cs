@@ -299,7 +299,7 @@ namespace BrawlLib.SSBBTypes
                 _entries[i].Write(address[i, _stride]);
         }
 
-        public int GetLookupCount()
+        protected override int OnGetLookupCount()
         {
             int count = 0;
             foreach (T e in _entries)
@@ -362,7 +362,7 @@ namespace BrawlLib.SSBBTypes
         sListOffset hdr;
 
         [Category("List Offset")]
-        public int DataOffset { get { return hdr._startOffset; } }
+        public int StartOffset { get { return hdr._startOffset; } }
         [Category("List Offset")]
         public int Count { get { return hdr._listCount; } }
 

@@ -12,7 +12,7 @@ namespace Ikarus.MovesetFile
             base.OnParse(address);
 
             _indices = new List<IndexValue>();
-            bint* entry = (bint*)(BaseAddress + DataOffset);
+            bint* entry = (bint*)(BaseAddress + StartOffset);
             for (int i = 0; i < Count; i++)
                 _indices.Add(Parse<IndexValue>(entry++));
         }

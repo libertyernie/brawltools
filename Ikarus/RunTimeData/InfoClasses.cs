@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using Ikarus.UI;
 using BrawlLib.SSBBTypes;
+using BrawlLib.OpenGL;
 
 namespace Ikarus.ModelViewer
 {
@@ -79,28 +80,18 @@ namespace Ikarus.ModelViewer
             //Reload scripts
             LoadSubactionScripts();
 
-            //Reset model visiblity to its default state
-            if (_model != null && _model._objList != null)
-                if (_article._mdlVis != null)
-                    _article._mdlVis.ResetVisibility();
-                else
-                    foreach (MDL0ObjectNode o in _model._objList)
-                        o.IsRendering = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
-
-            Running = false;
+            SubactionIndex = -1; //Reset the current animation
+            Running = !_etcModel; //Set default visibility
         }
 
         private bool _running = false;
-
+        public bool _etcModel = true;
         public int CurrentFrame
         {
             get { return _animFrame; }
             set
             {
                 _animFrame = value;
-
-                //if (_animFrame <= 0)
-                //    ResetSubactionVariables();
 
                 UpdateModel();
             }
@@ -158,11 +149,29 @@ namespace Ikarus.ModelViewer
             set { ModelVisible = _running = value; }
         }
 
-        public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }
+        public bool ModelVisible
+        {
+            get { return _model == null ? false : _model.IsRendering; }
+            set
+            {
+                if (_model != null && (_model.IsRendering = value))
+                {
+                    _model.ResetToBindState();
+
+                    //Reset model visiblity to its default state
+                    if (_model != null && _model._objList != null)
+                        if (_article._mdlVis != null)
+                            _article._mdlVis.ResetVisibility();
+                        else
+                            foreach (DrawCall b in _model.DrawCalls)
+                                b._render = b.VisibilityBoneNode == null ? true : b.VisibilityBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                }
+            }
+        }
 
         public void UpdateModel()
         {
-            if (_model == null || !_running)
+            if (_model == null)
                 return;
 
             MainControl ctrl = MainForm.Instance._mainControl;

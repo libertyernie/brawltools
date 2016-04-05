@@ -115,7 +115,9 @@ namespace Ikarus
 
                 _selected = value;
 
+                MainForm.Instance._mainControl._updating = true;
                 MainForm.Instance._mainControl.comboCharacters.SelectedIndex = Array.IndexOf(_supportedCharacters, _targetChar.ToString());
+                MainForm.Instance._mainControl._updating = false;
             } 
         }
         
@@ -152,7 +154,6 @@ namespace Ikarus
             
             control._resetCamera = false;
             control.TargetModel = model;
-            control.UpdateModel();
         }
 
         public static TextInfo TextInfo { get { return Thread.CurrentThread.CurrentCulture.TextInfo; } }

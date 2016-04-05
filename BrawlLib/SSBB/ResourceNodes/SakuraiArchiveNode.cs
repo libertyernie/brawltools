@@ -87,8 +87,6 @@ namespace BrawlLib.SSBBTypes
             //Start initializing. 
             //This enables some functions for use.
             _initializing = true;
-            _changedEntries = new BindingList<SakuraiEntryNode>();
-            _rebuildEntries = new BindingList<SakuraiEntryNode>();
 
             SakuraiArchiveHeader* hdr = (SakuraiArchiveHeader*)WorkingUncompressed.Address;
 
@@ -118,6 +116,8 @@ namespace BrawlLib.SSBBTypes
 #endif
 
             //Create lists
+            _changedEntries = new BindingList<SakuraiEntryNode>();
+            _rebuildEntries = new BindingList<SakuraiEntryNode>();
             _referenceList = new BindingList<TableEntryNode>();
             _sectionList = new BindingList<TableEntryNode>();
             _lookupSizes = new SortedList<int, int>();
@@ -154,6 +154,9 @@ namespace BrawlLib.SSBBTypes
             //The last entry in the moveset file goes right up to the lookup offsets.
             _lookupSizes[prev] = Offset(lookup) - prev;
         }
+        /// <summary>
+        /// Reads external subroutine references
+        /// </summary>
         private void ParseExternals(SakuraiArchiveHeader* hdr)
         {
             sStringTable* stringTable = hdr->StringTable;
@@ -329,6 +332,7 @@ namespace BrawlLib.SSBBTypes
 
         #region Parse functions
         /// <summary>
+        /// Returns the offset of the given address from the base address.
         /// Use this only when parsing or writing.
         /// </summary>
         public int Offset(VoidPtr address) 
@@ -340,6 +344,7 @@ namespace BrawlLib.SSBBTypes
             return (int)(address - BaseAddress);
         }
         /// <summary>
+        /// Returns the address at the given offset from the base address.
         /// Use this only when parsing or writing.
         /// </summary>
         public VoidPtr Address(int offset)
@@ -351,6 +356,7 @@ namespace BrawlLib.SSBBTypes
             return BaseAddress + offset;
         }
         /// <summary>
+        /// Returns the (assumed) size of the data at the given offset.
         /// Use this only when parsing.
         /// </summary>
         public int GetSize(int offset)
@@ -386,6 +392,7 @@ namespace BrawlLib.SSBBTypes
             return null;
         }
         /// <summary>
+        /// Returns any entry at the given offset that has been parsed already.
         /// Use this only when parsing.
         /// </summary>
         public SakuraiEntryNode GetEntry(int offset)

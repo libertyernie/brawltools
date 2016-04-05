@@ -47,6 +47,8 @@ namespace Ikarus.MovesetBuilder
             if ((int)address < (int)_baseAddress)
                 throw new Exception("Offset value set in lookup, not the address of the offset value.");
 #endif
+            if (_lookupAddresses.Contains(address))
+                throw new Exception("Lookup list already contains this address.");
 
             _currentLookup.Add(address);
         }

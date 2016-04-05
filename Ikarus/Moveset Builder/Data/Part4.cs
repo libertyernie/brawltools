@@ -12,6 +12,7 @@
             GetSize(_misc._unknown10, true);
             GetSize(_data._boneRef2, true);
 
+            //TODO
             //if (_data._nanaSubActions != null)
             //{
             //    foreach (var g in _data._nanaSubActions.Children)
@@ -36,12 +37,13 @@
 
         private void BuildPart4()
         {
-            IncLookup(4); //Offset to each array
-            AddSize(_data._subActions.Count * 16); //count * 4 bytes * 4 arrays
+            Skip(_data._subActions.Count * 16); //handled by DataBuilder
 
             Write(_data._modelVis);
             Write(_misc._unknown10);
             Write(_data._boneRef2);
+
+            //TODO: Write nana's subactions and offsets here
 
             Write(_misc._collisionData);
             Write(_data._unknown24);

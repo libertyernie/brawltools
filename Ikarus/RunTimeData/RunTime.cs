@@ -296,12 +296,8 @@ namespace Ikarus.ModelViewer
             //Reset articles
             if (_articles != null)
                 foreach (ArticleInfo i in _articles)
-                {
-                    if (i == null)
-                        continue;
-
-                    i.ResetSubactionVariables();
-                }
+                    if (i != null)
+                        i.ResetSubactionVariables();
 
             //Reset model visiblity to its default state
             if (MainWindow.TargetModel != null && 

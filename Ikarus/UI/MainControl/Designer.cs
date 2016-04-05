@@ -1577,7 +1577,7 @@ namespace Ikarus.UI
             string path = null;
 #if DEBUG
             if (Environment.UserName == "David")
-                path = "X:/Documents/Games/SSBB";
+                path = "D:/brawlmods/custom1";
             else
                 path = Ikarus.Properties.Settings.Default.RootPath;
 #else
@@ -1777,8 +1777,8 @@ namespace Ikarus.UI
                     if (groupID >= 0)
                     {
                         LoadArticles(Manager.SelectedInfo.CharacterFiles, groupID, articleInfo, true);
-                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, true);
-                        LoadArticles(Manager.SelectedInfo.CharacterFinalFiles, groupID, articleInfo, true);
+                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, false);
+                        LoadArticles(Manager.SelectedInfo.CharacterFinalFiles, groupID, articleInfo, false);
                     }
                     RunTime._articles[article.Index] = articleInfo;
                 }
@@ -1812,8 +1812,14 @@ namespace Ikarus.UI
                         if (addTarget)
                         {
                             info.Running = true;
-                            AppendTarget(info._model);
+                            info._etcModel = false;
                         }
+                        else
+                        {
+                            info._etcModel = true;
+                            info.Running = false;
+                        }
+                        AppendTarget(info._model);
                     }
                 }
                 if (t2.ContainsKey(ARCFileType.AnimationData))
@@ -1870,16 +1876,17 @@ namespace Ikarus.UI
         private void comboMdl_SelectedIndexChanged(object sender, EventArgs e)
         {
             Manager.ModelIndexChanged();
-            CollectArticles();
         }
 
         protected override void OnModelChanged()
         {
-            //if (_targetModel != null)
-            //    listPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
+            if (_targetModel != null)
+                listPanel.VIS0Indices = ((MDL0Node)_targetModel).VIS0Indices;
 
             hurtboxEditor._mainControl_TargetModelChanged(null, null);
             modelListsPanel1.Reset();
+            CollectArticles();
+            UpdateModel();
             RunTime.ResetSubactionVariables();
         }
 

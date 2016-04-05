@@ -16,6 +16,9 @@ namespace Ikarus.UI
 
         public override void ApplyVIS0ToInterface()
         {
+            base.ApplyVIS0ToInterface();
+            return;
+
             if (_animFrame == 0 || modelListsPanel1.lstObjects.Items.Count == 0)
                 return;
 

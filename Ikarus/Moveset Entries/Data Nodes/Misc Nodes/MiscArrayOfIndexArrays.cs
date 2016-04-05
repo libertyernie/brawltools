@@ -11,7 +11,7 @@ namespace Ikarus.MovesetFile
         {
             base.OnParse(address);
             _entries = new List<EntryList<IndexValue>>();
-            sListOffset* offsets = (sListOffset*)Address(DataOffset);
+            sListOffset* offsets = (sListOffset*)Address(StartOffset);
             for (int i = 0; i < Count; i++, offsets++)
                 _entries.Add(Parse<EntryList<IndexValue>>(offsets->_startOffset, 4, (int)offsets->_listCount));
         }

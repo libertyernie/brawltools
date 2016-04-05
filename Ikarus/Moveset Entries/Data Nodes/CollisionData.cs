@@ -12,9 +12,9 @@ namespace Ikarus.MovesetFile
         {
             base.OnParse(address);
             _entries = new List<CollisionDataEntry>();
-            if (DataOffset > 0)
+            if (StartOffset > 0)
             {
-                bint* addr = (bint*)(BaseAddress + DataOffset);
+                bint* addr = (bint*)(BaseAddress + StartOffset);
                 for (int i = 0; i < Count; i++)
                     if (addr[i] > 0)
                         _entries.Add(Parse<CollisionDataEntry>(addr[i]));

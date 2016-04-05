@@ -105,34 +105,12 @@ namespace Ikarus.MovesetFile
 
         protected override TableEntryNode GetTableEntryNode(string name, int index)
         {
-            TableEntryNode section = base.GetTableEntryNode(name, index);
-            if (section != null)
-                return section;
-
-            //switch (name)
-            //{
-                //Don't parse data sections until the very end
-                //case "data":
-                //case "dataCommon":
-                //    dataIndex = i;
-                //    _sectionList.Add(null);
-                //    continue;
-                //case "animParam":
-                //    entry = _animParam = Parse<AnimParamSection>(offset);
-                //    break;
-                //case "subParam":
-                //    entry = _subParam = Parse<SubParamSection>(offset);
-                //    break;
-                //default:
-                //    if (name.Contains("AnimCmd"))
-                //    {
-                //        entry = Parse<Script>(offset);
-                //        _commonSubRoutines.Add(entry as Script);
-                //    }
-                //    else
-                //        entry = Parse<RawDataNode>(offset);
-                //    break;
-            //}
+            TableEntryNode section = null;
+            if (name.Contains("AnimCmd"))
+            {
+                section = new Script();
+                //_commonSubRoutines.Add(entry as Script);
+            }
 
             return section;
         }

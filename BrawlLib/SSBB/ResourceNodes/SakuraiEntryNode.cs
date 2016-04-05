@@ -7,8 +7,8 @@ namespace BrawlLib.SSBBTypes
 {
     public abstract unsafe class SakuraiEntryNode
     {
-        public string DataOffset { get { return "0x" + _offset.ToString("X"); } }
-        public string DataSize { get { return "0x" + _initSize.ToString("X"); } }
+        public string EntryOffset { get { return "0x" + _offset.ToString("X"); } }
+        public string EntrySize { get { return "0x" + _initSize.ToString("X"); } }
         
         [Browsable(false)]
         public int RebuildOffset
@@ -230,6 +230,8 @@ namespace BrawlLib.SSBBTypes
             if (_lookupAddresses.Count != _lookupCount)
                 throw new Exception("Number of actual lookup offsets does not match the calculated count.");
 
+            //We could just set the rebuild address to the address the node was written at by default
+            //But I'm going to through an exception anyway just to be sure everything is coded properly
             if (!RebuildAddress)
                 throw new Exception("RebuildAddress was not set.");
 #endif
@@ -255,6 +257,8 @@ namespace BrawlLib.SSBBTypes
 #if DEBUG
             if ((int)address < (int)BaseAddress)
                 throw new Exception("Offset value set in lookup, not the address of the offset value.");
+
+            //TODO: check if the added address is within the node's header + data start and end addresses?
 #endif
 
             _lookupAddresses.Add(address);
