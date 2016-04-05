@@ -67,7 +67,6 @@
             this.btnNewCode = new System.Windows.Forms.Button();
             this.panel2 = new System.Windows.Forms.Panel();
             this.lstCodes = new System.Windows.Forms.ListView();
-            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
             this.dlgSave = new System.Windows.Forms.SaveFileDialog();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.moveUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -100,12 +99,13 @@
             // checkBox1
             // 
             this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.checkBox1.AutoSize = true;
             this.checkBox1.BackColor = System.Drawing.Color.White;
             this.checkBox1.Checked = true;
             this.checkBox1.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkBox1.Location = new System.Drawing.Point(343, 4);
+            this.checkBox1.Location = new System.Drawing.Point(305, 3);
             this.checkBox1.Name = "checkBox1";
-            this.checkBox1.Size = new System.Drawing.Size(121, 17);
+            this.checkBox1.Size = new System.Drawing.Size(150, 21);
             this.checkBox1.TabIndex = 4;
             this.checkBox1.Text = "Save GCT with info";
             this.checkBox1.UseVisualStyleBackColor = false;
@@ -115,20 +115,21 @@
             // 
             this.txtPath.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtPath.Location = new System.Drawing.Point(104, 2);
+            this.txtPath.Location = new System.Drawing.Point(126, 2);
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
-            this.txtPath.Size = new System.Drawing.Size(233, 20);
+            this.txtPath.Size = new System.Drawing.Size(173, 22);
             this.txtPath.TabIndex = 2;
             // 
             // menuStrip1
             // 
+            this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.optionsToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(464, 24);
+            this.menuStrip1.Size = new System.Drawing.Size(464, 28);
             this.menuStrip1.TabIndex = 3;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -140,34 +141,34 @@
             this.saveToolStripMenuItem,
             this.saveAsToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(37, 20);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // openToolStripMenuItem
             // 
             this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.openToolStripMenuItem.Size = new System.Drawing.Size(135, 26);
             this.openToolStripMenuItem.Text = "Open";
             this.openToolStripMenuItem.Click += new System.EventHandler(this.btnBrowse_Click);
             // 
             // closeToolStripMenuItem
             // 
             this.closeToolStripMenuItem.Name = "closeToolStripMenuItem";
-            this.closeToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.closeToolStripMenuItem.Size = new System.Drawing.Size(135, 26);
             this.closeToolStripMenuItem.Text = "Close";
             this.closeToolStripMenuItem.Click += new System.EventHandler(this.btnClose_Click);
             // 
             // saveToolStripMenuItem
             // 
             this.saveToolStripMenuItem.Name = "saveToolStripMenuItem";
-            this.saveToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveToolStripMenuItem.Size = new System.Drawing.Size(135, 26);
             this.saveToolStripMenuItem.Text = "Save";
             this.saveToolStripMenuItem.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // saveAsToolStripMenuItem
             // 
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
-            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(114, 22);
+            this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(135, 26);
             this.saveAsToolStripMenuItem.Text = "Save As";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.btnSaveAs_Click);
             // 
@@ -181,48 +182,48 @@
             this.loadCodesToRememberToolStripMenuItem,
             this.loadRememberedCodesAsNewFileToolStripMenuItem});
             this.optionsToolStripMenuItem.Name = "optionsToolStripMenuItem";
-            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(61, 20);
+            this.optionsToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
             this.optionsToolStripMenuItem.Text = "Options";
             // 
             // rememberAllCodesToolStripMenuItem
             // 
             this.rememberAllCodesToolStripMenuItem.Name = "rememberAllCodesToolStripMenuItem";
-            this.rememberAllCodesToolStripMenuItem.Size = new System.Drawing.Size(263, 22);
+            this.rememberAllCodesToolStripMenuItem.Size = new System.Drawing.Size(324, 26);
             this.rememberAllCodesToolStripMenuItem.Text = "Remember all codes in this file";
             this.rememberAllCodesToolStripMenuItem.Click += new System.EventHandler(this.rememberAllCodesToolStripMenuItem_Click);
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(263, 22);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(324, 26);
             this.toolStripMenuItem1.Text = "Forget all codes in this file";
             this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // forgetAllCodesToolStripMenuItem
             // 
             this.forgetAllCodesToolStripMenuItem.Name = "forgetAllCodesToolStripMenuItem";
-            this.forgetAllCodesToolStripMenuItem.Size = new System.Drawing.Size(263, 22);
+            this.forgetAllCodesToolStripMenuItem.Size = new System.Drawing.Size(324, 26);
             this.forgetAllCodesToolStripMenuItem.Text = "Forget all codes";
             this.forgetAllCodesToolStripMenuItem.Click += new System.EventHandler(this.forgetAllCodesToolStripMenuItem_Click);
             // 
             // saveAllRememberedCodesToGCTToolStripMenuItem
             // 
             this.saveAllRememberedCodesToGCTToolStripMenuItem.Name = "saveAllRememberedCodesToGCTToolStripMenuItem";
-            this.saveAllRememberedCodesToGCTToolStripMenuItem.Size = new System.Drawing.Size(263, 22);
+            this.saveAllRememberedCodesToGCTToolStripMenuItem.Size = new System.Drawing.Size(324, 26);
             this.saveAllRememberedCodesToGCTToolStripMenuItem.Text = "Save all remembered codes to file";
             this.saveAllRememberedCodesToGCTToolStripMenuItem.Click += new System.EventHandler(this.saveAllRememberedCodesToGCTToolStripMenuItem_Click);
             // 
             // loadCodesToRememberToolStripMenuItem
             // 
             this.loadCodesToRememberToolStripMenuItem.Name = "loadCodesToRememberToolStripMenuItem";
-            this.loadCodesToRememberToolStripMenuItem.Size = new System.Drawing.Size(263, 22);
+            this.loadCodesToRememberToolStripMenuItem.Size = new System.Drawing.Size(324, 26);
             this.loadCodesToRememberToolStripMenuItem.Text = "Load codes to remember from file";
             this.loadCodesToRememberToolStripMenuItem.Click += new System.EventHandler(this.loadCodesToRememberToolStripMenuItem_Click);
             // 
             // loadRememberedCodesAsNewFileToolStripMenuItem
             // 
             this.loadRememberedCodesAsNewFileToolStripMenuItem.Name = "loadRememberedCodesAsNewFileToolStripMenuItem";
-            this.loadRememberedCodesAsNewFileToolStripMenuItem.Size = new System.Drawing.Size(263, 22);
+            this.loadRememberedCodesAsNewFileToolStripMenuItem.Size = new System.Drawing.Size(324, 26);
             this.loadRememberedCodesAsNewFileToolStripMenuItem.Text = "Load remembered codes as new file";
             this.loadRememberedCodesAsNewFileToolStripMenuItem.Click += new System.EventHandler(this.loadRememberedCodesAsNewFileToolStripMenuItem_Click);
             // 
@@ -254,22 +255,24 @@
             this.txtCode.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtCode.Location = new System.Drawing.Point(0, 23);
             this.txtCode.Name = "txtCode";
-            this.txtCode.Size = new System.Drawing.Size(281, 185);
+            this.txtCode.Size = new System.Drawing.Size(281, 183);
             this.txtCode.TabIndex = 9;
             // 
             // statusStrip
             // 
+            this.statusStrip.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.status});
-            this.statusStrip.Location = new System.Drawing.Point(0, 208);
+            this.statusStrip.Location = new System.Drawing.Point(0, 206);
             this.statusStrip.Name = "statusStrip";
-            this.statusStrip.Size = new System.Drawing.Size(281, 22);
+            this.statusStrip.Size = new System.Drawing.Size(281, 24);
+            this.statusStrip.SizingGrip = false;
             this.statusStrip.TabIndex = 12;
             // 
             // status
             // 
             this.status.Name = "status";
-            this.status.Size = new System.Drawing.Size(0, 17);
+            this.status.Size = new System.Drawing.Size(0, 19);
             // 
             // panel4
             // 
@@ -287,14 +290,14 @@
             this.textBox1.Dock = System.Windows.Forms.DockStyle.Fill;
             this.textBox1.Location = new System.Drawing.Point(0, 0);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(128, 20);
+            this.textBox1.Size = new System.Drawing.Size(100, 22);
             this.textBox1.TabIndex = 21;
             this.textBox1.TextChanged += new System.EventHandler(this.textBox1_TextChanged);
             // 
             // btnDeleteCode
             // 
             this.btnDeleteCode.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnDeleteCode.Location = new System.Drawing.Point(128, 0);
+            this.btnDeleteCode.Location = new System.Drawing.Point(100, 0);
             this.btnDeleteCode.Name = "btnDeleteCode";
             this.btnDeleteCode.Size = new System.Drawing.Size(57, 23);
             this.btnDeleteCode.TabIndex = 20;
@@ -307,9 +310,9 @@
             this.btnAddRemoveCode.AutoSize = true;
             this.btnAddRemoveCode.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnAddRemoveCode.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnAddRemoveCode.Location = new System.Drawing.Point(185, 0);
+            this.btnAddRemoveCode.Location = new System.Drawing.Point(157, 0);
             this.btnAddRemoveCode.Name = "btnAddRemoveCode";
-            this.btnAddRemoveCode.Size = new System.Drawing.Size(96, 23);
+            this.btnAddRemoveCode.Size = new System.Drawing.Size(124, 23);
             this.btnAddRemoveCode.TabIndex = 22;
             this.btnAddRemoveCode.Text = "Remember Code";
             this.btnAddRemoveCode.UseVisualStyleBackColor = true;
@@ -375,17 +378,18 @@
             // 
             this.txtName.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtName.Location = new System.Drawing.Point(140, 19);
+            this.txtName.Location = new System.Drawing.Point(144, 19);
             this.txtName.Name = "txtName";
-            this.txtName.Size = new System.Drawing.Size(318, 20);
+            this.txtName.Size = new System.Drawing.Size(314, 22);
             this.txtName.TabIndex = 4;
             this.txtName.TextChanged += new System.EventHandler(this.txtName_TextChanged);
             // 
             // label2
             // 
+            this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(95, 21);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(39, 17);
+            this.label2.Size = new System.Drawing.Size(53, 17);
             this.label2.TabIndex = 3;
             this.label2.Text = "Name: ";
             // 
@@ -393,7 +397,7 @@
             // 
             this.txtID.Location = new System.Drawing.Point(29, 18);
             this.txtID.Name = "txtID";
-            this.txtID.Size = new System.Drawing.Size(60, 20);
+            this.txtID.Size = new System.Drawing.Size(60, 22);
             this.txtID.TabIndex = 2;
             this.txtID.TextChanged += new System.EventHandler(this.txtID_TextChanged);
             // 
@@ -440,12 +444,6 @@
             this.lstCodes.TabIndex = 20;
             this.lstCodes.UseCompatibleStateImageBehavior = false;
             this.lstCodes.View = System.Windows.Forms.View.List;
-            this.lstCodes.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lstCodes_ItemChecked);
-            this.lstCodes.SelectedIndexChanged += new System.EventHandler(this.lstCodes_SelectedIndexChanged);
-            // 
-            // dlgOpen
-            // 
-            this.dlgOpen.Filter = "GCT/Text File|*.gct;*.txt|GCT File|*.gct|Text File|*.txt";
             // 
             // dlgSave
             // 
@@ -453,29 +451,30 @@
             // 
             // contextMenuStrip1
             // 
+            this.contextMenuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.moveUpToolStripMenuItem,
             this.moveDownToolStripMenuItem,
             this.removeToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(139, 70);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(165, 82);
             // 
             // moveUpToolStripMenuItem
             // 
             this.moveUpToolStripMenuItem.Name = "moveUpToolStripMenuItem";
-            this.moveUpToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.moveUpToolStripMenuItem.Size = new System.Drawing.Size(164, 26);
             this.moveUpToolStripMenuItem.Text = "Move Up";
             // 
             // moveDownToolStripMenuItem
             // 
             this.moveDownToolStripMenuItem.Name = "moveDownToolStripMenuItem";
-            this.moveDownToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.moveDownToolStripMenuItem.Size = new System.Drawing.Size(164, 26);
             this.moveDownToolStripMenuItem.Text = "Move Down";
             // 
             // removeToolStripMenuItem
             // 
             this.removeToolStripMenuItem.Name = "removeToolStripMenuItem";
-            this.removeToolStripMenuItem.Size = new System.Drawing.Size(138, 22);
+            this.removeToolStripMenuItem.Size = new System.Drawing.Size(164, 26);
             this.removeToolStripMenuItem.Text = "Remove";
             // 
             // splitter1
@@ -535,7 +534,6 @@
         private global::System.Windows.Forms.Button btnNewCode;
         private global::System.Windows.Forms.Panel panel2;
         private System.Windows.Forms.RichTextBoxBordered txtCode;
-        private OpenFileDialog dlgOpen;
         private TextBox txtPath;
         private MenuStrip menuStrip1;
         private ToolStripMenuItem fileToolStripMenuItem;

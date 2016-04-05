@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 
 namespace System.Windows.Forms
 {
@@ -14,12 +15,25 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             txtCode.TextChanged += txtCode_TextChanged;
+            this.lstCodes.ItemChecked += new System.Windows.Forms.ItemCheckedEventHandler(this.lstCodes_ItemChecked);
+            this.lstCodes.SelectedIndexChanged += new System.EventHandler(this.lstCodes_SelectedIndexChanged);
 
-            _updating = true;
+            string title = 
+                ((AssemblyTitleAttribute)Attribute.GetCustomAttribute(
+                Assembly.GetEntryAssembly(), typeof(AssemblyTitleAttribute), false)).Title;
+
+            Text = title + " - Code Manager";
+
             checkBox1.Checked = BrawlLib.Properties.Settings.Default.SaveGCTWithInfo;
-            _updating = false;
         }
 
+        protected override void OnShown(EventArgs e)
+        {
+            _isOpen = true;
+            base.OnShown(e);
+        }
+
+        bool _isOpen = false;
         private GCTCodeEntryNode _codeEntry;
 
         private GCTNode _targetNode;
@@ -34,7 +48,7 @@ namespace System.Windows.Forms
                     if (((res == DialogResult.Yes) && (!Save(_targetNode, checkBox1.Checked))) || (res == DialogResult.Cancel))
                         return;
                 }
-
+                
                 _updating = true;
                 txtCode.Text = "";
                 txtName.Text = "";
@@ -45,6 +59,7 @@ namespace System.Windows.Forms
                 lstCodes.Items.Clear();
                 if ((_targetNode = value) != null)
                 {
+                    txtPath.Text = _targetNode._origPath;
                     txtID.Text = _targetNode._name;
                     txtName.Text = _targetNode.GameName;
                     lstCodes.Items.AddRange(_targetNode.Children.Select(s => new ListViewItem() { Text = s.Name, Checked = ((GCTCodeEntryNode)s)._enabled, Tag = s }).ToArray());
@@ -69,26 +84,24 @@ namespace System.Windows.Forms
 
         public GCTNode LoadGCT()
         {
-            if (dlgOpen.ShowDialog(this) != DialogResult.OK)
+            OpenFileDialog d = new OpenFileDialog();
+            d.Filter = "GCT/Text File|*.gct;*.txt|GCT File|*.gct|Text File|*.txt";
+            if (d.ShowDialog(this) != DialogResult.OK)
                 return null;
 
-            return LoadGCT(dlgOpen.FileName);
+            return LoadGCT(d.FileName);
         }
-        public GCTNode LoadGCT(string path)
+        public static GCTNode LoadGCT(string path)
         {
             GCTNode node;
 
             if (Path.GetExtension(path).ToUpper() == ".TXT")
             {
-                txtPath.Text = path;
                 node = GCTNode.FromTXT(path);
                 return node;
             }
             else if ((node = GCTNode.IsParsable(path)) != null)
-            {
-                txtPath.Text = path;
                 return node;
-            }
             
             return null;
         }
@@ -290,58 +303,52 @@ namespace System.Windows.Forms
                 BrawlLib.Properties.Settings.Default.Codes[_codeEntrySavedIndex]._name = _codeEntry._name;
         }
 
+        private Color Error(int x, string text)
+        {
+            status.Text = String.Format("Problem on line {0}: {1}", x, text);
+            return Color.Red;
+        }
         public Color CheckCode(out List<GCTCodeLine> lines)
         {
             lines = new List<GCTCodeLine>();
 
             string code = txtCode.Text;
             string[] values = code.Split('\n');
-            int x = 1;
+            int x = 0;
             foreach (string s in values)
             {
+                ++x;
                 if (string.IsNullOrEmpty(s))
                     continue;
 
-                string line = s.StartsWith("* ")
-                    ? s.Substring(2)
-                    : s;
+                string line = s.StartsWith("* ") ? s.Substring(2) : s;
+                uint val1, val2;
 
-                string[] values2 = line.Split(' ');
-                if (values2.Length < 2)
-                {
-                    status.Text = String.Format("Problem on line {0}: Not enough values", x);
-                    return Color.Red;
-                }
-                else if (values2[0].Length != 8 || values2[1].Length != 8)
-                {
-                    status.Text = String.Format("Problem on line {0}: Values must have length of 8", x);
-                    return Color.Red;
-                }
-                else
-                {
-                    if (values2.Length > 2)
-                        for (int i = 2; i < values2.Length; i++)
-                            if (!String.IsNullOrWhiteSpace(values2[i]))
-                            {
-                                status.Text = String.Format("Problem on line {0}: Too many values", x);
-                                return Color.Red;
-                            }
+                string[] split = line.Split(' ');
+                if (split.Length < 1)
+                    continue;
 
-                    uint val1, val2;
-                    if (!uint.TryParse(values2[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val1))
-                    {
-                        status.Text = String.Format("Problem on line {0}: 1st value is not a hex integer", x);
-                        return Color.Red;
-                    }
-                    else if (!uint.TryParse(values2[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val2))
-                    {
-                        status.Text = String.Format("Problem on line {0}: 2nd value is not a hex integer", x);
-                        return Color.Red;
-                    }
-                    else
-                        lines.Add(new GCTCodeLine(val1, val2));
-                }
-                x++;
+                if (split[0].Length != 8)
+                    return Error(x, "First value must be 8 characters long.");
+                
+                if (!uint.TryParse(split[0], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val1))
+                    return Error(x, "First value is not a hex integer.");
+
+                if (split.Length < 2 || String.IsNullOrWhiteSpace(split[1]))
+                    return Error(x, "Needs two values.");
+
+                if (split[1].Length != 8)
+                    return Error(x, "Second value must be 8 characters long.");
+
+                if (!uint.TryParse(split[1], NumberStyles.HexNumber, CultureInfo.InvariantCulture, out val2))
+                    return Error(x, "Second value is not a hex integer.");
+                
+                if (split.Length > 2)
+                    for (int i = 2; i < split.Length; i++)
+                        if (!String.IsNullOrWhiteSpace(split[i]))
+                            return Error(x, "Too many values.");
+                
+                lines.Add(new GCTCodeLine(val1, val2));
             }
 
             status.Text = "Code successfully parsed";
@@ -491,7 +498,7 @@ namespace System.Windows.Forms
 
         private void lstCodes_ItemChecked(object sender, ItemCheckedEventArgs e)
         {
-            if (_updating || TargetNode == null)
+            if (!_isOpen || _updating || TargetNode == null)
                 return;
 
             TargetNode.SignalPropertyChange();
