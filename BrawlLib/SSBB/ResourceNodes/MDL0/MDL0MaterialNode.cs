@@ -1312,11 +1312,8 @@ For example, if the shader has two stages but this number is 1, the second stage
             _cull = (CullMode)(int)header->_cull;
 
             if (!_replaced && (-header->_mdl0Offset + (int)header->DisplayListOffset(_initVersion)) % 0x20 != 0)
-            {
                 Model._errors.Add("Material " + Index + " has an improper align offset.");
-                SignalPropertyChange();
-            }
-
+            
             MatModeBlock* mode = header->DisplayLists(_initVersion);
             _alphaFunc = mode->AlphaFunction;
             _zMode = mode->ZMode;
@@ -1625,7 +1622,7 @@ For example, if the shader has two stages but this number is 1, the second stage
 
         public void UseProgram(MDL0ObjectNode node, bool forceRemake = false)
         {
-            forceRemake = forceRemake || ShaderGenerator._pixelLightingChanged;
+            forceRemake = forceRemake || ShaderGenerator._forceRecompile;
 
             //If a rendering property has been changed, the shaders need to be regenerated
             bool updateVert = String.IsNullOrEmpty(_vertexShaderSource) || forceRemake;
@@ -1658,7 +1655,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                         _programHandle = 0;
                     }
 
-                    ShaderGenerator.Set(this);
+                    ShaderGenerator.SetTarget(this);
 
                     if (updateShaderFrag)
                         ShaderNode._fragShaderSource = ShaderGenerator.GenTEVFragShader();
@@ -1675,7 +1672,7 @@ For example, if the shader has two stages but this number is 1, the second stage
                     GenShader(ref _vertexShaderHandle, _vertexShaderSource, true);
                     GenShader(ref _fragShaderHandle, combineFrag, false);
 
-                    ShaderGenerator.Clear();
+                    ShaderGenerator.ClearTarget();
 
                     _programHandle = GL.CreateProgram();
 

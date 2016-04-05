@@ -396,7 +396,7 @@ namespace BrawlLib.OpenGL
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             foreach (GLViewport v in _viewports)
                 OnRenderViewport(e, v);
-            BrawlLib.Wii.Graphics.ShaderGenerator._pixelLightingChanged = false;
+            Wii.Graphics.ShaderGenerator._forceRecompile = false;
         }
 
         protected virtual void OnRenderViewport(PaintEventArgs e, GLViewport v) { }

@@ -9,9 +9,7 @@ namespace BrawlLib.Wii.Graphics
 {
     public unsafe class ShaderGenerator
     {
-        public static bool _pixelLightingChanged = false;
-        static bool _pixelLighting = false;
-        public static bool PixelLighting
+        public static bool UsePixelLighting
         {
             get { return _pixelLighting; }
             set
@@ -20,9 +18,12 @@ namespace BrawlLib.Wii.Graphics
                     return;
 
                 _pixelLighting = value;
-                _pixelLightingChanged = true;
+                _forceRecompile = true;
             }
         }
+        static bool _pixelLighting = false;
+
+        public static bool _forceRecompile = false;
 
         //Determines if the final shader should be written to the console for review
         static bool AlwaysOutputShader = false;
@@ -95,7 +96,7 @@ namespace BrawlLib.Wii.Graphics
 
         private static void WriteVertexUniforms()
         {
-            if (!PixelLighting)
+            if (!UsePixelLighting)
             {
                 wU("vec4 {0}[2];", _uaMatColorName[0]);
                 wU("vec4 {0}[2];", _uaMatColorName[1]);
@@ -113,7 +114,7 @@ namespace BrawlLib.Wii.Graphics
 
             wl();
 
-            if (PixelLighting)
+            if (UsePixelLighting)
             {
                 wU("vec4 {0}[2];", _uaMatColorName[0]);
                 wU("vec4 {0}[2];", _uaMatColorName[1]);
@@ -123,7 +124,7 @@ namespace BrawlLib.Wii.Graphics
 
             wl();
 
-            if (PixelLighting)
+            if (UsePixelLighting)
             {
                 wU("vec4 {0};", _uSCNLightSetAmbLightName);
                 wU("{0} {1}[8];", LightStructName, _uSCNLightSetLightsName);
@@ -144,7 +145,7 @@ namespace BrawlLib.Wii.Graphics
             wV("vec3 {0};", _vNormalName);
             wV("vec4 {0};", _vVtxColorsName[0]);
             wV("vec4 {0};", _vVtxColorsName[1]);
-            if (!PixelLighting)
+            if (!UsePixelLighting)
             {
                 wV("vec4 {0}0;", LightChannelName);
                 wV("vec4 {0}1;", LightChannelName);
@@ -161,7 +162,7 @@ namespace BrawlLib.Wii.Graphics
             Comment(_material.Name);
             wl();
             WriteVersion();
-            if (!PixelLighting)
+            if (!UsePixelLighting)
                 WriteLightFrameStruct();
             WriteClamps();
             WriteVertexUniforms();
@@ -172,14 +173,14 @@ namespace BrawlLib.Wii.Graphics
                 wl("gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;");
 
                 wl("{0} = vec3(gl_ModelViewMatrix * gl_Vertex);", _vPositionName);
-                if (PixelLighting)
+                if (UsePixelLighting)
                     wl("{0} = gl_NormalMatrix * gl_Normal;", _vNormalName);
                 else
                     wl("{0} = normalize(gl_NormalMatrix * gl_Normal);", _vNormalName);
                 wl("{0} = gl_Color;", _vVtxColorsName[0]);
                 wl("{0} = gl_SecondaryColor;", _vVtxColorsName[1]);
 
-                if (!PixelLighting)
+                if (!UsePixelLighting)
                     WriteLightChannels();
 
                 for (int i = 0; i < _material.Children.Count; i++)
@@ -188,7 +189,7 @@ namespace BrawlLib.Wii.Graphics
 
                     //LightChannels are not written in the vertex shader when using pixel lighting,
                     //but color texture coordinates need it. Need to handle this in the fragment shader
-                    if (mr.Coordinates == TexSourceRow.Colors && PixelLighting)
+                    if (mr.Coordinates == TexSourceRow.Colors && UsePixelLighting)
                         continue;
 
                     WriteCoordSource(mr, i);
@@ -254,7 +255,7 @@ namespace BrawlLib.Wii.Graphics
             Comment(_material.Name);
             wl();
             WriteVersion();
-            if (PixelLighting)
+            if (UsePixelLighting)
                 WriteLightFrameStruct();
             WriteClamps();
             WriteFragmentUniforms();
@@ -306,7 +307,7 @@ namespace BrawlLib.Wii.Graphics
                     return Finish();
                 }
 
-                if (PixelLighting)
+                if (UsePixelLighting)
                 {
                     wl("vec4 {0}0 = {1};", LightChannelName, vec4Zero);
                     wl("vec4 {0}1 = {1};", LightChannelName, vec4Zero);
@@ -795,7 +796,7 @@ namespace BrawlLib.Wii.Graphics
                     int mapID = (int)stage.TextureMapID;
                     int coordID = (int)stage.TextureCoordID;
 
-                    if (PixelLighting)
+                    if (UsePixelLighting)
                         wl(_texColorName + " = texture2D(texture{0}, uv{1}.st).{2};",
                             mapID.ToString(), coordID.ToString(), tswap);
                     else
@@ -1362,13 +1363,13 @@ namespace BrawlLib.Wii.Graphics
 #endif
         }
 
-        public static void Set(MDL0MaterialNode mat)
+        public static void SetTarget(MDL0MaterialNode mat)
         {
             _material = mat;
             _shaderNode = mat.ShaderNode;
         }
 
-        public static void Clear()
+        public static void ClearTarget()
         {
             _material = null;
             _shaderNode = null;

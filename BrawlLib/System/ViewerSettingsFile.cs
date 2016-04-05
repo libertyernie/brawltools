@@ -26,6 +26,7 @@ namespace System
         public bool DisplayExternalAnims;
         public bool DisplayNonBRRESAnims;
         public bool UseBindStateBox;
+        public bool UsePixelLighting;
         public bool SyncTexToObj;
         public bool SyncObjToVIS0;
         public bool DisableBonesOnPlay;

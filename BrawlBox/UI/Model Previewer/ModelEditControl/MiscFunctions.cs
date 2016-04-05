@@ -6,6 +6,7 @@ using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using BrawlLib.Wii.Graphics;
 
 namespace System.Windows.Forms
 {
@@ -511,6 +512,7 @@ namespace System.Windows.Forms
                 SnapToColl = _snapToCollisions,
                 Maximize = _maximize,
                 UseBindStateBox = UseBindStateBoxes,
+                UsePixelLighting = ShaderGenerator.UsePixelLighting,
 
                 HideMainWindow = _hideMainWindow,
                 SavePosition = _savePosition,
@@ -558,6 +560,7 @@ namespace System.Windows.Forms
             rightPanel.pnlBones.chkFlat.Checked = settings.FlatBoneList;
             rightPanel.pnlBones.chkContains.Checked = settings.BoneListContains;
             UseBindStateBoxes = settings.UseBindStateBox;
+            ShaderGenerator.UsePixelLighting = settings.UsePixelLighting;
 
             MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
             MDL0BoneNode.DefaultLineColor = (Color)settings._lineColor;

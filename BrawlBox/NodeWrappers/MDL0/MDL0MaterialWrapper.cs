@@ -62,9 +62,9 @@ namespace BrawlBox.NodeWrappers
         {
             MDL0MaterialNode mat = _resource as MDL0MaterialNode;
 
-            ShaderGenerator.Set(mat);
+            ShaderGenerator.SetTarget(mat);
 
-            ShaderGenerator.PixelLighting = MessageBox.Show(MainForm.Instance, "Use per-pixel lighting?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
+            ShaderGenerator.UsePixelLighting = MessageBox.Show(MainForm.Instance, "Use per-pixel lighting?", "", MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes;
 
             SaveFileDialog s = new SaveFileDialog();
 
@@ -84,8 +84,8 @@ namespace BrawlBox.NodeWrappers
                 System.IO.File.WriteAllText(s.FileName, ShaderGenerator.CombineFragShader(m, t, mat.ActiveShaderStages).Replace("\n", Environment.NewLine));
             }
 
-            ShaderGenerator.Clear();
-            ShaderGenerator._pixelLightingChanged = false;
+            ShaderGenerator.ClearTarget();
+            ShaderGenerator._forceRecompile = false;
         }
         #endregion
 

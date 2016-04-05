@@ -215,7 +215,7 @@ namespace System.Windows.Forms
             chkTanLight.Checked = SCN0LightNode._generateTangents;
             chkTanSHP.Checked = SHP0VertexSetNode._generateTangents;
             chkTanSRT.Checked = SRT0TextureNode._generateTangents;
-            chkPixelLighting.Checked = ShaderGenerator.PixelLighting;
+            chkPixelLighting.Checked = ShaderGenerator.UsePixelLighting;
 
             UpdateOrb();
             UpdateLine();
@@ -2224,7 +2224,7 @@ namespace System.Windows.Forms
                 return;
 
             BrawlBox.Properties.Settings.Default.PixelLighting = 
-                ShaderGenerator.PixelLighting = chkPixelLighting.Checked;
+                ShaderGenerator.UsePixelLighting = chkPixelLighting.Checked;
             _form.ModelPanel.Invalidate();
             BrawlBox.Properties.Settings.Default.Save();
         }
