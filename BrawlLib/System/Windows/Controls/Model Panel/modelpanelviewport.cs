@@ -916,7 +916,7 @@ namespace System.Windows.Forms
         #endregion
 
         #region Default Viewports
-        public static ModelPanelViewport DefaultPerspective
+        public static new ModelPanelViewport DefaultPerspective
         {
             get
             {
@@ -928,7 +928,7 @@ namespace System.Windows.Forms
                 };
             }
         }
-        private static ModelPanelViewport BaseOrtho
+        private static new ModelPanelViewport BaseOrtho
         {
             get
             {
@@ -946,7 +946,7 @@ namespace System.Windows.Forms
                 };
             }
         }
-        public static ModelPanelViewport DefaultOrtho
+        public static new ModelPanelViewport DefaultOrtho
         {
             get
             {
@@ -956,7 +956,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultFront
+        public static new ModelPanelViewport DefaultFront
         {
             get
             {
@@ -968,7 +968,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultBack
+        public static new ModelPanelViewport DefaultBack
         {
             get
             {
@@ -981,7 +981,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultLeft
+        public static new ModelPanelViewport DefaultLeft
         {
             get
             {
@@ -994,7 +994,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultRight
+        public static new ModelPanelViewport DefaultRight
         {
             get
             {
@@ -1007,7 +1007,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultTop
+        public static new ModelPanelViewport DefaultTop
         {
             get
             {
@@ -1020,7 +1020,7 @@ namespace System.Windows.Forms
                 return p;
             }
         }
-        public static ModelPanelViewport DefaultBottom
+        public static new ModelPanelViewport DefaultBottom
         {
             get
             {

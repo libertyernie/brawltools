@@ -192,7 +192,7 @@ namespace BrawlLib.OpenGL
                 };
             }
         }
-        private static GLViewport BaseOrtho
+        public static GLViewport BaseOrtho
         {
             get
             {
