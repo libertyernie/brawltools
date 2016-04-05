@@ -189,7 +189,7 @@ namespace BrawlBox
             this.groupBox1.Controls.Add(this.listView1);
             this.groupBox1.Location = new System.Drawing.Point(12, 12);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(268, 264);
+            this.groupBox1.Size = new System.Drawing.Size(329, 264);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "File Associations";
@@ -197,7 +197,7 @@ namespace BrawlBox
             // checkBox1
             // 
             this.checkBox1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.checkBox1.Location = new System.Drawing.Point(151, 13);
+            this.checkBox1.Location = new System.Drawing.Point(212, 13);
             this.checkBox1.Name = "checkBox1";
             this.checkBox1.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
             this.checkBox1.Size = new System.Drawing.Size(104, 20);
@@ -291,7 +291,7 @@ namespace BrawlBox
             this.listView1.Location = new System.Drawing.Point(3, 37);
             this.listView1.MultiSelect = false;
             this.listView1.Name = "listView1";
-            this.listView1.Size = new System.Drawing.Size(262, 221);
+            this.listView1.Size = new System.Drawing.Size(323, 221);
             this.listView1.TabIndex = 6;
             this.listView1.UseCompatibleStateImageBehavior = false;
             this.listView1.View = System.Windows.Forms.View.Details;
@@ -305,7 +305,7 @@ namespace BrawlBox
             // btnOkay
             // 
             this.btnOkay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnOkay.Location = new System.Drawing.Point(30, 328);
+            this.btnOkay.Location = new System.Drawing.Point(91, 328);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(75, 23);
             this.btnOkay.TabIndex = 1;
@@ -316,7 +316,7 @@ namespace BrawlBox
             // btnCancel
             // 
             this.btnCancel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnCancel.Location = new System.Drawing.Point(111, 328);
+            this.btnCancel.Location = new System.Drawing.Point(172, 328);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(75, 23);
             this.btnCancel.TabIndex = 2;
@@ -327,7 +327,7 @@ namespace BrawlBox
             // btnApply
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(192, 328);
+            this.btnApply.Location = new System.Drawing.Point(253, 328);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 3;
@@ -339,10 +339,10 @@ namespace BrawlBox
             // 
             this.chkShowPropDesc.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkShowPropDesc.AutoSize = true;
-            this.chkShowPropDesc.Location = new System.Drawing.Point(25, 305);
+            this.chkShowPropDesc.Location = new System.Drawing.Point(11, 301);
             this.chkShowPropDesc.Name = "chkShowPropDesc";
             this.chkShowPropDesc.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.chkShowPropDesc.Size = new System.Drawing.Size(242, 17);
+            this.chkShowPropDesc.Size = new System.Drawing.Size(317, 21);
             this.chkShowPropDesc.TabIndex = 7;
             this.chkShowPropDesc.Text = "Show property description box when available";
             this.chkShowPropDesc.UseVisualStyleBackColor = true;
@@ -352,10 +352,10 @@ namespace BrawlBox
             // 
             this.chkUpdatesOnStartup.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkUpdatesOnStartup.AutoSize = true;
-            this.chkUpdatesOnStartup.Location = new System.Drawing.Point(104, 282);
+            this.chkUpdatesOnStartup.Location = new System.Drawing.Point(115, 278);
             this.chkUpdatesOnStartup.Name = "chkUpdatesOnStartup";
             this.chkUpdatesOnStartup.RightToLeft = System.Windows.Forms.RightToLeft.Yes;
-            this.chkUpdatesOnStartup.Size = new System.Drawing.Size(163, 17);
+            this.chkUpdatesOnStartup.Size = new System.Drawing.Size(213, 21);
             this.chkUpdatesOnStartup.TabIndex = 8;
             this.chkUpdatesOnStartup.Text = "Check for updates on startup";
             this.chkUpdatesOnStartup.UseVisualStyleBackColor = true;
@@ -363,7 +363,7 @@ namespace BrawlBox
             // 
             // SettingsDialog
             // 
-            this.ClientSize = new System.Drawing.Size(292, 363);
+            this.ClientSize = new System.Drawing.Size(353, 363);
             this.Controls.Add(this.chkUpdatesOnStartup);
             this.Controls.Add(this.chkShowPropDesc);
             this.Controls.Add(this.btnApply);

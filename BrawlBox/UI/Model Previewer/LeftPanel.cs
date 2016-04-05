@@ -71,9 +71,8 @@ namespace System.Windows.Forms
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewGroup listViewGroup1 = new System.Windows.Forms.ListViewGroup("Animations", System.Windows.Forms.HorizontalAlignment.Left);
+            System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Animations", System.Windows.Forms.HorizontalAlignment.Left);
             this.pnlObjects = new System.Windows.Forms.Panel();
-            this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.lstObjects = new System.Windows.Forms.CheckedListBox();
             this.spltDrawCalls = new System.Windows.Forms.Splitter();
             this.lstDrawCalls = new System.Windows.Forms.CheckedListBox();
@@ -105,7 +104,6 @@ namespace System.Windows.Forms
             this.renameTextureTextureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlTextures = new System.Windows.Forms.Panel();
-            this.overTexPnl = new System.Windows.Forms.TransparentPanel();
             this.lstTextures = new System.Windows.Forms.CheckedListBox();
             this.chkAllTextures = new System.Windows.Forms.CheckBox();
             this.btnTextures = new System.Windows.Forms.Button();
@@ -122,8 +120,10 @@ namespace System.Windows.Forms
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.spltObjTex = new System.Windows.Forms.ProxySplitter();
             this.spltAnimObj = new System.Windows.Forms.ProxySplitter();
+            this.overTexPnl = new System.Windows.Forms.TransparentPanel();
             this.pnlObjects.SuspendLayout();
             this.pnlAnims.SuspendLayout();
             this.ctxAnimList.SuspendLayout();
@@ -148,17 +148,8 @@ namespace System.Windows.Forms
             this.pnlObjects.Location = new System.Drawing.Point(0, 182);
             this.pnlObjects.MinimumSize = new System.Drawing.Size(0, 21);
             this.pnlObjects.Name = "pnlObjects";
-            this.pnlObjects.Size = new System.Drawing.Size(137, 150);
+            this.pnlObjects.Size = new System.Drawing.Size(172, 150);
             this.pnlObjects.TabIndex = 0;
-            // 
-            // overObjPnl
-            // 
-            this.overObjPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overObjPnl.Location = new System.Drawing.Point(0, 61);
-            this.overObjPnl.Name = "overObjPnl";
-            this.overObjPnl.Size = new System.Drawing.Size(135, 50);
-            this.overObjPnl.TabIndex = 8;
-            this.overObjPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overObjPnl_Paint);
             // 
             // lstObjects
             // 
@@ -166,10 +157,10 @@ namespace System.Windows.Forms
             this.lstObjects.CausesValidation = false;
             this.lstObjects.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstObjects.IntegralHeight = false;
-            this.lstObjects.Location = new System.Drawing.Point(0, 61);
+            this.lstObjects.Location = new System.Drawing.Point(0, 66);
             this.lstObjects.Margin = new System.Windows.Forms.Padding(0);
             this.lstObjects.Name = "lstObjects";
-            this.lstObjects.Size = new System.Drawing.Size(135, 50);
+            this.lstObjects.Size = new System.Drawing.Size(170, 45);
             this.lstObjects.TabIndex = 4;
             this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstPolygons_ItemCheck);
             this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstPolygons_SelectedValueChanged);
@@ -181,7 +172,7 @@ namespace System.Windows.Forms
             this.spltDrawCalls.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.spltDrawCalls.Location = new System.Drawing.Point(0, 111);
             this.spltDrawCalls.Name = "spltDrawCalls";
-            this.spltDrawCalls.Size = new System.Drawing.Size(135, 3);
+            this.spltDrawCalls.Size = new System.Drawing.Size(170, 3);
             this.spltDrawCalls.TabIndex = 9;
             this.spltDrawCalls.TabStop = false;
             this.spltDrawCalls.Visible = false;
@@ -193,7 +184,7 @@ namespace System.Windows.Forms
             this.lstDrawCalls.IntegralHeight = false;
             this.lstDrawCalls.Location = new System.Drawing.Point(0, 114);
             this.lstDrawCalls.Name = "lstDrawCalls";
-            this.lstDrawCalls.Size = new System.Drawing.Size(135, 34);
+            this.lstDrawCalls.Size = new System.Drawing.Size(170, 34);
             this.lstDrawCalls.TabIndex = 0;
             this.lstDrawCalls.Visible = false;
             this.lstDrawCalls.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstDrawCalls_ItemCheck);
@@ -205,11 +196,11 @@ namespace System.Windows.Forms
             this.chkAllObj.Checked = true;
             this.chkAllObj.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAllObj.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkAllObj.Location = new System.Drawing.Point(0, 41);
+            this.chkAllObj.Location = new System.Drawing.Point(0, 46);
             this.chkAllObj.Margin = new System.Windows.Forms.Padding(0);
             this.chkAllObj.Name = "chkAllObj";
             this.chkAllObj.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkAllObj.Size = new System.Drawing.Size(135, 20);
+            this.chkAllObj.Size = new System.Drawing.Size(170, 20);
             this.chkAllObj.TabIndex = 5;
             this.chkAllObj.Text = "All";
             this.chkAllObj.UseVisualStyleBackColor = false;
@@ -218,11 +209,11 @@ namespace System.Windows.Forms
             // chkSyncVis
             // 
             this.chkSyncVis.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkSyncVis.Location = new System.Drawing.Point(0, 21);
+            this.chkSyncVis.Location = new System.Drawing.Point(0, 26);
             this.chkSyncVis.Margin = new System.Windows.Forms.Padding(0);
             this.chkSyncVis.Name = "chkSyncVis";
             this.chkSyncVis.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkSyncVis.Size = new System.Drawing.Size(135, 20);
+            this.chkSyncVis.Size = new System.Drawing.Size(170, 20);
             this.chkSyncVis.TabIndex = 7;
             this.chkSyncVis.Text = "Sync VIS0";
             this.chkSyncVis.UseVisualStyleBackColor = false;
@@ -232,7 +223,7 @@ namespace System.Windows.Forms
             this.btnObjects.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnObjects.Location = new System.Drawing.Point(0, 0);
             this.btnObjects.Name = "btnObjects";
-            this.btnObjects.Size = new System.Drawing.Size(135, 21);
+            this.btnObjects.Size = new System.Drawing.Size(170, 26);
             this.btnObjects.TabIndex = 6;
             this.btnObjects.Text = "Objects";
             this.btnObjects.UseVisualStyleBackColor = true;
@@ -249,7 +240,7 @@ namespace System.Windows.Forms
             this.pnlAnims.Location = new System.Drawing.Point(0, 0);
             this.pnlAnims.MinimumSize = new System.Drawing.Size(0, 21);
             this.pnlAnims.Name = "pnlAnims";
-            this.pnlAnims.Size = new System.Drawing.Size(137, 178);
+            this.pnlAnims.Size = new System.Drawing.Size(172, 178);
             this.pnlAnims.TabIndex = 2;
             // 
             // listAnims
@@ -260,16 +251,16 @@ namespace System.Windows.Forms
             this.listAnims.ContextMenuStrip = this.ctxAnimList;
             this.listAnims.Cursor = System.Windows.Forms.Cursors.Default;
             this.listAnims.Dock = System.Windows.Forms.DockStyle.Fill;
-            listViewGroup1.Header = "Animations";
-            listViewGroup1.Name = "grpAnims";
+            listViewGroup2.Header = "Animations";
+            listViewGroup2.Name = "grpAnims";
             this.listAnims.Groups.AddRange(new System.Windows.Forms.ListViewGroup[] {
-            listViewGroup1});
+            listViewGroup2});
             this.listAnims.HeaderStyle = System.Windows.Forms.ColumnHeaderStyle.None;
             this.listAnims.HideSelection = false;
-            this.listAnims.Location = new System.Drawing.Point(0, 63);
+            this.listAnims.Location = new System.Drawing.Point(0, 73);
             this.listAnims.MultiSelect = false;
             this.listAnims.Name = "listAnims";
-            this.listAnims.Size = new System.Drawing.Size(135, 113);
+            this.listAnims.Size = new System.Drawing.Size(170, 103);
             this.listAnims.TabIndex = 25;
             this.listAnims.UseCompatibleStateImageBehavior = false;
             this.listAnims.View = System.Windows.Forms.View.Details;
@@ -284,10 +275,11 @@ namespace System.Windows.Forms
             // 
             // ctxAnimList
             // 
+            this.ctxAnimList.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxAnimList.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.AnimListNewAnim});
             this.ctxAnimList.Name = "ctxAnim";
-            this.ctxAnimList.Size = new System.Drawing.Size(195, 26);
+            this.ctxAnimList.Size = new System.Drawing.Size(235, 30);
             this.ctxAnimList.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAnimList_Opening);
             // 
             // AnimListNewAnim
@@ -296,7 +288,7 @@ namespace System.Windows.Forms
             this.inModelsBRRESToolStripMenuItem,
             this.inExternalFileToolStripMenuItem});
             this.AnimListNewAnim.Name = "AnimListNewAnim";
-            this.AnimListNewAnim.Size = new System.Drawing.Size(194, 22);
+            this.AnimListNewAnim.Size = new System.Drawing.Size(234, 26);
             this.AnimListNewAnim.Text = "Create New Animation";
             this.AnimListNewAnim.Click += new System.EventHandler(this.inModelsBRRESToolStripMenuItem_Click);
             // 
@@ -304,7 +296,7 @@ namespace System.Windows.Forms
             // 
             this.inModelsBRRESToolStripMenuItem.Enabled = false;
             this.inModelsBRRESToolStripMenuItem.Name = "inModelsBRRESToolStripMenuItem";
-            this.inModelsBRRESToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.inModelsBRRESToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
             this.inModelsBRRESToolStripMenuItem.Text = "In Model\'s BRRES";
             this.inModelsBRRESToolStripMenuItem.Visible = false;
             this.inModelsBRRESToolStripMenuItem.Click += new System.EventHandler(this.inModelsBRRESToolStripMenuItem_Click);
@@ -313,7 +305,7 @@ namespace System.Windows.Forms
             // 
             this.inExternalFileToolStripMenuItem.Enabled = false;
             this.inExternalFileToolStripMenuItem.Name = "inExternalFileToolStripMenuItem";
-            this.inExternalFileToolStripMenuItem.Size = new System.Drawing.Size(165, 22);
+            this.inExternalFileToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
             this.inExternalFileToolStripMenuItem.Text = "In External File";
             this.inExternalFileToolStripMenuItem.Visible = false;
             this.inExternalFileToolStripMenuItem.Click += new System.EventHandler(this.inExternalFileToolStripMenuItem_Click);
@@ -323,9 +315,9 @@ namespace System.Windows.Forms
             this.panel2.Controls.Add(this.txtSearchAnim);
             this.panel2.Controls.Add(this.chkContains);
             this.panel2.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel2.Location = new System.Drawing.Point(0, 42);
+            this.panel2.Location = new System.Drawing.Point(0, 52);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(135, 21);
+            this.panel2.Size = new System.Drawing.Size(170, 21);
             this.panel2.TabIndex = 32;
             // 
             // txtSearchAnim
@@ -334,7 +326,7 @@ namespace System.Windows.Forms
             this.txtSearchAnim.ForeColor = System.Drawing.Color.Gray;
             this.txtSearchAnim.Location = new System.Drawing.Point(0, 0);
             this.txtSearchAnim.Name = "txtSearchAnim";
-            this.txtSearchAnim.Size = new System.Drawing.Size(65, 20);
+            this.txtSearchAnim.Size = new System.Drawing.Size(82, 22);
             this.txtSearchAnim.TabIndex = 30;
             this.txtSearchAnim.Text = "Search for an animation...";
             this.txtSearchAnim.TextChanged += new System.EventHandler(this.txtSearchAnim_TextChanged);
@@ -345,11 +337,11 @@ namespace System.Windows.Forms
             // 
             this.chkContains.AutoSize = true;
             this.chkContains.Dock = System.Windows.Forms.DockStyle.Right;
-            this.chkContains.Location = new System.Drawing.Point(65, 0);
+            this.chkContains.Location = new System.Drawing.Point(82, 0);
             this.chkContains.Margin = new System.Windows.Forms.Padding(0);
             this.chkContains.Name = "chkContains";
             this.chkContains.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.chkContains.Size = new System.Drawing.Size(70, 21);
+            this.chkContains.Size = new System.Drawing.Size(88, 21);
             this.chkContains.TabIndex = 32;
             this.chkContains.Text = "Contains";
             this.chkContains.UseVisualStyleBackColor = true;
@@ -357,20 +349,21 @@ namespace System.Windows.Forms
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.btnSaveAnims);
             this.panel1.Controls.Add(this.btnLoad);
+            this.panel1.Controls.Add(this.btnSaveAnims);
             this.panel1.Controls.Add(this.fileType);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.panel1.Location = new System.Drawing.Point(0, 21);
+            this.panel1.Location = new System.Drawing.Point(0, 26);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(135, 21);
+            this.panel1.Size = new System.Drawing.Size(170, 26);
             this.panel1.TabIndex = 27;
             // 
             // btnSaveAnims
             // 
-            this.btnSaveAnims.Location = new System.Drawing.Point(41, 0);
+            this.btnSaveAnims.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnSaveAnims.Location = new System.Drawing.Point(51, 0);
             this.btnSaveAnims.Name = "btnSaveAnims";
-            this.btnSaveAnims.Size = new System.Drawing.Size(41, 21);
+            this.btnSaveAnims.Size = new System.Drawing.Size(60, 26);
             this.btnSaveAnims.TabIndex = 28;
             this.btnSaveAnims.Text = "Save";
             this.btnSaveAnims.UseVisualStyleBackColor = true;
@@ -378,9 +371,10 @@ namespace System.Windows.Forms
             // 
             // btnLoad
             // 
-            this.btnLoad.Location = new System.Drawing.Point(1, 0);
+            this.btnLoad.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.btnLoad.Location = new System.Drawing.Point(0, 0);
             this.btnLoad.Name = "btnLoad";
-            this.btnLoad.Size = new System.Drawing.Size(41, 21);
+            this.btnLoad.Size = new System.Drawing.Size(51, 26);
             this.btnLoad.TabIndex = 27;
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
@@ -388,11 +382,12 @@ namespace System.Windows.Forms
             // 
             // fileType
             // 
+            this.fileType.Dock = System.Windows.Forms.DockStyle.Right;
             this.fileType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.fileType.FormattingEnabled = true;
-            this.fileType.Location = new System.Drawing.Point(82, 0);
+            this.fileType.Location = new System.Drawing.Point(111, 0);
             this.fileType.Name = "fileType";
-            this.fileType.Size = new System.Drawing.Size(53, 21);
+            this.fileType.Size = new System.Drawing.Size(59, 24);
             this.fileType.TabIndex = 26;
             this.fileType.SelectedIndexChanged += new System.EventHandler(this.fileType_SelectedIndexChanged);
             // 
@@ -401,7 +396,7 @@ namespace System.Windows.Forms
             this.btnAnims.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnAnims.Location = new System.Drawing.Point(0, 0);
             this.btnAnims.Name = "btnAnims";
-            this.btnAnims.Size = new System.Drawing.Size(135, 21);
+            this.btnAnims.Size = new System.Drawing.Size(170, 26);
             this.btnAnims.TabIndex = 7;
             this.btnAnims.Text = "Animations";
             this.btnAnims.UseVisualStyleBackColor = true;
@@ -409,6 +404,7 @@ namespace System.Windows.Forms
             // 
             // ctxTextures
             // 
+            this.ctxTextures.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxTextures.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sourceToolStripMenuItem,
             this.sizeToolStripMenuItem,
@@ -419,60 +415,60 @@ namespace System.Windows.Forms
             this.renameTextureTextureToolStripMenuItem,
             this.resetToolStripMenuItem});
             this.ctxTextures.Name = "ctxTextures";
-            this.ctxTextures.Size = new System.Drawing.Size(125, 164);
+            this.ctxTextures.Size = new System.Drawing.Size(147, 192);
             this.ctxTextures.Opening += new System.ComponentModel.CancelEventHandler(this.ctxTextures_Opening);
             // 
             // sourceToolStripMenuItem
             // 
             this.sourceToolStripMenuItem.Enabled = false;
             this.sourceToolStripMenuItem.Name = "sourceToolStripMenuItem";
-            this.sourceToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.sourceToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.sourceToolStripMenuItem.Text = "Source";
             // 
             // sizeToolStripMenuItem
             // 
             this.sizeToolStripMenuItem.Enabled = false;
             this.sizeToolStripMenuItem.Name = "sizeToolStripMenuItem";
-            this.sizeToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.sizeToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.sizeToolStripMenuItem.Text = "Size";
             // 
             // toolStripMenuItem1
             // 
             this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(121, 6);
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(143, 6);
             // 
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
-            this.viewToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.viewToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.viewToolStripMenuItem.Text = "View...";
             this.viewToolStripMenuItem.Click += new System.EventHandler(this.viewToolStripMenuItem_Click);
             // 
             // exportTextureToolStripMenuItem
             // 
             this.exportTextureToolStripMenuItem.Name = "exportTextureToolStripMenuItem";
-            this.exportTextureToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.exportTextureToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.exportTextureToolStripMenuItem.Text = "Export...";
             this.exportTextureToolStripMenuItem.Click += new System.EventHandler(this.exportTextureToolStripMenuItem_Click);
             // 
             // replaceTextureToolStripMenuItem
             // 
             this.replaceTextureToolStripMenuItem.Name = "replaceTextureToolStripMenuItem";
-            this.replaceTextureToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.replaceTextureToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.replaceTextureToolStripMenuItem.Text = "Replace...";
             this.replaceTextureToolStripMenuItem.Click += new System.EventHandler(this.replaceTextureToolStripMenuItem_Click);
             // 
             // renameTextureTextureToolStripMenuItem
             // 
             this.renameTextureTextureToolStripMenuItem.Name = "renameTextureTextureToolStripMenuItem";
-            this.renameTextureTextureToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.renameTextureTextureToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.renameTextureTextureToolStripMenuItem.Text = "Rename";
             this.renameTextureTextureToolStripMenuItem.Click += new System.EventHandler(this.renameTextureToolStripMenuItem_Click);
             // 
             // resetToolStripMenuItem
             // 
             this.resetToolStripMenuItem.Name = "resetToolStripMenuItem";
-            this.resetToolStripMenuItem.Size = new System.Drawing.Size(124, 22);
+            this.resetToolStripMenuItem.Size = new System.Drawing.Size(146, 26);
             this.resetToolStripMenuItem.Text = "Reload";
             this.resetToolStripMenuItem.Click += new System.EventHandler(this.resetToolStripMenuItem_Click);
             // 
@@ -487,17 +483,8 @@ namespace System.Windows.Forms
             this.pnlTextures.Location = new System.Drawing.Point(0, 336);
             this.pnlTextures.MinimumSize = new System.Drawing.Size(0, 21);
             this.pnlTextures.Name = "pnlTextures";
-            this.pnlTextures.Size = new System.Drawing.Size(137, 164);
+            this.pnlTextures.Size = new System.Drawing.Size(172, 164);
             this.pnlTextures.TabIndex = 3;
-            // 
-            // overTexPnl
-            // 
-            this.overTexPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overTexPnl.Location = new System.Drawing.Point(0, 41);
-            this.overTexPnl.Name = "overTexPnl";
-            this.overTexPnl.Size = new System.Drawing.Size(135, 121);
-            this.overTexPnl.TabIndex = 9;
-            this.overTexPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overTexPnl_Paint);
             // 
             // lstTextures
             // 
@@ -506,10 +493,10 @@ namespace System.Windows.Forms
             this.lstTextures.ContextMenuStrip = this.ctxTextures;
             this.lstTextures.Dock = System.Windows.Forms.DockStyle.Fill;
             this.lstTextures.IntegralHeight = false;
-            this.lstTextures.Location = new System.Drawing.Point(0, 41);
+            this.lstTextures.Location = new System.Drawing.Point(0, 46);
             this.lstTextures.Margin = new System.Windows.Forms.Padding(0);
             this.lstTextures.Name = "lstTextures";
-            this.lstTextures.Size = new System.Drawing.Size(135, 121);
+            this.lstTextures.Size = new System.Drawing.Size(170, 116);
             this.lstTextures.TabIndex = 7;
             this.lstTextures.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstTextures_ItemCheck);
             this.lstTextures.SelectedValueChanged += new System.EventHandler(this.lstTextures_SelectedValueChanged);
@@ -522,11 +509,11 @@ namespace System.Windows.Forms
             this.chkAllTextures.Checked = true;
             this.chkAllTextures.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAllTextures.Dock = System.Windows.Forms.DockStyle.Top;
-            this.chkAllTextures.Location = new System.Drawing.Point(0, 21);
+            this.chkAllTextures.Location = new System.Drawing.Point(0, 26);
             this.chkAllTextures.Margin = new System.Windows.Forms.Padding(0);
             this.chkAllTextures.Name = "chkAllTextures";
             this.chkAllTextures.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkAllTextures.Size = new System.Drawing.Size(135, 20);
+            this.chkAllTextures.Size = new System.Drawing.Size(170, 20);
             this.chkAllTextures.TabIndex = 8;
             this.chkAllTextures.Text = "All";
             this.chkAllTextures.UseVisualStyleBackColor = false;
@@ -537,7 +524,7 @@ namespace System.Windows.Forms
             this.btnTextures.Dock = System.Windows.Forms.DockStyle.Top;
             this.btnTextures.Location = new System.Drawing.Point(0, 0);
             this.btnTextures.Name = "btnTextures";
-            this.btnTextures.Size = new System.Drawing.Size(135, 21);
+            this.btnTextures.Size = new System.Drawing.Size(170, 26);
             this.btnTextures.TabIndex = 9;
             this.btnTextures.Text = "Textures";
             this.btnTextures.UseVisualStyleBackColor = true;
@@ -545,6 +532,7 @@ namespace System.Windows.Forms
             // 
             // ctxAnim
             // 
+            this.ctxAnim.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxAnim.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.toolStripMenuItem2,
             this.toolStripSeparator1,
@@ -556,26 +544,26 @@ namespace System.Windows.Forms
             this.deleteToolStripMenuItem,
             this.createNewToolStripMenuItem});
             this.ctxAnim.Name = "ctxAnim";
-            this.ctxAnim.Size = new System.Drawing.Size(195, 186);
+            this.ctxAnim.Size = new System.Drawing.Size(235, 218);
             this.ctxAnim.Opening += new System.ComponentModel.CancelEventHandler(this.ctxAnim_Opening);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Enabled = false;
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(194, 22);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(234, 26);
             this.toolStripMenuItem2.Text = "Source";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(191, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(231, 6);
             // 
             // chkLoop
             // 
             this.chkLoop.CheckOnClick = true;
             this.chkLoop.Name = "chkLoop";
-            this.chkLoop.Size = new System.Drawing.Size(194, 22);
+            this.chkLoop.Size = new System.Drawing.Size(234, 26);
             this.chkLoop.Text = "Loop";
             this.chkLoop.CheckedChanged += new System.EventHandler(this.chkLoop_CheckedChanged);
             // 
@@ -586,7 +574,7 @@ namespace System.Windows.Forms
             this.chkMtxXSI,
             this.chkMtxMax});
             this.matrixModeToolStripMenuItem.Name = "matrixModeToolStripMenuItem";
-            this.matrixModeToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.matrixModeToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
             this.matrixModeToolStripMenuItem.Text = "Matrix Mode";
             this.matrixModeToolStripMenuItem.Visible = false;
             // 
@@ -594,7 +582,7 @@ namespace System.Windows.Forms
             // 
             this.chkMtxMaya.CheckOnClick = true;
             this.chkMtxMaya.Name = "chkMtxMaya";
-            this.chkMtxMaya.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxMaya.Size = new System.Drawing.Size(139, 26);
             this.chkMtxMaya.Text = "Maya";
             this.chkMtxMaya.CheckedChanged += new System.EventHandler(this.chkMtxMaya_CheckedChanged);
             // 
@@ -602,7 +590,7 @@ namespace System.Windows.Forms
             // 
             this.chkMtxXSI.CheckOnClick = true;
             this.chkMtxXSI.Name = "chkMtxXSI";
-            this.chkMtxXSI.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxXSI.Size = new System.Drawing.Size(139, 26);
             this.chkMtxXSI.Text = "XSI";
             this.chkMtxXSI.CheckedChanged += new System.EventHandler(this.chkMtxXSI_CheckedChanged);
             // 
@@ -610,44 +598,53 @@ namespace System.Windows.Forms
             // 
             this.chkMtxMax.CheckOnClick = true;
             this.chkMtxMax.Name = "chkMtxMax";
-            this.chkMtxMax.Size = new System.Drawing.Size(117, 22);
+            this.chkMtxMax.Size = new System.Drawing.Size(139, 26);
             this.chkMtxMax.Text = "3ds Max";
             this.chkMtxMax.CheckedChanged += new System.EventHandler(this.chkMtxMax_CheckedChanged);
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(194, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(234, 26);
             this.toolStripMenuItem3.Text = "Export...";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.exportToolStripMenuItem_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(194, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(234, 26);
             this.toolStripMenuItem4.Text = "Replace...";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.replaceToolStripMenuItem_Click);
             // 
             // renameToolStripMenuItem
             // 
             this.renameToolStripMenuItem.Name = "renameToolStripMenuItem";
-            this.renameToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.renameToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
             this.renameToolStripMenuItem.Text = "Rename";
             this.renameToolStripMenuItem.Click += new System.EventHandler(this.renameToolStripMenuItem_Click);
             // 
             // deleteToolStripMenuItem
             // 
             this.deleteToolStripMenuItem.Name = "deleteToolStripMenuItem";
-            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.deleteToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
             // 
             // createNewToolStripMenuItem
             // 
             this.createNewToolStripMenuItem.Name = "createNewToolStripMenuItem";
-            this.createNewToolStripMenuItem.Size = new System.Drawing.Size(194, 22);
+            this.createNewToolStripMenuItem.Size = new System.Drawing.Size(234, 26);
             this.createNewToolStripMenuItem.Text = "Create New Animation";
             this.createNewToolStripMenuItem.Click += new System.EventHandler(this.createNewToolStripMenuItem_Click);
+            // 
+            // overObjPnl
+            // 
+            this.overObjPnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.overObjPnl.Location = new System.Drawing.Point(0, 66);
+            this.overObjPnl.Name = "overObjPnl";
+            this.overObjPnl.Size = new System.Drawing.Size(170, 45);
+            this.overObjPnl.TabIndex = 8;
+            this.overObjPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overObjPnl_Paint);
             // 
             // spltObjTex
             // 
@@ -655,7 +652,7 @@ namespace System.Windows.Forms
             this.spltObjTex.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.spltObjTex.Location = new System.Drawing.Point(0, 332);
             this.spltObjTex.Name = "spltObjTex";
-            this.spltObjTex.Size = new System.Drawing.Size(137, 4);
+            this.spltObjTex.Size = new System.Drawing.Size(172, 4);
             this.spltObjTex.TabIndex = 4;
             this.spltObjTex.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltObjTex_Dragged);
             // 
@@ -665,9 +662,18 @@ namespace System.Windows.Forms
             this.spltAnimObj.Dock = System.Windows.Forms.DockStyle.Top;
             this.spltAnimObj.Location = new System.Drawing.Point(0, 178);
             this.spltAnimObj.Name = "spltAnimObj";
-            this.spltAnimObj.Size = new System.Drawing.Size(137, 4);
+            this.spltAnimObj.Size = new System.Drawing.Size(172, 4);
             this.spltAnimObj.TabIndex = 1;
             this.spltAnimObj.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltAnimObj_Dragged);
+            // 
+            // overTexPnl
+            // 
+            this.overTexPnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.overTexPnl.Location = new System.Drawing.Point(0, 46);
+            this.overTexPnl.Name = "overTexPnl";
+            this.overTexPnl.Size = new System.Drawing.Size(170, 116);
+            this.overTexPnl.TabIndex = 9;
+            this.overTexPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overTexPnl_Paint);
             // 
             // LeftPanel
             // 
@@ -677,7 +683,7 @@ namespace System.Windows.Forms
             this.Controls.Add(this.pnlAnims);
             this.Controls.Add(this.pnlTextures);
             this.Name = "LeftPanel";
-            this.Size = new System.Drawing.Size(137, 500);
+            this.Size = new System.Drawing.Size(172, 500);
             this.pnlObjects.ResumeLayout(false);
             this.pnlAnims.ResumeLayout(false);
             this.ctxAnimList.ResumeLayout(false);
