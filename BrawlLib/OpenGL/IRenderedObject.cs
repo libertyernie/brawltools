@@ -8,6 +8,7 @@ namespace BrawlLib.OpenGL
     public abstract class DrawCallBase
     {
         public virtual IObject Parent { get { return null; } }
+        public bool _render = true;
 
         public virtual void Render(ModelPanelViewport viewport) { }
 

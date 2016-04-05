@@ -8,6 +8,7 @@ using BrawlLib.OpenGL;
 using System.Drawing;
 using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
+using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -45,7 +46,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public MDL0BoneNode _bbRefNode;
 
         public List<MDL0ObjectNode> _singleBindObjects = new List<MDL0ObjectNode>();
-        public List<MDL0ObjectNode> _visibilityObjects = new List<MDL0ObjectNode>();
+        public List<DrawCall> _visDrawCalls = new List<DrawCall>();
 
         public FrameState _bindState = FrameState.Neutral;
         public Matrix _bindMatrix = Matrix.Identity, _inverseBindMatrix = Matrix.Identity;
@@ -109,8 +110,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Properties
 
-        [Category("Bone"), Description("These objects use this bone to control their visibility.")]
-        public MDL0ObjectNode[] VisibilityObjects { get { return _visibilityObjects.ToArray(); } }
+        [Category("Bone"), Description("These draw calls use this bone to control their visibility.")]
+        public string[] VisibilityDrawCalls { get { return _visDrawCalls.Select(x => x._parentObject.ToString() + " " + x.ToString()).ToArray(); } }
         [Category("Bone"), Description("These objects use this bone as a single-bind influence (the only bone they're rigged to).")]
         public MDL0ObjectNode[] SingleBindObjects { get { return _singleBindObjects.ToArray(); } }
 
@@ -888,12 +889,12 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
 
         public Box GetBox()
         {
-            if (VisibilityObjects.Length == 0)
+            if (_visDrawCalls.Count == 0)
                 return new Box();
 
             Box box = Box.ExpandableVolume;
-            foreach (MDL0ObjectNode o in VisibilityObjects)
-                box.ExpandVolume(o.GetBox());
+            foreach (DrawCall o in _visDrawCalls)
+                box.ExpandVolume(o._parentObject.GetBox());
 
             return box;
         }

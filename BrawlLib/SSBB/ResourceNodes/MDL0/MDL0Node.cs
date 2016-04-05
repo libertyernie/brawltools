@@ -1141,43 +1141,42 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _linker = new ModelLinker(Header) { Model = this };
                 _assets = new AssetStorage(_linker);
 
-                if (_version >= 9 && _version <= 11)
+                //Set def flags
+                _hasMix = _hasOpa = _hasTree = _hasXlu = false;
+                if (_linker.Defs != null)
+                    foreach (ResourcePair p in *_linker.Defs)
+                        if (p.Name == "NodeTree") _hasTree = true;
+                        else if (p.Name == "NodeMix") _hasMix = true;
+                        else if (p.Name == "DrawOpa") _hasOpa = true;
+                        else if (p.Name == "DrawXlu") _hasXlu = true;
+
+                //These cause some complications if not parsed...
+                _texGroup.Parse(this);
+                _pltGroup.Parse(this);
+
+                _defGroup.Parse(this);
+                _boneGroup.Parse(this);
+                _matGroup.Parse(this);
+                _shadGroup.Parse(this);
+                _vertGroup.Parse(this);
+                _normGroup.Parse(this);
+                _uvGroup.Parse(this);
+                _colorGroup.Parse(this);
+
+                if (Version >= 10)
                 {
-                    //Set def flags
-                    _hasMix = _hasOpa = _hasTree = _hasXlu = false;
-                    if (_linker.Defs != null)
-                        foreach (ResourcePair p in *_linker.Defs)
-                            if (p.Name == "NodeTree") _hasTree = true;
-                            else if (p.Name == "NodeMix") _hasMix = true;
-                            else if (p.Name == "DrawOpa") _hasOpa = true;
-                            else if (p.Name == "DrawXlu") _hasXlu = true;
-
-                    //These cause some complications if not parsed...
-                    _texGroup.Parse(this);
-                    _pltGroup.Parse(this);
-
-                    _defGroup.Parse(this);
-                    _boneGroup.Parse(this);
-                    _matGroup.Parse(this);
-                    _shadGroup.Parse(this);
-                    _vertGroup.Parse(this);
-                    _normGroup.Parse(this);
-                    _uvGroup.Parse(this);
-                    _colorGroup.Parse(this);
-
-                    if (Version >= 10)
-                    {
-                        _furVecGroup.Parse(this);
-                        _furPosGroup.Parse(this);
-                    }
-
-                    _objGroup.Parse(this); //Parse objects last!
-
-                    _texList.Sort();
-                    _pltList.Sort();
+                    _furVecGroup.Parse(this);
+                    _furPosGroup.Parse(this);
                 }
-                else if (!Properties.Settings.Default.HideMDL0Errors)
-                    MessageBox.Show("The model " + _name + " has a version of " + _version.ToString() + " which is not supported. The model may be corrupt. The original data cannot be edited but will be retained as long as you do not change the model node in any way.");
+
+                _objGroup.Parse(this); //Parse objects last!
+
+                _texList.Sort();
+                _pltList.Sort();
+            }
+            catch (Exception ex)
+            {
+                _errors.Add("Something went wrong parsing the model: " + ex.ToString());
             }
             finally //Clean up!
             {
@@ -1193,11 +1192,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Check for model errors
                 if (_errors.Count > 0)
                 {
-                    string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
-                    foreach (string s in _errors)
-                        message += "\n - " + s;
-					if (!Properties.Settings.Default.HideMDL0Errors) 
-                        MessageBox.Show(message);
+                    if (!SupportedVersions.Contains(_version))
+                        MessageBox.Show("The model " + _name + " has a version of " + _version.ToString() + " which is not supported. The model may be corrupt and data maybe be lost if you save the model.");
+                    else
+                    {
+                        string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
+                        foreach (string s in _errors)
+                            message += "\n - " + s;
+                        if (!Properties.Settings.Default.HideMDL0Errors)
+                            MessageBox.Show(message);
+                        SignalPropertyChange();
+                    }
                 }
             }
         }
@@ -1453,8 +1458,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Browsable(false)]
-        public bool IsRendering { get { return _render; } set { _render = value; } }
-        bool _render = true;
+        public bool IsRendering
+        {
+            get { return DrawCalls.Where(x => x._render).Count() > 0; }
+            set { foreach (DrawCallBase b in DrawCalls) b._render = value; }
+        }
 
         [Browsable(false)]
         public bool IsTargetModel { get { return _isTargetModel; } set { _isTargetModel = value; } }

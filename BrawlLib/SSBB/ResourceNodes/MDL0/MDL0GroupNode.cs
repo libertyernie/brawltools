@@ -277,16 +277,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
 
                 if (nullCount > 0)
-                {
                     model._errors.Add("There were " + nullCount + " null weights in NodeMix.");
-                    SignalPropertyChange();
-                }
-
+                
                 if (nodeTreeError)
-                {
                     model._errors.Add("The NodeTree definition did not match the bone tree.");
-                    SignalPropertyChange();
-                }
             }
             else if (_type == MDLResourceType.Objects)
             {
@@ -312,7 +306,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                             if (objectIndex >= _children.Count || objectIndex < 0)
                             {
                                 model._errors.Add("Object index was greater than the actual object count.");
-                                SignalPropertyChange();
                                 objectIndex = 0;
                             }
                             obj = _children[objectIndex] as MDL0ObjectNode;
@@ -359,11 +352,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 hasUnused = true;
                             }
                     if (hasUnused)
-                    {
                         ((MDL0Node)Parent)._errors.Add("Object " + m.Index + " has unused texture matrices.");
-                        m.SignalPropertyChange();
-                    }
-
+                    
                     //This error doesn't seem to always be true for factory models...
                     //if (m.HasTexMtx && m.HasNonFloatVertices)
                     //{

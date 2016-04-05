@@ -598,17 +598,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (header->_totalLength % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper data length.");
-                SignalPropertyChange(); _forceRebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
             }
             if ((int)(0x24 + header->_primitives._offset) % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper primitives start offset.");
-                SignalPropertyChange(); _forceRebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
             }
             if (CheckVertexFormat())
             {
                 Model._errors.Add("Object " + Index + " has a facepoint descriptor that does not match its linked nodes.");
-                SignalPropertyChange(); _forceRebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
 
                 for (int i = 0; i < 2; i++)
                     if (_colorSet[i] != null && _manager._faceData[i + 2] == null)
@@ -1504,7 +1507,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override IObject Parent { get { return _parentObject; } }
 
         public MDL0ObjectNode _parentObject;
-        public bool _render;
 
         public override string ToString()
         {
@@ -1600,12 +1602,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_visBoneNode == value)
                     return;
-                if (_visBoneNode != null && _visBoneNode._visibilityObjects.Contains(_parentObject))
-                    _visBoneNode._visibilityObjects.Remove(_parentObject);
+                if (_visBoneNode != null && _visBoneNode._visDrawCalls.Contains(this))
+                    _visBoneNode._visDrawCalls.Remove(this);
                 if ((_visBoneNode = value) != null)
                 {
-                    if (!_visBoneNode._visibilityObjects.Contains(_parentObject))
-                        _visBoneNode._visibilityObjects.Add(_parentObject);
+                    if (!_visBoneNode._visDrawCalls.Contains(this))
+                        _visBoneNode._visDrawCalls.Add(this);
                     _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
                 }
             }
