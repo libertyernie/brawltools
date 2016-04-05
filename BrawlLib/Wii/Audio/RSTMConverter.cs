@@ -162,7 +162,7 @@ namespace BrawlLib.Wii.Audio
 
             //Calculate coefs
             for (int i = 0; i < channels; i++)
-                AudioConverter.CalcCoefs(channelBuffers[i] + 2, totalSamples, (short*)pAdpcm[i], progress);
+                AudioConverter.DSPCorrelateCoefs(channelBuffers[i] + 2, totalSamples, (short*)pAdpcm[i], progress);
 
             //Encode blocks
             byte* dPtr = (byte*)data->Data;

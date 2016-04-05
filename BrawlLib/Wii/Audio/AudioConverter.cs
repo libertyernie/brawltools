@@ -27,7 +27,279 @@ namespace BrawlLib.Wii.Audio
             }
         }
 
-        public static void CalcCoefs(short* source, int samples, short* coefsOut, IProgressTracker progress)
+        static void InnerProductMerge(ref tvec vecOut, short* pcmBuf)
+        {
+            for (int i = 0; i <= 2; i++)
+            {
+                vecOut[i] = 0.0f;
+                for (int x = 0; x < 14; x++)
+                    vecOut[i] -= pcmBuf[x - i] * pcmBuf[x];
+            }
+        }
+
+        static void OuterProductMerge(tvec* mtxOut, short* pcmBuf)
+        {
+            for (int x = 1; x <= 2; x++)
+                for (int y = 1; y <= 2; y++)
+                {
+                    mtxOut[x][y] = 0.0;
+                    for (int z = 0; z < 14; z++)
+                        mtxOut[x][y] += pcmBuf[z - x] * pcmBuf[z - y];
+                }
+        }
+
+        static bool AnalyzeRanges(tvec* mtx, int* vecIdxsOut)
+        {
+            double* recips = stackalloc double[3];
+            double val, tmp, min, max;
+
+            /* Get greatest distance from zero */
+            for (int x = 1; x <= 2; x++)
+            {
+                val = Math.Max(Math.Abs(mtx[x][1]), Math.Abs(mtx[x][2]));
+                if (val < Double.Epsilon)
+                    return true;
+
+                recips[x] = 1.0 / val;
+            }
+
+            int maxIndex = 0;
+            for (int i = 1; i <= 2; i++)
+            {
+                for (int x = 1; x < i; x++)
+                {
+                    tmp = mtx[x][i];
+                    for (int y = 1; y < x; y++)
+                        tmp -= mtx[x][y] * mtx[y][i];
+                    mtx[x][i] = tmp;
+                }
+
+                val = 0.0;
+                for (int x = i; x <= 2; x++)
+                {
+                    tmp = mtx[x][i];
+                    for (int y = 1; y < i; y++)
+                        tmp -= mtx[x][y] * mtx[y][i];
+
+                    mtx[x][i] = tmp;
+                    tmp = Math.Abs(tmp) * recips[x];
+                    if (tmp >= val)
+                    {
+                        val = tmp;
+                        maxIndex = x;
+                    }
+                }
+
+                if (maxIndex == i)
+                {
+                    for (int y = 1; y <= 2; y++)
+                    {
+                        tmp = mtx[maxIndex][y];
+                        mtx[maxIndex][y] = mtx[i][y];
+                        mtx[i][y] = tmp;
+                    }
+                    recips[maxIndex] = recips[i];
+                }
+
+                vecIdxsOut[i] = maxIndex;
+
+                if (mtx[i][i] == 0.0)
+                    return true;
+
+                if (i != 2)
+                {
+                    tmp = 1.0 / mtx[i][i];
+                    for (int x = i + 1; x <= 2; x++)
+                        mtx[x][i] *= tmp;
+                }
+            }
+
+            //Get range
+            min = 1.0e10;
+            max = 0.0;
+            for (int i = 1; i <= 2; i++)
+            {
+                tmp = Math.Abs(mtx[i][i]);
+                if (tmp < min)
+                    min = tmp;
+                if (tmp > max)
+                    max = tmp;
+            }
+
+            if (min / max < 1.0e-10)
+                return true;
+
+            return false;
+        }
+
+        static void BidirectionalFilter(tvec* mtx, int* vecIdxs, ref tvec vecOut)
+        {
+            double tmp;
+
+            for (int i = 1, x = 0; i <= 2; i++)
+            {
+                int index = vecIdxs[i];
+                tmp = vecOut[index];
+                vecOut[index] = vecOut[i];
+                if (x != 0)
+                    for (int y = x; y <= i - 1; y++)
+                        tmp -= vecOut[y] * mtx[i][y];
+                else if (tmp != 0.0)
+                    x = i;
+                vecOut[i] = tmp;
+            }
+
+            for (int i = 2; i > 0; i--)
+            {
+                tmp = vecOut[i];
+                for (int y = i + 1; y <= 2; y++)
+                    tmp -= vecOut[y] * mtx[i][y];
+                vecOut[i] = tmp / mtx[i][i];
+            }
+
+            vecOut[0] = 1.0;
+        }
+
+        static bool QuadraticMerge(ref tvec inOutVec)
+        {
+            double v0, v1, v2 = inOutVec[2];
+            double tmp = 1.0 - (v2 * v2);
+
+            if (tmp == 0.0)
+                return true;
+
+            v0 = (inOutVec[0] - (v2 * v2)) / tmp;
+            v1 = (inOutVec[1] - (inOutVec[1] * v2)) / tmp;
+
+            inOutVec[0] = v0;
+            inOutVec[1] = v1;
+
+            return Math.Abs(v1) > 1.0;
+        }
+
+        static void FinishRecord(tvec inp, ref tvec outp)
+        {
+            for (int z = 1; z <= 2; z++)
+            {
+                if (inp[z] >= 1.0)
+                    inp[z] = 0.9999999999;
+                else if (inp[z] <= -1.0)
+                    inp[z] = -0.9999999999;
+            }
+            outp[0] = 1.0;
+            outp[1] = (inp[2] * inp[1]) + inp[1];
+            outp[2] = inp[2];
+        }
+
+        static void MatrixFilter(tvec src, ref tvec dst)
+        {
+            tvec* mtx = stackalloc tvec[3];
+
+            mtx[2][0] = 1.0;
+            for (int i = 1; i <= 2; i++)
+                mtx[2][i] = -src[i];
+
+            for (int i = 2; i > 0; i--)
+            {
+                double val = 1.0 - (mtx[i][i] * mtx[i][i]);
+                for (int y = 1; y <= i; y++)
+                    mtx[i - 1][y] = ((mtx[i][i] * mtx[i][y]) + mtx[i][y]) / val;
+            }
+
+            dst[0] = 1.0;
+            for (int i = 1; i <= 2; i++)
+            {
+                dst[i] = 0.0;
+                for (int y = 1; y <= i; y++)
+                    dst[i] += mtx[i][y] * dst[i - y];
+            }
+        }
+
+        static void MergeFinishRecord(tvec src, ref tvec dst)
+        {
+            tvec tmp;
+            double val = src[0];
+
+            dst[0] = 1.0;
+            for (int i = 1; i <= 2; i++)
+            {
+                double v2 = 0.0;
+                for (int y = 1; y < i; y++)
+                    v2 += dst[y] * src[i - y];
+
+                if (val > 0.0)
+                    dst[i] = -(v2 + src[i]) / val;
+                else
+                    dst[i] = 0.0;
+
+                tmp[i] = dst[i];
+
+                for (int y = 1; y < i; y++)
+                    dst[y] += dst[i] * dst[i - y];
+
+                val *= 1.0 - (dst[i] * dst[i]);
+            }
+
+            FinishRecord(tmp, ref dst);
+        }
+
+        static double ContrastVectors(tvec source1, tvec source2)
+        {
+            double val = (source2[2] * source2[1] + -source2[1]) / (1.0 - source2[2] * source2[2]);
+            double val1 = (source1[0] * source1[0]) + (source1[1] * source1[1]) + (source1[2] * source1[2]);
+            double val2 = (source1[0] * source1[1]) + (source1[1] * source1[2]);
+            double val3 = source1[0] * source1[2];
+            return val1 + (2.0 * val * val2) + (2.0 * (-source2[1] * val + -source2[2]) * val3);
+        }
+
+        static void FilterRecords(tvec* vecBest, int exp, tvec* records, int recordCount)
+        {
+            tvec* bufferList = stackalloc tvec[8];
+
+            int* buffer1 = stackalloc int[8];
+            tvec buffer2;
+
+            int index;
+            double value, tempVal = 0;
+
+            for (int x = 0; x < 2; x++)
+            {
+                for (int y = 0; y < exp; y++)
+                {
+                    buffer1[y] = 0;
+                    for (int i = 0; i <= 2; i++)
+                        bufferList[y][i] = 0.0;
+                }
+                for (int z = 0; z < recordCount; z++)
+                {
+                    index = 0;
+                    value = 1.0e30;
+                    for (int i = 0; i < exp; i++)
+                    {
+                        tempVal = ContrastVectors(vecBest[i], records[z]);
+                        if (tempVal < value)
+                        {
+                            value = tempVal;
+                            index = i;
+                        }
+                    }
+                    buffer1[index]++;
+                    MatrixFilter(records[z], ref buffer2);
+                    for (int i = 0; i <= 2; i++)
+                        bufferList[index][i] += buffer2[i];
+                }
+
+                for (int i = 0; i < exp; i++)
+                    if (buffer1[i] > 0)
+                        for (int y = 0; y <= 2; y++)
+                            bufferList[i][y] /= buffer1[i];
+
+                for (int i = 0; i < exp; i++)
+                    MergeFinishRecord(bufferList[i], ref vecBest[i]);
+            }
+        }
+
+        public static void DSPCorrelateCoefs(short* source, int samples, short* coefsOut, IProgressTracker progress)
         {
             int numFrames = (samples + 13) / 14;
             int frameSamples;
@@ -304,278 +576,6 @@ namespace BrawlLib.Wii.Audio
                 *adpcmOut++ = (byte)((p2[0] << 4) | (p2[1] & 0xF));
                 p2 += 2;
             }
-        }
-
-        static void FilterRecords(tvec* vecBest, int exp, tvec* records, int recordCount)
-        {
-            tvec* bufferList = stackalloc tvec[8];
-
-            int* buffer1 = stackalloc int[8];
-            tvec buffer2;
-
-            int index;
-            double value, tempVal = 0;
-
-            for (int x = 0; x < 2; x++)
-            {
-                for (int y = 0; y < exp; y++)
-                {
-                    buffer1[y] = 0;
-                    for (int i = 0; i <= 2; i++)
-                        bufferList[y][i] = 0.0;
-                }
-                for (int z = 0; z < recordCount; z++)
-                {
-                    index = 0;
-                    value = 1.0e30;
-                    for (int i = 0; i < exp; i++)
-                    {
-                        tempVal = ContrastVectors(vecBest[i], records[z]);
-                        if (tempVal < value)
-                        {
-                            value = tempVal;
-                            index = i;
-                        }
-                    }
-                    buffer1[index]++;
-                    MatrixFilter(records[z], ref buffer2);
-                    for (int i = 0; i <= 2; i++)
-                        bufferList[index][i] += buffer2[i];
-                }
-
-                for (int i = 0; i < exp; i++)
-                    if (buffer1[i] > 0)
-                        for (int y = 0; y <= 2; y++)
-                            bufferList[i][y] /= buffer1[i];
-
-                for (int i = 0; i < exp; i++)
-                    MergeFinishRecord(bufferList[i], ref vecBest[i]);
-            }
-        }
-
-        static double ContrastVectors(tvec source1, tvec source2)
-        {
-            double val = (source2[2] * source2[1] + -source2[1]) / (1.0 - source2[2] * source2[2]);
-            double val1 = (source1[0] * source1[0]) + (source1[1] * source1[1]) + (source1[2] * source1[2]);
-            double val2 = (source1[0] * source1[1]) + (source1[1] * source1[2]);
-            double val3 = source1[0] * source1[2];
-            return val1 + (2.0 * val * val2) + (2.0 * (-source2[1] * val + -source2[2]) * val3);
-        }
-
-        static void FinishRecord(tvec inp, ref tvec outp)
-        {
-            for (int z = 1; z <= 2; z++)
-            {
-                if (inp[z] >= 1.0)
-                    inp[z] = 0.9999999999;
-                else if (inp[z] <= -1.0)
-                    inp[z] = -0.9999999999;
-            }
-            outp[0] = 1.0;
-            outp[1] = (inp[2] * inp[1]) + inp[1];
-            outp[2] = inp[2];
-        }
-
-        static void MergeFinishRecord(tvec src, ref tvec dst)
-        {
-            tvec tmp;
-            double val = src[0];
-
-            dst[0] = 1.0;
-            for (int i = 1; i <= 2; i++)
-            {
-                double v2 = 0.0;
-                for (int y = 1; y < i; y++)
-                    v2 += dst[y] * src[i - y];
-
-                if (val > 0.0)
-                    dst[i] = -(v2 + src[i]) / val;
-                else
-                    dst[i] = 0.0;
-
-                tmp[i] = dst[i];
-
-                for (int y = 1; y < i; y++)
-                    dst[y] += dst[i] * dst[i - y];
-
-                val *= 1.0 - (dst[i] * dst[i]);
-            }
-
-            FinishRecord(tmp, ref dst);
-        }
-
-        static void MatrixFilter(tvec src, ref tvec dst)
-        {
-            tvec* mtx = stackalloc tvec[3];
-
-            mtx[2][0] = 1.0;
-            for (int i = 1; i <= 2; i++)
-                mtx[2][i] = -src[i];
-
-            for (int i = 2; i > 0; i--)
-            {
-                double val = 1.0 - (mtx[i][i] * mtx[i][i]);
-                for (int y = 1; y <= i; y++)
-                    mtx[i - 1][y] = ((mtx[i][i] * mtx[i][y]) + mtx[i][y]) / val;
-            }
-
-            dst[0] = 1.0;
-            for (int i = 1; i <= 2; i++)
-            {
-                dst[i] = 0.0;
-                for (int y = 1; y <= i; y++)
-                    dst[i] += mtx[i][y] * dst[i - y];
-            }
-        }
-
-        static void InnerProductMerge(ref tvec vecOut, short* pcmBuf)
-        {
-            for (int i = 0; i <= 2; i++)
-            {
-                vecOut[i] = 0.0f;
-                for (int x = 0; x < 14; x++)
-                    vecOut[i] -= pcmBuf[x - i] * pcmBuf[x];
-            }
-        }
-
-        static void OuterProductMerge(tvec* mtxOut, short* pcmBuf)
-        {
-            for (int x = 1; x <= 2; x++)
-                for (int y = 1; y <= 2; y++)
-                {
-                    mtxOut[x][y] = 0.0;
-                    for (int z = 0; z < 14; z++)
-                        mtxOut[x][y] += pcmBuf[z - x] * pcmBuf[z - y];
-                }
-        }
-
-        static bool AnalyzeRanges(tvec* mtx, int* vecIdxsOut)
-        {
-            double* recips = stackalloc double[3];
-            double val, tmp, min, max;
-
-            /* Get greatest distance from zero */
-            for (int x = 1; x <= 2; x++)
-            {
-                val = Math.Max(Math.Abs(mtx[x][1]), Math.Abs(mtx[x][2]));
-                if (val < Double.Epsilon)
-                    return true;
-
-                recips[x] = 1.0 / val;
-            }
-
-            int maxIndex = 0;
-            for (int i = 1; i <= 2; i++)
-            {
-                for (int x = 1; x < i; x++)
-                {
-                    tmp = mtx[x][i];
-                    for (int y = 1; y < x; y++)
-                        tmp -= mtx[x][y] * mtx[y][i];
-                    mtx[x][i] = tmp;
-                }
-
-                val = 0.0;
-                for (int x = i; x <= 2; x++)
-                {
-                    tmp = mtx[x][i];
-                    for (int y = 1; y < i; y++)
-                        tmp -= mtx[x][y] * mtx[y][i];
-
-                    mtx[x][i] = tmp;
-                    tmp = Math.Abs(tmp) * recips[x];
-                    if (tmp >= val)
-                    {
-                        val = tmp;
-                        maxIndex = x;
-                    }
-                }
-
-                if (maxIndex == i)
-                {
-                    for (int y = 1; y <= 2; y++)
-                    {
-                        tmp = mtx[maxIndex][y];
-                        mtx[maxIndex][y] = mtx[i][y];
-                        mtx[i][y] = tmp;
-                    }
-                    recips[maxIndex] = recips[i];
-                }
-
-                vecIdxsOut[i] = maxIndex;
-
-                if (mtx[i][i] == 0.0)
-                    return true;
-
-                if (i != 2)
-                {
-                    tmp = 1.0 / mtx[i][i];
-                    for (int x = i + 1; x <= 2; x++)
-                        mtx[x][i] *= tmp;
-                }
-            }
-
-            //Get range
-            min = 1.0e10;
-            max = 0.0;
-            for (int i = 1; i <= 2; i++)
-            {
-                tmp = Math.Abs(mtx[i][i]);
-                if (tmp < min)
-                    min = tmp;
-                if (tmp > max)
-                    max = tmp;
-            }
-
-            if (min / max < 1.0e-10)
-                return true;
-
-            return false;
-        }
-
-        static void BidirectionalFilter(tvec* mtx, int* vecIdxs, ref tvec vecOut)
-        {
-            double tmp;
-
-            for (int i = 1, x = 0; i <= 2; i++)
-            {
-                int index = vecIdxs[i];
-                tmp = vecOut[index];
-                vecOut[index] = vecOut[i];
-                if (x != 0)
-                    for (int y = x; y <= i - 1; y++)
-                        tmp -= vecOut[y] * mtx[i][y];
-                else if (tmp != 0.0)
-                    x = i;
-                vecOut[i] = tmp;
-            }
-
-            for (int i = 2; i > 0; i--)
-            {
-                tmp = vecOut[i];
-                for (int y = i + 1; y <= 2; y++)
-                    tmp -= vecOut[y] * mtx[i][y];
-                vecOut[i] = tmp / mtx[i][i];
-            }
-
-            vecOut[0] = 1.0;
-        }
-
-        static bool QuadraticMerge(ref tvec inOutVec)
-        {
-            double v0, v1, v2 = inOutVec[2];
-            double tmp = 1.0 - (v2 * v2);
-
-            if (tmp == 0.0)
-                return true;
-
-            v0 = (inOutVec[0] - (v2 * v2)) / tmp;
-            v1 = (inOutVec[1] - (inOutVec[1] * v2)) / tmp;
-
-            inOutVec[0] = v0;
-            inOutVec[1] = v1;
-
-            return Math.Abs(v1) > 1.0;
         }
     }
 }
