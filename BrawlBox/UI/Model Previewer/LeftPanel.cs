@@ -1507,7 +1507,7 @@ namespace System.Windows.Forms
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0Export; break;
                 case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
@@ -1527,7 +1527,7 @@ namespace System.Windows.Forms
 
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0Import; break;
                 case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;

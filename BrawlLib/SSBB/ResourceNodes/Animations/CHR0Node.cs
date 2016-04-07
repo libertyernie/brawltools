@@ -148,17 +148,24 @@ namespace BrawlLib.SSBB.ResourceNodes
             //string ext = Path.GetExtension(path);
             if (path.EndsWith(".chr0", StringComparison.OrdinalIgnoreCase))
                 return NodeFactory.FromFile(null, path) as CHR0Node;
-            if (path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-                return CHR0TextImporter.Convert(path);
-            if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
-                return CHR0JsonImporter.Convert(path);
-            if (path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
-                return AnimFormat.Read(path);
-            //if (path.EndsWith(".bvh", StringComparison.OrdinalIgnoreCase))
-            //    return BVH.Import(path);
-            //if (path.EndsWith(".vmd", StringComparison.OrdinalIgnoreCase))
-            //    return PMDModel.ImportVMD(path);
 
+            try
+            {
+                if (path.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
+                    return AnimFormat.Read(path);
+                if (path.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
+                    return CHR0TextImporter.Convert(path);
+                if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    return CHR0JsonImporter.Convert(path);
+                //if (path.EndsWith(".bvh", StringComparison.OrdinalIgnoreCase))
+                //    return BVH.Import(path);
+                //if (path.EndsWith(".vmd", StringComparison.OrdinalIgnoreCase))
+                //    return PMDModel.ImportVMD(path);
+            }
+            catch (System.Runtime.Serialization.SerializationException e)
+            {
+                MessageBox.Show("There was a problem importing the model animation.\n\nError:\n" + e.Message);
+            }
             throw new NotSupportedException("The file extension specified is not of a supported animation type.");
         }
 

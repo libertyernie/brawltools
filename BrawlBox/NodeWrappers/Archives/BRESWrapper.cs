@@ -5,7 +5,6 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
 
 namespace BrawlBox
 {
@@ -165,21 +164,14 @@ namespace BrawlBox
         public void ImportChr()
         {
             string path;
-            if (Program.OpenFile(FileFilters.CHR0 + "|Raw Text (*.txt)|*.txt|JSON (*.json)|*.json", out path) > 0)
+            if (Program.OpenFile(FileFilters.CHR0Import, out path) > 0)
             {
-                try
-                {
-                    CHR0Node node = CHR0Node.FromFile(path);
-                    ((BRRESNode)_resource).GetOrCreateFolder<CHR0Node>().AddChild(node);
+                CHR0Node node = CHR0Node.FromFile(path);
+                ((BRRESNode)_resource).GetOrCreateFolder<CHR0Node>().AddChild(node);
 
-                    BaseWrapper w = this.FindResource(node, true);
-                    w.EnsureVisible();
-                    w.TreeView.SelectedNode = w;
-                }
-                catch (SerializationException e)
-                {
-                    MessageBox.Show("There was a problem importing the model animation.\n\nError:\n" + e.Message);
-                }
+                BaseWrapper w = this.FindResource(node, true);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
             }
         }
 

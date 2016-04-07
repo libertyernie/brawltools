@@ -14,7 +14,9 @@ namespace BrawlLib
             SupportedFilesHandler.GetCompleteFilter("png", "tga", "tif", "bmp", "jpg", "gif", "tex0");
         public static string PLT0 =
             SupportedFilesHandler.GetCompleteFilter("plt0");
-        public static string CHR0 = 
+        public static string CHR0Import = 
+            SupportedFilesHandler.GetCompleteFilter("chr0", "anim", "txt", "json");
+        public static string CHR0Export =
             SupportedFilesHandler.GetCompleteFilter("chr0", "anim");
         public static string CLR0 =
             SupportedFilesHandler.GetCompleteFilter("clr0");
