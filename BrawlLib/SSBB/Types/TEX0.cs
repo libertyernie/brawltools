@@ -39,7 +39,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
         public VoidPtr PixelData { get { return (VoidPtr)Address + _headerLen; } }
-        public int PixelDataLength { get { return _header._size - Size; } }
+        public int PixelDataLength { get { return _header._size - _headerLen; } }
         public WiiPixelFormat PixelFormat
         {
             get { return (WiiPixelFormat)(int)_pixelFormat; }
@@ -51,14 +51,15 @@ namespace BrawlLib.SSBBTypes
             set { _hasPalette = (value) ? 1 : 0; }
         }
 
-        public TEX0v1(int width, int height, WiiPixelFormat format, int mipLevels)
+        public TEX0v1(int width, int height, WiiPixelFormat format, int mipLevels) : this(width, height, format, mipLevels, Size) { }
+        public TEX0v1(int width, int height, WiiPixelFormat format, int mipLevels, int headerLen)
         {
             _header._tag = Tag;
-            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + Size;
+            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + headerLen;
             _header._version = 1;
             _header._bresOffset = 0;
 
-            _headerLen = Size;
+            _headerLen = headerLen;
             _stringOffset = 0;
             _hasPalette = ((format == WiiPixelFormat.CI4) || (format == WiiPixelFormat.CI8)) ? 1 : 0;
             _width = (short)width;
@@ -105,7 +106,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
         public VoidPtr PixelData { get { return (VoidPtr)Address + _headerLen; } }
-        public int PixelDataLength { get { return _header._size - Size; } }
+        public int PixelDataLength { get { return _header._size - _headerLen; } }
         public WiiPixelFormat PixelFormat
         {
             get { return (WiiPixelFormat)(int)_pixelFormat; }
@@ -117,14 +118,15 @@ namespace BrawlLib.SSBBTypes
             set { _hasPalette = (value) ? 1 : 0; }
         }
 
-        public TEX0v2(int width, int height, WiiPixelFormat format, int mipLevels)
+        public TEX0v2(int width, int height, WiiPixelFormat format, int mipLevels) : this(width, height, format, mipLevels, Size) { }
+        public TEX0v2(int width, int height, WiiPixelFormat format, int mipLevels, int headerLen)
         {
             _header._tag = Tag;
-            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + Size;
+            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + headerLen;
             _header._version = 1;
             _header._bresOffset = 0;
 
-            _headerLen = Size;
+            _headerLen = headerLen;
             _stringOffset = 0;
             _hasPalette = ((format == WiiPixelFormat.CI4) || (format == WiiPixelFormat.CI8)) ? 1 : 0;
             _width = (short)width;
@@ -180,7 +182,7 @@ namespace BrawlLib.SSBBTypes
             set { _stringOffset = (int)value - (int)Address; }
         }
         public VoidPtr PixelData { get { return (VoidPtr)Address + _headerLen; } }
-        public int PixelDataLength { get { return _header._size - Size; } }
+        public int PixelDataLength { get { return _header._size - _headerLen; } }
         public WiiPixelFormat PixelFormat
         {
             get { return (WiiPixelFormat)(int)_pixelFormat; }
@@ -192,14 +194,14 @@ namespace BrawlLib.SSBBTypes
             set { _hasPalette = (value) ? 1 : 0; }
         }
 
-        public TEX0v3(int width, int height, WiiPixelFormat format, int mipLevels)
+        public TEX0v3(int width, int height, WiiPixelFormat format, int mipLevels, int headerLen)
         {
             _header._tag = Tag;
-            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + Size;
+            _header._size = TextureConverter.Get(format).GetMipOffset(width, height, mipLevels + 1) + headerLen;
             _header._version = 3;
             _header._bresOffset = 0;
 
-            _headerLen = Size;
+            _headerLen = headerLen;
             _stringOffset = 0;
             _hasPalette = ((format == WiiPixelFormat.CI4) || (format == WiiPixelFormat.CI8)) ? 1 : 0;
             _width = (short)width;
