@@ -70,8 +70,9 @@ namespace BrawlBox
                         Resources.GBLK,
                         Resources.GMPS,
                         Resources.Redirect,
-                        Resources.REL,//50
-                        Resources.BGMG,
+                        Resources.REL,
+                        Resources.BGMG,//50
+                        Resources.SharedTEX0,
                     });
                 }
                 return _imgList;

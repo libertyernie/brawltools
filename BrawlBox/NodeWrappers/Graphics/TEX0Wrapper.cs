@@ -7,6 +7,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.TEX0)]
+    [NodeWrapper(ResourceType.SharedTEX0)]
     class TEX0Wrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
@@ -64,6 +65,11 @@ namespace BrawlBox.NodeWrappers
                 dlg.LoadImages((ResourceNode as TEX0Node).GetImage(0));
                 dlg.ShowDialog(MainForm.Instance, ResourceNode as TEX0Node);
             }
+        }
+
+        internal protected override void OnPropertyChanged(ResourceNode node)
+        {
+            RefreshView(node);
         }
     }
 }

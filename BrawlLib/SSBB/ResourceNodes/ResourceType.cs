@@ -70,6 +70,7 @@
 
         //NW4R
         TEX0 = 0x2005,
+        SharedTEX0 = 0x2033,
         PLT0 = 0x2106,
 
         MDL0 = 0x2207,

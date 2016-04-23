@@ -437,6 +437,7 @@
   <ItemGroup>
     <Content Include="Brawlbox.ico" />
     <Content Include="OpenTK.dll" />
+    <None Include="Resources\SharedTEX0.png" />
     <None Include="Resources\BGMG.png" />
     <None Include="Resources\REL.png" />
     <None Include="Resources\Redirect.png" />

@@ -1079,6 +1079,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 #endregion
 
+        public ResourceNode NextSibling()
+        {
+            if (_parent == null)
+                return null;
+            int siblingIndex = Index + 1;
+            if (siblingIndex >= Parent.Children.Count)
+                return null;
+
+            return Parent.Children[siblingIndex];
+        }
+
         public override string ToString()
         {
             return Name;
