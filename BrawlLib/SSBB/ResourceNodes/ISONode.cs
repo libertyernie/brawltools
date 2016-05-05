@@ -311,6 +311,8 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         //ISOs are too big for file mapping,
         //so we need to use some special functions to get data from the base stream.
+        //NOTE: some ISOs are too big even for streams (file size bigger than long.MaxValue)
+        //Need to split data into stream chunks
 
         public long _rootOffset;
 

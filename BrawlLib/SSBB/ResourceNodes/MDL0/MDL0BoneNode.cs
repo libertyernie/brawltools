@@ -259,7 +259,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         }
 
         [Category("Bone"), TypeConverter(typeof(DropDownListBones))]
-        public string BillboardRefNode
+        public string BillboardRefBone
         {
             get { return _bbRefNode == null ? String.Empty : _bbRefNode.Name; }
             set
