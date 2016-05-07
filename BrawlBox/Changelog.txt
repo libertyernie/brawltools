@@ -1,6 +1,6 @@
 ﻿
-BrawlBox Data Viewer - Version 0.76b
-Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
+BrawlBox Data Viewer - Version 0.77
+Copyright © 2009 - 2016 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -13,6 +13,27 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.77 - BrawlLib v0.24
+ . Added support for adding, replacing, removing and renaming RSAR entries and folders
+ . Added support for adding, replacing and removing files from the RSAR and all types of entries in RSAR files
+ . Added support for sharing TEX0 image data to reduce repetitive file space use
+ . Added support for opening and creating BCSTM and BFSTM audio streams
+ . Added support for importing JSON animations as CHR0
+ . Added support for editing Brawl's All-Star and Classic Mode data in Common2
+ . Added support for viewing PAT0 texture swap animations as video
+ . Added support for exporting and replacing SHP0 and CLR0 entries
+ . Added support for importing loop data from looped wav files for creating BRSTM files
+ . Added support for certain BCSTM and BFSTM file formats
+ . Added support for directly importing palette data from indexed PNG files
+ . Better support for editing Brawl's event match data
+ . Fixed CHR0 export filters
+ . Fixed bug where "Use Pixel Lighting" setting in model viewer settings would not be saved with the rest of the settings
+ . Fixed bug where GCTs would ask to be saved upon closing even if no changes were made
+ . Fixed bug where "BillboardRefBone" in MDL0 bone properties was being set incorrectly 
+ . Fixed crash when trying to load a file that no longer exists from the recent file menu
+ . Fixed bug where out keyframes would not show in the CHR0 editor outside of the model viewer
+ . Fixed bug where any non-brres nodes could not be dragged and dropped in the resource tree
 
  - v0.76b - BrawlLib v0.23b
 

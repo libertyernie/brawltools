@@ -7,6 +7,9 @@ using BrawlLib.IO;
 using System.ComponentModel;
 using System.IO;
 using BrawlLib;
+using System.Windows.Media.Imaging;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 
 namespace System.Windows.Forms
 {
@@ -66,6 +69,8 @@ namespace System.Windows.Forms
         private CheckBox chkConstrainProps;
         private NumericUpDown numMIPPreview;
         private Label label12;
+        private GCHandle? _pixelData;
+        private CheckBox chkImportPalette;
     
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap TextureData { get { return _textureData; } }
@@ -283,6 +288,8 @@ namespace System.Windows.Forms
             txtPath.Text = path;
             if (path.EndsWith(".tga"))
                 return LoadImages(TGA.FromFile(path));
+            else if (path.EndsWith(".png"))
+                return LoadImagesPreservingPaletteInfo(path);
             else
                 return LoadImages((Bitmap)Bitmap.FromFile(path));
         }
@@ -296,10 +303,60 @@ namespace System.Windows.Forms
 
         public bool LoadImages(Bitmap bmp)
         {
+            return LoadImages(bmp, null);
+        }
+
+        private bool LoadImages(Bitmap bmp, GCHandle? pixelData)
+        {
             DisposeImages();
             Source = _base = bmp;
+            _pixelData = pixelData;
 
             return true;
+        }
+
+        // Loads a PNG using WPF, and if its format is Indexed8, converts it to a GDI Bitmap with the proper palette info stored.
+        // Otherwise reloads using GDI, as normal (which does not retain palette info).
+        //
+        // May want to extend this to work with Indexed4, Indexed2, or Indexed1 formats in the future.
+        private bool LoadImagesPreservingPaletteInfo(string path)
+        {
+            Stream sourceStream = new FileStream(_imageSource, FileMode.Open, FileAccess.Read, FileShare.Read);
+            PngBitmapDecoder decoder = new PngBitmapDecoder(sourceStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+            BitmapSource preservedImage = decoder.Frames[0];
+            if (preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
+            {
+                Bitmap bmp;
+                int width = Convert.ToInt32(preservedImage.Width);
+                int height = Convert.ToInt32(preservedImage.Height);
+                byte[] pixels = new byte[width * height];
+                preservedImage.CopyPixels(pixels, width, 0);
+                GCHandle pixelData = GCHandle.Alloc(pixels, GCHandleType.Pinned);
+                bmp = new Bitmap(width, height, width, PixelFormat.Format8bppIndexed, pixelData.AddrOfPinnedObject());
+
+                IList<Media.Color> preservedColors = preservedImage.Palette.Colors;
+                ColorPalette newPalette = ColorPaletteExtension.CreatePalette(ColorPaletteFlags.None, preservedColors.Count);
+                for (int i = 0; i < preservedColors.Count; i++)
+                    newPalette.Entries[i] = Color.FromArgb(preservedColors[i].A, preservedColors[i].R, preservedColors[i].G, preservedColors[i].B);
+                bmp.Palette = newPalette;
+                return LoadImages(bmp, pixelData);
+            }
+            else
+                return LoadImages((Bitmap)Bitmap.FromFile(path));
+        }
+
+        private Bitmap ImportPalette()
+        {
+            ColorPalette pal = ColorPaletteExtension.CreatePalette(ColorPaletteFlags.None, _source.Palette.Entries.Length.Align(16));
+            for (int i = 0; i < _source.Palette.Entries.Length; i++)
+                pal.Entries[i] = _source.Palette.Entries[i];
+            for (int i = _source.Palette.Entries.Length; i < pal.Entries.Length; i++)
+                pal.Entries[i] = Color.FromArgb(0);
+            pal.Clamp((WiiPaletteFormat)cboPaletteFormat.SelectedItem);
+
+            Bitmap bmp = (Bitmap)_source.Clone();
+            bmp.Palette = pal;
+            return bmp;
         }
 
         private void SourceChanged()
@@ -337,6 +394,7 @@ namespace System.Windows.Forms
             if (_preview != null) { _preview.Dispose(); _preview = null; }
             if (_source != null) { _source.Dispose(); _source = null; }
             if (_indexed != null) { _indexed.Dispose(); _indexed = null; }
+            if (_pixelData.HasValue) { _pixelData.Value.Free(); _pixelData = null; }
         }
 
         private void CopyPreview(Bitmap src)
@@ -383,7 +441,10 @@ namespace System.Windows.Forms
                 case WiiPixelFormat.CI4:
                 case WiiPixelFormat.CI8:
                     {
-                        _indexed = _source.Quantize((QuantizationAlgorithm)cboAlgorithm.SelectedItem, (int)numPaletteCount.Value, format, (WiiPaletteFormat)cboPaletteFormat.SelectedItem, null);
+                        if (chkImportPalette.Enabled && chkImportPalette.Checked)
+                            _indexed = ImportPalette();
+                        else
+                            _indexed = _source.Quantize((QuantizationAlgorithm)cboAlgorithm.SelectedItem, (int)numPaletteCount.Value, format, (WiiPaletteFormat)cboPaletteFormat.SelectedItem, null);
                         CopyPreview(_indexed);
                         break;
                     }
@@ -404,19 +465,27 @@ namespace System.Windows.Forms
             int w = _source.Width, h = _source.Height;
             if (_origTEX0 != null || _bresParent != null)
             {
-                int palSize = grpPalette.Enabled ? (((int)numPaletteCount.Value * 2) + 0x40) : 0;
+                int palSize = PaletteSize(0x40);
                 lblDataSize.Text = String.Format("{0:n0}B", TextureConverter.Get((WiiPixelFormat)cboFormat.SelectedItem).GetMipOffset(ref w, ref h, (int)numLOD.Value + 1) + 0x40 + palSize);
             }
             else if (_origREFT != null || _reftParent != null)
             {
-                int palSize = grpPalette.Enabled ? (((int)numPaletteCount.Value * 2)) : 0;
+                int palSize = PaletteSize(0);
                 lblDataSize.Text = String.Format("{0:n0}B", TextureConverter.Get((WiiPixelFormat)cboFormat.SelectedItem).GetMipOffset(ref w, ref h, (int)numLOD.Value + 1) + 0x20 + palSize);
             }
             else if (_origTPL != null || _tplParent != null)
             {
-                int palSize = grpPalette.Enabled ? (((int)numPaletteCount.Value * 2) + 0xC) : 0;
+                int palSize = PaletteSize(0xC);
                 lblDataSize.Text = String.Format("{0:n0}B", TextureConverter.Get((WiiPixelFormat)cboFormat.SelectedItem).GetMipOffset(ref w, ref h, (int)numLOD.Value + 1) + 0x28 + palSize);
             }
+        }
+        private int PaletteSize(int formatOverhead)
+        {
+            if (!grpPalette.Enabled)
+                return 0;
+            if (chkImportPalette.Enabled && chkImportPalette.Checked)
+                return _source.Palette.Entries.Length.Align(16) * 2 + formatOverhead;
+            return (int)numPaletteCount.Value * 2 + formatOverhead;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -495,6 +564,7 @@ namespace System.Windows.Forms
                         numPaletteCount.Maximum = 16;
                         numPaletteCount.Value = 16;
                         cboPaletteFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPaletteFormat.RGB565 : WiiPaletteFormat.RGB5A3;
+                        FixImportPaletteFields();
                         break;
                     }
                 case WiiPixelFormat.CI8:
@@ -503,8 +573,44 @@ namespace System.Windows.Forms
                         numPaletteCount.Maximum = 256;
                         numPaletteCount.Value = Math.Min(256, _colorInfo.ColorCount.Align(16));
                         cboPaletteFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPaletteFormat.RGB565 : WiiPaletteFormat.RGB5A3;
+                        int sourcePaletteSize = _source.Palette.Entries.Length;
+                        if (sourcePaletteSize > 0 && sourcePaletteSize <= 256)
+                        {
+                            numPaletteCount.Value = sourcePaletteSize.Align(16);
+                        }
+                        FixImportPaletteFields();
                         break;
                     }
+            }
+        }
+        private void FixImportPaletteFields()
+        {
+            if ((WiiPixelFormat)cboFormat.SelectedItem == WiiPixelFormat.CI8 && _source.PixelFormat == PixelFormat.Format8bppIndexed ||
+                (WiiPixelFormat)cboFormat.SelectedItem == WiiPixelFormat.CI4 && _source.PixelFormat == PixelFormat.Format4bppIndexed)
+            {
+                // Checks if the image is not being resized
+                if (_source == _base)
+                {
+                    chkImportPalette.Enabled = true;
+                    FixImportPaletteDependentFields();
+                    return;
+                }
+            }
+
+            chkImportPalette.Enabled = false;
+            FixImportPaletteDependentFields();
+        }
+        private void FixImportPaletteDependentFields()
+        {
+            if (chkImportPalette.Enabled && chkImportPalette.Checked)
+            {
+                numPaletteCount.Enabled = false;
+                cboAlgorithm.Enabled = false;
+            }
+            else
+            {
+                numPaletteCount.Enabled = true;
+                cboAlgorithm.Enabled = true;
             }
         }
 
@@ -518,6 +624,7 @@ namespace System.Windows.Forms
             else
                 pictureBox1.Picture = _source;
         }
+        private void chkImportPalette_CheckedChanged(object sender, EventArgs e) { FixImportPaletteDependentFields(); UpdatePreview(); }
 
         private void btnCancel_Click(object sender, EventArgs e) { Close(); }
 
@@ -708,6 +815,7 @@ namespace System.Windows.Forms
             this.btnOkay = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.grpPalette = new System.Windows.Forms.GroupBox();
+            this.chkImportPalette = new System.Windows.Forms.CheckBox();
             this.cboAlgorithm = new System.Windows.Forms.ComboBox();
             this.label8 = new System.Windows.Forms.Label();
             this.numPaletteCount = new System.Windows.Forms.NumericUpDown();
@@ -952,6 +1060,7 @@ namespace System.Windows.Forms
             // 
             this.grpPalette.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grpPalette.Controls.Add(this.chkImportPalette);
             this.grpPalette.Controls.Add(this.cboAlgorithm);
             this.grpPalette.Controls.Add(this.label8);
             this.grpPalette.Controls.Add(this.numPaletteCount);
@@ -961,10 +1070,20 @@ namespace System.Windows.Forms
             this.grpPalette.Location = new System.Drawing.Point(3, 185);
             this.grpPalette.Name = "grpPalette";
             this.grpPalette.RightToLeft = System.Windows.Forms.RightToLeft.No;
-            this.grpPalette.Size = new System.Drawing.Size(179, 99);
+            this.grpPalette.Size = new System.Drawing.Size(179, 118);
             this.grpPalette.TabIndex = 5;
             this.grpPalette.TabStop = false;
             this.grpPalette.Text = "Palette";
+            // 
+            // chkImportPalette
+            // 
+            this.chkImportPalette.Location = new System.Drawing.Point(9, 95);
+            this.chkImportPalette.Name = "chkImportPalette";
+            this.chkImportPalette.Size = new System.Drawing.Size(164, 17);
+            this.chkImportPalette.TabIndex = 14;
+            this.chkImportPalette.Text = "Import Palette";
+            this.chkImportPalette.UseVisualStyleBackColor = true;
+            this.chkImportPalette.CheckedChanged += new System.EventHandler(this.chkImportPalette_CheckedChanged);
             // 
             // cboAlgorithm
             // 
@@ -1062,7 +1181,7 @@ namespace System.Windows.Forms
             this.groupBox4.Controls.Add(this.btnRecommend);
             this.groupBox4.Controls.Add(this.chkPreview);
             this.groupBox4.Controls.Add(this.btnCancel);
-            this.groupBox4.Location = new System.Drawing.Point(3, 290);
+            this.groupBox4.Location = new System.Drawing.Point(3, 309);
             this.groupBox4.Name = "groupBox4";
             this.groupBox4.Size = new System.Drawing.Size(179, 143);
             this.groupBox4.TabIndex = 7;
@@ -1171,7 +1290,7 @@ namespace System.Windows.Forms
             this.panel1.Location = new System.Drawing.Point(379, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(185, 436);
+            this.panel1.Size = new System.Drawing.Size(185, 455);
             this.panel1.TabIndex = 9;
             // 
             // txtPath
@@ -1244,13 +1363,13 @@ namespace System.Windows.Forms
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Picture = null;
-            this.pictureBox1.Size = new System.Drawing.Size(379, 416);
+            this.pictureBox1.Size = new System.Drawing.Size(379, 435);
             this.pictureBox1.TabIndex = 8;
             // 
             // TextureConverterDialog
             // 
             this.AcceptButton = this.btnOkay;
-            this.ClientSize = new System.Drawing.Size(564, 436);
+            this.ClientSize = new System.Drawing.Size(564, 455);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -1296,6 +1415,7 @@ namespace System.Windows.Forms
                 Source = _base;
             else
                 Source = _base.Resize(w, h);
+            FixImportPaletteFields();
             UpdatePreview();
 
             if (Resized != null)
