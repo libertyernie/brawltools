@@ -83,14 +83,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public new uint ID
         {
-            get
-            {
-                return _id;
-            }
-            set
-            {
-                _id = value;
-            }
+            get { return _id; }
+            set { _id = value; }
         }
 
         [Category("Relocatable Module")]
@@ -270,7 +264,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             if(_name == null)
                 _name = _idNames.ContainsKey(_id) ? _idNames[_id] : Path.GetFileName(_origPath);
 
-            _files.Add(ModuleID, this);
+            if (!_files.ContainsKey(ModuleID))
+                _files.Add(ModuleID, this);
+            else
+                _files[ModuleID] = this;
 
             return true;
         }
