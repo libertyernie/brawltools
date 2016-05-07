@@ -154,7 +154,7 @@ namespace BrawlBox
                         {
                             MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
                             if (bone != null) 
-                                obj.LinkedBone = bone;
+                                obj._linkedBone = bone;
                         }
                     }
                 }
