@@ -739,6 +739,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Have to update each vertex
                 foreach (Vertex3 v in repObj.Vertices)
                     if (v.MatrixNode != null)
+                    {
+                        v.DeferUpdateAssets();
                         if (v.MatrixNode is Influence)
                         {
                             for (int x = 0; x < v.MatrixNode.Weights.Count; x++)
@@ -747,16 +749,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                                 if (bone != null)
                                     v.MatrixNode.Weights[x].Bone = FindOrAddBoneCopy(bone);
                             }
+
                             v.MatrixNode = CleanAndAddInfluence(v.MatrixNode as Influence);
                         }
                         else
                             v.MatrixNode = FindOrAddBoneCopy((MDL0BoneNode)v.MatrixNode);
+                    }
             }
             else
             {
                 //Make sure the replaced object's single bind belongs to the current model
                 //Don't use the original object's single bind, as the rigging may have changed
 
+                repObj.DeferUpdateAssets();
                 if (repObj.MatrixNode is MDL0BoneNode)
                     repObj.MatrixNode = FindOrAddBoneCopy(repObj.MatrixNode as MDL0BoneNode) as IMatrixNode;
                 else

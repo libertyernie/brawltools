@@ -217,7 +217,9 @@ namespace BrawlBox
             SelectedNode = _dragNode;
 
             imageListDrag.Images.Clear();
-            imageListDrag.ImageSize = new Size(_dragNode.Bounds.Size.Width + Indent + 7, _dragNode.Bounds.Height);
+            imageListDrag.ImageSize = new Size(
+                (_dragNode.Bounds.Size.Width + Indent + 7).Clamp(1, 256), 
+                _dragNode.Bounds.Height.Clamp(1, 256));
 
             Bitmap bmp = new Bitmap(_dragNode.Bounds.Width + Indent + 7, _dragNode.Bounds.Height);
 

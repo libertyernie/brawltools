@@ -204,6 +204,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             try
             {
+                if (SharesData && SourceNode != this)
+                    return SourceNode.GetImage(index, plt);
+
                 if (WorkingUncompressed != DataSource.Empty)
                     if (plt != null)
                         return TextureConverter.DecodeIndexed(

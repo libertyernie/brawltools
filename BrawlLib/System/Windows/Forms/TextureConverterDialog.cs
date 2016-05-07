@@ -304,6 +304,12 @@ namespace System.Windows.Forms
 
         private void SourceChanged()
         {
+            if (_source == null)
+            {
+                _preview = null;
+                return;
+            }
+
             _preview = new Bitmap(_source.Width, _source.Height, PixelFormat.Format32bppArgb);
             lblSize.Text = String.Format("{0} x {1}", _source.Width, _source.Height);
 
