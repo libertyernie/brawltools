@@ -20,10 +20,12 @@ they be held accountable for the manner in which it is used.
  . Added support for sharing TEX0 image data to reduce repetitive file space use
  . Added support for opening and creating BCSTM and BFSTM audio streams
  . Added support for importing JSON animations as CHR0
- . Added support for editing Brawl's All-Star data in Common2
+ . Added support for editing Brawl's All-Star and Classic Mode data in Common2
  . Added support for viewing PAT0 texture swap animations as video
  . Added support for exporting and replacing SHP0 and CLR0 entries
  . Added support for importing loop data from looped wav files for creating BRSTM files
+ . Added support for certain BCSTM and BFSTM file formats
+ . Added support for directly importing palette data from indexed PNG files
  . Better support for editing Brawl's event match data
  . Fixed CHR0 export filters
  . Fixed bug where "Use Pixel Lighting" setting in model viewer settings would not be saved with the rest of the settings
