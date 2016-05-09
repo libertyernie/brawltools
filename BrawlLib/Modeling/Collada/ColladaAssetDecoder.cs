@@ -2,10 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
-using BrawlLib.Imaging;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
-using OpenTK.Graphics.OpenGL;
 
 namespace BrawlLib.Modeling
 {
@@ -19,7 +15,7 @@ namespace BrawlLib.Modeling
             InfluenceManager infManager,
             Type boneType)
         {
-            PrimitiveManager manager = DecodePrimitives(bindMatrix, geo);
+            PrimitiveManager manager = DecodePrimitives(geo);
 
             IBoneNode[] boneList;
             IBoneNode bone = null;
@@ -139,7 +135,7 @@ namespace BrawlLib.Modeling
             {
                 //Create influence
                 int iCount = skin._weights[i].Length / cmdCount;
-                Influence inf = new Influence(/*iCount*/);
+                Influence inf = new Influence();
                 fixed (int* p = skin._weights[i])
                 {
                     int* iPtr = p;
@@ -158,17 +154,18 @@ namespace BrawlLib.Modeling
 
                 Error = "There was a problem creating a vertex from the geometry entry " + geo._name + ".\nMake sure that all the vertices are weighted properly.";
 
+                Vector3 worldPos = bindMatrix * skin._bindMatrix * pVert[i];
                 Vertex3 v;
                 if (inf.Weights.Count > 1)
                 {
                     //Match with manager
-                    inf = infManager.FindOrCreate(inf, true);
-                    v = new Vertex3(bindMatrix * skin._bindMatrix * pVert[i], inf); //World position
+                    inf = infManager.FindOrCreate(inf);
+                    v = new Vertex3(worldPos, inf); //World position
                 }
                 else
                 {
                     bone = inf.Weights[0].Bone;
-                    v = new Vertex3(bindMatrix * bone.InverseBindMatrix * skin._bindMatrix * pVert[i], bone); //Local position
+                    v = new Vertex3(bone.InverseBindMatrix * worldPos, bone); //Local position
                 }
 
                 ushort index = 0;
@@ -197,9 +194,16 @@ namespace BrawlLib.Modeling
                         v = vertList[*pVInd];
                     if (v != null && v.MatrixNode != null)
                         if (v.MatrixNode.Weights.Count > 1)
-                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * pNorms[i];
+                            pNorms[i] =
+                                (bindMatrix * 
+                                skin._bindMatrix).GetRotationMatrix() * 
+                                pNorms[i];
                         else
-                            pNorms[i] = skin._bindMatrix.GetRotationMatrix() * v.MatrixNode.Weights[0].Bone.InverseBindMatrix.GetRotationMatrix() * pNorms[i];
+                            pNorms[i] =
+                                (v.MatrixNode.Weights[0].Bone.InverseBindMatrix *
+                                bindMatrix * 
+                                skin._bindMatrix).GetRotationMatrix() * 
+                                pNorms[i];
                 }
             }
 
@@ -225,14 +229,17 @@ namespace BrawlLib.Modeling
 
         static PrimitiveManager DecodePrimitivesUnweighted(Matrix bindMatrix, GeometryEntry geo)
         {
-            PrimitiveManager manager = DecodePrimitives(bindMatrix, geo);
+            PrimitiveManager manager = DecodePrimitives(geo);
 
-            Vector3* pVert = null;
+            Vector3* pVert = null, pNorms = null;
             ushort* pVInd = (ushort*)manager._indices.Address;
             int vCount = 0;
             List<Vertex3> vertList = new List<Vertex3>(manager._pointCount);
 
             manager._vertices = vertList;
+
+            if (manager._faceData[1] != null)
+                pNorms = (Vector3*)manager._faceData[1].Address;
 
             //Find vertex source
             foreach (SourceEntry s in geo._sources)
@@ -266,16 +273,21 @@ namespace BrawlLib.Modeling
                 pRemap[i] = (ushort)index;
             }
 
-            //Remap vertex indices
+            //Remap vertex indices and fix normals
             for (int i = 0; i < manager._pointCount; i++, pVInd++)
+            {
                 *pVInd = pRemap[*pVInd];
+
+                if (pNorms != null)
+                    pNorms[i] = bindMatrix.GetRotationMatrix() * pNorms[i];
+            }
 
             remap.Dispose();
 
             return manager;
         }
 
-        static PrimitiveManager DecodePrimitives(Matrix nodeMatrix, GeometryEntry geo)
+        static PrimitiveManager DecodePrimitives(GeometryEntry geo)
         {
             uint[] pTriarr = null, pLinarr = null;
             uint pTri = 0, pLin = 0;
@@ -302,7 +314,7 @@ namespace BrawlLib.Modeling
             foreach (PrimitiveEntry prim in geo._primitives)
             {
                 //Get face/line count
-                if (prim._type == PrimitiveType.lines || prim._type == PrimitiveType.linestrips)
+                if (prim._type == ColladaPrimitiveType.lines || prim._type == ColladaPrimitiveType.linestrips)
                     lines += prim._faceCount;
                 else
                     faces += prim._faceCount;
@@ -334,12 +346,12 @@ namespace BrawlLib.Modeling
             //Create primitives
             if (faces > 0)
             {
-                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.PrimitiveType.Triangles);
+                manager._triangles = new GLPrimitive(faces * 3, OpenTK.Graphics.OpenGL.BeginMode.Triangles);
                 pTriarr = manager._triangles._indices;
             }
             if (lines > 0)
             {
-                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.PrimitiveType.Lines);
+                manager._lines = new GLPrimitive(lines * 2, OpenTK.Graphics.OpenGL.BeginMode.Lines);
                 pLinarr = manager._lines._indices;
             }
 
@@ -387,19 +399,19 @@ namespace BrawlLib.Modeling
                 //Decode face data using command list
                 foreach (PrimitiveFace f in prim._faces)
                     fixed (ushort* p = f._pointIndices)
-                        RunPrimitiveCmd(nodeMatrix, pInData, pOutData, pCmd, count, p, f._pointCount);
+                        RunPrimitiveCmd(pInData, pOutData, pCmd, count, p, f._pointCount);
 
                 //Process point indices
                 switch (prim._type)
                 {
-                    case PrimitiveType.triangles:
+                    case ColladaPrimitiveType.triangles:
                         count = prim._faceCount * 3;
                         while (count-- > 0)
                             pTriarr[pTri++] = fIndex++;
                         break;
-                    case PrimitiveType.trifans:
-                    case PrimitiveType.polygons:
-                    case PrimitiveType.polylist:
+                    case ColladaPrimitiveType.trifans:
+                    case ColladaPrimitiveType.polygons:
+                    case ColladaPrimitiveType.polylist:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount - 2;
@@ -413,7 +425,7 @@ namespace BrawlLib.Modeling
                             }
                         }
                         break;
-                    case PrimitiveType.tristrips:
+                    case ColladaPrimitiveType.tristrips:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount;
@@ -436,7 +448,7 @@ namespace BrawlLib.Modeling
                         }
                         break;
 
-                    case PrimitiveType.linestrips:
+                    case ColladaPrimitiveType.linestrips:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount - 1;
@@ -449,7 +461,7 @@ namespace BrawlLib.Modeling
                         }
                         break;
 
-                    case PrimitiveType.lines:
+                    case ColladaPrimitiveType.lines:
                         foreach (PrimitiveFace f in prim._faces)
                         {
                             count = f._pointCount;
@@ -462,10 +474,9 @@ namespace BrawlLib.Modeling
             return manager;
         }
 
-        private static void RunPrimitiveCmd(Matrix nodeMatrix, byte** pIn, byte** pOut, PrimitiveDecodeCommand* pCmd, int cmdCount, ushort* pIndex, int count)
+        private static void RunPrimitiveCmd(byte** pIn, byte** pOut, PrimitiveDecodeCommand* pCmd, int cmdCount, ushort* pIndex, int count)
         {
             int buffer;
-            Matrix m = nodeMatrix.GetRotationMatrix();
             while (count-- > 0)
                 for (int i = 0; i < cmdCount; i++)
                 {
@@ -483,7 +494,7 @@ namespace BrawlLib.Modeling
                             break;
 
                         case SemanticType.NORMAL:
-                            *(Vector3*)pOut[buffer] = m * ((Vector3*)pIn[buffer])[*pIndex++];
+                            *(Vector3*)pOut[buffer] = ((Vector3*)pIn[buffer])[*pIndex++];
                             pOut[buffer] += 12;
                             break;
 

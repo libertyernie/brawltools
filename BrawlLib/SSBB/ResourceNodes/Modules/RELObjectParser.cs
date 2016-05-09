@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -10,80 +7,92 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         private ModuleSectionNode _objectSection;
 
-        public Dictionary<Relocation, RELType> _types = new Dictionary<Relocation, RELType>();
+        public Dictionary<int, RELType> _types = new Dictionary<int, RELType>();
         public List<RELObjectNode> _objects = new List<RELObjectNode>();
 
         public ObjectParser(ModuleSectionNode section)
         {
             _objects = new List<RELObjectNode>();
-            _types = new Dictionary<Relocation, RELType>();
+            _types = new Dictionary<int, RELType>();
             _objectSection = section;
         }
+
+        RelocationManager Manager { get { return _objectSection._manager; } }
 
         public unsafe void Parse()
         {
             if (_objectSection == null)
                 return;
 
-            for (Relocation rel = _objectSection[0]; rel != null; rel = rel.Next)
+            for (int rel = 0; rel < _objectSection._dataBuffer.Length / 4; rel++)
                 ParseDeclaration(rel);
-
-            for (Relocation rel = _objectSection[0]; rel != null; rel = rel.Next)
+            for (int rel = 0; rel < _objectSection._dataBuffer.Length / 4; rel++)
                 ParseObject(ref rel);
-
         }
 
-        private unsafe RELType ParseDeclaration(Relocation rel)
+        private unsafe RELType ParseDeclaration(int index)
         {
             RELType type = null;
-            if (_types.TryGetValue(rel, out type))
+            if (_types.TryGetValue(index, out type))
                 return type;
 
-            if (rel.Command == null || rel.Command._targetRelocation == null || rel.Command._targetRelocation._section != _objectSection)
+            RelCommand cmd = Manager.GetCommand(index);
+            if (cmd == null)
                 return null;
 
-            string name = new string((sbyte*)(rel._section.BaseAddress + rel.RelOffset));
+            RelocationTarget target = cmd.GetTargetRelocation();
+            if (target == null || target._sectionID != _objectSection.Index)
+                return null;
 
-            if (String.IsNullOrEmpty(name))
+            uint relOffset = cmd.Apply(Manager.GetUint(index), 0);
+            string name = new string((sbyte*)(_objectSection.Header + relOffset));
+
+            if (String.IsNullOrWhiteSpace(name))
                 return null;
 
             type = new RELType(name);
 
-
-
             //Get inheritances, if any.
-            if (rel.Next.Command != null)
-                for (Relocation r = rel.Next.Command._targetRelocation;
-                     r != null && r.Command != null;
-                     r = r.NextAt(2))
+            cmd = Manager.GetCommand(index + 1);
+            if (cmd != null)
+                for (RelocationTarget r = cmd.GetTargetRelocation();
+                     r != null && (cmd = Manager.GetCommand(r._index)) != null;
+                     r._index += 2)
                 {
-                    RELType inheritance = ParseDeclaration(r.Command._targetRelocation);
+                    RelocationTarget inheritTarget = cmd.GetTargetRelocation();
+                    RELType inheritance = ParseDeclaration(inheritTarget._index);
                     if (inheritance != null)
                     {
-                        InheritanceItemNode TypeNode = new InheritanceItemNode(inheritance, r.Next.RawValue);
-                        TypeNode.Initialize(null, (r.Address - r._section.RootOffset), 0);
-                        type.Inheritance.Add(TypeNode);
+                        InheritanceItemNode typeNode = new InheritanceItemNode(inheritance, Manager.GetUint(r._index + 1));
+                        typeNode.Initialize(null, _objectSection.Header + r._index * 4, 0);
+                        type.Inheritance.Add(typeNode);
                         inheritance.Inherited = true;
                     }
-                    else break;
+                    else
+                        break;
                 }
 
-            rel.Tags.Add(type.FormalName + " Declaration");
-            rel.Next.Tags.Add(type.FormalName + "->Inheritances");
+            Manager.AddTag(index, type.FormalName + " Declaration");
+            Manager.AddTag(index + 1, type.FormalName + "->Inheritances");
 
-            _types.Add(rel, type);
+            _types.Add(index, type);
 
             return type;
         }
 
-        private unsafe RELObjectNode ParseObject(ref Relocation rel)
+        private unsafe RELObjectNode ParseObject(ref int rel)
         {
-            if (rel.Command == null || rel.Command._targetRelocation == null || rel.Command._targetRelocation._section != _objectSection)
+            RelCommand cmd = Manager.GetCommand(rel);
+            if (cmd == null)
+                return null;
+
+            RelocationTarget target = cmd.GetTargetRelocation();
+            if (target == null || target._sectionID != _objectSection.Index)
                 return null;
 
             RELType declaration = null;
 
-            if (!_types.TryGetValue(rel.Command._targetRelocation, out declaration) || declaration.Inherited)
+            if (!_types.TryGetValue(target._index, out declaration) || declaration.Inherited)
                 return null;
 
             RELObjectNode obj = null;
@@ -105,44 +114,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                 new RELGroupNode() { _name = "Functions" }.Parent = obj;
             }
 
-            Relocation baseRel = rel;
+            int baseRel = rel;
+            RelCommand baseCmd = Manager.GetCommand(baseRel);
 
             int methodIndex = 0;
             int setIndex = 0;
 
-
-            // Read object methods.
-
-            while (rel.Command != null)
+            //Read object methods.
+            while ((cmd = Manager.GetCommand(rel)) != null)
             {
-
-                if (rel.Command._targetRelocation == null && rel.SectionOffset != baseRel.SectionOffset)
+                RelocationTarget t = cmd.GetTargetRelocation();
+                if (cmd.Apply(Manager.GetUint(rel), 0) != baseCmd.Apply(Manager.GetUint(baseRel), 0))
                 {
-                    new RELExternalMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex), _rel = rel }.Initialize(obj.Children[1], 0, 0);
-                    methodIndex++;
-                    rel = rel.Next;
-                    continue;
-                }
 
-                else if (rel.SectionOffset != baseRel.SectionOffset)
-                {
-                    new RELMethodNode() { _name = String.Format("Function[{0}][{1}]", setIndex, methodIndex), TargetSectionID = (int)rel.Command.TargetSectionID }.Initialize(obj.Children[1], rel.Target.Address, 0);
+                    string methodName = String.Format("Function[{0}][{1}]", setIndex, methodIndex);
+                    VoidPtr addr = null;
+                    if (t != null && t._moduleID == (_objectSection.Root as ModuleNode).ID)
+                        addr = _objectSection.Root.Children[t._sectionID].WorkingUncompressed.Address + t._index * 4;
+
+                    new RELMethodNode()
+                    {
+                        _name = methodName,
+                        _cmd = cmd
+                    }
+                    .Initialize(obj.Children[1], addr, 0);
+
                     methodIndex++;
                 }
                 else
                 {
-
-                    if (rel.Next.RawValue != 0)
+                    if (Manager.GetUint(rel + 1) != 0)
                         setIndex++;
 
                     methodIndex = 0;
-                    rel = rel.Next;
+                    rel++;
                 }
-                rel = rel.Next;
+                rel++;
             }
 
-
-            baseRel.Tags.Add(obj.Type.FullName);
+            Manager.AddTag(baseRel, obj.Type.FullName);
 
             _objects.Add(obj);
             return obj;

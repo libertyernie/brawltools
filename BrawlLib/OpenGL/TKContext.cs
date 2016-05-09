@@ -1,18 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BrawlLib.OpenGL;
-using System.Reflection;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Platform;
 using OpenTK.Graphics;
 
 namespace BrawlLib.OpenGL
 {
-    public delegate T GLCreateHandler<T>(TKContext ctx);
+    public delegate T GLCreateHandler<T>();
 
     public unsafe class TKContext : IDisposable
     {
@@ -33,7 +28,7 @@ namespace BrawlLib.OpenGL
 
             if (CurrentContext._states.ContainsKey(name))
                 return (T)CurrentContext._states[name];
-            T obj = handler(CurrentContext);
+            T obj = handler();
             CurrentContext._states[name] = obj;
             return obj;
         }
@@ -54,11 +49,12 @@ namespace BrawlLib.OpenGL
             _states.Clear();
         }
 
-        public bool bSupportsGLSLBinding, bSupportsGLSLUBO, bSupportsGLSLATTRBind, bSupportsGLSLCache;
-        public bool _shadersEnabled = true;
-        public int _version = 0;
+        public static bool _shadersSupported = true;
+        public static int _versionMax = 0;
+        public static int _versionMin = 0;
+        public static bool _anyContextInitialized = false;
 
-        private Control _window;
+        public Control _window;
         public TKContext(Control window)
         {
             _window = window;
@@ -66,26 +62,19 @@ namespace BrawlLib.OpenGL
             _context = new GraphicsContext(GraphicsMode.Default, _winInfo);
             _context.MakeCurrent(WindowInfo);
             _context.LoadAll();
-            
-            // Check for GLSL support
-            string version = GL.GetString(StringName.Version);
-            _version = int.Parse(version[0].ToString());
-            //if (_version < 2)
-                _shadersEnabled = false;
 
-            if (_shadersEnabled)
+            if (!_anyContextInitialized)
             {
-                //Now check extensions
-                string extensions = GL.GetString(StringName.Extensions);
-                if (extensions.Contains("GL_ARB_shading_language_420pack"))
-                    bSupportsGLSLBinding = true;
-                if (extensions.Contains("GL_ARB_uniform_buffer_object"))
-                    bSupportsGLSLUBO = true;
-                if ((bSupportsGLSLBinding || bSupportsGLSLUBO) && extensions.Contains("GL_ARB_explicit_attrib_location"))
-                    bSupportsGLSLATTRBind = true;
-                if (extensions.Contains("GL_ARB_get_program_binary"))
-                    bSupportsGLSLCache = true;
+                // Check for GLSL support
+                string[] version = GL.GetString(StringName.Version).Split('.', ' ');
+                _versionMax = int.Parse(version[0].ToString());
+                _versionMin = int.Parse(version[1].ToString());
+
+                //Need OpenGL 2.1 to use GLSL 120
+                _shadersSupported = !(_versionMax < 2 || (_versionMax == 2 && _versionMin < 1));
+                _anyContextInitialized = true;
             }
+            
             BoundContexts.Add(this);
         }
 
@@ -166,33 +155,17 @@ namespace BrawlLib.OpenGL
             _resetting = true;
             _window.Reset();
             Dispose();
+
             _winInfo = Utilities.CreateWindowsWindowInfo(_window.Handle);
             _context = new GraphicsContext(GraphicsMode.Default, WindowInfo);
             Capture(true);
+            _context.LoadAll();
             Update();
-            (_context as IGraphicsContextInternal).LoadAll();
 
-            // Check for GLSL support
-            //_version = int.Parse(GL.GetString(StringName.Version)[0].ToString());
-            //if (_version < 2)
-            _shadersEnabled = false;
-
-            if (_shadersEnabled)
-            {
-                //Now check extensions
-                string extensions = GL.GetString(StringName.Extensions);
-                if (extensions.Contains("GL_ARB_shading_language_420pack"))
-                    bSupportsGLSLBinding = true;
-                if (extensions.Contains("GL_ARB_uniform_buffer_object"))
-                    bSupportsGLSLUBO = true;
-                if ((bSupportsGLSLBinding || bSupportsGLSLUBO) && extensions.Contains("GL_ARB_explicit_attrib_location"))
-                    bSupportsGLSLATTRBind = true;
-                if (extensions.Contains("GL_ARB_get_program_binary"))
-                    bSupportsGLSLCache = true;
-            }
-            _resetting = false;
             if (ResetOccured != null)
                 ResetOccured(this, EventArgs.Empty);
+
+            _resetting = false;
         }
         public void Release()
         {
@@ -211,10 +184,18 @@ namespace BrawlLib.OpenGL
                 _context.Update(WindowInfo); 
         }
 
+        public static void InvalidateModelPanels(IRenderedObject obj)
+        {
+            if (_boundContexts != null)
+                foreach (var x in _boundContexts)
+                    if (x._window is ModelPanel/* && ((ModelPanel)x._window)._renderList.Contains(obj)*/)
+                        x._window.Invalidate();
+        }
+
         public static unsafe void DrawWireframeBox(Box value) { DrawWireframeBox(value.Min, value.Max); }
         public static unsafe void DrawWireframeBox(Vector3 min, Vector3 max)
         {
-            GL.Begin(PrimitiveType.LineStrip);
+            GL.Begin(BeginMode.LineStrip);
 
             GL.Vertex3(max._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, min._z);
@@ -226,7 +207,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Vertex3(min._x, max._y, max._z);
             GL.Vertex3(max._x, max._y, max._z);
@@ -246,7 +227,7 @@ namespace BrawlLib.OpenGL
         public static unsafe void DrawBox(Box value) { DrawBox(value.Min, value.Max); }
         public static unsafe void DrawBox(Vector3 p1, Vector3 p2)
         {
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             GL.Vertex3(p1._x, p1._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p1._z);
@@ -261,7 +242,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p1._x, p2._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p2._z);
@@ -278,7 +259,7 @@ namespace BrawlLib.OpenGL
         public static unsafe void DrawInvertedBox(Box value) { DrawInvertedBox(value.Min, value.Max); }
         public unsafe static void DrawInvertedBox(Vector3 p1, Vector3 p2)
         {
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             GL.Vertex3(p1._x, p1._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p1._z);
@@ -293,7 +274,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p2._x, p2._y, p1._z);
             GL.Vertex3(p2._x, p2._y, p2._z);
@@ -331,10 +312,10 @@ namespace BrawlLib.OpenGL
         }
 
         public GLDisplayList GetLine() { return FindOrCreate<GLDisplayList>("Line", CreateLine); }
-        private static GLDisplayList CreateLine(TKContext ctx)
+        private static GLDisplayList CreateLine()
         {
             GLDisplayList list = new GLDisplayList();
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Vertex3(0.0f, 0.0f, 0.0f);
             GL.Vertex3(2.0f, 0.0f, 0.0f);
@@ -346,12 +327,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetRingList() { return FindOrCreate<GLDisplayList>("Ring", CreateRing); }
-        private static GLDisplayList CreateRing(TKContext ctx)
+        private static GLDisplayList CreateRing()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(BeginMode.LineLoop);
 
             float angle = 0.0f;
             for (int i = 0; i < 360; i++, angle = i * Maths._deg2radf)
@@ -364,18 +345,18 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetSquareList() { return FindOrCreate<GLDisplayList>("Square", CreateSquare); }
-        private static GLDisplayList CreateSquare(TKContext ctx)
+        private static GLDisplayList CreateSquare()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.LineLoop);
+            GL.Begin(BeginMode.LineLoop);
 
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, 1.0f);
-            GL.Vertex3(0.0f, 1.0f, 1.0f);
-            GL.Vertex3(0.0f, 1.0f, 0.0f);
-            GL.Vertex3(0.0f, 0.0f, 0.0f);
+            GL.Vertex2(0.0f, 0.0f);
+            GL.Vertex2(0.0f, 1.0f);
+            GL.Vertex2(1.0f, 1.0f);
+            GL.Vertex2(1.0f, 0.0f);
+            GL.Vertex2(0.0f, 0.0f);
 
             GL.End();
 
@@ -384,12 +365,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetAxisList() { return FindOrCreate<GLDisplayList>("Axes", CreateAxes); }
-        private static GLDisplayList CreateAxes(TKContext ctx)
+        private static GLDisplayList CreateAxes()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Color4(1.0f, 0.0f, 0.0f, 1.0f);
 
@@ -424,12 +405,12 @@ namespace BrawlLib.OpenGL
             return list;
         }
         public static GLDisplayList GetCubeList() { return FindOrCreate<GLDisplayList>("Cube", CreateCube); }
-        private static GLDisplayList CreateCube(TKContext ctx)
+        private static GLDisplayList CreateCube()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.QuadStrip);
+            GL.Begin(BeginMode.QuadStrip);
 
             Vector3 p1 = new Vector3(0);
             Vector3 p2 = new Vector3(0.99f);
@@ -447,7 +428,7 @@ namespace BrawlLib.OpenGL
 
             GL.End();
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
 
             GL.Vertex3(p1._x, p2._y, p1._z);
             GL.Vertex3(p1._x, p2._y, p2._z);
@@ -466,12 +447,12 @@ namespace BrawlLib.OpenGL
         }
 
         public static GLDisplayList GetCircleList() { return FindOrCreate<GLDisplayList>("Circle", CreateCircle); }
-        private static GLDisplayList CreateCircle(TKContext ctx)
+        private static GLDisplayList CreateCircle()
         {
             GLDisplayList list = new GLDisplayList();
             list.Begin();
 
-            GL.Begin(PrimitiveType.TriangleFan);
+            GL.Begin(BeginMode.TriangleFan);
 
             GL.Vertex3(0.0f, 0.0f, 0.0f);
 
@@ -493,21 +474,13 @@ namespace BrawlLib.OpenGL
             GL.PopMatrix();
         }
         public static GLDisplayList GetSphereList() { return FindOrCreate<GLDisplayList>("Sphere", CreateSphere); }
-        public static GLDisplayList CreateSphere(TKContext ctx)
+        public static GLDisplayList CreateSphere()
         {
-            //IntPtr quad = Glu.NewQuadric();
-            //Glu.QuadricDrawStyle(quad, QuadricDrawStyle.Fill);
-            //Glu.QuadricOrientation(quad, QuadricOrientation.Outside);
-
             GLDisplayList dl = new GLDisplayList();
 
             dl.Begin();
-
             DrawSphere(new Vector3(), 1.0f, 40);
-            //Glu.Sphere(quad, 1.0f, 40, 40);
             dl.End();
-
-            //Glu.DeleteQuadric(quad);
 
             return dl;
         }
@@ -517,7 +490,7 @@ namespace BrawlLib.OpenGL
                 radius = -radius;
 
             if (radius == 0.0f)
-                throw new DivideByZeroException("DrawSphere: Radius cannot be 0f.");
+                throw new DivideByZeroException("DrawSphere: Radius cannot be zero.");
             
             if (precision == 0)
                 throw new DivideByZeroException("DrawSphere: Precision of 8 or greater is required.");
@@ -534,7 +507,7 @@ namespace BrawlLib.OpenGL
                 theta1 = (j * twoPIThroughPrecision) - halfPI;
                 theta2 = ((j + 1) * twoPIThroughPrecision) - halfPI;
 
-                GL.Begin(PrimitiveType.TriangleStrip);
+                GL.Begin(BeginMode.TriangleStrip);
                 for (uint i = 0; i <= precision; i++)
                 {
                     theta3 = i * twoPIThroughPrecision;

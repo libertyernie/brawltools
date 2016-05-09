@@ -113,5 +113,20 @@ namespace BrawlBox.Properties {
                 this["CheckUpdatesAtStartup"] = value;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("false")]
+        public bool PixelLighting
+        {
+            get
+            {
+                return ((bool)(this["PixelLighting"]));
+            }
+            set
+            {
+                this["PixelLighting"] = value;
+            }
+        }
     }
 }

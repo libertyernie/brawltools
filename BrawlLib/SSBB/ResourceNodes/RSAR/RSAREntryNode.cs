@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.Wii.Audio;
 using System.ComponentModel;
 
@@ -9,6 +6,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class RSAREntryNode : ResourceNode
     {
+        public override bool AllowDuplicateNames { get { return false; } }
+
         [Browsable(false)]
         public RSARNode RSARNode
         {
@@ -19,9 +18,40 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return n as RSARNode;
             }
         }
-        internal virtual int StringId { get { return 0; } }
+#if DEBUG
+        [Browsable(true), Category("DEBUG")]
+#else
+        [Browsable(false)]
+#endif
+        public virtual int StringId { get { return 0; } }
 
-        public int InfoIndex { get { return _infoIndex; } }
+        public int InfoIndex
+        {
+            get { return _infoIndex; }
+            set
+            {
+                int i = 0;
+                Type t = GetType();
+                switch (t.Name)
+                {
+                    case "RSARSoundNode": i = 0; break;
+                    case "RSARBankNode": i = 1; break;
+                    case "RSARPlayerInfoNode": i = 2; break;
+                    case "RSARGroupNode": i = 4; break;
+                }
+
+                var list = RSARNode._infoCache[i];
+                int prevIndex = _infoIndex;
+                _infoIndex = value.Clamp(0, list.Count - 1);
+                if (_infoIndex == prevIndex)
+                    return;
+
+                var temp = list[_infoIndex];
+                temp._infoIndex = prevIndex;
+                list[_infoIndex] = this;
+                list[prevIndex] = temp;
+            }
+        }
         public int _infoIndex;
         internal VoidPtr Data { get { return (VoidPtr)WorkingUncompressed.Address; } }
 
@@ -67,13 +97,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             fixed (char* s = _name)
                 for (int x = 0; i < len; )
                     chars[i++] = (sbyte)s[x++];
-
-            if (len != 0)
-                _fullPath = new String(chars, 0, len);
-            else
-                _fullPath = "";
-
-            list.AddEntry(_fullPath, this);
+            
+            list.AddEntry(_fullPath = len != 0 ? new String(chars, 0, len) : "", this);
         }
     }
 }

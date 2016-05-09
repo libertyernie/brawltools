@@ -1,26 +1,20 @@
 ﻿using BrawlLib.Modeling;
-using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        protected const float _orbRadius = 1.0f;
-        protected const float _circRadius = 1.2f;
-        protected const float _axisSnapRange = 7.0f;
-        protected const float _selectRange = 0.03f; //Selection error range for orb and circ
-        protected const float _axisSelectRange = 0.15f; //Selection error range for axes
-        protected const float _selectOrbScale = _selectRange / _orbRadius;
-        protected const float _circOrbScale = _circRadius / _orbRadius;
+        public const float _orbRadius = 1.0f;
+        public const float _circRadius = 1.2f;
+        public const float _axisSnapRange = 7.0f;
+        public const float _selectRange = 0.03f; //Selection error range for orb and circ
+        public const float _axisSelectRange = 0.15f; //Selection error range for axes
+        public const float _selectOrbScale = _selectRange / _orbRadius;
+        public const float _circOrbScale = _circRadius / _orbRadius;
 
         public int _animFrame = 0, _maxFrame;
         public bool _updating, _loop;
@@ -31,8 +25,14 @@ namespace System.Windows.Forms
         public SHP0Node _shp0;
         public PAT0Node _pat0;
         public VIS0Node _vis0;
-        public SCN0Node _scn0;
         public CLR0Node _clr0;
+        public SCN0Node _scn0;
+
+        public SCN0LightSetNode _SCN0LightSet;
+        public SCN0FogNode _SCN0Fog;
+        public SCN0CameraNode _SCN0Camera;
+        public Point _lightStartPoint, _lightEndPoint, _cameraStartPoint, _cameraEndPoint;
+        public bool _lightEndSelected = false, _lightStartSelected = false;
 
         public MDL0MaterialRefNode _targetTexRef = null;
         public VIS0EntryNode _targetVisEntry;
@@ -41,11 +41,12 @@ namespace System.Windows.Forms
         public IBoneNode _selectedBone = null;
         public List<Vertex3> _selectedVertices = new List<Vertex3>();
         public List<HotKeyInfo> _hotkeyList;
-        public List<ResourceNode> _animationSearchNodes = new List<ResourceNode>();
-        public List<Image> images = new List<Image>();
+        public List<Image> _images = new List<Image>();
+
+        public BindingList<ResourceNode> _openedFiles = new BindingList<ResourceNode>();
 
         //Bone Name - Attached Polygon Indices
-        public Dictionary<string, List<int>> VIS0Indices
+        public Dictionary<string, Dictionary<int, List<int>>> VIS0Indices
         {
             get
             {
@@ -61,7 +62,7 @@ namespace System.Windows.Forms
         protected Vector3 _oldAngles, _oldPosition, _oldScale;
         protected Vector3? _vertexLoc = null;
 
-        protected bool _rotating, _translating, _scaling;
+        public bool _rotating, _translating, _scaling;
         protected bool _snapX, _snapY, _snapZ, _snapCirc;
         protected bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
         public bool _resetCamera = true;
@@ -88,13 +89,7 @@ namespace System.Windows.Forms
         public InterpolationEditor _interpolationEditor;
         public InterpolationForm _interpolationForm = null;
         public Control _currentControl = null;
-        protected OpenFileDialog dlgOpen = new OpenFileDialog();
-
-        public uint _allowedUndos = 50;
-        public List<SaveState> _undoSaves = new List<SaveState>();
-        public List<SaveState> _redoSaves = new List<SaveState>();
-        public int _saveIndex = -1;
-        bool _undoing = true;
+        public OpenFileDialog _dlgOpen = new OpenFileDialog();
 
         #region Events
 
@@ -143,9 +138,9 @@ namespace System.Windows.Forms
 
     public enum TransformType
     {
-        None = -1,
         Translation = 0,
         Rotation = 1,
-        Scale = 2
+        Scale = 2,
+        None = 3,
     }
 }

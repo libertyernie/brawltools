@@ -1,18 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Reflection;
 using System.Windows.Forms;
 using BrawlLib.IO;
 using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
-using BrawlLib;
+using Microsoft.Win32;
 
 namespace BrawlBox
 {
     static class Program
     {
+        //Make sure this matches the tag name of the release on github exactly
+        public static readonly string TagName = "v0.77";
+
         public static readonly string AssemblyTitle;
         public static readonly string AssemblyDescription;
         public static readonly string AssemblyCopyright;
@@ -24,7 +26,7 @@ namespace BrawlBox
         private static FolderBrowserDialog _folderDlg;
 
         internal static ResourceNode _rootNode;
-        public static ResourceNode RootNode { get { return _rootNode; } }
+        public static ResourceNode RootNode { get { return _rootNode; } set { _rootNode = value; MainForm.Instance.Reset(); } }
         internal static string _rootPath;
         public static string RootPath { get { return _rootPath; } }
 
@@ -41,6 +43,44 @@ namespace BrawlBox
             _openDlg = new OpenFileDialog();
             _saveDlg = new SaveFileDialog();
             _folderDlg = new FolderBrowserDialog();
+
+            AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+            Application.ThreadException += Application_ThreadException;
+            Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+        }
+
+        static void Application_ThreadException(object sender, System.Threading.ThreadExceptionEventArgs e)
+        {
+            List<ResourceNode> dirty = GetDirtyFiles();
+            Exception ex = e.Exception;
+            IssueDialog d = new IssueDialog(ex, dirty);
+            d.ShowDialog();
+        }
+
+        static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        {
+            if (e.ExceptionObject is Exception)
+            {
+                List<ResourceNode> dirty = GetDirtyFiles();
+                Exception ex = e.ExceptionObject as Exception;
+                IssueDialog d = new IssueDialog(ex, dirty);
+                d.ShowDialog();
+            }
+        }
+
+        private static List<ResourceNode> GetDirtyFiles()
+        {
+            List<ResourceNode> dirty = new List<ResourceNode>();
+
+            foreach (var control in ModelEditControl.Instances)
+                foreach (ResourceNode r in control.rightPanel.pnlOpenedFiles.OpenedFiles)
+                    if (r.IsDirty && !dirty.Contains(r))
+                        dirty.Add(r);
+
+            if (_rootNode != null && _rootNode.IsDirty && !dirty.Contains(_rootNode))
+                dirty.Add(_rootNode);
+
+            return dirty;
         }
 
         [STAThread]
@@ -51,14 +91,14 @@ namespace BrawlBox
                 if (args[0].Equals("/gct", StringComparison.InvariantCultureIgnoreCase))
                 {
                     GCTEditor editor = new GCTEditor();
-                    if (args.Length >= 2) editor.TargetNode = editor.LoadGCT(args[1]);
+                    if (args.Length >= 2) editor.TargetNode = GCTEditor.LoadGCT(args[1]);
                     Application.Run(editor);
                     return;
                 }
                 else if (args[0].EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
                 {
                     GCTEditor editor = new GCTEditor();
-                    editor.TargetNode = editor.LoadGCT(args[0]);
+                    editor.TargetNode = GCTEditor.LoadGCT(args[0]);
                     Application.Run(editor);
                     return;
                 }
@@ -114,12 +154,26 @@ namespace BrawlBox
         public static bool Close() { return Close(false); }
         public static bool Close(bool force)
         {
+            //Have to close external files before the root file
+            while (ModelEditControl.Instances.Count > 0)
+            {
+                var control = ModelEditControl.Instances[0];
+                if (control.ParentForm != null)
+                {
+                    control.ParentForm.Close();
+                    if (!control.IsDisposed)
+                        return false;
+                }
+                else if (!control.Close())
+                    return false;
+            }
+
             if (_rootNode != null)
             {
                 if (_rootNode.IsDirty && !force)
                 {
                     DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
-                    if (((res == DialogResult.Yes) && (!Save())) || (res == DialogResult.Cancel))
+                    if ((res == DialogResult.Yes && !Save()) || res == DialogResult.Cancel)
                         return false;
                 }
 
@@ -128,16 +182,26 @@ namespace BrawlBox
 
                 MainForm.Instance.Reset();
             }
+
             _rootPath = null;
             return true;
         }
 
         public static bool Open(string path)
         {
+            if (String.IsNullOrEmpty(path))
+                return false;
+
+            if (!File.Exists(path))
+            {
+                Say("File does not exist.");
+                return false;
+            }
+
             if (path.EndsWith(".gct", StringComparison.InvariantCultureIgnoreCase))
             {
                 GCTEditor editor = new GCTEditor();
-                editor.TargetNode = editor.LoadGCT(path);
+                editor.TargetNode = GCTEditor.LoadGCT(path);
                 editor.Show();
                 return true;
             }
@@ -348,6 +412,30 @@ namespace BrawlBox
                 #endif
             }
             return false;
+        }
+
+        public static bool CanRunGithubApp(bool showMessages, out string path)
+        {
+            path = System.Windows.Forms.Application.StartupPath + "\\Updater.exe";
+            if (!File.Exists(path))
+            {
+                if (showMessages)
+                    MessageBox.Show("Could not find " + path);
+                return false;
+            }
+
+            using (RegistryKey ndpKey = RegistryKey.OpenBaseKey(RegistryHive.LocalMachine, RegistryView.Registry32).
+                OpenSubKey("SOFTWARE\\Microsoft\\NET Framework Setup\\NDP\\v4\\Full\\"))
+            {
+                object o = ndpKey.GetValue("Release");
+                if (o == null)
+                    return false;
+
+                int releaseKey = Convert.ToInt32(o);
+                if (releaseKey < 378389)
+                    return false;
+            }
+            return true;
         }
     }
 }

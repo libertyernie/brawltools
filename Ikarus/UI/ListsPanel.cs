@@ -1,19 +1,12 @@
 ﻿using System;
 using BrawlLib.SSBB.ResourceNodes;
-using System.Drawing;
-using BrawlLib.Modeling;
 using System.ComponentModel;
-using BrawlLib.OpenGL;
 using BrawlLib;
 using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
-using OpenTK.Graphics.OpenGL;
 using Ikarus.ModelViewer;
 using Ikarus.MovesetFile;
-using Ikarus;
-using BrawlLib.SSBBTypes;
 
 namespace Ikarus.UI
 {
@@ -591,7 +584,7 @@ namespace Ikarus.UI
         }
 
         //Bone Name - Attached Polygon Indices
-        public Dictionary<string, List<int>> VIS0Indices = new Dictionary<string, List<int>>();
+        public Dictionary<string, Dictionary<int, List<int>>> VIS0Indices = new Dictionary<string, Dictionary<int, List<int>>>();
 
         public ListsPanel()
         {
@@ -653,7 +646,7 @@ namespace Ikarus.UI
             string name = null;
             int i = SubActionsList.SelectedIndex;
             if (RunTime.Subactions != null && i >= 0 && i < RunTime.Subactions.Count)
-                name = RunTime.Subactions[i]._animationName;
+                name = RunTime.Subactions[i].Name;
 
             int frame = CurrentFrame;
 
@@ -664,7 +657,7 @@ namespace Ikarus.UI
             //Reselect the animation
             if (name != null)
                 for (int x = 0; x < RunTime.Subactions.Count; x++)
-                    if (RunTime.Subactions[x]._animationName == name)
+                    if (RunTime.Subactions[x].Name == name)
                     {
                         SubActionsList.SetSelected(x, true);
                         break;
@@ -716,7 +709,7 @@ namespace Ikarus.UI
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0Export; break;
                 case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
@@ -736,7 +729,7 @@ namespace Ikarus.UI
 
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0Import; break;
                 case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
@@ -1054,7 +1047,7 @@ namespace Ikarus.UI
 
             if (SubActionsList.SelectedItems.Count > 0)
             {
-                string r = RunTime.CurrentSubaction._animationName;
+                string r = RunTime.CurrentSubaction.Name;
                 if (_animations.ContainsKey(r))
                 {
                     var x = _animations[r];

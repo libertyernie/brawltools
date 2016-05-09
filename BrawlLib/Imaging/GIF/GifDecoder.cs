@@ -39,13 +39,12 @@
 using System;
 using System.Collections;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Windows.Forms;
 
 namespace Gif.Components
 {
-	public class GifDecoder 
+    public class GifDecoder 
 	{
 
 		/**

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BrawlLib.Wii.Textures
+﻿namespace BrawlLib.Wii.Textures
 {
     public enum WiiPixelFormat : uint
     {

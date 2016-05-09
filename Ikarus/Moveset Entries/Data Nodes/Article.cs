@@ -1,13 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
-using BrawlLib.OpenGL;
-using System.Windows.Forms;
-using Ikarus;
-using OpenTK.Graphics.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.ModelViewer;
 
@@ -23,11 +16,11 @@ namespace Ikarus.MovesetFile
                 MovesetNode node = (MovesetNode)_root;
                 if (node.Model == null)
                     return null;
-                if (charBone > node.Model._linker.BoneCache.Length || charBone < 0)
+                if (_charBone > node.Model._linker.BoneCache.Length || _charBone < 0)
                     return null;
-                return (MDL0BoneNode)node.Model._linker.BoneCache[charBone];
+                return (MDL0BoneNode)node.Model._linker.BoneCache[_charBone];
             }
-            set { charBone = value.BoneIndex; }
+            set { _charBone = value.BoneIndex; }
         }
 
         [Browsable(false)]
@@ -37,45 +30,58 @@ namespace Ikarus.MovesetFile
             {
                 if (_info == null || _info._model == null)
                     return null;
-                if (articleBone >= _info._model.BoneCache.Length || articleBone < 0)
+                if (_articleBone >= _info._model.BoneCache.Length || _articleBone < 0)
                     return null;
-                return (MDL0BoneNode)_info._model.BoneCache[articleBone];
+                return (MDL0BoneNode)_info._model.BoneCache[_articleBone];
             }
-            set { articleBone = value.BoneIndex; }
+            set { _articleBone = value.BoneIndex; }
         }
 
         [Category("Article"), Browsable(false)]
         public int ID { get { return Index; } }
         [Category("Article")]
-        public int ARCGroupID { get { return id; } set { id = value; SignalPropertyChange(); } }
+        public int ARCGroupID { get { return _id; } set { _id = value; SignalPropertyChange(); } }
         [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesArticleMDef))]
-        public string ArticleBone { get { return ArticleBoneNode == null ? articleBone.ToString() : ArticleBoneNode.Name; } set { if (Model == null) { articleBone = Convert.ToInt32(value); } else { ArticleBoneNode = String.IsNullOrEmpty(value) ? ArticleBoneNode : _info._model.FindBone(value); } SignalPropertyChange(); } }
+        public string ArticleBone { get { return ArticleBoneNode == null ? _articleBone.ToString() : ArticleBoneNode.Name; } set { if (Model == null) { _articleBone = Convert.ToInt32(value); } else { ArticleBoneNode = String.IsNullOrEmpty(value) ? ArticleBoneNode : _info._model.FindBone(value); } SignalPropertyChange(); } }
         [Category("Article"), Browsable(true), TypeConverter(typeof(DropDownListBonesMDef))]
-        public string CharacterBone { get { return CharBoneNode == null ? charBone.ToString() : CharBoneNode.Name; } set { if (Model == null) { charBone = Convert.ToInt32(value); } else { CharBoneNode = String.IsNullOrEmpty(value) ? CharBoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
-        [Category("Article"), Browsable(false)]
-        public int ActionFlagsStart { get { return aFlags; } }
-        [Category("Article"), Browsable(false)]
-        public int SubactionFlagsStart { get { return sFlags; } }
-        [Category("Article"), Browsable(false)]
-        public int ActionsStart { get { return aStart; } }
-        [Category("Article"), Browsable(false)]
-        public int SubactionMainStart { get { return sMStart; } }
-        [Category("Article"), Browsable(false)]
-        public int SubactionGFXStart { get { return sGStart; } }
-        [Category("Article"), Browsable(false)]
-        public int SubactionSFXStart { get { return sSStart; } }
-        [Category("Article"), Browsable(false)]
-        public int ModelVisibility { get { return visStart; } }
-        [Category("Article"), Browsable(false)]
-        public int CollisionData { get { return off1; } }
-        [Category("Article"), Browsable(false)]
-        public int DataOffset2 { get { return off2; } }
-        [Category("Article"), Browsable(false)]
-        public int DataOffset3 { get { return off3; } }
+        public string CharacterBone { get { return CharBoneNode == null ? _charBone.ToString() : CharBoneNode.Name; } set { if (Model == null) { _charBone = Convert.ToInt32(value); } else { CharBoneNode = String.IsNullOrEmpty(value) ? CharBoneNode : Model.FindBone(value); } SignalPropertyChange(); } }
+        [Category("Article"), Browsable(true)]
+        public int ActionFlagsStart { get { return _actionFlagsOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int SubactionFlagsStart { get { return _subactionFlagsOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int ActionsStart { get { return _actionArrayOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int SubactionMainStart { get { return _subactionsMainArrayOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int SubactionGFXStart { get { return _subactionGFXArrayOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int SubactionSFXStart { get { return _subactionSFXArrayOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int ModelVisibility { get { return _modelVisOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int CollisionData { get { return _collisionDataOffset; } }
+        [Category("Article"), Browsable(true)]
+        public int AddAreaDataSetList { get { return _off2; } }
+        [Category("Article"), Browsable(true)]
+        public int DataOffset3 { get { return _off3; } }
 
         //public string ArticleStringID { get { return "ArticleType" + (Static ? "2_" : "1_") + (Name == "Entry Article" ? "Entry" : (Parent.Name == "Static Articles" ? "Static" + Index : _offsetID.ToString())); } }
 
-        public int id, articleBone, charBone, aFlags, sFlags, aStart, sMStart, sGStart, sSStart, visStart, off1, off2, off3;
+        public int 
+            _id,
+            _articleBone,
+            _charBone,
+            _actionFlagsOffset,
+            _subactionFlagsOffset, 
+            _actionArrayOffset,
+            _subactionsMainArrayOffset,
+            _subactionGFXArrayOffset,
+            _subactionSFXArrayOffset,
+            _modelVisOffset,
+            _collisionDataOffset,
+            _off2,
+            _off3;
 
         //[Browsable(false)]
         //public bool pikmin { get { return ArticleStringID == "ArticleType1_10" && RootNode.Name == "FitPikmin"; } }
@@ -87,19 +93,19 @@ namespace Ikarus.MovesetFile
         protected override void OnParse(VoidPtr address)
         {
             sArticle* hdr = (sArticle*)address;
-            id = hdr->_id;
-            articleBone = hdr->_arcGroup;
-            charBone = hdr->_boneID;
-            aFlags = hdr->_actionFlagsStart;
-            sFlags = hdr->_subactionFlagsStart;
-            aStart = hdr->_actionsStart;
-            sMStart = hdr->_subactionMainStart;
-            sGStart = hdr->_subactionGFXStart;
-            sSStart = hdr->_subactionSFXStart;
-            visStart = hdr->_modelVisibility;
-            off1 = hdr->_collisionData;
-            off2 = hdr->_unknownD2;
-            off3 = hdr->_unknownD3;
+            _id = hdr->_id;
+            _articleBone = hdr->_arcGroup;
+            _charBone = hdr->_boneID;
+            _actionFlagsOffset = hdr->_actionFlagsStart;
+            _subactionFlagsOffset = hdr->_subactionFlagsStart;
+            _actionArrayOffset = hdr->_actionsStart;
+            _subactionsMainArrayOffset = hdr->_subactionMainStart;
+            _subactionGFXArrayOffset = hdr->_subactionGFXStart;
+            _subactionSFXArrayOffset = hdr->_subactionSFXStart;
+            _modelVisOffset = hdr->_modelVisibility;
+            _collisionDataOffset = hdr->_collisionData;
+            _off2 = hdr->_unknownD2;
+            _off3 = hdr->_unknownD3;
 
             _extraOffsets = new List<int>();
             _extraEntries = new List<MovesetEntryNode>();
@@ -109,8 +115,8 @@ namespace Ikarus.MovesetFile
 
             Static = _initSize > 52 && _extraOffsets[0] < 1480 && _extraOffsets[0] >= 0;
 
-            //_collisionData = Parse<CollisionData>(off1);
-            _mdlVis = Parse<ModelVisibility>(visStart);
+            _collisionData = Parse<CollisionData>(_collisionDataOffset);
+            _mdlVis = Parse<ModelVisibility>(_modelVisOffset);
 
             _scriptOffsets = new List<int>[4];
             for (int i = 0; i < 4; i++)
@@ -193,7 +199,7 @@ namespace Ikarus.MovesetFile
         //public Data2ListNode _data2;
         public RawParamList _data3;
 
-        [Category("Article"), Browsable(false)]
+        [Category("Article"), Browsable(true)]
         public List<int> ExtraOffsets { get { return _extraOffsets; } }
         public List<int> _extraOffsets;
         [Category("Article"), Browsable(false)]

@@ -10,6 +10,12 @@ namespace System.Windows.Forms
     public partial class ModelEditorBase : UserControl
     {
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool FirstPersonCamera
+        {
+            get { return ModelPanel.FirstPersonCamera; }
+            set { ModelPanel.FirstPersonCamera = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderFloor
         {
             get { return ModelPanel.RenderFloor; }
@@ -52,6 +58,12 @@ namespace System.Windows.Forms
             set { ModelPanel.RenderWireframe = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderShaders
+        {
+            get { return ModelPanel.RenderShaders; }
+            set { ModelPanel.RenderShaders = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderModelBox
         {
             get { return ModelPanel.RenderModelBox; }
@@ -80,6 +92,12 @@ namespace System.Windows.Forms
         {
             get { return ModelPanel.DontRenderOffscreen; }
             set { ModelPanel.DontRenderOffscreen = value; }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ScaleBones
+        {
+            get { return ModelPanel.ScaleBones; }
+            set { ModelPanel.ScaleBones = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderLightDisplay
@@ -284,41 +302,67 @@ namespace System.Windows.Forms
             }
         }
 
-        //public Vector3 CamLoc() { return ModelPanel.Camera.GetPoint(); }
-        public Vector3 CamLoc(GLViewport panel) { return panel.Camera.GetPoint(); }
-
-        //public float CamDistance(Vector3 v) { return CamDistance(v, ModelPanel._fovY); }
-        //public float CamDistance(Vector3 v, float fovY) { return v.TrueDistance(CamLoc()) / _orbRadius * (fovY / 45.0f) * 0.1f; }
-        public float CamDistance(Vector3 v, GLViewport panel)
+        public static float CamDistance(Vector3 v, GLViewport viewport, float radius = _orbRadius)
         {
-            if (panel.ViewType == ViewportProjection.Perspective)
-                return v.TrueDistance(CamLoc(panel)) / _orbRadius * (panel.Camera.VerticalFieldOfView / 45.0f) * 0.1f;
-            else
-                return panel.Camera._scale._x * 80.0f;
+            return CamDistance(v, viewport.Camera, radius);
         }
-        
-        //public float OrbRadius() { return CamDistance(BoneLoc()); }
-        public float OrbRadius(IBoneNode b, GLViewport panel) { return CamDistance(BoneLoc(b), panel); }
-        public float OrbRadius(Vector3 b, GLViewport panel) { return CamDistance(b, panel); }
-
-        //public float VertexOrbRadius() { return CamDistance((Vector3)VertexLoc()); }
-        public float VertexOrbRadius(GLViewport panel) { return CamDistance((Vector3)VertexLoc(), panel); }
-
-        //public Vector3 BoneLoc() { return BoneLoc(SelectedBone); }
-        public Vector3 BoneLoc(IBoneNode b) { return b == null ? new Vector3() : b.Matrix.GetPoint(); }
-        public Vector3? VertexLoc()
+        public static float CamDistance(Vector3 v, GLCamera cam, float radius = _orbRadius)
         {
-            if (_selectedVertices == null || _selectedVertices.Count == 0)
-                return null;
+            if (!cam.Orthographic)
+                return v.TrueDistance(cam.GetPoint()) / radius * (cam.VerticalFieldOfView / 45.0f) * 0.1f;
+            else
+                return cam._scale._x * 80.0f;
+        }
+        public static float OrbRadius(IBoneNode b, GLViewport viewport, float radius = _orbRadius) { return CamDistance(BoneLoc(b), viewport.Camera, radius); }
+        public static float OrbRadius(Vector3 b, GLViewport viewport, float radius = _orbRadius) { return CamDistance(b, viewport.Camera, radius); }
+        public static float OrbRadius(IBoneNode b, GLCamera cam, float radius = _orbRadius) { return CamDistance(BoneLoc(b), cam, radius); }
+        public static float OrbRadius(Vector3 b, GLCamera cam, float radius = _orbRadius) { return CamDistance(b, cam, radius); }
+        //public float VertexOrbRadius(GLViewport viewport, float radius = _orbRadius) { if (VertexLoc().HasValue) return CamDistance(VertexLoc().Value, viewport.Camera, radius); else return 0; }
+        //public float VertexOrbRadius(GLCamera cam, float radius = _orbRadius) { if (VertexLoc().HasValue) return CamDistance(VertexLoc().Value, cam, radius); else return 0; }
 
-            if (_vertexLoc != null)
-                return _vertexLoc;
+        public static Matrix CameraFacingRotationMatrix(GLViewport viewport, Vector3 pos = new Vector3()) { return CameraFacingRotationMatrix(viewport.Camera, pos); }
+        public static Matrix CameraFacingRotationMatrix(GLCamera camera, Vector3 pos = new Vector3()) { return Matrix.RotationMatrix(CameraFacingRotation(camera, pos)); }
+        public static Vector3 CameraFacingRotation(GLViewport viewport, Vector3 pos = new Vector3()) { return CameraFacingRotation(viewport.Camera, pos); }
+        public static Vector3 CameraFacingRotation(GLCamera camera, Vector3 pos = new Vector3()) { return camera.Orthographic ? camera._rotation : pos.LookatAngles(CamLoc(camera)) * Maths._rad2degf; }
+        
+        public static Vector3 CamLoc(GLCamera cam) { return cam == null ? new Vector3() : cam.GetPoint(); }
+        public static Vector3 BoneLoc(IBoneNode b) { return b == null ? new Vector3() : b.Matrix.GetPoint(); }
 
-            Vector3 average = new Vector3();
-            foreach (Vertex3 v in _selectedVertices)
-                average += v.WeightedPosition;
-            average /= _selectedVertices.Count;
-            return _vertexLoc = average;
+        bool _moveVerticesWithVertexLoc = false;
+        public Vector3? VertexLoc
+        {
+            get
+            {
+                if (_selectedVertices == null || _selectedVertices.Count == 0)
+                    return null;
+
+                if (_vertexLoc != null)
+                    return _vertexLoc;
+
+                Vector3 average = new Vector3();
+                foreach (Vertex3 v in _selectedVertices)
+                    average += v.WeightedPosition;
+                average /= _selectedVertices.Count;
+                return _vertexLoc = average;
+            }
+            set
+            {
+                if (VertexLoc == null)
+                    return;
+
+                if (value == null)
+                    return;
+
+                if (_moveVerticesWithVertexLoc)
+                {
+                    Vector3 previous = VertexLoc.Value;
+                    Vector3 diff = value.Value - previous;
+                    foreach (Vertex3 v in _selectedVertices)
+                        v.WeightedPosition += diff;
+                }
+
+                _vertexLoc = value;
+            }
         }
 
         #region Overridable

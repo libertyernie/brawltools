@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.SSBBTypes
 {
@@ -56,6 +53,12 @@ namespace BrawlLib.SSBBTypes
 
         public bint _startOffset;
         public bint _listCount;
+
+        public sListOffset(int offset, int count)
+        {
+            _startOffset = offset;
+            _listCount = count;
+        }
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }

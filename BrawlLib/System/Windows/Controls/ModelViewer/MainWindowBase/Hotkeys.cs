@@ -1,16 +1,6 @@
 ﻿using BrawlLib.Modeling;
-using BrawlLib.OpenGL;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.SSBBTypes;
-using Gif.Components;
-using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Text;
 
 namespace System.Windows.Forms
 {
@@ -358,37 +348,57 @@ namespace System.Windows.Forms
         }
         private bool HotkeyCancelChange()
         {
+            if (!AwaitingRedoSave)
+                return false;
+
             //Undo transformations, make sure to reset keyframes
-            if (_rotating)
+            if (VertexLoc.HasValue && _currentUndo is VertexState)
             {
-                _rotating = false;
-                CHR0Editor.numRotX.Value = _oldAngles._x;
-                CHR0Editor.numRotY.Value = _oldAngles._y;
-                CHR0Editor.numRotZ.Value = _oldAngles._z;
-                CHR0Editor.BoxChanged(CHR0Editor.numRotX, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numRotY, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numRotZ, null);
+                VertexState v = _currentUndo as VertexState;
+
+                for (int i = 0; i < v._vertices.Count; i++)
+                    v._vertices[i].WeightedPosition = v._weightedPositions[i];
+                
+                CancelChangeState();
+                UpdateModel();
             }
-            if (_translating)
+            else if (_rotating || _translating || _scaling)
             {
-                _translating = false;
-                CHR0Editor.numTransX.Value = _oldPosition._x;
-                CHR0Editor.numTransY.Value = _oldPosition._y;
-                CHR0Editor.numTransZ.Value = _oldPosition._z;
-                CHR0Editor.BoxChanged(CHR0Editor.numTransX, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numTransY, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numTransZ, null);
+                if (_rotating)
+                {
+                    CHR0Editor.numRotX.Value = _oldAngles._x;
+                    CHR0Editor.numRotY.Value = _oldAngles._y;
+                    CHR0Editor.numRotZ.Value = _oldAngles._z;
+                    CHR0Editor.BoxChanged(CHR0Editor.numRotX, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numRotY, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numRotZ, null);
+                }
+                if (_translating)
+                {
+                    CHR0Editor.numTransX.Value = _oldPosition._x;
+                    CHR0Editor.numTransY.Value = _oldPosition._y;
+                    CHR0Editor.numTransZ.Value = _oldPosition._z;
+                    CHR0Editor.BoxChanged(CHR0Editor.numTransX, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numTransY, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numTransZ, null);
+                }
+                if (_scaling)
+                {
+                    CHR0Editor.numScaleX.Value = _oldScale._x;
+                    CHR0Editor.numScaleY.Value = _oldScale._y;
+                    CHR0Editor.numScaleZ.Value = _oldScale._z;
+                    CHR0Editor.BoxChanged(CHR0Editor.numScaleX, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
+                    CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
+                }
+
+                CancelChangeState();
             }
-            if (_scaling)
-            {
-                _scaling = false;
-                CHR0Editor.numScaleX.Value = _oldScale._x;
-                CHR0Editor.numScaleY.Value = _oldScale._y;
-                CHR0Editor.numScaleZ.Value = _oldScale._z;
-                CHR0Editor.BoxChanged(CHR0Editor.numScaleX, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
-                CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
-            }
+
+            _rotating = false;
+            _translating = false;
+            _scaling = false;
+
             ModelPanel.CurrentViewport.AllowSelection = true;
             return false;
         }

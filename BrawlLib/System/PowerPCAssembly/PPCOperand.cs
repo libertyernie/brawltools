@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace System.PowerPcAssembly
+﻿namespace System.PowerPcAssembly
 {
     public abstract unsafe partial class PPCOpCode
     {
@@ -50,8 +45,8 @@ namespace System.PowerPcAssembly
 
                 switch (_opType)
                 {
-                    case OperandType.VAL: return String.Format("{0}", val);
-                    case OperandType.UVAL: return String.Format("{0}", val);
+                    case OperandType.VAL: return (val < 0 ? "-" : "") + String.Format("0x{0:X}", Math.Abs(val));
+                    case OperandType.UVAL: return String.Format("0x{0:X}", val);
                     case OperandType.OFFSET: return (val < 0 ? "-" : "") + String.Format("0x{0:X}", Math.Abs(val));
                     case OperandType.UOFFSET: return String.Format("0x{0:X}", val);
                     case OperandType.REGISTER: return String.Format("r{0}", val);
@@ -61,10 +56,13 @@ namespace System.PowerPcAssembly
                     case OperandType.SREGISTER:
                         switch (val)
                         {
+                            case 0: return "mq";
                             case 1: return "xer";
+                            case 4: return "rtcu";
+                            case 5: return "rtcl";
                             case 8: return "lr";
                             case 9: return "ctr";
-                            case 18: return "sisr";
+                            case 18: return "dsisr";
                             case 19: return "dar";
                             case 22: return "dec";
                             case 25: return "sdr1";

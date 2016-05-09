@@ -1,5 +1,4 @@
 ﻿using BrawlLib.SSBB;
-using System;
 
 namespace BrawlLib
 {
@@ -15,7 +14,9 @@ namespace BrawlLib
             SupportedFilesHandler.GetCompleteFilter("png", "tga", "tif", "bmp", "jpg", "gif", "tex0");
         public static string PLT0 =
             SupportedFilesHandler.GetCompleteFilter("plt0");
-        public static string CHR0 = 
+        public static string CHR0Import = 
+            SupportedFilesHandler.GetCompleteFilter("chr0", "anim", "txt", "json");
+        public static string CHR0Export =
             SupportedFilesHandler.GetCompleteFilter("chr0", "anim");
         public static string CLR0 =
             SupportedFilesHandler.GetCompleteFilter("clr0");
@@ -32,7 +33,7 @@ namespace BrawlLib
         public static string MSBin = 
             SupportedFilesHandler.GetCompleteFilter("msbin", "txt");
         public static string RSTM = 
-            SupportedFilesHandler.GetCompleteFilter("brstm", "wav");
+            SupportedFilesHandler.GetCompleteFilter("brstm", "bcstm", "bfstm", "wav");
         public static string RWSD =
             SupportedFilesHandler.GetCompleteFilter("brwsd");
         public static string RBNK =
@@ -72,6 +73,7 @@ namespace BrawlLib
             //Not only that, but '.dat' might be assigned to something else on their computer.
             //It's possible to assign a program (like a hex editor) to open files without extensions.
 
-
+        public static string Havok =
+            SupportedFilesHandler.GetCompleteFilter("hkx", "xml");
     }
 }

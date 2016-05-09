@@ -32,7 +32,7 @@ namespace BrawlLib.SSBBTypes
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct TPLTextureHeader
     {
-        public const int Size = 0x28;
+        public const int Size = 0x24;
 
         public bushort _height;
         public bushort _width;
@@ -45,10 +45,10 @@ namespace BrawlLib.SSBBTypes
         public buint _magFilter;
         public bfloat _LODBias;
 
-        public bshort _edgeLODEnable;
-        public bshort _minLOD;
-        public bshort _maxLOD;
-        public bshort _unpacked;
+        public byte _edgeLODEnable;
+        public byte _minLOD;
+        public byte _maxLOD;
+        public byte _pad;
 
         public WiiPixelFormat PixelFormat { get { return (WiiPixelFormat)(uint)_format; } set { _format = (uint)value; } }
 

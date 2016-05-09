@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
 using BrawlLib.Wii.Graphics;
@@ -480,7 +479,7 @@ namespace BrawlLib.SSBBTypes
         public bint _nodeId;
         public buint _flags;
         public buint _bbFlags;
-        public buint _bbNodeId;
+        public buint _bbIndex;
 
         public BVec3 _scale;
         public BVec3 _rotation;
@@ -495,6 +494,8 @@ namespace BrawlLib.SSBBTypes
 
         public bMatrix43 _transform;
         public bMatrix43 _transformInv;
+
+        public MDL0Bone* Next { get { return (MDL0Bone*)(Address + _headerLen); } }
 
         public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
@@ -732,13 +733,13 @@ namespace BrawlLib.SSBBTypes
 
         public MappingMethod MapMode { get { return (MappingMethod)_mapMode; } set { _mapMode = (byte)value; } }
         private bool IdentityMatrix { get { return _identity == 0 ? false : true; } set { _identity = (byte)(value ? 1 : 0); } }
-        public Matrix43 TextureMatrix
+        public Matrix34 TextureMatrix
         {
             get { return _texMtx; }
             set
             {
                 _texMtx = value;
-                IdentityMatrix = value == Matrix43.Identity;
+                IdentityMatrix = value == Matrix34.Identity;
             }
         }
 
@@ -748,7 +749,7 @@ namespace BrawlLib.SSBBTypes
             SCNLight = -1,
             _mapMode = 0, //TexCoord
             _identity = 1,
-            _texMtx = Matrix43.Identity
+            _texMtx = Matrix34.Identity
         };
     }
 
@@ -833,10 +834,10 @@ namespace BrawlLib.SSBBTypes
         
         public LightChannel Channel1 
         { 
-            get { return new LightChannel(false, flags0, c00, c01, _colorCtrl00, _colorCtrl01); }
+            get { return new LightChannel(flags0, c00, c01, _colorCtrl00, _colorCtrl01, null); }
             set
             {
-                flags0 = value._flags;
+                flags0 = (uint)value._flags;
                 c00 = value.MaterialColor;
                 c01 = value.AmbientColor;
                 _colorCtrl00 = value._color._binary._data;
@@ -845,10 +846,10 @@ namespace BrawlLib.SSBBTypes
         }
         public LightChannel Channel2 
         { 
-            get { return new LightChannel(false, flags1, c10, c11, _colorCtrl10, _colorCtrl11); }
+            get { return new LightChannel(flags1, c10, c11, _colorCtrl10, _colorCtrl11, null); }
             set
             {
-                flags1 = value._flags;
+                flags1 = (uint)value._flags;
                 c10 = value.MaterialColor;
                 c11 = value.AmbientColor;
                 _colorCtrl10 = value._color._binary._data;
@@ -891,7 +892,7 @@ namespace BrawlLib.SSBBTypes
         public bint _cull;
 
         //MiscData
-        public byte _enableAlphaTest;
+        public byte _depthTestBeforeTexture;
         public sbyte _lightSet;
         public sbyte _fogSet;
         public byte _pad; //Use this as a temporary location to store the model version
@@ -1425,9 +1426,9 @@ namespace BrawlLib.SSBBTypes
         public bint _mdl0Offset;
         public bint _index;
         public byte _stages;
-        public byte _res0, _res1, _res2; //Always 0. Reserved?
+        public byte _pad0, _pad1, _pad2;
         public sbyte _ref0, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-        public int _pad0, _pad1; //Always 0
+        public int _pad3, _pad4;
         
         public KSelSwapBlock* SwapBlock { get { return (KSelSwapBlock*)(Address + Size); } }
 

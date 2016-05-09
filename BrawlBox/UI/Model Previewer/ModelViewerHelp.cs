@@ -1,10 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-
-namespace System.Windows.Forms
+﻿namespace System.Windows.Forms
 {
     public class ModelViewerHelp : Form
     {

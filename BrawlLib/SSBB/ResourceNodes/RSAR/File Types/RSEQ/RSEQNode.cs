@@ -1,10 +1,5 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Collections.Generic;
-using System.Linq;
-using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -39,7 +34,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void GetStrings(LabelBuilder builder)
         {
-            foreach (RSEQLabelNode node in Children[0].Children)
+            foreach (RSEQLabelNode node in Children)
                 builder.Add(node.Id, node._name);
         }
 

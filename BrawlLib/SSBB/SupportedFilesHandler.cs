@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace BrawlLib.SSBB
 {
@@ -18,6 +17,9 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "MRG Compressed Resource Group", "mrgc"),
             new SupportedFileInfo(true, "SZS Compressed Archive", "szs"),
             //new SupportedFileInfo(true, "SZP Compressed Archive", "szp"),
+#if DEBUG
+            new SupportedFileInfo(true, "Wii/GC Disc Image", "iso"),
+#endif
 
             //NW4R Model Resources
             new SupportedFileInfo(true, "NW4R Resource Pack", "brres"),
@@ -59,6 +61,8 @@ namespace BrawlLib.SSBB
 
             //NW4R Audio
             new SupportedFileInfo(true, "NW4R Audio Stream", "brstm"),
+            new SupportedFileInfo(true, "NW4C Audio Stream", "bcstm"),
+            new SupportedFileInfo(true, "NW4F Audio Stream", "bfstm"),
             new SupportedFileInfo(true, "NW4R Sound Archive", "brsar"),
             new SupportedFileInfo(true, "NW4R RSAR Sound File", "brwsd"),
             new SupportedFileInfo(true, "NW4R RSAR Sound Bank File", "brbnk"),
@@ -102,13 +106,14 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(false, "Truevision TARGA", "tga"),
             new SupportedFileInfo(false, "Tagged Image File Format", "tif", "tiff"),
             new SupportedFileInfo(false, "Bitmap", "bmp"),
-            new SupportedFileInfo(false, "Joint Photographic Experts Group Image", "jpg", "jpeg"),
+            new SupportedFileInfo(false, "JPEG Image", "jpg", "jpeg"),
             new SupportedFileInfo(false, "Graphics Interchange Format", "gif"),
 
             //Misc
             new SupportedFileInfo(false, "Text File", "txt"),
             new SupportedFileInfo(false, "Uncompressed PCM", "wav"),
             new SupportedFileInfo(false, "3D Object Mesh", "obj"),
+            new SupportedFileInfo(false, "JSON File", "json"),
             new SupportedFileInfo(false, "Raw Data File", "*"),
         };
 

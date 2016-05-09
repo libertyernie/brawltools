@@ -1,12 +1,6 @@
-﻿using System;
-using BrawlLib.Wii.Animations;
-using BrawlLib.SSBB.ResourceNodes;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
 using System.ComponentModel;
-using System.Drawing;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.Imaging;
 
 namespace System.Windows.Forms
 {
@@ -63,7 +57,7 @@ namespace System.Windows.Forms
             this.listBox1.IntegralHeight = false;
             this.listBox1.Location = new System.Drawing.Point(0, 0);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(156, 40);
+            this.listBox1.Size = new System.Drawing.Size(156, 74);
             this.listBox1.TabIndex = 4;
             this.listBox1.SelectedIndexChanged += new System.EventHandler(this.listBox1_SelectedIndexChanged);
             // 
@@ -74,16 +68,16 @@ namespace System.Windows.Forms
             this.panel1.Dock = System.Windows.Forms.DockStyle.Right;
             this.panel1.Location = new System.Drawing.Point(156, 0);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(100, 40);
+            this.panel1.Size = new System.Drawing.Size(100, 74);
             this.panel1.TabIndex = 5;
             // 
             // CLR0Editor
             // 
             this.Controls.Add(this.listBox1);
             this.Controls.Add(this.panel1);
-            this.MinimumSize = new System.Drawing.Size(256, 40);
+            this.MinimumSize = new System.Drawing.Size(256, 74);
             this.Name = "CLR0Editor";
-            this.Size = new System.Drawing.Size(256, 40);
+            this.Size = new System.Drawing.Size(256, 74);
             this.panel1.ResumeLayout(false);
             this.ResumeLayout(false);
 
@@ -146,6 +140,7 @@ namespace System.Windows.Forms
                 lstTarget.SelectedIndex = (int)((CLR0MaterialEntryNode)_mat.Children[0]).Target;
             else
                 lstTarget.SelectedIndex = 0;
+            lstTarget_SelectedIndexChanged(null, null);
         }
 
         public CLR0Editor()

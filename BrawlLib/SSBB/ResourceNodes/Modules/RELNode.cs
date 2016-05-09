@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.IO;
-using System.Drawing;
-using BrawlLib.IO;
 using System.PowerPcAssembly;
 using System.Windows.Forms;
-using System.Globalization;
+using System.Diagnostics;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -20,8 +17,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.REL; } }
 
         [Browsable(false)]
-        public ModuleSectionNode[] Sections { get { return _sections; } }
-        public ModuleSectionNode[] _sections;
+        public ModuleSectionNode[] Sections
+        {
+            get
+            {
+                if (_sections == null)
+                    Populate();
+                return _sections;
+            }
+        }
+
+        public ModuleSectionNode[] _sections = null;
 
         public uint _id;
         public int _linkNext; //0
@@ -55,12 +61,34 @@ namespace BrawlLib.SSBB.ResourceNodes
         public byte[] _itemIDs; // null if it's not an online training room .rel
 
         [Category("Relocatable Module")]
-        public uint ModuleID { get { return ID; } set { if (value > 0) { ID = value; SignalPropertyChange(); } } }
+        public uint ModuleID
+        {
+            get { return _id; }
+            set
+            {
+                if (!_files.ContainsKey(value))
+                {
+                    //TODO: correct all opened modules that refer to this one via module id
+                    //Now won't that be entertaining to code
+
+                    _files.Remove(_id);
+                    _id = value;
+                    SignalPropertyChange();
+                    _files.Add(_id, this);
+                }
+                else
+                    MessageBox.Show("");
+            }
+        }
         [Browsable(false)]
-        public new uint ID { get { return _id; } set { _id = value; } }
+        public new uint ID
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
 
         [Category("Relocatable Module")]
-        public string ModuleName { get { return _idNames.ContainsKey((int)ID) ? _idNames[(int)ID] : ""; } }
+        public string ModuleName { get { return _idNames.ContainsKey(ModuleID) ? _idNames[ModuleID] : "m" + ModuleID; } }
         
         //[Category("REL")]
         //public int NextLink { get { return _linkNext; } }
@@ -97,61 +125,105 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListStageIDs))]
-        public string StageID {
-            get {
-                if (_stageID == null) return "N/A";
-                Stage stage = Stage.Stages.Where(s => s.ID == _stageID).FirstOrDefault();
-                return _stageID.Value.ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+        public int? StageID
+        {
+            get
+            {
+                return _stageID;
             }
-            set {
-                // Don't try to set the stage ID if it's not a stage module
-                if (_stageID == null) return;
-				if (value.Length < 2) return;
-                _stageID = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
+            set
+            {
+                if (_stageID == null || value == null) return;
+                _stageID = (byte)value;
                 SignalPropertyChange();
             }
         }
 
         [Category("Brawl Stage Module")]
         [TypeConverter(typeof(DropDownListItemIDs))]
-        public string ItemID {
+        public int? ItemID1 {
             get {
-                if (_itemIDs == null) return "N/A";
-                if (_itemIDs.Distinct().Count() > 1) {
-                    // If the four IDs are different (not sure why they would be)
-                    return "Mismatched (" + string.Join(",", _itemIDs.Select(b => b.ToString("X2"))) + ")";
-                }
-                Item item = Item.Items.Where(s => s.ID == _itemIDs[0]).FirstOrDefault();
-                return _stageID.Value.ToString("X2") + (item == null ? "" : (" - " + item.Name));
+                if (_itemIDs == null) return null;
+                return _itemIDs[0];
             }
             set {
                 // Don't try to set the item ID if it's not an Online Training Room module
-                if (_itemIDs == null) return;
-				if (value.Length < 2) return;
-				if (value.Contains("(")) value = value.Substring(value.IndexOf("(")+1);
-				if (value.Contains(")")) value = value.Substring(0, value.IndexOf(")"));
-				string[] split = value.Split(',');
-				if (split.Length == 4) {
-					for (int i = 0; i < 4; i++) _itemIDs[i] = byte.Parse(split[i], NumberStyles.HexNumber);
-					SignalPropertyChange();
-				} else {
-					byte b = byte.Parse(value.Substring(0, 2), NumberStyles.HexNumber);
-					for (int i = 0; i < 4; i++) _itemIDs[i] = b;
-					SignalPropertyChange();
-				}
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[0] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID2 {
+            get {
+                if (_itemIDs == null) return null;
+                return _itemIDs[1];
+            }
+            set {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[1] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID3
+        {
+            get
+            {
+                if (_itemIDs == null) return null;
+                return _itemIDs[2];
+            }
+            set
+            {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[2] = (byte)value.Value;
+                SignalPropertyChange();
+            }
+        }
+
+        [Category("Brawl Stage Module")]
+        [TypeConverter(typeof(DropDownListItemIDs))]
+        public int? ItemID4
+        {
+            get
+            {
+                if (_itemIDs == null) return null;
+                return _itemIDs[3];
+            }
+            set
+            {
+                // Don't try to set the item ID if it's not an Online Training Room module
+                if (_itemIDs == null || value == null || value < 0 && value > 255) return;
+                _itemIDs[3] = (byte)value.Value;
+                SignalPropertyChange();
             }
         }
         #endregion
 
-        public Relocation
-            _prologReloc = null,
-            _epilogReloc = null,
-            _unresReloc = null;
+        public int
+            _prologSect = -1,
+            _epilogSect = -1,
+            _unresSect = -1;
+
+        public int
+            _prologIndex = -1,
+            _epilogIndex = -1,
+            _unresIndex = -1;
+
+        public override void Dispose()
+        {
+            _files.Remove(ModuleID);
+            base.Dispose();
+        }
 
         public override bool OnInitialize()
         {
-            _files.Add(this);
-
             _id = Header->_info._id;
             _linkNext = Header->_info._link._linkNext; //0
             _linkPrev = Header->_info._link._linkPrev; //0
@@ -190,7 +262,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if(_name == null)
-                _name = _idNames.ContainsKey((int)_id) ? _idNames[(int)_id] : Path.GetFileName(_origPath);
+                _name = _idNames.ContainsKey(_id) ? _idNames[_id] : Path.GetFileName(_origPath);
+
+            if (!_files.ContainsKey(ModuleID))
+                _files.Add(ModuleID, this);
+            else
+                _files[ModuleID] = this;
 
             return true;
         }
@@ -220,7 +297,45 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
-            ApplyRelocations();
+            //Larger modules may take slightly longer to relocate
+            //Use a background worker so the UI thread isn't suspended
+            Action<object, DoWorkEventArgs> work = (object sender, DoWorkEventArgs e) =>
+            {
+                Stopwatch watch = Stopwatch.StartNew();
+
+                ApplyRelocations();
+
+                //Scan for branches, add extra tags
+                foreach (ModuleSectionNode s in Sections)
+                    if (s.HasCode)
+                    {
+                        PPCOpCode code;
+                        buint* opPtr = s.BufferAddress;
+                        for (int i = 0; i < s._dataBuffer.Length / 4; i++)
+                            if ((code = (uint)*opPtr++) is PPCBranch && !(code is PPCblr || code is PPCbctr))
+                                s._manager.LinkBranch(i, true);
+
+                        var cmds = s._manager.GetCommands();
+                        foreach (var x in cmds)
+                        {
+                            RelocationTarget target = x.Value.GetTargetRelocation();
+                            string value = null;
+                            if (target.Section != null && target._sectionID == 5 && !String.IsNullOrEmpty(value = target.Section._manager.GetString(target._index)))
+                                s._manager.AddTag(x.Key, value);
+                        }
+                    }
+
+                Sections[5].Populate();
+
+                watch.Stop();
+                Console.WriteLine("Took {0} seconds to relocate {1} module", (double)watch.ElapsedMilliseconds / 1000d, Name);
+            };
+
+            using (BackgroundWorker b = new BackgroundWorker())
+            {
+                b.DoWork += new DoWorkEventHandler(work);
+                b.RunWorkerAsync();
+            }
 
             // Stage module conversion
             byte* bptr = (byte*)WorkingUncompressed.Address;
@@ -239,7 +354,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void ApplyRelocations()
         {
             foreach (ModuleSectionNode r in Sections)
-                r.ClearCommands();
+                r._manager.ClearCommands();
 
             int offset = 0;
             int i = 0;
@@ -267,53 +382,59 @@ namespace BrawlLib.SSBB.ResourceNodes
                         }
 
                         if (section != null)
-                            section.SetCommandAtOffset(offset, new RelCommand(x, section.Index, link));
+                            section._manager.SetCommand(offset.RoundDown(4) / 4, new RelCommand(x, section, link));
                     }
                 i++;
             }
 
             ModuleDataNode s;
-            if (_prologReloc == null)
+            if (_prologSect == -1)
             {
                 s = _sections[Header->_prologSection];
                 offset = (int)Header->_prologOffset - (int)s.RootOffset;
             }
             else
             {
-                s = _prologReloc._section;
-                offset = _prologReloc._index * 4;
+                s = _sections[_prologSect];
+                offset = _prologIndex * 4;
             }
-            _prologReloc = s.GetRelocationAtOffset(offset);
-            if (_prologReloc != null)
-                _prologReloc._prolog = true;
+            _prologSect = s.Index;
+            _prologIndex = offset.RoundDown(4) / 4;
+            //_prologReloc = s.GetRelocationAtOffset(offset);
+            //if (_prologReloc != null)
+            //    _prologReloc._prolog = true;
 
-            if (_epilogReloc == null)
+            if (_epilogSect == -1)
             {
                 s = _sections[Header->_epilogSection];
                 offset = (int)Header->_epilogOffset - (int)s.RootOffset;
             }
             else
             {
-                s = _epilogReloc._section;
-                offset = _epilogReloc._index * 4;
+                s = _sections[_epilogSect];
+                offset = _epilogIndex * 4;
             }
-            _epilogReloc = s.GetRelocationAtOffset(offset);
-            if (_epilogReloc != null)
-                _epilogReloc._epilog = true;
+            _epilogSect = s.Index;
+            _epilogIndex = offset.RoundDown(4) / 4;
+            //_epilogReloc = s.GetRelocationAtOffset(offset);
+            //if (_epilogReloc != null)
+            //    _epilogReloc._epilog = true;
 
-            if (_unresReloc == null)
+            if (_unresSect == -1)
             {
                 s = _sections[Header->_unresolvedSection];
                 offset = (int)Header->_unresolvedOffset - (int)s.RootOffset;
             }
             else
             {
-                s = _unresReloc._section;
-                offset = _unresReloc._index * 4;
+                s = _sections[_unresSect];
+                offset = _unresIndex * 4;
             }
-            _unresReloc = s.GetRelocationAtOffset(offset);
-            if (_unresReloc != null)
-                _unresReloc._unresolved = true;
+            _unresSect = s.Index;
+            _unresIndex = offset.RoundDown(4) / 4;
+            //_unresReloc = s.GetRelocationAtOffset(offset);
+            //if (_unresReloc != null)
+            //    _unresReloc._unresolved = true;
         }
 
         class ImportData
@@ -337,66 +458,66 @@ namespace BrawlLib.SSBB.ResourceNodes
                 uint offset = 0;
                 List<RELLink> links;
 
-                //Iterate through each command in the section          
-                foreach(Relocation r in s._relocations)
+                //Iterate through each command in the section
+                var commands = s._manager.GetCommands();
+                foreach (var r in commands)
                 {
-                    if (r.Command != null)
+                    RelCommand command = r.Value;
+                    int index = r.Key;
+
+                    ImportData impData;
+                    uint moduleID = command._moduleID;
+
+                    //Check if an import has been created for the target module.
+                    if (_imports.ContainsKey(moduleID))
                     {
-                        RelCommand command = r.Command;
-                        ImportData impData;
-                        uint moduleID = command._moduleID;
-
-                        //Check if an import has been created for the target module.
-                        if (_imports.ContainsKey(moduleID))
-                        {
-                            //An import already exists, so we'll add to it.
-                            links = _imports[moduleID];
-                            impData = tempImports[moduleID];
-                        }
-                        else
-                        {
-                            //An import does not exist, so it must be made.
-                            _imports.Add(moduleID, links = new List<RELLink>());
-
-                            //Create new temporary import data
-                            tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
-                        }
-
-                        //This is true when a new section is being evaluated.
-                        if (impData._newSection)
-                        {
-                            links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
-                            impData._newSection = false;
-                        }
-
-                        //Get the offset of the command within the section.
-                        offset = (uint)command._parentRelocation._index * 4 + (command.IsHalf ? 2u : 0);
-
-                        //Get the offset to this address relative to the last written link offset.
-                        uint diff = offset - impData._lastOffset;
-
-                        //If the difference is greater than ushort allows, 
-                        //add increment links until the difference works
-                        while (diff > 0xFFFF)
-                        {
-                            impData._lastOffset += 0xFFFF;
-                            diff = offset - impData._lastOffset;
-
-                            links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
-                        }
-
-                        //Gather the link information
-                        byte targetSection = (byte)command._targetSectionId;
-                        RELLinkType type = (RELLinkType)command._command;
-                        uint val = command._addend;
-
-                        //Write command link
-                        links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
-
-                        //Don't bother adding the difference, 
-                        //just set the exact offset as the last offset
-                        impData._lastOffset = offset;
+                        //An import already exists, so we'll add to it.
+                        links = _imports[moduleID];
+                        impData = tempImports[moduleID];
                     }
+                    else
+                    {
+                        //An import does not exist, so it must be made.
+                        _imports.Add(moduleID, links = new List<RELLink>());
+
+                        //Create new temporary import data
+                        tempImports.Add(moduleID, impData = new ImportData() { _newSection = true, _lastOffset = 0 });
+                    }
+
+                    //This is true when a new section is being evaluated.
+                    if (impData._newSection)
+                    {
+                        links.Add(new RELLink() { _type = RELLinkType.Section, _section = (byte)s.Index });
+                        impData._newSection = false;
+                    }
+
+                    //Get the offset of the command within the section.
+                    offset = (uint)index * 4 + (command.IsHalf ? 2u : 0);
+
+                    //Get the offset to this address relative to the last written link offset.
+                    uint diff = offset - impData._lastOffset;
+
+                    //If the difference is greater than ushort allows, 
+                    //add increment links until the difference works
+                    while (diff > 0xFFFF)
+                    {
+                        impData._lastOffset += 0xFFFF;
+                        diff = offset - impData._lastOffset;
+
+                        links.Add(new RELLink() { _type = RELLinkType.IncrementOffset, _section = 0, _value = 0, _prevOffset = 0xFFFF });
+                    }
+
+                    //Gather the link information
+                    byte targetSection = (byte)command._targetSectionId;
+                    RELLinkType type = (RELLinkType)command._command;
+                    uint val = command._addend;
+
+                    //Write command link
+                    links.Add(new RELLink() { _type = type, _section = targetSection, _value = val, _prevOffset = (ushort)diff });
+
+                    //Don't bother adding the difference, 
+                    //just set the exact offset as the last offset
+                    impData._lastOffset = offset;
                 }
             }
 
@@ -482,10 +603,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
 
-            if (_prologReloc != null)
+            if (_prologSect != -1)
             {
-                header->_prologSection = (byte)_prologReloc._section.Index;
-                header->_prologOffset = (uint)sections[_prologReloc._section.Index].Offset + (uint)_prologReloc._index * 4;
+                header->_prologSection = (byte)_prologSect;
+                header->_prologOffset = (uint)sections[_prologSect].Offset + (uint)_prologIndex * 4;
             }
             else
             {
@@ -493,10 +614,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_prologSection = 0;
             }
 
-            if (_epilogReloc != null)
+            if (_epilogSect != -1)
             {
-                header->_epilogSection = (byte)_epilogReloc._section.Index;
-                header->_epilogOffset = (uint)sections[_epilogReloc._section.Index].Offset + (uint)_epilogReloc._index * 4;
+                header->_epilogSection = (byte)_epilogSect;
+                header->_epilogOffset = (uint)sections[_epilogSect].Offset + (uint)_epilogIndex * 4;
             }
             else
             {
@@ -504,10 +625,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_epilogOffset = 0;
             }
 
-            if (_unresReloc != null)
+            if (_unresSect != -1)
             {
-                header->_unresolvedSection = (byte)_unresReloc._section.Index;
-                header->_unresolvedOffset = (uint)sections[_unresReloc._section.Index].Offset + (uint)_unresReloc._index * 4;
+                header->_unresolvedSection = (byte)_unresSect;
+                header->_unresolvedOffset = (uint)sections[_unresSect].Offset + (uint)_unresIndex * 4;
             }
             else
             {
@@ -564,12 +685,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_itemIDs != null) {
                 // File must be online training room .rel file
                 for (int i = 0; i < _itemIDs.Length; i++) {
-                    bptr[OTrainItemOffsets[i]] = _itemIDs[i];
+                    int offset = OTrainItemOffsets[i];
+                    if (bptr[offset - 3] != 0x38 || bptr[offset - 2] != 0x80 || bptr[offset - 1] != 0x00)
+                    {
+                        throw new Exception("Rebuilding st_otrain module file has moved the item IDs");
+                    }
+                    bptr[offset] = _itemIDs[i];
                 }
             }
         }
 
-        public static List<RELNode> _files = new List<RELNode>();
+        public static Dictionary<uint, RELNode> _files = new Dictionary<uint, RELNode>();
 
         #region Stage module conversion
         private unsafe static int arrayIndexOf(void* haystack, int length, byte[] needle) {
@@ -635,7 +761,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ? new RELNode() : null; 
         }
 
-        public static SortedList<int, string> _idNames = new SortedList<int, string>()
+        #region Module ID Names
+        public static SortedList<uint, string> _idNames = new SortedList<uint, string>()
         {
             {0, "main.dol"},
             {1, "sora_scene"},
@@ -765,5 +892,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             {125, "ft_wolf"},
             {126, "ft_zako"},
         };
+        #endregion
     }
 }

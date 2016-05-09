@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BrawlLib.SSBB.ResourceNodes
+﻿namespace BrawlLib.SSBB.ResourceNodes
 {
     //Lower byte is resource type (used for icon index)
     //Upper byte is entry type/flags
@@ -56,6 +51,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         STPM = 0x1520,
         STDT = 0x5B26,
         SCLA = 0x6D00,
+        SndBgmTitleDataEntry = 0x6E00,
+        SndBgmTitleDataFolder = 0x6E01,
 
         //AI
         AI = 0x1616,
@@ -73,6 +70,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //NW4R
         TEX0 = 0x2005,
+        SharedTEX0 = 0x2033,
         PLT0 = 0x2106,
 
         MDL0 = 0x2207,
@@ -92,7 +90,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         VIS0 = 0x2E0A,
         SCN0 = 0x381F,
-
+        SCN0Camera = 0x8000,
+        SCN0Light = 0x8100,
+        SCN0Fog = 0x8200,
+        SCN0Ambient = 0x8300,
+        SCN0LightSet = 0x8400,
+        
         SHP0 = 0x2F0B,
         SHP0VertexSet = 0x5900,
         SHP0Entry = 0x3000,
@@ -130,7 +133,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         //Moveset
         MDef = 0x4B1A,
-        NoEdit = 0x4C01,
+        NoEditFolder = 0x4C01,
+        NoEditEntry = 0x4C00,
         MDefActionGroup = 0x4D01,
         MDefSubActionGroup = 0x4E01,
         MDefMdlVisRef = 0x4F01,
@@ -166,6 +170,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         GMPS = 0x5D2F,
         BGMG = 0x5F32,
 
-        FMDL = 0x6D00,
+        FMDL = 0x6F00,
+
+        Havok = 0x8500,
+        HavokGroup = 0x8501,
+
+        OMO = 0x7000,
     }
 }

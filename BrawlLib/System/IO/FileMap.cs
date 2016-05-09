@@ -16,6 +16,8 @@ namespace BrawlLib.IO
         public int Length { get { return _length; } set { _length = value; } }
         public string FilePath { get { return _path; } }
 
+        public FileStream BaseStream { get { return _baseStream; } }
+
         ~FileMap() { Dispose(); }
         public virtual void Dispose() 
         {
@@ -46,7 +48,7 @@ namespace BrawlLib.IO
                 stream = new FileStream(tempPath, FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, options | FileOptions.DeleteOnClose);
             }
             try { map = FromStreamInternal(stream, prot, offset, length); }
-            catch (Exception x) { stream.Dispose(); throw x; }
+            catch (Exception x) { stream.Dispose(); throw; }
             map._path = path; //In case we're using a temp file
             return map;
         }
@@ -54,7 +56,7 @@ namespace BrawlLib.IO
         {
             FileStream stream = new FileStream(Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
             try { return FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, length); }
-            catch (Exception x) { stream.Dispose(); throw x; }
+            catch (Exception x) { stream.Dispose(); throw; }
         }
 
         public static FileMap FromStream(FileStream stream) { return FromStream(stream, FileMapProtect.ReadWrite, 0, 0); }

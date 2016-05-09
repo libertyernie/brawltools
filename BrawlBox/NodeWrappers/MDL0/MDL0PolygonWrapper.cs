@@ -44,6 +44,7 @@ namespace BrawlBox.NodeWrappers
         #endregion
 
         public override string ExportFilter { get { return FileFilters.Object; } }
+        public override string ImportFilter { get { return FileFilters.Raw; } }
 
         public MDL0PolygonWrapper() { ContextMenuStrip = _menu; }
 

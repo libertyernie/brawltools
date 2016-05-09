@@ -1,11 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlLib.Imaging;
 using BrawlLib.OpenGL;
+using BrawlBox;
+using BrawlLib.Wii.Graphics;
 
 namespace System.Windows.Forms
 {
@@ -108,6 +106,12 @@ namespace System.Windows.Forms
         private RadioButton chkDefaultPos;
         private RadioButton chkCurrentPos;
         private CheckBox chkSaveWindowPosition;
+        private CheckBox chkLightDirectional;
+        private CheckBox chkLightEnabled;
+        private CheckBox chkUsePointsAsBones;
+        private CheckBox chkScaleBones;
+        private CheckBox chkHideMainWindow;
+        private CheckBox chkPixelLighting;
         private ModelEditControl _form;
 
         public ModelViewerSettingsDialog() 
@@ -139,13 +143,13 @@ namespace System.Windows.Forms
 
             _boxes[21] = numPosSX;
             _boxes[22] = numPosSY;
-            _boxes[23] = numPosSX;
+            _boxes[23] = numPosSZ;
             _boxes[24] = numPosRX;
             _boxes[25] = numPosRY;
-            _boxes[26] = numPosRX;
+            _boxes[26] = numPosRZ;
             _boxes[27] = numPosTX;
             _boxes[28] = numPosTY;
-            _boxes[29] = numPosTX;
+            _boxes[29] = numPosTZ;
 
             _boxes[30] = maxUndoCount;
 
@@ -195,6 +199,7 @@ namespace System.Windows.Forms
             _origNode = MDL0BoneNode.DefaultNodeColor;
             _origFloor = ModelEditorBase._floorHue;
 
+            chkHideMainWindow.Checked = _form._hideMainWindow;
             chkDisableBonesOnPlay.Checked = _form.DisableBonesWhenPlaying;
             chkDisableHighlight.Checked = _form.DoNotHighlightOnMouseMove;
             chkMaximize.Checked = _form._maximize;
@@ -210,6 +215,7 @@ namespace System.Windows.Forms
             chkTanLight.Checked = SCN0LightNode._generateTangents;
             chkTanSHP.Checked = SHP0VertexSetNode._generateTangents;
             chkTanSRT.Checked = SRT0TextureNode._generateTangents;
+            chkPixelLighting.Checked = ShaderGenerator.UsePixelLighting;
 
             UpdateOrb();
             UpdateLine();
@@ -275,6 +281,11 @@ namespace System.Windows.Forms
             yFov.Value = current.Camera._fovY;
             nearZ.Value = current.Camera._nearZ;
             farZ.Value = current.Camera._farZ;
+
+            chkLightEnabled.Checked = current.LightEnabled;
+            chkLightDirectional.Checked = current.LightDirectional;
+            chkScaleBones.Checked = current.ScaleBones;
+            chkUsePointsAsBones.Checked = current.RenderBonesAsPoints;
 
             cboProjection.SelectedIndex = (int)current.ViewType;
             chkTextOverlays.Checked = current.TextOverlaysEnabled;
@@ -435,6 +446,8 @@ namespace System.Windows.Forms
             this.label6 = new System.Windows.Forms.Label();
             this.label7 = new System.Windows.Forms.Label();
             this.grpLighting = new System.Windows.Forms.GroupBox();
+            this.chkLightDirectional = new System.Windows.Forms.CheckBox();
+            this.chkLightEnabled = new System.Windows.Forms.CheckBox();
             this.label23 = new System.Windows.Forms.Label();
             this.label22 = new System.Windows.Forms.Label();
             this.label21 = new System.Windows.Forms.Label();
@@ -508,6 +521,10 @@ namespace System.Windows.Forms
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.chkTextOverlays = new System.Windows.Forms.CheckBox();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.chkPixelLighting = new System.Windows.Forms.CheckBox();
+            this.chkHideMainWindow = new System.Windows.Forms.CheckBox();
+            this.chkUsePointsAsBones = new System.Windows.Forms.CheckBox();
+            this.chkScaleBones = new System.Windows.Forms.CheckBox();
             this.chkSaveWindowPosition = new System.Windows.Forms.CheckBox();
             this.chkMaximize = new System.Windows.Forms.CheckBox();
             this.maxUndoCount = new System.Windows.Forms.NumericInputBox();
@@ -575,7 +592,7 @@ namespace System.Windows.Forms
             // label2
             // 
             this.label2.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label2.Location = new System.Drawing.Point(60, 16);
+            this.label2.Location = new System.Drawing.Point(6, 16);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(66, 20);
             this.label2.TabIndex = 8;
@@ -639,6 +656,8 @@ namespace System.Windows.Forms
             // 
             // grpLighting
             // 
+            this.grpLighting.Controls.Add(this.chkLightDirectional);
+            this.grpLighting.Controls.Add(this.chkLightEnabled);
             this.grpLighting.Controls.Add(this.label23);
             this.grpLighting.Controls.Add(this.label22);
             this.grpLighting.Controls.Add(this.label21);
@@ -674,6 +693,31 @@ namespace System.Windows.Forms
             this.grpLighting.TabIndex = 35;
             this.grpLighting.TabStop = false;
             this.grpLighting.Text = "Lighting";
+            // 
+            // chkLightDirectional
+            // 
+            this.chkLightDirectional.AutoSize = true;
+            this.chkLightDirectional.Checked = true;
+            this.chkLightDirectional.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkLightDirectional.Location = new System.Drawing.Point(215, 36);
+            this.chkLightDirectional.Name = "chkLightDirectional";
+            this.chkLightDirectional.Size = new System.Drawing.Size(76, 17);
+            this.chkLightDirectional.TabIndex = 45;
+            this.chkLightDirectional.Text = "Directional";
+            this.chkLightDirectional.UseVisualStyleBackColor = true;
+            this.chkLightDirectional.Visible = false;
+            this.chkLightDirectional.CheckedChanged += new System.EventHandler(this.chkLightDirectional_CheckedChanged);
+            // 
+            // chkLightEnabled
+            // 
+            this.chkLightEnabled.AutoSize = true;
+            this.chkLightEnabled.Location = new System.Drawing.Point(215, 19);
+            this.chkLightEnabled.Name = "chkLightEnabled";
+            this.chkLightEnabled.Size = new System.Drawing.Size(65, 17);
+            this.chkLightEnabled.TabIndex = 44;
+            this.chkLightEnabled.Text = "Enabled";
+            this.chkLightEnabled.UseVisualStyleBackColor = true;
+            this.chkLightEnabled.CheckedChanged += new System.EventHandler(this.chkLightEnabled_CheckedChanged);
             // 
             // label23
             // 
@@ -764,7 +808,7 @@ namespace System.Windows.Forms
             // label17
             // 
             this.label17.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label17.Location = new System.Drawing.Point(197, 16);
+            this.label17.Location = new System.Drawing.Point(143, 16);
             this.label17.Name = "label17";
             this.label17.Size = new System.Drawing.Size(66, 20);
             this.label17.TabIndex = 36;
@@ -774,7 +818,7 @@ namespace System.Windows.Forms
             // label16
             // 
             this.label16.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.label16.Location = new System.Drawing.Point(129, 16);
+            this.label16.Location = new System.Drawing.Point(75, 16);
             this.label16.Name = "label16";
             this.label16.Size = new System.Drawing.Size(66, 20);
             this.label16.TabIndex = 35;
@@ -811,7 +855,7 @@ namespace System.Windows.Forms
             // 
             this.radius.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.radius.Integral = false;
-            this.radius.Location = new System.Drawing.Point(60, 35);
+            this.radius.Location = new System.Drawing.Point(6, 35);
             this.radius.MaximumValue = 3.402823E+38F;
             this.radius.MinimumValue = -3.402823E+38F;
             this.radius.Name = "radius";
@@ -836,7 +880,7 @@ namespace System.Windows.Forms
             // 
             this.elevation.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.elevation.Integral = false;
-            this.elevation.Location = new System.Drawing.Point(197, 35);
+            this.elevation.Location = new System.Drawing.Point(143, 35);
             this.elevation.MaximumValue = 3.402823E+38F;
             this.elevation.MinimumValue = -3.402823E+38F;
             this.elevation.Name = "elevation";
@@ -861,7 +905,7 @@ namespace System.Windows.Forms
             // 
             this.azimuth.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.azimuth.Integral = false;
-            this.azimuth.Location = new System.Drawing.Point(129, 35);
+            this.azimuth.Location = new System.Drawing.Point(75, 35);
             this.azimuth.MaximumValue = 3.402823E+38F;
             this.azimuth.MinimumValue = -3.402823E+38F;
             this.azimuth.Name = "azimuth";
@@ -1405,8 +1449,9 @@ namespace System.Windows.Forms
             // 
             // label18
             // 
+            this.label18.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label18.AutoSize = true;
-            this.label18.Location = new System.Drawing.Point(4, 220);
+            this.label18.Location = new System.Drawing.Point(4, 367);
             this.label18.Name = "label18";
             this.label18.Size = new System.Drawing.Size(145, 13);
             this.label18.TabIndex = 39;
@@ -1516,6 +1561,10 @@ namespace System.Windows.Forms
             // 
             // tabPage2
             // 
+            this.tabPage2.Controls.Add(this.chkPixelLighting);
+            this.tabPage2.Controls.Add(this.chkHideMainWindow);
+            this.tabPage2.Controls.Add(this.chkUsePointsAsBones);
+            this.tabPage2.Controls.Add(this.chkScaleBones);
             this.tabPage2.Controls.Add(this.chkSaveWindowPosition);
             this.tabPage2.Controls.Add(this.chkMaximize);
             this.tabPage2.Controls.Add(this.grpColors);
@@ -1530,6 +1579,50 @@ namespace System.Windows.Forms
             this.tabPage2.Size = new System.Drawing.Size(324, 393);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "General";
+            // 
+            // chkPixelLighting
+            // 
+            this.chkPixelLighting.AutoSize = true;
+            this.chkPixelLighting.Location = new System.Drawing.Point(7, 280);
+            this.chkPixelLighting.Name = "chkPixelLighting";
+            this.chkPixelLighting.Size = new System.Drawing.Size(228, 17);
+            this.chkPixelLighting.TabIndex = 52;
+            this.chkPixelLighting.Text = "Per pixel lighting (as opposed to per vertex)";
+            this.chkPixelLighting.UseVisualStyleBackColor = true;
+            this.chkPixelLighting.CheckedChanged += new System.EventHandler(this.chkPixelLighting_CheckedChanged);
+            // 
+            // chkHideMainWindow
+            // 
+            this.chkHideMainWindow.AutoSize = true;
+            this.chkHideMainWindow.Location = new System.Drawing.Point(7, 257);
+            this.chkHideMainWindow.Name = "chkHideMainWindow";
+            this.chkHideMainWindow.Size = new System.Drawing.Size(112, 17);
+            this.chkHideMainWindow.TabIndex = 51;
+            this.chkHideMainWindow.Text = "Hide main window";
+            this.chkHideMainWindow.UseVisualStyleBackColor = true;
+            this.chkHideMainWindow.CheckedChanged += new System.EventHandler(this.chkHideMainWindow_CheckedChanged);
+            // 
+            // chkUsePointsAsBones
+            // 
+            this.chkUsePointsAsBones.AutoSize = true;
+            this.chkUsePointsAsBones.Location = new System.Drawing.Point(7, 234);
+            this.chkUsePointsAsBones.Name = "chkUsePointsAsBones";
+            this.chkUsePointsAsBones.Size = new System.Drawing.Size(137, 17);
+            this.chkUsePointsAsBones.TabIndex = 50;
+            this.chkUsePointsAsBones.Text = "Display bones as points";
+            this.chkUsePointsAsBones.UseVisualStyleBackColor = true;
+            this.chkUsePointsAsBones.CheckedChanged += new System.EventHandler(this.chkUsePointsAsBones_CheckedChanged);
+            // 
+            // chkScaleBones
+            // 
+            this.chkScaleBones.AutoSize = true;
+            this.chkScaleBones.Location = new System.Drawing.Point(7, 211);
+            this.chkScaleBones.Name = "chkScaleBones";
+            this.chkScaleBones.Size = new System.Drawing.Size(145, 17);
+            this.chkScaleBones.TabIndex = 49;
+            this.chkScaleBones.Text = "Scale bones with camera";
+            this.chkScaleBones.UseVisualStyleBackColor = true;
+            this.chkScaleBones.CheckedChanged += new System.EventHandler(this.chkScaleBones_CheckedChanged);
             // 
             // chkSaveWindowPosition
             // 
@@ -1555,9 +1648,10 @@ namespace System.Windows.Forms
             // 
             // maxUndoCount
             // 
+            this.maxUndoCount.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.maxUndoCount.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.maxUndoCount.Integral = false;
-            this.maxUndoCount.Location = new System.Drawing.Point(155, 218);
+            this.maxUndoCount.Location = new System.Drawing.Point(155, 365);
             this.maxUndoCount.MaximumValue = 3.402823E+38F;
             this.maxUndoCount.MinimumValue = -3.402823E+38F;
             this.maxUndoCount.Name = "maxUndoCount";
@@ -1912,7 +2006,7 @@ namespace System.Windows.Forms
         private void chkSyncTexToObj_CheckedChanged(object sender, EventArgs e)
         {
             if (!_updating)
-                _form.leftPanel.chkSyncVis.Checked = chkSyncTexToObj.Checked;
+                _form.SyncTexturesToObjectList = chkSyncTexToObj.Checked;
         }
 
         private void chkSyncObjToVIS_CheckedChanged(object sender, EventArgs e)
@@ -2087,6 +2181,52 @@ namespace System.Windows.Forms
             numPosTZ.Value = trans._z;
 
             _updating = false;
+        }
+
+        private void chkLightEnabled_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                _form.ModelPanel.CurrentViewport.LightEnabled = chkLightEnabled.Checked;
+        }
+
+        private void chkLightDirectional_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                _form.ModelPanel.CurrentViewport.LightDirectional = chkLightDirectional.Checked;
+        }
+
+        private void chkScaleBones_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                _form.ModelPanel.CurrentViewport.ScaleBones = chkScaleBones.Checked;
+        }
+
+        private void chkUsePointsAsBones_CheckedChanged(object sender, EventArgs e)
+        {
+            if (!_updating)
+                _form.ModelPanel.CurrentViewport.RenderBonesAsPoints = chkUsePointsAsBones.Checked;
+        }
+
+        private void chkHideMainWindow_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+            
+            MainForm.Instance.Visible = !(_form._hideMainWindow = chkHideMainWindow.Checked);
+            foreach (ModelEditControl c in ModelEditControl.Instances)
+                c._hideMainWindow = _form._hideMainWindow;
+            _form.SaveSettings();
+        }
+
+        private void chkPixelLighting_CheckedChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+
+            BrawlBox.Properties.Settings.Default.PixelLighting = 
+                ShaderGenerator.UsePixelLighting = chkPixelLighting.Checked;
+            _form.ModelPanel.Invalidate();
+            BrawlBox.Properties.Settings.Default.Save();
         }
     }
 }

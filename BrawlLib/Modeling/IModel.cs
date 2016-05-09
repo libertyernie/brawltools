@@ -2,11 +2,9 @@
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Wii.Models;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Text;
+using System.Windows.Forms;
 
 namespace BrawlLib.Modeling
 {
@@ -15,8 +13,10 @@ namespace BrawlLib.Modeling
         InfluenceManager Influences { get; }
         IBoneNode[] BoneCache { get; }
         IBoneNode[] RootBones { get; }
+        IObject[] Objects { get; }
+        int SelectedObjectIndex { get; set; }
         bool IsTargetModel { get; set; }
-        
+
         void ResetToBindState();
         void ApplyCHR(CHR0Node node, float index);
         void ApplySRT(SRT0Node node, float index);
@@ -28,9 +28,8 @@ namespace BrawlLib.Modeling
         
         void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera);
         void RenderNormals();
-
-        int SelectedObjectIndex { get; set; }
-        IObject[] Objects { get; }
+        void RenderBoxes(bool model, bool obj, bool bone, bool bindState);
+        void RenderBones(ModelPanelViewport v);
     }
 
     [Serializable]
@@ -47,6 +46,9 @@ namespace BrawlLib.Modeling
         public bool _renderBoneBoxes = false;
         public bool _useBindStateBoxes = true;
         public bool _applyBillboardBones = true;
+        public bool _renderShaders = true;
+        public bool _scaleBones = false;
+        public bool _renderBonesAsPoints = false;
 
         public ModelRenderAttributes() { }
         public ModelRenderAttributes(SerializationInfo info, StreamingContext ctxt)

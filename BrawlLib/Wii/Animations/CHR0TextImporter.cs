@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.IO;
-using BrawlLib.SSBBTypes;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 
@@ -65,6 +63,7 @@ namespace BrawlLib.Wii.Animations
                             if (line.CompareTo("Keyframe Data") == 0)
                             {
                                 CHR0EntryNode node = new CHR0EntryNode();
+                                chr0.AddChild(node);
                                 node.Name = reader.ReadLine();
                                 node.SetSize(keyFrameCount, chr0.Loop);
 
@@ -103,11 +102,11 @@ namespace BrawlLib.Wii.Animations
                                     if (translation.highestCount > frameCount)
                                     {
                                         if (translation.x.Count != 0 && frameCount < translation.x.Count)
-                                            node.SetKeyframe(0, frameCount, translation.x[frameCount]);
+                                            node.SetKeyframe(6, frameCount, translation.x[frameCount]);
                                         if (translation.y.Count != 0 && frameCount < translation.y.Count)
-                                            node.SetKeyframe(1, frameCount, translation.y[frameCount]);
+                                            node.SetKeyframe(7, frameCount, translation.y[frameCount]);
                                         if (translation.z.Count != 0 && frameCount < translation.z.Count)
-                                            node.SetKeyframe(2, frameCount, translation.z[frameCount]);
+                                            node.SetKeyframe(8, frameCount, translation.z[frameCount]);
                                     }
                                     if (rotation.highestCount > frameCount)
                                     {
@@ -121,14 +120,13 @@ namespace BrawlLib.Wii.Animations
                                     if (scale.highestCount > frameCount)
                                     {
                                         if (scale.x.Count != 0 && frameCount < scale.x.Count)
-                                            node.SetKeyframe(6, frameCount, scale.x[frameCount]);
+                                            node.SetKeyframe(0, frameCount, scale.x[frameCount]);
                                         if (scale.y.Count != 0 && frameCount < scale.y.Count)
-                                            node.SetKeyframe(7, frameCount, scale.y[frameCount]);
+                                            node.SetKeyframe(1, frameCount, scale.y[frameCount]);
                                         if (scale.z.Count != 0 && frameCount < scale.z.Count)
-                                            node.SetKeyframe(8, frameCount, scale.z[frameCount]);
+                                            node.SetKeyframe(2, frameCount, scale.z[frameCount]);
                                     }
                                 }
-                                chr0.AddChild(node);
                             }
                         }
                     }

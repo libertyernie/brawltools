@@ -1,14 +1,12 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.MovesetFile;
-using System.Windows.Forms;
 using System;
 using System.Audio;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 using Ikarus.UI;
 using BrawlLib.SSBBTypes;
+using BrawlLib.OpenGL;
 
 namespace Ikarus.ModelViewer
 {
@@ -82,26 +80,18 @@ namespace Ikarus.ModelViewer
             //Reload scripts
             LoadSubactionScripts();
 
-            //Reset model visiblity to its default state
-            if (_model != null && _model._objList != null)
-                if (_article._mdlVis != null)
-                    _article._mdlVis.ResetVisibility(0);
-                else
-                    foreach (MDL0ObjectNode o in _model._objList)
-                        o._render = false;//o._visBoneNode == null ? true : o._visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+            SubactionIndex = -1; //Reset the current animation
+            Running = !_etcModel; //Set default visibility
         }
 
         private bool _running = false;
-
+        public bool _etcModel = true;
         public int CurrentFrame
         {
             get { return _animFrame; }
             set
             {
                 _animFrame = value;
-
-                if (_animFrame <= 0)
-                    ResetSubactionVariables();
 
                 UpdateModel();
             }
@@ -156,26 +146,32 @@ namespace Ikarus.ModelViewer
         public bool Running 
         {
             get { return _running; } 
+            set { ModelVisible = _running = value; }
+        }
+
+        public bool ModelVisible
+        {
+            get { return _model == null ? false : _model.IsRendering; }
             set
             {
-                _running = value;
-                if (_model != null)
-                    _model.IsRendering = _running;
-                ResetSubactionVariables();
+                if (_model != null && (_model.IsRendering = value))
+                {
+                    _model.ResetToBindState();
+
+                    //Reset model visiblity to its default state
+                    if (_model != null && _model._objList != null)
+                        if (_article._mdlVis != null)
+                            _article._mdlVis.ResetVisibility();
+                        else
+                            foreach (DrawCall b in _model.DrawCalls)
+                                b._render = b.VisibilityBoneNode == null ? true : b.VisibilityBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                }
             }
         }
 
-        public void ResetRunning()
-        {
-            //Anchored articles are visible by default
-            Running = _article.ArticleBoneNode != null && _article.CharBoneNode != null;
-        }
-
-        public bool ModelVisible { get { return _model == null ? false : _model.IsRendering; } set { if (_model == null) return; _model.IsRendering = value; } }
-
         public void UpdateModel()
         {
-            if (_model == null || !_running)
+            if (_model == null)
                 return;
 
             MainControl ctrl = MainForm.Instance._mainControl;
@@ -336,16 +332,16 @@ namespace Ikarus.ModelViewer
 
     public class ScriptOffsetInfo
     {
-        public ListValue list;
-        public TypeValue type;
-        public int index;
+        public ListValue _list;
+        public TypeValue _type;
+        public int _index;
 
-        public ScriptOffsetInfo() { list = ListValue.Null; type = TypeValue.None; index = -1; }
+        public ScriptOffsetInfo() { _list = ListValue.Null; _type = TypeValue.None; _index = -1; }
         public ScriptOffsetInfo(ListValue l, TypeValue t, int i)
         {
-            list = l;
-            type = t;
-            index = i;
+            _list = l;
+            _type = t;
+            _index = i;
         }
     }
 }

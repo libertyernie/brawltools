@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Windows.Interop;
+﻿using System.Diagnostics;
 using System.Windows.Forms;
 using System.Threading;
 
@@ -190,6 +184,8 @@ namespace System
             _running = true;
             //try
             //{
+            //Action<object, DoWorkEventArgs> work = (object sender, DoWorkEventArgs e) =>
+            //{
                 TargetUpdateFrequency = updatesPerSec;
                 TargetRenderFrequency = framesPerSec;
 
@@ -205,6 +201,13 @@ namespace System
                     if (!_running) return;
                     UpdateAndRenderFrame();
                 }
+            //};
+            //using (BackgroundWorker b = new BackgroundWorker())
+            //{
+            //    b.DoWork += new DoWorkEventHandler(work);
+            //    //b.RunWorkerCompleted += new RunWorkerCompletedEventHandler(completed);
+            //    b.RunWorkerAsync();
+            //}
             //}
             //catch
             //{

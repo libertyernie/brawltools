@@ -12,25 +12,31 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal MDL0ColorData* Header { get { return (MDL0ColorData*)WorkingUncompressed.Address; } }
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+
+        MDL0ColorData _hdr = new MDL0ColorData();
 
         [Category("Color Data")]
-        public int ID { get { return Header->_index; } }
+        public int ID { get { return _hdr._index; } }
         [Category("Color Data")]
-        public bool IsRGBA { get { return Header->_isRGBA != 0; } }
+        public bool IsRGBA { get { return _hdr._isRGBA != 0; } }
         [Category("Color Data")]
-        public WiiColorComponentType Format { get { return (WiiColorComponentType)(int)Header->_format; } }
+        public WiiColorComponentType Format { get { return (WiiColorComponentType)(int)_hdr._format; } }
         [Category("Color Data")]
-        public byte EntryStride { get { return Header->_entryStride; } }
+        public byte EntryStride { get { return _hdr._entryStride; } }
         [Category("Color Data")]
-        public int NumEntries { get { return Header->_numEntries; } }
+        public int NumEntries { get { return _hdr._numEntries; } }
 
         private RGBAPixel[] _colors;
         [Browsable(false)]
         public RGBAPixel[] Colors
         {
             get { return _colors == null && Header != null ? _colors = ColorCodec.ExtractColors(Header).Select(n => (RGBAPixel)n).ToArray() : _colors; }
-            set { _colors = value; SignalPropertyChange(); }
+            set
+            {
+                _colors = value;
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()
@@ -38,6 +44,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Clear the colors so they're reparsed,
             //just in case the node has been replaced.
             _colors = null;
+
+            _hdr = *Header;
+
+            //SetSizeInternal(_hdr._dataLen);
 
             if ((_name == null) && (Header->_stringOffset != 0))
                 _name = Header->ResourceString;
@@ -58,7 +68,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
-            if (Model._isImport || _changed)
+            if (Model._isImport || _changed || Header == null)
             {
                 //Write header
                 MDL0ColorData* header = (MDL0ColorData*)address;

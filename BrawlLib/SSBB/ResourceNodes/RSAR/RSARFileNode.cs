@@ -1,5 +1,4 @@
 using System;
-using BrawlLib.SSBBTypes;
 using System.IO;
 using BrawlLib.IO;
 using System.Linq;
@@ -47,11 +46,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             _name = String.Format("[{0}] {1}", _fileIndex, closestMatch);
         }
 
-        public List<RSARGroupNode> _groups = new List<RSARGroupNode>();
+        public List<RSARGroupNode> _groupRefs = new List<RSARGroupNode>();
         [Browsable(false)]
-        public RSARGroupNode[] Groups { get { return _groups.ToArray(); } }
+        public RSARGroupNode[] GroupRefNodes { get { return _groupRefs.ToArray(); } }
 
-        public virtual string[] GroupRefs { get { return _groups.Select(x => x.TreePath).ToArray(); } }
+        public virtual string[] GroupRefs { get { return _groupRefs.Select(x => x.TreePath).ToArray(); } }
 
         public List<string> _references = new List<string>();
         public virtual string[] EntryRefs { get { return _references.ToArray(); } }
@@ -76,26 +75,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        internal string _extPath;
         internal int _fileIndex;
         internal LabelItem[] _labels;
 
-        public uint _extFileSize = 0;
-
         [Category("File Node"), Browsable(true)]
         public virtual int FileNodeIndex { get { return _fileIndex; } }
-        [Browsable(false)]
-        public string ExtPath { get { return _extPath; } set { _extPath = value; SignalPropertyChange(); } }
-        [Browsable(false)]
-        public string FullExtPath
+        
+        internal int _entryNumber;
+        [Category("Data"), Browsable(false)]
+        public int EntryNumber
         {
-            get { return ExtPath == null ? null : RootNode._origPath.Substring(0, RootNode._origPath.LastIndexOf('\\')) + "\\" + ExtPath.Replace('/', '\\'); }
-            set { _extPath = value.Substring(RootNode._origPath.Substring(0, RootNode._origPath.LastIndexOf('\\')).Length + 1).Replace('\\', '/'); SignalPropertyChange(); }
-        }
-        [Browsable(false), TypeConverter(typeof(ExpandableObjectCustomConverter))]
-        public FileInfo ExternalFileInfo
-        {
-            get { return FullExtPath == null ? null : new FileInfo(FullExtPath); }
+            get { return _entryNumber; }
         }
 
         [Category("Data"), Browsable(false)]
@@ -113,16 +103,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected virtual void GetStrings(LabelBuilder builder) { }
 
-        public void GetExtSize()
-        {
-            if (ExternalFileInfo.Exists)
-                _extFileSize = (uint)ExternalFileInfo.Length;
-        }
-
         public override bool OnInitialize()
         {
             base.OnInitialize();
-            _groups = new List<RSARGroupNode>();
+            _groupRefs = new List<RSARGroupNode>();
             if (_name == null)
                 if (_parent == null)
                     _name = Path.GetFileNameWithoutExtension(_origPath);
@@ -142,37 +126,35 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             Rebuild();
 
-            if (_audioSource != DataSource.Empty)
+            //Get strings
+            labl = new LabelBuilder();
+            GetStrings(labl);
+            lablLen = (labl.Count == 0) ? 0 : labl.GetSize();
+            size = WorkingUncompressed.Length + lablLen + _audioSource.Length;
+
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
             {
-                //Get strings
-                labl = new LabelBuilder();
-                GetStrings(labl);
-                lablLen = (labl.Count == 0) ? 0 : labl.GetSize();
-                size = WorkingUncompressed.Length + lablLen + _audioSource.Length;
-
-                using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None))
+                stream.SetLength(size);
+                using (FileMap map = FileMap.FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, size))
                 {
-                    stream.SetLength(size);
-                    using (FileMap map = FileMap.FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, size))
-                    {
-                        addr = map.Address;
+                    addr = map.Address;
 
-                        //Write header
-                        Memory.Move(addr, WorkingUncompressed.Address, (uint)WorkingUncompressed.Length);
-                        addr += WorkingUncompressed.Length;
+                    //Write headers
+                    MoveRawUncompressed(addr, WorkingUncompressed.Length);
+                    addr += WorkingUncompressed.Length;
 
-                        //Write strings
-                        if (lablLen > 0)
-                            labl.Write(addr);
-                        addr += lablLen;
+                    //Write strings
+                    if (lablLen > 0)
+                        labl.Write(addr);
+                    addr += lablLen;
 
-                        //Write data
-                        Memory.Move(addr, _audioSource.Address, (uint)_audioSource.Length);
-                    }
+                    //Write sound data
+                    int audioLen = _audioSource.Length;
+                    Memory.Move(addr, _audioSource.Address, (uint)audioLen);
+                    _audioSource.Close();
+                    _audioSource = new DataSource(addr, audioLen);
                 }
             }
-            else
-                base.Export(outPath);
         }
 
         internal protected virtual void PostProcess(VoidPtr audioAddr, VoidPtr dataAddr)

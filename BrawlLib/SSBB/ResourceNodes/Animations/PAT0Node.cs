@@ -3,8 +3,8 @@ using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
 using BrawlLib.Imaging;
+using System.Drawing;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -602,7 +602,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
     }
 
-    public unsafe class PAT0TextureNode : ResourceNode//, IVideo
+    public unsafe class PAT0TextureNode : ResourceNode, IVideo
     {
         internal PAT0TextureTable* Header { get { return (PAT0TextureTable*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.PAT0Texture; } }
@@ -893,42 +893,37 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region IVideo Interface
 
-        //[Browsable(false)]
-        //public uint NumFrames { get { return (uint)((PAT0Node)Parent.Parent).FrameCount; } }
-        //[Browsable(false)]
-        //public int GetImageIndexAtFrame(int frame)
-        //{
-        //    PAT0TextureEntryNode node = GetPrevious(frame);
-        //    if (node != null)
-        //        return node.Index;
-        //    return 0;
-        //}
-        //[Browsable(false)]
-        //public float FrameRate { get { return 60; } }
-        //[Browsable(false)]
-        //public System.Audio.IAudioStream Audio { get { return null; } }
-        //[Browsable(false)]
-        //public uint Frequency { get { return 0; } }
-        //[Browsable(false)]
-        //public int ImageCount { get { return Children.Count; } }
-        //[Browsable(false)]
-        //public System.Drawing.Bitmap GetImage(int index)
-        //{
-        //    if (index < 0 || index >= Children.Count)
-        //        return null;
-
-        //    PAT0TextureEntryNode e = Children[index] as PAT0TextureEntryNode;
-
-        //    if (e._textureNode == null)
-        //        return null;
-
-        //    return e._textureNode.GetImage(0);
-        //}
+        [Browsable(false)]
+        public uint NumFrames { get { return (uint)((PAT0Node)Parent.Parent).FrameCount; } }
+        [Browsable(false)]
+        public int GetImageIndexAtFrame(int frame)
+        {
+            PAT0TextureEntryNode node = GetPrevious(frame);
+            if (node != null)
+                return node.Index;
+            return 0;
+        }
+        [Browsable(false)]
+        public float FrameRate { get { return 60; } }
+        [Browsable(false)]
+        public System.Audio.IAudioStream Audio { get { return null; } }
+        [Browsable(false)]
+        public uint Frequency { get { return 0; } }
+        [Browsable(false)]
+        public int ImageCount { get { return Children.Count; } }
+        [Browsable(false)]
+        public System.Drawing.Bitmap GetImage(int index)
+        {
+            if (index < 0 || index >= Children.Count)
+                return null;
+            
+            return ((PAT0TextureEntryNode)Children[index]).GetImage(0);
+        }
 
         #endregion
     }
     
-    public unsafe class PAT0TextureEntryNode : ResourceNode
+    public unsafe class PAT0TextureEntryNode : ResourceNode, IImageSource
     {
         internal PAT0Texture* Header { get { return (PAT0Texture*)WorkingUncompressed.Address; } }
         public float _frame;
@@ -1024,7 +1019,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return;
 
                 _plt = value;
-
+                _paletteNode = null;
                 ((PAT0Node)Parent.Parent.Parent).RegeneratePaletteList();
 
                 SignalPropertyChange();
@@ -1034,8 +1029,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         private void SetTexture(string value)
         {
             _tex = value;
-            //_textureNode = RootNode.FindChildByType(_tex, true, ResourceNodes.ResourceType.TEX0) as TEX0Node;
-
+            _textureNode = null;
             ((PAT0Node)Parent.Parent.Parent).RegenerateTextureList();
         }
 
@@ -1068,12 +1062,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             PAT0Node node = (PAT0Node)Parent.Parent.Parent;
 
             if (((PAT0TextureNode)Parent)._hasPlt && _pltFileIndex < node._paletteFiles.Count)
+            {
                 _plt = node._paletteFiles[_pltFileIndex];
+                _paletteNode = null;
+            }
 
             if (((PAT0TextureNode)Parent)._hasTex && _texFileIndex < node._textureFiles.Count)
             {
                 _name = _tex = node._textureFiles[_texFileIndex];
-                //_textureNode = RootNode.FindChildByType(_tex, true, ResourceNodes.ResourceType.TEX0) as TEX0Node;
+                _textureNode = null;
             }
 
             if (_name == null && _plt != null)
@@ -1099,7 +1096,38 @@ namespace BrawlLib.SSBB.ResourceNodes
             return PAT0Texture.Size;
         }
 
-        //This was so PAT0 textures could be displayed in the video player, but retrieving this node takes too much time.
-        //public TEX0Node _textureNode = null;
+        public int ImageCount
+        {
+            get
+            {
+                if (_textureNode == null)
+                {
+                    _textureNode = RootNode.FindChildByType(_tex, true, ResourceNodes.ResourceType.TEX0) as TEX0Node;
+                    if (_textureNode == null)
+                        return 0;
+                }
+                return _textureNode.ImageCount;
+            }
+        }
+        public Bitmap GetImage(int index)
+        {
+            if (String.IsNullOrEmpty(_tex))
+                return null;
+
+            if (_textureNode == null)
+            {
+                _textureNode = RootNode.FindChildByType(_tex, true, ResourceNodes.ResourceType.TEX0) as TEX0Node;
+                if (_textureNode == null)
+                    return null;
+            }
+
+            if (!String.IsNullOrEmpty(_plt) && _paletteNode == null)
+                _paletteNode = RootNode.FindChildByType(_plt, true, ResourceNodes.ResourceType.PLT0) as PLT0Node;
+
+            return _textureNode.GetImage(index, _paletteNode);
+        }
+        
+        public TEX0Node _textureNode = null;
+        public PLT0Node _paletteNode = null;
     }
 }

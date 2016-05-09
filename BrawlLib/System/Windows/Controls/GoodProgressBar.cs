@@ -1,6 +1,4 @@
-﻿using System;
-using System.Text;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Drawing2D;
 
 namespace System.Windows.Forms
@@ -29,8 +27,8 @@ namespace System.Windows.Forms
             bounds.Width = (int)(bounds.Width * percent);
             PointF p1 = new PointF(0, 0);
             PointF p2 = new PointF(bounds.Width, 0);
-            PointF p3 = new PointF(bounds.Width, bounds.Height / 2);
-            PointF p4 = new PointF(0, bounds.Height / 2);
+            //PointF p3 = new PointF(bounds.Width, bounds.Height / 2);
+            //PointF p4 = new PointF(0, bounds.Height / 2);
 
             g.ResetClip();
             g.Clear(this.BackColor);

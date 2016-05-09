@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 using System.Collections;
-using Ikarus.MovesetBuilder;
 
 namespace Ikarus.MovesetFile
 {
@@ -131,16 +127,20 @@ namespace Ikarus.MovesetFile
                 _children.Add(Parse<ActionOverrideEntry>(entry++));
         }
 
+        protected override int OnGetLookupCount()
+        {
+            int i = 0;
+            foreach (ActionOverrideEntry e in _children)
+                if (e._script != null && e._script.Count > 0)
+                    i++;
+            return i;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             int size = 8;
             foreach (ActionOverrideEntry e in _children)
-            {
                 size += 8;
-                if (e._script != null && e._script.Count > 0)
-                    _lookupCount++;
-            }
             return _entryLength = size;
         }
 
@@ -154,7 +154,7 @@ namespace Ikarus.MovesetFile
                 addr->_actionID = e._actionId;
                 SakuraiArchiveNode.Builder._postProcessNodes.Add(this);
                 if (e._script != null && e._script.Count > 0)
-                    _lookupOffsets.Add(addr->_commandListOffset.Address);
+                    Lookup(addr->_commandListOffset.Address);
                 address += 8;
             }
 

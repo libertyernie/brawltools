@@ -35,24 +35,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             return false;
         }
 
-        public void RecalcFrameState()
-        {
-            _frameState.CalcTransforms();
-            if (_parent is FMDLBoneNode)
-            {
-                _matrix = ((FMDLBoneNode)_parent)._matrix * _frameState._transform;
-                _inverseMatrix = _frameState._iTransform * ((FMDLBoneNode)_parent)._inverseMatrix;
-            }
-            else
-            {
-                _matrix = _frameState._transform;
-                _inverseMatrix = _frameState._iTransform;
-            }
-
-            foreach (FMDLBoneNode bone in Children)
-                bone.RecalcFrameState();
-        }
-
         int _weightCount, _refCount;
         bool _locked, _moved, _render;
         FrameState _bindState, _frameState;        
@@ -154,7 +136,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Vector3 v1 = (_parent == null || !(_parent is FMDLBoneNode)) ? new Vector3(0.0f) : ((FMDLBoneNode)_parent)._matrix.GetPoint();
             Vector3 v = _matrix.GetPoint();
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
 
             GL.Vertex3((float*)&v1);
             GL.Vertex3((float*)&v);
@@ -175,7 +157,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 ndl.Call();
 
-                MDL0BoneNode.DrawNodeOrients(Foreground);
+                MDL0BoneNode.DrawNodeOrients(Foreground ? 1.0f : 0.5f);
             }
             GL.PopMatrix();
 
@@ -235,6 +217,34 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void Render(bool targetModel, GLViewport viewport)
         {
             
+        }
+
+        public void Render(bool targetModel, ModelPanelViewport viewport, Vector3 position = default(Vector3))
+        {
+            
+        }
+
+        public void RecalcBindState(bool updateMesh, bool moveMeshWithBone, bool updateAssetLists = true)
+        {
+            
+        }
+
+        public void RecalcFrameState(ModelPanelViewport v = null)
+        {
+            _frameState.CalcTransforms();
+            if (_parent is FMDLBoneNode)
+            {
+                _matrix = ((FMDLBoneNode)_parent)._matrix * _frameState._transform;
+                _inverseMatrix = _frameState._iTransform * ((FMDLBoneNode)_parent)._inverseMatrix;
+            }
+            else
+            {
+                _matrix = _frameState._transform;
+                _inverseMatrix = _frameState._iTransform;
+            }
+
+            foreach (FMDLBoneNode bone in Children)
+                bone.RecalcFrameState();
         }
     }
 }

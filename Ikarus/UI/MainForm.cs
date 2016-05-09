@@ -1,19 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Drawing;
-using System.Text;
 using System.Windows.Forms;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Threading;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Imaging;
-using System.Reflection;
-using BrawlLib.IO;
-using System.Audio;
-using BrawlLib.Wii.Audio;
-using BrawlLib.OpenGL;
 using System.Diagnostics;
 
 namespace Ikarus.UI

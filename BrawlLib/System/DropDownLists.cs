@@ -1,5 +1,4 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Globalization;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
@@ -10,7 +9,17 @@ using BrawlLib.Wii.Compression;
 namespace System
 {
     #region MDL0
-
+    public class DropDownListMaterialsDrawCall : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            MDL0Node model = (context.Instance as DrawCall)._parentObject.Model;
+            List<ResourceNode> mats = new List<ResourceNode>();
+            foreach (MDL0MaterialNode n in model._matList) mats.Add(n);
+            return new StandardValuesCollection(mats.Select(n => n.ToString()).ToList());
+        }
+    }
     public class DropDownListOpaMaterials : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
@@ -53,6 +62,15 @@ namespace System
             return new StandardValuesCollection(model._shadList.Select(n => n.ToString()).ToList());
         }
     }
+    public class DropDownListBonesDrawCall : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            MDL0Node model = (context.Instance as DrawCall)._parentObject.Model;
+            return new StandardValuesCollection(model._linker.BoneCache.Select(n => n.ToString()).ToList());
+        }
+    }
     public class DropDownListBones : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
@@ -69,7 +87,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._colorList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._colorList != null ? model._colorList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -79,7 +97,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._vertList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._vertList != null ? model._vertList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -89,7 +107,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._normList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._normList != null ? model._normList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -99,7 +117,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._uvList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._uvList != null ? model._uvList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -109,7 +127,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._furPosList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._furPosList != null ? model._furPosList.Select(n => n.ToString()).ToList() : null);
         }
     }
     
@@ -119,7 +137,7 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             MDL0Node model = (context.Instance as MDL0EntryNode).Model;
-            return new StandardValuesCollection(model._furVecList.Select(n => n.ToString()).ToList());
+            return new StandardValuesCollection(model != null && model._furVecList != null ? model._furVecList.Select(n => n.ToString()).ToList() : null);
         }
     }
 
@@ -181,7 +199,36 @@ namespace System
 
     #region RSAR
 
-    public class DropDownListRSARFiles : StringConverter
+    public class DropDownListBankFiles : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            RSAREntryNode n = context.Instance as RSAREntryNode;
+            return new StandardValuesCollection(n.RSARNode.Files.Where(x => x is RBNKNode || x is RSARExtFileNode).Select(r => r.ToString()).ToList());
+        }
+    }
+
+    public class DropDownListNonBankFiles : StringConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            Type e;
+            RSARSoundNode n = context.Instance as RSARSoundNode;
+            switch (n.SoundType)
+            {
+                default: return null;
+                case RSARSoundNode.SndType.SEQ: e = typeof(RSEQNode); break;
+                case RSARSoundNode.SndType.STRM: e = typeof(RSTMNode); break;
+                case RSARSoundNode.SndType.WAVE: e = typeof(RWSDNode); break;
+            }
+            Type ext = typeof(RSARExtFileNode);
+            return new StandardValuesCollection(
+                n.RSARNode.Files.Where(x => x.GetType() == e || x.GetType() == ext).Select(r => r.ToString()).ToList());
+        }
+    }
+    public class DropDownListRSARBankRefFiles : StringConverter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
@@ -207,8 +254,8 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSARSoundNode n = context.Instance as RSARSoundNode;
-            if (n.SoundNode == null) return null;
-            return new StandardValuesCollection(n.SoundNode.Children[0].Children.Select(r => r.ToString()).ToList());
+            if (n.SoundFileNode == null || n.SoundFileNode is RSARExtFileNode) return null;
+            return new StandardValuesCollection(n.SoundFileNode.Children[0].Children.Select(r => r.ToString()).ToList());
         }
     }
     
@@ -218,8 +265,11 @@ namespace System
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
             RSARSoundNode n = context.Instance as RSARSoundNode;
-            if (n.SoundNode == null || n.SoundType != RSARSoundNode.SndType.SEQ) return null;
-            return new StandardValuesCollection(n.SoundNode.Children.Select(r => r.ToString()).ToList());
+
+            if (n.SoundFileNode != null && n.SoundType == RSARSoundNode.SndType.SEQ)
+                return new StandardValuesCollection(n.SoundFileNode.Children.Select(r => r.ToString()).ToList());
+
+            return null;
         }
     }
 
@@ -422,25 +472,103 @@ namespace System
             return new StandardValuesCollection(values);
         }
     }
-    public class DropDownListStageIDs : StringConverter {
-        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
-        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context) {
-            return new StandardValuesCollection(BrawlLib.SSBB.Stage.Stages.Select(s => s.ID.ToString("X2") + " - " + s.Name).ToList());
-        }
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType) {
-            return base.CanConvertFrom(context, sourceType);
-        }
-    }
-    public class DropDownListItemIDs : StringConverter
+    public class DropDownListStageIDs : Int32Converter
     {
         public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
         public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
         {
-            return new StandardValuesCollection(BrawlLib.SSBB.Item.Items.Select(s => s.ID.ToString("X2") + " - " + s.Name).ToList());
+            return new StandardValuesCollection(BrawlLib.SSBB.Stage.Stages.Select(s => "0x" + s.ID.ToString("X2") + " - " + s.Name).ToList());
         }
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
-            return base.CanConvertFrom(context, sourceType);
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+        }
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value.GetType() == typeof(string))
+            {
+                string field0 = (value.ToString() ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                return Convert.ToInt32(field0, fromBase);
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value != null && value.GetType() == typeof(int))
+            {
+                var stage = BrawlLib.SSBB.Stage.Stages.Where(s => s.ID == (int)value).FirstOrDefault();
+                return "0x" + ((int)value).ToString("X2") + (stage == null ? "" : (" - " + stage.Name));
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+    }
+    public class DropDownListItemIDs : Int32Converter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(BrawlLib.SSBB.Item.Items.Select(s => "0x" + s.ID.ToString("X2") + " - " + s.Name).ToList());
+        }
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+        }
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value.GetType() == typeof(string))
+            {
+                string field0 = (value.ToString() ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                return Convert.ToInt32(field0, fromBase);
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value != null && value.GetType() == typeof(int))
+            {
+                var item = BrawlLib.SSBB.Item.Items.Where(s => s.ID == (int)value).FirstOrDefault();
+                return "0x" + ((int)value).ToString("X2") + (item == null ? "" : (" - " + item.Name));
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
+        }
+    }
+    public class DropDownListFighterIDs : ByteConverter
+    {
+        public override bool GetStandardValuesSupported(ITypeDescriptorContext context) { return true; }
+        public override StandardValuesCollection GetStandardValues(ITypeDescriptorContext context)
+        {
+            return new StandardValuesCollection(BrawlLib.SSBB.Fighter.Fighters.Select(s => "0x" + s.ID.ToString("X2") + " - " + s.Name).ToList());
+        }
+        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+        {
+            return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
+        }
+        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        {
+            if (value.GetType() == typeof(string))
+            {
+                string field0 = (value.ToString() ?? "").Split(' ')[0];
+                int fromBase = field0.StartsWith("0x", StringComparison.InvariantCultureIgnoreCase)
+                    ? 16
+                    : 10;
+                return Convert.ToByte(field0, fromBase);
+            }
+            return base.ConvertFrom(context, culture, value);
+        }
+        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        {
+            if (destinationType == typeof(string) && value.GetType() == typeof(byte))
+            {
+                var fighter = BrawlLib.SSBB.Fighter.Fighters.Where(s => s.ID == (byte)value).FirstOrDefault();
+                return "0x" + ((byte)value).ToString("X2") + (fighter == null ? "" : (" - " + fighter.Name));
+            }
+            return base.ConvertTo(context, culture, value, destinationType);
         }
     }
 }

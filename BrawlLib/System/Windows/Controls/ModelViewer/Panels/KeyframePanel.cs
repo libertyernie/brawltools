@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
+﻿using System.ComponentModel;
 using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Imaging;
@@ -26,7 +19,16 @@ namespace System.Windows.Forms
     {
         public ModelEditorBase _mainWindow;
 
-        public KeyframePanel() { InitializeComponent(); }
+        public KeyframePanel()
+        {
+            InitializeComponent();
+            clrControl.CurrentColorChanged += clrControl_CurrentColorChanged;
+        }
+
+        void clrControl_CurrentColorChanged(object sender, EventArgs e)
+        {
+            _mainWindow.UpdateModel();
+        }
 
         private int _currentPage = 1;
         private ResourceNode _target;
@@ -376,7 +378,7 @@ namespace System.Windows.Forms
             if (index >= 0)
             {
                 object x = listKeyframes.SelectedItem;
-                int i = 0;
+                float i = 0;
                 if (x is CHRAnimationFrame)
                     i = ((CHRAnimationFrame)listKeyframes.SelectedItem).Index + 1;
                 else if (x is FloatKeyframe)
@@ -389,7 +391,7 @@ namespace System.Windows.Forms
                     i = ((FogAnimationFrame)listKeyframes.SelectedItem).Index + 1;
 
                 if (_mainWindow.CurrentFrame != i)
-                    _mainWindow.SetFrame(i);
+                    _mainWindow.SetFrame((int)i);
             }
         }
         public void UpdateVisEntry()
@@ -409,6 +411,7 @@ namespace System.Windows.Forms
             {
                 visEditor.TargetNode.Enabled = chkEnabled.Checked;
                 UpdateVisEntry();
+                _mainWindow.UpdateModel();
             }
         }
 
@@ -425,6 +428,8 @@ namespace System.Windows.Forms
                 clrControl.ColorSource.SetColorConstant(clrControl.ColorID, chkConstant.Checked);
                 clrControl.ColorID = clrControl.ColorID;
             }
+            if (!_updating)
+                _mainWindow.UpdateModel();
         }
 
         private void lstTypes_SelectedIndexChanged(object sender, EventArgs e)
@@ -505,6 +510,17 @@ namespace System.Windows.Forms
         {
             get { return _mainWindow.SelectedBone; }
             set { _mainWindow.SelectedBone = value; }
+        }
+
+        public void UpdateCurrentFrame(int frame)
+        {
+            if (visEditor.TargetNode != null && !visEditor.TargetNode.Constant)
+            {
+                visEditor._updating = true;
+                visEditor.listBox1.SelectedIndices.Clear();
+                visEditor.listBox1.SelectedIndex = frame - 1;
+                visEditor._updating = false;
+            }
         }
     }
 }

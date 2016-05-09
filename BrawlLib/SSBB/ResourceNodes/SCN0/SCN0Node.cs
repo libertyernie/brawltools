@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -19,6 +15,19 @@ namespace BrawlLib.SSBB.ResourceNodes
         const string _category = "Scene Definition";
         public int _specLights, _lightsets, _amblights, _lights, _fogs, _cameras;
 
+        public SCN0GroupNode[] _groups = new SCN0GroupNode[5];
+
+        [Browsable(false)]
+        public SCN0GroupNode LightSetGroup { get { return _groups[0]; } set { _groups[0] = value; } }
+        [Browsable(false)]
+        public SCN0GroupNode AmbientGroup { get { return _groups[1]; } set { _groups[1] = value; } }
+        [Browsable(false)]
+        public SCN0GroupNode LightGroup { get { return _groups[2]; } set { _groups[2] = value; } }
+        [Browsable(false)]
+        public SCN0GroupNode FogGroup { get { return _groups[3]; } set { _groups[3] = value; } }
+        [Browsable(false)]
+        public SCN0GroupNode CameraGroup { get { return _groups[4]; } set { _groups[4] = value; } }
+        
         [Category(_category)]
         public override int FrameCount
         {
@@ -34,21 +43,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override void UpdateChildFrameLimits()
         {
-            SCN0GroupNode grp = GetFolder<SCN0LightNode>();
-            if (grp != null)
-                foreach (SCN0LightNode l in grp.Children)
+            if (LightGroup != null)
+                foreach (SCN0LightNode l in LightGroup.Children)
                     l.SetSize(_numFrames, Loop);
-            grp = GetFolder<SCN0FogNode>();
-            if (grp != null)
-                foreach (SCN0FogNode l in grp.Children)
-                    l.SetSize(_numFrames, Loop);
-            grp = GetFolder<SCN0AmbientLightNode>();
-            if (grp != null)
-                foreach (SCN0AmbientLightNode l in grp.Children)
+            if (AmbientGroup != null)
+                foreach (SCN0AmbientLightNode l in AmbientGroup.Children)
                     l.SetSize(_numFrames);
-            grp = GetFolder<SCN0CameraNode>();
-            if (grp != null)
-                foreach (SCN0CameraNode l in grp.Children)
+            if (FogGroup != null)
+                foreach (SCN0FogNode l in FogGroup.Children)
+                    l.SetSize(_numFrames, Loop);
+            if (CameraGroup != null)
+                foreach (SCN0CameraNode l in CameraGroup.Children)
                     l.SetSize(_numFrames, Loop);
         }
 
@@ -102,110 +107,76 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             ResourceGroup* group;
+            bint* offsets;
+            bshort* counts;
             if (Header->_version == 5)
+            {
                 group = Header5->Group;
+                offsets = (bint*)Header5->_lightSetOffset.Address;
+                counts = (bshort*)Header5->_lightSetCount.Address;
+            }
             else
+            {
                 group = Header4->Group;
+                offsets = (bint*)Header4->_lightSetOffset.Address;
+                counts = (bshort*)Header4->_lightSetCount.Address;
+            }
 
-            SCN0GroupNode g, lightsets = null;
+            SCN0GroupNode g;
             for (int i = 0; i < group->_numEntries; i++)
             {
                 string name = group->First[i].GetName();
                 (g = new SCN0GroupNode(name)).Initialize(this, new DataSource(group->First[i].DataAddress, 0));
 
-                int offset = 0, count = 0, size = 0;
-                Type t = null;
+                int typeID = (int)g._type;
+                _groups[typeID] = g;
+
+                Type t = SCN0GroupNode._types[typeID];
+
                 ResourceNode r;
-                VoidPtr addr = null;
-
-                switch (name)
-                {
-                    case "LightSet(NW4R)":
-                        count = _lightsets;
-                        t = typeof(SCN0LightSetNode);
-                        addr = Header4->LightSets;
-                        lightsets = g;
-                        break;
-                    case "AmbLights(NW4R)":
-                        count = _amblights;
-                        t = typeof(SCN0AmbientLightNode);
-                        addr = Header4->AmbientLights;
-                        break;
-                    case "Lights(NW4R)":
-                        count = _lights;
-                        t = typeof(SCN0LightNode);
-                        addr = Header4->Lights;
-                        break;
-                    case "Fogs(NW4R)":
-                        count = _fogs;
-                        t = typeof(SCN0FogNode);
-                        addr = Header4->Fogs;
-                        break;
-                    case "Cameras(NW4R)":
-                        count = _cameras;
-                        t = typeof(SCN0CameraNode);
-                        addr = Header4->Cameras;
-                        break;
-                }
-
-                for (int x = 0; x < count; x++, offset += size)
+                VoidPtr entryAddr = (VoidPtr)Header + offsets[typeID];
+                for (int x = 0, offset = 0, size = 0; x < counts[typeID]; x++, offset += size)
                 {
                     r = Activator.CreateInstance(t) as ResourceNode;
-                    size = *(bint*)(addr + offset);
-                    r.Initialize(g, new DataSource(addr + offset, size));
+                    size = *(bint*)(entryAddr + offset);
+                    r.Initialize(g, new DataSource(entryAddr + offset, size));
                 }
             }
-            foreach (SCN0LightSetNode t in lightsets.Children)
-                t.AttachNodes();
+
+            if (LightSetGroup != null)
+                foreach (SCN0LightSetNode t in LightSetGroup.Children)
+                    t.AttachNodes();
         }
 
         public SCN0GroupNode GetOrCreateFolder<T>() where T : SCN0EntryNode
         {
-            string groupName;
-            if (typeof(T) == typeof(SCN0LightSetNode))
-                groupName = "LightSet(NW4R)";
-            else if (typeof(T) == typeof(SCN0AmbientLightNode))
-                groupName = "AmbLights(NW4R)";
-            else if (typeof(T) == typeof(SCN0LightNode))
-                groupName = "Lights(NW4R)";
-            else if (typeof(T) == typeof(SCN0FogNode))
-                groupName = "Fogs(NW4R)";
-            else if (typeof(T) == typeof(SCN0CameraNode))
-                groupName = "Cameras(NW4R)";
-            else
+            return GetOrCreateFolder((SCN0GroupNode.GroupType)SCN0GroupNode._types.IndexOf(typeof(T)));
+        }
+        public SCN0GroupNode GetOrCreateFolder(SCN0GroupNode.GroupType type)
+        {
+            int typeID = (int)type;
+            if (typeID < 0 || typeID >= 5)
                 return null;
 
-            SCN0GroupNode group = null;
-            foreach (SCN0GroupNode node in Children)
-                if (node.Name == groupName) { group = node; break; }
+            if (_groups[typeID] == null)
+                AddChild(_groups[typeID] = new SCN0GroupNode(type));
 
-            if (group == null)
-                AddChild(group = new SCN0GroupNode(groupName));
-
-            return group;
+            return _groups[typeID];
         }
 
         public SCN0GroupNode GetFolder<T>() where T : SCN0EntryNode
         {
-            string groupName;
-            if (typeof(T) == typeof(SCN0LightSetNode))
-                groupName = "LightSet(NW4R)";
-            else if (typeof(T) == typeof(SCN0AmbientLightNode))
-                groupName = "AmbLights(NW4R)";
-            else if (typeof(T) == typeof(SCN0LightNode))
-                groupName = "Lights(NW4R)";
-            else if (typeof(T) == typeof(SCN0FogNode))
-                groupName = "Fogs(NW4R)";
-            else if (typeof(T) == typeof(SCN0CameraNode))
-                groupName = "Cameras(NW4R)";
-            else
+            return GetFolder((SCN0GroupNode.GroupType)SCN0GroupNode._types.IndexOf(typeof(T)));
+        }
+        public SCN0GroupNode GetFolder(SCN0GroupNode.GroupType type)
+        {
+            Populate(0);
+
+            int typeID = (int)type;
+            if (typeID < 0 || typeID >= 5)
                 return null;
 
-            SCN0GroupNode group = null;
-            foreach (SCN0GroupNode node in Children)
-                if (node.Name == groupName) { group = node; break; }
-
-            return group;
+            return _groups[typeID];
         }
 
         internal override void GetStrings(StringTable table)
@@ -240,15 +211,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return size;
         }
-
-        private string[] _orderedNames = 
-        {
-            "LightSet(NW4R)",
-            "AmbLights(NW4R)",
-            "Lights(NW4R)",
-            "Fogs(NW4R)",
-            "Cameras(NW4R)",
-        };
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
@@ -321,29 +283,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Loop through groups and set index, length and count
             foreach (SCN0GroupNode g in Children)
             {
-                //Figure out what group type this is first
-                int i = Array.IndexOf(_orderedNames, g.Name);
-                if (i < 0)
-                {
-                    //The group is named improperly (somehow),
-                    //so use a child to determine the type
-                    if (g.Children.Count > 0)
-                    {
-                        switch (g.Children[0].GetType().ToString())
-                        {
-                            case "SCN0LightSetNode":
-                                i = 0; break;
-                            case "SCN0AmbientLightNode":
-                                i = 1; break;
-                            case "SCN0LightNode":
-                                i = 2; break;
-                            case "SCN0FogNode":
-                                i = 3; break;
-                            case "SCN0CameraNode":
-                                i = 4; break;
-                        }
-                    }
-                }
+                int i = (int)g._type;
                 indices[i] = g.Index;
                 lengths[i + 1] = g._dataLengths[1];
                 counts[i] = (short)g.Children.Count;
@@ -427,18 +367,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             int index = 1;
             int[] indices = new int[] { -1, -1, -1, -1, -1 };
             foreach (SCN0GroupNode g in Children)
-            {
-                if (g._name == "LightSet(NW4R)")
-                    indices[0] = g.Index;
-                else if (g._name == "AmbLights(NW4R)")
-                    indices[1] = g.Index;
-                else if (g._name == "Lights(NW4R)")
-                    indices[2] = g.Index;
-                else if (g._name == "Fogs(NW4R)")
-                    indices[3] = g.Index;
-                else if (g._name == "Cameras(NW4R)")
-                    indices[4] = g.Index;
-            }
+                indices[(int)g._type] = g.Index;
 
             VoidPtr addr = dataAddress;
             for (int i = 0; i < 5; i++)
@@ -465,6 +394,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return null;
 
             T n = Activator.CreateInstance<T>();
+            n.Name = group.FindName(name);
+            group.AddChild(n);
+
+            return n;
+        }
+        public SCN0EntryNode CreateResource(SCN0GroupNode.GroupType type, string name)
+        {
+            SCN0GroupNode group = GetOrCreateFolder(type);
+            if (group == null)
+                return null;
+
+            Type t = SCN0GroupNode._types[(int)type];
+            SCN0EntryNode n = Activator.CreateInstance(t) as SCN0EntryNode;
             n.Name = group.FindName(name);
             group.AddChild(n);
 

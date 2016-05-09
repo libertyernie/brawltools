@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Collections;
-using BrawlLib.SSBB.ResourceNodes;
 using System.Reflection;
 
 namespace BrawlLib.SSBBTypes
@@ -23,6 +19,9 @@ namespace BrawlLib.SSBBTypes
 
         static void AddParsers(Assembly e)
         {
+            if (e == null)
+                return;
+
             Delegate del;
             foreach (Type t in e.GetTypes())
                 if (t.IsSubclassOf(typeof(TableEntryNode)))
@@ -103,6 +102,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe class IndexValue : SakuraiEntryNode
     {
         public int _value = 0;
+        public static explicit operator int(IndexValue val) { return val._value; }
 
         public static bool _hexadecimal;
         public bool HexDisplay
@@ -299,9 +299,12 @@ namespace BrawlLib.SSBBTypes
                 _entries[i].Write(address[i, _stride]);
         }
 
-        public int GetLookupCount()
+        protected override int OnGetLookupCount()
         {
-            return Count > 0 ? 1 : 0;
+            int count = 0;
+            foreach (T e in _entries)
+                count += e.GetLookupCount();
+            return count;
         }
     }
 
@@ -309,60 +312,57 @@ namespace BrawlLib.SSBBTypes
     /// Deprecated; avoid use
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public unsafe class EntryListOffset<T> : ListOffset where T : SakuraiEntryNode
-    {
-        private int _stride;
-        public List<T> _entries;
+    //public unsafe class EntryListOffset<T> : ListOffset where T : SakuraiEntryNode
+    //{
+    //    private int _stride;
+    //    public List<T> _entries;
 
-        public EntryListOffset(int stride) { _stride = stride; }
-        protected override void OnParse(VoidPtr address)
-        {
-            base.OnParse(address);
-            _entries = new List<T>();
-            if (Count > 0)
-                for (int i = 0; i < Count; i++)
-                    _entries.Add(Parse<T>(DataOffset + i * _stride));
-        }
+    //    public EntryListOffset(int stride) { _stride = stride; }
+    //    protected override void OnParse(VoidPtr address)
+    //    {
+    //        base.OnParse(address);
+    //        _entries = new List<T>();
+    //        if (Count > 0)
+    //            for (int i = 0; i < Count; i++)
+    //                _entries.Add(Parse<T>(DataOffset + i * _stride));
+    //    }
 
-        protected override int OnGetLookupCount()
-        {
-            return _entries.Count > 0 ? 1 : 0;
-        }
+    //    protected override int OnGetLookupCount()
+    //    {
+    //        return _entries.Count > 0 ? 1 : 0;
+    //    }
 
-        protected override int OnGetSize()
-        {
-            return 8 + _entries.Count * _stride;
-        }
+    //    protected override int OnGetSize()
+    //    {
+    //        return 8 + _entries.Count * _stride;
+    //    }
 
-        protected override void OnWrite(VoidPtr address)
-        {
-            for (int i = 0; i < _entries.Count; i++)
-                _entries[i].Write(address[i, _stride]);
+    //    protected override void OnWrite(VoidPtr address)
+    //    {
+    //        for (int i = 0; i < _entries.Count; i++)
+    //            _entries[i].Write(address[i, _stride]);
 
-            sListOffset* o = (sListOffset*)(RebuildAddress = address + _entries.Count * _stride);
-            if (_entries.Count > 0)
-            {
-                o->_startOffset = Offset(address);
-                o->_listCount = _entries.Count;
-                _lookupOffsets.Add(&o->_startOffset);
-            }
-            else
-            {
-                o->_startOffset = 0;
-                o->_listCount = 0;
-            }
-        }
-    }
+    //        sListOffset* o = (sListOffset*)(RebuildAddress = address + _entries.Count * _stride);
+    //        if (_entries.Count > 0)
+    //        {
+    //            o->_startOffset = Offset(address);
+    //            o->_listCount = _entries.Count;
+    //            Lookup(&o->_startOffset);
+    //        }
+    //        else
+    //        {
+    //            o->_startOffset = 0;
+    //            o->_listCount = 0;
+    //        }
+    //    }
+    //}
 
-    /// <summary>
-    /// Deprecated; avoid use
-    /// </summary>
-    public unsafe class ListOffset : SakuraiEntryNode
+    public abstract unsafe class ListOffset : SakuraiEntryNode
     {
         sListOffset hdr;
 
         [Category("List Offset")]
-        public int DataOffset { get { return hdr._startOffset; } }
+        public int StartOffset { get { return hdr._startOffset; } }
         [Category("List Offset")]
         public int Count { get { return hdr._listCount; } }
 

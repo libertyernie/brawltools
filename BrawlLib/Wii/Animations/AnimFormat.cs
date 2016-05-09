@@ -3,8 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 
 namespace BrawlLib.Wii.Animations
 {
@@ -14,10 +13,19 @@ namespace BrawlLib.Wii.Animations
         private static readonly string[] axes = new string[] { "X", "Y", "Z" };
         public static void Serialize(CHR0Node node, bool bake, string output)
         {
+            MDL0Node model;
+
+            OpenFileDialog dlgOpen = new OpenFileDialog();
+            dlgOpen.Filter = "MDL0 Model (*.mdl0)|*.mdl0";
+            dlgOpen.Title = "Select the model this animation is for...";
+
+            if (dlgOpen.ShowDialog() != DialogResult.OK || (model = (MDL0Node)NodeFactory.FromFile(null, dlgOpen.FileName)) == null)
+                return;
+
             using (StreamWriter file = new StreamWriter(output))
             {
                 file.WriteLine("animVersion 1.1;");
-                file.WriteLine("mayaVersion 2014 x64;");
+                file.WriteLine("mayaVersion 2015;");
                 file.WriteLine("timeUnit ntsc;");
                 file.WriteLine("linearUnit cm;");
                 file.WriteLine("angularUnit deg;");
@@ -25,6 +33,10 @@ namespace BrawlLib.Wii.Animations
                 file.WriteLine(String.Format("endTime {0};", node.FrameCount));
                 foreach (CHR0EntryNode e in node.Children)
                 {
+                    MDL0BoneNode bone = model.FindChild("Bones/" + e.Name, true) as MDL0BoneNode;
+                    if (bone == null)
+                        continue;
+
                     KeyframeCollection c = e.Keyframes;
                     for (int index = 0; index < 9; index++)
                     {
@@ -33,31 +45,30 @@ namespace BrawlLib.Wii.Animations
                         if (array._keyCount <= 0)
                             continue;
                         
-                        file.WriteLine(String.Format("anim {0}.{0}{1} {0}{1} {2} {3} {4} {5}", types[index / 3], axes[index % 3], e.Name, e.Index, index / 3, index % 3));
+                        file.WriteLine(String.Format("anim {0}.{0}{1} {0}{1} {2} {3} {4} {5}", types[index / 3], axes[index % 3], e.Name, 0, bone.Children.Count, index < 6 ? (index + 3) : index - 6));
                         file.WriteLine("animData {");
-                        file.WriteLine(" input time;");
-                        file.WriteLine(String.Format(" output {0};", index > 2 && index < 6 ? "angular" : "linear"));
-                        file.WriteLine(" weighted 1;");
-                        file.WriteLine(" preInfinity constant;");
-                        file.WriteLine(" postInfinity constant;");
-                        file.WriteLine(" keys {");
+                        file.WriteLine("  input time;");
+                        file.WriteLine(String.Format("  output {0};", index > 2 && index < 6 ? "angular" : "linear"));
+                        file.WriteLine("  weighted 0;");
+                        file.WriteLine("  preInfinity constant;");
+                        file.WriteLine("  postInfinity constant;");
+                        file.WriteLine("  keys {");
                         for (KeyframeEntry entry = array._keyRoot._next; (entry != array._keyRoot); entry = entry._next)
                         {
-                            float angle = (float)Math.Atan(entry._tangent) * Maths._rad2degf;
-                            file.WriteLine(String.Format(" {0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10};", 
-                                entry._index + 1, 
-                                entry._value.ToString(CultureInfo.InvariantCulture.NumberFormat), 
-                                "fixed",
-                                "fixed",
-                                "1",
-                                "1",
-                                "0",
-                                angle.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                                (Math.Abs(entry._tangent) + 1).ToString(CultureInfo.InvariantCulture.NumberFormat),
-                                angle.ToString(CultureInfo.InvariantCulture.NumberFormat),
-                                (Math.Abs(entry._tangent) + 1).ToString(CultureInfo.InvariantCulture.NumberFormat)));
+                            bool single = entry._next._index < 0 && entry._prev._index < 0;
+                            //float angle = (float)Math.Atan(entry._tangent) * Maths._rad2degf;
+                            //if (single)
+                            {
+                                file.WriteLine(String.Format("    {0} {1} {2} {2} {3} {4} {5};",
+                                    entry._index + 1,
+                                    entry._value.ToString(CultureInfo.InvariantCulture.NumberFormat),
+                                    "auto",//single ? "auto" : "fixed",
+                                    "1",
+                                    "1",
+                                    "0"));
+                            }
                         }
-                        file.WriteLine(" }");
+                        file.WriteLine("  }");
                         file.WriteLine("}");
                     }
                 }

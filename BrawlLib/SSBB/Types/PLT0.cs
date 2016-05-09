@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-
-using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Textures;
 using BrawlLib.SSBB.ResourceNodes;
@@ -89,7 +86,7 @@ namespace BrawlLib.SSBBTypes
         }
         public UserData* UserData
         {
-            get { return (UserData*)(Address + _userDataOffset); }
+            get { return _userDataOffset == 0 ? null : (UserData*)(Address + _userDataOffset); }
             set { _userDataOffset = (int)(VoidPtr)value - (int)Address; }
         }
 

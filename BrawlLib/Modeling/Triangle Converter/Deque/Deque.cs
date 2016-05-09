@@ -32,16 +32,14 @@
 
 #endregion
 
-using System;
-using System.Collections;
 using System.Diagnostics;
 
 namespace System.Collections
 {
-	/// <summary>
-	/// Represents a simple double-ended-queue collection of objects.
-	/// </summary>
-	[Serializable()]
+    /// <summary>
+    /// Represents a simple double-ended-queue collection of objects.
+    /// </summary>
+    [Serializable()]
 	public class Deque : ICollection, IEnumerable, ICloneable
 	{
         #region Deque Members

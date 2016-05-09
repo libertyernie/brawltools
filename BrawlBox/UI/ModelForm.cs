@@ -1,16 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Windows.Forms;
-using BrawlLib.OpenGL;
 using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.IO;
-using System.IO;
 using System.Drawing;
-using BrawlLib.Properties;
-using System.Runtime.InteropServices;
 
 namespace BrawlBox
 {
@@ -123,53 +117,60 @@ namespace BrawlBox
 
         protected override void OnShown(EventArgs e)
         {
+            modelEditControl1._openedFiles.Add(Program.RootNode);
+
+            MainForm.Instance.Visible = 
+                !BrawlBox.Properties.Settings.Default.ViewerSettings.HideMainWindow;
+
             if (_models.Count != 0)
             {
                 for (int i = 0; i < _models.Count; i++)
                     if (_models[i] != null)
                         modelEditControl1.AppendTarget(_models[i]);
 
-                if (_models.Count > 1)
-                    modelEditControl1.models.SelectedIndex = 0;
-                else
-                    modelEditControl1.TargetModel = _models[0];
-
+                modelEditControl1.TargetModel = _models[0];
+                modelEditControl1.EditingAll = _models.Count > 1;
                 modelEditControl1.ResetBoneColors();
             }
             else
                 modelEditControl1.TargetModel = null;
 
-            if (_collisions.Count != 0) {
-                foreach (CollisionNode node in _collisions) {
+            if (_collisions.Count != 0)
+                foreach (CollisionNode node in _collisions)
+                {
                     modelEditControl1.AppendTarget(node);
 
                     // Link bones
-                    foreach (CollisionObject obj in node._objects) {
-                        if (obj._modelName == "" || obj._boneName == "") continue;
-                        MDL0Node model = _models.Where(m => m is MDL0Node && ((ResourceNode)m).Name == obj._modelName).FirstOrDefault() as MDL0Node;
-                        if (model != null) {
+                    foreach (CollisionObject obj in node._objects)
+                    {
+                        if (obj._modelName == "" || obj._boneName == "")
+                            continue;
+
+                        MDL0Node model = _models.
+                            Where(m => m is MDL0Node && ((ResourceNode)m).Name == obj._modelName).
+                            FirstOrDefault() as MDL0Node;
+
+                        if (model != null)
+                        {
                             MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
-                            if (bone != null) {
-                                obj.LinkedBone = bone;
-                            }
+                            if (bone != null) 
+                                obj._linkedBone = bone;
                         }
                     }
                 }
-            }
 
             modelEditControl1.ModelPanel.Capture();
             ReadSettings();
-
-            GenericWrapper._modelViewerOpen = true;
-            MainForm.Instance.Visible = false;
 
             base.OnShown(e);
         }
 
         protected override void OnClosed(EventArgs e)
         {
-            MainForm.Instance.Visible = true;
-            GenericWrapper._modelViewerOpen = false;
+            MainForm.Instance.Visible = 
+                BrawlBox.Properties.Settings.Default.ViewerSettings.HideMainWindow ? 
+                ModelEditControl.Instances.Count == 0 : true;
+
             MainForm.Instance.modelPanel1.Capture();
             MainForm.Instance.resourceTree_SelectionChanged(this, null);
             MainForm.Instance.Refresh();
@@ -177,18 +178,7 @@ namespace BrawlBox
 
         private void ModelForm_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (!(e.Cancel = !modelEditControl1.Close()))
-            {
-                try
-                {
-                    if (modelEditControl1.TargetModel != null)
-                        modelEditControl1.TargetModel = null;
-
-                    modelEditControl1._targetModels.Clear();
-                    modelEditControl1.ModelPanel.ClearAll();
-                }
-                catch { }
-            }
+            e.Cancel = !modelEditControl1.Close();
         }
 
         private void ModelViewerChanged(object sender, EventArgs e)

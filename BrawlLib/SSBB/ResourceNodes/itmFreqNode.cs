@@ -8,7 +8,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class ItmFreqNode : ARCEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
         internal ItmFreqHeader* Header { get { return (ItmFreqHeader*)WorkingUncompressed.Address; } }
         internal ItmFreqTableList* TList
         {
@@ -155,7 +155,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableNode : ItmFreqBaseNode
     {
         internal ItmFreqOffEntry* Header { get { return (ItmFreqOffEntry*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
 
         private int _entryOffset;
         [Browsable(false)]
@@ -208,7 +208,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class TableGroupNode : ItmFreqBaseNode
     {
         internal ItmFreqGroup* Header { get { return (ItmFreqGroup*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
 
         private bint _unk0;
         [Category("Group Node")]
@@ -294,20 +294,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         [DisplayName("Item ID")]
         [Description("The ID of the item to spawn.")]
         [TypeConverter(typeof(DropDownListItemIDs))]
-        public string ItemID
+        public int ItemID
         {
             get
             {
-                if (Header->_ID < 0) return "N/A";
-                _item = Item.Items.Where(s => s.ID == _id).FirstOrDefault();
-                return _id.ToString("X") + (_item == null ? "" : (" - " + _item.Name));
+                return Header->_ID;
             }
             set
             {
-                //Don't try to set the stage ID if it's not a stage module
-                if (ItemID == null) return;
-                if (value.Length < 3) return;
-                _id = int.Parse(value.Substring(0, 3), System.Globalization.NumberStyles.HexNumber);
+                if (Header->_ID < 0 || value < 0) return;
+                Header->_ID = value;
                 SignalPropertyChange(); UpdateName();
             }
         }
@@ -347,7 +343,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _subaction = Header->_subaction;
 
             if (_name == null)
-                _name = ItemID;
+                UpdateName();
 
             return false;
         }
@@ -368,7 +364,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void UpdateName()
         {
-            Name = ItemID;
+            var item = BrawlLib.SSBB.Item.Items.Where(s => s.ID == ItemID).FirstOrDefault();
+            Name = "0x" + ItemID.ToString("X2") + (item == null ? "" : (" - " + item.Name));
         }
 
     }

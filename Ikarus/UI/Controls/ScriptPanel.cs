@@ -1,18 +1,7 @@
 ﻿using System;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Drawing;
-using BrawlLib.Modeling;
-using System.IO;
 using System.ComponentModel;
-using BrawlLib;
-using System.Collections.Generic;
-using BrawlLib.Wii.Models;
-using BrawlLib.SSBBTypes;
-using System.Globalization;
-using System.Timers;
 using System.Windows.Forms;
-using System.Audio;
 using Ikarus.MovesetFile;
 using Ikarus.ModelViewer;
 
@@ -570,17 +559,19 @@ namespace Ikarus.UI
                 comboActionEntry.SelectedIndex = _subActionIndex;
 
             SubActionEntry grp = RunTime.CurrentSubaction;
-            inTransTime.Value = grp._inTransTime;
-            chkNoOutTrans.Checked = grp._flags.HasFlag(AnimationFlags.NoOutTransition);
-            chkTransOutStart.Checked = grp._flags.HasFlag(AnimationFlags.TransitionOutFromStart);
-            chkMovesChar.Checked = grp._flags.HasFlag(AnimationFlags.MovesCharacter);
-            chkLoop.Checked = grp._flags.HasFlag(AnimationFlags.Loop);
-            chkUnk.Checked = grp._flags.HasFlag(AnimationFlags.Unknown);
-            chkFixedScale.Checked = grp._flags.HasFlag(AnimationFlags.FixedScale);
-            chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
-            chkFixedTrans.Checked = grp._flags.HasFlag(AnimationFlags.FixedTranslation);
-
-            lblActionName.Text = RunTime.CurrentSubaction._animationName;
+            if (grp != null)
+            {
+                inTransTime.Value = grp._inTransTime;
+                chkNoOutTrans.Checked = grp._flags.HasFlag(AnimationFlags.NoOutTransition);
+                chkTransOutStart.Checked = grp._flags.HasFlag(AnimationFlags.TransitionOutFromStart);
+                chkMovesChar.Checked = grp._flags.HasFlag(AnimationFlags.MovesCharacter);
+                chkLoop.Checked = grp._flags.HasFlag(AnimationFlags.Loop);
+                chkUnk.Checked = grp._flags.HasFlag(AnimationFlags.Unknown);
+                chkFixedScale.Checked = grp._flags.HasFlag(AnimationFlags.FixedScale);
+                chkFixedRot.Checked = grp._flags.HasFlag(AnimationFlags.FixedRotation);
+                chkFixedTrans.Checked = grp._flags.HasFlag(AnimationFlags.FixedTranslation);
+                lblActionName.Text = grp.Name;
+            }
         }
 
         /// <summary>

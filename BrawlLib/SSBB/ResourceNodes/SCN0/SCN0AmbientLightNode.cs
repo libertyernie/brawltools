@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Imaging;
@@ -11,6 +9,8 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0AmbientLightNode : SCN0EntryNode, IColorSource
     {
         internal SCN0AmbientLight* Data { get { return (SCN0AmbientLight*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.SCN0Ambient; } }
+        
         private byte _fixedFlags, _usageFlags = 3;
 
         [Category("Ambient Light")]
@@ -136,6 +136,24 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         #endregion
+
+        public Vector4 GetAmbientColorFrame(float index)
+        {
+            if (Constant)
+                return (Vector4)_solidColor;
+            else
+            {
+                int colorIndex = (int)Math.Truncate(index);
+                Vector4 color = (Vector4)_colors[colorIndex.Clamp(0, _colors.Count - 1)];
+                if (colorIndex + 1 < _colors.Count)
+                {
+                    float frac = index - colorIndex;
+                    Vector4 interp = (Vector4)_colors[colorIndex + 1];
+                    color += (interp - color) * frac;
+                }
+                return color;
+            }
+        }
 
         [Browsable(false)]
         public int FrameCount { get { return Scene.FrameCount; } }

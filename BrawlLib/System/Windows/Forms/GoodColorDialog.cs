@@ -1,5 +1,4 @@
-﻿using System;
-using System.Drawing;
+﻿using System.Drawing;
 namespace System.Windows.Forms
 {
     public class GoodColorDialog : Form
@@ -40,6 +39,8 @@ namespace System.Windows.Forms
 
         #endregion
 
+        public event GoodColorControl2.ColorChangedEvent OnColorChanged;
+
         public Color Color
         {
             get { return goodColorControl21.Color; }
@@ -66,6 +67,13 @@ namespace System.Windows.Forms
         {
             InitializeComponent(); 
             goodColorControl21.Closed += goodColorControl21_Closed;
+            goodColorControl21.OnColorChanged += goodColorControl21_ColorChanged;
+        }
+
+        void goodColorControl21_ColorChanged(Color c)
+        {
+            if (OnColorChanged != null)
+                OnColorChanged(c);
         }
 
         void goodColorControl21_Closed(object sender, EventArgs e)

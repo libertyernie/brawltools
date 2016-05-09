@@ -1,15 +1,8 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using Ikarus;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Diagnostics;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Windows.Forms;
 
 namespace System.Windows.Forms
 {
@@ -98,7 +91,7 @@ namespace System.Windows.Forms
         private void clearToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ResourceNode r = Program.OpenedFiles[listBox1.SelectedIndex];
-            if (r.IsDirty || r.CompressionHasChanged)
+            if (r.IsDirty)
             {
                 DialogResult res = MessageBox.Show("Save changes?", "Closing", MessageBoxButtons.YesNoCancel);
                 if ((res == DialogResult.Yes && !Save(r)) || res == DialogResult.Cancel)

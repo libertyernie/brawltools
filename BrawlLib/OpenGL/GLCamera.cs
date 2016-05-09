@@ -1,7 +1,5 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using System;
-using System.Reflection;
-using System.Runtime.Serialization;
 
 namespace BrawlLib.OpenGL
 {
@@ -36,6 +34,8 @@ namespace BrawlLib.OpenGL
             _fovY = fovy;
             _farZ = farz;
             _nearZ = nearz;
+
+            CalculateProjection();
         }
 
         public float VerticalFieldOfView { get { return _fovY; } set { _fovY = value; CalculateProjection(); } }
@@ -83,12 +83,6 @@ namespace BrawlLib.OpenGL
         public void Translate(Vector3 v) { Translate(v._x, v._y, v._z); }
         public void Translate(float x, float y, float z)
         {
-            if (_ortho)
-            {
-                x *= 20.0f;
-                y *= 20.0f;
-            }
-
             _matrix = Matrix.TranslationMatrix(-x, -y, -z) * _matrix;
             _matrixInverse.Translate(x, y, z);
 
@@ -97,15 +91,15 @@ namespace BrawlLib.OpenGL
         public void Rotate(float x, float y, float z) { Rotate(new Vector3(x, y, z)); }
         public void Rotate(Vector3 v)
         {
-            if (_restrictXRot)
-                v._x = 0;
-            if (_restrictYRot)
-                v._y = 0;
-            if (_restrictZRot)
-                v._z = 0;
+            //Fix for left and right dragging when the camera is upside down
+            if (_rotation._x < -90.0f || _rotation._x > 90.0f)
+                v._y = -v._y;
 
-            _rotation += v;
-            _rotation.RemapToRange(-180.0f, 180.0f);
+            if (_restrictXRot) v._x = 0.0f;
+            if (_restrictYRot) v._y = 0.0f;
+            if (_restrictZRot) v._z = 0.0f;
+
+            _rotation = (_rotation + v).RemappedToRange(-180.0f, 180.0f);
 
             Apply();
         }
@@ -193,7 +187,7 @@ namespace BrawlLib.OpenGL
         /// <summary>
         /// Projects a screen point to world coordinates.
         /// </summary>
-        /// <returns>3D world point perpendicular to the camera with distance z</returns>
+        /// <returns>3D world point perpendicular to the camera with a depth value of z (z is not a distance value!)</returns>
         public Vector3 UnProject(Vector3 point) { return UnProject(point._x, point._y, point._z); }
         /// <summary>
         /// Projects a screen point to world coordinates.
@@ -204,20 +198,20 @@ namespace BrawlLib.OpenGL
             //This needs to be a Vector4 converted to a Vector3 in order to work
             //Also the order of the matrix multiplication matters
             return (Vector3)(_matrixInverse * _projectionInverse * new Vector4(
-                2.0f * (x / (float)Width) - 1.0f,
-                2.0f * (((float)Height - y) / (float)Height) - 1.0f,
+                2.0f * (x / Width) - 1.0f,
+                2.0f * ((Height - y) / Height) - 1.0f,
                 2.0f * z - 1.0f,
                 1.0f));
         }
         /// <summary>
         /// Projects a world point to screen coordinates.
         /// </summary>
-        /// <returns>2D coordinate on the screen with z as depth</returns>
+        /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
         public Vector3 Project(float x, float y, float z) { return Project(new Vector3(x, y, z)); }
         /// <summary>
         /// Projects a world point to screen coordinates.
         /// </summary>
-        /// <returns>2D coordinate on the screen with z as depth</returns>
+        /// <returns>2D coordinate on the screen with z as depth (z is not a distance value!)</returns>
         public Vector3 Project(Vector3 source)
         {
             //This needs to be converted to a Vector4 in order to work
@@ -227,8 +221,8 @@ namespace BrawlLib.OpenGL
             if (t2._w == 0) return new Vector3();
             Vector3 v = (Vector3)t2;
             return new Vector3(
-                (v._x / 2.0f + 0.5f) * (float)Width,
-                (float)Height - ((v._y / 2.0f + 0.5f) * (float)Height), 
+                (v._x / 2.0f + 0.5f) * Width,
+                Height - ((v._y / 2.0f + 0.5f) * Height), 
                 (v._z + 1.0f) / 2.0f);
         }
 
@@ -251,6 +245,18 @@ namespace BrawlLib.OpenGL
             }
 
             return point;
+        }
+
+        public void ProjectCameraPlanes(Vector2 screenPoint, Matrix transform, out Vector3 xy, out Vector3 yz, out Vector3 xz)
+        {
+            Vector3 ray1 = UnProject(screenPoint._x, screenPoint._y, 0.0f);
+            Vector3 ray2 = UnProject(screenPoint._x, screenPoint._y, 1.0f);
+
+            Vector3 center = transform.GetPoint();
+
+            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitX).Normalize(center), out yz);
+            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitY).Normalize(center), out xz);
+            Maths.LinePlaneIntersect(ray1, ray2, center, (transform * Vector3.UnitZ).Normalize(center), out xy);
         }
 
         public void LoadProjection()

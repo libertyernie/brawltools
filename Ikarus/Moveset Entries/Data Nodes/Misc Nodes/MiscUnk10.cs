@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
-using System.Text;
 
 namespace Ikarus.MovesetFile
 {
@@ -141,7 +139,7 @@ namespace Ikarus.MovesetFile
             header->_list._listCount = _entries.Count > 0 ? Offset(address) : 0;
 
             if (header->_list._listCount > 0)
-                _lookupOffsets.Add(&header->_list._listCount);
+                Lookup(&header->_list._listCount);
         }
     }
 

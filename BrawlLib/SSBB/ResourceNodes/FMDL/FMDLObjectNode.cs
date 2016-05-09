@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
+using BrawlLib.OpenGL;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -36,6 +38,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         bool _attached, _render;
 
+        public event EventHandler DrawCallsChanged;
+
         public List<Vertex3> Vertices { get { return _vertices; } }
 
         [Browsable(false)]
@@ -46,6 +50,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         [Browsable(false)]
         public bool Attached { get { return _attached; } }
+
+        public List<DrawCallBase> DrawCalls
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
 
         public void Attach()
         {
@@ -77,6 +89,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 box.ExpandVolume(vertex.WeightedPosition);
 
             return box;
+        }
+
+        public void PreRender(ModelPanelViewport v)
+        {
+            
         }
     }
 }

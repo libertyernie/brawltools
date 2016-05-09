@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-namespace BrawlLib.SSBB
+﻿namespace BrawlLib.SSBB
 {
     public class Item
     {
@@ -15,9 +10,6 @@ namespace BrawlLib.SSBB
         /// The Item name (e.g. "Heart Container").
         /// </summary>
         public string Name { get; private set; }
-        /// <summary>
-        /// The .rel filename (e.g. "st_gw.rel").
-        /// </summary>
 
         public Item(int id, string name )
         {

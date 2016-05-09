@@ -1,9 +1,6 @@
-﻿using BrawlLib.SSBB.ResourceNodes;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
-using System.Text;
 
 namespace System.PowerPcAssembly
 {
@@ -45,7 +42,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            return String.Join(",", formatted);
+            return String.Join(", ", formatted);
         }
 
         public override string ToString()
@@ -76,7 +73,7 @@ namespace System.PowerPcAssembly
             _names.Add(".word");
         }
 
-        public override string GetFormattedOperands() { return String.Format("0x{0:X8}", _data._data); }
+        public override string GetFormattedOperands() { return String.Format("0x{0:X8}", (uint)_data._data); }
 
     }
 
@@ -173,9 +170,9 @@ namespace System.PowerPcAssembly
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
             if (_operands[0].Value == 0)
-                return String.Format("{3},{4}", formatted);
+                return String.Format("{3}, {4}", formatted);
             else
-                return String.Format("{0},{3},{4}", formatted);
+                return String.Format("{0}, {3}, {4}", formatted);
         }
     }
 
@@ -212,16 +209,16 @@ namespace System.PowerPcAssembly
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
             if (_operands[0].Value == 0)
-                return String.Format("{3},{4}", formatted);
+                return String.Format("{3}, {4}", formatted);
             else
-                return String.Format("{0},{3},{4}", formatted);
+                return String.Format("{0}, {3}, {4}", formatted);
         }
     }
 
     //  addic, subic, addic., subic.
     public unsafe class PPCAddic : PPCOpCode
     {
-        public bool SetCr { get { return Operation == PPCMnemonic.addic_D; } set { } }
+        public bool SetCr { get { return Operation == PPCMnemonic.addic_D; } }
         public int LeftRegister { get { return _operands[0].Value; } set { _operands[0].Value = value; } }
         public int RightRegister { get { return _operands[1].Value; } set { _operands[1].Value = value; } }
         public int ImmediateValue { get { return _operands[2].Value; } set { _operands[2].Value = value; } }
@@ -289,9 +286,9 @@ namespace System.PowerPcAssembly
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
             if (_operands[1].Value == 0)
-                return String.Format("{0},{2}", formatted);
+                return String.Format("{0}, {2}", formatted);
             else
-                return String.Format("{0},{1},{2}", formatted);
+                return String.Format("{0}, {1}, {2}", formatted);
         }
     }
 
@@ -421,7 +418,7 @@ namespace System.PowerPcAssembly
                 if (_operands[0].Value == 0)
                     return String.Format("{9}", formatted);
                 else
-                    return String.Format("{5},{9}", formatted);
+                    return String.Format("{5}, {9}", formatted);
             }
             else if (IgnoreCr && !IgnoreCtr)
             {
@@ -429,11 +426,11 @@ namespace System.PowerPcAssembly
             }
             else if (!IgnoreCr && !IgnoreCtr)
             {
-                return String.Format("{8},{9}", formatted);
+                return String.Format("{8}, {9}", formatted);
             }
             else
             {
-                return String.Format("{7},{8},{9}", formatted);
+                return String.Format("{7}, {8}, {9}", formatted);
             }
         }
     }
@@ -577,7 +574,7 @@ namespace System.PowerPcAssembly
                 if (_operands[0].Value == 0)
                     return String.Format("{9}", formatted);
                 else
-                    return String.Format("{5},{9}", formatted);
+                    return String.Format("{5}, {9}", formatted);
             }
             else if (IgnoreCr && !IgnoreCtr)
             {
@@ -585,12 +582,12 @@ namespace System.PowerPcAssembly
             }
             else if (!IgnoreCr && !IgnoreCtr)
             {
-                return String.Format("{8},{9}", formatted);
+                return String.Format("{8}, {9}", formatted);
             }
             else
             {
                 return "";
-                //return String.Format("{7},{8},{9}", formatted);
+                //return String.Format("{7}, {8}, {9}", formatted);
             }
         }
     }
@@ -657,10 +654,15 @@ namespace System.PowerPcAssembly
 
         public override string GetName()
         {
-            if (IgnoreCr && IgnoreCtr)
-                return _names[0];
-
             string name = "";
+            if (IgnoreCr && IgnoreCtr)
+            {
+                name = _names[0];
+                if (Link)
+                    name += "l";
+                return name;
+            }
+
             if (!IgnoreCr && IgnoreCtr)
                 name = _names[3 + (CompareType * 2) + (CrState ? 1 : 0)];
             else if (IgnoreCr && !IgnoreCtr)
@@ -685,7 +687,7 @@ namespace System.PowerPcAssembly
                 if (_operands[0].Value == 0)
                     return String.Format("{9}", formatted);
                 else
-                    return String.Format("{5},{9}", formatted);
+                    return String.Format("{5}, {9}", formatted);
             }
             else if (IgnoreCr && !IgnoreCtr)
             {
@@ -693,7 +695,7 @@ namespace System.PowerPcAssembly
             }
             else if (!IgnoreCr && !IgnoreCtr)
             {
-                return String.Format("{8},{9}", formatted);
+                return String.Format("{8}, {9}", formatted);
             }
             else
             {
@@ -807,9 +809,9 @@ namespace System.PowerPcAssembly
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
             if (_operands[1].Value == _operands[2].Value)
-                return String.Format("{0},{1}", formatted);
+                return String.Format("{0}, {1}", formatted);
             else
-                return String.Format("{0},{1},{2}", formatted);
+                return String.Format("{0}, {1}, {2}", formatted);
         }
     }
 
@@ -1123,12 +1125,22 @@ namespace System.PowerPcAssembly
             _operands.Add(new PPCOperand(this, OperandType.SREGISTER, 16, 0x1F));      //  [0] Left Register
             _operands.Add(new PPCOperand(this, OperandType.REGISTER, 21, 0x1F));       //  [1] Right Register
         }
+
+        public override string GetName()
+        {
+            return "mt" + _operands[0].GetFormatted();
+        }
+
+        public override string GetFormattedOperands()
+        {
+            return _operands[1].GetFormatted();
+        }
     }
 
     //  extsh
     public unsafe class PPCExtsh : PPCOpCode
     {
-        public bool SetCr { get { return (this & 0x00000001) != 0; } }
+        public bool SetCr { get { return _data[0]; } set { _data[0] = value; } }
 
         internal PPCExtsh(uint value)
             : base(value)
@@ -1148,7 +1160,7 @@ namespace System.PowerPcAssembly
     //  extsb
     public unsafe class PPCExtsb : PPCOpCode
     {
-        public bool SetCr { get { return (this & 0x00000001) != 0; } }
+        public bool SetCr { get { return _data[0]; } set { _data[0] = value; } }
 
         internal PPCExtsb(uint value)
             : base(value)
@@ -1220,7 +1232,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            return String.Format("{0},{2}({1})", formatted);
+            return String.Format("{0}, {2}({1})", formatted);
         }
     }
 
@@ -1274,7 +1286,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            return String.Format("{0},{2}({1})", formatted);
+            return String.Format("{0}, {2}({1})", formatted);
         }
     }
     
@@ -1310,7 +1322,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            return String.Format("{0},{2}({1})", formatted);
+            return String.Format("{0}, {2}({1})", formatted);
         }
     }
 
@@ -1346,7 +1358,7 @@ namespace System.PowerPcAssembly
         {
             string[] formatted = _operands.Select(x => x.GetFormatted()).ToArray();
 
-            return String.Format("{0},{2}({1})", formatted);
+            return String.Format("{0}, {2}({1})", formatted);
         }
     }
 

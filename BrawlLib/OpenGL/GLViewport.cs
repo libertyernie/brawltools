@@ -1,11 +1,5 @@
-﻿using OpenTK.Graphics.OpenGL4;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Drawing;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.Serialization;
-using System.Text;
 
 namespace BrawlLib.OpenGL
 {
@@ -60,12 +54,14 @@ namespace BrawlLib.OpenGL
 
                 _backImg = value;
                 _updateImage = true;
+
+                Invalidate();
             }
         }
         public Color BackgroundColor
         {
             get { return _backColor; }
-            set { _backColor = Color.FromArgb(0, value.R, value.G, value.B); }
+            set { _backColor = Color.FromArgb(0, value.R, value.G, value.B); Invalidate(); }
         }
 
         public void SetPercentages(Vector4 v)
@@ -107,16 +103,28 @@ namespace BrawlLib.OpenGL
             return y + _owner.Height - Region.Height - Region.Y;
         }
 
+        /// <summary>
+        /// Input is a world point.
+        /// Output is a viewport-screen point with a depth value of z.
+        /// </summary>
         public Vector3 Project(float x, float y, float z) { return Project(new Vector3(x, y, z)); }
         public Vector3 Project(Vector3 source)
         {
             Vector3 vec = Camera.Project(source);
-            vec._x += _region.X;
-            vec._y = LocalToWorldYf(vec._y);
+            //No need to correct, the screen texture is relative to the viewport
+            //vec._x += _region.X;
+            //vec._y = LocalToWorldYf(vec._y);
             return vec;
         }
+        /// <summary>
+        /// Input is a full-screen point with a depth value of z. 
+        /// Output is a world point
+        /// </summary>
         public Vector3 UnProject(Vector3 source) { return UnProject(source._x, source._y, source._z); }
-        public Vector3 UnProject(float x, float y, float z) { return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z); }
+        public Vector3 UnProject(float x, float y, float z)
+        {
+            return Camera.UnProject(x - _region.X, WorldToLocalYf(y), z);
+        }
 
         public void Invalidate()
         {
@@ -163,7 +171,7 @@ namespace BrawlLib.OpenGL
                 Camera._ortho = true;
                 Camera._restrictXRot = 
                 Camera._restrictYRot = _type != ViewportProjection.Orthographic;
-                Camera._defaultScale = new Vector3(0.035f);
+                Camera._defaultScale = GetDefaultScale();
                 Camera._defaultRotate = GetDefaultRotate();
             }
             if (!diff)
@@ -184,7 +192,7 @@ namespace BrawlLib.OpenGL
                 };
             }
         }
-        private static GLViewport BaseOrtho
+        public static GLViewport BaseOrtho
         {
             get
             {
@@ -290,12 +298,11 @@ namespace BrawlLib.OpenGL
             }
         }
 
-        public Vector3 GetDefaultScale()
+        public virtual Vector3 GetDefaultScale()
         {
-            float f = _camera._ortho ? 0.035f : 1.0f;
-            return new Vector3(f);
+            return new Vector3(1.0f);
         }
-        public Vector3 GetDefaultRotate()
+        public virtual Vector3 GetDefaultRotate()
         {
             switch (ViewType)
             {
@@ -319,6 +326,23 @@ namespace BrawlLib.OpenGL
             _camera._defaultRotate = GetDefaultRotate();
             _camera._defaultScale = GetDefaultScale();
             _camera.Reset();
+        }
+
+        public void SetXPercentage(float p)
+        {
+            _percentages._x = p;
+        }
+        public void SetYPercentage(float p)
+        {
+            _percentages._y = p;
+        }
+        public void SetZPercentage(float p)
+        {
+            _percentages._z = p;
+        }
+        public void SetWPercentage(float p)
+        {
+            _percentages._w = p;
         }
     }
 

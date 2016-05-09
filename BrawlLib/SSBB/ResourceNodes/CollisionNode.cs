@@ -2,14 +2,13 @@
 using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
 using BrawlLib.OpenGL;
-using System.Windows.Forms;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class CollisionNode : ARCEntryNode, IRenderedObject
+    public unsafe class CollisionNode : ARCEntryNode
     {
         internal CollisionHeader* Header { get { return (CollisionHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.CollisionDef; } }
@@ -133,14 +132,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        #region IRenderedObject Members
-        private bool _attached = false;
-        [Browsable(false)]
-        public bool Attached { get { return _attached; } }
-        public void Attach() { _attached = true; }
-        public void Detach() { _attached = false; }
-        public void Refresh() { }
-        public void Render(params object[] args)
+        public void Render()
         {
             GL.Disable(EnableCap.Lighting);
             GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
@@ -161,7 +153,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             return box;
         }
-        #endregion
 
         internal static ResourceNode TryParse(DataSource source)
         {
@@ -191,12 +182,31 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _linkedBone; }
             set 
             {
+                if (_linkedBone != null)
+                {
+                    foreach (CollisionPlane p in _planes)
+                    {
+                        if (p.LinkLeft != null)
+                            p.LinkLeft._rawValue = _linkedBone.Matrix * p.LinkLeft._rawValue;
+                        if (p.LinkRight != null)
+                            p.LinkRight._rawValue = _linkedBone.Matrix * p.LinkRight._rawValue;
+                    }
+                }
+
                 if ((_linkedBone = value) != null)
                 {
                     _boneIndex = _linkedBone.BoneIndex;
                     _boneName = _linkedBone.Name;
                     _modelName = _linkedBone.Model.Name;
                     _flags[1] = false;
+
+                    foreach (CollisionPlane p in _planes)
+                    {
+                        if (p.LinkLeft != null)
+                            p.LinkLeft._rawValue = _linkedBone.InverseMatrix * p.LinkLeft._rawValue;
+                        if (p.LinkRight != null)
+                            p.LinkRight._rawValue = _linkedBone.InverseMatrix * p.LinkRight._rawValue;
+                    }
                 }
                 else
                 {
@@ -296,22 +306,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!_render)
                 return;
 
-            //bool t = !_flags[1] && _linkedBone != null;
-            //if (t)
-            //{
-            //    //Apply bone transform
-            //    GL.PushMatrix();
-            //    fixed (Matrix* m = &_linkedBone._frameMatrix)
-            //        GL.MultMatrix((float*)m);
-            //}
-
             foreach (CollisionPlane p in _planes)
                 p.DrawPlanes(p);
-            //foreach (CollisionLink l in _points)
-            //    l.Render(ctx);
-
-            //if (t)
-            //    GL.PopMatrix();
         }
 
         public override string ToString()
@@ -337,9 +333,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_parent == null || _parent.LinkedBone == null)
                     return _rawValue;
 
-                Vector3 point = _parent.LinkedBone.Matrix.GetPoint();
-                Vector3 scale = _parent.LinkedBone.Matrix.GetScale();
-                return _rawValue * new Vector2(scale._x, scale._y) + new Vector2(point._x, point._y);
+                return _parent.LinkedBone.Matrix * _rawValue;
             }
             set
             {
@@ -349,13 +343,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return;
                 }
 
-                //Vector3 point = _parent.LinkedBone.InverseMatrix.GetPoint();
-                //Vector3 scale = _parent.LinkedBone.InverseMatrix.GetScale();
-                //_rawValue = value * new Vector2(scale._x, scale._y) + new Vector2(point._x, point._y);
-
-                Vector3 point = _parent.LinkedBone.Matrix.GetPoint();
-                Vector3 scale = _parent.LinkedBone.Matrix.GetScale();
-                _rawValue = (value - new Vector2(point._x, point._y)) / new Vector2(scale._x, scale._y);
+                _rawValue = _parent.LinkedBone.InverseMatrix * value;
             }
         }
         
@@ -689,7 +677,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             else if (p._type == CollisionPlaneType.None && lev == 0 && !IsFallThrough) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
             else if (p.IsFallThrough && lev ==0 ) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
 
-            GL.Begin(PrimitiveType.Quads);
+            GL.Begin(BeginMode.Quads);
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(l._x, l._y, -10.0f);
             GL.Vertex3(r._x, r._y, -10.0f);
@@ -706,7 +694,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             else if (p._type == CollisionPlaneType.None && lev == 0 && !IsFallThrough) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
             else if (p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
 
-            GL.Begin(PrimitiveType.Lines);
+            GL.Begin(BeginMode.Lines);
             GL.Vertex3(l._x, l._y, 10.0f);
             GL.Vertex3(r._x, r._y, 10.0f);
             GL.Vertex3(l._x, l._y, -10.0f);

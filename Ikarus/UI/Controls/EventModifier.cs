@@ -1,10 +1,4 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
-using System.ComponentModel;
-using System.Drawing;
-using System.Reflection;
-using System.Windows.Forms;
-using Ikarus;
+﻿using Ikarus;
 using Ikarus.MovesetFile;
 using Ikarus.ModelViewer;
 using BrawlLib.SSBBTypes;
@@ -541,11 +535,11 @@ namespace System.Windows.Forms
                 EventOffset offset = value as EventOffset;
 
                 _updating = true;
-                comboBox1.SelectedIndex = (int)offset._offsetInfo.list;
-                if (offset._offsetInfo.type != TypeValue.None)
-                    comboBox3.SelectedIndex = (int)offset._offsetInfo.type;
-                if (offset._offsetInfo.index != -1)
-                    comboBox2.SelectedIndex = offset._offsetInfo.index;
+                comboBox1.SelectedIndex = (int)offset._offsetInfo._list;
+                if (offset._offsetInfo._type != TypeValue.None)
+                    comboBox3.SelectedIndex = (int)offset._offsetInfo._type;
+                if (offset._offsetInfo._index != -1)
+                    comboBox2.SelectedIndex = offset._offsetInfo._index;
                 _updating = false;
             }
             else 

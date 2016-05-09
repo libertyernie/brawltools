@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Wii.Graphics;
-using BrawlLib.IO;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -84,14 +78,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Bias ColorBias { get { return (Bias)cbias; } set { cbias = (int)value; SignalPropertyChange(); } }
 
         [Category("c TEV Color Env"), Browsable(true)]
-        public TevOp ColorOperation { get { return (TevOp)cop; } set { cop = (int)value; SignalPropertyChange(); } }
+        public TevColorOp ColorOperation { get { return (TevColorOp)cop; } set { cop = (int)value; SignalPropertyChange(); } }
         [Category("c TEV Color Env"), Browsable(true)]
         public bool ColorClamp { get { return cclamp != 0; } set { cclamp = (value ? 1 : 0); SignalPropertyChange(); } }
         
         [Category("c TEV Color Env"), Browsable(true)]
         public TevScale ColorScale { get { return (TevScale)cshift; } set { cshift = (int)value; SignalPropertyChange(); } }
         [Category("c TEV Color Env"), Browsable(true)]
-        public TevRegID ColorRegister { get { return (TevRegID)cdest; } set { cdest = (int)value; SignalPropertyChange(); } }
+        public TevColorRegID ColorRegister { get { return (TevColorRegID)cdest; } set { cdest = (int)value; SignalPropertyChange(); } }
 
         [Category("d TEV Alpha Env"), Browsable(true)]
         public AlphaArg AlphaSelectionA { get { return (AlphaArg)asela; } set { asela = (int)value; SignalPropertyChange(); } }
@@ -106,14 +100,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Bias AlphaBias { get { return (Bias)abias; } set { abias = (int)value; SignalPropertyChange(); } }
         
         [Category("d TEV Alpha Env"), Browsable(true)]
-        public TevOp AlphaOperation { get { return (TevOp)aop; } set { aop = (int)value; SignalPropertyChange(); } }
+        public TevColorOp AlphaOperation { get { return (TevColorOp)aop; } set { aop = (int)value; SignalPropertyChange(); } }
         [Category("d TEV Alpha Env"), Browsable(true)]
         public bool AlphaClamp { get { return aclamp != 0; } set { aclamp = (value ? 1 : 0); SignalPropertyChange(); } }
         
         [Category("d TEV Alpha Env"), Browsable(true)]
         public TevScale AlphaScale { get { return (TevScale)ashift; } set { ashift = (int)value; SignalPropertyChange(); } }
         [Category("d TEV Alpha Env"), Browsable(true)]
-        public TevRegID AlphaRegister { get { return (TevRegID)adest; } set { adest = (int)value; SignalPropertyChange(); } }
+        public TevAlphaRegID AlphaRegister { get { return (TevAlphaRegID)adest; } set { adest = (int)value; SignalPropertyChange(); } }
 
         public void Default()
         {

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.IO;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
-using BrawlLib.Wii.Models;
 
 namespace BrawlLib.Modeling
 {
@@ -24,7 +22,10 @@ namespace BrawlLib.Modeling
                     else if (o is MDL0UVNode)
                         WriteUVGroup(writer, (o as MDL0UVNode));
                     else if (o is MDL0ObjectNode)
-                        WritePolygon(writer, o as MDL0ObjectNode);
+                    {
+                        foreach (DrawCall c in ((MDL0ObjectNode)o)._drawCalls)
+                            WritePolygon(writer, c);
+                    }
 
                 writer.Flush();
             }
@@ -107,35 +108,23 @@ namespace BrawlLib.Modeling
         {
             writer.WriteLine(String.Format("usemtl {0}", mat.Name));
         }
-        private static void WritePolygon(StreamWriter writer, MDL0ObjectNode poly)
+        private static void WritePolygon(StreamWriter writer, DrawCall c)
         {
+            MDL0ObjectNode poly = c._parentObject;
+
             if (poly._manager._vertices != null)
             {
                 int count = poly._manager._vertices.Count;
                 Vector3[] Vertices = new Vector3[count];
-                DialogResult result = MessageBox.Show("Do you want to export the weighted positions of the vertices?", "", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
-                if (result == DialogResult.Yes)
-                {
-                    //Weight vertices
-                    foreach (Influence inf in (poly.Model)._influences._influences)
-                        inf.CalcMatrix();
-                    poly._manager.Weight();
+                
+                //Weight vertices
+                poly.Model.WeightMeshes();
 
-                    //Set weighted positions
-                    for (int i = 0; i < count; i++)
-                        if (poly._manager._vertices[i].WeightedPosition.ToString() != "(0,0,0)")
-                            Vertices[i] = poly._manager._vertices[i].WeightedPosition;
-                        else
-                            Vertices[i] = poly._manager._vertices[i].Position;
-                }
-                else if (result == DialogResult.No)
-                {
-                    //Set raw positions
-                    for (int i = 0; i < count; i++)
-                        Vertices[i] = poly._manager._vertices[i].Position;
-                }
-                if (result != DialogResult.Cancel) //Export
-                    WriteVertexGroup(writer, Vertices);
+                //Set weighted positions
+                for (int i = 0; i < count; i++)
+                    Vertices[i] = poly._manager._vertices[i].WeightedPosition;
+                
+                WriteVertexGroup(writer, Vertices);
             }
             if (poly._manager._faceData[1] != null)
                 WriteNormalGroup(writer, poly._manager, true);
@@ -146,27 +135,8 @@ namespace BrawlLib.Modeling
 
             writer.WriteLine();
             writer.WriteLine(String.Format("g {0}", poly.Name));
-            //if (poly._material != null)
-            //    WriteMaterial(writer, poly._material);
-            //if (poly.Primitives != null)
-            //    foreach (Primitive p in poly.Primitives)
-            //    {
-            //        switch (p._type)
-            //        {
-            //            case GLPrimitiveType.TriangleFan:
-            //                WriteTriFan(writer, p);
-            //                break;
-            //            case GLPrimitiveType.TriangleStrip:
-            //                WriteTriStrip(writer, p);
-            //                break;
-            //            case GLPrimitiveType.Triangles:
-            //                WriteTriList(writer, p);
-            //                break;
-            //            case GLPrimitiveType.Quads:
-            //                WriteQuadList(writer, p);
-            //                break;
-            //        }
-            //    }
+            if (c._material != null)
+                WriteMaterial(writer, c._material);
             if (poly._manager != null)
             {
                 if (poly._manager._triangles != null)

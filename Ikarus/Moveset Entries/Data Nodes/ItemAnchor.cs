@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile
@@ -21,7 +16,7 @@ namespace Ikarus.MovesetFile
 
     //        //if (Size % 0x1C != 0 && Size % 0x1C != 4)
     //        //    Console.WriteLine(Size % 0x1C);
-            
+
     //        Count = WorkingUncompressed.Length / 0x1C;
     //        return Count > 0;
     //    }
@@ -115,11 +110,7 @@ namespace Ikarus.MovesetFile
             _rot = hdr->_rotation;
         }
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 0x1C;
-        }
+        protected override int OnGetSize() { return 0x1C; }
 
         protected override void OnWrite(VoidPtr address)
         {

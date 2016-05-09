@@ -1,21 +1,6 @@
-﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
+﻿using BrawlLib.OpenGL;
 using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.MovesetFile;
 using Ikarus.ModelViewer;
 
@@ -23,13 +8,13 @@ namespace Ikarus.UI
 {
     public partial class MainControl : ModelEditorBase
     {
-        public unsafe override void modelPanel1_PreRender(GLPanel sender)
+        public unsafe override void modelPanel1_PreRender(ModelPanelViewport sender)
         {
             base.modelPanel1_PreRender(sender);
             Attributes.PreRender();
         }
 
-        public unsafe override void modelPanel1_PostRender(GLPanel sender)
+        public unsafe override void modelPanel1_PostRender(ModelPanelViewport sender)
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

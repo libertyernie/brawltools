@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BrawlLib.Wii.Graphics
+﻿namespace BrawlLib.Wii.Graphics
 {
     public enum GXListCommand : byte
     {
@@ -68,7 +66,7 @@ namespace BrawlLib.Wii.Graphics
         Inverse,//GX_LO_INV,
         ReverseOr,//GX_LO_REVOR,
         InverseCopy,//GX_LO_INVCOPY,
-        InvorseOr,//GX_LO_INVOR,
+        InverseOr,//GX_LO_INVOR,
         NotAnd,//GX_LO_NAND,
         Set//GX_LO_SET
     }
@@ -83,8 +81,8 @@ namespace BrawlLib.Wii.Graphics
 
     public enum ColorArg
     {
-        PreviousColor,//GX_CC_CPREV,
-        PreviousAlpha,//GX_CC_APREV,
+        OutputColor,//GX_CC_CPREV,
+        OutputAlpha,//GX_CC_APREV,
         Color0,//GX_CC_C0,
         Alpha0,//GX_CC_A0,
         Color1,//GX_CC_C1,
@@ -97,19 +95,19 @@ namespace BrawlLib.Wii.Graphics
         RasterAlpha,//GX_CC_RASA,
         One,//GX_CC_ONE, //1
         Half,//GX_CC_HALF, //0.5
-        KonstantColorSelection,//GX_CC_KONST,
+        ConstantColorSelection,//GX_CC_KONST,
         Zero//GX_CC_ZERO //0
     }
 
     public enum AlphaArg
     {
-        PreviousAlpha,//GX_CA_APREV,
+        OutputAlpha,//GX_CA_APREV,
         Alpha0,//GX_CA_A0,
         Alpha1,//GX_CA_A1,
         Alpha2,//GX_CA_A2,
         TextureAlpha,//GX_CA_TEXA,
         RasterAlpha,//GX_CA_RASA,
-        KonstantAlphaSelection,//GX_CA_KONST,
+        ConstantAlphaSelection,//GX_CA_KONST,
         Zero//GX_CA_ZERO //0
     }
 
@@ -157,15 +155,22 @@ namespace BrawlLib.Wii.Graphics
         Stage15,
     }
 
-    public enum TevRegID
+    public enum TevColorRegID
     {
-        PreviousRegister,//GX_TEVPREV,
-        Register0,//GX_TEVREG0,
-        Register1,//GX_TEVREG1,
-        Register2,//GX_TEVREG2
+        OutputColor,
+        Color0,
+        Color1,
+        Color2,
+    }
+    public enum TevAlphaRegID
+    {
+        OutputAlpha,
+        Alpha0,
+        Alpha1,
+        Alpha2,
     }
 
-    public enum TevOp
+    public enum TevColorOp
     {
         Add = 0,
         Subtract = 1,
@@ -183,6 +188,20 @@ namespace BrawlLib.Wii.Graphics
         //GX_TEV_COMP_A8_EQ = GX_TEV_COMP_RGB8_EQ  // for alpha channel
     }
 
+    public enum TevAlphaOp
+    {
+        Add = 0,
+        Subtract = 1,
+
+        CompR8Greater = 8,
+        CompR8Equal = 9,
+        CompGR16Greater = 10,
+        CompGR16Equal = 11,
+        CompBGR24Greater = 12,
+        CompBGR24Equal = 13,
+        CompA8Greater = 14,
+        CompA8Equal = 15,
+    }
     public enum BlendFactor
     {
         //GX_BL_ZERO,
@@ -206,8 +225,8 @@ namespace BrawlLib.Wii.Graphics
         DestinationAlpha,
         InverseDestinationAlpha,
 
-        DestinationColor = SourceColor,
-        InverseDestinationColor = InverseSourceColor
+        //DestinationColor = SourceColor,
+        //InverseDestinationColor = InverseSourceColor
     }
 
     public enum AlphaCompare
@@ -280,8 +299,8 @@ namespace BrawlLib.Wii.Graphics
     public enum ColorSelChan
     {
         //Rasterized color selections
-        ColorChannel0,//RAS1_CC_0 = 0, // Color channel 0 
-        ColorChannel1,//RAS1_CC_1 = 1, // Color channel 1 
+        LightChannel0,//RAS1_CC_0 = 0, // Color channel 0 
+        LightChannel1,//RAS1_CC_1 = 1, // Color channel 1 
         BumpAlpha = 5,//RAS1_CC_B = 5, // Indirect texture bump alpha 
         NormalizedBumpAlpha = 6,//RAS1_CC_BN = 6, // Indirect texture bump alpha, normalized 0-255 
         Zero = 7,//RAS1_CC_Z = 7 // Set color value to zero 
@@ -317,74 +336,74 @@ namespace BrawlLib.Wii.Graphics
 
     public enum TevKAlphaSel
     {
-        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KASEL_8_8*/ = 0x00, //1.0f
+        Constant7_8/*GX_TEV_KASEL_7_8*/ = 0x01, //0.875f
+        Constant3_4/*GX_TEV_KASEL_6_8*/ = 0x02, //0.75f
+        Constant5_8/*GX_TEV_KASEL_5_8*/ = 0x03, //0.625f
+        Constant1_2/*GX_TEV_KASEL_4_8*/ = 0x04, //0.5f
+        Constant3_8/*GX_TEV_KASEL_3_8*/ = 0x05, //0.375f
+        Constant1_4/*GX_TEV_KASEL_2_8*/ = 0x06, //0.25f
+        Constant1_8/*GX_TEV_KASEL_1_8*/ = 0x07, //0.125f
         
         //GX_TEV_KASEL_1    = GX_TEV_KASEL_8_8,
         //GX_TEV_KASEL_3_4  = GX_TEV_KASEL_6_8,
         //GX_TEV_KASEL_1_2  = GX_TEV_KASEL_4_8,
         //GX_TEV_KASEL_1_4  = GX_TEV_KASEL_2_8,
 
-        KSel_0_Red/*GX_TEV_KASEL_K0_R*/ = 0x10,
-        KSel_1_Red/*GX_TEV_KASEL_K1_R*/ = 0x11,
-        KSel_2_Red/*GX_TEV_KASEL_K2_R*/ = 0x12,
-        KSel_3_Red/*GX_TEV_KASEL_K3_R*/ = 0x13,
-        KSel_0_Green/*GX_TEV_KASEL_K0_G*/ = 0x14,
-        KSel_1_Green/*GX_TEV_KASEL_K1_G*/ = 0x15,
-        KSel_2_Green/*GX_TEV_KASEL_K2_G*/ = 0x16,
-        KSel_3_Green/*GX_TEV_KASEL_K3_G*/ = 0x17,
-        KSel_0_Blue/*GX_TEV_KASEL_K0_B*/ = 0x18,
-        KSel_1_Blue/*GX_TEV_KASEL_K1_B*/ = 0x19,
-        KSel_2_Blue/*GX_TEV_KASEL_K2_B*/ = 0x1A,
-        KSel_3_Blue/*GX_TEV_KASEL_K3_B*/ = 0x1B,
-        KSel_0_Alpha/*GX_TEV_KASEL_K0_A*/ = 0x1C,
-        KSel_1_Alpha/*GX_TEV_KASEL_K1_A*/ = 0x1D,
-        KSel_2_Alpha/*GX_TEV_KASEL_K2_A*/ = 0x1E,
-        KSel_3_Alpha/*GX_TEV_KASEL_K3_A*/ = 0x1F
+        ConstantColor0_Red/*GX_TEV_KASEL_K0_R*/ = 0x10,
+        ConstantColor1_Red/*GX_TEV_KASEL_K1_R*/ = 0x11,
+        ConstantColor2_Red/*GX_TEV_KASEL_K2_R*/ = 0x12,
+        ConstantColor3_Red/*GX_TEV_KASEL_K3_R*/ = 0x13,
+        ConstantColor0_Green/*GX_TEV_KASEL_K0_G*/ = 0x14,
+        ConstantColor1_Green/*GX_TEV_KASEL_K1_G*/ = 0x15,
+        ConstantColor2_Green/*GX_TEV_KASEL_K2_G*/ = 0x16,
+        ConstantColor3_Green/*GX_TEV_KASEL_K3_G*/ = 0x17,
+        ConstantColor0_Blue/*GX_TEV_KASEL_K0_B*/ = 0x18,
+        ConstantColor1_Blue/*GX_TEV_KASEL_K1_B*/ = 0x19,
+        ConstantColor2_Blue/*GX_TEV_KASEL_K2_B*/ = 0x1A,
+        ConstantColor3_Blue/*GX_TEV_KASEL_K3_B*/ = 0x1B,
+        ConstantColor0_Alpha/*GX_TEV_KASEL_K0_A*/ = 0x1C,
+        ConstantColor1_Alpha/*GX_TEV_KASEL_K1_A*/ = 0x1D,
+        ConstantColor2_Alpha/*GX_TEV_KASEL_K2_A*/ = 0x1E,
+        ConstantColor3_Alpha/*GX_TEV_KASEL_K3_A*/ = 0x1F
     }
 
     public enum TevKColorSel
     {
-        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //"1.0f,1.0f,1.0f"
-        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //"0.875f,0.875f,0.875f"
-        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //"0.75f,0.75f,0.75f"
-        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //"0.625f,0.625f,0.625f"
-        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //"0.5f,0.5f,0.5f"
-        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //"0.375f,0.375f,0.375f"
-        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //"0.25f,0.25f,0.25f"
-        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //"0.125f,0.125f,0.125f"
+        Constant1_1/*GX_TEV_KCSEL_8_8*/ = 0x00, //1.0f, 1.0f, 1.0f
+        Constant7_8/*GX_TEV_KCSEL_7_8*/ = 0x01, //0.875f, 0.875f, 0.875f
+        Constant3_4/*GX_TEV_KCSEL_6_8*/ = 0x02, //0.75f, 0.75f, 0.75f
+        Constant5_8/*GX_TEV_KCSEL_5_8*/ = 0x03, //0.625f, 0.625f, 0.625f
+        Constant1_2/*GX_TEV_KCSEL_4_8*/ = 0x04, //0.5f, 0.5f, 0.5f
+        Constant3_8/*GX_TEV_KCSEL_3_8*/ = 0x05, //0.375f, 0.375f, 0.375f
+        Constant1_4/*GX_TEV_KCSEL_2_8*/ = 0x06, //0.25f, 0.25f, 0.25f
+        Constant1_8/*GX_TEV_KCSEL_1_8*/ = 0x07, //0.125f, 0.125f, 0.125f
 
         //GX_TEV_KCSEL_1    = GX_TEV_KCSEL_8_8,
         //GX_TEV_KCSEL_3_4  = GX_TEV_KCSEL_6_8,
         //GX_TEV_KCSEL_1_2  = GX_TEV_KCSEL_4_8,
         //GX_TEV_KCSEL_1_4  = GX_TEV_KCSEL_2_8,
         
-        KSel_0_Value/*GX_TEV_KCSEL_K0*/   = 0x0C,
-        KSel_1_Value/*GX_TEV_KCSEL_K1*/   = 0x0D,
-        KSel_2_Value/*GX_TEV_KCSEL_K2*/   = 0x0E,
-        KSel_3_Value/*GX_TEV_KCSEL_K3*/   = 0x0F,
-        KSel_0_Red/*GX_TEV_KCSEL_K0_R*/ = 0x10,
-        KSel_1_Red/*GX_TEV_KCSEL_K1_R*/ = 0x11,
-        KSel_2_Red/*GX_TEV_KCSEL_K2_R*/ = 0x12,
-        KSel_3_Red/*GX_TEV_KCSEL_K3_R*/ = 0x13,
-        KSel_0_Green/*GX_TEV_KCSEL_K0_G*/ = 0x14,
-        KSel_1_Green/*GX_TEV_KCSEL_K1_G*/ = 0x15,
-        KSel_2_Green/*GX_TEV_KCSEL_K2_G*/ = 0x16,
-        KSel_3_Green/*GX_TEV_KCSEL_K3_G*/ = 0x17,
-        KSel_0_Blue/*GX_TEV_KCSEL_K0_B*/ = 0x18,
-        KSel_1_Blue/*GX_TEV_KCSEL_K1_B*/ = 0x19,
-        KSel_2_Blue/*GX_TEV_KCSEL_K2_B*/ = 0x1A,
-        KSel_3_Blue/*GX_TEV_KCSEL_K3_B*/ = 0x1B,
-        KSel_0_Alpha/*GX_TEV_KCSEL_K0_A*/ = 0x1C,
-        KSel_1_Alpha/*GX_TEV_KCSEL_K1_A*/ = 0x1D,
-        KSel_2_Alpha/*GX_TEV_KCSEL_K2_A*/ = 0x1E,
-        KSel_3_Alpha/*GX_TEV_KCSEL_K3_A*/ = 0x1F
+        ConstantColor0_RGB/*GX_TEV_KCSEL_K0*/   = 0x0C,
+        ConstantColor1_RGB/*GX_TEV_KCSEL_K1*/   = 0x0D,
+        ConstantColor2_RGB/*GX_TEV_KCSEL_K2*/   = 0x0E,
+        ConstantColor3_RGB/*GX_TEV_KCSEL_K3*/   = 0x0F,
+        ConstantColor0_RRR/*GX_TEV_KCSEL_K0_R*/ = 0x10,
+        ConstantColor1_RRR/*GX_TEV_KCSEL_K1_R*/ = 0x11,
+        ConstantColor2_RRR/*GX_TEV_KCSEL_K2_R*/ = 0x12,
+        ConstantColor3_RRR/*GX_TEV_KCSEL_K3_R*/ = 0x13,
+        ConstantColor0_GGG/*GX_TEV_KCSEL_K0_G*/ = 0x14,
+        ConstantColor1_GGG/*GX_TEV_KCSEL_K1_G*/ = 0x15,
+        ConstantColor2_GGG/*GX_TEV_KCSEL_K2_G*/ = 0x16,
+        ConstantColor3_GGG/*GX_TEV_KCSEL_K3_G*/ = 0x17,
+        ConstantColor0_BBB/*GX_TEV_KCSEL_K0_B*/ = 0x18,
+        ConstantColor1_BBB/*GX_TEV_KCSEL_K1_B*/ = 0x19,
+        ConstantColor2_BBB/*GX_TEV_KCSEL_K2_B*/ = 0x1A,
+        ConstantColor3_BBB/*GX_TEV_KCSEL_K3_B*/ = 0x1B,
+        ConstantColor0_AAA/*GX_TEV_KCSEL_K0_A*/ = 0x1C,
+        ConstantColor1_AAA/*GX_TEV_KCSEL_K1_A*/ = 0x1D,
+        ConstantColor2_AAA/*GX_TEV_KCSEL_K2_A*/ = 0x1E,
+        ConstantColor3_AAA/*GX_TEV_KCSEL_K3_A*/ = 0x1F
     }
 
     public enum IndTexStageID

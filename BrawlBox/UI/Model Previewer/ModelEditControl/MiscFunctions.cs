@@ -3,11 +3,10 @@ using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
-using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
-using System.Text;
+using BrawlLib.Wii.Graphics;
 
 namespace System.Windows.Forms
 {
@@ -15,11 +14,11 @@ namespace System.Windows.Forms
     {
         public override void UpdatePropDisplay()
         {
-            if (vertexEditor.Visible)
-            {
-                vertexEditor.UpdatePropDisplay();
-                return;
-            }
+            //if (vertexEditor.Visible)
+            //{
+            //    vertexEditor.UpdatePropDisplay();
+            //    return;
+            //}
             base.UpdatePropDisplay();
         }
 
@@ -73,6 +72,9 @@ namespace System.Windows.Forms
             leftPanel.Reset();
             rightPanel.Reset();
 
+            weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor.TargetVertices = _selectedVertices;
+
             _updating = false;
         }
 
@@ -82,14 +84,14 @@ namespace System.Windows.Forms
                 return;
 
             //Leave the target model and collision alone if just switching to edit all
-            if (!EditingAll)
-            {
+            //if (!EditingAll)
+            //{
                 object item = models.SelectedItem;
 
                 _resetCamera = false;
                 TargetModel = item is IModel ? (IModel)item : null;
                 TargetCollision = item is CollisionNode ? (CollisionNode)item : null;
-            }
+            //}
             _undoSaves.Clear();
             _redoSaves.Clear();
             _saveIndex = -1;
@@ -112,6 +114,10 @@ namespace System.Windows.Forms
             }
             else if (!weightEditor.Visible && !vertexEditor.Visible)
                 s = new Drawing.Size(0, 0);
+            else if (weightEditor.Visible)
+                s = weightEditor.MinimumSize;
+            else if (vertexEditor.Visible)
+                s = vertexEditor.MinimumSize;
 
             //See if the scroll bar needs to be visible
             int addedHeight = 0;
@@ -149,32 +155,36 @@ namespace System.Windows.Forms
 
         public bool Close()
         {
-            try
-            {
-                if (!CloseExternal())
-                    return false;
+            StopAnim();
 
-                StopAnim();
-                ResetBoneColors();
-                SaveSettings();
+            if (!rightPanel.pnlOpenedFiles.CloseAllFiles())
+                return false;
 
-                if (_viewerForm != null)
-                    _viewerForm.Close();
-                if (_interpolationForm != null)
-                    _interpolationForm.Close();
+            ResetBoneColors();
+            SaveSettings();
 
-                MDL0TextureNode._folderWatcher.SynchronizingObject = null;
-            }
-            catch { }
+            if (_viewerForm != null)
+                _viewerForm.Close();
+            if (_interpolationForm != null)
+                _interpolationForm.Close();
+
+            MDL0TextureNode._folderWatcher.SynchronizingObject = null;
+
+            if (TargetModel != null)
+                TargetModel = null;
+
+            _targetModels.Clear();
+            ModelPanel.ClearAll();
+
+            if (Instances.Contains(this))
+                Instances.Remove(this);
+            
             return true;
         }
 
         protected override void OnSelectedBoneChanged()
         {
-#if DEBUG
-            if (weightEditor.Visible)
-                weightEditor.BoneChanged();
-#endif
+            weightEditor.BoneChanged();
             chkZoomExtents.Enabled = AllowZoomExtents;
         }
         public override void UpdateUndoButtons()
@@ -182,12 +192,6 @@ namespace System.Windows.Forms
             btnUndo.Enabled = CanUndo;
             btnRedo.Enabled = CanRedo;
         }
-        //protected override void OnSelectedVerticesChanged()
-        //{
-        //    base.OnSelectedVerticesChanged();
-
-
-        //}
 
         public override void UpdateAnimationPanelDimensions()
         {
@@ -238,27 +242,25 @@ namespace System.Windows.Forms
         {
             base.modelPanel1_MouseMove(sender, e);
 
-            if (_translating && VertexLoc() == null && SelectedBone != null && SnapBonesToCollisions)
+            if (_translating && VertexLoc == null && SelectedBone != null && SnapBonesToCollisions)
                 SnapYIfClose();
         }
 
-        protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
-        {
-            base.modelPanel1_MouseUp(sender, e);
+        //protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
+        //{
+        //    base.modelPanel1_MouseUp(sender, e);
 
-            if (e.Button == Forms.MouseButtons.Left)
-            {
-#if DEBUG
-                if (weightEditor.Visible && weightEditor.TargetVertices != _selectedVertices)
-                    weightEditor.TargetVertices = _selectedVertices;
-#endif
-                if (vertexEditor.Visible && vertexEditor.TargetVertices != _selectedVertices)
-                    vertexEditor.TargetVertices = _selectedVertices;
-            }
-        }
+        //    if (e.Button == Forms.MouseButtons.Left)
+        //    {
+
+        //    }
+        //}
 
         public override void ApplyVIS0ToInterface()
         {
+            //base.ApplyVIS0ToInterface();
+            //return;
+
             if (_animFrame == 0 || leftPanel.lstObjects.Items.Count == 0)
                 return;
 
@@ -268,13 +270,33 @@ namespace System.Windows.Forms
                 //if (TargetAnimation != null && _vis0.FrameCount != TargetAnimation.tFrameCount)
                 //    UpdateVis0(null, null);
 
-                foreach (string n in VIS0Indices.Keys)
+                foreach (string boneName in VIS0Indices.Keys)
                 {
+                    MDL0ObjectNode obj;
                     VIS0EntryNode node = null;
-                    List<int> indices = VIS0Indices[n];
-                    for (int i = 0; i < indices.Count; i++)
-                        if ((node = (VIS0EntryNode)_vis0.FindChild(((MDL0ObjectNode)leftPanel.lstObjects.Items[indices[i]])._visBoneNode.Name, true)) != null)
-                            leftPanel.lstObjects.SetItemChecked(indices[i], node._entryCount != 0 && _animFrame > 0 ? node.GetEntry((int)_animFrame - 1) : node._flags.HasFlag(VIS0Flags.Enabled));
+                    Dictionary<int, List<int>> objects = VIS0Indices[boneName];
+                    foreach (var objKey in objects)
+                    {
+                        obj = (MDL0ObjectNode)leftPanel.lstObjects.Items[objKey.Key];
+                        foreach (int i in objKey.Value)
+                        {
+                            node = _vis0.FindChild(obj._drawCalls[i].VisibilityBone, true) as VIS0EntryNode;
+                            if (node != null)
+                            {
+                                bool render = node._entryCount != 0 && _animFrame > 0 ?
+                                    node.GetEntry((int)_animFrame - 1) :
+                                    node._flags.HasFlag(VIS0Flags.Enabled);
+
+                                if (leftPanel.InvokeRequired)
+                                {
+                                    Action<int, int, bool, MDL0ObjectNode> d = new Action<int, int, bool, MDL0ObjectNode>(leftPanel.SetRenderState);
+                                    this.Invoke(d, new object[] { objKey.Key, i, render, obj });
+                                }
+                                else
+                                    leftPanel.SetRenderState(objKey.Key, i, render, obj);
+                            }
+                        }
+                    }
                 }
             }
             VIS0Updating = false;
@@ -286,7 +308,7 @@ namespace System.Windows.Forms
             if (!ModelPanel.Focused)
                 return false;
 
-            ResetVertexColors();
+            ClearSelectedVertices();
             if (EditingAll)
             {
                 if (_targetModels != null)
@@ -297,32 +319,13 @@ namespace System.Windows.Forms
                 SelectAllVertices(TargetModel);
 
             OnSelectedVerticesChanged();
+
+            weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor.TargetVertices = _selectedVertices;
+
             ModelPanel.Invalidate();
 
             return true;
-        }
-        private void SelectAllVertices(IModel mdl)
-        {
-            if (mdl.SelectedObjectIndex >= 0 && mdl.SelectedObjectIndex < mdl.Objects.Length)
-            {
-                IObject o = (IObject)mdl.Objects[mdl.SelectedObjectIndex];
-                if (o.IsRendering)
-                    foreach (Vertex3 v in o.Vertices)
-                    {
-                        _selectedVertices.Add(v);
-                        v._selected = true;
-                        v._highlightColor = Color.Orange;
-                    }
-            }
-            else
-                foreach (IObject o in mdl.Objects)
-                    if (o.IsRendering)
-                        foreach (Vertex3 v in o.Vertices)
-                        {
-                            _selectedVertices.Add(v);
-                            v._selected = true;
-                            v._highlightColor = Color.Orange;
-                        }
         }
         private bool HotkeyToggleLeftPanel()
         {
@@ -434,13 +437,8 @@ namespace System.Windows.Forms
                 new HotKeyInfo(Keys.E, false, false, false, HotkeyScaleTool),
                 new HotKeyInfo(Keys.R, false, false, false, HotkeyRotateTool),
                 new HotKeyInfo(Keys.T, false, false, false, HotkeyTranslateTool),
-                new HotKeyInfo(Keys.J, false, false, false, HotkeyVertexEditor),
-
-#if DEBUG
-                //Weight editor has been disabled in release due to the necessity
-                //of re-encoding objects after making influence changes.
-                new HotKeyInfo(Keys.H, false, false, false, HotkeyWeightEditor),
-#endif
+                new HotKeyInfo(Keys.D0, false, false, false, HotkeyVertexEditor),
+                new HotKeyInfo(Keys.D9, false, false, false, HotkeyWeightEditor),
             };
             _hotkeyList.AddRange(temp);
         }
@@ -514,7 +512,9 @@ namespace System.Windows.Forms
                 SnapToColl = _snapToCollisions,
                 Maximize = _maximize,
                 UseBindStateBox = UseBindStateBoxes,
+                UsePixelLighting = ShaderGenerator.UsePixelLighting,
 
+                HideMainWindow = _hideMainWindow,
                 SavePosition = _savePosition,
                 _width = ParentForm.Width,
                 _height = ParentForm.Height,
@@ -553,12 +553,14 @@ namespace System.Windows.Forms
             _snapToCollisions = settings.SnapToColl;
             _maximize = settings.Maximize;
             _savePosition = settings.SavePosition;
+            _hideMainWindow = settings.HideMainWindow;
             chkExternalAnims.Checked = settings.DisplayExternalAnims;
             chkBRRESAnims.Checked = settings.DisplayBRRESAnims;
             chkNonBRRESAnims.Checked = settings.DisplayNonBRRESAnims;
             rightPanel.pnlBones.chkFlat.Checked = settings.FlatBoneList;
             rightPanel.pnlBones.chkContains.Checked = settings.BoneListContains;
             UseBindStateBoxes = settings.UseBindStateBox;
+            ShaderGenerator.UsePixelLighting = settings.UsePixelLighting;
 
             MDL0BoneNode.DefaultNodeColor = (Color)settings._orbColor;
             MDL0BoneNode.DefaultLineColor = (Color)settings._lineColor;
@@ -618,6 +620,14 @@ namespace System.Windows.Forms
         }
         private void showTop_CheckedChanged(object sender, EventArgs e) { controlPanel.Visible = showTop.Checked; }
         #endregion
+
+        protected override void OnSelectedVerticesChanged()
+        {
+            //weightEditor.TargetVertices = _selectedVertices;
+            //vertexEditor.TargetVertices = _selectedVertices;
+
+            base.OnSelectedVerticesChanged();
+        }
 
         public void LinkZoom(ModelPanelViewport control, ModelPanelViewport affected)
         {
@@ -692,6 +702,12 @@ namespace System.Windows.Forms
             ModelPanel_RenderVerticesChanged(ModelPanel, v.RenderVertices);
             modelPanel_RenderVisBoneBoxChanged(ModelPanel, v.RenderVisBoneBox);
             ModelPanel_RenderWireframeChanged(ModelPanel, v.RenderWireframe);
+            ModelPanel_ScaleBonesChanged(ModelPanel, v.ScaleBones);
+            ModelPanel_ApplyBillboardBonesChanged(ModelPanel, v.ApplyBillboardBones);
+            modelPanel_FirstPersonCameraChanged(ModelPanel, v._firstPersonCamera);
+            ModelPanel_RenderShadersChanged(ModelPanel, v._renderAttrib._renderShaders);
+            ModelPanel_UseBindStateBoxesChanged(ModelPanel, v.UseBindStateBoxes);
+            sCN0ToolStripMenuItem.Checked = v.RenderSCN0Controls;
 
             _currentProjBox.Checked = false;
             switch (p.ViewType)
@@ -716,6 +732,7 @@ namespace System.Windows.Forms
             _currentProjBox.Checked = true;
 
             showCameraCoordinatesToolStripMenuItem.Checked = v._showCamCoords;
+            loadImageToolStripMenuItem.Text = v.BackgroundImage == null ? "Load Image" : "Clear Image";
         }
 
         private void UpdateAnimList_Event(object sender, EventArgs e)
@@ -752,9 +769,11 @@ namespace System.Windows.Forms
                 vis0Editor.listBox1.Items.Count != 0 &&
                 leftPanel.SelectedObject is MDL0ObjectNode)
             {
+                MDL0ObjectNode o = (MDL0ObjectNode)leftPanel.SelectedObject;
+
                 int x = 0;
                 foreach (object i in vis0Editor.listBox1.Items)
-                    if (i.ToString() == ((MDL0ObjectNode)leftPanel.SelectedObject).VisibilityBone)
+                    if (o._drawCalls.Count > 0 && i.ToString() == o._drawCalls[0].VisibilityBone)
                     {
                         vis0Editor.listBox1.SelectedIndex = x;
                         break;
@@ -771,7 +790,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_UseBindStateBoxesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -782,7 +800,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_ApplyBillboardBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -791,9 +808,19 @@ namespace System.Windows.Forms
             }
         }
 
-        void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
+        void ModelPanel_RenderShadersChanged(ModelPanel panel, bool value)
         {
             //Only update if the focused panel triggered the event
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                shadersToolStripMenuItem.Checked = value;
+                _updating = false;
+            }
+        }
+
+        void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
+        {
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -804,7 +831,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderVerticesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -815,7 +841,6 @@ namespace System.Windows.Forms
 
         void ModelPanel_RenderPolygonsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -826,7 +851,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderOffscreenChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -837,7 +861,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderNormalsChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -846,9 +869,18 @@ namespace System.Windows.Forms
             }
         }
 
+        void modelPanel_FirstPersonCameraChanged(ModelPanel panel, bool value)
+        {
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                firstPersonCameraToolStripMenuItem.Checked = value;
+                _updating = false;
+            }
+        }
+
         void modelPanel_RenderFloorChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -859,7 +891,6 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderModelBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -869,7 +900,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderObjectBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -879,7 +909,6 @@ namespace System.Windows.Forms
         }
         void modelPanel_RenderVisBoneBoxChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
@@ -890,11 +919,19 @@ namespace System.Windows.Forms
 
         void modelPanel_RenderBonesChanged(ModelPanel panel, bool value)
         {
-            //Only update if the focused panel triggered the event
             if (ModelPanel == panel && !_updating)
             {
                 _updating = true;
                 toggleBones.Checked = chkBones.Checked = value;
+                _updating = false;
+            }
+        }
+        private void ModelPanel_ScaleBonesChanged(ModelPanel panel, bool value)
+        {
+            if (ModelPanel == panel && !_updating)
+            {
+                _updating = true;
+                //scaleBonesToolStripMenuItem.Checked = value;
                 _updating = false;
             }
         }
@@ -923,26 +960,5 @@ namespace System.Windows.Forms
         }
 
         #endregion
-
-        /*private void chkShaders_CheckedChanged(object sender, EventArgs e)
-        {
-            if (ModelPanel._ctx != null)
-            {
-                if (ModelPanel._ctx._version < 2 && chkShaders.Checked)
-                {
-                    MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
-
-                    chkShaders.Checked = false;
-                    return;
-                }
-                else
-                {
-                    if (ModelPanel._ctx._shadersEnabled && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
-                    ModelPanel._ctx._shadersEnabled = chkShaders.Checked;
-                }
-            }
-            ModelPanel.Invalidate();
-        }*/
     }
 }

@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using BrawlLib.Imaging;
 using System.IO;
 using System.Windows.Forms;
 using System.Globalization;
@@ -232,7 +227,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             e._enabled = codeEnabled ?? false;
                             e._lines = g.ToArray();
                             e._description = String.Join(Environment.NewLine, description);
-                            node.AddChild(e);
+                            node.AddChild(e, false);
                         }
                     }
                 }
@@ -286,7 +281,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     s += line.ToStringNoSpace();
                 }
 
-                GCTNode g = new GCTNode();
+                GCTNode g = new GCTNode() { _origPath = path };
 
                 List<string> _unrecognized = new List<string>();
 
@@ -295,7 +290,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     int index = -1;
                     if ((index = s.IndexOf(c._code)) >= 0)
                     {
-                        g.AddChild(new GCTCodeEntryNode() { _name = c._name, _description = c._description, LinesNoSpaces = s.Substring(index, c._code.Length), _enabled = true });
+                        g.AddChild(new GCTCodeEntryNode()
+                        {
+                            _name = c._name,
+                            _description = c._description,
+                            LinesNoSpaces = s.Substring(index, c._code.Length),
+                            _enabled = true }, false);
                         s = s.Remove(index, c._code.Length);
                     }
                 }
@@ -309,7 +309,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                     MessageBox.Show("This GCT does not contain any recognizable codes.");
 
                 if (s.Length > 0)
-                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s, _enabled = true });
+                    g.AddChild(new GCTCodeEntryNode() { _name = "Unrecognized Code(s)", LinesNoSpaces = s, _enabled = true }, false);
+
+                if (g._name == null)
+                {
+                    g._name = Path.GetFileNameWithoutExtension(path);
+                }
 
                 return g;
             }

@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.OpenGL;
 using System.ComponentModel;
 using System.Drawing;
@@ -9,9 +7,7 @@ using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing.Imaging;
-using BrawlLib.Imaging;
 using System.IO;
-using System.Runtime.Serialization;
 
 namespace System.Windows.Forms
 {
@@ -37,8 +33,11 @@ namespace System.Windows.Forms
 
         List<KeyValuePair<ModelPanelViewport, DragFlags>> _dragging = new List<KeyValuePair<ModelPanelViewport, DragFlags>>();
         public bool _draggingViewports = false;
+
         public BindingList<IRenderedObject> _renderList = new BindingList<IRenderedObject>();
+        public List<DrawCallBase> _drawCalls = new List<DrawCallBase>();
         public List<ResourceNode> _resourceList = new List<ResourceNode>();
+
         public event GLRenderEventHandler PreRender, PostRender;
 
         #region Camera
@@ -67,9 +66,12 @@ namespace System.Windows.Forms
                 //Calculate lengths
                 Vector3 extents = max - min;
                 Vector3 halfExtents = extents / 2.0f;
-                float ratio = halfExtents._x / halfExtents._y;
-                distY = halfExtents._y / tan; //The camera's distance from the model's midpoint in respect to Y
-                distX = distY * ratio;
+                if (halfExtents._y != 0.0f)
+                {
+                    float ratio = halfExtents._x / halfExtents._y;
+                    distY = halfExtents._y / tan; //The camera's distance from the model's midpoint in respect to Y
+                    distX = distY * ratio;
+                }
             }
 
             cam.Reset();
@@ -112,48 +114,79 @@ namespace System.Windows.Forms
                 return;
 
             _renderList.Add(target);
+            target.DrawCallsChanged += target_DrawCallsChanged;
+
+            target.Attach();
+
+            foreach (DrawCallBase call in target.DrawCalls)
+                call.Bind();
+
+            _drawCalls.AddRange(target.DrawCalls);
+            _drawCalls.Sort(DrawCallSort);
 
             if (target is ResourceNode)
                 _resourceList.Add(target as ResourceNode);
 
-            target.Attach();
-
             Invalidate();
         }
-        public void RemoveTarget(IRenderedObject target)
+        public void RemoveTarget(IRenderedObject target, bool refreshReferences = true)
         {
             if (!_renderList.Contains(target))
                 return;
+            _renderList.Remove(target);
 
             target.Detach();
 
             if (target is ResourceNode)
-                RemoveReference(target as ResourceNode);
+                RemoveReference(target as ResourceNode, refreshReferences);
 
-            _renderList.Remove(target);
+            target.DrawCallsChanged -= target_DrawCallsChanged;
+
+            _drawCalls = _renderList.SelectMany(x => x.DrawCalls).ToList();
+            _drawCalls.Sort(DrawCallSort);
         }
+
+        Comparison<DrawCallBase> _drawCallSort = DrawCallBase.Sort;
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public Comparison<DrawCallBase> DrawCallSort
+        {
+            get { return _drawCallSort ?? DrawCallBase.Sort; }
+            set { _drawCallSort = value; }
+        }
+
+        public void target_DrawCallsChanged(object sender, EventArgs e)
+        {
+            _drawCalls = _renderList.SelectMany(x => x.DrawCalls).ToList();
+            _drawCalls.Sort(DrawCallSort);
+            Invalidate();
+        }
+
         public void ClearTargets()
         {
             for (int i = 0; i < _renderList.Count; i++)
                 _renderList[i].Detach();
             _renderList.Clear();
+            _drawCalls.Clear();
         }
 
-        public void AddReference(ResourceNode node)
+        public void AddReference(ResourceNode node, bool refreshReferences = true)
         {
             if (_resourceList.Contains(node))
                 return;
 
             _resourceList.Add(node);
-            RefreshReferences();
+            if (refreshReferences)
+                RefreshReferences();
         }
-        public void RemoveReference(ResourceNode node)
+        public void RemoveReference(ResourceNode node, bool refreshReferences = true)
         {
             if (!_resourceList.Contains(node))
                 return;
 
             _resourceList.Remove(node);
-            RefreshReferences();
+            if (refreshReferences)
+                RefreshReferences();
         }
         public void ClearReferences()
         {
@@ -217,7 +250,7 @@ namespace System.Windows.Forms
                     if (_dragging.Count > 0 && _viewports.Count > 1)
                         _draggingViewports = true;
                     else
-                        CurrentViewport.HandleLeftMouseDown(e, ModifierKeys);
+                        CurrentViewport.HandleLeftMouseDown(e);
                     break;
 
                 case Forms.MouseButtons.Right:
@@ -253,7 +286,7 @@ namespace System.Windows.Forms
                         }
                     }
                     else
-                        CurrentViewport.HandleLeftMouseUp(e, ModifierKeys);
+                        CurrentViewport.HandleLeftMouseUp(e);
                     break;
 
                 case Forms.MouseButtons.Right:
@@ -285,8 +318,11 @@ namespace System.Windows.Forms
         {
             //Reset the cursor to default first, then override it later
             //Parent control mouse move functions are called after this one
-            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling)
+            if (!_mouseDown && !CurrentViewport._grabbing && !CurrentViewport._scrolling && Cursor != Cursors.Default)
+            {
+                Invalidate();
                 Cursor = Cursors.Default;
+            }
 
             if (!Enabled)
                 return;
@@ -329,6 +365,8 @@ namespace System.Windows.Forms
                     //    continue;
                     t.Key.SetPercentageIndex((int)t.Value, p);
                 }
+
+                Invalidate();
             }
             else if (_viewports.Count > 1)
             {
@@ -390,10 +428,10 @@ namespace System.Windows.Forms
                 else if (yd)
                     Cursor = Cursors.SizeNS;
                 else
-                    CurrentViewport.HandleMouseMove(_ctx, e, Control.ModifierKeys);
+                    CurrentViewport.HandleMouseMove(_ctx, e);
             }
             else
-                CurrentViewport.HandleMouseMove(_ctx, e, Control.ModifierKeys);
+                CurrentViewport.HandleMouseMove(_ctx, e);
         }
         #endregion
 
@@ -487,17 +525,39 @@ namespace System.Windows.Forms
             GL.Enable(EnableCap.ScissorTest);
             GL.Scissor(r.X, r.Y, r.Width, r.Height);
 
+            viewport.RenderBackground();
+
             viewport.Camera.LoadProjection();
             viewport.Camera.LoadModelView();
 
-            viewport.RenderBackground();
             viewport.RecalcLight();
 
             if (PreRender != null)
                 PreRender(viewport);
 
+            GL.PushAttrib(AttribMask.AllAttribBits);
+            GL.MatrixMode(MatrixMode.Modelview);
+
+            GL.Enable(EnableCap.Blend);
+            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
+            GL.Enable(EnableCap.Lighting);
+            GL.Enable(EnableCap.DepthTest);
+
+            //Allow each model to set up any data specific to this frame and viewport
             foreach (IRenderedObject o in _renderList)
-                o.Render(viewport);
+                o.PreRender(viewport);
+
+            //Render objects in specifically sorted order
+            foreach (DrawCallBase call in _drawCalls)
+                call.Render(viewport);
+
+            if (viewport._renderAttrib._renderShaders)
+                GL.UseProgram(0);
+
+            GL.MatrixMode(MatrixMode.Texture);
+            GL.LoadIdentity();
+
+            GL.PopAttrib();
 
             if (PostRender != null)
                 PostRender(viewport);
@@ -509,6 +569,7 @@ namespace System.Windows.Forms
 
         public Bitmap GetScreenshot(Rectangle region, bool withTransparency)
         {
+            GL.ReadBuffer(ReadBufferMode.Back);
             Bitmap bmp = new Bitmap(region.Width,  region.Height);
             BitmapData data;
             if (withTransparency)
@@ -552,6 +613,7 @@ namespace System.Windows.Forms
         public delegate void RenderStateEvent(ModelPanel panel, bool value);
         public event RenderStateEvent
             RenderFloorChanged,
+            FirstPersonCameraChanged,
             RenderBonesChanged,
             RenderModelBoxChanged,
             RenderObjectBoxChanged,
@@ -562,11 +624,28 @@ namespace System.Windows.Forms
             RenderPolygonsChanged,
             RenderWireframeChanged,
             UseBindStateBoxesChanged,
-            ApplyBillboardBonesChanged;
+            ApplyBillboardBonesChanged,
+            RenderShadersChanged,
+            ScaleBonesChanged;
 
         #endregion
 
         #region Property
+
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool FirstPersonCamera
+        {
+            get { return CurrentViewport._firstPersonCamera; }
+            set
+            {
+                CurrentViewport._firstPersonCamera = value;
+
+                Invalidate();
+
+                if (FirstPersonCameraChanged != null)
+                    FirstPersonCameraChanged(this, value);
+            }
+        }
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderFloor
@@ -654,6 +733,20 @@ namespace System.Windows.Forms
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool RenderShaders
+        {
+            get { return CurrentViewport._renderAttrib._renderShaders; }
+            set
+            {
+                CurrentViewport._renderAttrib._renderShaders = value;
+
+                Invalidate();
+
+                if (RenderShadersChanged != null)
+                    RenderShadersChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool RenderModelBox
         {
             get { return CurrentViewport._renderAttrib._renderModelBox; }
@@ -735,6 +828,20 @@ namespace System.Windows.Forms
 
                 if (ApplyBillboardBonesChanged != null)
                     ApplyBillboardBonesChanged(this, value);
+            }
+        }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public bool ScaleBones
+        {
+            get { return CurrentViewport._renderAttrib._scaleBones; }
+            set
+            {
+                CurrentViewport._renderAttrib._scaleBones = value;
+
+                Invalidate();
+
+                if (ScaleBonesChanged != null)
+                    ScaleBonesChanged(this, value);
             }
         }
 

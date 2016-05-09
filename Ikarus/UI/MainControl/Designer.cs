@@ -1,21 +1,11 @@
 ﻿using System;
-using BrawlLib.OpenGL;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
 using BrawlLib.Modeling;
 using System.Drawing;
-using BrawlLib.Wii.Animations;
 using System.Collections.Generic;
 using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.ModelViewer;
 using Ikarus.MovesetFile;
 
@@ -1542,13 +1532,18 @@ namespace Ikarus.UI
             Manager.RootChanged += new EventHandler(FolderManager_RootChanged);
             Manager.TargetCharacterChanged += new EventHandler(FolderManager_TargetCharacterChanged);
 
-            modelPanel.BackColor = Color.FromArgb(0, 45, 45, 65);
-            modelPanel.Ambient = new Vector4(65.0f / 255.0f, 78.0f / 255.0f, 94.0f / 255.0f, 255.0f / 255.0f);
             _floorHue = Color.FromArgb(255, 99, 101, 107);
 
-            modelPanel.DefaultTranslate = new Vector3(-25.0f, 15.0f, 50.0f);
-            modelPanel.DefaultRotate = new Vector3(-5.0f, -30.0f, 0.0f);
-            modelPanel.ResetCamera();
+            //modelPanel.RenderShaders = false;
+
+            ModelPanelViewport v = modelPanel.CurrentViewport;
+
+            v.BackgroundColor = Color.FromArgb(0, 45, 45, 65);
+            v.Ambient = new Vector4(65.0f / 255.0f, 78.0f / 255.0f, 94.0f / 255.0f, 255.0f / 255.0f);
+            v.DefaultTranslate = new Vector3(-25.0f, 15.0f, 50.0f);
+            v.DefaultRotate = new Vector3(-5.0f, -30.0f, 0.0f);
+            v.ResetCamera();
+
             _updating = false;
 
             PostConstruct();
@@ -1582,7 +1577,7 @@ namespace Ikarus.UI
             string path = null;
 #if DEBUG
             if (Environment.UserName == "David")
-                path = "X:/Documents/Games/SSBB";
+                path = "D:/brawlmods/custom1";
             else
                 path = Ikarus.Properties.Settings.Default.RootPath;
 #else
@@ -1758,8 +1753,6 @@ namespace Ikarus.UI
                 listPanel.UpdateAnimations();
 
                 ResetBoneColors();
-
-                RunTime.ResetSubactionVariables();
                 RunTime.SetFrame(1);
             }
             else
@@ -1776,7 +1769,7 @@ namespace Ikarus.UI
             if (Manager.Moveset != null && Manager.Moveset.Data != null)
             {
                 RunTime._articles = new ArticleInfo[Manager.Moveset.Data._articles.Count];
-                foreach (ArticleNode article in Manager.Moveset.Data._articles.Values)
+                foreach (ArticleNode article in Manager.Moveset.Data._articles)
                 {
                     ArticleInfo articleInfo = new ArticleInfo(article, null, false);
 
@@ -1784,8 +1777,8 @@ namespace Ikarus.UI
                     if (groupID >= 0)
                     {
                         LoadArticles(Manager.SelectedInfo.CharacterFiles, groupID, articleInfo, true);
-                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, true);
-                        LoadArticles(Manager.SelectedInfo.CharacterFinalFiles, groupID, articleInfo, true);
+                        LoadArticles(Manager.SelectedInfo.CharacterEtcFiles, groupID, articleInfo, false);
+                        LoadArticles(Manager.SelectedInfo.CharacterFinalFiles, groupID, articleInfo, false);
                     }
                     RunTime._articles[article.Index] = articleInfo;
                 }
@@ -1819,8 +1812,14 @@ namespace Ikarus.UI
                         if (addTarget)
                         {
                             info.Running = true;
-                            AppendTarget(info._model);
+                            info._etcModel = false;
                         }
+                        else
+                        {
+                            info._etcModel = true;
+                            info.Running = false;
+                        }
+                        AppendTarget(info._model);
                     }
                 }
                 if (t2.ContainsKey(ARCFileType.AnimationData))
@@ -1877,7 +1876,6 @@ namespace Ikarus.UI
         private void comboMdl_SelectedIndexChanged(object sender, EventArgs e)
         {
             Manager.ModelIndexChanged();
-            CollectArticles();
         }
 
         protected override void OnModelChanged()
@@ -1887,6 +1885,8 @@ namespace Ikarus.UI
 
             hurtboxEditor._mainControl_TargetModelChanged(null, null);
             modelListsPanel1.Reset();
+            CollectArticles();
+            UpdateModel();
             RunTime.ResetSubactionVariables();
         }
 

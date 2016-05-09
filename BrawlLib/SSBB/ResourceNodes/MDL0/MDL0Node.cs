@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using BrawlLib.OpenGL;
@@ -10,7 +9,6 @@ using BrawlLib.IO;
 using BrawlLib.Imaging;
 using BrawlLib.Modeling;
 using BrawlLib.Wii.Models;
-using BrawlLib.Wii.Animations;
 using System.Windows.Forms;
 using BrawlLib.Wii.Graphics;
 using OpenTK.Graphics.OpenGL;
@@ -48,10 +46,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public InfluenceManager Influences { get { return _influences; } }
 
-        [Browsable(true), Description(
-@"This feature is for Super Smash Bros Brawl models specifically.
-When true, metal materials and shaders will be added and modulated as you edit your own custom materials and shaders.")]
-        public bool AutoMetalMaterials { get { return _autoMetal; } set { _autoMetal = value; CheckMetals(); } }
+//        [Browsable(true), Description(
+//@"This feature is for Super Smash Bros Brawl models specifically.
+//When true, metal materials and shaders will be added and modulated as you edit your own custom materials and shaders.")]
+//        public bool AutoMetalMaterials { get { return _autoMetal; } set { _autoMetal = value; GenerateMetalMaterials(); } }
 
         [Category("G3D Model")]
         public MDLScalingRule ScalingRule { get { return (MDLScalingRule)_scalingRule; } set { _scalingRule = (int)value; SignalPropertyChange(); } }
@@ -98,7 +96,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
             //Version 10 and 11 objects are slighly different from 8 and 9
             if (_objList != null && (convertingDown || convertingUp))
                 foreach (MDL0ObjectNode o in _objList)
-                    o._rebuild = true;
+                    o._forceRebuild = true;
         }
 
         [Category("G3D Model"), Description("True when one or more objects has normals and is rigged to more than one influence (the object's single bind property says '(none)').")]
@@ -195,9 +193,6 @@ When true, metal materials and shaders will be added and modulated as you edit y
             return box;
         }
 
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
         public void CalculateBoundingBoxes()
         {
             ApplyCHR(null, 0);
@@ -205,37 +200,25 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if (_boneList != null)
                 foreach (MDL0BoneNode b in _boneList)
                     b.SetBox();
-        }
 
-        public void RemoveBone(MDL0BoneNode bone)
-        {
-            foreach (MDL0BoneNode b in bone.Children)
-                RemoveBone(b);
-
-        //    _influences.RemoveBone(bone);
-        //    foreach (MDL0ObjectNode o in _polyList)
-        //        if (o.MatrixNode == bone)
-        //            o.MatrixNode = bone.Parent as MDL0BoneNode;
-
-        //Top:
-        //    if (bone.References.Count != 0)
-        //    {
-        //        bone.References[bone.References.Count - 1].MatrixNode = bone.Parent as MDL0BoneNode;
-        //        goto Top;
-        //    }
+            SignalPropertyChange();
+            UpdateProperties();
         }
 
         public void CheckTextures()
         {
             if (_texList != null)
-                foreach (MDL0TextureNode t in _texList)
+            {
+                for (int i = 0; i < _texList.Count; i++)
                 {
-                    for (int i = 0; i < t._references.Count; i++)
-                        if (t._references[i].Parent == null)
-                            t._references.RemoveAt(i--);
+                    MDL0TextureNode t = (MDL0TextureNode)_texList[i];
+                    for (int x = 0; x < t._references.Count; x++)
+                        if (t._references[x].Parent == null)
+                            t._references.RemoveAt(x--);
                     if (t._references.Count == 0)
-                        t.Remove();
+                        _texList.RemoveAt(i--);
                 }
+            }
         }
 
         public List<ResourceNode> GetUsedShaders()
@@ -248,152 +231,141 @@ When true, metal materials and shaders will be added and modulated as you edit y
             return shaders;
         }
 
-        public void CheckMetals()
+        public void GenerateMetalMaterials()
         {
-            if (_autoMetal)
+            if (_children == null)
+                Populate();
+
+            for (int x = 0; x < _matList.Count; x++)
             {
-                if (MessageBox.Show(null, "Are you sure you want to turn this on?\nAny existing metal materials will be modified.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                MDL0MaterialNode n = (MDL0MaterialNode)_matList[x];
+                if (!n.IsMetal && n.MetalMaterial == null)
                 {
-                    if (_children == null) Populate();
-                    for (int x = 0; x < _matList.Count; x++)
+                    MDL0MaterialNode node = new MDL0MaterialNode()
                     {
-                        MDL0MaterialNode n = (MDL0MaterialNode)_matList[x];
-                        if (!n.isMetal)
+                        _updating = true,
+                        Name = n.Name + "_ExtMtl",
+                        _activeStages = 4,
+                    };
+
+                    _matGroup.AddChild(node);
+                    for (int i = 0; i <= n.Children.Count; i++)
+                    {
+                        MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+                        node.AddChild(mr);
+                        mr.Texture = "metal00";
+
+                        if (i == n.Children.Count || ((MDL0MaterialRefNode)n.Children[i]).HasTextureMatrix)
                         {
-                            if (n.MetalMaterial == null)
+                            mr._minFltr = 5;
+                            mr._magFltr = 1;
+                            mr._lodBias = -2;
+
+                            mr.HasTextureMatrix = true;
+                            node.Rebuild(true);
+
+                            mr._texMtxFlags = new XFTexMtxInfo()
                             {
-                                MDL0MaterialNode node = new MDL0MaterialNode();
-                                _matGroup.AddChild(node);
-                                node._updating = true;
-                                node.Name = n.Name + "_ExtMtl";
-                                node.SetImportValues();
-                                node._activeStages = 4;
+                                Projection = TexProjection.STQ,
+                                InputForm = TexInputForm.ABC1,
+                                TexGenType = TexTexgenType.Regular,
+                                SourceRow = TexSourceRow.Normals,
+                                EmbossSource = 5,
+                                EmbossLight = 0,
+                            };
 
-                                for (int i = 0; i <= n.Children.Count; i++)
-                                {
-                                    MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
-                                    node.AddChild(mr);
-                                    mr.Texture = "metal00";
-                                    mr._index1 = mr._index2 = i;
-                                    mr.SignalPropertyChange();
-                                    if (i == n.Children.Count || ((MDL0MaterialRefNode)n.Children[i]).HasTextureMatrix)
-                                    {
-                                        mr._minFltr = 5;
-                                        mr._magFltr = 1;
-                                        mr._lodBias = -2;
+                            mr.Normalize = true;
+                            mr.MapMode = MappingMethod.EnvCamera;
 
-                                        mr.HasTextureMatrix = true;
-                                        node.Rebuild(true);
-
-                                        mr._projection = (int)TexProjection.STQ;
-                                        mr._inputForm = (int)TexInputForm.ABC1;
-                                        mr._texGenType = (int)TexTexgenType.Regular;
-                                        mr._sourceRow = (int)TexSourceRow.Normals;
-                                        mr._embossSource = 4;
-                                        mr._embossLight = 2;
-                                        mr.Normalize = true;
-
-                                        mr.MapMode = MappingMethod.EnvCamera;
-
-                                        mr.SetTextMtxData();
-
-                                        break;
-                                    }
-                                }
-
-                                node._chan1 = new LightChannel(true, 63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
-                                node.C1ColorEnabled = true;
-                                node.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
-                                node.C1ColorAttenuation = GXAttnFn.Spotlight;
-                                node.C1AlphaEnabled = true;
-                                node.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
-                                node.C1AlphaAttenuation = GXAttnFn.Spotlight;
-
-                                node._chan2 = new LightChannel(true, 63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
-                                node.C2ColorEnabled = true;
-                                node.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
-                                node.C2ColorAttenuation = GXAttnFn.Specular;
-                                node.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
-                                node.C2AlphaAttenuation = GXAttnFn.Specular;
-
-                                node._lightSetIndex = n._lightSetIndex;
-                                node._fogIndex = n._fogIndex;
-
-                                node._cull = n._cull;
-                                //node._numLights = 2;
-                                node.CompareBeforeTexture = true;
-                                node._normMapRefLight1 =
-                                node._normMapRefLight2 =
-                                node._normMapRefLight3 =
-                                node._normMapRefLight4 = -1;
-
-                                node.SignalPropertyChange();
-                            }
+                            break;
                         }
                     }
-                    foreach (MDL0MaterialNode node in _matList)
-                    {
-                        if (!node.isMetal)
-                            continue;
 
-                        if (node.ShaderNode != null)
-                        {
-                            if (node.ShaderNode._autoMetal && node.ShaderNode._texCount == node.Children.Count)
-                            {
-                                node._updating = false;
-                                continue;
-                            }
-                            else
-                            {
-                                if (node.ShaderNode.Stages == 4)
-                                {
-                                    foreach (MDL0MaterialNode y in node.ShaderNode._materials)
-                                        if (!y.isMetal || y.Children.Count != node.Children.Count)
-                                            goto Next;
-                                    node.ShaderNode.DefaultAsMetal(node.Children.Count);
-                                    continue;
-                                }
-                            }
-                        }
-                    Next:
-                        bool found = false;
-                        foreach (MDL0ShaderNode s in _shadGroup.Children)
-                        {
-                            if (s._autoMetal && s._texCount == node.Children.Count)
-                            {
-                                node.ShaderNode = s;
-                                found = true;
-                            }
-                            else
-                            {
-                                if (s.Stages == 4)
-                                {
-                                    foreach (MDL0MaterialNode y in s._materials)
-                                        if (!y.isMetal || y.Children.Count != node.Children.Count)
-                                            goto NotFound;
-                                    node.ShaderNode = s;
-                                    found = true;
-                                    goto End;
-                                NotFound:
-                                    continue;
-                                }
-                            }
-                        }
-                    End:
-                        if (!found)
-                        {
-                            MDL0ShaderNode shader = new MDL0ShaderNode();
-                            _shadGroup.AddChild(shader);
-                            shader.DefaultAsMetal(node.Children.Count);
-                            node.ShaderNode = shader;
-                        }
-                    }
-                    foreach (MDL0MaterialNode m in _matList)
-                        m._updating = false;
+                    node._chan1 = new LightChannel(63, new RGBAPixel(128, 128, 128, 255), new RGBAPixel(255, 255, 255, 255), 0, 0, node);
+                    node.C1ColorEnabled = true;
+                    node.C1ColorDiffuseFunction = GXDiffuseFn.Clamped;
+                    node.C1ColorAttenuation = GXAttnFn.Spotlight;
+                    node.C1AlphaEnabled = true;
+                    node.C1AlphaDiffuseFunction = GXDiffuseFn.Clamped;
+                    node.C1AlphaAttenuation = GXAttnFn.Spotlight;
+
+                    node._chan2 = new LightChannel(63, new RGBAPixel(255, 255, 255, 255), new RGBAPixel(), 0, 0, node);
+                    node.C2ColorEnabled = true;
+                    node.C2ColorDiffuseFunction = GXDiffuseFn.Disabled;
+                    node.C2ColorAttenuation = GXAttnFn.Specular;
+                    node.C2AlphaDiffuseFunction = GXDiffuseFn.Disabled;
+                    node.C2AlphaAttenuation = GXAttnFn.Specular;
+
+                    node._lightSetIndex = n._lightSetIndex;
+                    node._fogIndex = n._fogIndex;
+
+                    node._cull = n._cull;
+                    node.CompareBeforeTexture = true;
+                    node._normMapRefLight1 =
+                    node._normMapRefLight2 =
+                    node._normMapRefLight3 =
+                    node._normMapRefLight4 = -1;
                 }
-                else
-                    _autoMetal = false;
             }
+            foreach (MDL0MaterialNode node in _matList)
+            {
+                if (!node.IsMetal)
+                    continue;
+
+                if (node.ShaderNode != null)
+                {
+                    if (node.ShaderNode._autoMetal && node.ShaderNode._texCount == node.Children.Count)
+                    {
+                        node._updating = false;
+                        continue;
+                    }
+                    else
+                    {
+                        if (node.ShaderNode.Stages == 4)
+                        {
+                            foreach (MDL0MaterialNode y in node.ShaderNode._materials)
+                                if (!y.IsMetal || y.Children.Count != node.Children.Count)
+                                    goto Next;
+                            node.ShaderNode.DefaultAsMetal(node.Children.Count);
+                            continue;
+                        }
+                    }
+                }
+            Next:
+                bool found = false;
+                foreach (MDL0ShaderNode s in _shadGroup.Children)
+                {
+                    if (s._autoMetal && s._texCount == node.Children.Count)
+                    {
+                        node.ShaderNode = s;
+                        found = true;
+                    }
+                    else
+                    {
+                        if (s.Stages == 4)
+                        {
+                            foreach (MDL0MaterialNode y in s._materials)
+                                if (!y.IsMetal || y.Children.Count != node.Children.Count)
+                                    goto NotFound;
+                            node.ShaderNode = s;
+                            found = true;
+                            goto End;
+                        NotFound:
+                            continue;
+                        }
+                    }
+                }
+            End:
+                if (!found)
+                {
+                    MDL0ShaderNode shader = new MDL0ShaderNode();
+                    _shadGroup.AddChild(shader);
+                    shader.DefaultAsMetal(node.Children.Count);
+                    node.ShaderNode = shader;
+                }
+            }
+            foreach (MDL0MaterialNode m in _matList)
+                m._updating = false;
         }
 
         public void CleanTextures()
@@ -482,7 +454,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
         public MDL0MaterialNode FindOrCreateOpaMaterial(string name)
         {
             foreach (MDL0MaterialNode m in _matList)
-                if (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && !m.XLUMaterial)
+                if (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return m;
 
             MDL0MaterialNode node = new MDL0MaterialNode() { _name = _matGroup.FindName(name) };
@@ -495,7 +467,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
         public MDL0MaterialNode FindOrCreateXluMaterial(string name)
         {
             foreach (MDL0MaterialNode m in _matList)
-                if (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase) && m.XLUMaterial)
+                if (m.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return m;
 
             MDL0MaterialNode node = new MDL0MaterialNode() { _name = _matGroup.FindName(name), XLUMaterial = true };
@@ -517,6 +489,473 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if (child is MDL0GroupNode)
                 UnlinkGroup(child as MDL0GroupNode);
             base.RemoveChild(child);
+        }
+
+        private MDL0BoneNode FindOrAddBoneCopy(MDL0BoneNode bone)
+        {
+            MDL0BoneNode newBone = FindBone(bone.Name);
+            if (newBone == null)
+            {
+                if (bone.Parent is MDL0GroupNode)
+                    BoneGroup.AddChild(newBone = bone.Clone());
+                else
+                {
+                    ResourceNode parent = bone.Parent;
+                    if (parent != null)
+                    {
+                        List<ResourceNode> parentChain = new List<ResourceNode>();
+
+                        //First parent will always be a bone, group handled above
+                        while ((newBone = FindBone(parent.Name)) == null)
+                        {
+                            parentChain.Add(parent);
+
+                            //Break before assigning the parent
+                            //That way we can add the parent as a child to the group later
+                            if (parent.Parent is MDL0GroupNode)
+                                break;
+
+                            parent = parent.Parent;
+                        }
+
+                        //Handle group parent
+                        if (newBone == null)
+                            BoneGroup.AddChild(newBone = ((MDL0BoneNode)parent).Clone());
+
+                        MDL0BoneNode root = newBone;
+
+                        //Add parents as children
+                        //use reverse order
+                        if (parentChain.Count > 0)
+                            for (int i = parentChain.Count - 1; i >= 0; i--)
+                            {
+                                MDL0BoneNode b = ((MDL0BoneNode)parentChain[i]).Clone();
+                                newBone.AddChild(b);
+                                newBone = b;
+                            }
+
+                        MDL0BoneNode n = bone.Clone();
+                        newBone.AddChild(n);
+                        newBone = n;
+
+                        //Recalculate the bind matrices of the newly added bone chain
+                        root.RecalcBindState(false, false);
+                    }
+                }
+                //Clean influence of possible unused users, just in case
+                for (int i = 0; i < newBone.Users.Count; i++)
+                {
+                    IMatrixNodeUser u = newBone.Users[i];
+                    if (u is Vertex3)
+                    {
+                        Vertex3 vert = u as Vertex3;
+                        if (vert.Parent is MDL0ObjectNode)
+                        {
+                            MDL0ObjectNode obj = vert.Parent as MDL0ObjectNode;
+                            if (obj.Model != this)
+                                newBone.Users.RemoveAt(i--);
+                        }
+                    }
+                    else if (u is MDL0ObjectNode)
+                    {
+                        MDL0ObjectNode obj = u as MDL0ObjectNode;
+                        if (obj.Model != this)
+                            newBone.Users.RemoveAt(i--);
+                    }
+                }
+                for (int i = 0; i < newBone._singleBindObjects.Count; i++)
+                    if (newBone._singleBindObjects[i].Model != this)
+                        newBone._singleBindObjects.RemoveAt(i--);
+            }
+            else
+            {
+                //Update the bone's data
+                newBone._bindState = new FrameState(bone._bindState._scale, bone._bindState._rotate, bone._bindState._translate);
+                newBone._billboardFlags = bone._billboardFlags;
+                newBone._boneFlags = bone._boneFlags;
+                newBone._extents = bone._extents;
+                newBone.RecalcBindState(false, false);
+            }
+
+            //Regenerate bone cache, the FindBone function uses it
+            _linker.RegenerateBoneCache();
+
+            return newBone;
+        }
+
+        private Influence CleanAndAddInfluence(Influence inf)
+        {
+            //Clean influence of possible unused users, just in case
+            for (int i = 0; i < inf.Users.Count; i++)
+            {
+                IMatrixNodeUser u = inf.Users[i];
+                if (u is Vertex3)
+                {
+                    Vertex3 vert = u as Vertex3;
+                    if (vert.Parent is MDL0ObjectNode)
+                    {
+                        MDL0ObjectNode obj = vert.Parent as MDL0ObjectNode;
+                        if (obj.Model != this)
+                            inf.Users.RemoveAt(i--);
+                    }
+                }
+                else if (u is MDL0ObjectNode)
+                {
+                    MDL0ObjectNode obj = u as MDL0ObjectNode;
+                    if (obj.Model != this)
+                        inf.Users.RemoveAt(i--);
+                }
+            }
+            return _influences.FindOrCreate(inf);
+        }
+
+        /// <summary>
+        /// Don't call this, use ReplaceOrAddMesh instead
+        /// </summary>
+        private void ReplaceOrAddMeshInternal(
+            MDL0ObjectNode repObj,
+            ref bool[] addGroup,
+            bool doSearch,
+            bool replaceIfFound,
+            bool addIfNotFound)
+        {
+            //Force a rebuild, just in case.
+            //This will also avoid the rebuilder trying to copy the soure data over,
+            //which has been disposed of.
+            repObj._forceRebuild = true;
+
+            //Find a matching object to replace using the object's name
+            bool found = false;
+            if (doSearch)
+                for (int i = 0; i < _objList.Count; i++)
+                {
+                    MDL0ObjectNode currObj = _objList[i] as MDL0ObjectNode;
+                    if (repObj.Name == currObj.Name)
+                    {
+                        DrawCall[] drawCalls = currObj._drawCalls.ToArray();
+
+                        //Copy the replaced object's draw calls to the new object
+                        repObj._drawCalls = new BindingList<DrawCall>();
+                        foreach (DrawCall c in drawCalls)
+                            repObj._drawCalls.Add(new DrawCall(repObj)
+                            {
+                                //No need to duplicate anything, they're already a part of this model
+                                MaterialNode = c.MaterialNode,
+                                VisibilityBoneNode = c.VisibilityBoneNode,
+                                DrawPriority = c.DrawPriority,
+                                DrawPass = c.DrawPass
+                            });
+
+                        currObj.Remove(true, true, true, true, true, true, true, true, true, true, true, true);
+
+                        found = true;
+                        break;
+                    }
+                }
+            if (!found)
+            {
+                if (!addIfNotFound)
+                    return;
+
+                //Add visibility bone and material for each draw call in new object
+                for (int i = 0; i < repObj._drawCalls.Count; i++)
+                {
+                    repObj._drawCalls[i].VisibilityBoneNode =
+                        FindOrAddBoneCopy(repObj._drawCalls[i].VisibilityBoneNode);
+
+                    if (repObj._drawCalls[i].MaterialNode != null &&
+                        repObj._drawCalls[i].MaterialNode.Parent != MaterialGroup)
+                    {
+                        MDL0MaterialNode material = repObj._drawCalls[i].MaterialNode;
+                        bool cont = true;
+
+                        if (MaterialGroup == null)
+                        {
+                            addGroup[5] = true;
+                            LinkGroup(new MDL0GroupNode(MDLResourceType.Materials));
+                            _matGroup._parent = this;
+                        }
+                        else
+                            foreach (MDL0MaterialNode mat in MaterialList)
+                                if (mat == material)
+                                {
+                                    cont = false;
+                                    break;
+                                }
+
+                        if (cont)
+                        {
+                            MaterialGroup.AddChild(material);
+                            material.SignalPropertyChange();
+
+                            if (material.ShaderNode != null &&
+                                material.ShaderNode.Parent != ShaderGroup)
+                            {
+                                if (ShaderGroup == null)
+                                {
+                                    addGroup[6] = true;
+                                    LinkGroup(new MDL0GroupNode(MDLResourceType.Shaders));
+                                    _shadGroup._parent = this;
+                                }
+                                ShaderGroup.AddChild(material.ShaderNode);
+                                material.ShaderNode.SignalPropertyChange();
+                            }
+                        }
+
+                        repObj._drawCalls[i].MaterialNode = material;
+                    }
+                }
+            }
+            else if (!replaceIfFound)
+                return;
+
+            //Remove object from external, add to internal
+            if (repObj.Parent != null)
+                repObj.Parent.RemoveChild(repObj);
+
+            if (_objGroup == null)
+            {
+                addGroup[4] = true;
+                LinkGroup(new MDL0GroupNode(MDLResourceType.Objects));
+                _objGroup._parent = this;
+            }
+
+            _objGroup.AddChild(repObj);
+
+            if (BoneGroup == null)
+            {
+                addGroup[7] = true;
+                LinkGroup(new MDL0GroupNode(MDLResourceType.Bones));
+                _boneGroup._parent = this;
+            }
+
+            //Set copied vertices' parent object (this is so single-bound objects are updated)
+            foreach (Vertex3 v in repObj.Vertices)
+                v.Parent = repObj;
+
+            //Reassign bone influences to the current bone tree
+            if (repObj.MatrixNode == null)
+            {
+                //Have to update each vertex
+                foreach (Vertex3 v in repObj.Vertices)
+                    if (v.MatrixNode != null)
+                    {
+                        v.DeferUpdateAssets();
+                        if (v.MatrixNode is Influence)
+                        {
+                            for (int x = 0; x < v.MatrixNode.Weights.Count; x++)
+                            {
+                                MDL0BoneNode bone = v.MatrixNode.Weights[x].Bone as MDL0BoneNode;
+                                if (bone != null)
+                                    v.MatrixNode.Weights[x].Bone = FindOrAddBoneCopy(bone);
+                            }
+
+                            v.MatrixNode = CleanAndAddInfluence(v.MatrixNode as Influence);
+                        }
+                        else
+                            v.MatrixNode = FindOrAddBoneCopy((MDL0BoneNode)v.MatrixNode);
+                    }
+            }
+            else
+            {
+                //Make sure the replaced object's single bind belongs to the current model
+                //Don't use the original object's single bind, as the rigging may have changed
+
+                repObj.DeferUpdateAssets();
+                if (repObj.MatrixNode is MDL0BoneNode)
+                    repObj.MatrixNode = FindOrAddBoneCopy(repObj.MatrixNode as MDL0BoneNode) as IMatrixNode;
+                else
+                {
+                    Influence inf = repObj.MatrixNode as Influence;
+                    repObj.MatrixNode = CleanAndAddInfluence(inf);
+                }
+            }
+
+            //Make a copy of the manager so it isn't disposed of
+            repObj._manager = repObj._manager.HardCopy();
+
+            if (repObj._vertexNode != null && repObj._vertexNode.Parent != VertexGroup)
+            {
+                if (VertexGroup == null)
+                {
+                    addGroup[0] = true;
+                    LinkGroup(new MDL0GroupNode(MDLResourceType.Vertices));
+                    _vertGroup._parent = this;
+                }
+
+                MDL0VertexNode node = repObj._vertexNode;
+                VertexGroup.AddChild(node);
+
+                //Extract points from header, which will be disposed of
+                var v = node.Vertices;
+                node._forceRebuild = true;
+                if (node.Format == WiiVertexComponentType.Float)
+                    node._forceFloat = true;
+            }
+
+            if (repObj._normalNode != null && repObj._normalNode.Parent != NormalGroup)
+            {
+                if (NormalGroup == null)
+                {
+                    addGroup[1] = true;
+                    LinkGroup(new MDL0GroupNode(MDLResourceType.Normals));
+                    _normGroup._parent = this;
+                }
+
+                MDL0NormalNode node = repObj._normalNode;
+                NormalGroup.AddChild(node);
+
+                //Extract points from header, which will be disposed of
+                var v = node.Normals;
+                node._forceRebuild = true;
+                if (node.Format == WiiVertexComponentType.Float)
+                    node._forceFloat = true;
+            }
+
+            for (int x = 0; x < 2; x++)
+                if (repObj._colorSet[x] != null && repObj._colorSet[x].Parent != ColorGroup)
+                {
+                    if (ColorGroup == null)
+                    {
+                        addGroup[2] = true;
+                        LinkGroup(new MDL0GroupNode(MDLResourceType.Colors));
+                        _colorGroup._parent = this;
+                    }
+
+                    MDL0ColorNode node = repObj._colorSet[x];
+                    ColorGroup.AddChild(node);
+
+                    //Extract colors from header, which will be disposed of
+                    var v = node.Colors;
+                    node._changed = true;
+                }
+
+            for (int x = 0; x < 8; x++)
+                if (repObj._uvSet[x] != null && repObj._uvSet[x].Parent != UVGroup)
+                {
+                    if (UVGroup == null)
+                    {
+                        addGroup[3] = true;
+                        LinkGroup(new MDL0GroupNode(MDLResourceType.UVs));
+                        _uvGroup._parent = this;
+                    }
+
+                    MDL0UVNode node = repObj._uvSet[x];
+                    UVGroup.AddChild(node);
+
+                    //Extract points from header, which will be disposed of
+                    var v = node.Points;
+                    node._forceRebuild = true;
+                    if (node.Format == WiiVertexComponentType.Float)
+                        node._forceFloat = true;
+                }
+
+            repObj.SignalPropertyChange();
+        }
+
+        public void ReplaceOrAddMesh(
+            MDL0ObjectNode replacement,
+            bool doSearch,
+            bool replaceIfFound,
+            bool addIfNotFound)
+        {
+            if (replacement == null)
+                return;
+
+            MDL0Node model = replacement.Model;
+            if (model != null)
+            {
+                model.Populate();
+                model.ResetToBindState();
+            }
+            
+            bool[] addGroup = new bool[8];
+            ReplaceOrAddMeshInternal(
+                replacement,
+                ref addGroup,
+                doSearch,
+                replaceIfFound,
+                addIfNotFound);
+
+            FinishReplace(addGroup);
+        }
+
+        public void ReplaceMeshes(
+            MDL0Node replacement,
+            bool doSearch,
+            bool replaceIfFound,
+            bool addIfNotFound)
+        {
+            if (replacement == null)
+                return;
+
+            replacement.Populate();
+            replacement.ResetToBindState();
+
+            bool[] addGroup = new bool[8];
+            while (replacement._objList != null && replacement._objList.Count > 0)
+                ReplaceOrAddMeshInternal(
+                    replacement._objList[0] as MDL0ObjectNode,
+                    ref addGroup,
+                    doSearch,
+                    replaceIfFound,
+                    addIfNotFound);
+
+            FinishReplace(addGroup);
+        }
+
+        private void FinishReplace(bool[] addGroup)
+        {
+            if (addGroup[0])
+                if (_vertGroup != null && _vertGroup.Children.Count > 0)
+                    _children.Add(_vertGroup);
+                else
+                    UnlinkGroup(_vertGroup);
+
+            if (addGroup[1])
+                if (_normGroup != null && _normGroup.Children.Count > 0)
+                    _children.Add(_normGroup);
+                else
+                    UnlinkGroup(_normGroup);
+
+            if (addGroup[2])
+                if (_colorGroup != null && _colorGroup.Children.Count > 0)
+                    _children.Add(_colorGroup);
+                else
+                    UnlinkGroup(_colorGroup);
+
+            if (addGroup[3])
+                if (_uvGroup != null && _uvGroup.Children.Count > 0)
+                    _children.Add(_uvGroup);
+                else
+                    UnlinkGroup(_uvGroup);
+
+            if (addGroup[4])
+                if (_objGroup != null && _objGroup.Children.Count > 0)
+                    _children.Add(_objGroup);
+                else
+                    UnlinkGroup(_objGroup);
+
+            if (addGroup[5])
+                if (_matGroup != null && _matGroup.Children.Count > 0)
+                    _children.Add(_matGroup);
+                else
+                    UnlinkGroup(_matGroup);
+
+            if (addGroup[6])
+                if (_shadGroup != null && _shadGroup.Children.Count > 0)
+                    _children.Add(_shadGroup);
+                else
+                    UnlinkGroup(_shadGroup);
+
+            if (addGroup[7])
+                if (_boneGroup != null && _boneGroup.Children.Count > 0)
+                    _children.Add(_boneGroup);
+                else
+                    UnlinkGroup(_boneGroup);
+
+            Influences.Clean();
+            Influences.Sort();
         }
 
         #endregion
@@ -677,19 +1116,22 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
             MDL0Props* props = header->Properties;
 
-            _scalingRule = props->_scalingRule;
-            _texMtxMode = props->_texMatrixMode;
-            _numFacepoints = props->_numVertices;
-            _numTriangles = props->_numTriangles;
-            _numNodes = props->_numNodes;
-            _needsNrmMtxArray = props->_needNrmMtxArray != 0;
-            _needsTexMtxArray = props->_needTexMtxArray != 0;
-            _extents = props->_extents;
-            _enableExtents = props->_enableExtents != 0;
-            _envMtxMode = props->_envMtxMode;
+            if (props != null)
+            {
+                _scalingRule = props->_scalingRule;
+                _texMtxMode = props->_texMatrixMode;
+                _numFacepoints = props->_numVertices;
+                _numTriangles = props->_numTriangles;
+                _numNodes = props->_numNodes;
+                _needsNrmMtxArray = props->_needNrmMtxArray != 0;
+                _needsTexMtxArray = props->_needTexMtxArray != 0;
+                _extents = props->_extents;
+                _enableExtents = props->_enableExtents != 0;
+                _envMtxMode = props->_envMtxMode;
 
-            if (props->_origPathOffset > 0 && props->_origPathOffset < header->_header._size)
-                _originalPath = props->OrigPath;
+                if (props->_origPathOffset > 0 && props->_origPathOffset > header->_header._size)
+                    _originalPath = props->OrigPath;
+            }
 
             (_userEntries = new UserDataCollection()).Read(header->UserData);
 
@@ -698,11 +1140,12 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
         public override void OnPopulate()
         {
-            InitGroups();
-            _linker = new ModelLinker(Header);
-            _assets = new AssetStorage(_linker);
             try
             {
+                InitGroups();
+                _linker = new ModelLinker(Header) { Model = this };
+                _assets = new AssetStorage(_linker);
+
                 //Set def flags
                 _hasMix = _hasOpa = _hasTree = _hasXlu = false;
                 if (_linker.Defs != null)
@@ -736,6 +1179,10 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 _texList.Sort();
                 _pltList.Sort();
             }
+            catch (Exception ex)
+            {
+                _errors.Add("Something went wrong parsing the model: " + ex.ToString());
+            }
             finally //Clean up!
             {
                 //We'll use the linker to access the bone cache
@@ -750,10 +1197,17 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 //Check for model errors
                 if (_errors.Count > 0)
                 {
-                    string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
-                    foreach (string s in _errors)
-                        message += "\n - " + s;
-					if (!Properties.Settings.Default.HideMDL0Errors) MessageBox.Show(message);
+                    if (!SupportedVersions.Contains(_version))
+                        MessageBox.Show("The model " + _name + " has a version of " + _version.ToString() + " which is not supported. The model may be corrupt and data maybe be lost if you save the model.");
+                    else
+                    {
+                        string message = _errors.Count + (_errors.Count > 1 ? " errors have" : " error has") + " been found in the model " + _name + ".\n" + (_errors.Count > 1 ? "These errors" : "This error") + " will be fixed when you save:";
+                        foreach (string s in _errors)
+                            message += "\n - " + s;
+                        if (!Properties.Settings.Default.HideMDL0Errors)
+                            MessageBox.Show(message);
+                        SignalPropertyChange();
+                    }
                 }
             }
         }
@@ -773,43 +1227,41 @@ When true, metal materials and shaders will be added and modulated as you edit y
             _influences.Sort();
             _linker = ModelLinker.Prepare(this);
 
-            //Calculate size and align for string table later
+            //Calculate size and get strings
             int size = (_calcSize = ModelEncoder.CalcSize(form, _linker)).Align(4);
-
-            //Rebuild and write the model to a temp buffer with no string table
-            UnsafeBuffer buffer = new UnsafeBuffer(size);
-            ModelEncoder.Build(form, _linker, (MDL0Header*)buffer.Address, _calcSize, true);
-
-            //Get strings AFTER calculating the size and rebuilding
             StringTable table = new StringTable();
             GetStrings(table);
 
-            //Create temporary file map with the string table included
+            //Create temp file and write model and string table, then post process strings, etc
             FileMap uncompMap = FileMap.FromTempFile(size + table.GetTotalSize());
-
-            //Set the sources
-            _origSource = _uncompSource = new DataSource(uncompMap);
-
-            //move the temp buffer to the end of the file map
-            Memory.Move(uncompMap.Address, buffer.Address, (uint)buffer.Length);
-
-            //Write the string table and do final calculations
+            ModelEncoder.Build(form, _linker, (MDL0Header*)uncompMap.Address, _calcSize, true);
             table.WriteTable(uncompMap.Address + size);
             PostProcess(null, uncompMap.Address, _calcSize, table);
             
-            //Clear table and reset import bool
             table.Clear();
             _isImport = false;
 
-            //Set replacement maps with the uncompressed map to force a reparse
-            ReplaceRaw(uncompMap);
+            _origSource = _uncompSource = new DataSource(uncompMap);
+
+            if (_children != null)
+            {
+                foreach (ResourceNode node in _children)
+                    node.Dispose();
+                _children.Clear();
+                _children = null;
+            }
+
+            if (!OnInitialize())
+                _children = new List<ResourceNode>();
+
+            IsDirty = false;
         }
 
-        public static MDL0Node FromFile(string path)
+        public static MDL0Node FromFile(string path, FileOptions options = FileOptions.RandomAccess)
         {
             //string ext = Path.GetExtension(path);
             if (path.EndsWith(".mdl0", StringComparison.OrdinalIgnoreCase))
-                return NodeFactory.FromFile(null, path) as MDL0Node;
+                return NodeFactory.FromFile(null, path, options) as MDL0Node;
             else if (path.EndsWith(".dae", StringComparison.OrdinalIgnoreCase))
                 return new Collada().ShowDialog(path, Collada.ImportType.MDL0) as MDL0Node;
             else if (path.EndsWith(".pmd", StringComparison.OrdinalIgnoreCase))
@@ -840,10 +1292,14 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if (_objList != null)
                 foreach (MDL0ObjectNode n in _objList)
                 {
-                    if (n.XluMaterialNode != null)
-                        _hasXlu = true;
-                    if (n.OpaMaterialNode != null)
-                        _hasOpa = true;
+                    if (_hasOpa && _hasXlu)
+                        break;
+
+                    foreach (DrawCall c in n._drawCalls)
+                        if (c.DrawPass == DrawCall.DrawPassType.Transparent)
+                            _hasXlu = true;
+                        else
+                            _hasOpa = true;
                 }
 
             //Add def names
@@ -857,18 +1313,38 @@ When true, metal materials and shaders will be added and modulated as you edit y
 
             if (!String.IsNullOrEmpty(_originalPath))
                 table.Add(_originalPath);
+
+            if (_isImport)
+            {
+                int index = 0;
+                foreach (VertexCodec c in _linker._vertices)
+                {
+                    string name = Name + "_" + _objList[index]._name;
+                    if (((MDL0ObjectNode)_objList[index])._drawCalls[0].MaterialNode != null)
+                        name += "_" + ((MDL0ObjectNode)_objList[index])._drawCalls[0].MaterialNode._name;
+                    table.Add(name);
+                    index++;
+                }
+                index = 0;
+                foreach (VertexCodec c in _linker._uvs)
+                    table.Add("#" + (index++).ToString());
+            }
         }
         public override unsafe void Replace(string fileName, FileMapProtect prot, FileOptions options)
         {
-            MDL0Node node = FromFile(fileName);
+            MDL0Node node = FromFile(fileName, FileOptions.SequentialScan);
             if (node == null)
                 return;
 
-            int i = Index;
-            Parent.InsertChild(node, true, i);
-            Parent.SelectChildAtIndex(i);
-            Remove();
-            Dispose();
+            //Get the original data source from the newly created model
+            //and clear the reference to it so it's not disposed of
+            //when the model is disposed
+            DataSource m = node._uncompSource;
+            node._uncompSource = DataSource.Empty;
+            node._origSource = DataSource.Empty;
+
+            node.Dispose();
+            ReplaceRaw(m.Map);
         }
         public override unsafe void Export(string outPath)
         {
@@ -987,8 +1463,11 @@ When true, metal materials and shaders will be added and modulated as you edit y
         }
 
         [Browsable(false)]
-        public bool IsRendering { get { return _render; } set { _render = value; } }
-        bool _render = true;
+        public bool IsRendering
+        {
+            get { return DrawCalls.Where(x => x._render).Count() > 0; }
+            set { foreach (DrawCallBase b in DrawCalls) b._render = value; }
+        }
 
         [Browsable(false)]
         public bool IsTargetModel { get { return _isTargetModel; } set { _isTargetModel = value; } }
@@ -1006,12 +1485,11 @@ When true, metal materials and shaders will be added and modulated as you edit y
         SHP0Node _currentSHP = null;
         float _currentSHPIndex = 0;
 
-        public Dictionary<string, List<int>> VIS0Indices;
+        public Dictionary<string, Dictionary<int, List<int>>> VIS0Indices;
 
         public void Attach()
         {
             _attached = true;
-            ResetToBindState();
             foreach (MDL0GroupNode g in Children)
                 g.Bind();
 
@@ -1026,15 +1504,24 @@ When true, metal materials and shaders will be added and modulated as you edit y
         public void RegenerateVIS0Indices()
         {
             int i = 0;
-            VIS0Indices = new Dictionary<string, List<int>>();
+            VIS0Indices = new Dictionary<string, Dictionary<int, List<int>>>();
             if (_objList != null)
                 foreach (MDL0ObjectNode p in _objList)
                 {
-                    if (p._visBoneNode != null && p._visBoneNode.BoneIndex != 0)
-                        if (!VIS0Indices.ContainsKey(p._visBoneNode.Name))
-                            VIS0Indices.Add(p._visBoneNode.Name, new List<int> { i });
-                        else if (!VIS0Indices[p._visBoneNode.Name].Contains(i))
-                            VIS0Indices[p._visBoneNode.Name].Add(i);
+                    int x = 0;
+                    foreach (DrawCall c in p._drawCalls)
+                    {
+                        if (c._visBoneNode != null && c._visBoneNode.BoneIndex != 0)
+                            if (!VIS0Indices.ContainsKey(c._visBoneNode.Name))
+                                VIS0Indices.Add(c._visBoneNode.Name,
+                                    new Dictionary<int, List<int>>() { { i, new List<int>() { x } } });
+                            else if (!VIS0Indices[c._visBoneNode.Name].ContainsKey(i))
+                                VIS0Indices[c._visBoneNode.Name].Add(i, new List<int>() { x });
+                            else if (!VIS0Indices[c._visBoneNode.Name][i].Contains(x))
+                                VIS0Indices[c._visBoneNode.Name][i].Add(x);
+
+                        x++;
+                    }
                     i++;
                 }
         }
@@ -1042,8 +1529,6 @@ When true, metal materials and shaders will be added and modulated as you edit y
         public void Detach()
         {
             _attached = false;
-            _isTargetModel = false;
-            ResetToBindState();
             foreach (MDL0GroupNode g in Children)
                 g.Unbind();
         }
@@ -1055,199 +1540,32 @@ When true, metal materials and shaders will be added and modulated as you edit y
                     t.Reload();
         }
 
-        public static void RenderObject(
-            MDL0ObjectNode p, 
-            float maxDrawPriority,
-            bool dontRenderOffscreen,
-            bool renderPolygons,
-            bool renderWireframe)
+        float _scn0Frame;
+        SCN0Node _scn0;
+
+        public void PreRender(ModelPanelViewport v)
         {
-            if (p._render)
+            if (_billboardBones.Count > 0)
             {
-                //if (dontRenderOffscreen)
-                //{
-                //    Vector3 min = new Vector3(float.MaxValue);
-                //    Vector3 max = new Vector3(float.MinValue);
-
-                //    if (p._manager != null)
-                //        foreach (Vertex3 vertex in p._manager._vertices)
-                //        {
-                //            Vector3 v = GLPanel.Current.Project(vertex.WeightedPosition);
-
-                //            min.Min(v);
-                //            max.Max(v);
-                //        }
-
-                //    if (max._x < 0 || min._x > GLPanel.Current.Size.Width ||
-                //        max._y < 0 || min._y > GLPanel.Current.Size.Height)
-                //        return;
-                //}
-
-                if (renderPolygons)
-                {
-                    float polyOffset = 0.0f;
-                    //polyOffset -= p.DrawPriority;
-                    //polyOffset += maxDrawPriority;
-                    if (renderWireframe)
-                        polyOffset += 1.0f;
-                    if (polyOffset != 0)
-                    {
-                        GL.Enable(EnableCap.PolygonOffsetFill);
-                        GL.PolygonOffset(1.0f, polyOffset);
-                    }
-                    else
-                        GL.Disable(EnableCap.PolygonOffsetFill);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                    p.Render(false);
-                }
-                if (renderWireframe)
-                {
-                    GL.Disable(EnableCap.PolygonOffsetFill);
-                    GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
-                    GL.LineWidth(0.5f);
-                    p.Render(true);
-                }
-            }
-        }
-
-        public Matrix _matrixOffset = Matrix.Identity;
-        public void Render(params object[] args)
-        {
-            if (!_render || TKContext.CurrentContext == null)
-                return;
-            
-            ModelRenderAttributes attrib;
-            ModelPanelViewport v = null;
-
-            if (args.Length > 0 && args[0] is ModelPanelViewport)
-                v = args[0] as ModelPanelViewport;
-
-            if (!_ignoreModelViewerAttribs && v != null && v._renderAttrib != null)
-                attrib = v._renderAttrib;
-            else
-                attrib = _renderAttribs;
-
-            GL.Enable(EnableCap.Blend);
-            GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
-
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
-            {
-                GL.PushMatrix();
-                Matrix m = _matrixOffset;
-                GL.MultMatrix((float*)&m);
-            }
-
-            //Apply billboard bones before rendering meshes
-            if (attrib._applyBillboardBones && _billboardBones.Count > 0)
-            {
-                WeightModel(v);
+                WeightMeshes(v);
                 ApplySHP(_currentSHP, _currentSHPIndex);
             }
 
-            if (attrib._renderPolygons || attrib._renderWireframe)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Enable(EnableCap.Lighting);
-                GL.Enable(EnableCap.DepthTest);
-
-                float maxDrawPriority = 0.0f;
-                if (_objList != null)
-                    foreach (MDL0ObjectNode p in _objList)
-                        maxDrawPriority = Math.Max(maxDrawPriority, p.DrawPriority);
-
-                //Draw objects in the prioritized order of materials.
-                List<MDL0ObjectNode> rendered = new List<MDL0ObjectNode>();
-                if (_matList != null)
-                    foreach (MDL0MaterialNode m in _matList)
-                        foreach (MDL0ObjectNode p in m._objects)
-                        {
-                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
-                            rendered.Add(p);
-                        }
-
-                //Render any remaining objects
-                if (_objList != null)
-                    foreach (MDL0ObjectNode p in _objList)
-                        if (!rendered.Contains(p))
-                            RenderObject(p, maxDrawPriority, attrib._dontRenderOffscreen, attrib._renderPolygons, attrib._renderWireframe);
-
-                //Turn off the last bound shader program.
-                if (TKContext.CurrentContext._shadersEnabled)
-                {
-                    GL.UseProgram(0);
-                    GL.ClientActiveTexture(TextureUnit.Texture0);
-                }
-
-                GL.PopAttrib();
-            }
-
-            if (attrib._renderModelBox || attrib._renderObjectBoxes || attrib._renderBoneBoxes)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Disable(EnableCap.Lighting);
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-
-                bool bindState = _bindFrame && attrib._useBindStateBoxes;
-
-                if (attrib._renderModelBox)
-                {
-                    GL.Color4(Color.Gray);
-                    DrawBox(bindState);
-                }
-
-                if (attrib._renderObjectBoxes && _objList != null)
-                {
-                    GL.Color4(Color.Purple);
-                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex])._render)
-                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
-                    else
-                        foreach (MDL0ObjectNode p in _objList)
-                            if (p._render)
-                                p.DrawBox();
-                }
-
-                if (attrib._renderBoneBoxes)
-                {
-                    GL.Color4(Color.Orange);
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.DrawBox(true, bindState);
-                }
-
-                GL.PopAttrib();
-            }
-
-            if (attrib._renderBones)
-            {
-                GL.PushAttrib(AttribMask.AllAttribBits);
-
-                GL.Enable(EnableCap.Blend);
-                GL.Disable(EnableCap.Lighting);
-                GL.Disable(EnableCap.DepthTest);
-                //GL.Enable(EnableCap.LineSmooth);
-
-                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
-                GL.LineWidth(1.5f);
-
-                if (_boneList != null)
-                    foreach (MDL0BoneNode bone in _boneList)
-                        bone.Render(_isTargetModel, v);
-
-                GL.PopAttrib();
-            }
-
-            if (_matrixOffset != Matrix.Identity && _matrixOffset != new Matrix())
-                GL.PopMatrix();
+            if (_matList != null)
+                foreach (MDL0MaterialNode m in _matList)
+                    foreach (MDL0MaterialRefNode mr in m.Children)
+                        mr.SetEffectMatrix(_scn0, v, _scn0Frame);
         }
 
+        public Matrix? _matrixOffset = null;
+        
         public void RenderVertices(bool depthPass, IBoneNode weightTarget, GLCamera camera)
         {
             if (_objList != null)
                 if (_selectedObjectIndex != -1)
                 {
                     MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
-                    if (o._render)
+                    if (o.IsRendering && o._manager != null)
                     {
                         o._manager.RenderVertices(o._matrixNode, weightTarget, depthPass, camera);
                         return;
@@ -1255,7 +1573,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 }
                 else
                     foreach (MDL0ObjectNode p in _objList)
-                        if (p._render)
+                        if (p.IsRendering && p._manager != null)
                             p._manager.RenderVertices(p._matrixNode, weightTarget, depthPass, camera);
         }
 
@@ -1265,14 +1583,70 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 if (_selectedObjectIndex != -1)
                 {
                     MDL0ObjectNode o = (MDL0ObjectNode)_objList[_selectedObjectIndex];
-                    if (o._render)
+                    if (o.IsRendering)
                         o._manager.RenderNormals();
                 }
                 else 
                     foreach (MDL0ObjectNode p in _objList)
-                        if (p._render)
+                        if (p.IsRendering)
                             p._manager.RenderNormals();
             
+        }
+        public void RenderBoxes(bool model, bool obj, bool bone, bool bindState)
+        {
+            if (model || obj || bone)
+            {
+                GL.PushAttrib(AttribMask.AllAttribBits);
+
+                GL.Disable(EnableCap.Lighting);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+
+                bindState = _bindFrame && bindState;
+
+                if (model)
+                {
+                    GL.Color4(Color.Gray);
+                    DrawBox(bindState);
+                }
+
+                if (obj && _objList != null)
+                {
+                    GL.Color4(Color.Purple);
+                    if (_selectedObjectIndex != -1 && ((MDL0ObjectNode)_objList[_selectedObjectIndex]).IsRendering)
+                        ((MDL0ObjectNode)_objList[_selectedObjectIndex]).DrawBox();
+                    else
+                        foreach (MDL0ObjectNode p in _objList)
+                            if (p.IsRendering)
+                                p.DrawBox();
+                }
+
+                if (bone)
+                {
+                    GL.Color4(Color.Orange);
+                    foreach (MDL0BoneNode b in _boneList)
+                        b.DrawBox(true, bindState);
+                }
+
+                GL.PopAttrib();
+            }
+        }
+
+        public void RenderBones(ModelPanelViewport v)
+        {
+            GL.PushAttrib(AttribMask.AllAttribBits);
+
+            GL.Enable(EnableCap.Blend);
+            GL.Disable(EnableCap.Lighting);
+            GL.Disable(EnableCap.DepthTest);
+
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.LineWidth(1.5f);
+
+            if (_boneList != null)
+                foreach (MDL0BoneNode bone in _boneList)
+                    bone.Render(_isTargetModel, v);
+
+            GL.PopAttrib();
         }
 
         [Browsable(false)]
@@ -1287,6 +1661,7 @@ When true, metal materials and shaders will be added and modulated as you edit y
             ApplyVIS(null, 0);
             ApplyPAT(null, 0);
             ApplyCLR(null, 0);
+            ApplySCN(null, 0);
         }
 
         public void DrawBox(bool bindState)
@@ -1295,6 +1670,8 @@ When true, metal materials and shaders will be added and modulated as you edit y
             //if (box.IsValid)
                 TKContext.DrawWireframeBox(box);
         }
+
+        public bool _dontUpdateMesh = false;
 
         bool _bindFrame = true;
         public void ApplyCHR(CHR0Node node, float index)
@@ -1306,10 +1683,10 @@ When true, metal materials and shaders will be added and modulated as you edit y
                 foreach (MDL0BoneNode b in _boneList)
                     b.ApplyCHR0(node, index);
 
-            WeightModel();
+            WeightMeshes();
         }
 
-        public void WeightModel(ModelPanelViewport v = null)
+        public void WeightMeshes(ModelPanelViewport v = null)
         {
             //Multiply matrices
             if (_boneList != null)
@@ -1318,10 +1695,10 @@ When true, metal materials and shaders will be added and modulated as you edit y
             foreach (Influence inf in _influences._influences)
                 inf.CalcMatrix();
 
-            //Weight vertices
-            if (_objList != null)
+            //Weight vertices and normals
+            if (!_dontUpdateMesh && _objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    poly.WeightVertices();
+                    poly.Weight();
         }
 
         public void ApplySRT(SRT0Node node, float index)
@@ -1362,24 +1739,37 @@ When true, metal materials and shaders will be added and modulated as you edit y
             if (VIS0Indices == null)
                 RegenerateVIS0Indices();
 
-            foreach (string n in VIS0Indices.Keys)
+            foreach (string boneName in VIS0Indices.Keys)
             {
                 VIS0EntryNode entry = null;
-                List<int> indices = VIS0Indices[n];
-                for (int i = 0; i < indices.Count; i++)
-                    if ((entry = (VIS0EntryNode)node.FindChild(((MDL0ObjectNode)_objList[indices[i]])._visBoneNode.Name, true)) != null)
-                        if (entry._entryCount != 0 && index >= 1)
-                            ((MDL0ObjectNode)_objList[indices[i]])._render = entry.GetEntry((int)index - 1);
-                        else
-                            ((MDL0ObjectNode)_objList[indices[i]])._render = entry._flags.HasFlag(VIS0Flags.Enabled);
+                Dictionary<int, List<int>> objects = VIS0Indices[boneName];
+                foreach (var objDrawCalls in objects)
+                {
+                    MDL0ObjectNode obj = (MDL0ObjectNode)_objList[objDrawCalls.Key];
+                    for (int x = 0; x < objDrawCalls.Value.Count; x++)
+                    {
+                        DrawCall c = obj._drawCalls[objDrawCalls.Value[x]];
+                        if ((entry = (VIS0EntryNode)node.FindChild(c._visBoneNode.Name, true)) != null)
+                            if (entry._entryCount != 0 && index > 0)
+                                c._render = entry.GetEntry((int)index - 1);
+                            else
+                                c._render = entry._flags.HasFlag(VIS0Flags.Enabled);
+                    }
+                }
             }
         }
 
         public void ApplySCN(SCN0Node node, float index)
         {
+            _scn0 = node;
+            _scn0Frame = index;
+
+            if (node != null)
+                _scn0Frame = _scn0Frame.Clamp(1, node.FrameCount);
+
             if (_matList != null)
                 foreach (MDL0MaterialNode mat in _matList)
-                    mat.ApplySCN(node, index);
+                    mat.ApplySCN(node, _scn0Frame);
         }
 
         //This only modifies vertices after ApplyCHR0 has weighted them.
@@ -1390,63 +1780,225 @@ When true, metal materials and shaders will be added and modulated as you edit y
             _currentSHP = node;
             _currentSHPIndex = index;
 
-            if (node == null || index == 0)
-                return;
+            //Max amount of morphs allowed is technically 32
 
             SHP0EntryNode entry;
 
             if (_objList != null)
                 foreach (MDL0ObjectNode poly in _objList)
-                    if (poly._manager != null && 
-                        (entry = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null && 
-                        entry.Enabled)
+                {
+                    PrimitiveManager p = poly._manager;
+                    if (p == null || p._vertices == null || p._faceData == null)
+                        continue;
+
+                    //Reset this object's normal buffer to default
+                    //Vertices are already weighted in WeightMeshes
+                    //and colors aren't influenced by matrices,
+                    //so they can be retrieved directly from the external array later on
+                    for (int i = 0; i < p._vertices.Count; i++)
                     {
-                        if (entry.UpdateVertices)
-                        {
-                            //Max amount of morphs allowed is technically 32
-                            float[] weights = new float[entry.Children.Count];
-                            MDL0VertexNode[] nodes = new MDL0VertexNode[entry.Children.Count];
-
-                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                        Vertex3 v = p._vertices[i];
+                        if (v._faceDataIndices != null)
+                            for (int m = 0; m < v._faceDataIndices.Count; m++)
                             {
-                                MDL0VertexNode vNode = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
-
-                                weights[shpSet.Index] = vNode != null ? shpSet.Keyframes.GetFrameValue(index - 1) : 0;
-                                nodes[shpSet.Index] = vNode;
+                                int fIndex = v._faceDataIndices[m];
+                                if (fIndex < p._pointCount && fIndex >= 0)
+                                {
+                                    if (p._faceData[1] != null && poly._normalNode != null)
+                                    {
+                                        int normalIndex = v._facepoints[m]._normalIndex;
+                                        if (normalIndex >= 0 && normalIndex < poly._normalNode.Normals.Length)
+                                            ((Vector3*)p._faceData[1].Address)[fIndex] =
+                                                poly._normalNode.Normals[normalIndex];
+                                    }
+                                    if ((node == null || index == 0) && poly._colorSet != null)
+                                        for (int c = 0; c < 2; c++)
+                                            if (p._faceData[c + 2] != null && poly._colorSet[c] != null)
+                                            {
+                                                int colorIndex = v._facepoints[m]._colorIndices[c];
+                                                if (colorIndex >= 0 && colorIndex < poly._colorSet[c].Colors.Length)
+                                                    ((RGBAPixel*)p._faceData[c + 2].Address)[fIndex] =
+                                                        poly._colorSet[c].Colors[colorIndex];
+                                            }
+                                }
                             }
+                    }
 
-                            float totalWeight = 0;
-                            foreach (float f in weights)
-                                totalWeight += f;
+                    if (node == null || index == 0)
+                        continue;
 
-                            float baseWeight = 1.0f - totalWeight;
+                    if ((entry = node.FindChild(poly.VertexNode, true) as SHP0EntryNode) != null && 
+                        entry.Enabled && entry.UpdateVertices)
+                    {
+                        float[] weights = new float[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
 
-                            //Calculate barycenter per vertex and set as weighted pos
-                            for (int i = 0; i < poly._manager._vertices.Count; i++)
+                        float totalWeight = 0;
+                        foreach (float f in weights)
+                            totalWeight += f;
+
+                        float baseWeight = 1.0f - totalWeight;
+                        float total = totalWeight + baseWeight;
+
+                        MDL0VertexNode[] nodes = new MDL0VertexNode[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            nodes[shpSet.Index] = _vertList.Find(x => x.Name == shpSet.Name) as MDL0VertexNode;
+
+                        //Calculate barycenter per vertex and set as weighted pos
+                        if (p._vertices != null)
+                            for (int i = 0; i < p._vertices.Count; i++)
                             {
                                 int x = 0;
-                                Vertex3 v3 = poly._manager._vertices[i];
+                                Vertex3 v3 = p._vertices[i];
                                 v3._weightedPosition *= baseWeight;
 
                                 foreach (MDL0VertexNode vNode in nodes)
+                                {
                                     if (vNode != null && v3._facepoints[0]._vertexIndex < vNode.Vertices.Length)
-                                        v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x++];
+                                        v3._weightedPosition += (v3.GetMatrix() * vNode.Vertices[v3._facepoints[0]._vertexIndex]) * weights[x];
+                                    x++;
+                                }
 
-                                v3._weightedPosition /= (totalWeight + baseWeight);
+                                v3._weightedPosition /= total;
 
                                 v3._weights = weights;
                                 v3._nodes = nodes;
                                 v3._baseWeight = baseWeight;
                                 v3._bCenter = v3._weightedPosition;
                             }
-                        }
-
-                        //TODO: update normals and colors
-                        //This will be a bit trickier since they're not stored in the Vertex3 class
                     }
+
+                    if ((entry = node.FindChild(poly.NormalNode, true) as SHP0EntryNode) != null && 
+                        entry.Enabled && entry.UpdateNormals)
+                    {
+                        float[] weights = new float[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
+
+                        float totalWeight = 0;
+                        foreach (float f in weights)
+                            totalWeight += f;
+
+                        float baseWeight = 1.0f - totalWeight;
+                        float total = totalWeight + baseWeight;
+
+                        MDL0NormalNode[] nodes = new MDL0NormalNode[entry.Children.Count];
+                        foreach (SHP0VertexSetNode shpSet in entry.Children)
+                            nodes[shpSet.Index] = _normList.Find(x => x.Name == shpSet.Name) as MDL0NormalNode;
+
+                        UnsafeBuffer buf = p._faceData[1];
+                        if (buf != null)
+                        {
+                            Vector3* pData = (Vector3*)buf.Address;
+
+                            if (p._vertices != null)
+                                for (int i = 0; i < p._vertices.Count; i++)
+                                {
+                                    Vertex3 v3 = p._vertices[i];
+                                    int m = 0;
+                                    foreach (Facepoint r in v3._facepoints)
+                                    {
+                                        int nIndex = v3._faceDataIndices[m++];
+
+                                        Vector3 weightedNormal =
+                                            v3.GetMatrix().GetRotationMatrix() * pData[nIndex] * baseWeight;
+
+                                        int x = 0;
+                                        foreach (MDL0NormalNode n in nodes)
+                                        {
+                                            if (n != null && r._normalIndex < n.Normals.Length)
+                                                weightedNormal += 
+                                                    v3.GetMatrix().GetRotationMatrix() * 
+                                                    n.Normals[r._normalIndex] * 
+                                                    weights[x];
+                                            x++;
+                                        }
+
+                                        pData[nIndex] = v3.GetInvMatrix().GetRotationMatrix() * (weightedNormal / total).Normalize();
+                                    }
+                                }
+                        }
+                        p._dirty[1] = true;
+                    }
+
+                    for (int x = 0; x < 2; x++)
+                    {
+                        if (poly._colorSet[x] != null &&
+                            (entry = node.FindChild(poly._colorSet[x].Name, true) as SHP0EntryNode) != null &&
+                            entry.Enabled && entry.UpdateColors)
+                        {
+                            float[] weights = new float[entry.Children.Count];
+                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                                weights[shpSet.Index] = shpSet.Keyframes.GetFrameValue(index - 1);
+
+                            float totalWeight = 0;
+                            foreach (float f in weights)
+                                totalWeight += f;
+
+                            float baseWeight = 1.0f - totalWeight;
+                            float total = totalWeight + baseWeight;
+
+                            MDL0ColorNode[] nodes = new MDL0ColorNode[entry.Children.Count];
+                            foreach (SHP0VertexSetNode shpSet in entry.Children)
+                                nodes[shpSet.Index] = _colorList.Find(b => b.Name == shpSet.Name) as MDL0ColorNode;
+
+                            UnsafeBuffer buf = p._faceData[x + 2];
+                            if (buf != null)
+                            {
+                                RGBAPixel* pData = (RGBAPixel*)buf.Address;
+
+                                if (p._vertices != null)
+                                    for (int i = 0; i < p._vertices.Count; i++)
+                                    {
+                                        Vertex3 v3 = p._vertices[i];
+                                        int m = 0;
+                                        foreach (Facepoint r in v3._facepoints)
+                                        {
+                                            int cIndex = v3._faceDataIndices[m++];
+                                            if (cIndex < p._pointCount)
+                                            {
+                                                Vector4 color = (Vector4)poly._colorSet[x].Colors[r._colorIndices[x]] * baseWeight;
+
+                                                int w = 0;
+                                                foreach (MDL0ColorNode n in nodes)
+                                                {
+                                                    if (n != null && r._colorIndices[x] < n.Colors.Length)
+                                                        color += (Vector4)n.Colors[r._colorIndices[x]] * weights[w];
+                                                    w++;
+                                                }
+
+                                                pData[cIndex] = color / total;
+                                            }
+                                        }
+                                    }
+                            }
+                            p._dirty[x + 2] = true;
+                        }
+                    }
+                }
         }
         #endregion
 
         internal static ResourceNode TryParse(DataSource source) { return ((MDL0Header*)source.Address)->_header._tag == MDL0Header.Tag ? new MDL0Node() : null; }
+
+        public void OnDrawCallsChanged()
+        {
+            if (DrawCallsChanged != null)
+                DrawCallsChanged(this, null);
+        }
+
+        public event EventHandler DrawCallsChanged;
+
+        [Browsable(false)]
+        public List<DrawCallBase> DrawCalls
+        {
+            get
+            {
+                Populate();
+                return _objList == null ? 
+                new List<DrawCallBase>() : 
+                _objList.SelectMany(x => ((MDL0ObjectNode)x).DrawCalls).ToList(); }
+        }
     }
 }

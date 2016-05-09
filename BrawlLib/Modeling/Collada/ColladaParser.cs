@@ -1,20 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using BrawlLib.IO;
 using System.Windows.Forms;
-using BrawlLib.Wii.Models;
 using BrawlLib.Imaging;
-using BrawlLib.SSBBTypes;
-using BrawlLib.Wii.Graphics;
 using System.Globalization;
-using System.Threading;
-using System.Drawing;
-using System.ComponentModel;
-using System.Reflection;
 
 namespace BrawlLib.Modeling
 {
@@ -446,19 +436,19 @@ namespace BrawlLib.Modeling
                                         }
                                     }
                                     else if (_reader.Name.Equals("polygons", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.polygons));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polygons));
                                     else if (_reader.Name.Equals("polylist", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.polylist));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.polylist));
                                     else if (_reader.Name.Equals("triangles", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.triangles));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.triangles));
                                     else if (_reader.Name.Equals("tristrips", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.tristrips));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.tristrips));
                                     else if (_reader.Name.Equals("trifans", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.trifans));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.trifans));
                                     else if (_reader.Name.Equals("lines", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.lines));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.lines));
                                     else if (_reader.Name.Equals("linestrips", true))
-                                        geo._primitives.Add(ParsePrimitive(PrimitiveType.linestrips));
+                                        geo._primitives.Add(ParsePrimitive(ColladaPrimitiveType.linestrips));
 
                                     _reader.EndElement();
                                 }
@@ -471,7 +461,7 @@ namespace BrawlLib.Modeling
                     _reader.EndElement();
                 }
             }
-            private PrimitiveEntry ParsePrimitive(PrimitiveType type)
+            private PrimitiveEntry ParsePrimitive(ColladaPrimitiveType type)
             {
                 PrimitiveEntry prim = new PrimitiveEntry() { _type = type };
                 PrimitiveFace p;
@@ -480,17 +470,17 @@ namespace BrawlLib.Modeling
 
                 switch (type)
                 {
-                    case PrimitiveType.trifans:
-                    case PrimitiveType.tristrips:
-                    case PrimitiveType.triangles:
+                    case ColladaPrimitiveType.trifans:
+                    case ColladaPrimitiveType.tristrips:
+                    case ColladaPrimitiveType.triangles:
                         stride = 3;
                         break;
-                    case PrimitiveType.lines:
-                    case PrimitiveType.linestrips:
+                    case ColladaPrimitiveType.lines:
+                    case ColladaPrimitiveType.linestrips:
                         stride = 2;
                         break;
-                    case PrimitiveType.polygons:
-                    case PrimitiveType.polylist:
+                    case ColladaPrimitiveType.polygons:
+                    case ColladaPrimitiveType.polylist:
                         stride = 4;
                         break;
                 }
@@ -524,22 +514,22 @@ namespace BrawlLib.Modeling
 
                         switch (type)
                         {
-                            case PrimitiveType.trifans:
-                            case PrimitiveType.tristrips:
-                            case PrimitiveType.polygons:
-                            case PrimitiveType.polylist:
+                            case ColladaPrimitiveType.trifans:
+                            case ColladaPrimitiveType.tristrips:
+                            case ColladaPrimitiveType.polygons:
+                            case ColladaPrimitiveType.polylist:
                                 p._faceCount = p._pointCount - 2;
                                 break;
 
-                            case PrimitiveType.triangles:
+                            case ColladaPrimitiveType.triangles:
                                 p._faceCount = p._pointCount / 3;
                                 break;
 
-                            case PrimitiveType.lines:
+                            case ColladaPrimitiveType.lines:
                                 p._faceCount = p._pointCount / 2;
                                 break;
 
-                            case PrimitiveType.linestrips:
+                            case ColladaPrimitiveType.linestrips:
                                 p._faceCount = p._pointCount - 1;
                                 break;
                         }
@@ -830,19 +820,33 @@ namespace BrawlLib.Modeling
                         node._type = (NodeType)Enum.Parse(typeof(NodeType), (string)_reader.Value, true);
 
                 Matrix m = Matrix.Identity;
+                Matrix mInv = Matrix.Identity;
                 while (_reader.BeginElement())
                 {
                     if (_reader.Name.Equals("matrix", true))
-                        m *= ParseMatrix();
+                    {
+                        Matrix matrix = ParseMatrix();
+                        m *= matrix;
+                        //mInv *= matrix.Invert();
+                    }
                     else if (_reader.Name.Equals("rotate", true))
                     {
                         Vector4 v = ParseVec4();
                         m *= Matrix.RotationMatrix(v._x * v._w, v._y * v._w, v._z * v._w);
+                        //mInv *= Matrix.ReverseRotationMatrix(v._x * v._w, v._y * v._w, v._z * v._w);
                     }
                     else if (_reader.Name.Equals("scale", true))
-                        m.Scale(ParseVec3());
+                    {
+                        Vector3 scale = ParseVec3();
+                        m *= Matrix.ScaleMatrix(scale);
+                        //mInv *= Matrix.ScaleMatrix(1.0f / scale);
+                    }
                     else if (_reader.Name.Equals("translate", true))
-                        m.Translate(ParseVec3());
+                    {
+                        Vector3 translate = ParseVec3();
+                        m *= Matrix.TranslationMatrix(translate);
+                        //mInv *= Matrix.TranslationMatrix(-translate);
+                    }
                     else if (_reader.Name.Equals("node", true))
                         node._children.Add(ParseNode());
                     else if (_reader.Name.Equals("instance_controller", true))
@@ -872,7 +876,8 @@ namespace BrawlLib.Modeling
 
                     _reader.EndElement();
                 }
-                node._transform = (node._matrix = m).Derive();
+                node._matrix = m;
+                node._invMatrix = mInv;
                 return node;
             }
 
@@ -1063,7 +1068,7 @@ namespace BrawlLib.Modeling
         }
         private class PrimitiveEntry
         {
-            internal PrimitiveType _type;
+            internal ColladaPrimitiveType _type;
 
             internal string _material;
             internal int _entryCount;
@@ -1116,8 +1121,8 @@ namespace BrawlLib.Modeling
         private class NodeEntry : ColladaEntry
         {
             internal NodeType _type = NodeType.NONE;
-            internal FrameState _transform;
             internal Matrix _matrix = Matrix.Identity;
+            internal Matrix _invMatrix = Matrix.Identity;
             internal List<NodeEntry> _children = new List<NodeEntry>();
             internal List<InstanceEntry> _instances = new List<InstanceEntry>();
 
@@ -1198,7 +1203,7 @@ namespace BrawlLib.Modeling
             specular,
             transparent
         }
-        private enum PrimitiveType
+        private enum ColladaPrimitiveType
         {
             None,
             polygons,

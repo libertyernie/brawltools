@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Drawing;
 
 namespace System
@@ -99,7 +98,12 @@ namespace System
                 return (float)(lenX / Math.Cos(Math.Atan(lenY / lenX)));
         }
 
-        public Vector2 RemapToRange(float min, float max)
+        public void RemapToRange(float min, float max)
+        {
+            _x = _x.RemapToRange(min, max);
+            _y = _y.RemapToRange(min, max);
+        }
+        public Vector2 RemappedToRange(float min, float max)
         {
             return new Vector2(_x.RemapToRange(min, max), _y.RemapToRange(min, max));
         }

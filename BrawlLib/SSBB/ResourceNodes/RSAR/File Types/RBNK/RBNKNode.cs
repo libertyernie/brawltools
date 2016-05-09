@@ -1,9 +1,6 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
-using System.IO;
-using System.Runtime.InteropServices;
 using System.Collections.Generic;
-using System.Linq;
 using System.ComponentModel;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -12,6 +9,14 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal RBNKHeader* Header { get { return (RBNKHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.RBNK; } }
+
+        public void InitGroups()
+        {
+            RBNKDataGroupNode group0 = new RBNKDataGroupNode();
+            group0.Parent = this;
+            RBNKSoundGroupNode group1 = new RBNKSoundGroupNode();
+            group1.Parent = this;
+        }
 
         public List<RSARBankNode> _rsarBankEntries = new List<RSARBankNode>();
         [Browsable(false)]

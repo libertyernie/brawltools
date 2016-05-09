@@ -113,6 +113,7 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>.\OpenTK.dll</HintPath>
     </Reference>
+    <Reference Include="PresentationCore" />
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -122,6 +123,8 @@
     <Reference Include="System.DirectoryServices" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Messaging" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel.Web" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xaml" />
     <Reference Include="System.Xml" />
@@ -142,7 +145,13 @@
     <None Include="Modeling\XMLExporter.cs" />
     <Compile Include="Modeling\PMDModel.cs" />
     <Compile Include="OpenGL\GLViewport.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="SSBB\IBoolArraySource.cs" />
+    <Compile Include="SSBB\Fighter.cs" />
     <Compile Include="SSBB\Item.cs" />
     <None Include="SSBB\ResourceNodes\Archives\RARCNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDBoneNode.cs" />
@@ -151,6 +160,7 @@
     <None Include="SSBB\ResourceNodes\BMD\BMDNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDMaterialNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\OMONode.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\BFRESNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLBoneNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLGroupNode.cs" />
@@ -160,11 +170,51 @@
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLObjectNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLUniformNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Graphics\FTEXNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\AllstarStageTblNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\EventMatchNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\ClassMemberInstanceNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmStringNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmVariantNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmULongPtrNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmPointerNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmULongNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmFloatNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmVec4Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmMat3Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmMat4Node.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmQSTransformNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\Arrays.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmSByteNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmByteNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmShortNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmUShortNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmIntNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmUIntNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmLongNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmEnumNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmCharNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Meta Nodes\cmBoolNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokMetaObjectNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokXML.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassEnumNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\Class Types\hkClassNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\ISONode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Modules\RelocationManager.cs" />
+    <Compile Include="SSBB\ResourceNodes\ClassicStageTblNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
     <Compile Include="SSBB\ResourceNodes\SakuraiGeneral.cs" />
+    <Compile Include="SSBB\Types\Audio\FSTM.cs" />
+    <Compile Include="SSBB\Types\Audio\CSTM.cs" />
+    <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
+    <Compile Include="SSBB\Types\Common2Tbl.cs" />
+    <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
+    <Compile Include="SSBB\Types\EventMatch.cs" />
+    <Compile Include="SSBB\Types\ISO.cs" />
     <Compile Include="SSBB\Types\SCLA.cs" />
     <Compile Include="SSBB\Types\Wii U\BFRES.cs" />
     <Compile Include="SSBB\Types\Wii U\Embedded.cs" />
@@ -194,6 +244,7 @@
     <Compile Include="SSBB\Types\LM BIN.cs" />
     <None Include="SSBB\Types\BTI.cs" />
     <Compile Include="SSBB\Types\ItmFreq.cs" />
+    <Compile Include="SSBB\Types\SndBgmTitle.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\BGMG.cs" />
     <Compile Include="SSBB\Types\Subspace\Objects\GBLK.cs" />
@@ -205,9 +256,13 @@
     <None Include="SSBB\Types\RARC.cs" />
     <Compile Include="SSBB\Types\Wii U\FSAR.cs" />
     <Compile Include="SSBB\Types\Wii U\FTEX.cs" />
+    <Compile Include="SSBB\Types\Wii U\OMO.cs" />
     <Compile Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Audio\WaveFormatTag.cs" />
+    <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
+    <Compile Include="System\UInt64Extension.cs" />
     <Compile Include="System\Windows\Controls\AttributeGrid.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -257,9 +312,7 @@
     <Compile Include="OpenGL\TKContext.cs" />
     <Compile Include="OpenGL\GLCamera.cs" />
     <Compile Include="OpenGL\GLDisplayList.cs" />
-    <Compile Include="OpenGL\GLPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="OpenGL\GLPanel.cs" />
     <Compile Include="OpenGL\GLTexture.cs" />
     <Compile Include="OpenGL\IRenderedObject.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />
@@ -270,7 +323,6 @@
     <Compile Include="SSBB\CompactStringTable.cs" />
     <Compile Include="SSBB\FileFilters.cs" />
     <Compile Include="SSBB\LabelBuilder.cs" />
-    <Compile Include="SSBB\NodeDeepChecksum.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\AIPDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\ATKDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\AI\CENode.cs" />
@@ -279,10 +331,7 @@
     <Compile Include="SSBB\ResourceNodes\Subspace\Navigation\GDORNode.cs" />
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\FragmentShader.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\Stages.cs" />
-    <None Include="SSBB\ResourceNodes\MDL0\GLSL\VertexShader.cs" />
-    <Compile Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
+    <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
     <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />
@@ -329,7 +378,7 @@
     <Compile Include="System\TypeConverters.cs" />
     <Compile Include="SSBB\ResourceNodes\RASDNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0TEVStage.cs" />
-    <Compile Include="SSBB\ResourceNodes\PhysicsNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Havok Physics\HavokNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RBNK\RBNKGroupNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSEQ\RSEQLabelNode.cs" />
@@ -375,7 +424,7 @@
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDGroupNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RWSD\RWSDNode.cs" />
-    <Compile Include="SSBB\ResourceNodes\RSTMNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\RSAR\File Types\RSTMNode.cs" />
     <Compile Include="SSBB\ResourceNodes\RSAR\File Types\WAVESoundNode.cs" />
     <Compile Include="SSBB\StringTable.cs" />
     <Compile Include="SSBB\Types\AI.cs" />
@@ -383,7 +432,7 @@
     <Compile Include="SSBB\Types\DOL.cs" />
     <Compile Include="SSBB\Types\U8.cs" />
     <Compile Include="SSBB\Types\RASD.cs" />
-    <Compile Include="SSBB\Types\Physics.cs" />
+    <Compile Include="SSBB\Types\HKX.cs" />
     <Compile Include="SSBB\Types\STPM.cs" />
     <Compile Include="SSBB\Types\REFT.cs" />
     <Compile Include="SSBB\Types\MRG.cs" />
@@ -429,6 +478,12 @@
     <Compile Include="System\Windows\Controls\Hex Editor\MemoryDataBlock.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\NativeMethods.cs" />
     <Compile Include="System\Windows\Controls\Hex Editor\Util.cs" />
+    <Compile Include="System\Windows\Controls\MDL0ObjectControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\MDL0ObjectControl.Designer.cs">
+      <DependentUpon>MDL0ObjectControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Controls\Model Panel\ModelPanelViewport.cs" />
     <Compile Include="System\Windows\Controls\Model Panel\ScreenTextHandler.cs" />
     <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Mouse.cs">
@@ -452,11 +507,23 @@
     <Compile Include="System\Windows\Controls\ModelViewer\MainWindowBase\Undo.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Controls\ShaderEditor.cs">
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\OpenedFilesPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="System\Windows\Controls\ShaderEditor.Designer.cs">
-      <DependentUpon>ShaderEditor.cs</DependentUpon>
+    <Compile Include="System\Windows\Controls\ModelViewer\Panels\OpenedFilesPanel.Designer.cs">
+      <DependentUpon>OpenedFilesPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\PPCOpCodeEditControl.Designer.cs">
+      <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RSARGroupEditor.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Controls\RSARGroupEditor.Designer.cs">
+      <DependentUpon>RSARGroupEditor.cs</DependentUpon>
     </Compile>
     <Compile Include="System\Windows\Controls\TexCoordControl.cs">
       <SubType>UserControl</SubType>
@@ -578,12 +645,6 @@
     <Compile Include="System\Windows\Forms\ModelViewerForm.Designer.cs">
       <DependentUpon>ModelViewerForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="System\Windows\Forms\PPCOpCodeEditor.Designer.cs">
-      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
-    </Compile>
     <Compile Include="System\Windows\Controls\PowerPcDisassembler.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -599,7 +660,7 @@
     <Compile Include="System\IO\FileAssociation.cs" />
     <Compile Include="System\IO\XmlReader.cs" />
     <Compile Include="System\Matrix.cs" />
-    <Compile Include="System\Matrix43.cs" />
+    <Compile Include="System\Matrix34.cs" />
     <Compile Include="System\Matrix4d.cs" />
     <Compile Include="System\MemoryList.cs" />
     <Compile Include="System\Remapper.cs" />
@@ -620,7 +681,6 @@
     <Compile Include="SSBB\ResourceNodes\Graphics\TEX0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\VIS0Node.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\SHP0Node.cs" />
-    <Compile Include="System\Drawing\BitmapExtention.cs" />
     <Compile Include="System\Drawing\Imaging\ColorPaletteExtension.cs" />
     <Compile Include="System\Reflection\MemberInfoExtension.cs" />
     <Compile Include="System\Reflection\MethodInfoExtension.cs" />
@@ -775,8 +835,11 @@
       <DependentUpon>TransformAttributesForm.cs</DependentUpon>
     </Compile>
     <None Include="WiiU\ElementCodec.cs" />
+    <Compile Include="Wii\Animations\CHR0JsonImporter.cs" />
     <Compile Include="Wii\Animations\CHR0TextImporter.cs" />
     <Compile Include="Wii\Animations\AnimFormat.cs" />
+    <Compile Include="Wii\Audio\FSTMConverter.cs" />
+    <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\RWAVConverter.cs" />
     <Compile Include="Wii\Audio\RSARSoundConverter.cs" />
     <Compile Include="Wii\Compression\Huffman.cs" />
@@ -867,6 +930,10 @@
     <EmbeddedResource Include="OpenGL\GLPanel.resx">
       <DependentUpon>GLPanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\AttributeGrid.resx">
       <DependentUpon>AttributeGrid.cs</DependentUpon>
     </EmbeddedResource>
@@ -875,6 +942,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\EditAllDialog\SRT0.resx">
       <DependentUpon>SRT0.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\MDL0ObjectControl.resx">
+      <DependentUpon>MDL0ObjectControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Editors\CHR0Editor.resx">
       <DependentUpon>CHR0Editor.cs</DependentUpon>
@@ -909,11 +979,17 @@
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\KeyframePanel.resx">
       <DependentUpon>KeyframePanel.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\OpenedFilesPanel.resx">
+      <DependentUpon>OpenedFilesPanel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\PlaybackPanel.resx">
       <DependentUpon>PlaybackPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\ModelViewer\Panels\RightPanel.resx">
       <DependentUpon>RightPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\PPCOpCodeEditControl.resx">
+      <DependentUpon>PPCOpCodeEditControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\PreviewPanel.resx">
       <DependentUpon>PreviewPanel.cs</DependentUpon>
@@ -924,14 +1000,14 @@
     <EmbeddedResource Include="System\Windows\Controls\InterpolationEditor.resx">
       <DependentUpon>InterpolationEditor.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Controls\RSARGroupEditor.resx">
+      <DependentUpon>RSARGroupEditor.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\TexCoordControl.resx">
       <DependentUpon>TexCoordControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\TransformAttributesControl.resx">
       <DependentUpon>TransformAttributesControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Controls\ShaderEditor.resx">
-      <DependentUpon>ShaderEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\VideoPlaybackPanel.resx">
       <DependentUpon>VideoPlaybackPanel.cs</DependentUpon>
@@ -944,9 +1020,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Forms\ModelViewerForm.resx">
       <DependentUpon>ModelViewerForm.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="System\Windows\Forms\PPCOpCodeEditor.resx">
-      <DependentUpon>PPCOpCodeEditor.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\PowerPcDisassembler.resx">
       <DependentUpon>PowerPcDisassembler.cs</DependentUpon>

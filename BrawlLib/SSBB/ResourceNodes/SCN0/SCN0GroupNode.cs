@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Imaging;
@@ -15,8 +13,54 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override ResourceType ResourceType { get { return ResourceType.MDL0Group; } }
 
-        public SCN0GroupNode() : base() { }
-        public SCN0GroupNode(string name) : base() { _name = name; }
+        public GroupType _type;
+        public enum GroupType
+        {
+            LightSet,
+            AmbientLight,
+            Light,
+            Fog,
+            Camera
+        }
+
+        public static readonly string[] _names = 
+        { 
+            "LightSet(NW4R)",
+            "AmbLights(NW4R)",
+            "Lights(NW4R)",
+            "Fogs(NW4R)",
+            "Cameras(NW4R)",
+        };
+        public static readonly Type[] _types = 
+        {
+            typeof(SCN0LightSetNode),
+            typeof(SCN0AmbientLightNode),
+            typeof(SCN0LightNode),
+            typeof(SCN0FogNode),
+            typeof(SCN0CameraNode),
+        };
+
+
+        public override string Name
+        {
+            get { return _names[(int)_type]; }
+            set
+            {
+                int i = _names.IndexOf(value);
+                if (i >= 0 && i < 5)
+                    _type = (GroupType)i;
+
+                base.Name = value;
+            }
+        }
+
+        public SCN0GroupNode(GroupType t) { _type = t; }
+        public SCN0GroupNode(string name)
+        {
+            int i = _names.IndexOf(name);
+            if (i >= 0 && i < 5)
+                _type = (GroupType)i;
+        }
 
         internal void GetStrings(StringTable table)
         {
@@ -108,7 +152,34 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 dataAddress = (VoidPtr)group + (rEntry++)->_dataOffset;
                 ResourceEntry.Build(group, index++, dataAddress, (BRESString*)stringTable[n.Name]);
-                n.PostProcess(scn0Address, dataAddress, stringTable);
+                //n.PostProcess(scn0Address, dataAddress, stringTable);
+            }
+
+            int len = 0;
+            switch (_type)
+            {
+                case GroupType.LightSet:
+                    len = SCN0LightSet.Size;
+                    break;
+                case GroupType.AmbientLight:
+                    len = SCN0AmbientLight.Size;
+                    break;
+                case GroupType.Light:
+                    len = SCN0Light.Size;
+                    break;
+                case GroupType.Fog:
+                    len = SCN0Fog.Size;
+                    break;
+                case GroupType.Camera:
+                    len = SCN0Camera.Size;
+                    break;
+            }
+            bint* hdr = (bint*)scn0Address + 5;
+            VoidPtr entries = scn0Address + hdr[(int)_type];
+            foreach (SCN0EntryNode n in Children)
+            {
+                n.PostProcess(scn0Address, entries, stringTable);
+                entries += len;
             }
         }
 
@@ -312,7 +383,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             SCN0KeyframesHeader* header = (SCN0KeyframesHeader*)dataAddr;
             SCN0KeyframeStruct* entry = header->Data;
             for (int i = 0; i < header->_numFrames; i++, entry++)
-                kf.SetFrameValue((int)entry->_index, entry->_value)._tangent = entry->_tangent;
+                kf.SetFrameValue((int)entry->_index, entry->_value, true)._tangent = entry->_tangent;
         }
         public static int EncodeKeyframes(KeyframeArray kf, VoidPtr dataAddr, VoidPtr offset, ref int flags, int fixedBit)
         {

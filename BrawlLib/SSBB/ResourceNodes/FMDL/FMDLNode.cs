@@ -6,6 +6,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
+using BrawlLib.OpenGL;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -198,6 +200,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public bool Attached { get { return _attached; } }
 
+        public List<DrawCallBase> DrawCalls
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+        }
+
         public void ResetToBindState()
         {
             
@@ -233,6 +243,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         ModelRenderAttributes _attributes = new ModelRenderAttributes() { _renderBones = true };
 
+        public event EventHandler DrawCallsChanged;
+
         public void Render(params object[] args)
         {
             ModelRenderAttributes attrib;
@@ -260,6 +272,21 @@ namespace BrawlLib.SSBB.ResourceNodes
 
 
         public void RenderVertices(bool depthPass, IBoneNode weightTarget, OpenGL.GLCamera camera)
+        {
+            
+        }
+
+        public void RenderBoxes(bool model, bool obj, bool bone, bool bindState)
+        {
+            
+        }
+
+        public void RenderBones(ModelPanelViewport v)
+        {
+            
+        }
+
+        public void PreRender(ModelPanelViewport v)
         {
             
         }

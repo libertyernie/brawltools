@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Wii.Animations;
 using System.Windows.Forms;
+using System.IO;
+using BrawlLib.IO;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -62,14 +61,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal override void GetStrings(StringTable table)
         {
             table.Add(Name);
-
-            _strings.Clear();
-            foreach (SHP0EntryNode entry in Children)
-            {
-                table.Add(entry.Name);
-                foreach (SHP0VertexSetNode n in entry.Children)
-                    _strings.Add(n.Name);
-            }
 
             foreach (string s in _strings)
                 table.Add(s);
@@ -172,17 +163,26 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             ((SHP0v3*)address)->_stringListOffset = (int)dataAddress - (int)address;
 
+            dataAddress += _strings.Count * 4;
+
             if (_userEntries.Count > 0 && _version == 4)
-            {
-                SHP0v4* header = (SHP0v4*)address;
-                header->UserData = dataAddress;
-                _userEntries.Write(dataAddress);
-            }
+                _userEntries.Write(((SHP0v4*)address)->UserData = dataAddress);
         }
 
         public override int OnCalculateSize(bool force)
         {
-            int size = (Version == 4 ? SHP0v4.Size : SHP0v3.Size) + 0x18 + Children.Count * 0x10;
+            _strings.Clear();
+            foreach (SHP0EntryNode entry in Children)
+            {
+                if (!_strings.Contains(entry.Name))
+                    _strings.Add(entry.Name);
+
+                foreach (SHP0VertexSetNode n in entry.Children)
+                    if (!_strings.Contains(n.Name))
+                        _strings.Add(n.Name);
+            }
+
+            int size = (Version == 4 ? SHP0v4.Size : SHP0v3.Size) + 0x18 + Children.Count * 0x10 + _strings.Count * 4;
             foreach (SHP0EntryNode entry in Children)
                 size += entry.CalculateSize(true) + entry.Children.Count * 4;
 
@@ -416,16 +416,26 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override void OnPopulate()
         {
             for (int i = 0; i < _indexCount; i++)
-                if ((_fixedFlags >> i & 1) == 0)
-                    new SHP0VertexSetNode(_indices[i] < ((SHP0Node)Parent)._strings.Count ? ((SHP0Node)Parent)._strings[_indices[i]] : "Unknown").Initialize(this, new DataSource(Header->GetEntry(i), 0x14 + Header->_numIndices * 6));
+            {
+                string name;
+                if (_indices[i] < ((SHP0Node)Parent)._strings.Count && _indices[i] >= 0)
+                    name = ((SHP0Node)Parent)._strings[_indices[i]];
+                else
+                    name = "Unknown";
+
+                SHP0VertexSetNode n = new SHP0VertexSetNode(name);
+
+                if (((_fixedFlags >> i) & 1) == 0)
+                    n.Initialize(this, new DataSource(Header->GetEntry(i), 0x14 + Header->_numIndices * 6));
                 else
                 {
-                    SHP0VertexSetNode n = new SHP0VertexSetNode(_indices[i] < ((SHP0Node)Parent)._strings.Count ? ((SHP0Node)Parent)._strings[_indices[i]] : "Unknown") { _isFixed = true };
+                    n._isFixed = true;
                     _children.Add(n);
                     n._parent = this;
 
                     n.Keyframes[0] = ((bfloat*)Header->EntryOffset)[i];
                 }
+            }
         }
 
         public VoidPtr _dataAddr;
@@ -463,9 +473,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->Indicies[p.Index] = (short)((SHP0Node)Parent)._strings.IndexOf(p.Name);
                 if (p._isFixed)
                 {
-                    KeyframeEntry kf; float value = 0;
+                    float value = 0;
+                    KeyframeEntry kf;
                     if ((kf = p.Keyframes.GetKeyframe(0)) != null)
                         value = kf._value;
+
                     ((bfloat*)header->EntryOffset)[p.Index] = value;
                     fixedflags |= (1u << p.Index);
                 }
@@ -507,6 +519,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal void SetSize(int count, bool looped)
         {
             Keyframes.FrameLimit = count + (looped ? 1 : 0);
+            Keyframes.Loop = looped;
             SignalPropertyChange();
         }
 
@@ -537,7 +550,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            return _dataLen = ((_isFixed = Keyframes._keyCount <= 1) ? 0 : Keyframes._keyCount * 12 + 8);
+            return _dataLen = ((_isFixed = Keyframes._keyCount <= 1) ? 0 : Keyframes._keyCount * 12 + 4);
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -550,6 +563,17 @@ namespace BrawlLib.SSBB.ResourceNodes
             KeyframeEntry frame, root = Keyframes._keyRoot;
             for (frame = root._next; frame._index != -1; frame = frame._next)
                 *entry++ = new Vector3(frame._tangent, frame._index, frame._value);
+        }
+
+        public override unsafe void Export(string outPath)
+        {
+            int length = OnCalculateSize(true);
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            {
+                stream.SetLength(length);
+                using (FileMap map = FileMap.FromStream(stream))
+                    OnRebuild(map.Address, length, true);
+            }
         }
 
         #region Keyframe Management

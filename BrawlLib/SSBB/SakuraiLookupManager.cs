@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrawlLib.SSBBTypes
 {
@@ -26,21 +24,12 @@ namespace BrawlLib.SSBBTypes
                     _values[index] = value;
             }
         }
-
-        public void Add(VoidPtr valueAddr)
-        {
-            if (!_values.Contains(valueAddr))
-                _values.Add(valueAddr);
-        }
-        public void AddRange(params VoidPtr[] valueAddrs)
+        public void Add(params VoidPtr[] valueAddrs)
         {
             foreach (VoidPtr value in valueAddrs)
                 if (!_values.Contains(value))
                     _values.Add(value);
         }
-
-        public IEnumerator<VoidPtr> GetEnumerator() { return _values.GetEnumerator(); }
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
 
         public void Sort()
         {
@@ -61,5 +50,8 @@ namespace BrawlLib.SSBBTypes
         {
             address += Write(address);
         }
+
+        public IEnumerator<VoidPtr> GetEnumerator() { return _values.GetEnumerator(); }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() { return this.GetEnumerator(); }
     }
 }

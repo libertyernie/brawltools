@@ -1,7 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
+﻿using BrawlLib.SSBB.ResourceNodes;
 
 namespace System.Windows.Forms
 {

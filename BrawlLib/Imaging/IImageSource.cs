@@ -1,5 +1,4 @@
-﻿using System;
-using System.Audio;
+﻿using System.Audio;
 using System.Drawing;
 
 namespace BrawlLib.Imaging

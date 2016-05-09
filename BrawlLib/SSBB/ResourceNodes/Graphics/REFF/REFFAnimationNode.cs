@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using BrawlLib.Wii.Graphics;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -311,47 +308,47 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Dictionary<int, KeyValuePair<int, float>> values;
 
-            VoidPtr offset = (VoidPtr)Header + 0x20;
-            if (KeyTableSize > 4)
-            {
-                AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
-                AnimCurveKeyHeader* key = hdr->First;
-                for (int i = 0; i < hdr->_count; i++, key = key->Next(enabledIndices.Count, size))
-                {
-                    key->GetFrameIndex(enabledIndices.Count, size);
-                }
-            }
-            offset += KeyTableSize;
-            if (RangeTableSize > 4)
-            {
-                AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
+            //VoidPtr offset = (VoidPtr)Header + 0x20;
+            //if (KeyTableSize > 4)
+            //{
+            //    AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
+            //    AnimCurveKeyHeader* key = hdr->First;
+            //    for (int i = 0; i < hdr->_count; i++, key = key->Next(enabledIndices.Count, size))
+            //    {
+            //        key->GetFrameIndex(enabledIndices.Count, size);
+            //    }
+            //}
+            //offset += KeyTableSize;
+            //if (RangeTableSize > 4)
+            //{
+            //    AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
 
-            }
-            offset += RangeTableSize;
-            if (RandomTableSize > 4)
-            {
-                AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
+            //}
+            //offset += RangeTableSize;
+            //if (RandomTableSize > 4)
+            //{
+            //    AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
                 
-            }
-            offset += RandomTableSize;
-            if (NameTableSize > 4)
-            {
-                AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
+            //}
+            //offset += RandomTableSize;
+            //if (NameTableSize > 4)
+            //{
+            //    AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
 
-                _names = new List<string>();
-                bushort* addr = (bushort*)((VoidPtr)hdr + 4 + hdr->_count * 4);
-                for (int i = 0; i < hdr->_count; i++, addr = (bushort*)((VoidPtr)addr + 2 + *addr))
-                    _names.Add(new String((sbyte*)addr + 2));
-            }
-            offset += NameTableSize;
-            if (InfoTableSize > 4)
-            {
-                AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
-                //switch ((v9AnimCurveTargetField)_hdr.kindType)
-                //{
+            //    _names = new List<string>();
+            //    bushort* addr = (bushort*)((VoidPtr)hdr + 4 + hdr->_count * 4);
+            //    for (int i = 0; i < hdr->_count; i++, addr = (bushort*)((VoidPtr)addr + 2 + *addr))
+            //        _names.Add(new String((sbyte*)addr + 2));
+            //}
+            //offset += NameTableSize;
+            //if (InfoTableSize > 4)
+            //{
+            //    AnimCurveTableHeader* hdr = (AnimCurveTableHeader*)offset;
+            //    //switch ((v9AnimCurveTargetField)_hdr.kindType)
+            //    //{
 
-                //}
-            }
+            //    //}
+            //}
 
 #if DEBUG
             if (CurveFlag == AnimCurveType.EmitterFloat || CurveFlag == AnimCurveType.PostField)

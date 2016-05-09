@@ -1,10 +1,4 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
-using System.ComponentModel;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-
-namespace System.Windows.Forms
+﻿namespace System.Windows.Forms
 {
     public class EditAllSRT0Editor : UserControl
     {

@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 using System.Drawing;
 using System.Drawing.Imaging;
 using BrawlLib.Imaging;
 using BrawlLib.IO;
-using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.Wii.Textures
 {

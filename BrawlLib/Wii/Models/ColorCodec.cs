@@ -2,8 +2,6 @@
 using BrawlLib.Imaging;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Textures;
-using System.Collections.Generic;
-using System.Collections;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.Wii.Models
@@ -110,20 +108,10 @@ namespace BrawlLib.Wii.Models
         }
         private static void Color_wRGBA6_RGBA(ref byte* pIn, ref byte* pOut)
         {
-            int val, data;
-            data = 0;
-            byte* t = (byte*)&data + 3;
-            *t-- = *pIn++;
-            *t-- = *pIn++;
-            *t-- = *pIn++;
-            *t-- = 0;
+            *(RGBAPixel*)pOut = (RGBAPixel)(ARGBPixel)(*(wRGBA6Pixel*)pIn);
 
-            int i = 24;
-            while ((i -= 6) >= 0)
-            {
-                val = (data >> i) & 0x3F;
-                *pOut++ = (byte)((val << 2) | (val >> 4));
-            }
+            pIn += 3;
+            pOut += 4;
         }
         private static void Color_RGBA_RGBA(ref byte* pIn, ref byte* pOut)
         {

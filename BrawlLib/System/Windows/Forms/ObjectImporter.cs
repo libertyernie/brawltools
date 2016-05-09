@@ -1,8 +1,4 @@
-﻿using System;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
+﻿using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
 using BrawlLib.Wii.Models;
 
@@ -28,13 +24,16 @@ namespace System.Windows.Forms
         private Panel panel1;
         bool _mergeModels = false;
         
-        public ObjectImporter() { InitializeComponent(); }
+        public ObjectImporter()
+        {
+            InitializeComponent();
+            //modelPanel1.AddViewport(ModelPanelViewport.DefaultPerspective);
+        }
 
         public DialogResult ShowDialog(MDL0Node internalModel, MDL0Node externalModel)
         {
             _internalModel = internalModel;
             _externalModel = externalModel;
-            //_externalModel._renderBones = false;
 
             comboBox1.Items.AddRange(_externalModel.FindChild("Objects", true).Children.ToArray());
             comboBox2.Items.AddRange(_internalModel._linker.BoneCache);
@@ -48,6 +47,8 @@ namespace System.Windows.Forms
         protected override void OnLoad(EventArgs e)
         {
             base.OnLoad(e);
+
+            _externalModel.ResetToBindState();
 
             modelPanel1.ClearTargets();
             modelPanel1.AddReference(_internalModel);
@@ -97,122 +98,7 @@ namespace System.Windows.Forms
 
         private void ImportObject(MDL0ObjectNode node)
         {
-            MDL0ObjectNode newNode = node.SoftCopy();
-            if (node._vertexNode != null)
-            {
-                _internalModel.VertexGroup.AddChild(node._vertexNode);
-                (newNode._vertexNode = (MDL0VertexNode)_internalModel.VertexGroup.Children[_internalModel._vertList.Count - 1])._objects.Add(newNode);
-            }
-            if (node.NormalNode != null)
-            {
-                _internalModel.NormalGroup.AddChild(node._normalNode);
-                (newNode._normalNode = (MDL0NormalNode)_internalModel.NormalGroup.Children[_internalModel._normList.Count - 1])._objects.Add(newNode);
-            }
-            for (int i = 0; i < 8; i++)
-                if (node._uvSet[i] != null)
-                {
-                    _internalModel.UVGroup.AddChild(node._uvSet[i]);
-                    newNode._uvSet[i] = (MDL0UVNode)_internalModel.UVGroup.Children[_internalModel._uvList.Count - 1];
-                    newNode._uvSet[i].Name = "#" + (_internalModel._uvList.Count - 1);
-                    newNode._uvSet[i]._objects.Add(newNode);
-                }
-
-            for (int i = 0; i < 2; i++)
-                if (node._colorSet[i] != null)
-                {
-                    _internalModel.ColorGroup.AddChild(node._colorSet[i]);
-                    (newNode._colorSet[i] = (MDL0ColorNode)_internalModel.ColorGroup.Children[_internalModel._colorList.Count - 1])._objects.Add(newNode);
-                }
-
-            if (node.OpaMaterialNode != null)
-            {
-                _internalModel._matGroup.AddChild(node.OpaMaterialNode);
-                newNode.OpaMaterialNode = (MDL0MaterialNode)_internalModel.MaterialGroup.Children[_internalModel._matList.Count - 1];
-
-                _internalModel._shadGroup.AddChild(node.OpaMaterialNode._shader);
-                newNode.OpaMaterialNode.ShaderNode = (MDL0ShaderNode)_internalModel.ShaderGroup.Children[_internalModel._shadList.Count - 1];
-
-                foreach (MDL0MaterialRefNode r in newNode.OpaMaterialNode.Children)
-                {
-                    if (r._texture != null)
-                        (r._texture = _internalModel.FindOrCreateTexture(r.TextureNode.Name))._references.Add(r);
-
-                    if (r._palette != null)
-                        (r._palette = _internalModel.FindOrCreatePalette(r.PaletteNode.Name))._references.Add(r);
-                }
-            }
-            if (node.XluMaterialNode != null)
-            {
-                _internalModel._matGroup.AddChild(node.XluMaterialNode);
-                newNode.XluMaterialNode = (MDL0MaterialNode)_internalModel.MaterialGroup.Children[_internalModel._matList.Count - 1];
-
-                _internalModel._shadGroup.AddChild(node.XluMaterialNode._shader);
-                newNode.XluMaterialNode.ShaderNode = (MDL0ShaderNode)_internalModel.ShaderGroup.Children[_internalModel._shadList.Count - 1];
-
-                foreach (MDL0MaterialRefNode r in newNode.XluMaterialNode.Children)
-                {
-                    if (r._texture != null)
-                        (r._texture = _internalModel.FindOrCreateTexture(r.TextureNode.Name))._references.Add(r);
-
-                    if (r._palette != null)
-                        (r._palette = _internalModel.FindOrCreatePalette(r.PaletteNode.Name))._references.Add(r);
-                }
-            }
-
-            newNode._manager = node._manager;
-
-            if (newNode.Weighted)
-            {
-                foreach (Vertex3 vert in newNode._manager._vertices)
-                    if (vert.MatrixNode != null)
-                    {
-                        //To do:
-                        //Get difference between new and old influence matrices 
-                        //and add it to the weighted position
-                        //to fit the mesh to the new bones if it doesn't already.
-
-                        //Matrix m = vert.MatrixNode.Matrix;
-                        //Matrix invm = vert.MatrixNode.InverseMatrix;
-                        if (vert.MatrixNode is Influence)
-                        {
-                            for (int i = 0; i < vert.MatrixNode.Weights.Count; i++)
-                            {
-                                MDL0BoneNode b = vert.MatrixNode.Weights[i].Bone as MDL0BoneNode;
-                                if (b != null)
-                                    vert.MatrixNode.Weights[i].Bone = _internalModel._boneGroup.FindChildByType(b.Name, true, ResourceType.MDL0Bone) as MDL0BoneNode;
-                            }
-
-                            vert.MatrixNode = _internalModel._influences.FindOrCreate((Influence)vert.MatrixNode, true);
-                        }
-                        else
-                            vert.MatrixNode = _internalModel.BoneGroup.FindChildByType(((MDL0BoneNode)vert.MatrixNode).Name, true, ResourceType.MDL0Bone) as IMatrixNode;
-
-                        //Matrix m2 = vert.MatrixNode.Matrix * invm;
-                        //vert.WeightedPosition = vert.WeightedPosition * m2;
-                    }
-
-                //foreach (Vertex3 vert in newNode._manager._vertices)
-                //    vert.Unweight();
-            }
-            else if (newNode._matrixNode != null)
-            {
-                if (newNode._matrixNode is Influence)
-                {
-                    for (int i = 0; i < newNode.MatrixNode.Weights.Count; i++)
-                        newNode.MatrixNode.Weights[i].Bone = _internalModel._boneGroup.FindChildByType(newNode.MatrixNode.Weights[i].Bone.Name, true, ResourceType.MDL0Bone) as MDL0BoneNode;
-
-                    newNode.MatrixNode = _internalModel._influences.FindOrCreate((Influence)newNode._matrixNode, true);
-                }
-                else
-                    newNode.MatrixNode = _internalModel.BoneGroup.FindChildByType(((MDL0BoneNode)newNode.MatrixNode).Name, true, ResourceType.MDL0Bone) as IMatrixNode;
-            }
-
-            newNode.RecalcIndices();
-            newNode._visBoneNode = (MDL0BoneNode)_internalModel.BoneGroup.Children[0];
-            newNode.Name = "polygon" + (_internalModel._objList.Count);
-            newNode._rebuild = true;
-            newNode.SignalPropertyChange();
-            _internalModel._objGroup.AddChild(newNode);
+            _internalModel.ReplaceOrAddMesh(node, false, false, true);
         }
 
         private unsafe void btnOkay_Click(object sender, EventArgs e)
@@ -255,7 +141,10 @@ namespace System.Windows.Forms
 
         private void GetBaseInfluence()
         {
-            ResourceNode[] boneCache = _externalModel._linker.BoneCache;
+            if (_node != null)
+                modelPanel1.RemoveReference(_node);
+
+            MDL0BoneNode[] boneCache = _externalModel._linker.BoneCache;
             if ((_node = (MDL0ObjectNode)comboBox1.SelectedItem).Weighted)
             {
                 int least = int.MaxValue;
@@ -297,7 +186,9 @@ namespace System.Windows.Forms
                     i++;
                 }
             }
-
+            
+            _node.IsRendering = true;
+            modelPanel1.ClearTargets();
             modelPanel1.AddTarget(_node);
             modelPanel1.SetCamWithBox(_node.GetBox());
         }

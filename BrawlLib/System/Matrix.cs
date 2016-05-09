@@ -1,7 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using BrawlLib.Modeling;
 using System.Runtime.Serialization;
+using BrawlLib.Wii.Models;
+using System.Collections.Generic;
 
 namespace System
 {
@@ -233,6 +234,23 @@ namespace System
             p[12] = -x - y - z;
             p[13] = -x - y - z;
             p[14] = -x - y - z;
+            return m;
+        }
+
+        public static Matrix InfluenceMatrix(List<BoneWeight> weights)
+        {
+            Matrix m = new Matrix();
+            foreach (BoneWeight w in weights)
+                if (w.Bone != null)
+                    m += (w.Bone.Matrix * w.Bone.InverseBindMatrix) * w.Weight;
+            return m;
+        }
+        public static Matrix ReverseInfluenceMatrix(List<BoneWeight> weights)
+        {
+            Matrix m = new Matrix();
+            foreach (BoneWeight w in weights)
+                if (w.Bone != null)
+                    m += (w.Bone.InverseMatrix * w.Bone.BindMatrix) * w.Weight;
             return m;
         }
 
@@ -582,17 +600,17 @@ namespace System
             float* p = (float*)&m;
             fixed (float* src = _values)
             {
-                m[0] = src[0];
-                m[1] = src[1];
-                m[2] = src[2];
+                p[0] = src[0];
+                p[1] = src[1];
+                p[2] = src[2];
 
-                m[4] = src[4];
-                m[5] = src[5];
-                m[6] = src[6];
+                p[4] = src[4];
+                p[5] = src[5];
+                p[6] = src[6];
 
-                m[8] = src[8];
-                m[9] = src[9];
-                m[10] = src[10];
+                p[8] = src[8];
+                p[9] = src[9];
+                p[10] = src[10];
             }
             return m;
         }
@@ -788,7 +806,7 @@ namespace System
             this.Multiply(m);
         }
 
-        public static explicit operator Matrix(Matrix43 m)
+        public static explicit operator Matrix(Matrix34 m)
         {
             Matrix m1;
             float* sPtr = (float*)&m;
@@ -813,9 +831,9 @@ namespace System
 
             return m1;
         }
-        public static explicit operator Matrix43(Matrix m)
+        public static explicit operator Matrix34(Matrix m)
         {
-            Matrix43 m1;
+            Matrix34 m1;
             float* sPtr = (float*)&m;
             float* dPtr = (float*)&m1;
 
@@ -1113,7 +1131,7 @@ namespace System
 
         public static Matrix Lookat(Vector3 eye, Vector3 target, float roll)
         {
-            Vector3 up = new Vector3(-(float)Math.Sin(roll), (float)Math.Cos(roll), 0);
+            Vector3 up = new Vector3(-(float)Math.Sin(roll * Maths._deg2radf), (float)Math.Cos(roll * Maths._deg2radf), 0);
 
             Vector3 zaxis = (eye - target).Normalize();
             Vector3 xaxis = up.Cross(zaxis).Normalize();
@@ -1143,7 +1161,7 @@ namespace System
 
         public static Matrix ReverseLookat(Vector3 eye, Vector3 target, float roll)
         {
-            Vector3 up = new Vector3(-(float)Math.Sin(roll), (float)Math.Cos(roll), 0);
+            Vector3 up = new Vector3(-(float)Math.Sin(roll * Maths._deg2radf), (float)Math.Cos(roll * Maths._deg2radf), 0);
 
             Vector3 zaxis = (target - eye).Normalize();
             Vector3 xaxis = up.Cross(zaxis).Normalize();

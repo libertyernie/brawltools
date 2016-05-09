@@ -1,15 +1,10 @@
 ﻿using System;
 using BrawlLib.SSBB.ResourceNodes;
-using System.Drawing;
-using BrawlLib.Modeling;
 using System.ComponentModel;
-using BrawlLib.OpenGL;
 using BrawlLib;
 using System.IO;
 using System.Collections.Generic;
 using System.Windows.Forms;
-using System.Linq;
-using OpenTK.Graphics.OpenGL;
 
 namespace Ikarus.UI
 {
@@ -598,10 +593,11 @@ namespace Ikarus.UI
             chkAllTextures.CheckState = CheckState.Checked;
 
             ResourceNode n;
-            if (_selectedPolygon != null && _syncObjTex)
-                foreach (MDL0MaterialRefNode tref in _selectedPolygon.UsableMaterialNode.Children)
-                    lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
-            else if (TargetModel != null && (n = TargetModel.FindChild("Textures", false)) != null)
+            //if (_selectedPolygon != null && _syncObjTex)
+            //    foreach (MDL0MaterialRefNode tref in _selectedPolygon.UsableMaterialNode.Children)
+            //        lstTextures.Items.Add(tref.TextureNode, tref.TextureNode.Enabled);
+            //else 
+            if (TargetModel != null && (n = TargetModel.FindChild("Textures", false)) != null)
                 foreach (MDL0TextureNode tref in n.Children)
                     lstTextures.Items.Add(tref, tref.Enabled);
             
@@ -639,7 +635,7 @@ namespace Ikarus.UI
 
                 if ((n = TargetModel.FindChild("Objects", false)) != null)
                     foreach (MDL0ObjectNode poly in n.Children)
-                        lstObjects.Items.Add(poly, poly._render);
+                        lstObjects.Items.Add(poly, poly.IsRendering);
 
                 if ((n = TargetModel.FindChild("Textures", false)) != null)
                     foreach (MDL0TextureNode tref in n.Children)
@@ -722,7 +718,7 @@ namespace Ikarus.UI
         private void lstPolygons_SelectedValueChanged(object sender, EventArgs e)
         {
             _targetObject = _selectedPolygon = lstObjects.SelectedItem as MDL0ObjectNode;
-            TargetTexRef = _selectedPolygon != null && _selectedTexture != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+            //TargetTexRef = _selectedPolygon != null && _selectedTexture != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             _mainWindow.SelectedPolygonChanged(this, null);
             overObjPnl.Invalidate();
             overTexPnl.Invalidate();
@@ -741,34 +737,34 @@ namespace Ikarus.UI
         {
             MDL0ObjectNode poly = lstObjects.Items[e.Index] as MDL0ObjectNode;
 
-            poly._render = e.NewValue == CheckState.Checked;
+            poly.IsRendering = e.NewValue == CheckState.Checked;
 
-            if (_syncVis0 && poly._visBoneNode != null)
-            {
-                bool temp = false;
-                if (!_vis0Updating)
-                {
-                    _vis0Updating = true;
-                    temp = true;
-                }
+            //if (_syncVis0 && poly._visBoneNode != null)
+            //{
+            //    bool temp = false;
+            //    if (!_vis0Updating)
+            //    {
+            //        _vis0Updating = true;
+            //        temp = true;
+            //    }
 
-                if (VIS0Indices.ContainsKey(poly._visBoneNode.Name))
-                    foreach (int i in VIS0Indices[poly._visBoneNode.Name])
-                        if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
-                            lstObjects.SetItemChecked(i, poly._render);
+            //    if (VIS0Indices.ContainsKey(poly._visBoneNode.Name))
+            //        foreach (int i in VIS0Indices[poly._visBoneNode.Name])
+            //            if (((MDL0ObjectNode)lstObjects.Items[i])._render != poly._render)
+            //                lstObjects.SetItemChecked(i, poly._render);
 
-                if (temp)
-                {
-                    _vis0Updating = false;
-                    temp = false;
-                }
+            //    if (temp)
+            //    {
+            //        _vis0Updating = false;
+            //        temp = false;
+            //    }
 
-                if (!_vis0Updating)
-                {
-                    _polyIndex = e.Index;
-                    _mainWindow.UpdateVis0(e);
-                }
-            }
+            //    if (!_vis0Updating)
+            //    {
+            //        _polyIndex = e.Index;
+            //        _mainWindow.UpdateVis0(e);
+            //    }
+            //}
 
             if (!_updating) _mainWindow.ModelPanel.Invalidate();
         }
@@ -788,7 +784,7 @@ namespace Ikarus.UI
                 if (_syncObjTex)
                     _selectedTexture.ObjOnly = true;
 
-                TargetTexRef = _selectedPolygon != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                //TargetTexRef = _selectedPolygon != null ? _selectedPolygon.UsableMaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
             }
             if (!_updating) _mainWindow.ModelPanel.Invalidate();
         }
@@ -1044,7 +1040,7 @@ namespace Ikarus.UI
             dlgSave.FileName = node.Name;
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgSave.Filter = FileFilters.CHR0Export; break;
                 case NW4RAnimType.SRT: dlgSave.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgSave.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgSave.Filter = FileFilters.PAT0; break;
@@ -1064,7 +1060,7 @@ namespace Ikarus.UI
 
             switch (TargetAnimType)
             {
-                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0; break;
+                case NW4RAnimType.CHR: dlgOpen.Filter = FileFilters.CHR0Import; break;
                 case NW4RAnimType.SRT: dlgOpen.Filter = FileFilters.SRT0; break;
                 case NW4RAnimType.SHP: dlgOpen.Filter = FileFilters.SHP0; break;
                 case NW4RAnimType.PAT: dlgOpen.Filter = FileFilters.PAT0; break;
@@ -1098,61 +1094,61 @@ namespace Ikarus.UI
 
         private void overObjPnl_Paint(object sender, PaintEventArgs e)
         {
-            if (_srt0Selection == null && _pat0Selection == null)
-                return;
-            Graphics g = e.Graphics;
-            for (int i = 0; i < lstObjects.Items.Count; i++)
-            {
-                MDL0ObjectNode poly = lstObjects.Items[i] as MDL0ObjectNode;
-                if (poly.UsableMaterialNode != null)
-                    if (_srt0Selection != null)
-                    {
-                        if (_srt0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.SRT0Entry) != null)
-                        {
-                            Rectangle r = lstObjects.GetItemRectangle(i);
-                            g.DrawRectangle(Pens.Black, r);
-                        }
-                    }
-                    else if (_pat0Selection != null)
-                    {
-                        if (_pat0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.PAT0Entry) != null)
-                        {
-                            Rectangle r = lstObjects.GetItemRectangle(i);
-                            g.DrawRectangle(Pens.Black, r);
+            //if (_srt0Selection == null && _pat0Selection == null)
+            //    return;
+            //Graphics g = e.Graphics;
+            //for (int i = 0; i < lstObjects.Items.Count; i++)
+            //{
+            //    MDL0ObjectNode poly = lstObjects.Items[i] as MDL0ObjectNode;
+            //    if (poly.UsableMaterialNode != null)
+            //        if (_srt0Selection != null)
+            //        {
+            //            if (_srt0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.SRT0Entry) != null)
+            //            {
+            //                Rectangle r = lstObjects.GetItemRectangle(i);
+            //                g.DrawRectangle(Pens.Black, r);
+            //            }
+            //        }
+            //        else if (_pat0Selection != null)
+            //        {
+            //            if (_pat0Selection.FindChildByType(poly.UsableMaterialNode.Name, false, ResourceType.PAT0Entry) != null)
+            //            {
+            //                Rectangle r = lstObjects.GetItemRectangle(i);
+            //                g.DrawRectangle(Pens.Black, r);
 
-                        }
-                    }
-            }
+            //            }
+            //        }
+            //}
         }
 
         private void overTexPnl_Paint(object sender, PaintEventArgs e)
         {
-            if (_srt0Selection == null && _pat0Selection == null)
-                return;
-            Graphics g = e.Graphics;
-            ResourceNode rn = null;
-            if (_selectedPolygon != null && _selectedPolygon.UsableMaterialNode != null)
-                for (int i = 0; i < lstTextures.Items.Count; i++)
-                {
-                    MDL0TextureNode tex = lstTextures.Items[i] as MDL0TextureNode;
-                    if ((rn = _selectedPolygon.UsableMaterialNode.FindChild(tex.Name, true)) != null)
-                        if (_srt0Selection != null)
-                        {
-                            if (_srt0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
-                            {
-                                Rectangle r = lstTextures.GetItemRectangle(i);
-                                g.DrawRectangle(Pens.Black, r);
-                            }
-                        }
-                        else if (_pat0Selection != null)
-                        {
-                            if (_pat0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
-                            {
-                                Rectangle r = lstTextures.GetItemRectangle(i);
-                                g.DrawRectangle(Pens.Black, r);
-                            }
-                        }
-                }
+            //if (_srt0Selection == null && _pat0Selection == null)
+            //    return;
+            //Graphics g = e.Graphics;
+            //ResourceNode rn = null;
+            //if (_selectedPolygon != null && _selectedPolygon.UsableMaterialNode != null)
+            //    for (int i = 0; i < lstTextures.Items.Count; i++)
+            //    {
+            //        MDL0TextureNode tex = lstTextures.Items[i] as MDL0TextureNode;
+            //        if ((rn = _selectedPolygon.UsableMaterialNode.FindChild(tex.Name, true)) != null)
+            //            if (_srt0Selection != null)
+            //            {
+            //                if (_srt0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.SRT0Texture) != null)
+            //                {
+            //                    Rectangle r = lstTextures.GetItemRectangle(i);
+            //                    g.DrawRectangle(Pens.Black, r);
+            //                }
+            //            }
+            //            else if (_pat0Selection != null)
+            //            {
+            //                if (_pat0Selection.FindChildByType(_selectedPolygon.UsableMaterialNode.Name + "/Texture" + rn.Index, false, ResourceType.PAT0Texture) != null)
+            //                {
+            //                    Rectangle r = lstTextures.GetItemRectangle(i);
+            //                    g.DrawRectangle(Pens.Black, r);
+            //                }
+            //            }
+            //    }
         }
 
         private void lstObjects_Leave(object sender, EventArgs e)

@@ -1,5 +1,4 @@
 using System;
-using System.Text;
 using System.IO;
 
 namespace Be.Windows.Forms
@@ -509,7 +508,7 @@ namespace Be.Windows.Forms
         byte ReadByteFromFile(long fileOffset)
         {
             // Move to the correct position and read the byte.
-            if (_stream.Position != fileOffset)
+            if (_stream.Position != fileOffset && fileOffset >= 0)
             {
                 _stream.Position = fileOffset;
             }

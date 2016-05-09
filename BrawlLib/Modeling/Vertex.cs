@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
-using BrawlLib.OpenGL;
 using System.Drawing;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.Imaging;
 
 namespace BrawlLib.Modeling
 {
@@ -16,7 +12,7 @@ namespace BrawlLib.Modeling
     {
         public Vector3 _position;
         public Vector3 _weightedPosition;
-        private IMatrixNode _matrixNode;
+        internal IMatrixNode _matrixNode;
         
         //normals, colors and uvs aren't stored in this class
         //because this stores a unique weighted point in space.
@@ -33,22 +29,26 @@ namespace BrawlLib.Modeling
         public List<Facepoint> _facepoints = new List<Facepoint>();
         public Facepoint[] Facepoints { get { return _facepoints.ToArray(); } }
 
-        public Matrix GetMatrix()
+        public IMatrixNode GetMatrixNode()
         {
             if (_parent != null && _parent.MatrixNode != null)
-                return _parent.MatrixNode.Matrix;
+                return _parent.MatrixNode;
             else if (MatrixNode != null)
-                return MatrixNode.Matrix;
-
+                return MatrixNode;
+            return null;
+        }
+        public Matrix GetMatrix()
+        {
+            IMatrixNode node = GetMatrixNode();
+            if (node != null)
+                return node.Matrix;
             return Matrix.Identity;
         }
         public Matrix GetInvMatrix()
         {
-            if (_parent != null && _parent.MatrixNode != null)
-                return _parent.MatrixNode.InverseMatrix;
-            else if (MatrixNode != null)
-                return MatrixNode.InverseMatrix;
-
+            IMatrixNode node = GetMatrixNode();
+            if (node != null)
+                return node.InverseMatrix;
             return Matrix.Identity;
         }
 
@@ -72,6 +72,89 @@ namespace BrawlLib.Modeling
             get { return MatrixNode == null ? "(none)" : MatrixNode.IsPrimaryNode ? ((ResourceNode)MatrixNode).Name : "(multiple)"; }
         }
 
+        private bool _updateAssets = true;
+
+        public unsafe void ChangeInfluence(IMatrixNode newMatrixNode)
+        {
+            if (_parent == null)
+                return;
+
+            IMatrixNode oldMatrixNode = GetMatrixNode();
+            if (newMatrixNode is IBoneNode && (oldMatrixNode is Influence || oldMatrixNode == null))
+            {
+                //Move to local
+                Matrix inv = ((IBoneNode)newMatrixNode).InverseBindMatrix;
+                
+                _position *= inv;
+                UpdateNormals(Matrix.Identity, inv);
+
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
+            }
+            else if ((newMatrixNode is Influence || newMatrixNode == null) && oldMatrixNode is IBoneNode)
+            {
+                //Move to world
+                Matrix m = ((IBoneNode)oldMatrixNode).BindMatrix;
+
+                _position *= m;
+                UpdateNormals(m, Matrix.Identity);
+
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
+            }
+            else if (newMatrixNode is IBoneNode && oldMatrixNode is IBoneNode)
+            {
+                //Update local position
+                Matrix m = ((IBoneNode)oldMatrixNode).BindMatrix;
+                Matrix inv = ((IBoneNode)newMatrixNode).InverseBindMatrix;
+                
+                _position *= m;
+                _position *= inv;
+                UpdateNormals(m, inv);
+
+                if (_updateAssets)
+                {
+                    SetPosition();
+                    SetNormals();
+                }
+            }
+
+            _updateAssets = true;
+
+            //If both are null or an influence, they're already in world position
+        }
+
+        private void SetNormals()
+        {
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null)
+                obj.SetEditedNormals();
+        }
+
+        private unsafe void UpdateNormals(Matrix m, Matrix inv)
+        {
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null && obj._manager._faceData[1] != null)
+            {
+                Vector3* pData = (Vector3*)obj._manager._faceData[1].Address;
+                for (int i = 0; i < _faceDataIndices.Count; i++)
+                {
+                    Vector3 n = pData[_faceDataIndices[i]];
+                    n *= m.GetRotationMatrix();
+                    n *= inv.GetRotationMatrix();
+                    pData[_faceDataIndices[i]] = n;
+                }
+            }
+        }
+
+        public void DeferUpdateAssets() { _updateAssets = false; }
+
         [Browsable(false)]
         public IMatrixNode MatrixNode
         {
@@ -81,31 +164,13 @@ namespace BrawlLib.Modeling
                 if (_matrixNode == value)
                     return;
 
-                if (value is IBoneNode && _matrixNode is Influence)
-                {
-                    _position *= ((IBoneNode)value).InverseMatrix;
-                    SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
-                }
-                else if (value is Influence && _matrixNode is IBoneNode)
-                {
-                    _position *= ((IBoneNode)_matrixNode).Matrix;
-                    SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
-                }
+                ChangeInfluence(value);
 
-                if (_matrixNode != null)
-                {
-                    _matrixNode.ReferenceCount--;
+                if (_matrixNode != null && _matrixNode.Users.Contains(this))
                     _matrixNode.Users.Remove(this);
-                }
 
-                if ((_matrixNode = value) != null)
-                {
-                    _matrixNode.ReferenceCount++;
+                if ((_matrixNode = value) != null && !_matrixNode.Users.Contains(this))
                     _matrixNode.Users.Add(this);
-
-                    //if (_object != null)
-                    //    _object.SignalPropertyChange();
-                }
             }
         }
         [Browsable(true), Category("Vertex"), TypeConverter(typeof(Vector3StringConverter))]
@@ -142,23 +207,29 @@ namespace BrawlLib.Modeling
             _nodes = null;
         }
 
-        public void Unweight()
+        //Moves an edited world position back into the stored position
+        public void Unweight(bool updateVertexSets = true)
         {
-            if (_weights == null || _nodes == null)
-                _position = GetInvMatrix() * WeightedPosition;
-            else
+            //Unweight overall position
+            _position = GetInvMatrix() * WeightedPosition;
+
+            //Distribute weights for the position across all vertex set influences
+            if (updateVertexSets)
             {
-                Vector3 trans = _weightedPosition - _bCenter;
-                for (int i = 0; i < _nodes.Length; i++)
+                if (_weights != null && _nodes != null)
                 {
-                    MDL0VertexNode set = _nodes[i];
-                    SetPosition(set, GetInvMatrix() * ((GetMatrix() * set.Vertices[_facepoints[0]._vertexIndex]) + trans));
+                    Vector3 trans = _weightedPosition - _bCenter;
+                    for (int i = 0; i < _nodes.Length; i++)
+                    {
+                        MDL0VertexNode set = _nodes[i];
+                        SetPosition(set, GetInvMatrix() * (GetMatrix() * set.Vertices[_facepoints[0]._vertexIndex] + trans));
+                    }
+                    MDL0ObjectNode obj = (MDL0ObjectNode)_parent;
+                    SetPosition(obj._vertexNode, GetInvMatrix() * ((GetMatrix() * obj._vertexNode.Vertices[_facepoints[0]._vertexIndex]) + trans));
                 }
-
-                _position = GetInvMatrix() * ((GetMatrix() * ((MDL0ObjectNode)_parent)._vertexNode.Vertices[_facepoints[0]._vertexIndex]) + trans);
+                else
+                    SetPosition();
             }
-
-            SetPosition(((MDL0ObjectNode)_parent)._vertexNode, _position);
         }
 
         internal float _baseWeight = 0;
@@ -168,18 +239,39 @@ namespace BrawlLib.Modeling
 
         public void SetPosition(MDL0VertexNode node, Vector3 pos)
         {
-            node.Vertices[_facepoints[0]._vertexIndex] = pos;
+            //if (node == null)
+            //    return;
+
+            //node.Vertices[_facepoints[0]._vertexIndex] = pos;
+            //node.ForceRebuild = true;
+            //if (node.Format == WiiVertexComponentType.Float)
+            //    node.ForceFloat = true;
+
+            //Have to use this function instead of setting the vertices directly
+            //This is because the vertex set may be used by other objects
+            MDL0ObjectNode obj = _parent as MDL0ObjectNode;
+            if (obj != null)
+                obj.SetEditedVertices();
+        }
+        public void SetPosition()
+        {
+            MDL0VertexNode node = ((MDL0ObjectNode)_parent)._vertexNode;
+
+            if (node == null)
+                return;
+
+            node.Vertices[_facepoints[0]._vertexIndex] = Position;
             node.ForceRebuild = true;
             if (node.Format == WiiVertexComponentType.Float)
                 node.ForceFloat = true;
         }
 
         //Call only after weighting
-        public void Morph(Vector3 dest, float percent) { _weightedPosition.Morph(dest, percent); }
+        public void Morph(Vector3 dest, float percent) { _weightedPosition.Lerp(dest, percent); }
 
         public Color GetWeightColor(IBoneNode targetBone)
         {
-            float weight = -1;
+            float weight = -1.0f;
             if (_matrixNode == null || targetBone == null) 
                 return Color.Transparent;
             if (_matrixNode is MDL0BoneNode)
@@ -194,7 +286,7 @@ namespace BrawlLib.Modeling
                         weight = b.Weight;
                         break;
                     }
-            if (weight == -1)
+            if (weight < 0.0f || weight > 1.0f)
                 return Color.Transparent;
             int r = ((int)(weight * 255.0f)).Clamp(0, 0xFF);
             return Color.FromArgb(r, 0, 0xFF - r);
@@ -210,5 +302,11 @@ namespace BrawlLib.Modeling
 
         public Color _highlightColor = Color.Transparent;
         public bool _selected = false;
+        [Browsable(false)]
+        public bool Selected
+        { 
+            get { return _selected; } 
+            set { _highlightColor = (_selected = value) ? Color.Orange : Color.Transparent; }
+        }
     }
 }

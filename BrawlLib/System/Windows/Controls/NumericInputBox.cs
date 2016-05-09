@@ -1,28 +1,24 @@
-﻿using System;
-using System.ComponentModel;
-using System.Globalization;
+﻿using System.ComponentModel;
 
 namespace System.Windows.Forms
 {
     public class NumericInputBox : TextBox
     {
+        public float _previousValue = 0.0f;
         public float? _value;
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public float Value
         {
-            get {
+            get
+            {
 				if (_value == null)
 					Apply();
 				return _value.Value;
 			}
             set
             {
-                float val = value.Clamp(_minValue, _maxValue);
-                if (_value == val) return;
-                _value = val;
-
+                _value = value; //Clamp(_minValue, _maxValue);
                 UpdateText();
-                Apply();
             }
         }
 
@@ -197,10 +193,10 @@ namespace System.Windows.Forms
 
         private void Apply()
         {
-            float val = _value ?? 0;
+            float val = _value ?? 0.0f;
             int val2 = (int)val;
 
-			if (_value.ToString() == Text)
+            if (_value != null && val.ToString() == Text)
                 return;
 
             if (Text == "")
@@ -220,6 +216,7 @@ namespace System.Windows.Forms
             {
                 if (_value != val)
                 {
+                    _previousValue = _value ?? 0.0f;
                     _value = val;
                     if (ValueChanged != null)
                         ValueChanged(this, null);
@@ -229,12 +226,13 @@ namespace System.Windows.Forms
             {
                 if (_value != val2)
                 {
+                    _previousValue = _value ?? 0.0f;
                     _value = val2;
                     if (ValueChanged != null)
                         ValueChanged(this, null);
                 }
             }
-            
+
             UpdateText();
         }
     }

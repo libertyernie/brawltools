@@ -1,19 +1,4 @@
-﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
+﻿using BrawlLib.SSBB.ResourceNodes;
 
 namespace System.Windows.Forms
 {
@@ -22,7 +7,8 @@ namespace System.Windows.Forms
         public int prevHeight = 0, prevWidth = 0;
         public void ToggleWeightEditor()
         {
-            if (weightEditor.Visible)
+            animEditors.Visible = true;
+            if (!(btnWeightEditor.Checked = !btnWeightEditor.Checked))
             {
                 animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;
@@ -36,8 +22,8 @@ namespace System.Windows.Forms
 
                 prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;
-                animCtrlPnl.Width = 320;
-                animEditors.Height = 78;
+                animCtrlPnl.Width = weightEditor.MinimumSize.Width;
+                animEditors.Height = weightEditor.MinimumSize.Height;
                 weightEditor.Visible = true;
                 _currentControl.Visible = false;
             }
@@ -46,7 +32,8 @@ namespace System.Windows.Forms
         }
         public void ToggleVertexEditor()
         {
-            if (vertexEditor.Visible)
+            animEditors.Visible = true;
+            if (!(btnVertexEditor.Checked = !btnVertexEditor.Checked))
             {
                 animEditors.Height = prevHeight;
                 animCtrlPnl.Width = prevWidth;
@@ -68,25 +55,16 @@ namespace System.Windows.Forms
 
             CheckDimensions();
         }
-        
+
+        bool _retainAspect = true;
+
         /// <summary>
         /// Call this after the frame is set.
         /// </summary>
         private void HandleFirstPersonCamera()
         {
-            if (firstPersonCameraToolStripMenuItem.Checked && _scn0 != null && scn0Editor._camera != null)
-            {
-                SCN0CameraNode c = scn0Editor._camera;
-                CameraAnimationFrame f = c.GetAnimFrame(CurrentFrame - 1);
-                Vector3 r = f.GetRotate(c.Type);
-                Vector3 t = f.Pos;
-                
-                GLCamera cam = ModelPanel.CurrentViewport.Camera;
-                cam.Reset();
-                cam.Translate(t._x, t._y, t._z);
-                cam.Rotate(r._x, r._y, r._z);
-                cam.SetProjectionParams(f.Aspect, f.FovY, f.FarZ, f.NearZ);
-            }
+            if (FirstPersonCamera && _scn0 != null && scn0Editor._camera != null)
+                scn0Editor._camera.SetCamera(ModelPanel.CurrentViewport, CurrentFrame - 1, _retainAspect);
         }
 
         public override void OnAnimationChanged()

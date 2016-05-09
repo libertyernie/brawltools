@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace Ikarus.MovesetFile
 {
@@ -77,12 +73,7 @@ namespace Ikarus.MovesetFile
         //-1 if external, 0 if none.
         //offsets to the next ref of the same name until -1. Last ref is always -1
 
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 4;
-        }
-
+        protected override int OnGetSize() { return 4; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

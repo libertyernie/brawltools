@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.Wii.Graphics
@@ -113,11 +110,35 @@ namespace BrawlLib.Wii.Graphics
         public ColorArg SelC { get { return (ColorArg)_data[4, 4]; } set { _data[4, 4] = (int)value; } }
         public ColorArg SelB { get { return (ColorArg)_data[8, 4]; } set { _data[8, 4] = (int)value; } }
         public ColorArg SelA { get { return (ColorArg)_data[12, 4]; } set { _data[12, 4] = (int)value; } }
-        public Bias Bias { get { return (Bias)_data[16, 2]; } set { _data[16, 2] = (int)value; } }
-        public bool Sub { get { return _data[18]; } set { _data[18] = value; } }
+        public Bias Bias { get { return _data[16, 2] == 3 ? Bias.Zero : (Bias)_data[16, 2]; } set { if (_data[16, 2] == 3) return; _data[16, 2] = (int)value; } }
+        //public bool Sub { get { return _data[18]; } set { _data[18] = value; } }
         public bool Clamp { get { return _data[19]; } set { _data[19] = value; } }
-        public TevScale Shift { get { return (TevScale)_data[20, 2]; } set { _data[20, 2] = (int)value; } }
-        public TevRegID Dest { get { return (TevRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
+        public TevScale Shift { get { return _data[16, 2] == 3 ? TevScale.MultiplyBy1 : (TevScale)_data[20, 2]; } set { if (_data[16, 2] == 3) return; _data[20, 2] = (int)value; } }
+        public TevColorRegID Dest { get { return (TevColorRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
+
+        public TevColorOp Operation
+        {
+            get
+            {
+                return _data[16, 2] == 3 ? 
+                    (TevColorOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
+                    _data[18] ? TevColorOp.Subtract : TevColorOp.Add;
+            }
+            set
+            {
+                _data[18] = ((ushort)value & 1) != 0;
+                if (value <= TevColorOp.Subtract)
+                {
+                    _data[16, 2] = 0;
+                    _data[20, 2] = 0;
+                }
+                else
+                {
+                    _data[16, 2] = 3;
+                    _data[20, 2] = ((ushort)value >> 1) & 3;
+                }
+            }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -152,11 +173,35 @@ namespace BrawlLib.Wii.Graphics
         public AlphaArg SelC { get { return (AlphaArg)_data[7, 3]; } set { _data[7, 3] = (int)value; } }
         public AlphaArg SelB { get { return (AlphaArg)_data[10, 3]; } set { _data[10, 3] = (int)value; } }
         public AlphaArg SelA { get { return (AlphaArg)_data[13, 3]; } set { _data[13, 3] = (int)value; } }
-        public Bias Bias { get { return (Bias)_data[16, 2]; } set { _data[16, 2] = (int)value; } }
-        public bool Sub { get { return _data[18]; } set { _data[18] = value; } }
+        public Bias Bias { get { return _data[16, 2] == 3 ? Bias.Zero : (Bias)_data[16, 2]; } set { if (_data[16, 2] == 3) return; _data[16, 2] = (int)value; } }
+        //public bool Sub { get { return _data[18]; } set { _data[18] = value; } }
         public bool Clamp { get { return _data[19]; } set { _data[19] = value; } }
-        public TevScale Shift { get { return (TevScale)_data[20, 2]; } set { _data[20, 2] = (int)value; } }
-        public TevRegID Dest { get { return (TevRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
+        public TevScale Shift { get { return _data[16, 2] == 3 ? TevScale.MultiplyBy1 : (TevScale)_data[20, 2]; } set { if (_data[16, 2] == 3) return; _data[20, 2] = (int)value; } }
+        public TevAlphaRegID Dest { get { return (TevAlphaRegID)_data[22, 2]; } set { _data[22, 2] = (int)value; } }
+
+        public TevAlphaOp Operation
+        {
+            get
+            {
+                return _data[16, 2] == 3 ?
+                    (TevAlphaOp)(((_data[18] ? 1 : 0) | (_data[20, 2] << 1)) + 8) :
+                    _data[18] ? TevAlphaOp.Subtract : TevAlphaOp.Add;
+            }
+            set
+            {
+                _data[18] = ((ushort)value & 1) != 0;
+                if (value <= TevAlphaOp.Subtract)
+                {
+                    _data[16, 2] = 0;
+                    _data[20, 2] = 0;
+                }
+                else
+                {
+                    _data[16, 2] = 3;
+                    _data[20, 2] = ((ushort)value >> 1) & 3;
+                }
+            }
+        }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

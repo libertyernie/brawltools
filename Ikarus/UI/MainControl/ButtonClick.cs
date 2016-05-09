@@ -1,21 +1,10 @@
 ﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
-using BrawlLib.Modeling;
 using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
 using System.Drawing.Imaging;
 using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
@@ -142,15 +131,15 @@ namespace Ikarus.UI
 
         public void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
-            SetFrame(1);
-            images = new List<Image>();
-            Loop = false;
-            _capture = true;
-            Enabled = false;
-            ModelPanel.Enabled = false;
-            if (InterpolationEditor != null)
-                InterpolationEditor.Enabled = false;
-            TogglePlay();
+            //SetFrame(1);
+            //images = new List<Image>();
+            //Loop = false;
+            //_capture = true;
+            //Enabled = false;
+            //ModelPanel.Enabled = false;
+            //if (InterpolationEditor != null)
+            //    InterpolationEditor.Enabled = false;
+            //TogglePlay();
         }
 
         public void RenderToGIF(Image[] images)
@@ -533,7 +522,10 @@ namespace Ikarus.UI
 
             modelPanel.Invalidate();
         }
-        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e) { new ModelViewerSettingsDialog().Show(this); }
+        private void modifyLightingToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //new ModelViewerSettingsDialog().Show(this);
+        }
         private void hitboxesOffToolStripMenuItem_Click(object sender, EventArgs e)
         {
             chkHitboxes.Checked = !chkHitboxes.Checked;

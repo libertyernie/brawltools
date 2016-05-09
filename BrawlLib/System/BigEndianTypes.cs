@@ -1,5 +1,4 @@
-﻿using System;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
 namespace System
 {
@@ -103,6 +102,58 @@ namespace System
         }
     }
 
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct blong
+    {
+        public long _data;
+
+        public static implicit operator long(blong val) { return val._data.Reverse(); }
+        public static implicit operator blong(long val) { return new blong { _data = val.Reverse() }; }
+        public static explicit operator ulong(blong val) { return (ulong)val._data.Reverse(); }
+        public static explicit operator blong(ulong val) { return new blong { _data = (long)val.Reverse() }; }
+
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
+
+        public VoidPtr OffsetAddress
+        {
+            get { return Address + Value; }
+            set { _data = ((long)(value - Address)).Reverse(); }
+        }
+
+        public long Value { get { return (long)this; } }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct bulong
+    {
+        public ulong _data;
+
+        public static implicit operator ulong(bulong val) { return val._data.Reverse(); }
+        public static implicit operator bulong(ulong val) { return new bulong { _data = val.Reverse() }; }
+        public static explicit operator long(bulong val) { return (long)val._data.Reverse(); }
+        public static explicit operator bulong(long val) { return new bulong { _data = (ulong)val.Reverse() }; }
+
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
+
+        public VoidPtr OffsetAddress
+        {
+            get { return Address + Value; }
+            set { _data = ((ulong)(value - Address)).Reverse(); }
+        }
+
+        public ulong Value { get { return (ulong)this; } }
+        public override string ToString()
+        {
+            return Value.ToString();
+        }
+    }
+
+#if RSTMLIB
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2
     {
@@ -224,9 +275,9 @@ namespace System
             return bm;
         }
 
-        public static implicit operator Matrix43(bMatrix43 bm)
+        public static implicit operator Matrix34(bMatrix43 bm)
         {
-            Matrix43 m = new Matrix43();
+            Matrix34 m = new Matrix34();
             float* dPtr = (float*)&m;
             bfloat* sPtr = (bfloat*)&bm;
             for (int i = 0; i < 12; i++)
@@ -234,7 +285,7 @@ namespace System
             return m;
         }
 
-        public static implicit operator bMatrix43(Matrix43 m)
+        public static implicit operator bMatrix43(Matrix34 m)
         {
             bMatrix43 bm = new bMatrix43();
             bfloat* dPtr = (bfloat*)&bm;
@@ -244,4 +295,49 @@ namespace System
             return bm;
         }
     }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public unsafe struct bMatrix
+    {
+        fixed float _data[16];
+
+        public bfloat* Data { get { fixed (float* ptr = _data)return (bfloat*)ptr; } }
+
+        public float this[int x, int y]
+        {
+            get { return Data[(y << 2) + x]; }
+            set { Data[(y << 2) + x] = value; }
+        }
+        public float this[int index]
+        {
+            get { return Data[index]; }
+            set { Data[index] = value; }
+        }
+
+        public override string ToString()
+        {
+            return String.Format("({0},{1},{2},{3})({4},{5},{6},{7})({8},{9},{10},{11})({12},{13},{14},{15})", this[0], this[1], this[2], this[3], this[4], this[5], this[6], this[7], this[8], this[9], this[10], this[11], this[12], this[13], this[14], this[15]);
+        }
+
+        public static implicit operator Matrix(bMatrix bm)
+        {
+            Matrix m = new Matrix();
+            float* dPtr = (float*)&m;
+            bfloat* sPtr = (bfloat*)&bm;
+            for (int i = 0; i < 16; i++)
+                dPtr[i] = sPtr[i];
+            return m;
+        }
+
+        public static implicit operator bMatrix(Matrix m)
+        {
+            bMatrix bm = new bMatrix();
+            bfloat* dPtr = (bfloat*)&bm;
+            float* sPtr = (float*)&m;
+            for (int i = 0; i < 16; i++)
+                dPtr[i] = sPtr[i];
+            return bm;
+        }
+    }
+#endif
 }

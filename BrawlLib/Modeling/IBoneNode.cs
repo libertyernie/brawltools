@@ -1,10 +1,8 @@
 ﻿using BrawlLib.Wii.Models;
-using BrawlLib.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
-using System.Text;
+using System.Windows.Forms;
 
 namespace BrawlLib.Modeling
 {
@@ -23,6 +21,8 @@ namespace BrawlLib.Modeling
         IModel IModel { get; }
         List<Influence> LinkedInfluences { get; }
         bool IsRendering { get; set; }
-        void Render(bool targetModel, GLViewport viewport);
+        void Render(bool targetModel, ModelPanelViewport viewport, Vector3 position = new Vector3());
+        void RecalcBindState(bool updateMesh, bool moveMeshWithBone, bool updateAssetLists = true);
+        void RecalcFrameState(ModelPanelViewport v = null);
     }
 }

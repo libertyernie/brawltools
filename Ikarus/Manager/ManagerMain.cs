@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
-using System.Windows.Forms;
 using System.ComponentModel;
-using BrawlLib.SSBBTypes;
 using System.Audio;
 using System.Globalization;
 using System.Threading;
@@ -118,7 +115,9 @@ namespace Ikarus
 
                 _selected = value;
 
+                MainForm.Instance._mainControl._updating = true;
                 MainForm.Instance._mainControl.comboCharacters.SelectedIndex = Array.IndexOf(_supportedCharacters, _targetChar.ToString());
+                MainForm.Instance._mainControl._updating = false;
             } 
         }
         
@@ -155,7 +154,6 @@ namespace Ikarus
             
             control._resetCamera = false;
             control.TargetModel = model;
-            control.UpdateModel();
         }
 
         public static TextInfo TextInfo { get { return Thread.CurrentThread.CurrentCulture.TextInfo; } }
@@ -172,6 +170,9 @@ namespace Ikarus
         {
             get 
             {
+                if (RunTime._muteSFX)
+                    return null;
+
                 if (_rsar != null)
                     return _rsar;
                 else

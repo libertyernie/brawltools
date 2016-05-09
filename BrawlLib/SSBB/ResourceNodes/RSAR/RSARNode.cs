@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using BrawlLib.Wii.Audio;
 using System.ComponentModel;
+using System.Windows.Forms;
 using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -14,27 +15,27 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.RSAR; } }
 
         [Category("Sound Archive")]
-        public ushort SeqSoundCount { get { return ftr._seqSoundCount; } set { ftr._seqSoundCount = value; SignalPropertyChange(); } }
+        public ushort SeqSoundCount { get { return _ftr._seqSoundCount; } set { _ftr._seqSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort SeqTrackCount { get { return ftr._seqTrackCount; } set { ftr._seqTrackCount = value; SignalPropertyChange(); } }
+        public ushort SeqTrackCount { get { return _ftr._seqTrackCount; } set { _ftr._seqTrackCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmSoundCount { get { return ftr._strmSoundCount; } set { ftr._strmSoundCount = value; SignalPropertyChange(); } }
+        public ushort StrmSoundCount { get { return _ftr._strmSoundCount; } set { _ftr._strmSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmTrackCount { get { return ftr._strmTrackCount; } set { ftr._strmTrackCount = value; SignalPropertyChange(); } }
+        public ushort StrmTrackCount { get { return _ftr._strmTrackCount; } set { _ftr._strmTrackCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort StrmChannelCount { get { return ftr._strmChannelCount; } set { ftr._strmChannelCount = value; SignalPropertyChange(); } }
+        public ushort StrmChannelCount { get { return _ftr._strmChannelCount; } set { _ftr._strmChannelCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort WaveSoundCount { get { return ftr._waveSoundCount; } set { ftr._waveSoundCount = value; SignalPropertyChange(); } }
+        public ushort WaveSoundCount { get { return _ftr._waveSoundCount; } set { _ftr._waveSoundCount = value; SignalPropertyChange(); } }
         [Category("Sound Archive")]
-        public ushort WaveTrackCount { get { return ftr._waveTrackCount; } set { ftr._waveTrackCount = value; SignalPropertyChange(); } }
+        public ushort WaveTrackCount { get { return _ftr._waveTrackCount; } set { _ftr._waveTrackCount = value; SignalPropertyChange(); } }
 
         public List<RSAREntryNode>[] _infoCache = new List<RSAREntryNode>[5];
 
-        internal INFOFooter ftr;
+        internal INFOFooter _ftr;
 
-        private List<RSARFileNode> _files = new List<RSARFileNode>();
+        private BindingList<RSARFileNode> _files;
         [Browsable(false)]
-        public List<RSARFileNode> Files { get { return _files; } }
+        public BindingList<RSARFileNode> Files { get { return _files; } }
 
         public override bool OnInitialize()
         {
@@ -46,7 +47,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                     _name = "Sound Archive";
 
-            _files = new List<RSARFileNode>();
+            _files = new BindingList<RSARFileNode>();
             _children = new List<ResourceNode>();
 
             //Retrieve all files to attach to entries
@@ -55,7 +56,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return true;
         }
 
-        public RSARGroupNode _nullGroup;
+        //public RSARGroupNode _nullGroup;
         public override void OnPopulate()
         {
             //Enumerate entries, attaching them to the files.
@@ -70,20 +71,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Iterate through group types
             for (int i = 0; i < 5; i++)
             {
-                _infoCache[i] = new List<RSAREntryNode>();
                 Type t = null;
-
-                RuintList* list = (RuintList*)((uint)baseAddr + typeList[i]);
-                sbyte* str, end;
-
                 switch (i)
                 {
                     case 0: t = typeof(RSARSoundNode); break;
                     case 1: t = typeof(RSARBankNode); break;
                     case 2: t = typeof(RSARPlayerInfoNode); break;
                     case 3: continue; //Files
-                    case 4: t = typeof(RSARGroupNode); break; //Last group entry is null
+                    case 4: t = typeof(RSARGroupNode); break; //Last group entry has no name
                 }
+
+                _infoCache[i] = new List<RSAREntryNode>();
+                RuintList* list = (RuintList*)((uint)baseAddr + typeList[i]);
+                sbyte* str, end;
 
                 for (int x = 0; x < list->_numEntries; x++)
                 {
@@ -92,15 +92,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ResourceNode parent = this;
                     RSAREntryNode n = Activator.CreateInstance(t) as RSAREntryNode;
                     n._origSource = n._uncompSource = new DataSource(addr, 0);
-                    n._infoIndex = x;
 
-                    if (i == 4 && x == list->_numEntries - 1)
-                    {
-                        n._name = "<null>";
-                        n._parent = this;
-                        _nullGroup = n as RSARGroupNode;
-                    }
-                    else
+                    if (n.StringId >= 0)
                     {
                         str = offset + stringOffsets[n.StringId];
 
@@ -115,42 +108,20 @@ namespace BrawlLib.SSBB.ResourceNodes
                         else
                             n._name = new String(str);
                     }
+                    else
+                        n._name = null;
 
+                    n._infoIndex = x;
                     n.Initialize(parent, addr, 0);
                     _infoCache[i].Add(n);
                 }
+                _ftr = *(INFOFooter*)((uint)baseAddr + typeList[5]);
+
+                foreach (RSARFileNode n in Files)
+                    if (!(n is RSARExtFileNode))
+                        n.GetName();
             }
-            ftr = *(INFOFooter*)((uint)baseAddr + typeList[5]);
-
-            foreach (RSARFileNode n in Files)
-                if (!(n is RSARExtFileNode))
-                    n.GetName();
-
-            _rootIds = new int[4];
-            _symbCache = new SYMBMaskEntry[4][];
-            bint* offsets = (bint*)((VoidPtr)symb + 12);
-            for (int i = 0; i < 4; i++)
-            {
-                SYMBMaskHeader* hdr = (SYMBMaskHeader*)((VoidPtr)symb + 8 + offsets[i]);
-
-                _symbCache[i] = new SYMBMaskEntry[hdr->_numEntries];
-                //Console.WriteLine("Root Index = " + hdr->_rootId);
-                _rootIds[i] = hdr->_rootId;
-                for (int x = 0; x < hdr->_numEntries; x++)
-                {
-                    SYMBMaskEntry* e = &hdr->Entries[x];
-                    _symbCache[i][x] = *e;
-                    //Console.WriteLine(String.Format("[{5}] {0}, {1}, {2} - {4}", e->_bit != -1 ? e->_bit.ToString().PadLeft(3) : "   ", e->_leftId != -1 ? e->_leftId.ToString().PadLeft(3) : "   ", e->_rightId != -1 ? e->_rightId.ToString().PadLeft(3) : "   ", e->_index != -1 ? e->_index.ToString().PadLeft(3) : "   ", new string(offset + stringOffsets[e->_stringId]), x.ToString().PadLeft(3)));
-                }
-            }
-            //Sort(true);
         }
-
-        public int[] RootIDs { get { return _rootIds; } }
-        public SYMBMaskEntry[][] SymbCache { get { return _symbCache; } }
-
-        public int[] _rootIds;
-        public SYMBMaskEntry[][] _symbCache;
 
         private void GetFiles()
         {
@@ -163,26 +134,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             DataSource source;
             RSARHeader* rsar = Header;
 
-            //SYMBHeader* symb = rsar->SYMBBlock;
-            //sbyte* offset = (sbyte*)symb + 8;
-            //buint* stringOffsets = symb->StringOffsets;
+            //sounds, banks, types, files, groups
 
             //Get ruint collection from info header
             VoidPtr infoCollection = rsar->INFOBlock->_collection.Address;
-
-            //Info has 5 groups:
-            //Sounds 0
-            //Banks 1
-            //Types 2
-            //Files 3
-            //Groups 4
-
             //Convert to ruint buffer
             ruint* groups = (ruint*)infoCollection;
-
             //Get file ruint list at file offset (groups[3])
             RuintList* fileList = (RuintList*)((uint)groups + groups[3]);
-
             //Get the info list
             RuintList* groupList = rsar->INFOBlock->Groups;
 
@@ -215,6 +174,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     n._infoHdr = fileHeader;
                 }
                 n._fileIndex = x;
+                n._entryNumber = fileHeader->_entryNumber;
                 n._parent = this; //This is so that the node won't add itself to the child list.
                 n.Initialize(this, source);
                 _files.Add(n);
@@ -222,29 +182,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //foreach (ResourceNode r in _files)
             //    r.Populate();
-        }
-
-        internal void Sort(bool sortChildren)
-        {
-            if (_children != null)
-            {
-                _children.Sort(CompareNodes);
-                if (sortChildren)
-                    foreach (ResourceNode n in _children)
-                        if (n is RSARFolderNode)
-                            ((RSARFolderNode)n).Sort(true);
-            }
-        }
-
-        internal static int CompareNodes(ResourceNode n1, ResourceNode n2)
-        {
-            bool is1Folder = n1 is RSARFolderNode;
-            bool is2Folder = n2 is RSARFolderNode;
-
-            if (is1Folder != is2Folder)
-                return is1Folder ? -1 : 1;
-
-            return String.Compare(n1._name, n2._name);
         }
 
         private ResourceNode CreatePath(ResourceNode parent, sbyte* str, int length)
@@ -298,18 +235,26 @@ namespace BrawlLib.SSBB.ResourceNodes
             _entryList._files = Files;
             _converter = new RSARConverter();
 
+            List<string> unusedFolders = new List<string>();
             foreach (ResourceNode n in Children)
                 if (n is RSARFolderNode)
-                    ((RSARFolderNode)n).GetStrings(null, 0, _entryList);
+                    ((RSARFolderNode)n).GetStrings(null, 0, _entryList, ref unusedFolders);
                 else if (n is RSAREntryNode)
                     ((RSAREntryNode)n).GetStrings(null, 0, _entryList);
 
+            if (unusedFolders.Count > 0)
+                MessageBox.Show(_mainForm, 
+                    String.Format("The following path{0} ha{1} no entries and will be lost:\n" +
+                    unusedFolders.Aggregate((current, next) => current + "\n" + next), 
+                    unusedFolders.Count > 1 ? "s" : "",
+                    unusedFolders.Count > 1 ? "ve" : "s"), 
+                    "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+
             _entryList.SortStrings();
-            _nullGroup._rebuildIndex = _entryList._groups.Count;
 
             return _converter.CalculateSize(_entryList, this);
         }
-
+        
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             int symbLen, infoLen, fileLen;
@@ -321,13 +266,11 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             info = (INFOHeader*)((int)symb + (symbLen = _converter.EncodeSYMBBlock(symb, _entryList, this)));
             data = (FILEHeader*)((int)info + (infoLen = _converter.EncodeINFOBlock(info, _entryList, this)));
-            fileLen = _converter.EncodeFILEBlock(data, _entryList, address, this);
+            fileLen = _converter.EncodeFILEBlock(data, address, _entryList, this);
 
             rsar->Set(symbLen, infoLen, fileLen, VersionMinor);
 
             _entryList.Clear();
-
-            //IsDirty = false;
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((RSARHeader*)source.Address)->_header._tag == RSARHeader.Tag ? new RSARNode() : null; }

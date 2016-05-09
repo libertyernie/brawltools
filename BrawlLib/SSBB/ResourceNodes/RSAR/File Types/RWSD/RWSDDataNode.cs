@@ -2,7 +2,6 @@
 using BrawlLib.SSBBTypes;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Windows.Forms;
 using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -10,9 +9,6 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class RWSDDataNode : RSARFileEntryNode
     {
         internal RWSD_DATAEntry* Header { get { return (RWSD_DATAEntry*)WorkingUncompressed.Address; } }
-
-        //private List<RWSD_NoteEvent> _part2 = new List<RWSD_NoteEvent>();
-        //private List<RWSD_NoteInfo> _part3 = new List<RWSD_NoteInfo>();
 
         public RWSD_WSDEntry _part1;
         public RWSD_NoteEvent _part2;
@@ -136,7 +132,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _part3 = *(RWSD_NoteInfo*)list->Get(_offset, 0);
 
             if (_name == null)
-                _name = String.Format("Sound[{0}]", Index);
+                _name = String.Format("[{0}]Data", Index);
 
             if (Parent.Parent.Children.Count > 1 && _part3._waveIndex < Parent.Parent.Children[1].Children.Count)
                 _soundNode = Parent.Parent.Children[1].Children[_part3._waveIndex] as RSARFileAudioNode;
@@ -204,6 +200,29 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n.SoundDataNode = null;
 
             base.Remove();
+        }
+
+        internal void GetName()
+        {
+            string closestMatch = "";
+            foreach (string s in References)
+            {
+                if (closestMatch == "")
+                    closestMatch = s;
+                else
+                {
+                    int one = closestMatch.Length;
+                    int two = s.Length;
+                    int min = Math.Min(one, two);
+                    for (int i = 0; i < min; i++)
+                        if (Char.ToLower(s[i]) != Char.ToLower(closestMatch[i]) && i > 1)
+                        {
+                            closestMatch = closestMatch.Substring(0, i - 1);
+                            break;
+                        }
+                }
+            }
+            _name = String.Format("{0}", String.IsNullOrEmpty(closestMatch) ? "[" + Index + "]Data" : closestMatch);
         }
     }
 }

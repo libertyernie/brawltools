@@ -1,9 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using BrawlLib.Wii.Graphics;
 
 namespace BrawlLib.SSBBTypes
 {

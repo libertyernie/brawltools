@@ -5,6 +5,6 @@ BrawlLib and BrawlBox are designed to edit various types of data files found in 
 (http://code.google.com/p/brawltools/source/list), then by BlackJax96
 (http://code.google.com/p/brawltools2) until the end of 2013.
 
-This version of BrawlBox is maintained by libertyernie and Sammi Husky (and includes some contributions from others as well!)
+Current BrawlBox contributors are libertyernie, Sammi Husky, and BlackJax96.
 
 The official forum thread on KC:MM is here: http://forums.kc-mm.com/index.php?topic=67847.0

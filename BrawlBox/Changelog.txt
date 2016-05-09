@@ -1,6 +1,6 @@
 ﻿
-BrawlBox Data Viewer - Version 0.75
-Copyright © 2009 - 2015 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
+BrawlBox Data Viewer - Version 0.77
+Copyright © 2009 - 2016 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -13,6 +13,184 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+
+ - v0.77 - BrawlLib v0.24
+ . Added support for adding, replacing, removing and renaming RSAR entries and folders
+ . Added support for adding, replacing and removing files from the RSAR and all types of entries in RSAR files
+ . Added support for sharing TEX0 image data to reduce repetitive file space use
+ . Added support for importing JSON animations as CHR0
+ . Added support for editing Brawl's All-Star and Classic Mode data in Common2
+ . Added support for viewing PAT0 texture swap animations as video
+ . Added support for exporting and replacing SHP0 and CLR0 entries
+ . Added support for importing loop data from looped wav files for creating BRSTM files
+ . Added support for opening and creating certain BCSTM and BFSTM audio stream file formats
+ . Added support for directly importing palette data from indexed PNG files
+ . Better support for editing Brawl's event match data
+ . Fixed bug where "Use Pixel Lighting" setting in model viewer settings would not be saved with the rest of the settings
+ . Fixed bug where GCTs would ask to be saved upon closing even if no changes were made
+ . Fixed bug where "BillboardRefBone" in MDL0 bone properties was being set incorrectly 
+ . Fixed bug where out keyframes would not show in the CHR0 editor outside of the model viewer
+ . Fixed bug where any non-brres nodes could not be dragged and dropped in the resource tree
+ . Fixed bug viewing and editing Brawl stage collisions where collisions linked to bones would be misplaced
+ . Fixed crash when replacing REL files contained within another file
+ . Fixed crash when trying to load a file that no longer exists from the recent file menu
+ . Fixed CHR0 export filters
+
+ - v0.76b - BrawlLib v0.23b
+
+ Hotfix 2 (8/19/15)
+ . Removed '.obj' from filters when replacing an MDL0 object, replacing with an obj is not supported
+ . Fixed bug in collision editor where no models would render if you had not viewed them before opening the editor
+ . Fixed bug linking and unlinking a bone in the collision editor where the collisions would not stay in place
+ . Fixed bug where bones would not render in the collision editor
+ . Fixed bug where the weight editor would not do anything
+ . Fixed bug where buttons in the weight editor would be enabled at the wrong times and do nothing
+ . Fixed bug where the 'Remove' button in the weight editor would throw an error when clicked
+ . Fixed bug where clicking out of the box next to 'Set' in the weight editor would automatically apply the value (press 'Set' instead)
+ . Fixed bug where if Ctrl+A was used to select all vertices in the viewport, the weight and vertex editors would not update
+ . Fixed bug where models with a corrupted header or improper header version would crash the program (now they are simply not read)
+ . Fixed bug where pressing the dropdown button to select one of an object's assets would throw an error if the asset group did not already exist
+ . Fixed bug where copying or pasting an SRT0 frame would throw an error
+ . Fixed bug where removing the last code from a GCT in the GCT editor would throw an error
+ . Fixed bug in the CHR0 text importer where scale and translation values would be switched
+
+ Hotfix 1 (8/15/15)
+ . Fixed bug where double clicking on a GCT associated with BrawlBox would open the editor but not the actual file clicked on
+ . Fixed bug where the weight editor would not update when selecting vertices in the model viewer
+ . Fixed bug where if the weight editor or vertex editor were not visible, they would not update with vertex selections
+ . Fixed bug importing PMD models
+ . Fixed bug where all objects in DAE models without any bones would be moved up half of their height after importing
+ . Fixed bug where GCT files would open and immediately be "changed", causing a pop-up asking if you want to save to appear when closing even if no changes were made
+ . Fixed bug saving SHP0 files where the names of entries would randomly be lost or corrupted
+ . Fixed bug where alpha settings in MDL0 material light channels were synchronized with the color settings, which is not what's supposed to happen
+ . Removed unfinished buttons from the interpolation editor
+ . Updated the interpolation editor to properly display and edit in and out keyframes (two keyframes that are on the same frame)
+ . Fixed bug where the value and tangent of an out keyframe could not be edited
+ . Fixed bug where the "Move bone only" checkbox in the CHR0 editor in the model viewer would be enabled at the wrong times
+ . Fixed bug in the weight editor where the range of the addition/subtraction value box was from 0 to 1 instead of from 0 to 100
+ . Added option to create a new child bone by holding alt while translating, rotating or scaling a bone with the transform tool.
+ . Fixed bug where holding ctrl while selecting vertices using click and drag in the model viewer would not allow you to select more vertices
+ . Fixed bug importing an animation from a text file
+ . Fixed bug where the bug reporter didn't send the report to github
+ . Fixed bug where the link to the issues page in the bug reporter would not open when clicked
+ . Changed bug reporter to submit the issue to https://github.com/BrawlBox/BrawlBoxIssues/issues
+
+ Initial Release (8/9/2015)
+ . Added checkbox to the CHR0 editor in the model editor that appears only on frame 0 (the bind frame) called "Update Mesh Bind Pose". This will literally change the vertices and normals to match the bone position instead of treating the transformations like an animation.
+ . Added weight editor used to change a model's rigging, or the influence of bones over vertices. This editor can be toggled in the model editor under Tools->Weight Editor. 
+ With this you can even do things as extreme as creating a bone tree from scratch and rigging a static model completely within the program, or unrigging the entire model after posing the bind state on frame 0 and then deleting all but the root bone. "Update Mesh Bind Pose" (mentioned in the above addition) must be checked while posing or else the pose will revert once unrigged.
+ . Added button to toggle the vertex editor in the model editor under Tools->Vertex Editor. The editor itself is not a new feature.
+ . Added support for viewing SHP0 morphed normals and colors.
+ . Added support for permanently setting SHP0 morphed normals and colors to the model, along with morphed vertices. This is done via the "Set" button in the SHP0 editor in the model editor.
+ . Added support for viewing and editing property values of Havok Physics files and exporting them as HKX binary and XML text files. Unfortunately the exported XML file cannot be opened in the Havok preview tool yet and the binary format is not supported by the tool.
+ . Added bug report dialog that appears whenever the program throws an error. This will allow you to publicly report the bug to the developers on the github repository and try and save your work before the application attempts to continue (it may or may not crash).
+ . Fixed bug where the 1st person SCN0 camera button would do nothing
+ . Fixed rendering bug where if a model uses specular light but the applied SCN0 light doesn't have specular, the specular color would be all white instead of all black
+ . Fixed bug where normal rotations on a model would not be updated and saved when rotating a bone in "Bone Edit Mode" (renamed to "Move Bone Only")
+ . Fixed bug reading MDL0 models where if a bone's parent was located after it in the bone array, it would link improperly.
+ . Fixed bug dealing with CHR0, SRT0, SHP0 and SCN0 interpolation under certain circumstances. 
+ . Fixed bug where the "Save As" function in the file editor's right click menu in the model editor would do nothing
+ . Named some previously unknown values in STPM
+ . Downgraded BrawlBox back to .NET 4.0 for maximum compatibility and moved all .NET 4.5 code into the updater application. This means you will not be able to automatically update or submit bug reports without .NET 4.5, but BrawlBox itself will still work.
+ . Moved "Export GLSL Shader" on MDL0 material right click menu to be above the delete button.
+
+ - v0.76 - BrawlLib v0.23
+
+  Hotfix 3 (5/26/2015)
+ . Fixed bug setting "NeedsNormalMatrixArray" in MDL0 header again, woops
+ . Fixed bug rendering GLSL shaders that use transparency on a computer with a locale other than English
+ . Fixed bug writing SCN0s (would work in Dolphin Emulator, but not on the actual Wii hardware)
+ . Added option to MDL0 materials to export the automatically generated GLSL vertex and fragment shaders for learning, reference, or external use
+ . Updated CHR0 editor "Transform All" group box to be enabled even when no animation is selected
+
+ Hotfix 2 (5/21/2015)
+ . Fixed bug setting an MDL0 bone's next sibling offset
+ . Fixed bug setting "NeedsNormalMatrixArray" in MDL0 header (caused issues with lighting in-game)
+ . Somewhat fixed display of MDL0 textures using projection mapping
+
+ Hotfix 1 (5/21/2015)
+ . Fixed issue where the model editor would sometimes hang indefinitely upon closing
+ . Fixed issue where sometimes after selecting an SCN0, you couldn't edit it
+
+ Initial Release (5/20/2015)
+ . Added support for shaders in the viewport! This means that (nearly) all object, material and shader settings will show in the viewport. 
+ Models will now  render more closely to how they should in-game. (View -> Model -> Shaders, on by default).
+ SCN0 scene lighting, fog and ambient lights can be applied to a model and edited in realtime by linking the model's materials to a corresponding lightset 
+ and fog entry and then selecting the SCN0 in the model editor after changing the edit type to SCN.
+ NOTE that this feature (rendering shaders in general) is not flawless. Here's a list of things that DO NOT WORK:
+	- Indirect textures, including normal maps and fur maps
+	- Projection (texture stays the same in relation to the screen), Env Spec (texture faces point between ref camera and ref light), Env Light (texture faces light) texture reference map modes
+	- Blending of some intensity textures (there's a hard line where the texture should blend into the background nicely instead)
+	- Binormals for texture coordinates (Binormals are not supported by BrawlBox at all)
+	- "Emboss Map" for texture reference "Type", "EmbossSource" and "EmbossLight" (under XF TexGen Flags)
+	- "CompareBeforeTexture" under Z Mode in material properties (this allows for comparing depth before any texture transparency is applied)
+. Added options to MDL0 bone right click menu to move the current bone to the end of the bone array or regenerate the bone array (all bone indices are reassigned). 
+You can also change the bone's Bone Index in the array. This doesn't have an effect on heirarchy, but allows you to inject bones without affecting the bone indices of others.
+. Moved "AutoMetalMaterials" option from the MDL0 properties to the right click menu under the name "Regenerate Metal Materials".
+. Added options to automatically rename all vertex, normal, uv and color sets in an MDL0 in the MDL0 right click menu under "Auto Name Assets".
+. Updated the "Reimport Meshes" option in the MDL0 right click menu to handle a wider variety of scenarios 
+(this button will allow you to reimport the meshes of a model from a Collada .dae while preserving all other edits made in BrawlBox)
+. Changed SCN0 right click menu to display but not highlight a newly added node (this allows you to add many entries at once with the shortcut keys)
+. Added file manager to model editor, allowing you to open models and animations from multiple files at once. Expand the right panel in the model editor and 
+change the dropdown to "Files". Right click a file in the list for more options, double click to open that file in the main window.
+. Changed the model editor to not close the main window upon opening. This allows you to make changes to things such as MDL0 materials and shaders and see 
+your changes immediately show on the model. This also allows for some other "unintentional features", such as opening more than one model editor at once. (Things can get wonky)
+. Fixed bug where collisions would not rotate with their attached bone properly
+. Fixed bug dealing with saving RSAR sound archives after making any edits
+. Added option to add multiple "draw calls" to an MDL0 object. This allows you to render the same object more than once using a different material, visibility bone, draw priority, and/or XLU/OPA draw pass.
+. Fixed support for viewing an SCN0 camera in first person in the model editor (View -> Viewport -> 1st Person SCN0 Camera)
+. Fixed support for loading a background image in the model editor
+. Added option to change the bone/vertex transform tool to World or Local space (only world is available for vertex selections). Local is default and means 
+that the coordinate axes are relative to that bone, and dragging on an axis will only change that axis value in an animation. World means that the 
+coordinate axes are relative to the floor, and dragging on an axis may affect multiple axis values in an animation. (View -> Viewport -> Transform Control -> Translate/Rotate/Scale -> World/Local)
+. Added "After Rotation" option to change the local bone/vertex translation tool to apply before or after the bone's rotation.
+Transforms are applied in order of Translate, Rotate, Scale, so this option changes the tool to work in the order of Rotate, Translate, Scale. "After Rotation" is off by default. (View -> Viewport -> Transform Control -> Translate -> After Rotation)
+. Added options to model editor settings dialog (Options -> Settings):
+	- Current Viewport -> Lighting -> Enabled: This will enable or disable built-in lighting in the viewport. SCN0 lighting may still be applied.
+	- General -> Scale bone with camera: This will keep each bone at a fixed size on the screen. Especially useful for stage editing.
+	- General -> Display bones as points: This will render each bone as a point instead of an orb with axes. Useful for reducing visual clutter, such as when viewing bones that are close together (like fingers).
+	- General -> Hide main window: hides the main brawlbox window when the model editor is open.
+	- General -> Per pixel lighting: This renders models with more accurate lighting calculations. This isn't what the Wii uses, but it usually looks better than per vertex lighting (especially with specular highlights).
+. Fixed undo/redo in the model editor. Doesn't seem to have any issues anymore.
+. Added support for rotating and scaling vertex selections (you can use E, R, T to change the transform control).
+. Fixed bug saving/reading SCN0 lights; SCN0s saved in older versions of BrawlBox may not open properly anymore
+. Added option to enable or disable billboard bones in the model viewer (View -> Model -> Billboard Bones)
+. Added option to display SCN0 light and camera indicators in the model viewer when editing an SCN0 (View -> Animations -> Show SCN0 Lights/Cameras)
+. Added "Average" button to vertex editor (the vertex editor is accessible by pressing J in the model editor). This will move all selected vertices to an average point between all of them.
+. Updated interpolation viewer to handle two keyframes on one frame (used for step or linear interpolation)
+. Fixed interpolation between the first and last keyframes on a looped animation if they are not the on THE first and last frames
+. Fixed parsing RGBA6 color entries
+. Renamed several MDL0 shader/material property/value names to be more intuitive and consistent
+. Fixed bug reloading a texture with the realtime texture folder (in the model editor, Tools -> Live Texture Folder. This allows you to edit an image externally and BrawlBox will load it on the model without any interaction necessary)
+. Added "Bone Edit Mode" to the CHR0 editor in the model editor. When on frame 0 (the bind frame), this is a checkbox that allows you to move bones without moving any rigged model meshes (good for stage making)
+. Support for changing an MDL0 object's single bind influence without the object itself moving (also good for stage making)
+. When changing a color in the color array editor in the model editor, the changed color will immediately reflect in the viewer as you change the value in the dialog (CLR0, SCN0 light/ambient/specular color, etc)
+. Support for viewing lines and points in the texture coordinate renderer
+. Support for viewing just about all texture reference properties (min/mag filter, lod bias, UV wrap mode, scale/rotation/translation, palette) in relation to the texture coordinates in the texcoord renderer
+. Fixed bug with animated GIF importer (right click BRRES -> Import -> Animated GIF) where some GIFs would have transparent pixels in frames where colored pixels should be
+. Added support for changing some CHR0 entry flags (go to the bone entry itself and view its properties) that were not previously available to edit. They are not currently supported by the model editor.
+. Fixed bug importing normals properly from Collada dae under certain circumstances
+
+ - v0.75b - BrawlLib v0.22b
+
+ Hotfix 1 (3/1/2015)
+	. Fixed bug copying and pasting entire animation frames or single bone entry frames to and from the bind state (frame 0).
+
+ Initial Release (2/28/2015)
+	. Added new reimport meshes button to MDL0 right click menu. This allows you to update the meshes of an MDL0 without resetting any custom materials, shaders, vis bones, bone tree edits, etc.
+	. Fixed bug where textures with no object references would overwrite the node tree definition
+	. Fixed bug where if the MDL0 node tree definition didn't have any entries but the bone tree did, a mismatch would not be detected and reported to the user
+	. Fixed bug where an MDL0 replaced with an imported model could not be restored to the original
+	. Fixed bug where an imported MDL0 would allow restoring, but would crash when trying to do so because there is nothing to restore to.
+	. Added the option to delete or not delete all associated assets that are not assigned to another object when deleting an MDL0 object
+	. Fixed bug where some controls in the collision editor were missing.
+	. Fixed bug where pasting a bone frame would swap the Y and Z values.
+	. Fixed bug where when pasting a bone frame in the CHR0 editor, everything would be keyframed even if only one of the paste options was unchecked
+	. Updated the module editor to parse and run faster and use less RAM. Editing and saving is a work in progress! You cannot save any changes, and DOL files do not load correctly.
+	. Added several more property descriptions to materials and shaders. More to come later.
+	. Fixed bug importing a model with objects but no materials for them
+	. Fixed bug where no editor would be visible next to the playback panel in the model editor upon first opening the window and opening the bottom panel
+	. Fixed bug where the loop frame would not be retained after inserting or removing a frame in the model editor
 
  - v0.75 - BrawlLib v0.22
 
@@ -643,7 +821,7 @@ Initial Release (2/19/2015):
 * BrawlLib: Microsoft .Net Framework v4.0
 	http://www.microsoft.com/en-us/download/details.aspx?id=17718
 	
-* A video card that supports OpenGL 1.1 or higher.
+* A video card that supports OpenGL 1.1 or higher (OpenGL 2.1 is required to enable shaders).
 
  ====================================
 |********* Acknowledgements *********|

@@ -1,17 +1,14 @@
-﻿using BrawlLib.Modeling;
-using BrawlLib.OpenGL;
+﻿using BrawlLib;
+using BrawlLib.Modeling;
 using BrawlLib.SSBB.ResourceNodes;
-using BrawlLib.SSBBTypes;
 using Gif.Components;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Text;
 
 namespace System.Windows.Forms
 {
@@ -22,6 +19,18 @@ namespace System.Windows.Forms
         protected void PreConstruct()
         {
             _interpolationEditor = new Forms.InterpolationEditor(this);
+
+            _boneTransform = new ApplyLocalBoneTransformFunc[]
+            {
+                ApplyTranslation,
+                ApplyAngle,
+                ApplyScale,
+            };
+            _mouseMoveTargetType = new MouseMoveTargetType[]
+            {
+                MouseMoveTargetBone,
+                MouseMoveTargetVertex,
+            };
         }
 
         protected void PostConstruct()
@@ -110,7 +119,7 @@ namespace System.Windows.Forms
             {
                 ModelPanel.AddTarget(_targetModel);
                 _targetModel.IsTargetModel = true;
-                ResetVertexColors();
+                ClearSelectedVertices();
             }
             else
                 EditingAll = true; //No target model so all is the only option
@@ -134,6 +143,7 @@ namespace System.Windows.Forms
         {
             //Force the average vertex location to be recalculated
             _vertexLoc = null;
+            ModelPanel.Invalidate();
         }
         protected virtual void OnSelectedBoneChanged() { }
 
@@ -154,13 +164,7 @@ namespace System.Windows.Forms
             if (ModelPanel.CurrentViewport.BackgroundImage == null)
             {
                 OpenFileDialog d = new OpenFileDialog();
-                d.Filter = "All Image Formats (*.png,*.tga,*.tif,*.tiff,*.bmp,*.jpg,*.jpeg,*.gif)|*.png;*.tga;*.tif;*.tiff;*.bmp;*.jpg;*.jpeg,*.gif|" +
-                "Portable Network Graphics (*.png)|*.png|" +
-                "Truevision TARGA (*.tga)|*.tga|" +
-                "Tagged Image File Format (*.tif, *.tiff)|*.tif;*.tiff|" +
-                "Bitmap (*.bmp)|*.bmp|" +
-                "Jpeg (*.jpg,*.jpeg)|*.jpg;*.jpeg|" +
-                "Gif (*.gif)|*.gif";
+                d.Filter = FileFilters.Images;
                 d.Title = "Select an image to load";
 
                 if (d.ShowDialog() == DialogResult.OK)
@@ -273,7 +277,9 @@ namespace System.Windows.Forms
                     if (progress.Cancelled)
                         break;
 
-                    e.SetTransparent(ModelPanel.CurrentViewport.BackgroundColor);
+                    //GIF transparency support is pretty poor, flickers a lot
+                    //e.SetTransparent(ModelPanel.CurrentViewport.BackgroundColor);
+
                     e.AddFrame(images[i]);
                     progress.Update(progress.CurrentValue + 1);
                 }
@@ -281,7 +287,8 @@ namespace System.Windows.Forms
                 e.Finish();
             }
 
-            MessageBox.Show("Animated GIF successfully saved to " + outPath.Replace("\\", "/"));
+            if (MessageBox.Show(this, "Animated GIF successfully saved to \"" + outPath.Replace("\\", "/") + "\".\nOpen the folder now?", "GIF saved", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                Process.Start("explorer.exe", path);
         }
         protected void SaveBitmap(Bitmap bmp, string path, string extension)
         {
@@ -332,6 +339,46 @@ namespace System.Windows.Forms
                 catch { }
             }
             bmp.Dispose();
+        }
+
+        public virtual void LoadModels(ResourceNode node)
+        {
+            if (_targetModels == null)
+                _targetModels = new List<IModel>();
+
+            List<IModel> modelList = ModelPanel.CollectModels(node);
+            foreach (IModel m in modelList)
+                AppendTarget(m);
+            ModelPanel.RefreshReferences();
+
+            if (TargetModel == null && _targetModels.Count > 0)
+                TargetModel = _targetModels[0];
+        }
+        public virtual void LoadAnimations(ResourceNode node) { }
+        public virtual void LoadEtc(ResourceNode node) { }
+
+        public virtual void OpenFile(string file) { OpenFile(file, true, true, true); }
+        public virtual void OpenFile(string file, bool models = true, bool animations = true, bool etc = true)
+        {
+            ResourceNode node = null;
+            try
+            {
+                if ((node = NodeFactory.FromFile(null, file)) != null)
+                {
+                    _openedFiles.Add(node);
+                    ModelPanel.AddReference(node);
+
+                    if (models)
+                        LoadModels(node);
+                    if (animations)
+                        LoadAnimations(node);
+                    if (etc)
+                        LoadEtc(node);
+                }
+                else
+                    MessageBox.Show(this, "Unable to recognize input file.");
+            }
+            catch (Exception ex) { MessageBox.Show(this, ex.Message, "Error loading from file."); }
         }
     }
 }

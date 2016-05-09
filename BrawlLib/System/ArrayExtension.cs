@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 
 namespace System
 {
@@ -31,6 +28,20 @@ namespace System
         public static int IndexOf(this Array a, object value)
         {
             return Array.IndexOf(a, value);
+        }
+        public static T[] SubArray<T>(this T[] data, int index, int length)
+        {
+            T[] result = new T[length];
+            Array.Copy(data, index, result, 0, length);
+            return result;
+        }
+
+        public static T[] Append<T>(this T[] data, T[] appended)
+        {
+            T[] final = new T[data.Length + appended.Length];
+            data.CopyTo(final, 0);
+            appended.CopyTo(final, data.Length);
+            return final;
         }
     }
 }

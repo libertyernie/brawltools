@@ -1,8 +1,4 @@
 ﻿using Ikarus.MovesetFile;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace Ikarus.MovesetBuilder
 {
@@ -12,11 +8,8 @@ namespace Ikarus.MovesetBuilder
         {
             foreach (CommonAction a in _dataCommon.FlashOverlays)
             {
-                if (a.Count > 0 || a.ForceWrite)
-                {
-                    GetSize(a); //Event + param data
-                    AddSize(8); //Offset to data + flags
-                }
+                GetScriptSize(a, true);
+                AddSize(8); //offset and flags
             }
 
             if (_dataCommon._ppMul != null)
@@ -26,7 +19,10 @@ namespace Ikarus.MovesetBuilder
                             GetSize(p);
 
             foreach (CommonAction a in _dataCommon.ScreenTints)
-                GetSize(a);
+            {
+                GetScriptSize(a, true);
+                AddSize(8); //offset and flags
+            }
         }
 
         private void BuildPart2()
@@ -42,6 +38,8 @@ namespace Ikarus.MovesetBuilder
 
             foreach (CommonAction a in _dataCommon.ScreenTints)
                 Write(a);
+
+
         }
     }
 }

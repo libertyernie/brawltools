@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.ComponentModel;
 using BrawlLib.SSBBTypes;
-using Ikarus;
 using System.Collections;
 using BrawlLib.SSBB.ResourceNodes;
 
@@ -264,7 +261,11 @@ namespace Ikarus.MovesetFile
 
         //    return RebuildOffset;
         //}
-
+        public void ResetVisibility()
+        {
+            for (int i = 0; i < _references.Count; i++)
+                ResetVisibility(i);
+        }
         public void ResetVisibility(int refId)
         {
             if (refId < 0 || refId >= _references.Count)
@@ -281,7 +282,7 @@ namespace Ikarus.MovesetFile
                     if (i != Switch._defaultGroup)
                         foreach (BoneIndexValue b in Group._bones)
                             if (b.BoneNode != null)
-                                foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                                foreach (DrawCall p in b.BoneNode._visDrawCalls)
                                     p._render = false;
                     i++;
                 }
@@ -294,7 +295,7 @@ namespace Ikarus.MovesetFile
                     ModelVisGroup Group = Switch[Switch._defaultGroup];
                     foreach (BoneIndexValue b in Group._bones)
                         if (b.BoneNode != null)
-                            foreach (MDL0ObjectNode p in b.BoneNode._manPolys)
+                            foreach (DrawCall p in b.BoneNode._visDrawCalls)
                                 p._render = true;
                 }
         }
@@ -316,7 +317,7 @@ namespace Ikarus.MovesetFile
             foreach (ModelVisGroup grp in switchEntry)
                 foreach (BoneIndexValue b in grp._bones)
                     if (b.BoneNode != null)
-                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                        foreach (DrawCall obj in b.BoneNode._visDrawCalls)
                             obj._render = false;
 
             //Check if the group id is usable
@@ -328,7 +329,7 @@ namespace Ikarus.MovesetFile
             if (group != null)
                 foreach (BoneIndexValue b in group._bones)
                     if (b.BoneNode != null)
-                        foreach (MDL0ObjectNode obj in b.BoneNode._manPolys)
+                        foreach (DrawCall obj in b.BoneNode._visDrawCalls)
                             obj._render = true;
         }
     }
@@ -497,7 +498,7 @@ namespace Ikarus.MovesetFile
         public int _defaultGroup = -1;
 
         [Category("Bone Group Switch")]
-        public int DataOffset { get { return _dataOffset; } }
+        public int IndicesOffset { get { return _dataOffset; } }
         [Category("Bone Group Switch")]
         public int Count { get { return _count; } }
         [Category("Bone Group Switch")]
@@ -511,7 +512,7 @@ namespace Ikarus.MovesetFile
             _dataOffset = hdr->_startOffset;
             _count = hdr->_listCount;
 
-            VoidPtr addr = BaseAddress + DataOffset;
+            VoidPtr addr = BaseAddress + _dataOffset;
             for (int i = 0; i < Count; i++)
                 _bones.Add(Parse<BoneIndexValue>(addr + i * 4));
         }

@@ -41,7 +41,6 @@ namespace BrawlLib.Modeling
                     Read(reader, CoordinateType.LeftHanded); //Will flip model backwards if right handed
                     PMD2MDL0(model);
                 }
-                fs.Close();
             }
             return model;
         }
@@ -58,7 +57,6 @@ namespace BrawlLib.Modeling
                 writer.Write(1.0f); //Version
                 PMDModel.MDL02PMD(model);
                 PMDModel.Write(writer);
-                fs.Close();
             }
         }
         #endregion
@@ -436,6 +434,7 @@ namespace BrawlLib.Modeling
             Collada._importOptions._fltVerts = true;
             Collada._importOptions._fltNrms = true;
             Collada._importOptions._fltUVs = true;
+            Collada.CurrentModel = model;
 
             model.BeginImport();
             model._version = 9;
@@ -477,7 +476,7 @@ namespace BrawlLib.Modeling
                     bone._bindState._scale = new Vector3(1.0f);
                     bone._bindState._translate = new Vector3(b._wPos[0], b._wPos[1], b._wPos[2]);
                     bone._bindState.CalcTransforms();
-                    bone.RecalcBindState();
+                    bone.RecalcBindState(false, false);
                 }
 
                 BoneCache.Add(bone);
@@ -596,8 +595,15 @@ namespace BrawlLib.Modeling
             foreach (ModelMaterial m in _materials)
             {
                 PrimitiveManager manager = new PrimitiveManager() { _pointCount = (int)m._faceVertCount };
-                MDL0ObjectNode p = new MDL0ObjectNode() { _manager = manager, _opaMaterial = (MDL0MaterialNode)model._matList[x] };
-                p._opaMaterial._objects.Add(p);
+                MDL0ObjectNode p = new MDL0ObjectNode()
+                {
+                    _manager = manager,
+                    _drawCalls = new System.ComponentModel.BindingList<DrawCall>()
+                };
+                p._drawCalls.Add(new DrawCall(p)
+                {
+                    MaterialNode = (MDL0MaterialNode)model._matList[x]
+                });
                 p._manager._vertices = new List<Vertex3>();
                 p.Name = "polygon" + x++;
                 p._parent = model._objGroup;
@@ -619,7 +625,7 @@ namespace BrawlLib.Modeling
                 Vector3* Normals = (Vector3*)p._manager._faceData[1].Address;
                 Vector2* UVs = (Vector2*)p._manager._faceData[4].Address;
 
-                manager._triangles = new GLPrimitive((int)m._faceVertCount, PrimitiveType.Triangles);
+                manager._triangles = new GLPrimitive((int)m._faceVertCount, BeginMode.Triangles);
                 uint[] pTriarr = manager._triangles._indices;
                 uint pTri = 0;
 
@@ -660,7 +666,7 @@ namespace BrawlLib.Modeling
                         t._z = mv._position[2];
                         if (inf.Weights.Count > 1)
                         {
-                            inf = model._influences.FindOrCreate(inf, true);
+                            inf = model._influences.FindOrCreate(inf);
                             inf.CalcMatrix();
                             v = new Vertex3(t, inf);
                         }
@@ -712,11 +718,13 @@ namespace BrawlLib.Modeling
                     {
                         //Increase reference count ahead of time for rebuild
                         if (p._manager._vertices[0].MatrixNode != null)
-                            p._manager._vertices[0].MatrixNode.ReferenceCount++;
+                            //p._manager._vertices[0].MatrixNode.ReferenceCount++;
+                            p._manager._vertices[0].MatrixNode.Users.Add(p);
 
                         foreach (Vertex3 v in p._manager._vertices)
                             if (v.MatrixNode != null)
-                                v.MatrixNode.ReferenceCount--;
+                                //v.MatrixNode.ReferenceCount--;
+                                v.MatrixNode.Users.Remove(v);
 
                         p._nodeId = -2; //Continued on polygon rebuild
                     }
@@ -742,6 +750,7 @@ namespace BrawlLib.Modeling
             //        model._matList.RemoveAt(i--);
 
             model.FinishImport();
+            Collada.CurrentModel = null;
         }
         public static void AssignParent(MDL0BoneNode pBone, ModelBone child, MDL0BoneNode cBone, ModelBone parent)
         {
@@ -755,7 +764,7 @@ namespace BrawlLib.Modeling
 
                 //Derive to state and recalc bind matrices
                 cBone._bindState = m.Derive();
-                cBone.RecalcBindState();
+                cBone.RecalcBindState(false, false);
             }
             else //Parent not found, continue searching children.
                 foreach (MDL0BoneNode pMatch in pBone._children)
@@ -770,65 +779,65 @@ namespace BrawlLib.Modeling
                 shader.TextureRef0 = true;
                 shader.TextureRef1 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFF8;
                 s._alphaEnv = 0x8FFC0;
-                s.KonstantColorSelection = TevKColorSel.KSel_3_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_3_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor3_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor3_Alpha;
                 s.TextureMapID = TexMapID.TexMap0;
-                s.TextureCoord = TexCoordID.TexCoord0;
+                s.TextureCoordID = TexCoordID.TexCoord0;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
                 s._alphaEnv = 0x8FF80;
-                s.KonstantColorSelection = TevKColorSel.Constant1_4;
-                s.KonstantAlphaSelection = TevKAlphaSel.Constant1_4;
+                s.ConstantColorSelection = TevKColorSel.Constant1_4;
+                s.ConstantAlphaSelection = TevKAlphaSel.Constant1_4;
                 s.TextureMapID = TexMapID.TexMap1;
-                s.TextureCoord = TexCoordID.TexCoord1;
+                s.TextureCoordID = TexCoordID.TexCoord1;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
                 s._alphaEnv = 0x8FF80;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_1_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
                 return shader;
             }
@@ -840,65 +849,65 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FFFA;
                 s._alphaEnv = 0x8FFD0;
-                s.KonstantColorSelection = TevKColorSel.KSel_3_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_3_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor3_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor3_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
                 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x88E80;
                 s._alphaEnv = 0x8FF80;
-                s.KonstantColorSelection = TevKColorSel.Constant1_4;
-                s.KonstantAlphaSelection = TevKAlphaSel.Constant1_4;
+                s.ConstantColorSelection = TevKColorSel.Constant1_4;
+                s.ConstantAlphaSelection = TevKAlphaSel.Constant1_4;
                 s.TextureMapID = TexMapID.TexMap0;
-                s.TextureCoord = TexCoordID.TexCoord0;
+                s.TextureCoordID = TexCoordID.TexCoord0;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28F0AF;
                 s._alphaEnv = 0x8FF80;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_1_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
                 return shader;
             }
@@ -910,41 +919,41 @@ namespace BrawlLib.Modeling
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 shader.TextureRef0 = true;
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFF8;
                 s._alphaEnv = 0x8FFC0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap0;
-                s.TextureCoord = TexCoordID.TexCoord0;
+                s.TextureCoordID = TexCoordID.TexCoord0;
                 s.TextureEnabled = true;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_1_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
                 return shader;
             }
@@ -955,41 +964,41 @@ namespace BrawlLib.Modeling
             {
                 MDL0ShaderNode shader = new MDL0ShaderNode();
 
-                TEVStageNode s = new TEVStageNode();
+                MDL0TEVStageNode s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x28FFFA;
                 s._alphaEnv = 0x8FFD0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x8FEB0;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_1_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor1_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.ColorChannel0;
+                s.RasterColor = ColorSelChan.LightChannel0;
 
-                s = new TEVStageNode();
+                s = new MDL0TEVStageNode();
                 shader.AddChild(s);
 
                 s._colorEnv = 0x806EF;
                 s._alphaEnv = 0x81FF0;
-                s.KonstantColorSelection = TevKColorSel.KSel_0_Value;
-                s.KonstantAlphaSelection = TevKAlphaSel.KSel_0_Alpha;
+                s.ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+                s.ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
                 s.TextureMapID = TexMapID.TexMap7;
-                s.TextureCoord = TexCoordID.TexCoord7;
+                s.TextureCoordID = TexCoordID.TexCoord7;
                 s.TextureEnabled = false;
-                s.ColorChannel = ColorSelChan.Zero;
+                s.RasterColor = ColorSelChan.Zero;
 
                 return shader;
             }

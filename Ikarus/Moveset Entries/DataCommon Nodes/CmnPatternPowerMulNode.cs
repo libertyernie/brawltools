@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 
 namespace Ikarus.MovesetFile
 {
@@ -72,16 +68,20 @@ namespace Ikarus.MovesetFile
             }
         }
 
+        protected override int OnGetLookupCount()
+        {
+            int i = 0;
+            foreach (Script p in _scripts)
+                i += p.GetLookupCount();
+            return i;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
             _entryLength = 40;
             _childLength = 0;
             foreach (Script p in _scripts)
-            {
                 _childLength += p.GetSize();
-                _lookupCount += p._lookupCount;
-            }
             return _entryLength + _childLength;
         }
 
@@ -103,7 +103,7 @@ namespace Ikarus.MovesetFile
             foreach (Script p in _scripts)
             {
                 p.Write(addr);
-                _lookupOffsets.AddRange(p._lookupOffsets);
+                Lookup(p.LookupAddresses);
                 addr += p._calcSize;
             }
         }

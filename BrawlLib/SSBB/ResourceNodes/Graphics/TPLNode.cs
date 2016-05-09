@@ -4,7 +4,6 @@ using System.ComponentModel;
 using BrawlLib.Wii.Textures;
 using BrawlLib.Imaging;
 using System.Drawing;
-using System.Collections.Generic;
 using BrawlLib.IO;
 using System.Drawing.Imaging;
 using System.IO;
@@ -128,8 +127,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 tex->_width = (ushort)t.Width;
                 tex->_height = (ushort)t.Height;
                 tex->_LODBias = t._lodBias;
-                tex->_edgeLODEnable = (short)t._enableEdgeLod;
-                tex->_maxLOD = (short)(t.LevelOfDetail - 1);
+                tex->_edgeLODEnable = (byte)t._enableEdgeLod;
+                tex->_maxLOD = (byte)(t.LevelOfDetail - 1);
                 tex->_minLOD = 0;
 
                 texHdrs += TPLTextureHeader.Size;
@@ -310,8 +309,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                         tex->_width = (ushort)Width;
                         tex->_height = (ushort)Height;
                         tex->_LODBias = _lodBias;
-                        tex->_edgeLODEnable = (short)_enableEdgeLod;
-                        tex->_maxLOD = (short)(LevelOfDetail - 1);
+                        tex->_edgeLODEnable = (byte)_enableEdgeLod;
+                        tex->_maxLOD = (byte)(LevelOfDetail - 1);
                         tex->_minLOD = 0;
 
                         VoidPtr data = (VoidPtr)tex + TPLTextureHeader.Size;

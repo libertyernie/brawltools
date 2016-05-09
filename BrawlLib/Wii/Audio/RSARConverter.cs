@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.SSBBTypes;
 using System.Linq;
+using System.ComponentModel;
 
 namespace BrawlLib.Wii.Audio
 {
@@ -51,25 +52,19 @@ namespace BrawlLib.Wii.Audio
             files += entries._files.Count * 8;
 
             //Evaluate entries with child offsets
-            foreach (RSAREntryState s in entries._sounds)
-                sounds += s._node.CalculateSize(true);
-            foreach (RSAREntryState s in entries._playerInfo)
-                playerInfo += s._node.CalculateSize(true);
-            foreach (RSAREntryState s in entries._banks)
-                banks += s._node.CalculateSize(true);
-            foreach (RSAREntryState s in entries._groups)
-                groups += s._node.CalculateSize(true);
-            groups += INFOGroupHeader.Size + 4; //Null group at the end
-            groups += node._nullGroup.Files.Count * 32;
+            foreach (RSAREntryNode s in entries._sounds)
+                sounds += s.CalculateSize(true);
+            foreach (RSAREntryNode s in entries._playerInfo)
+                playerInfo += s.CalculateSize(true);
+            foreach (RSAREntryNode s in entries._banks)
+                banks += s.CalculateSize(true);
+            foreach (RSAREntryNode s in entries._groups)
+                groups += s.CalculateSize(true);
             foreach (RSARFileNode s in entries._files)
-            {
-                files += INFOFileHeader.Size + 4;
-                if (!(s is RSARExtFileNode))
-                    files += s._groups.Count * (8 + INFOFileEntry.Size);
-                else
-                    files += (s._extPath.Length + 1).Align(4);
-            }
-
+                files += INFOFileHeader.Size + 4 + (!(s is RSARExtFileNode) ? 
+                    (s._groupRefs.Count * (8 + INFOFileEntry.Size)) :
+                    (((RSARExtFileNode)s)._extPath.Length + 1).Align(4));
+            
             //Footer and Align
             _infoLen = ((_infoLen += (sounds + banks + playerInfo + files + groups)) + 0x10).Align(0x20);
 
@@ -77,15 +72,10 @@ namespace BrawlLib.Wii.Audio
 
             #region File
 
-            foreach (RSAREntryState r in entries._groups)
-            {
-                RSARGroupNode g = r._node as RSARGroupNode;
-                foreach (RSARFileNode f in g.Files)
+            foreach (RSARGroupNode g in entries._groups)
+                foreach (RSARFileNode f in g._files)
                     _fileLen += f.CalculateSize(true);
-            }
-            foreach (RSARFileNode f in node._nullGroup.Files)
-                _fileLen += f.CalculateSize(true);
-
+            
             //Align
             _fileLen = _fileLen.Align(0x20);
 
@@ -161,12 +151,12 @@ namespace BrawlLib.Wii.Audio
             dataAddr += entries._sounds.Count * 8 + 4;
 
             //Write sound entries
-            foreach (RSAREntryState r in entries._sounds)
+            foreach (RSAREntryNode r in entries._sounds)
             {
-                r._node._rebuildBase = baseAddr;
+                r._rebuildBase = baseAddr;
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
-                r._node.Rebuild(dataAddr, r._node._calcSize, true);
-                dataAddr += r._node._calcSize;
+                r.Rebuild(dataAddr, r._calcSize, true);
+                dataAddr += r._calcSize;
             }
             index = 0;
             //Set up bank ruint list
@@ -176,12 +166,12 @@ namespace BrawlLib.Wii.Audio
             dataAddr += entries._banks.Count * 8 + 4;
 
             //Write bank entries
-            foreach (RSAREntryState r in entries._banks)
+            foreach (RSAREntryNode r in entries._banks)
             {
-                r._node._rebuildBase = baseAddr;
+                r._rebuildBase = baseAddr;
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
-                r._node.Rebuild(dataAddr, r._node._calcSize, true);
-                dataAddr += r._node._calcSize;
+                r.Rebuild(dataAddr, r._calcSize, true);
+                dataAddr += r._calcSize;
             }
             index = 0;
             //Set up playerInfo ruint list
@@ -191,12 +181,12 @@ namespace BrawlLib.Wii.Audio
             dataAddr += entries._playerInfo.Count * 8 + 4;
 
             //Write playerInfo entries
-            foreach (RSAREntryState r in entries._playerInfo)
+            foreach (RSAREntryNode r in entries._playerInfo)
             {
-                r._node._rebuildBase = baseAddr;
+                r._rebuildBase = baseAddr;
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
-                r._node.Rebuild(dataAddr, r._node._calcSize, true);
-                dataAddr += r._node._calcSize;
+                r.Rebuild(dataAddr, r._calcSize, true);
+                dataAddr += r._calcSize;
             }
             index = 0;
             //Set up file ruint list
@@ -208,6 +198,9 @@ namespace BrawlLib.Wii.Audio
             //Write file entries
             foreach (RSARFileNode file in entries._files)
             {
+                //if (file._groupRefs.Count == 0 && !(file is RSARExtFileNode))
+                //    continue;
+
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
                 INFOFileHeader* fileHdr = (INFOFileHeader*)dataAddr;
                 dataAddr += INFOFileHeader.Size;
@@ -215,19 +208,25 @@ namespace BrawlLib.Wii.Audio
                 fileHdr->_entryNumber = -1;
                 if (file is RSARExtFileNode)
                 {
+                    uint extFileSize = 0;
+
+                    RSARExtFileNode ext = file as RSARExtFileNode;
+
                     //Make an attempt to get current file size
-                    uint s = 0;
-                    if (file.ExternalFileInfo.Exists)
-                        s = (uint)file.ExternalFileInfo.Length;
-                    if (file._extFileSize != s && s != 0) file._extFileSize = s;
+                    if (ext.ExternalFileInfo.Exists)
+                        extFileSize = (uint)ext.ExternalFileInfo.Length;
+
+                    if (ext._extFileSize != extFileSize && extFileSize != 0)
+                        ext._extFileSize = extFileSize;
+
                     //Shouldn't matter if 0
-                    fileHdr->_headerLen = file._extFileSize;
+                    fileHdr->_headerLen = ext._extFileSize;
 
                     fileHdr->_dataLen = 0;
                     fileHdr->_stringOffset = (uint)((VoidPtr)list - (VoidPtr)baseAddr);
 
                     sbyte* dPtr = (sbyte*)list;
-                    file._extPath.Write(ref dPtr);
+                    ext._extPath.Write(ref dPtr);
                     dataAddr += ((int)((VoidPtr)dPtr - (VoidPtr)dataAddr)).Align(4);
 
                     fileHdr->_listOffset = (uint)((VoidPtr)dataAddr - (VoidPtr)baseAddr);
@@ -239,11 +238,11 @@ namespace BrawlLib.Wii.Audio
                     fileHdr->_dataLen = (uint)file._audioLen;
                     //fileHdr->_stringOffset = 0;
                     fileHdr->_listOffset = (uint)((VoidPtr)list - (VoidPtr)baseAddr);
-                    list->_numEntries = file._groups.Count;
-                    INFOFileEntry* fileEntries = (INFOFileEntry*)((VoidPtr)list + 4 + file._groups.Count * 8);
+                    list->_numEntries = file._groupRefs.Count;
+                    INFOFileEntry* fileEntries = (INFOFileEntry*)((VoidPtr)list + 4 + file._groupRefs.Count * 8);
                     int z = 0;
                     List<int> used = new List<int>();
-                    foreach (RSARGroupNode g in file._groups)
+                    foreach (RSARGroupNode g in file._groupRefs)
                     {
                         list->Entries[z] = (uint)((VoidPtr)(&fileEntries[z]) - baseAddr);
                         fileEntries[z]._groupId = g._rebuildIndex;
@@ -261,57 +260,28 @@ namespace BrawlLib.Wii.Audio
                             fileEntries[z]._index = g._files.IndexOf(file);
                         z++;
                     }
-                    dataAddr = (VoidPtr)fileEntries + file._groups.Count * INFOFileEntry.Size;
+                    dataAddr = (VoidPtr)fileEntries + file._groupRefs.Count * INFOFileEntry.Size;
                 }
             }
             index = 0;
             //Set up group ruint list
             values[4] = (uint)dataAddr - (uint)baseAddr;
             entryList = (RuintList*)dataAddr;
-            entryList->_numEntries = entries._groups.Count + 1;
-            dataAddr += (entries._groups.Count + 1) * 8 + 4;
+            entryList->_numEntries = entries._groups.Count;
+            dataAddr += entries._groups.Count * 8 + 4;
 
             //Write group entries
-            foreach (RSAREntryState r in entries._groups)
+            foreach (RSAREntryNode r in entries._groups)
             {
-                r._node._rebuildBase = baseAddr;
+                r._rebuildBase = baseAddr;
                 entryList->Entries[index++] = (uint)dataAddr - (uint)baseAddr;
-                r._node.Rebuild(dataAddr, r._node._calcSize, true);
-                dataAddr += r._node._calcSize;
+                r.Rebuild(dataAddr, r._calcSize, true);
+                dataAddr += r._calcSize;
             }
-            //Null group at the end
-            entryList->Entries[entries._groups.Count] = (uint)dataAddr - (uint)baseAddr;
-            INFOGroupHeader* grp = (INFOGroupHeader*)dataAddr;
-            node._nullGroup._rebuildAddr = grp;
-            node._nullGroup._rebuildBase = baseAddr;
-            *(bint*)(dataAddr + INFOGroupHeader.Size) = 0;
-            grp->_entryNum = -1;
-            grp->_stringId = -1;
-            //grp->_extFilePathRef = 0;
-            //grp->_extFilePathRef._dataType = 0;
-            grp->_headerLength = 0;
-            grp->_waveDataLength = 0;
-            grp->_headerOffset = grp->_waveDataOffset = _headerLen + _symbLen + _infoLen + _fileLen;
-            grp->_listOffset = (uint)((VoidPtr)(dataAddr + INFOGroupHeader.Size) - baseAddr);
-            dataAddr += INFOGroupHeader.Size;
-            RuintList* l = (RuintList*)dataAddr;
-            INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)l + 4 + node._nullGroup.Files.Count * 8);
-            l->_numEntries = node._nullGroup.Files.Count;
-            int y = 0;
-            foreach (RSARFileNode file in node._nullGroup.Files)
-            {
-                l->Entries[y] = (uint)((VoidPtr)(&e[y]) - baseAddr);
-                e[y++]._fileId = file._fileIndex;
-                //entries[i]._dataLength = 0;
-                //entries[i]._dataOffset = 0;
-                //entries[i]._headerLength = 0;
-                //entries[i]._headerOffset = 0;
-            }
-            dataAddr = (VoidPtr)e + node._nullGroup.Files.Count * 0x18;
 
             //Write footer
             values[5] = (uint)dataAddr - (uint)baseAddr;
-            *(INFOFooter*)dataAddr = node.ftr;
+            *(INFOFooter*)dataAddr = node._ftr;
 
             //Set header
             header->_header._tag = INFOHeader.Tag;
@@ -319,46 +289,47 @@ namespace BrawlLib.Wii.Audio
 
             return len;
         }
-        internal int EncodeFILEBlock(FILEHeader* header, RSAREntryList entries, VoidPtr baseAddress, RSARNode node)
+        internal int EncodeFILEBlock(FILEHeader* header, VoidPtr baseAddress, RSAREntryList entries, RSARNode node)
         {
             int len = 0;
             VoidPtr baseAddr = (VoidPtr)header + 0x20;
             VoidPtr addr = baseAddr;
 
             //Build files - order by groups
-            for (int x = 0; x <= entries._groups.Count; x++)
+            foreach (RSARGroupNode g in entries._groups)
             {
-                RSARGroupNode g = x == entries._groups.Count ? node._nullGroup : ((RSAREntryState)entries._groups[x])._node as RSARGroupNode;
-                int headerLen = 0, audioLen = 0;
-                int i = 0;
-                INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)g._rebuildAddr + INFOGroupHeader.Size + 4 + g._files.Count * 8);
-                g._rebuildAddr->_headerOffset = (int)(addr - baseAddress);
-                foreach (RSARFileNode f in g.Files)
+                int headerLen = 0, audioLen = 0, i = 0;
+                INFOGroupEntry* e = (INFOGroupEntry*)((VoidPtr)g._headerAddr + INFOGroupHeader.Size + 4 + g._files.Count * 8);
+                g._headerAddr->_headerOffset = (int)(addr - baseAddress);
+                foreach (RSARFileNode f in g._files)
                 {
                     e[i]._headerLength = f._headerLen;
-                    e[i++]._headerOffset = headerLen;
+                    e[i]._headerOffset = headerLen;
 
                     headerLen += f._headerLen;
+
+                    ++i;
                 }
                 i = 0;
                 VoidPtr wave = addr + headerLen;
-                g._rebuildAddr->_waveDataOffset = (int)(wave - baseAddress);
-                foreach (RSARFileNode f in g.Files)
+                g._headerAddr->_waveDataOffset = (int)(wave - baseAddress);
+                foreach (RSARFileNode f in g._files)
                 {
                     f._rebuildAudioAddr = wave + audioLen;
-
                     f.Rebuild(addr, f._headerLen, true);
-                    addr += f._headerLen;
-
+                    
+                    e[i]._dataOffset = f._audioLen == 0 ? 0 : audioLen;
                     e[i]._dataLength = f._audioLen;
-                    e[i++]._dataOffset = f._audioLen == 0 ? 0 : audioLen;
 
+                    addr += f._headerLen;
                     audioLen += f._audioLen;
+
+                    ++i;
                 }
 
                 addr += audioLen;
-                g._rebuildAddr->_headerLength = headerLen;
-                g._rebuildAddr->_waveDataLength = audioLen;
+                g._headerAddr->_headerLength = headerLen;
+                g._headerAddr->_waveDataLength = audioLen;
             }
 
             len = ((int)addr - (int)(VoidPtr)header).Align(0x20);
@@ -370,81 +341,11 @@ namespace BrawlLib.Wii.Audio
             return len;
         }
 
-        private class MaskNode
+        private static int EncodeMaskGroup(SYMBHeader* symb, SYMBMaskHeader* header, List<RSAREntryNode> gList, RSARNode n, int grp)
         {
-            public string _name;
-            public MaskNode _left, _right;
-        }
-
-        private static int EncodeMaskGroup(SYMBHeader* symb, SYMBMaskHeader* header, List<RSAREntryState> grpList, RSARNode n, int grp)
-        {
-            SYMBMaskEntry* entry = header->Entries;
-
-#if DEBUG
-            *entry++ = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, 0);
-#else
-            entry[0] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
-#endif
-            for (int i = 1; i < grpList.Count; i++)
-            {
-#if DEBUG
-                *entry++ = new SYMBMaskEntry(true, -1, -1, -1, grpList[i]._stringId, i++);
-                *entry++ = new SYMBMaskEntry(false, 0, 0, 0, -1, i);
-#else
-                entry[i++] = new SYMBMaskEntry(true, -1, -1, -1, grpList[0]._stringId, grpList[0]._index);
-                entry[i] = n._symbCache[grp][i];
-#endif
-            }
-
-#if DEBUG
-            GenerateIDs(header);
-#else
-            header->_rootId = n._rootIds[grp];
-#endif
-            int len = 8 + (header->_numEntries = grpList.Count * 2 - 1) * SYMBMaskEntry.Size;
-
-            return len;
-        }
-
-        private static void GenerateIDs(SYMBMaskHeader* hdr)
-        {
-
-        }
-
-        int ConvertLabelStringToId(SYMBMaskHeader* hdr, string str, string[] strings)
-        {
-            SYMBMaskEntry* node = &hdr->Entries[hdr->_rootId];
-
-            int len = str.Length;
-            while (!node->IsLeaf)
-            {
-                int pos = node->_bit >> 3;
-                int bit = node->_bit & 7;
-                int nodeIdx;
-                if (pos < len && (str[pos] & (1 << (7 - bit))) != 0)
-                    nodeIdx = node->_rightId;
-                else
-                    nodeIdx = node->_leftId;
-                node = &hdr->Entries[nodeIdx];
-            }
-
-            if (str == strings[node->_stringId])
-                return node->_index;
-
-            return -1;
-        }
-    }
-
-    public class RSAREntryState
-    {
-        public RSAREntryNode _node;
-        public int _index;
-        public int _stringId;
-
-        public static int Compare(RSAREntryState n1, RSAREntryState n2)
-        {
-            return n2._node.InfoIndex < n1._node.InfoIndex ? 1 : n2._node.InfoIndex > n1._node.InfoIndex ? -1 : 0;
-            //return n2._stringId < n1._stringId ? 1 : n2._stringId > n1._stringId ? -1 : 0;
+            int[] stringIds = gList.Select(x => x._rebuildStringId).Where(x => x >= 0).ToArray();
+            SYMBMaskEntry.Build(stringIds, symb, header, header->Entries);
+            return SYMBMaskHeader.Size + (stringIds.Length * 2 - 1) * SYMBMaskEntry.Size;
         }
     }
 
@@ -460,28 +361,23 @@ namespace BrawlLib.Wii.Audio
         public int _stringLength = 0;
         public List<string> _strings = new List<string>();
         public List<RSARStringEntryState> _tempStrings = new List<RSARStringEntryState>();
-        public List<RSAREntryState> _sounds = new List<RSAREntryState>();
-        public List<RSAREntryState> _playerInfo = new List<RSAREntryState>();
-        public List<RSAREntryState> _groups = new List<RSAREntryState>();
-        public List<RSAREntryState> _banks = new List<RSAREntryState>();
-        public List<RSARFileNode> _files;
+        public List<RSAREntryNode> _sounds = new List<RSAREntryNode>();
+        public List<RSAREntryNode> _playerInfo = new List<RSAREntryNode>();
+        public List<RSAREntryNode> _groups = new List<RSAREntryNode>();
+        public List<RSAREntryNode> _banks = new List<RSAREntryNode>();
+        public BindingList<RSARFileNode> _files;
 
         public void AddEntry(string path, RSAREntryNode node)
         {
-            RSAREntryState state = new RSAREntryState();
             RSARStringEntryState str = new RSARStringEntryState();
-
-            state._node = node;
+            
             if (node._name != "<null>")
                 str._name = path;
-            else 
+            else
                 str._name = null;
 
-            if (String.IsNullOrEmpty(str._name))
-                state._stringId = -1;
-
             int type = -1;
-            List<RSAREntryState> group;
+            List<RSAREntryNode> group;
             if (node is RSARSoundNode)
             {
                 group = _sounds;
@@ -504,14 +400,14 @@ namespace BrawlLib.Wii.Audio
             }
 
             str._type = type;
-            //str._index = node.InfoIndex;
+            str._index = node.InfoIndex;
+            
+            group.Add(node);
 
-            _tempStrings.Add(str);
-
-            state._index = group.Count;
-            group.Add(state);
-
-            state._node._rebuildIndex = state._index;
+            if (String.IsNullOrEmpty(str._name))
+                node._rebuildStringId = -1;
+            else
+                _tempStrings.Add(str);
         }
 
         public void Clear()
@@ -529,381 +425,48 @@ namespace BrawlLib.Wii.Audio
         {
             _stringLength = 0;
             _strings = new List<string>();
-            int type = 0;
-            int index = 0;
-        Top:
-            foreach (RSARStringEntryState s in _tempStrings)
-            {
-                if (s._type == type && s._index == index)
-                {
-                    if (s._name != null && !s._name.Contains("<null>"))
-                        _strings.Add(s._name);
-                    index++;
-                    goto Top;
-                }
-            }
-            if (++type < 4)
-            {
-                index = 0;
-                goto Top;
-            }
 
+            for (int i = 0; i < 4; ++i)
+                _strings.AddRange(_tempStrings
+                    .Where(x => x._type == i)
+                    .OrderBy(x => x._index)
+                    .Select(x => x._name
+                    .ToString()));
+            
             foreach (string s in _strings)
                 _stringLength += s.Length + 1;
 
-            foreach (RSAREntryState s in _sounds)
-                s._node._rebuildStringId = s._stringId = _strings.IndexOf(s._node._fullPath);
-            foreach (RSAREntryState s in _playerInfo)
-                s._node._rebuildStringId = s._stringId = _strings.IndexOf(s._node._fullPath);
-            foreach (RSAREntryState s in _groups)
-                s._node._rebuildStringId = s._stringId = _strings.IndexOf(s._node._fullPath);
-            foreach (RSAREntryState s in _banks)
-                s._node._rebuildStringId = s._stringId = _strings.IndexOf(s._node._fullPath);
+            foreach (RSAREntryNode s in _sounds)
+                s._rebuildStringId = _strings.IndexOf(s._fullPath);
+            foreach (RSAREntryNode s in _playerInfo)
+                s._rebuildStringId = _strings.IndexOf(s._fullPath);
+            foreach (RSAREntryNode s in _groups)
+                s._rebuildStringId = _strings.IndexOf(s._fullPath);
+            foreach (RSAREntryNode s in _banks)
+                s._rebuildStringId = _strings.IndexOf(s._fullPath);
 
-#if !DEBUG
-            _sounds.Sort(RSAREntryState.Compare);
-            _playerInfo.Sort(RSAREntryState.Compare);
-            _groups.Sort(RSAREntryState.Compare);
-            _banks.Sort(RSAREntryState.Compare);
-#endif
+            _sounds.Sort(Compare);
+            _playerInfo.Sort(Compare);
+            _groups.Sort(Compare);
+            _banks.Sort(Compare);
+
+            int m = 0;
+            foreach (RSAREntryNode r in _sounds)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _playerInfo)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _groups)
+                r._rebuildIndex = m++;
+            m = 0;
+            foreach (RSAREntryNode r in _banks)
+                r._rebuildIndex = m++;
+        }
+
+        public static int Compare(RSAREntryNode n1, RSAREntryNode n2)
+        {
+            return n2.InfoIndex < n1.InfoIndex ? 1 : n2.InfoIndex > n1.InfoIndex ? -1 : 0;
         }
     }
 }
-
-//Failed attempts at generating symb ids commented out below, enjoy
-
-//static void GenIds(SYMBHeader* symb, SYMBMaskHeader* header, int index, ushort allowedBit)
-//{
-//    SYMBMaskEntry* first = &header->Entries[index];
-//    string mainName = symb->GetStringEntry(first->_stringId);
-
-//    for (int i = 1; i < header->_numEntries; i += 2)
-//    {
-//        SYMBMaskEntry* secName = &header->Entries[i];
-//        SYMBMaskEntry* secBit = &header->Entries[i + 1];
-
-//        if (i == index || secBit->_bit != allowedBit)
-//            continue;
-
-//        string compName = symb->GetStringEntry(secName->_stringId);
-
-//        int bitIndex = mainName.CompareBits(compName);
-//        if (bitIndex >= 0)
-//        {
-//            //Set the bit index
-//            secBit->_bit = (ushort)bitIndex;
-
-//            int bit = bitIndex % 8;
-//            int byteIndex = (bitIndex - bit) / 8;
-
-//            bool leftFound = false, rightFound = false;
-
-//            mainName = compName;
-
-//            //Keeping looking down the list for the left and right entries
-//            for (int x = i + 2; x < header->_numEntries; x += 2)
-//            {
-//                SYMBMaskEntry* lrName = &header->Entries[x];
-//                SYMBMaskEntry* lrBit = &header->Entries[x + 1];
-//                compName = symb->GetStringEntry(lrName->_stringId);
-
-//                if (x == index || lrBit->_bit != allowedBit)
-//                    continue;
-
-//                bool forceLeft = false;
-
-//                if (byteIndex >= Math.Min(mainName.Length, compName.Length))
-//                    forceLeft = true;
-
-//                if (forceLeft || mainName.AtBit(bitIndex) != compName.AtBit(bitIndex))
-//                {
-//                    if (leftFound)
-//                        continue;
-
-//                    leftFound = true;
-
-//                    secBit->_leftId = x + 1;
-//                    GenIds(symb, header, x, lrBit->_bit);
-//                }
-//                else
-//                {
-//                    if (rightFound)
-//                        continue;
-
-//                    rightFound = true;
-
-//                    secBit->_rightId = x + 1;
-//                    GenIds(symb, header, x, lrBit->_bit);
-//                }
-//            }
-
-//            if (!leftFound) //No strings matched
-//                secBit->_leftId = i;
-//            else if (!rightFound) //All strings matched
-//                secBit->_rightId = i;
-
-//            break;
-//        }
-//    }
-//}
-
-//String Table to convert to a tree
-//string[] stringTable = new string[] { "SDPLAYER_BGM", "SDPLAYER_SE", "SDPLAYER_VOICE", "SDPLAYER_SYSTEM", "SDPLAYER_LOOP", "SDPLAYER_VOICE2", "SDPLAYER_SE_NOEFFECT" };
-
-//public class TEntry
-//{
-//    public string _string;
-//    public string _binary;
-//    public int _bit = -1;
-//    public int _leftID = -1;
-//    public int _rightID = -1;
-//    public int _stringID;
-//    public int _id;
-
-//    public TEntry(RSAREntryState s)
-//    {
-//        _binary = (_string = s._node._fullPath).ToBinaryArray();
-//        _stringID = s._stringId;
-//        _id = s._index;
-//    }
-//}
-
-//Making the output table to save me buttloads of time >.>
-//public void convertToBinary(string):
-//    ''' Converts a text string to a string representation of itself in binary. '''
-//    return ''.join(['%08d'%int(bin(ord(i))[2:]) for i in string])
-
-//Populating an empty table for my own convenience.
-//I assume the stringlist is ordered by ID, and is the first and only segment in the symb.
-//Cause I'm a lazy bastard.
-
-//Normal String, String (in binary), bit, LeftID, RightID, StringID, ID
-
-//outputTable = [{'string':stringTable[x], 'binary':convertToBinary(stringTable[x]), 
-//                'bit':-1, 'LeftID':-1, 'RightID':-1, 'StringID':x, 'ID':x} for x in xrange(len(stringTable))]
-
-//private static void WriteData(List<TEntry> Left, List<TEntry> Right, int bit)
-//{
-//    //Writes all the necessary information to the node
-
-//    TEntry currentNode = Right[0];
-
-//    //Write Position
-//    currentNode._bit = bit;
-
-//    //Write the left branch (matching) This is a bit fugly, because of how I handle the output table.
-//    //I basically determine the 'line' based off the ID.
-//    if (Left.Count > 1)
-//        currentNode._leftID = Left[0]._id * 2;
-//    else
-//    {
-//        currentNode._leftID = Left[0]._id * 2 - 1;
-//        //Edge case for the first node, who has no -1 line.
-//        if (currentNode._leftID < 0)
-//            currentNode._leftID = 0;
-//    }
-
-//    if (Right.Count > 1)
-//        currentNode._rightID = Right[1]._id * 2;
-//    else
-//    {
-//        currentNode._rightID = Right[0]._id * 2 - 1;
-//        //Edge case for the first node, who has no -1 line.
-//        if (currentNode._rightID < 0)
-//            currentNode._rightID = 0;
-//    }
-//}
-
-//private static void SplitTable(List<TEntry> outputTable, out List<TEntry> Left, out List<TEntry> Right)
-//{
-//    //Splits the table in two and writes the data
-
-//    TEntry originalNode = outputTable[0];
-//    List<TEntry> Temp;
-
-//    //Iterate bit by bit
-//    int bit = 0, entry = 0;
-//    for (bit = 0; bit < originalNode._binary.Length; bit++)
-//    {
-//        char compareBit = originalNode._binary[bit];
-
-//        //Go over the table
-//        for (entry = 0; entry < outputTable.Count; entry++)
-//        {
-//            //Fucking Ugly edge case - initial string is too long to compare
-//            if (bit >= outputTable[entry]._binary.Length)
-//            {
-//                //Python stuff to change the 'start' of the table to the current position
-//                Temp = outputTable.ShiftFirst(entry);
-
-//                //Split the ordered table there into Left (matching) and right (non-matching)
-//                Left = new List<TEntry> { outputTable[entry] };
-
-//                Right = new List<TEntry>();
-//                foreach (TEntry t in Temp)
-//                    if (t._id != outputTable[entry]._id)
-//                        Right.Add(t);
-
-//                WriteData(Left, Right, bit);
-
-//                //It splits!
-//                return;
-//            }
-
-//            //This is the normal case - applies 90% of the time, I find.
-//            if (outputTable[entry]._binary[bit] != compareBit)
-//            {
-//                //Python stuff to change the 'start' of the table to the current position
-//                Temp = outputTable.ShiftFirst(entry);
-
-//                //Split the ordered table there into Left (matching) and right (non-matching)
-//                Left = new List<TEntry>();
-//                foreach (TEntry t in Temp)
-//                    if (t._binary[bit] == '0')
-//                        Left.Add(t);
-
-//                Right = new List<TEntry>();
-//                foreach (TEntry t in Temp)
-//                    if (t._binary[bit] == '1')
-//                        Right.Add(t);
-
-//                WriteData(Left, Right, bit);
-
-//                //It splits!
-//                return;
-//            }
-//        }
-//    }
-
-//    //If it got this far, then it ran out of bits.
-//    //So now we gotta
-
-//    //Split the ordered table there into Left (matching) and right (non-matching)
-//    Left = new List<TEntry> { originalNode };
-//    Right = new List<TEntry>();
-//    foreach (TEntry t in outputTable)
-//        if (t._id != originalNode._id)
-//            Right.Add(t);
-
-//    WriteData(Left, Right, bit);
-
-//    //It splits!
-//    return;
-//}
-
-//public static void CalcMatch(List<TEntry> outputTable)
-//{
-//    //Split the Table by node
-//    List<TEntry> Left, Right;
-//    SplitTable(outputTable, out Left, out Right);
-
-//    //foreach (TEntry t in Left)
-//    //    Console.WriteLine(String.Format("Left: {0} {1} {2} {3} ", t._string, t._bit, t._leftID, t._rightID));
-
-//    //Console.WriteLine("-------------------------------------------------");
-
-//    //foreach (TEntry t in Right)
-//    //    Console.WriteLine(String.Format("Right: {0} {1} {2} {3} ", t._string, t._bit, t._leftID, t._rightID));
-
-//    if (Left.Count > 1)
-//        CalcMatch(Left);
-//    if (Right.Count > 1)
-//        CalcMatch(Right);
-//}
-
-//public class PatriciaTree
-//{
-//    public string[] strings;
-//    public string[] bin_strings;
-//    public int out_node_idx = 0;
-
-//    public PatriciaTree(string[] str)
-//    {
-//        strings = str;
-//        bin_strings = strings.Select(x => x.ToBinaryArray()).ToArray();
-//    }
-
-//    public int[] partition_tree(List<int> idx_list, int position)
-//    {
-//        List<int> left = new List<int>(), right = new List<int>();
-//        for (int i = 0; i < idx_list.Count; i++ )
-//        {
-//            string bstr = bin_strings[i];
-//            if (position >= bstr.Length || position < 0)
-//                left.Add(i);
-//            else
-//            {
-//                char ch = bstr[position];
-//                if (ch == '1')
-//                    right.Add(i);
-//                else
-//                    left.Add(i);
-//            }
-//        }
-//        int total = left.Count + right.Count;
-//        if (total == 1)
-//        {
-//            //This is a leaf, woo
-
-//            int pos = -1, t;
-
-//            if (left.Count > 0)
-//                t = left[0];
-//            else
-//                t = right[0];
-
-//            return new int[] { pos, t };
-//        }
-//        else if (left.Count == 0 || right.Count == 0)
-//            //This is not a branch, let's try the next bit
-//            if (left.Count > 0)
-//                return partition_tree(left, position + 1);
-//            else
-//                return partition_tree(right, position + 1);
-//        else
-//        {
-//            int[] l = partition_tree(left, position + 1);
-//            int[] r = partition_tree(right, position + 1);
-//            return new int[] { position }.Append(l).Append(r);
-//        }
-//    }
-//    public int tree_size(int[] node)
-//    {
-//        //Node is the return from partition_tree()
-//        if (node[0] == -1)
-//            return 1;
-//        else
-//            return 1 + tree_size(new int[] { node[1] }) + tree_size(new int[] { node[2] });
-//    }
-//    public void dump_tree(int[] tree)
-//    {
-//        out_node_idx = 0;
-//        _dump_node(tree);
-//    }
-//    public void _dump_node(int[] node)
-//    {
-//        //Node is the return from partition_tree()
-//        int bit_id = node[0];
-//        if (bit_id == -1)
-//        {
-//            //We're packing a leaf
-//            Console.WriteLine(String.Format("{0} leaf  : {1}", out_node_idx, strings[node[1]]));
-//            out_node_idx += 1;
-//        }
-//        else
-//        {
-//            //We're packing a branch
-//            int left_size = tree_size(new int[] { node[1] });
-//            int left_idx = out_node_idx + 1;
-//            int right_idx = left_idx + left_size;
-//            Console.WriteLine(String.Format("{0} branch: bit={1} left={2} right={3}", out_node_idx, bit_id, left_idx, right_idx));
-//            out_node_idx += 1;
-//            dump_tree(new int[] { node[1] });
-//            dump_tree(new int[] { node[2] });
-//        }
-//    }
-//}
-
-//tree = PatriciaTree(('BANK_HOMEBUTTON','BANK_SYSTEM_SE','BANK_BGM','BANK_SOFTWARE_KEYBOARD_SE'))
-//print(tree.partition_tree())
-//tree.dump_tree(tree.partition_tree())

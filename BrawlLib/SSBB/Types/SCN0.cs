@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 using BrawlLib.Imaging;
-using BrawlLib.Wii.Graphics;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.SSBBTypes
 {
@@ -84,7 +80,7 @@ namespace BrawlLib.SSBBTypes
     public unsafe struct SCN0v5
     {
         public const uint Tag = 0x304E4353;
-        public const int Size = 0x44;
+        public const int Size = 0x48;
 
         public BRESCommonHeader _header;
         public bint _dataOffset;
@@ -260,9 +256,10 @@ namespace BrawlLib.SSBBTypes
     [Flags]
     public enum LightType : ushort
     {
-        Point = 0x0,
-        Directional = 0x1, //Don't use distFunc, refDistance, refBrightness
-        Spotlight = 0x2, //Use cutoff
+        //All use pos and color
+        Point = 0x0, //Don't use aim, use dist func
+        Directional = 0x1, //Use aim
+        Spotlight = 0x2, //Use aim, spot func and dist func
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
@@ -282,10 +279,17 @@ namespace BrawlLib.SSBBTypes
         public BVec3 _startPoint;
         public RGBAPixel _lightColor;
         public BVec3 _endPoint;
+
+        //Used for point or spotlight
         public bint _distFunc;
+        public bfloat _refDistance;
         public bfloat _refBrightness;
+
+        //Used for spotlight
         public bint _spotFunc;
         public bfloat _cutoff;
+
+        //Used when specular enabled
         public RGBAPixel _specularColor;
         public bfloat _shininess;
 

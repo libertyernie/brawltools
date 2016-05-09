@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib;
-using BrawlLib.SSBBTypes;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Models;
+using BrawlLib.SSBB;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -45,21 +42,30 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Colors", null, ImportColorAction),
                 new ToolStripMenuItem("UVs", null, ImportUVAction)
                 ));
+            _menu.Items.Add(new ToolStripMenuItem("&Auto Name Assets", null,
+                new ToolStripMenuItem("Vertices", null, NameVertexAction),
+                new ToolStripMenuItem("Normals", null, NameNormalAction),
+                new ToolStripMenuItem("Colors", null, NameColorAction),
+                new ToolStripMenuItem("UVs", null, NameUVAction)
+                ));
             _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Import New Object", null, ImportObjectAction, Keys.Control | Keys.I));
-            _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction, Keys.Control | Keys.O));
-            _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption, Keys.Alt | Keys.R));
+            _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Import Existing Object", null, ImportObjectAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption));
+            _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Regenerate Metal Materials", null, MetalAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-
+        private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
         private static void OptimizeAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Optimize(); }
         protected static void PreviewAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Preview(); }
         protected static void ImportObjectAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportObject(); }
         protected static void RecalcBBsOption(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().RecalcBoundingBoxes(); }
-        //protected static void MetalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().AutoMetal(); }
+        protected static void MetalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().AutoMetal(); }
         
         protected static void NewShaderAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewShader(); }
         protected static void NewMaterialAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewMaterial(); }
@@ -69,6 +75,11 @@ namespace BrawlBox.NodeWrappers
         protected static void NewColorAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewColor(); }
         protected static void NewUVAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NewUV(); }
 
+        protected static void NameVertexAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameVertex(); }
+        protected static void NameNormalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameNormal(); }
+        protected static void NameColorAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameColor(); }
+        protected static void NameUVAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameUV(); }
+        
         protected static void ImportVertexAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportVertex(); }
         protected static void ImportNormalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportNormal(); }
         protected static void ImportColorAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportColor(); }
@@ -76,12 +87,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[19].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[22].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[19].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[22].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
@@ -96,6 +107,23 @@ namespace BrawlBox.NodeWrappers
         public override string ImportFilter { get { return FileFilters.MDL0Import; } }
 
         public MDL0Wrapper() { ContextMenuStrip = _menu; }
+        
+        public void ReimportMeshes()
+        {
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = SupportedFilesHandler.GetCompleteFilter("mdl0", "dae");
+            ofd.Title = "Please select a model to reimport meshes from.";
+            if (ofd.ShowDialog() == DialogResult.OK)
+            {
+                MDL0Node replacement = MDL0Node.FromFile(ofd.FileName);
+                if (replacement != null)
+                {
+                    ((MDL0Node)_resource).ReplaceMeshes(replacement, true, true, true);
+                    replacement.Dispose();
+                    _resource.UpdateCurrentControl();
+                }
+            }
+        }
 
         public void Preview()
         {
@@ -109,9 +137,6 @@ namespace BrawlBox.NodeWrappers
 
         public void NewShader()
         {
-            if (_modelViewerOpen)
-                return;
-
             MDL0Node model = ((MDL0Node)_resource);
 
             if (model._shadGroup == null)
@@ -124,8 +149,9 @@ namespace BrawlBox.NodeWrappers
                 }
             }
 
-            if (model._shadList != null && model._matList != null)
-            if (model._shadList.Count < model._matList.Count)
+            if (model._shadList != null &&
+                model._matList != null &&
+                model._shadList.Count < model._matList.Count)
             {
                 MDL0ShaderNode shader = new MDL0ShaderNode();
                 model._shadGroup.AddChild(shader);
@@ -140,9 +166,6 @@ namespace BrawlBox.NodeWrappers
 
         public void NewMaterial()
         {
-            if (_modelViewerOpen)
-                return;
-
             MDL0Node model = ((MDL0Node)_resource);
 
             if (model._matGroup == null)
@@ -158,7 +181,6 @@ namespace BrawlBox.NodeWrappers
             MDL0MaterialNode mat = new MDL0MaterialNode();
             model._matGroup.AddChild(mat);
             mat.Name = "Material" + mat.Index;
-            mat.SetImportValues();
 
             if (model._shadGroup == null)
             {
@@ -173,7 +195,9 @@ namespace BrawlBox.NodeWrappers
                 NewShader();
             
             mat.ShaderNode = (MDL0ShaderNode)model._shadList[0];
-            mat.AddChild(new MDL0MaterialRefNode() { Name = "MatRef0" });
+            MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+            mat.AddChild(mr);
+            mr.Name = "MatRef0";
             mat.Rebuild(true);
 
             BaseWrapper b = FindResource(mat, true);
@@ -181,16 +205,99 @@ namespace BrawlBox.NodeWrappers
                 b.EnsureVisible();
         }
 
-        //public void AutoMetal()
-        //{
-        //    ((MDL0Node)_resource).AutoMetalMaterials = true;
-        //}
+        public void AutoMetal()
+        {
+            if (MessageBox.Show(null, "Are you sure you want to regenerate metal materials for Brawl?\nAll existing metal materials and shaders will be reset.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                ((MDL0Node)_resource).GenerateMetalMaterials();
+        }
+
+        public void NameVertex()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            MDL0GroupNode g = model._vertGroup;
+            if (g != null)
+                foreach (MDL0VertexNode v in g.Children)
+                {
+                    string name = model.Name + "_";
+                    if (v._objects.Count > 0)
+                    {
+                        MDL0ObjectNode o = v._objects[0];
+                        name += o.Name;
+                        if (o._drawCalls.Count > 0)
+                        {
+                            DrawCall c = o._drawCalls[0];
+                            if (c.MaterialNode != null && c.VisibilityBoneNode != null)
+                                name += "_" + c.Material + "_" + c.VisibilityBone;
+                        }
+                    }
+                    else
+                        name += "VertexArray";
+
+                    v.Name = g.FindName(name);
+                }
+        }
+        public void NameNormal()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            MDL0GroupNode g = model._normGroup;
+            if (g != null)
+                foreach (MDL0NormalNode v in g.Children)
+                {
+                    string name = model.Name + "_";
+                    if (v._objects.Count > 0)
+                    {
+                        MDL0ObjectNode o = v._objects[0];
+                        name += o.Name;
+                        if (o._drawCalls.Count > 0)
+                        {
+                            DrawCall c = o._drawCalls[0];
+                            if (c.MaterialNode != null && c.VisibilityBoneNode != null)
+                                name += "_" + c.Material + "_" + c.VisibilityBone;
+                        }
+                    }
+                    else
+                        name += "NormalArray";
+
+                    v.Name = g.FindName(name);
+                }
+        }
+        public void NameColor()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            MDL0GroupNode g = model._colorGroup;
+            if (g != null)
+                foreach (MDL0ColorNode v in g.Children)
+                {
+                    string name = model.Name + "_";
+                    if (v._objects.Count > 0)
+                    {
+                        MDL0ObjectNode o = v._objects[0];
+                        name += o.Name;
+                        if (o._drawCalls.Count > 0)
+                        {
+                            DrawCall c = o._drawCalls[0];
+                            if (c.MaterialNode != null && c.VisibilityBoneNode != null)
+                                name += "_" + c.Material + "_" + c.VisibilityBone;
+                        }
+                    }
+                    else
+                        name += "ColorArray";
+
+                    v.Name = g.FindName(name);
+                }
+        }
+        public void NameUV()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            MDL0GroupNode g = model._uvGroup;
+            int i = 0;
+            if (g != null)
+                foreach (MDL0UVNode v in g.Children)
+                    v.Name = "#" + i++;
+        }
 
         public MDL0VertexNode NewVertex()
         {
-            if (_modelViewerOpen)
-                return null;
-
             MDL0Node model = ((MDL0Node)_resource);
 
             MDL0GroupNode g = model._vertGroup;
@@ -214,9 +321,6 @@ namespace BrawlBox.NodeWrappers
 
         public MDL0NormalNode NewNormal()
         {
-            if (_modelViewerOpen)
-                return null;
-            
             MDL0Node model = ((MDL0Node)_resource);
 
             MDL0GroupNode g = model._normGroup;
@@ -240,9 +344,6 @@ namespace BrawlBox.NodeWrappers
 
         public MDL0ColorNode NewColor()
         {
-            if (_modelViewerOpen)
-                return null;
-
             MDL0Node model = ((MDL0Node)_resource);
 
             MDL0GroupNode g = model._colorGroup;
@@ -266,9 +367,6 @@ namespace BrawlBox.NodeWrappers
 
         public MDL0UVNode NewUV()
         {
-            if (_modelViewerOpen)
-                return null;
-
             MDL0Node model = ((MDL0Node)_resource);
 
             MDL0GroupNode g = model._uvGroup;
@@ -292,9 +390,6 @@ namespace BrawlBox.NodeWrappers
 
         public void ImportVertex()
         {
-            if (_modelViewerOpen)
-                return;
-
             OpenFileDialog o = new OpenFileDialog();
             o.Filter = "Raw Vertex Set (*.*)|*.*";
             o.Title = "Please select a vertex set to import.";
@@ -304,9 +399,6 @@ namespace BrawlBox.NodeWrappers
 
         public void ImportNormal()
         {
-            if (_modelViewerOpen)
-                return;
-
             OpenFileDialog o = new OpenFileDialog();
             o.Filter = "Raw Normal Set (*.*)|*.*";
             o.Title = "Please select a normal set to import.";
@@ -316,9 +408,6 @@ namespace BrawlBox.NodeWrappers
 
         public void ImportColor()
         {
-            if (_modelViewerOpen)
-                return;
-
             OpenFileDialog o = new OpenFileDialog();
             o.Filter = "Raw Color Set (*.*)|*.*";
             o.Title = "Please select a color set to import.";
@@ -328,9 +417,6 @@ namespace BrawlBox.NodeWrappers
 
         public void ImportUV()
         {
-            if (_modelViewerOpen)
-                return;
-
             OpenFileDialog o = new OpenFileDialog();
             o.Filter = "Raw Vertex Set (*.*)|*.*";
             o.Title = "Please select a vertex set to import.";
@@ -340,9 +426,6 @@ namespace BrawlBox.NodeWrappers
 
         public void ImportObject()
         {
-            if (_modelViewerOpen)
-                return;
-
             MDL0Node external = null;
             OpenFileDialog o = new OpenFileDialog();
             o.Filter = "MDL0 Raw Model (*.mdl0)|*.mdl0";
@@ -356,11 +439,7 @@ namespace BrawlBox.NodeWrappers
         {
             MDL0Node model = _resource as MDL0Node;
             if (model != null)
-            {
                 model.CalculateBoundingBoxes();
-                model.SignalPropertyChange();
-                model.UpdateProperties();
-            }
         }
     }
 }

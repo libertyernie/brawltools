@@ -1,19 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Imaging;
 using BrawlLib.Wii.Graphics;
 using BrawlLib.Wii.Animations;
-using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class SCN0FogNode : SCN0EntryNode, IColorSource, IKeyframeSource
     {
         internal SCN0Fog* Data { get { return (SCN0Fog*)WorkingUncompressed.Address; } }
+        public override ResourceType ResourceType { get { return ResourceType.SCN0Fog; } }
 
         private FogType _type = FogType.PerspectiveLinear;
         public SCN0FogFlags _flags = (SCN0FogFlags)0xE0;
@@ -84,7 +82,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_keyframes == null)
                 {
-                    _keyframes = new KeyframeCollection(2, Scene.FrameCount + (Scene.Loop ? 1 : 0));
+                    _keyframes = new KeyframeCollection(2, Scene == null ? 1 : Scene.FrameCount + (Scene.Loop ? 1 : 0));
                     if (Data != null && _name != "<null>")
                         for (int i = 0; i < 2; i++)
                             DecodeKeyframes(
@@ -245,7 +243,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         public static bool _generateTangents = true;
-        public FogAnimationFrame GetAnimFrame(int index)
+        public FogAnimationFrame GetAnimFrame(float index)
         {
             FogAnimationFrame frame;
             float* dPtr = (float*)&frame;
@@ -256,6 +254,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                 frame.SetBools(x, a.GetKeyframe((int)index) != null);
                 frame.Index = index;
             }
+
+            //Ignore alpha value; not used
+            if (ConstantColor)
+                frame.Color = (Vector3)_solidColor;
+            else
+            {
+                int colorIndex = (int)Math.Truncate(index);
+                Vector3 color = (Vector3)_colors[colorIndex];
+                if (colorIndex + 1 < _colors.Count)
+                {
+                    float frac = index - colorIndex;
+                    Vector3 interp = (Vector3)_colors[colorIndex + 1];
+                    color += (interp - color) * frac;
+                }
+                frame.Color = color;
+            }
+            frame.Type = Type;
             return frame;
         }
         public KeyframeEntry GetKeyframe(int keyFrameMode, int index)

@@ -12,9 +12,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         //protected override int DataLength { get { return Header->_dataLen; } }
 
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0NormalData hdr = new MDL0NormalData();
+        MDL0NormalData _hdr = new MDL0NormalData() { _type = (int)WiiVertexComponentType.Float };
 
         public enum NormalType
         {
@@ -24,17 +24,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         [Category("Normal Data")]
-        public int ID { get { return hdr._index; } }
+        public int ID { get { return _hdr._index; } }
         [Category("Normal Data")]
-        public NormalType Type { get { return (NormalType)(int)hdr._isNBT; } }
+        public NormalType Type { get { return (NormalType)(int)_hdr._isNBT; } }
         [Category("Normal Data")]
-        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)hdr._type; } }
+        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)_hdr._type; } }
         [Category("Normal Data")]
-        public int Divisor { get { return hdr._divisor; } }
+        public int Divisor { get { return _hdr._divisor; } }
         [Category("Normal Data")]
-        public int EntryStride { get { return hdr._entryStride; } }
+        public int EntryStride { get { return _hdr._entryStride; } }
         [Category("Normal Data")]
-        public int NumEntries { get { return hdr._numVertices; } }
+        public int NumEntries { get { return _hdr._numVertices; } }
 
         public bool ForceRebuild { get { return _forceRebuild; } set { if (_forceRebuild != value) { _forceRebuild = value; SignalPropertyChange(); } } }
         public bool ForceFloat { get { return _forceFloat; } set { if (_forceFloat != value) { _forceFloat = value; } } }
@@ -43,7 +43,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Vector3[] Normals
         {
             get { return _normals == null ? _normals = VertexCodec.ExtractNormals(Header) : _normals; }
-            set { _normals = value; SignalPropertyChange(); }
+            set
+            {
+                _normals = value;
+
+                _forceRebuild = true;
+                if (Format == WiiVertexComponentType.Float)
+                    _forceFloat = true;
+
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()
@@ -52,7 +61,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             //just in case the node has been replaced.
             _normals = null;
 
-            hdr = *Header;
+            _hdr = *Header;
+
+            //SetSizeInternal(_hdr._dataLen);
 
             if ((_name == null) && (Header->_stringOffset != 0))
                 _name = Header->ResourceString;

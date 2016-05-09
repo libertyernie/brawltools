@@ -10,27 +10,27 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal MDL0UVData* Header { get { return (MDL0UVData*)WorkingUncompressed.Address; } }
         public MDL0ObjectNode[] Objects { get { return _objects.ToArray(); } }
-        internal List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
+        public List<MDL0ObjectNode> _objects = new List<MDL0ObjectNode>();
 
-        MDL0UVData hdr;
-
-        [Category("UV Data")]
-        public int ID { get { return hdr._index; } }
-        [Category("UV Data")]
-        public bool IsST { get { return hdr._isST != 0; } }
-        [Category("UV Data")]
-        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)hdr._format; } }
-        [Category("UV Data")]
-        public byte Divisor { get { return hdr._divisor; } }
-        [Category("UV Data")]
-        public byte EntryStride { get { return hdr._entryStride; } }
-        [Category("UV Data")]
-        public int NumEntries { get { return hdr._numEntries; } }
+        MDL0UVData _hdr = new MDL0UVData() { _format = (int)WiiVertexComponentType.Float };
 
         [Category("UV Data")]
-        public Vector2 Min { get { return hdr._min; } }
+        public int ID { get { return _hdr._index; } }
         [Category("UV Data")]
-        public Vector2 Max { get { return hdr._max; } }
+        public bool IsST { get { return _hdr._isST != 0; } }
+        [Category("UV Data")]
+        public WiiVertexComponentType Format { get { return (WiiVertexComponentType)(int)_hdr._format; } }
+        [Category("UV Data")]
+        public byte Divisor { get { return _hdr._divisor; } }
+        [Category("UV Data")]
+        public byte EntryStride { get { return _hdr._entryStride; } }
+        [Category("UV Data")]
+        public int NumEntries { get { return _hdr._numEntries; } }
+
+        [Category("UV Data")]
+        public Vector2 Min { get { return _hdr._min; } }
+        [Category("UV Data")]
+        public Vector2 Max { get { return _hdr._max; } }
 
         public bool ForceRebuild { get { return _forceRebuild; } set { if (_forceRebuild != value) { _forceRebuild = value; SignalPropertyChange(); } } }
         public bool ForceFloat { get { return _forceFloat; } set { if (_forceFloat != value) { _forceFloat = value; } } }
@@ -39,7 +39,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Vector2[] Points
         {
             get { return _points == null ? _points = VertexCodec.ExtractUVs(Header) : _points; }
-            set { _points = value; SignalPropertyChange(); }
+            set
+            {
+                _points = value;
+
+                _forceRebuild = true;
+                if (Format == WiiVertexComponentType.Float)
+                    _forceFloat = true;
+                
+                SignalPropertyChange();
+            }
         }
 
         public override bool OnInitialize()
@@ -48,7 +57,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             //just in case the node has been replaced.
             _points = null;
 
-            hdr = *Header;
+            _hdr = *Header;
+
+            //SetSizeInternal(_hdr._dataLen);
 
             if ((_name == null) && (Header->_stringOffset != 0))
                 _name = Header->ResourceString;
@@ -84,7 +95,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 header->_entryStride = (byte)_enc._dstStride;
                 header->_numEntries = (ushort)_enc._srcCount;
                 header->_min = (Vector2)_enc._min;
-                header->_min = (Vector2)_enc._max;
+                header->_max = (Vector2)_enc._max;
                 header->_pad1 = header->_pad2 = header->_pad3 = header->_pad4 = 0;
 
                 _enc.Write(Points, (byte*)address + 0x40);

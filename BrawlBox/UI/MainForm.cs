@@ -4,10 +4,8 @@ using BrawlLib.Modeling;
 using BrawlLib.OpenGL;
 using BrawlLib.SSBB;
 using BrawlLib.SSBB.ResourceNodes;
-using Octokit;
 using System;
 using System.Audio;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -65,23 +63,11 @@ namespace BrawlBox
 #endif
             soundPackControl1._grid = propertyGrid1;
             soundPackControl1.lstSets.SmallImageList = ResourceTree.Images;
-            msBinEditor1.Dock =
-            animEditControl.Dock =
-            texAnimEditControl.Dock =
-            shpAnimEditControl.Dock =
-            soundPackControl1.Dock =
-            audioPlaybackPanel1.Dock =
-            clrControl.Dock =
-            visEditor.Dock =
-            scN0CameraEditControl1.Dock =
-            scN0LightEditControl1.Dock =
-            scN0FogEditControl1.Dock =
-            modelPanel1.Dock =
-            previewPanel2.Dock =
-            videoPlaybackPanel1.Dock =
-			attributeGrid1.Dock =
-            texCoordControl1.Dock =
-            DockStyle.Fill;
+            foreach (Control c in splitContainer2.Panel2.Controls)
+            {
+                c.Visible = false;
+                c.Dock = DockStyle.Fill;
+            }
             m_DelegateOpenFile = new DelegateOpenFile(Program.Open);
             _instance = this;
 
@@ -96,58 +82,28 @@ namespace BrawlBox
         private delegate bool DelegateOpenFile(String s);
         private DelegateOpenFile m_DelegateOpenFile;
 
-        private async void CheckUpdates(bool manual = true)
+        private void CheckUpdates(bool manual = true)
         {
             try
             {
-                //TODO: move this entire function into the updater, 
-                //pass specific information as arguments
-
-                string updater = System.Windows.Forms.Application.StartupPath + "/Updater.exe";
-                if (!File.Exists(updater))
+                string path;
+                if (Program.CanRunGithubApp(manual, out path))
                 {
-                    if (manual)
-                        MessageBox.Show("Could not find " + updater);
-                    return;
-                }
-
-                //I now realize that sometimes this will have to be different than the title
-                //Make sure this matches the tag name of the release on github exactly
-                string version = "v0.75_h2";
-
-                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
-                IReadOnlyList<Release> release = null;
-                try
-                {
-                    release = await github.Release.GetAll("libertyernie", "brawltools");
-                }
-                catch (System.Net.Http.HttpRequestException)
-                {
-                    if (manual)
-                        MessageBox.Show("Unable to connect to the internet.");
-                    return;
-                }
-
-                if (release != null &&
-                    release.Count > 0 &&
-                    !String.Equals(release[0].TagName, version, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
-                    release[0].Name.Contains("BrawlBox", StringComparison.InvariantCultureIgnoreCase)) //Make sure this is a BrawlBox release
-                {
-                    DialogResult UpdateResult = MessageBox.Show(release[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
-                    if (UpdateResult == DialogResult.Yes)
+                    Process.Start(new ProcessStartInfo()
                     {
-                        DialogResult OverwriteResult = MessageBox.Show("Overwrite current installation?", "", MessageBoxButtons.YesNoCancel);
-                        if (OverwriteResult == DialogResult.Yes)
-                        {
-                            Process.Start(updater, "-r");
-                            this.Close();
-                        }
-                        else if (OverwriteResult == DialogResult.No)
-                            Process.Start(updater);
-                    }
+                        FileName = path,
+                        WindowStyle = ProcessWindowStyle.Hidden,
+                        Arguments = String.Format("-bu {0} {1}",
+                        Program.TagName, manual ? "1" : "0"),
+                    });
                 }
-                else if (manual)
-                    MessageBox.Show("No updates found.");
+                else
+                {
+                    if (manual)
+                        MessageBox.Show(".NET version 4.5 is required to run the updater.");
+                    checkForUpdatesToolStripMenuItem.Enabled =
+                    checkForUpdatesToolStripMenuItem.Visible = false;
+                }
             }
             catch (Exception e)
             {
@@ -251,7 +207,7 @@ namespace BrawlBox
 
         public Control _currentControl = null;
         private Control _secondaryControl = null;
-        public void resourceTree_SelectionChanged(object sender, EventArgs e)
+        public unsafe void resourceTree_SelectionChanged(object sender, EventArgs e)
         {
             audioPlaybackPanel1.TargetSource = null;
             animEditControl.TargetSequence = null;
@@ -265,7 +221,11 @@ namespace BrawlBox
             scN0LightEditControl1.TargetSequence = null;
             scN0FogEditControl1.TargetSequence = null;
             texCoordControl1.TargetNode = null;
+            ppcDisassembler1.SetTarget(null, 0, null);
             modelPanel1.ClearAll();
+            mdL0ObjectControl1.SetTarget(null);
+            if (hexBox1.ByteProvider != null)
+                ((Be.Windows.Forms.DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
             
             Control newControl = null;
             Control newControl2 = null;
@@ -277,7 +237,33 @@ namespace BrawlBox
             {
                 propertyGrid1.SelectedObject = node;
 
-                if (node is IVideo)
+#if DEBUG
+                if (node is IBufferNode)
+                {
+                    IBufferNode d = node as IBufferNode;
+                    if (d.IsValid())
+                    {
+                        hexBox1.ByteProvider = new Be.Windows.Forms.DynamicFileByteProvider(new UnmanagedMemoryStream(
+                                (byte*)d.GetAddress(),
+                                d.GetLength(),
+                                d.GetLength(),
+                                FileAccess.ReadWrite)) { _supportsInsDel = false };
+                        newControl = hexBox1;
+                    }
+                }
+                else
+#endif
+                if (node is RSARGroupNode)
+                {
+                    rsarGroupEditor.LoadGroup(node as RSARGroupNode);
+                    newControl = rsarGroupEditor;
+                }
+                else if (node is RELMethodNode)
+                {
+                    ppcDisassembler1.SetTarget((RELMethodNode)node);
+                    newControl = ppcDisassembler1;
+                }
+                else if (node is IVideo)
                 {
                     videoPlaybackPanel1.TargetSource = node as IVideo;
                     newControl = videoPlaybackPanel1;
@@ -285,6 +271,10 @@ namespace BrawlBox
                 else if (node is MDL0MaterialRefNode)
                 {
                     newControl = texCoordControl1;
+                }
+                else if (node is MDL0ObjectNode)
+                {
+                    newControl = mdL0ObjectControl1;
                 }
                 else if (node is MSBinNode)
                 {
@@ -424,7 +414,7 @@ namespace BrawlBox
                 if (node._children == null)
                     node.Populate(0);
                 
-                if (node is IModel)
+                if (node is IModel && ModelEditControl.Instances.Count == 0)
                 {
                     IModel m = node as IModel;
                     m.ResetToBindState();
@@ -434,6 +424,8 @@ namespace BrawlBox
                 modelPanel1.AddTarget(o);
                 modelPanel1.SetCamWithBox(o.GetBox());
             }
+            else if (_currentControl is MDL0ObjectControl)
+                mdL0ObjectControl1.SetTarget(node as MDL0ObjectNode);
             else if (_currentControl is TexCoordControl)
                 texCoordControl1.TargetNode = ((MDL0MaterialRefNode)node);
         }
@@ -528,14 +520,12 @@ namespace BrawlBox
 
         private void gCTEditorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            GCTEditor c = new GCTEditor();
-            c.Show();
+            new GCTEditor().Show();
         }
 
         private void recentFilesToolStripMenuItem_DropDownItemClicked(object sender, ToolStripItemClickedEventArgs e)
         {
-            RecentFileHandler.FileMenuItem fmi = (RecentFileHandler.FileMenuItem)e.ClickedItem;
-            Program.Open(fmi.FileName);
+            Program.Open(((RecentFileHandler.FileMenuItem)e.ClickedItem).FileName);
         }
 
         private void checkForUpdatesToolStripMenuItem_Click_1(object sender, EventArgs e)

@@ -2,9 +2,7 @@
 using System.Runtime.InteropServices;
 using BrawlLib.Wii.Models;
 using System.Collections.Generic;
-using BrawlLib.Imaging;
 using System.ComponentModel;
-using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib.Modeling
 {
@@ -76,7 +74,7 @@ namespace BrawlLib.Modeling
             for (int i = 0; i < _headers.Count; i++)
             {
                 //Re-assign node ids, just in case the nodes were moved
-                foreach (Facepoint point in _points[i])
+                foreach (Facepoint point in _facePoints[i])
                     if (!_nodes.Contains((ushort)point.NodeID))
                         _nodes.Add((ushort)point.NodeID);
             }
@@ -90,10 +88,11 @@ namespace BrawlLib.Modeling
         public List<PointTriangleStrip> _tristrips = new List<PointTriangleStrip>();
         public List<PointLine> _lines = new List<PointLine>();
         public List<PointLineStrip> _linestrips = new List<PointLineStrip>();
-        
+        public List<FPoint> _points = new List<FPoint>();
+
         //For existing models
         public List<PrimitiveHeader> _headers = new List<PrimitiveHeader>();
-        public List<List<Facepoint>> _points = new List<List<Facepoint>>();
+        public List<List<Facepoint>> _facePoints = new List<List<Facepoint>>();
 
         //Offset from the start of the primitives to this group.
         public uint _offset; 
@@ -137,6 +136,11 @@ namespace BrawlLib.Modeling
                 if (!_nodes.Contains(p.NodeID))
                     _nodes.Add(p.NodeID);
         }
+        private void AddPoint(FPoint t)
+        {
+            _points.Add(t);
+            if (!_nodes.Contains(t._x.NodeID)) _nodes.Add(t._x.NodeID);
+        }
 
         public bool TryAdd(PrimitiveClass p)
         {
@@ -148,6 +152,8 @@ namespace BrawlLib.Modeling
                 return TryAdd(p as PointLineStrip);
             else if (p is PointLine)
                 return TryAdd(p as PointLine);
+            else if (p is FPoint)
+                return TryAdd(p as FPoint);
             return false;
         }
 
@@ -222,6 +228,23 @@ namespace BrawlLib.Modeling
             if (newIds.Count + _nodes.Count <= _nodeCountMax)
             {
                 AddLine(t);
+                return true;
+            }
+            return false;
+        }
+
+        private bool TryAdd(FPoint t)
+        {
+            List<ushort> newIds = new List<ushort>();
+
+            ushort x = t._x.NodeID;
+
+            if (!_nodes.Contains(x) && !newIds.Contains(x)) newIds.Add(x);
+
+            //There's a limit of 10 matrices per group...
+            if (newIds.Count + _nodes.Count <= _nodeCountMax)
+            {
+                AddPoint(t);
                 return true;
             }
             return false;
@@ -386,5 +409,12 @@ namespace BrawlLib.Modeling
             if (_y == f) return true;
             return false;
         }
+    }
+
+    public class FPoint : PrimitiveClass
+    {
+        public Facepoint _x;
+
+        public FPoint(Facepoint x) { _x = x; }
     }
 }

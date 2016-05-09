@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBBTypes
@@ -64,7 +62,7 @@ namespace BrawlLib.SSBBTypes
         public void Set(int size, int channels)
         {
             RuintList* list;
-            uint offset = _entries.Address;
+            VoidPtr offset = _entries.Address;
             int dataOffset = 0x60 + (channels * 8);
 
             _tag = Tag;
@@ -153,6 +151,41 @@ namespace BrawlLib.SSBBTypes
         public bint _dataInterval; //0x3800
         public bint _bitsPerSample;
 
+        public unsafe StrmDataInfo(CSTMDataInfo o, int dataOffset)
+        {
+            _format = o._format;
+            _sampleRate = checked((ushort)o._sampleRate);
+            _blockHeaderOffset = 0;
+            _loopStartSample = o._loopStartSample;
+            _numSamples = o._numSamples;
+            _dataOffset = dataOffset;
+            _numBlocks = o._numBlocks;
+            _blockSize = o._blockSize;
+            _samplesPerBlock = o._samplesPerBlock;
+            _lastBlockSize = o._lastBlockSize;
+            _lastBlockSamples = o._lastBlockSamples;
+            _lastBlockTotal = o._lastBlockTotal;
+            _dataInterval = o._dataInterval;
+            _bitsPerSample = o._bitsPerSample;
+        }
+
+        public unsafe StrmDataInfo(FSTMDataInfo o, int dataOffset) {
+            _format = o._format;
+            _sampleRate = checked((ushort)(int)o._sampleRate);
+            _blockHeaderOffset = 0;
+            _loopStartSample = o._loopStartSample;
+            _numSamples = o._numSamples;
+            _dataOffset = dataOffset;
+            _numBlocks = o._numBlocks;
+            _blockSize = o._blockSize;
+            _samplesPerBlock = o._samplesPerBlock;
+            _lastBlockSize = o._lastBlockSize;
+            _lastBlockSamples = o._lastBlockSamples;
+            _lastBlockTotal = o._lastBlockTotal;
+            _dataInterval = o._dataInterval;
+            _bitsPerSample = o._bitsPerSample;
+        }
+
         //public void Set(int sampleRate, int loopStart, int numSamples, int channels, int dataOffset)
         //{
         //    _format = new AudioFormatInfo(2, (byte)(loopStart >= 0 ? 1 : 0), (byte)channels, 0);
@@ -161,7 +194,7 @@ namespace BrawlLib.SSBBTypes
         //    _loopStartSample = loopStart;
         //    _numSamples = numSamples;
         //    _dataOffset = dataOffset;
-            
+
         //    int tmp, lbSize;
 
         //    _numBlocks = (numSamples + 0x37FF) / 0x3800;

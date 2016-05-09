@@ -1,11 +1,9 @@
-﻿using System;
-using BrawlLib.Wii.Animations;
+﻿using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Modeling;
 using System.ComponentModel;
 using System.Drawing;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Models;
 
 namespace System.Windows.Forms
@@ -55,30 +53,61 @@ namespace System.Windows.Forms
         private ToolStripMenuItem toolStripMenuItem6;
         private ToolStripMenuItem toolStripMenuItem8;
         private ToolStripMenuItem removeAllToolStripMenuItem;
+        private ContextMenuStrip ctxTools;
+        private ToolStripMenuItem bakeVertexPositionsToolStripMenuItem;
+        public CheckBox chkMoveBoneOnly;
+        public CheckBox chkUpdateBindPose;
+        private Panel panel1;
+        private Panel scale;
+        private Panel rot;
+        private Panel trans;
+        private Panel panel6;
+        private Panel panel7;
+        private Panel panel5;
         private ToolStripMenuItem addCustomAmountToolStripMenuItem;
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
             this.grpTransform = new System.Windows.Forms.GroupBox();
-            this.FrameScale = new System.Windows.Forms.CheckBox();
+            this.panel1 = new System.Windows.Forms.Panel();
+            this.chkMoveBoneOnly = new System.Windows.Forms.CheckBox();
             this.btnPaste = new System.Windows.Forms.Button();
-            this.FrameRot = new System.Windows.Forms.CheckBox();
             this.btnCopy = new System.Windows.Forms.Button();
-            this.FrameTrans = new System.Windows.Forms.CheckBox();
             this.btnCut = new System.Windows.Forms.Button();
-            this.lblTrans = new System.Windows.Forms.Label();
-            this.lblRot = new System.Windows.Forms.Label();
+            this.scale = new System.Windows.Forms.Panel();
+            this.FrameScale = new System.Windows.Forms.CheckBox();
+            this.numScaleZ = new System.Windows.Forms.NumericInputBox();
+            this.numScaleY = new System.Windows.Forms.NumericInputBox();
+            this.numScaleX = new System.Windows.Forms.NumericInputBox();
             this.lblScale = new System.Windows.Forms.Label();
+            this.rot = new System.Windows.Forms.Panel();
+            this.FrameRot = new System.Windows.Forms.CheckBox();
+            this.numRotZ = new System.Windows.Forms.NumericInputBox();
+            this.numRotY = new System.Windows.Forms.NumericInputBox();
+            this.numRotX = new System.Windows.Forms.NumericInputBox();
+            this.lblRot = new System.Windows.Forms.Label();
+            this.trans = new System.Windows.Forms.Panel();
+            this.FrameTrans = new System.Windows.Forms.CheckBox();
+            this.numTransZ = new System.Windows.Forms.NumericInputBox();
+            this.numTransY = new System.Windows.Forms.NumericInputBox();
+            this.numTransX = new System.Windows.Forms.NumericInputBox();
+            this.lblTrans = new System.Windows.Forms.Label();
+            this.chkUpdateBindPose = new System.Windows.Forms.CheckBox();
             this.grpTransAll = new System.Windows.Forms.GroupBox();
-            this.btnInsert = new System.Windows.Forms.Button();
-            this.btnClean = new System.Windows.Forms.Button();
-            this.btnPasteAll = new System.Windows.Forms.Button();
-            this.btnCopyAll = new System.Windows.Forms.Button();
-            this.btnClearAll = new System.Windows.Forms.Button();
-            this.btnDelete = new System.Windows.Forms.Button();
+            this.panel6 = new System.Windows.Forms.Panel();
             this.AllScale = new System.Windows.Forms.CheckBox();
+            this.btnDelete = new System.Windows.Forms.Button();
+            this.btnInsert = new System.Windows.Forms.Button();
+            this.panel7 = new System.Windows.Forms.Panel();
             this.AllRot = new System.Windows.Forms.CheckBox();
+            this.btnClearAll = new System.Windows.Forms.Button();
+            this.btnPasteAll = new System.Windows.Forms.Button();
+            this.panel5 = new System.Windows.Forms.Panel();
             this.AllTrans = new System.Windows.Forms.CheckBox();
+            this.btnClean = new System.Windows.Forms.Button();
+            this.btnCopyAll = new System.Windows.Forms.Button();
+            this.ctxTools = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.bakeVertexPositionsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.ctxBox = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.Source = new System.Windows.Forms.ToolStripMenuItem();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
@@ -92,267 +121,529 @@ namespace System.Windows.Forms
             this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
             this.removeAllToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.addCustomAmountToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.numScaleX = new System.Windows.Forms.NumericInputBox();
-            this.numScaleY = new System.Windows.Forms.NumericInputBox();
-            this.numScaleZ = new System.Windows.Forms.NumericInputBox();
-            this.numRotX = new System.Windows.Forms.NumericInputBox();
-            this.numRotY = new System.Windows.Forms.NumericInputBox();
-            this.numRotZ = new System.Windows.Forms.NumericInputBox();
-            this.numTransX = new System.Windows.Forms.NumericInputBox();
-            this.numTransY = new System.Windows.Forms.NumericInputBox();
-            this.numTransZ = new System.Windows.Forms.NumericInputBox();
             this.grpTransform.SuspendLayout();
+            this.panel1.SuspendLayout();
+            this.scale.SuspendLayout();
+            this.rot.SuspendLayout();
+            this.trans.SuspendLayout();
             this.grpTransAll.SuspendLayout();
+            this.panel6.SuspendLayout();
+            this.panel7.SuspendLayout();
+            this.panel5.SuspendLayout();
+            this.ctxTools.SuspendLayout();
             this.ctxBox.SuspendLayout();
             this.SuspendLayout();
             // 
             // grpTransform
             // 
-            this.grpTransform.Controls.Add(this.FrameScale);
-            this.grpTransform.Controls.Add(this.btnPaste);
-            this.grpTransform.Controls.Add(this.FrameRot);
-            this.grpTransform.Controls.Add(this.btnCopy);
-            this.grpTransform.Controls.Add(this.FrameTrans);
-            this.grpTransform.Controls.Add(this.btnCut);
-            this.grpTransform.Controls.Add(this.numScaleX);
-            this.grpTransform.Controls.Add(this.numScaleY);
-            this.grpTransform.Controls.Add(this.numScaleZ);
-            this.grpTransform.Controls.Add(this.numRotX);
-            this.grpTransform.Controls.Add(this.numRotY);
-            this.grpTransform.Controls.Add(this.numRotZ);
-            this.grpTransform.Controls.Add(this.numTransX);
-            this.grpTransform.Controls.Add(this.numTransY);
-            this.grpTransform.Controls.Add(this.numTransZ);
-            this.grpTransform.Controls.Add(this.lblTrans);
-            this.grpTransform.Controls.Add(this.lblRot);
-            this.grpTransform.Controls.Add(this.lblScale);
+            this.grpTransform.Controls.Add(this.panel1);
+            this.grpTransform.Controls.Add(this.scale);
+            this.grpTransform.Controls.Add(this.rot);
+            this.grpTransform.Controls.Add(this.trans);
             this.grpTransform.Dock = System.Windows.Forms.DockStyle.Left;
             this.grpTransform.Enabled = false;
             this.grpTransform.Location = new System.Drawing.Point(0, 0);
             this.grpTransform.Name = "grpTransform";
-            this.grpTransform.Padding = new System.Windows.Forms.Padding(0);
-            this.grpTransform.Size = new System.Drawing.Size(422, 78);
+            this.grpTransform.Size = new System.Drawing.Size(422, 117);
             this.grpTransform.TabIndex = 23;
             this.grpTransform.TabStop = false;
             this.grpTransform.Text = "Transform Frame";
+            // 
+            // panel1
+            // 
+            this.panel1.Controls.Add(this.btnPaste);
+            this.panel1.Controls.Add(this.btnCopy);
+            this.panel1.Controls.Add(this.btnCut);
+            this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel1.Location = new System.Drawing.Point(3, 90);
+            this.panel1.Name = "panel1";
+            this.panel1.Size = new System.Drawing.Size(416, 24);
+            this.panel1.TabIndex = 41;
+            // 
+            // chkMoveBoneOnly
+            // 
+            this.chkMoveBoneOnly.AutoSize = true;
+            this.chkMoveBoneOnly.Enabled = false;
+            this.chkMoveBoneOnly.Location = new System.Drawing.Point(155, 92);
+            this.chkMoveBoneOnly.Name = "chkMoveBoneOnly";
+            this.chkMoveBoneOnly.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.chkMoveBoneOnly.Size = new System.Drawing.Size(117, 21);
+            this.chkMoveBoneOnly.TabIndex = 36;
+            this.chkMoveBoneOnly.Text = "Don\'t Deform";
+            this.chkMoveBoneOnly.UseVisualStyleBackColor = true;
+            this.chkMoveBoneOnly.CheckedChanged += new System.EventHandler(this.chkBoneEdit_CheckedChanged);
+            // 
+            // btnPaste
+            // 
+            this.btnPaste.AutoSize = true;
+            this.btnPaste.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnPaste.Location = new System.Drawing.Point(98, 0);
+            this.btnPaste.Name = "btnPaste";
+            this.btnPaste.Size = new System.Drawing.Size(54, 24);
+            this.btnPaste.TabIndex = 23;
+            this.btnPaste.Text = "Paste";
+            this.btnPaste.UseVisualStyleBackColor = true;
+            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            // 
+            // btnCopy
+            // 
+            this.btnCopy.AutoSize = true;
+            this.btnCopy.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnCopy.Location = new System.Drawing.Point(48, 0);
+            this.btnCopy.Name = "btnCopy";
+            this.btnCopy.Size = new System.Drawing.Size(50, 24);
+            this.btnCopy.TabIndex = 22;
+            this.btnCopy.Text = "Copy";
+            this.btnCopy.UseVisualStyleBackColor = true;
+            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            // 
+            // btnCut
+            // 
+            this.btnCut.AutoSize = true;
+            this.btnCut.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnCut.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnCut.Location = new System.Drawing.Point(0, 0);
+            this.btnCut.Name = "btnCut";
+            this.btnCut.Size = new System.Drawing.Size(48, 24);
+            this.btnCut.TabIndex = 21;
+            this.btnCut.Text = "Cut";
+            this.btnCut.UseVisualStyleBackColor = true;
+            this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
+            // 
+            // scale
+            // 
+            this.scale.Controls.Add(this.FrameScale);
+            this.scale.Controls.Add(this.numScaleZ);
+            this.scale.Controls.Add(this.numScaleY);
+            this.scale.Controls.Add(this.numScaleX);
+            this.scale.Controls.Add(this.lblScale);
+            this.scale.Dock = System.Windows.Forms.DockStyle.Top;
+            this.scale.Location = new System.Drawing.Point(3, 66);
+            this.scale.Name = "scale";
+            this.scale.Size = new System.Drawing.Size(416, 24);
+            this.scale.TabIndex = 39;
             // 
             // FrameScale
             // 
             this.FrameScale.AutoSize = true;
             this.FrameScale.Checked = true;
             this.FrameScale.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.FrameScale.Location = new System.Drawing.Point(367, 56);
+            this.FrameScale.Dock = System.Windows.Forms.DockStyle.Left;
+            this.FrameScale.Location = new System.Drawing.Point(342, 0);
             this.FrameScale.Name = "FrameScale";
-            this.FrameScale.Size = new System.Drawing.Size(53, 17);
+            this.FrameScale.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.FrameScale.Size = new System.Drawing.Size(69, 24);
             this.FrameScale.TabIndex = 35;
             this.FrameScale.Text = "Scale";
             this.FrameScale.UseVisualStyleBackColor = true;
             // 
-            // btnPaste
+            // numScaleZ
             // 
-            this.btnPaste.Location = new System.Drawing.Point(318, 54);
-            this.btnPaste.Name = "btnPaste";
-            this.btnPaste.Size = new System.Drawing.Size(48, 20);
-            this.btnPaste.TabIndex = 23;
-            this.btnPaste.Text = "Paste";
-            this.btnPaste.UseVisualStyleBackColor = true;
-            this.btnPaste.Click += new System.EventHandler(this.btnPaste_Click);
+            this.numScaleZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleZ.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numScaleZ.Integral = false;
+            this.numScaleZ.Location = new System.Drawing.Point(260, 0);
+            this.numScaleZ.MaximumValue = 3.402823E+38F;
+            this.numScaleZ.MinimumValue = -3.402823E+38F;
+            this.numScaleZ.Name = "numScaleZ";
+            this.numScaleZ.Size = new System.Drawing.Size(82, 22);
+            this.numScaleZ.TabIndex = 20;
+            this.numScaleZ.Text = "0";
+            this.numScaleZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numScaleY
+            // 
+            this.numScaleY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleY.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numScaleY.Integral = false;
+            this.numScaleY.Location = new System.Drawing.Point(178, 0);
+            this.numScaleY.MaximumValue = 3.402823E+38F;
+            this.numScaleY.MinimumValue = -3.402823E+38F;
+            this.numScaleY.Name = "numScaleY";
+            this.numScaleY.Size = new System.Drawing.Size(82, 22);
+            this.numScaleY.TabIndex = 19;
+            this.numScaleY.Text = "0";
+            this.numScaleY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numScaleX
+            // 
+            this.numScaleX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numScaleX.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numScaleX.Integral = false;
+            this.numScaleX.Location = new System.Drawing.Point(96, 0);
+            this.numScaleX.MaximumValue = 3.402823E+38F;
+            this.numScaleX.MinimumValue = -3.402823E+38F;
+            this.numScaleX.Name = "numScaleX";
+            this.numScaleX.Size = new System.Drawing.Size(82, 22);
+            this.numScaleX.TabIndex = 18;
+            this.numScaleX.Text = "0";
+            this.numScaleX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numScaleX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // lblScale
+            // 
+            this.lblScale.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblScale.Location = new System.Drawing.Point(0, 0);
+            this.lblScale.Name = "lblScale";
+            this.lblScale.Size = new System.Drawing.Size(96, 24);
+            this.lblScale.TabIndex = 6;
+            this.lblScale.Text = "Scale:";
+            this.lblScale.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // rot
+            // 
+            this.rot.Controls.Add(this.FrameRot);
+            this.rot.Controls.Add(this.numRotZ);
+            this.rot.Controls.Add(this.numRotY);
+            this.rot.Controls.Add(this.numRotX);
+            this.rot.Controls.Add(this.lblRot);
+            this.rot.Dock = System.Windows.Forms.DockStyle.Top;
+            this.rot.Location = new System.Drawing.Point(3, 42);
+            this.rot.Name = "rot";
+            this.rot.Size = new System.Drawing.Size(416, 24);
+            this.rot.TabIndex = 38;
             // 
             // FrameRot
             // 
             this.FrameRot.AutoSize = true;
             this.FrameRot.Checked = true;
             this.FrameRot.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.FrameRot.Location = new System.Drawing.Point(367, 38);
+            this.FrameRot.Dock = System.Windows.Forms.DockStyle.Left;
+            this.FrameRot.Location = new System.Drawing.Point(342, 0);
             this.FrameRot.Name = "FrameRot";
-            this.FrameRot.Size = new System.Drawing.Size(43, 17);
+            this.FrameRot.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.FrameRot.Size = new System.Drawing.Size(56, 24);
             this.FrameRot.TabIndex = 34;
             this.FrameRot.Text = "Rot";
             this.FrameRot.UseVisualStyleBackColor = true;
             // 
-            // btnCopy
+            // numRotZ
             // 
-            this.btnCopy.Location = new System.Drawing.Point(318, 35);
-            this.btnCopy.Name = "btnCopy";
-            this.btnCopy.Size = new System.Drawing.Size(48, 20);
-            this.btnCopy.TabIndex = 22;
-            this.btnCopy.Text = "Copy";
-            this.btnCopy.UseVisualStyleBackColor = true;
-            this.btnCopy.Click += new System.EventHandler(this.btnCopy_Click);
+            this.numRotZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotZ.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numRotZ.Integral = false;
+            this.numRotZ.Location = new System.Drawing.Point(260, 0);
+            this.numRotZ.MaximumValue = 3.402823E+38F;
+            this.numRotZ.MinimumValue = -3.402823E+38F;
+            this.numRotZ.Name = "numRotZ";
+            this.numRotZ.Size = new System.Drawing.Size(82, 22);
+            this.numRotZ.TabIndex = 17;
+            this.numRotZ.Text = "0";
+            this.numRotZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numRotY
+            // 
+            this.numRotY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotY.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numRotY.Integral = false;
+            this.numRotY.Location = new System.Drawing.Point(178, 0);
+            this.numRotY.MaximumValue = 3.402823E+38F;
+            this.numRotY.MinimumValue = -3.402823E+38F;
+            this.numRotY.Name = "numRotY";
+            this.numRotY.Size = new System.Drawing.Size(82, 22);
+            this.numRotY.TabIndex = 16;
+            this.numRotY.Text = "0";
+            this.numRotY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numRotX
+            // 
+            this.numRotX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numRotX.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numRotX.Integral = false;
+            this.numRotX.Location = new System.Drawing.Point(96, 0);
+            this.numRotX.MaximumValue = 3.402823E+38F;
+            this.numRotX.MinimumValue = -3.402823E+38F;
+            this.numRotX.Name = "numRotX";
+            this.numRotX.Size = new System.Drawing.Size(82, 22);
+            this.numRotX.TabIndex = 15;
+            this.numRotX.Text = "0";
+            this.numRotX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numRotX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // lblRot
+            // 
+            this.lblRot.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblRot.Location = new System.Drawing.Point(0, 0);
+            this.lblRot.Name = "lblRot";
+            this.lblRot.Size = new System.Drawing.Size(96, 24);
+            this.lblRot.TabIndex = 5;
+            this.lblRot.Text = "Rotation:";
+            this.lblRot.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            // 
+            // trans
+            // 
+            this.trans.Controls.Add(this.FrameTrans);
+            this.trans.Controls.Add(this.numTransZ);
+            this.trans.Controls.Add(this.numTransY);
+            this.trans.Controls.Add(this.numTransX);
+            this.trans.Controls.Add(this.lblTrans);
+            this.trans.Dock = System.Windows.Forms.DockStyle.Top;
+            this.trans.Location = new System.Drawing.Point(3, 18);
+            this.trans.Name = "trans";
+            this.trans.Size = new System.Drawing.Size(416, 24);
+            this.trans.TabIndex = 40;
             // 
             // FrameTrans
             // 
             this.FrameTrans.AutoSize = true;
             this.FrameTrans.Checked = true;
             this.FrameTrans.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.FrameTrans.Location = new System.Drawing.Point(367, 20);
+            this.FrameTrans.Dock = System.Windows.Forms.DockStyle.Left;
+            this.FrameTrans.Location = new System.Drawing.Point(342, 0);
             this.FrameTrans.Name = "FrameTrans";
-            this.FrameTrans.Size = new System.Drawing.Size(53, 17);
+            this.FrameTrans.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.FrameTrans.Size = new System.Drawing.Size(71, 24);
             this.FrameTrans.TabIndex = 33;
             this.FrameTrans.Text = "Trans";
             this.FrameTrans.UseVisualStyleBackColor = true;
             // 
-            // btnCut
+            // numTransZ
             // 
-            this.btnCut.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
-            this.btnCut.Location = new System.Drawing.Point(318, 16);
-            this.btnCut.Name = "btnCut";
-            this.btnCut.Size = new System.Drawing.Size(48, 20);
-            this.btnCut.TabIndex = 21;
-            this.btnCut.Text = "Cut";
-            this.btnCut.UseVisualStyleBackColor = true;
-            this.btnCut.Click += new System.EventHandler(this.btnCut_Click);
+            this.numTransZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransZ.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numTransZ.Integral = false;
+            this.numTransZ.Location = new System.Drawing.Point(260, 0);
+            this.numTransZ.MaximumValue = 3.402823E+38F;
+            this.numTransZ.MinimumValue = -3.402823E+38F;
+            this.numTransZ.Name = "numTransZ";
+            this.numTransZ.Size = new System.Drawing.Size(82, 22);
+            this.numTransZ.TabIndex = 14;
+            this.numTransZ.Text = "0";
+            this.numTransZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numTransY
+            // 
+            this.numTransY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransY.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numTransY.Integral = false;
+            this.numTransY.Location = new System.Drawing.Point(178, 0);
+            this.numTransY.MaximumValue = 3.402823E+38F;
+            this.numTransY.MinimumValue = -3.402823E+38F;
+            this.numTransY.Name = "numTransY";
+            this.numTransY.Size = new System.Drawing.Size(82, 22);
+            this.numTransY.TabIndex = 13;
+            this.numTransY.Text = "0";
+            this.numTransY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
+            // 
+            // numTransX
+            // 
+            this.numTransX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.numTransX.Dock = System.Windows.Forms.DockStyle.Left;
+            this.numTransX.Integral = false;
+            this.numTransX.Location = new System.Drawing.Point(96, 0);
+            this.numTransX.MaximumValue = 3.402823E+38F;
+            this.numTransX.MinimumValue = -3.402823E+38F;
+            this.numTransX.Name = "numTransX";
+            this.numTransX.Size = new System.Drawing.Size(82, 22);
+            this.numTransX.TabIndex = 3;
+            this.numTransX.Text = "0";
+            this.numTransX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
+            this.numTransX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
             // 
             // lblTrans
             // 
-            this.lblTrans.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblTrans.Location = new System.Drawing.Point(4, 16);
+            this.lblTrans.Dock = System.Windows.Forms.DockStyle.Left;
+            this.lblTrans.Location = new System.Drawing.Point(0, 0);
             this.lblTrans.Name = "lblTrans";
-            this.lblTrans.Size = new System.Drawing.Size(70, 20);
+            this.lblTrans.Size = new System.Drawing.Size(96, 24);
             this.lblTrans.TabIndex = 4;
             this.lblTrans.Text = "Translation:";
             this.lblTrans.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
-            // lblRot
+            // chkUpdateBindPose
             // 
-            this.lblRot.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblRot.Location = new System.Drawing.Point(4, 35);
-            this.lblRot.Name = "lblRot";
-            this.lblRot.Size = new System.Drawing.Size(70, 20);
-            this.lblRot.TabIndex = 5;
-            this.lblRot.Text = "Rotation:";
-            this.lblRot.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-            // 
-            // lblScale
-            // 
-            this.lblScale.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lblScale.Location = new System.Drawing.Point(4, 54);
-            this.lblScale.Name = "lblScale";
-            this.lblScale.Size = new System.Drawing.Size(70, 20);
-            this.lblScale.TabIndex = 6;
-            this.lblScale.Text = "Scale:";
-            this.lblScale.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+            this.chkUpdateBindPose.AutoSize = true;
+            this.chkUpdateBindPose.Location = new System.Drawing.Point(270, 92);
+            this.chkUpdateBindPose.Name = "chkUpdateBindPose";
+            this.chkUpdateBindPose.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.chkUpdateBindPose.Size = new System.Drawing.Size(148, 21);
+            this.chkUpdateBindPose.TabIndex = 37;
+            this.chkUpdateBindPose.Text = "Update Bind Pose";
+            this.chkUpdateBindPose.UseVisualStyleBackColor = true;
+            this.chkUpdateBindPose.CheckedChanged += new System.EventHandler(this.chkUpdateBindPose_CheckedChanged);
             // 
             // grpTransAll
             // 
-            this.grpTransAll.Controls.Add(this.btnInsert);
-            this.grpTransAll.Controls.Add(this.btnClean);
-            this.grpTransAll.Controls.Add(this.btnPasteAll);
-            this.grpTransAll.Controls.Add(this.btnCopyAll);
-            this.grpTransAll.Controls.Add(this.btnClearAll);
-            this.grpTransAll.Controls.Add(this.btnDelete);
-            this.grpTransAll.Controls.Add(this.AllScale);
-            this.grpTransAll.Controls.Add(this.AllRot);
-            this.grpTransAll.Controls.Add(this.AllTrans);
+            this.grpTransAll.Controls.Add(this.panel6);
+            this.grpTransAll.Controls.Add(this.panel7);
+            this.grpTransAll.Controls.Add(this.panel5);
             this.grpTransAll.Dock = System.Windows.Forms.DockStyle.Fill;
             this.grpTransAll.Enabled = false;
             this.grpTransAll.Location = new System.Drawing.Point(422, 0);
             this.grpTransAll.Name = "grpTransAll";
-            this.grpTransAll.Size = new System.Drawing.Size(160, 78);
+            this.grpTransAll.Size = new System.Drawing.Size(197, 117);
             this.grpTransAll.TabIndex = 26;
             this.grpTransAll.TabStop = false;
             this.grpTransAll.Text = "Transform All";
             // 
-            // btnInsert
+            // panel6
             // 
-            this.btnInsert.Location = new System.Drawing.Point(106, 54);
-            this.btnInsert.Name = "btnInsert";
-            this.btnInsert.Size = new System.Drawing.Size(50, 20);
-            this.btnInsert.TabIndex = 24;
-            this.btnInsert.Text = "Insert";
-            this.btnInsert.UseVisualStyleBackColor = true;
-            this.btnInsert.Click += new System.EventHandler(this.btnInsert_Click);
-            // 
-            // btnClean
-            // 
-            this.btnClean.Location = new System.Drawing.Point(106, 35);
-            this.btnClean.Name = "btnClean";
-            this.btnClean.Size = new System.Drawing.Size(50, 20);
-            this.btnClean.TabIndex = 29;
-            this.btnClean.Text = "Clean";
-            this.btnClean.UseVisualStyleBackColor = true;
-            this.btnClean.Click += new System.EventHandler(this.btnClean_Click);
-            // 
-            // btnPasteAll
-            // 
-            this.btnPasteAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btnPasteAll.Location = new System.Drawing.Point(57, 35);
-            this.btnPasteAll.Name = "btnPasteAll";
-            this.btnPasteAll.Size = new System.Drawing.Size(50, 20);
-            this.btnPasteAll.TabIndex = 28;
-            this.btnPasteAll.Text = "Paste";
-            this.btnPasteAll.UseVisualStyleBackColor = true;
-            this.btnPasteAll.Click += new System.EventHandler(this.btnPasteAll_Click);
-            // 
-            // btnCopyAll
-            // 
-            this.btnCopyAll.Location = new System.Drawing.Point(57, 54);
-            this.btnCopyAll.Name = "btnCopyAll";
-            this.btnCopyAll.Size = new System.Drawing.Size(50, 20);
-            this.btnCopyAll.TabIndex = 27;
-            this.btnCopyAll.Text = "Copy";
-            this.btnCopyAll.UseVisualStyleBackColor = true;
-            this.btnCopyAll.Click += new System.EventHandler(this.btnCopyAll_Click);
-            // 
-            // btnClearAll
-            // 
-            this.btnClearAll.Location = new System.Drawing.Point(106, 16);
-            this.btnClearAll.Name = "btnClearAll";
-            this.btnClearAll.Size = new System.Drawing.Size(50, 20);
-            this.btnClearAll.TabIndex = 26;
-            this.btnClearAll.Text = "Clear";
-            this.btnClearAll.UseVisualStyleBackColor = true;
-            this.btnClearAll.Click += new System.EventHandler(this.btnClear_Click);
-            // 
-            // btnDelete
-            // 
-            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.btnDelete.Location = new System.Drawing.Point(57, 16);
-            this.btnDelete.Name = "btnDelete";
-            this.btnDelete.Size = new System.Drawing.Size(50, 20);
-            this.btnDelete.TabIndex = 25;
-            this.btnDelete.Text = "Delete";
-            this.btnDelete.UseVisualStyleBackColor = true;
-            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            this.panel6.Controls.Add(this.AllScale);
+            this.panel6.Controls.Add(this.btnDelete);
+            this.panel6.Controls.Add(this.btnInsert);
+            this.panel6.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel6.Location = new System.Drawing.Point(3, 66);
+            this.panel6.Name = "panel6";
+            this.panel6.Size = new System.Drawing.Size(191, 24);
+            this.panel6.TabIndex = 1;
             // 
             // AllScale
             // 
             this.AllScale.AutoSize = true;
             this.AllScale.Checked = true;
             this.AllScale.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AllScale.Location = new System.Drawing.Point(6, 56);
+            this.AllScale.Dock = System.Windows.Forms.DockStyle.Left;
+            this.AllScale.Location = new System.Drawing.Point(124, 0);
             this.AllScale.Name = "AllScale";
-            this.AllScale.Size = new System.Drawing.Size(53, 17);
+            this.AllScale.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.AllScale.Size = new System.Drawing.Size(69, 24);
             this.AllScale.TabIndex = 32;
             this.AllScale.Text = "Scale";
             this.AllScale.UseVisualStyleBackColor = true;
+            // 
+            // btnDelete
+            // 
+            this.btnDelete.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnDelete.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btnDelete.Location = new System.Drawing.Point(62, 0);
+            this.btnDelete.Name = "btnDelete";
+            this.btnDelete.Size = new System.Drawing.Size(62, 24);
+            this.btnDelete.TabIndex = 25;
+            this.btnDelete.Text = "Delete";
+            this.btnDelete.UseVisualStyleBackColor = true;
+            this.btnDelete.Click += new System.EventHandler(this.btnDelete_Click);
+            // 
+            // btnInsert
+            // 
+            this.btnInsert.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnInsert.Location = new System.Drawing.Point(0, 0);
+            this.btnInsert.Name = "btnInsert";
+            this.btnInsert.Size = new System.Drawing.Size(62, 24);
+            this.btnInsert.TabIndex = 24;
+            this.btnInsert.Text = "Insert";
+            this.btnInsert.UseVisualStyleBackColor = true;
+            this.btnInsert.Click += new System.EventHandler(this.btnInsert_Click);
+            // 
+            // panel7
+            // 
+            this.panel7.Controls.Add(this.AllRot);
+            this.panel7.Controls.Add(this.btnClearAll);
+            this.panel7.Controls.Add(this.btnPasteAll);
+            this.panel7.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel7.Location = new System.Drawing.Point(3, 42);
+            this.panel7.Name = "panel7";
+            this.panel7.Size = new System.Drawing.Size(191, 24);
+            this.panel7.TabIndex = 2;
             // 
             // AllRot
             // 
             this.AllRot.AutoSize = true;
             this.AllRot.Checked = true;
             this.AllRot.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AllRot.Location = new System.Drawing.Point(6, 38);
+            this.AllRot.Dock = System.Windows.Forms.DockStyle.Left;
+            this.AllRot.Location = new System.Drawing.Point(124, 0);
             this.AllRot.Name = "AllRot";
-            this.AllRot.Size = new System.Drawing.Size(43, 17);
+            this.AllRot.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.AllRot.Size = new System.Drawing.Size(56, 24);
             this.AllRot.TabIndex = 31;
             this.AllRot.Text = "Rot";
             this.AllRot.UseVisualStyleBackColor = true;
+            // 
+            // btnClearAll
+            // 
+            this.btnClearAll.AutoSize = true;
+            this.btnClearAll.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnClearAll.Location = new System.Drawing.Point(62, 0);
+            this.btnClearAll.Name = "btnClearAll";
+            this.btnClearAll.Size = new System.Drawing.Size(62, 24);
+            this.btnClearAll.TabIndex = 26;
+            this.btnClearAll.Text = "Clear";
+            this.btnClearAll.UseVisualStyleBackColor = true;
+            this.btnClearAll.Click += new System.EventHandler(this.btnClear_Click);
+            // 
+            // btnPasteAll
+            // 
+            this.btnPasteAll.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnPasteAll.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.btnPasteAll.Location = new System.Drawing.Point(0, 0);
+            this.btnPasteAll.Name = "btnPasteAll";
+            this.btnPasteAll.Size = new System.Drawing.Size(62, 24);
+            this.btnPasteAll.TabIndex = 28;
+            this.btnPasteAll.Text = "Paste";
+            this.btnPasteAll.UseVisualStyleBackColor = true;
+            this.btnPasteAll.Click += new System.EventHandler(this.btnPasteAll_Click);
+            // 
+            // panel5
+            // 
+            this.panel5.Controls.Add(this.AllTrans);
+            this.panel5.Controls.Add(this.btnClean);
+            this.panel5.Controls.Add(this.btnCopyAll);
+            this.panel5.Dock = System.Windows.Forms.DockStyle.Top;
+            this.panel5.Location = new System.Drawing.Point(3, 18);
+            this.panel5.Name = "panel5";
+            this.panel5.Size = new System.Drawing.Size(191, 24);
+            this.panel5.TabIndex = 0;
             // 
             // AllTrans
             // 
             this.AllTrans.AutoSize = true;
             this.AllTrans.Checked = true;
             this.AllTrans.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.AllTrans.Location = new System.Drawing.Point(6, 20);
+            this.AllTrans.Dock = System.Windows.Forms.DockStyle.Left;
+            this.AllTrans.Location = new System.Drawing.Point(124, 0);
             this.AllTrans.Name = "AllTrans";
-            this.AllTrans.Size = new System.Drawing.Size(53, 17);
+            this.AllTrans.Padding = new System.Windows.Forms.Padding(4, 0, 0, 0);
+            this.AllTrans.Size = new System.Drawing.Size(71, 24);
             this.AllTrans.TabIndex = 30;
             this.AllTrans.Text = "Trans";
             this.AllTrans.UseVisualStyleBackColor = true;
             // 
+            // btnClean
+            // 
+            this.btnClean.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnClean.Location = new System.Drawing.Point(62, 0);
+            this.btnClean.Name = "btnClean";
+            this.btnClean.Size = new System.Drawing.Size(62, 24);
+            this.btnClean.TabIndex = 29;
+            this.btnClean.Text = "Clean";
+            this.btnClean.UseVisualStyleBackColor = true;
+            this.btnClean.Click += new System.EventHandler(this.btnClean_Click);
+            // 
+            // btnCopyAll
+            // 
+            this.btnCopyAll.Dock = System.Windows.Forms.DockStyle.Left;
+            this.btnCopyAll.Location = new System.Drawing.Point(0, 0);
+            this.btnCopyAll.Name = "btnCopyAll";
+            this.btnCopyAll.Size = new System.Drawing.Size(62, 24);
+            this.btnCopyAll.TabIndex = 27;
+            this.btnCopyAll.Text = "Copy";
+            this.btnCopyAll.UseVisualStyleBackColor = true;
+            this.btnCopyAll.Click += new System.EventHandler(this.btnCopyAll_Click);
+            // 
+            // ctxTools
+            // 
+            this.ctxTools.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxTools.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.bakeVertexPositionsToolStripMenuItem});
+            this.ctxTools.Name = "ctxBox";
+            this.ctxTools.Size = new System.Drawing.Size(224, 30);
+            // 
+            // bakeVertexPositionsToolStripMenuItem
+            // 
+            this.bakeVertexPositionsToolStripMenuItem.Name = "bakeVertexPositionsToolStripMenuItem";
+            this.bakeVertexPositionsToolStripMenuItem.Size = new System.Drawing.Size(223, 26);
+            this.bakeVertexPositionsToolStripMenuItem.Text = "Bake Vertex Positions";
+            this.bakeVertexPositionsToolStripMenuItem.Click += new System.EventHandler(this.bakeVertexPositionsToolStripMenuItem_Click);
+            // 
             // ctxBox
             // 
+            this.ctxBox.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxBox.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.Source,
             this.toolStripSeparator1,
@@ -361,19 +652,19 @@ namespace System.Windows.Forms
             this.removeAllToolStripMenuItem,
             this.addCustomAmountToolStripMenuItem});
             this.ctxBox.Name = "ctxBox";
-            this.ctxBox.Size = new System.Drawing.Size(167, 120);
+            this.ctxBox.Size = new System.Drawing.Size(200, 140);
             // 
             // Source
             // 
             this.Source.Enabled = false;
             this.Source.Name = "Source";
-            this.Source.Size = new System.Drawing.Size(166, 22);
+            this.Source.Size = new System.Drawing.Size(199, 26);
             this.Source.Text = "Source";
             // 
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
-            this.toolStripSeparator1.Size = new System.Drawing.Size(163, 6);
+            this.toolStripSeparator1.Size = new System.Drawing.Size(196, 6);
             // 
             // add
             // 
@@ -382,27 +673,27 @@ namespace System.Windows.Forms
             this.toolStripMenuItem4,
             this.toolStripMenuItem7});
             this.add.Name = "add";
-            this.add.Size = new System.Drawing.Size(166, 22);
+            this.add.Size = new System.Drawing.Size(199, 26);
             this.add.Text = "Add To All";
             // 
             // toolStripMenuItem3
             // 
             this.toolStripMenuItem3.Name = "toolStripMenuItem3";
-            this.toolStripMenuItem3.Size = new System.Drawing.Size(100, 22);
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(118, 26);
             this.toolStripMenuItem3.Text = "+180";
             this.toolStripMenuItem3.Click += new System.EventHandler(this.toolStripMenuItem3_Click);
             // 
             // toolStripMenuItem4
             // 
             this.toolStripMenuItem4.Name = "toolStripMenuItem4";
-            this.toolStripMenuItem4.Size = new System.Drawing.Size(100, 22);
+            this.toolStripMenuItem4.Size = new System.Drawing.Size(118, 26);
             this.toolStripMenuItem4.Text = "+90";
             this.toolStripMenuItem4.Click += new System.EventHandler(this.toolStripMenuItem4_Click);
             // 
             // toolStripMenuItem7
             // 
             this.toolStripMenuItem7.Name = "toolStripMenuItem7";
-            this.toolStripMenuItem7.Size = new System.Drawing.Size(100, 22);
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(118, 26);
             this.toolStripMenuItem7.Text = "+45";
             this.toolStripMenuItem7.Click += new System.EventHandler(this.toolStripMenuItem7_Click);
             // 
@@ -413,183 +704,74 @@ namespace System.Windows.Forms
             this.toolStripMenuItem6,
             this.toolStripMenuItem8});
             this.subtract.Name = "subtract";
-            this.subtract.Size = new System.Drawing.Size(166, 22);
+            this.subtract.Size = new System.Drawing.Size(199, 26);
             this.subtract.Text = "Subtract From All";
             // 
             // toolStripMenuItem5
             // 
             this.toolStripMenuItem5.Name = "toolStripMenuItem5";
-            this.toolStripMenuItem5.Size = new System.Drawing.Size(97, 22);
+            this.toolStripMenuItem5.Size = new System.Drawing.Size(114, 26);
             this.toolStripMenuItem5.Text = "-180";
             this.toolStripMenuItem5.Click += new System.EventHandler(this.toolStripMenuItem5_Click);
             // 
             // toolStripMenuItem6
             // 
             this.toolStripMenuItem6.Name = "toolStripMenuItem6";
-            this.toolStripMenuItem6.Size = new System.Drawing.Size(97, 22);
+            this.toolStripMenuItem6.Size = new System.Drawing.Size(114, 26);
             this.toolStripMenuItem6.Text = "-90";
             this.toolStripMenuItem6.Click += new System.EventHandler(this.toolStripMenuItem6_Click);
             // 
             // toolStripMenuItem8
             // 
             this.toolStripMenuItem8.Name = "toolStripMenuItem8";
-            this.toolStripMenuItem8.Size = new System.Drawing.Size(97, 22);
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(114, 26);
             this.toolStripMenuItem8.Text = "-45";
             this.toolStripMenuItem8.Click += new System.EventHandler(this.toolStripMenuItem8_Click);
             // 
             // removeAllToolStripMenuItem
             // 
             this.removeAllToolStripMenuItem.Name = "removeAllToolStripMenuItem";
-            this.removeAllToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.removeAllToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
             this.removeAllToolStripMenuItem.Text = "Remove All";
             this.removeAllToolStripMenuItem.Click += new System.EventHandler(this.removeAllToolStripMenuItem_Click);
             // 
             // addCustomAmountToolStripMenuItem
             // 
             this.addCustomAmountToolStripMenuItem.Name = "addCustomAmountToolStripMenuItem";
-            this.addCustomAmountToolStripMenuItem.Size = new System.Drawing.Size(166, 22);
+            this.addCustomAmountToolStripMenuItem.Size = new System.Drawing.Size(199, 26);
             this.addCustomAmountToolStripMenuItem.Text = "Edit All...";
             this.addCustomAmountToolStripMenuItem.Click += new System.EventHandler(this.addCustomAmountToolStripMenuItem_Click);
             // 
-            // numScaleX
-            // 
-            this.numScaleX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleX.Integral = false;
-            this.numScaleX.Location = new System.Drawing.Point(73, 54);
-            this.numScaleX.MaximumValue = 3.402823E+38F;
-            this.numScaleX.MinimumValue = -3.402823E+38F;
-            this.numScaleX.Name = "numScaleX";
-            this.numScaleX.Size = new System.Drawing.Size(82, 20);
-            this.numScaleX.TabIndex = 18;
-            this.numScaleX.Text = "0";
-            this.numScaleX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numScaleY
-            // 
-            this.numScaleY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleY.Integral = false;
-            this.numScaleY.Location = new System.Drawing.Point(154, 54);
-            this.numScaleY.MaximumValue = 3.402823E+38F;
-            this.numScaleY.MinimumValue = -3.402823E+38F;
-            this.numScaleY.Name = "numScaleY";
-            this.numScaleY.Size = new System.Drawing.Size(82, 20);
-            this.numScaleY.TabIndex = 19;
-            this.numScaleY.Text = "0";
-            this.numScaleY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numScaleZ
-            // 
-            this.numScaleZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numScaleZ.Integral = false;
-            this.numScaleZ.Location = new System.Drawing.Point(235, 54);
-            this.numScaleZ.MaximumValue = 3.402823E+38F;
-            this.numScaleZ.MinimumValue = -3.402823E+38F;
-            this.numScaleZ.Name = "numScaleZ";
-            this.numScaleZ.Size = new System.Drawing.Size(82, 20);
-            this.numScaleZ.TabIndex = 20;
-            this.numScaleZ.Text = "0";
-            this.numScaleZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numScaleZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotX
-            // 
-            this.numRotX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotX.Integral = false;
-            this.numRotX.Location = new System.Drawing.Point(73, 35);
-            this.numRotX.MaximumValue = 3.402823E+38F;
-            this.numRotX.MinimumValue = -3.402823E+38F;
-            this.numRotX.Name = "numRotX";
-            this.numRotX.Size = new System.Drawing.Size(82, 20);
-            this.numRotX.TabIndex = 15;
-            this.numRotX.Text = "0";
-            this.numRotX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotY
-            // 
-            this.numRotY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotY.Integral = false;
-            this.numRotY.Location = new System.Drawing.Point(154, 35);
-            this.numRotY.MaximumValue = 3.402823E+38F;
-            this.numRotY.MinimumValue = -3.402823E+38F;
-            this.numRotY.Name = "numRotY";
-            this.numRotY.Size = new System.Drawing.Size(82, 20);
-            this.numRotY.TabIndex = 16;
-            this.numRotY.Text = "0";
-            this.numRotY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numRotZ
-            // 
-            this.numRotZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numRotZ.Integral = false;
-            this.numRotZ.Location = new System.Drawing.Point(235, 35);
-            this.numRotZ.MaximumValue = 3.402823E+38F;
-            this.numRotZ.MinimumValue = -3.402823E+38F;
-            this.numRotZ.Name = "numRotZ";
-            this.numRotZ.Size = new System.Drawing.Size(82, 20);
-            this.numRotZ.TabIndex = 17;
-            this.numRotZ.Text = "0";
-            this.numRotZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numRotZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransX
-            // 
-            this.numTransX.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransX.Integral = false;
-            this.numTransX.Location = new System.Drawing.Point(73, 16);
-            this.numTransX.MaximumValue = 3.402823E+38F;
-            this.numTransX.MinimumValue = -3.402823E+38F;
-            this.numTransX.Name = "numTransX";
-            this.numTransX.Size = new System.Drawing.Size(82, 20);
-            this.numTransX.TabIndex = 3;
-            this.numTransX.Text = "0";
-            this.numTransX.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransX.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransY
-            // 
-            this.numTransY.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransY.Integral = false;
-            this.numTransY.Location = new System.Drawing.Point(154, 16);
-            this.numTransY.MaximumValue = 3.402823E+38F;
-            this.numTransY.MinimumValue = -3.402823E+38F;
-            this.numTransY.Name = "numTransY";
-            this.numTransY.Size = new System.Drawing.Size(82, 20);
-            this.numTransY.TabIndex = 13;
-            this.numTransY.Text = "0";
-            this.numTransY.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransY.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
-            // numTransZ
-            // 
-            this.numTransZ.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.numTransZ.Integral = false;
-            this.numTransZ.Location = new System.Drawing.Point(235, 16);
-            this.numTransZ.MaximumValue = 3.402823E+38F;
-            this.numTransZ.MinimumValue = -3.402823E+38F;
-            this.numTransZ.Name = "numTransZ";
-            this.numTransZ.Size = new System.Drawing.Size(82, 20);
-            this.numTransZ.TabIndex = 14;
-            this.numTransZ.Text = "0";
-            this.numTransZ.ValueChanged += new System.EventHandler(this.BoxChangedCreateUndo);
-            this.numTransZ.MouseDown += new System.Windows.Forms.MouseEventHandler(this.box_MouseDown);
-            // 
             // CHR0Editor
             // 
+            this.AutoSize = true;
+            this.Controls.Add(this.chkUpdateBindPose);
+            this.Controls.Add(this.chkMoveBoneOnly);
             this.Controls.Add(this.grpTransAll);
             this.Controls.Add(this.grpTransform);
-            this.MinimumSize = new System.Drawing.Size(582, 78);
+            this.MinimumSize = new System.Drawing.Size(619, 117);
             this.Name = "CHR0Editor";
-            this.Size = new System.Drawing.Size(582, 78);
+            this.Size = new System.Drawing.Size(619, 117);
             this.grpTransform.ResumeLayout(false);
-            this.grpTransform.PerformLayout();
+            this.panel1.ResumeLayout(false);
+            this.panel1.PerformLayout();
+            this.scale.ResumeLayout(false);
+            this.scale.PerformLayout();
+            this.rot.ResumeLayout(false);
+            this.rot.PerformLayout();
+            this.trans.ResumeLayout(false);
+            this.trans.PerformLayout();
             this.grpTransAll.ResumeLayout(false);
-            this.grpTransAll.PerformLayout();
+            this.panel6.ResumeLayout(false);
+            this.panel6.PerformLayout();
+            this.panel7.ResumeLayout(false);
+            this.panel7.PerformLayout();
+            this.panel5.ResumeLayout(false);
+            this.panel5.PerformLayout();
+            this.ctxTools.ResumeLayout(false);
             this.ctxBox.ResumeLayout(false);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -636,13 +818,32 @@ namespace System.Windows.Forms
             _transBoxes[6] = numTransX; numTransX.Tag = 6;
             _transBoxes[7] = numTransY; numTransY.Tag = 7;
             _transBoxes[8] = numTransZ; numTransZ.Tag = 8;
+
+            foreach (NumericInputBox box in _transBoxes) {
+                box.KeyUp += (sender, e) => {
+                    // If the user has selected the whole text and wants to replace it with a negative number, allow them to enter a minus sign.
+                    if (e.KeyCode == Keys.OemMinus) {
+                        NumericInputBox n = (NumericInputBox)sender;
+                        if (n.SelectionLength == n.Text.Length) {
+                            n.Text = "-";
+                            n.Select(1, 1);
+                        }
+                    }
+                };
+            }
         }
         public void UpdatePropDisplay()
         {
             if (!Enabled)
                 return;
 
-            grpTransAll.Enabled = SelectedAnimation != null;
+            chkMoveBoneOnly.Visible =
+            chkUpdateBindPose.Visible = chkUpdateBindPose.Enabled = 
+            CurrentFrame < 1;
+
+            chkMoveBoneOnly.Enabled = chkUpdateBindPose.Checked;
+
+            grpTransAll.Enabled = TargetModel != null;
             btnInsert.Enabled = btnDelete.Enabled = btnClearAll.Enabled = CurrentFrame >= 1 && SelectedAnimation != null;
             grpTransform.Enabled = TargetBone != null;
 
@@ -706,11 +907,9 @@ namespace System.Windows.Forms
                 box.Value = index < 3 ? 1 : 0;
                 box.BackColor = Color.White;
             }
-            
         }
-        public unsafe void ApplyState(SaveState save)
+        public unsafe void ApplyState(FrameState state)
         {
-            FrameState state = (FrameState)save._frameState;
             float* p = (float*)&state;
             for (int i = 0; i < 9; i++)
                 if (_transBoxes[i].Value != p[i])
@@ -732,6 +931,7 @@ namespace System.Windows.Forms
 
             _mainWindow.BoneChange(TargetBone);
         }
+
         public unsafe void BoxChanged(object sender, EventArgs e)
         {
             if (TargetBone == null)
@@ -790,6 +990,16 @@ namespace System.Windows.Forms
                 p[index] = float.IsNaN(box.Value) ? (index > 2 ? 0.0f : 1.0f) : box.Value;
                 state.CalcTransforms();
                 bone.BindState = state;
+
+                //This will make the model not move with the bone
+                //This will recalculate matrices and vertices/normals
+                //AFTER a drag change is made, not during
+                if (chkUpdateBindPose.Checked && 
+                    !_mainWindow._rotating &&
+                    !_mainWindow._translating &&
+                    !_mainWindow._scaling)
+                    bone.RecalcBindState(true, !chkMoveBoneOnly.Checked);
+
                 ((ResourceNode)bone).SignalPropertyChange();
             }
 
@@ -843,35 +1053,41 @@ namespace System.Windows.Forms
             if (_copyAllState.Count == 0)
                 return;
 
+            List<IBoneNode> o = new List<IBoneNode>();
+            foreach (MDL0BoneNode bone in TargetModel.BoneCache)
+                if (_copyAllState.ContainsKey(bone._name))
+                    o.Add(bone);
+
+            _mainWindow.BoneChange(o.ToArray());
             if (CurrentFrame < 1)
             {
-                foreach (MDL0BoneNode bone in TargetModel.BoneCache)
-                    if (_copyAllState.ContainsKey(bone._name))
+                foreach (MDL0BoneNode bone in o)
+                {
+                    CHRAnimationFrame f = _copyAllState[bone._name];
+                    if (!_onlyKeys)
                     {
-                        CHRAnimationFrame f = _copyAllState[bone._name];
-                        if (!_onlyKeys)
-                        {
-                            if (AllTrans.Checked)
-                                bone._bindState._translate = f.Translation;
-                            if (AllRot.Checked)
-                                bone._bindState._rotate = f.Rotation;
-                            if (AllScale.Checked)
-                                bone._bindState._scale = f.Scale;
-                        }
-                        else
-                        {
-                            FrameState s = bone._bindState;
-                            float* sPtr = (float*)&f;
-                            float* dPtr = (float*)&s;
-                            for (int x = 0; x < 9; x++)
-                                if (f.GetBool(x))
-                                    dPtr[x] = sPtr[x];
-                            s.CalcTransforms();
-                            bone._bindState = s;
-                        }
-                        //bone.RecalcBindState();
-                        bone.SignalPropertyChange();
+                        if (AllTrans.Checked)
+                            bone._bindState._translate = f.Translation;
+                        if (AllRot.Checked)
+                            bone._bindState._rotate = f.Rotation;
+                        if (AllScale.Checked)
+                            bone._bindState._scale = f.Scale;
                     }
+                    else
+                    {
+                        FrameState s = bone._bindState;
+                        float* sPtr = (float*)&f;
+                        float* dPtr = (float*)&s;
+                        for (int x = 0; x < 9; x++)
+                            if (f.GetBool(x))
+                                dPtr[x] = sPtr[x];
+                        bone._bindState = s;
+                    }
+                    bone._bindState.CalcTransforms();
+                    if (chkUpdateBindPose.Checked)
+                        bone.RecalcBindState(true, !chkMoveBoneOnly.Checked);
+                    bone.SignalPropertyChange();
+                }
             }
             else
             {
@@ -881,8 +1097,8 @@ namespace System.Windows.Forms
                     if ((entry = SelectedAnimation.FindChild(name, false) as CHR0EntryNode) == null)
                     {
                         entry = new CHR0EntryNode() { Name = name };
-                        entry.SetSize(SelectedAnimation.FrameCount, SelectedAnimation.Loop);
                         SelectedAnimation.AddChild(entry);
+                        entry.SetSize(SelectedAnimation.FrameCount, SelectedAnimation.Loop);
                     }
 
                     CHRAnimationFrame f = _copyAllState[entry._name];
@@ -903,6 +1119,7 @@ namespace System.Windows.Forms
                                 entry.SetKeyframe(x, i, ptr[x]);
                 }
             }
+            _mainWindow.BoneChange(o.ToArray());
             _mainWindow.UpdateModel();
         }
 
@@ -1111,7 +1328,7 @@ namespace System.Windows.Forms
                 return;
 
             EditAllKeyframesDialog ed = new EditAllKeyframesDialog();
-            //ed.ShowDialog(null, type, SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
+            ed.ShowDialog(this, type, SelectedAnimation.FindChild(TargetBone.Name, false) as CHR0EntryNode);
             ResetBox(type);
             _mainWindow.UpdateModel();
         }
@@ -1186,20 +1403,26 @@ namespace System.Windows.Forms
             IDataObject da = Clipboard.GetDataObject();
             if (da.GetDataPresent("AnimationFrame"))
             {
-                CHRAnimationFrame frame = (CHRAnimationFrame)da.GetData("AnimationFrame");
-
-                float* p = (float*)&frame;
-
-                BoxChangedCreateUndo(this, null);
-
-                for (int i = 0; i < 9; i++)
+                object o = da.GetData("AnimationFrame");
+                if (o != null && o is CHRAnimationFrame)
                 {
-                    if ((FrameScale.Checked && i < 3) ||
-                        (FrameRot.Checked && i >= 3 && i < 6) ||
-                        (FrameTrans.Checked && i >= 6))
-                        if (_transBoxes[i].Value != p[i] && (!_onlyKeys || frame.GetBool(i)))
-                            _transBoxes[i].Value = p[i];
-                    BoxChanged(_transBoxes[i], null);
+                    CHRAnimationFrame frame = (CHRAnimationFrame)o;
+
+                    float* p = (float*)&frame;
+
+                    BoxChangedCreateUndo(this, null);
+
+                    for (int i = 0; i < 9; i++)
+                    {
+                        if ((FrameScale.Checked && i < 3) ||
+                            (FrameRot.Checked && i >= 3 && i < 6) ||
+                            (FrameTrans.Checked && i >= 6))
+                            if (_transBoxes[i].Value != p[i] && (!_onlyKeys || frame.GetBool(i)))
+                            {
+                                _transBoxes[i].Value = p[i];
+                                BoxChanged(_transBoxes[i], null);
+                            }
+                    }
                 }
             }
         }
@@ -1213,7 +1436,8 @@ namespace System.Windows.Forms
             _mainWindow.UpdateModel();
 
             _mainWindow.Updating = true;
-            _mainWindow.PlaybackPanel.numTotalFrames.Value = SelectedAnimation.FrameCount;
+            _mainWindow.PlaybackPanel.numTotalFrames.Value++;
+            _mainWindow._maxFrame++;
             _mainWindow.Updating = false;
         }
 
@@ -1226,8 +1450,39 @@ namespace System.Windows.Forms
             _mainWindow.UpdateModel();
 
             _mainWindow.Updating = true;
-            _mainWindow.PlaybackPanel.numTotalFrames.Value = SelectedAnimation.FrameCount;
+            _mainWindow.PlaybackPanel.numTotalFrames.Value--;
+            _mainWindow._maxFrame--;
             _mainWindow.Updating = false;
+        }
+
+        private void bakeVertexPositionsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (TargetModel != null && TargetModel is MDL0Node && TargetModel.Objects != null)
+            {
+                foreach (MDL0ObjectNode o in TargetModel.Objects)
+                {
+                    for (int i = 0; i < o._manager._vertices.Count; i++)
+                    {
+                        Vertex3 vec = o._manager._vertices[i];
+                        o._vertexNode.Vertices[o._manager._vertices[i]._facepoints[0]._vertexIndex] = vec.WeightedPosition;
+                    }
+
+                    o._vertexNode.ForceRebuild = true;
+                    if (o._vertexNode.Format == WiiVertexComponentType.Float)
+                        o._vertexNode.ForceFloat = true;
+                }
+                _mainWindow.UpdateModel();
+            }
+        }
+
+        private void chkBoneEdit_CheckedChanged(object sender, EventArgs e)
+        {
+            
+        }
+
+        private void chkUpdateBindPose_CheckedChanged(object sender, EventArgs e)
+        {
+            chkMoveBoneOnly.Enabled = chkUpdateBindPose.Checked;
         }
 
         //private void chkLinear_CheckedChanged(object sender, EventArgs e)

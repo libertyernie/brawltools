@@ -56,7 +56,8 @@ namespace BrawlBox.NodeWrappers
 
         public CHR0Wrapper() { ContextMenuStrip = _menu; }
 
-        public override string ExportFilter { get { return FileFilters.CHR0; } }
+        public override string ExportFilter { get { return FileFilters.CHR0Export; } }
+        public override string ImportFilter { get { return FileFilters.CHR0Import; } }
 
         public void NewBone()
         {

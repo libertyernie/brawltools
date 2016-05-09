@@ -1,15 +1,13 @@
-using System;
-using System.Runtime;
 using System.Runtime.InteropServices;
 
 using HWND = System.IntPtr;
 
 namespace UrielGuy.SyntaxHighlightingTextBox
 {
-	/// <summary>
-	/// Summary description for Win32.
-	/// </summary>
-	public class Win32
+    /// <summary>
+    /// Summary description for Win32.
+    /// </summary>
+    public class Win32
 	{
 		private Win32()
 		{

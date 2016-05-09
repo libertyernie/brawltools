@@ -1,12 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Windows.Forms;
-using BrawlLib.SSBB.ResourceNodes;
-using System.Globalization;
-using System.ComponentModel;
 using Ikarus.MovesetFile;
 using Ikarus.ModelViewer;
 

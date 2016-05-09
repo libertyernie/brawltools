@@ -1,27 +1,30 @@
-﻿using System;
-using BrawlLib.OpenGL;
+﻿using BrawlLib.OpenGL;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
 using BrawlLib.Modeling;
 using System.Drawing;
-using BrawlLib.Wii.Animations;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
-using System.Windows;
-using System.Threading;
 
 namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
         #region Model Viewer Properties
+        void firstPersonCameraToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                FirstPersonCamera = !FirstPersonCamera;
+        }
+        private void shadersToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                RenderShaders = !RenderShaders;
+        }
+        private void scaleBonesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            if (!_updating)
+                ScaleBones = !ScaleBones;
+        }
         private void modelToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (!_updating)
@@ -132,11 +135,11 @@ namespace System.Windows.Forms
         }
         private void btnExportToAnimatedGIF_Click(object sender, EventArgs e)
         {
-            SetFrame(1);
-            images = new List<Image>();
+            //SetFrame(1);
+            _images = new List<Image>();
             _loop = false;
             _capture = true;
-            Enabled = false;
+            //Enabled = false;
             ModelPanel.Enabled = false;
             if (InterpolationEditor != null)
                 InterpolationEditor.Enabled = false;
@@ -214,7 +217,7 @@ namespace System.Windows.Forms
 
         private void btnLeftToggle_Click(object sender, EventArgs e) { showLeft.Checked = !showLeft.Checked; }
         private void btnTopToggle_Click(object sender, EventArgs e) { showTop.Checked = !showTop.Checked; }
-        private void btnBottomToggle_Click(object sender, EventArgs e) { showBottom.Checked = !showBottom.Checked; CheckDimensions(); }
+        private void btnBottomToggle_Click(object sender, EventArgs e) { showBottom.Checked = !showBottom.Checked; }
         private void btnRightToggle_Click(object sender, EventArgs e) { showRight.Checked = !showRight.Checked; }
 
         #endregion
@@ -247,6 +250,8 @@ namespace System.Windows.Forms
 
             curViewport.SetPercentages(averageX, yMin, xMax, yMax);
             newViewport.SetPercentages(xMin, yMin, averageX, yMax);
+
+            ModelPanel.Invalidate();
         }
         private void topToolStripMenuItem1_Click(object sender, EventArgs e)
         {
@@ -263,6 +268,8 @@ namespace System.Windows.Forms
 
             curViewport.SetPercentages(xMin, averageY, xMax, yMax);
             newViewport.SetPercentages(xMin, yMin, xMax, averageY);
+
+            ModelPanel.Invalidate();
         }
         private void LiveTextureFolderPath_Click(object sender, EventArgs e)
         {
@@ -290,11 +297,7 @@ namespace System.Windows.Forms
         }
         private void openFileToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            OpenFileDialog d = new OpenFileDialog();
-            d.Filter = "All Compatible Files (*.pac, *.pcs, *.brres, *.mrg, *.arc, *.szs,  *.mdl0)|*.pac;*.pcs;*.brres;*.mrg;*.arc;*.szs;*.mdl0";
-            d.Title = "Select a file to open";
-            if (d.ShowDialog() == DialogResult.OK)
-                OpenFile(d.FileName);
+            rightPanel.pnlOpenedFiles.LoadExternal(true, false, false);
         }
         private void newSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -308,33 +311,34 @@ namespace System.Windows.Forms
         }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (this.Close()) this.ParentForm.Close();
+            this.ParentForm.Close();
         }
 
         #region Rendered Models
 
         private void hideFromSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             ModelPanel.RemoveTarget(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
+            {
+                _resetCamera = false;
                 TargetModel = _targetModels[0];
+            }
 
             ModelPanel.Invalidate();
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             ModelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);
-            //models.Items.Remove(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
+            {
+                _resetCamera = false;
                 TargetModel = _targetModels[0];
+            }
 
             ModelPanel.Invalidate();
         }
@@ -469,8 +473,8 @@ namespace System.Windows.Forms
                 ((CHR0Node)n).AverageKeys(SelectedBone.Name);
             if (n is SRT0Node && TargetTexRef != null)
                 ((SRT0Node)n).AverageKeys(TargetTexRef.Parent.Name, TargetTexRef.Index);
-            if (n is SHP0Node && SHP0Editor.VertexSet != null && SHP0Editor.VertexSetDest != null)
-                ((SHP0Node)n).AverageKeys(SHP0Editor.VertexSet.Name, SHP0Editor.VertexSetDest.Name);
+            if (n is SHP0Node && SHP0Editor.SelectedDestination != null && SHP0Editor.VertexSetDest != null)
+                ((SHP0Node)n).AverageKeys(SHP0Editor.SelectedDestination, SHP0Editor.VertexSetDest.Name);
         }
 
         public void setColorToolStripMenuItem_Click(object sender, EventArgs e)
@@ -481,6 +485,8 @@ namespace System.Windows.Forms
         public void loadImageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             ChooseOrClearBackgroundImage();
+
+            loadImageToolStripMenuItem.Text = ModelPanel.CurrentViewport.BackgroundImage == null ? "Load Image" : "Clear Image";
         }
 
         protected void btnUndo_Click(object sender, EventArgs e) { Undo(); }
@@ -519,6 +525,12 @@ namespace System.Windows.Forms
         private void playCLR0ToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_clr0 != null && CurrentFrame != 0)
+                UpdateModel();
+        }
+
+        private void playSCN0ToolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            if (_scn0 != null && CurrentFrame != 0)
                 UpdateModel();
         }
 

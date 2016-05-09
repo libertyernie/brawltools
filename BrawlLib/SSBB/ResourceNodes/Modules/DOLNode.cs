@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.IO;
 using System.ComponentModel;
-using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -16,10 +13,19 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         DOLHeader hdr;
 
-        [Category("Relocatable Module")]
+        [Category("Relocatable Module"), Browsable(false)]
         public uint ModuleID { get { return 0; } }
-        [Browsable(false)]
-        public uint ID { get { return 0; } set { } }
+        uint ModuleNode.ID
+        {
+            get
+            {
+                return 0;
+            }
+            set
+            {
+                
+            }
+        }
 
         [Browsable(false)]
         public ModuleSectionNode[] Sections { get { return Children.Select(x => x as ModuleSectionNode).ToArray(); } }

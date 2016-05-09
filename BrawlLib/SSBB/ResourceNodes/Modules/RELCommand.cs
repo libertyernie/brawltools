@@ -1,21 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using System.IO;
-using System.Drawing;
-using BrawlLib.IO;
-using System.PowerPcAssembly;
-using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
     [TypeConverter(typeof(ExpandableObjectCustomConverter))]
     public unsafe class RelCommand
     {
-        ModuleSectionNode[] Sections { get { return (_parentRelocation._section.Root as ModuleNode).Sections; } }
+        ModuleDataNode _section;
+
+        ModuleSectionNode[] Sections { get { return (_section.Root as ModuleNode).Sections; } }
 
         [Category("Relocation Command"), Browsable(false)]
         public bool IsBranchSet { get { return (_command >= RELCommandType.SetBranchDestination && _command <= RELCommandType.SetBranchConditionDestination3); } }
@@ -32,19 +26,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                 uint offset;
                 if (uint.TryParse(s, System.Globalization.NumberStyles.HexNumber, null, out offset))
                 {
-                    if ((_parentRelocation._section.Root as ModuleNode).ID == _moduleID)
+                    if ((_section.Root as ModuleNode).ID == _moduleID)
                     {
                         ModuleSectionNode section = Sections[TargetSectionID];
-                        int x = (section.Relocations.Count * 4) - 2;
+                        int x = section._dataBuffer.Length - 2;
                         offset = offset.Clamp(0, (uint)(x < 0 ? 0 : x)); 
                     }
                     _addend = offset;
-                    _parentRelocation._section.SignalPropertyChange();
+                    _section.SignalPropertyChange();
                 }
             }
         }
         [Category("Relocation Command"), Description("Determines how the offset should be written.")]
-        public RELCommandType Command { get { return _command; } set { _command = value; _parentRelocation._section.SignalPropertyChange(); } }
+        public RELCommandType Command { get { return _command; } set { _command = value; _section.SignalPropertyChange(); } }
 
         [Category("Relocation Command"), Description("The index of the section to offset into.")]
         public uint TargetSectionID 
@@ -52,22 +46,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _targetSectionId; } 
             set 
             {
-                if ((_parentRelocation._section.Root as ModuleNode).ID == _moduleID)
+                if ((_section.Root as ModuleNode).ID == _moduleID)
                 {
                     _targetSectionId = value.Clamp(0, (uint)Sections.Length - 1);
                     ModuleSectionNode section = Sections[TargetSectionID];
-                    int x = (section.Relocations.Count * 4) - 2;
+                    int x = section._dataBuffer.Length - 2;
                     _addend = _addend.Clamp(0, (uint)(x < 0 ? 0 : x));
                 }
                 else
                     _targetSectionId = value;
-                _parentRelocation._section.SignalPropertyChange(); 
+                _section.SignalPropertyChange();
             } 
         }
         [Category("Relocation Command"), Description("The ID of the target module."), TypeConverter(typeof(DropDownListRELModuleIDs))]
         public string TargetModuleID
         {
-            get { return RELNode._idNames.ContainsKey((int)_moduleID) ? RELNode._idNames[(int)_moduleID] : _moduleID.ToString(); }
+            get { return RELNode._idNames.ContainsKey(_moduleID) ? RELNode._idNames[_moduleID] : _moduleID.ToString(); }
             set
             {
                 uint id = 0;
@@ -75,7 +69,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     id = (uint)RELNode._idNames.Keys[RELNode._idNames.IndexOfValue(value)];
 
                 _moduleID = id;
-                _parentRelocation._section.SignalPropertyChange();
+                _section.SignalPropertyChange();
             }
         }
 
@@ -84,80 +78,40 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _targetSectionId;
         public uint _moduleID;
 
-        [Browsable(false)]
-        public Relocation _targetRelocation { get { return GetTargetRelocation(); } set { SetTargetRelocation(value); } }
-
         //Addend is an offset relative to the start of the section
         public uint _addend;
         public bool _initialized = false;
 
-        [Category("Relocation Command"), Browsable(false)]
-        public RelCommand Next { get { return _next; } }
-        [Category("Relocation Command"), Browsable(false)]
-        public RelCommand Previous { get { return _prev; } }
-
-        public RelCommand _next = null;
-        public RelCommand _prev = null;
-
-        public Relocation _parentRelocation;
-
-        public void Remove()
-        {
-            if (_next != null)
-                _next._prev = _prev;
-            if (_prev != null)
-                _prev._next = _next;
-            _next = _prev = null;
-        }
-
-        public void InsertAfter(RelCommand cmd)
-        {
-            _prev = cmd;
-            _next = cmd._next;
-            cmd._next = this;
-        }
-
-        public void InsertBefore(RelCommand cmd)
-        {
-            _next = cmd;
-            _prev = cmd._prev;
-            cmd._prev = this;
-        }
-
-        public RelCommand(uint fileId, int section, RELLink link)
+        public RelCommand(uint fileId, ModuleDataNode section, RELLink link)
         {
             _moduleID = fileId;
-            _modifiedSectionId = section;
+            _section = section;
+            _modifiedSectionId = section.Index;
             _targetSectionId = link._section;
             _command = (RELCommandType)(int)link._type;
             _addend = link._value;
         }
 
-        public Relocation GetTargetRelocation()
+        public RelocationTarget GetTargetRelocation()
         {
-            if (_parentRelocation == null)
-                return null;
-
-            RELNode r = _parentRelocation._section.Root as RELNode;
-            if (r != null && _targetSectionId > 0 && _targetSectionId < r.Sections.Length && r.ModuleID == _moduleID)
-                return r.Sections[_targetSectionId].GetRelocationAtOffset((int)_addend);
-
-            return null;
+            return new RelocationTarget(_moduleID, (int)_targetSectionId, (int)(_addend.RoundDown(4) / 4));
         }
 
-        public void SetTargetRelocation(Relocation e)
+        public void SetTargetRelocation(RelocationTarget e)
         {
-            if (e != null)
-                _addend = (uint)e._index * 4;
+            if (e == null)
+                return;
+
+            _addend = (uint)e._index * 4;
         }
 
-        public uint Apply(bool absolute)
+        public uint Apply(uint newValue, uint baseOffset)
         {
-            uint newValue = _parentRelocation.RawValue;
-            uint addend = _addend + (absolute ? _parentRelocation._section.RootOffset : 0);
-
+            uint addend = _addend + baseOffset;
             switch (_command)
             {
+                case RELCommandType.Nop: // 0x0
+                    break;
                 case RELCommandType.WriteWord: //0x1
                     newValue = addend;
                     break;
@@ -191,13 +145,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     break;
 
                 case RELCommandType.SetBranchDestination: //0xA
-                    Console.WriteLine("SetBranchDestination");
+                    //Console.WriteLine("SetBranchDestination");
                     break;
 
                 case RELCommandType.SetBranchConditionDestination1: //0xB
                 case RELCommandType.SetBranchConditionDestination2: //0xC
                 case RELCommandType.SetBranchConditionDestination3: //0xD
-                    Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
+                    //Console.WriteLine("SetBranchConditionDestination" + ((int)(_command - RELCommandType.SetBranchConditionDestination1)).ToString());
                     break;
 
                 default:

@@ -1,10 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 using BrawlLib.SSBB.ResourceNodes;
 
 namespace Ikarus.MovesetFile
@@ -31,11 +26,7 @@ namespace Ikarus.MovesetFile
             _buffer = new UnsafeBuffer(0x2E4);
             Memory.Move(_buffer.Address, address, 0x2E4);
         }
-        protected override int OnGetSize()
-        {
-            _lookupCount = 0;
-            return 0x2E4;
-        }
+        protected override int OnGetSize() { return 0x2E4; }
         protected override void OnWrite(VoidPtr address)
         {
             RebuildAddress = address;

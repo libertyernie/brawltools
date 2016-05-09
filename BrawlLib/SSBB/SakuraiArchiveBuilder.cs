@@ -1,8 +1,5 @@
-﻿using BrawlLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrawlLib.SSBBTypes
 {
@@ -34,6 +31,94 @@ namespace BrawlLib.SSBBTypes
         public int _lookupCount = 0, _lookupLen = 0;
 
         public int _sectionCount, _referenceCount;
+
+        /// <summary>
+        /// This gets the size using entries that need to be rebuilt 
+        /// and the original lookup entries to inject the edited data
+        /// into the original file
+        /// </summary>
+        /// <returns></returns>
+        public unsafe int QuickGetSize()
+        {
+            _calculatingSize = true;
+
+            VoidPtr origAddr = _rootNode.WorkingUncompressed.Address;
+            SakuraiArchiveHeader* hdr = (SakuraiArchiveHeader*)origAddr;
+            VoidPtr origBase = hdr->BaseAddress;
+
+            _size = _rootNode.WorkingUncompressed.Length;
+            foreach (var entry in _rootNode.RebuildEntries)
+            {
+                int newSize = entry.GetSize();
+                int oldSize = entry._initSize;
+                int diff = newSize - oldSize;
+
+                int lookupCount = entry.GetLookupCount();
+                int prevLookupCount = 0;
+
+                int minOffset = entry._offset;
+                int maxOffset = minOffset + oldSize;
+
+                bint* lookup = hdr->LookupEntries;
+                int currentOffset = *(bint*)(origBase + *lookup++);
+                for (int i = 0; i < hdr->_lookupEntryCount - 1; i++, lookup++)
+                {
+                    int nextOffset = *(bint*)(origBase + *lookup);
+                    if (minOffset >= currentOffset && minOffset < nextOffset)
+                    {
+                        for (int x = i; x < hdr->_lookupEntryCount; x++)
+                        {
+                            int insideOffset = *(bint*)(origBase + lookup[x]);
+
+                        }
+                    }
+                }
+
+                _size += diff;
+            }
+
+            _calculatingSize = false;
+
+            return _size;
+        }
+
+        /// <summary>
+        /// This writes changed data without rewriting the entire file
+        /// </summary>
+        public unsafe void QuickWrite()
+        {
+            VoidPtr origAddr = _rootNode.WorkingUncompressed.Address;
+            SakuraiArchiveHeader* hdr = (SakuraiArchiveHeader*)origAddr;
+            VoidPtr origBase = hdr->BaseAddress;
+
+            var changed = _rootNode.RebuildEntries;
+            if (changed.Count != 0)
+            {
+                foreach (var entry in changed)
+                {
+                    int eOffset = entry._offset;
+                    bint* lookup = hdr->LookupEntries;
+                    int currentOffset = *(bint*)(origBase + *lookup++);
+                    for (int i = 0; i < hdr->_lookupEntryCount - 1; i++, lookup++)
+                    {
+                        int nextOffset = *(bint*)(origBase + *lookup);
+                        if (eOffset >= currentOffset && eOffset < nextOffset)
+                        {
+                            int newSize = entry._calcSize;
+                            int oldSize = entry._initSize;
+                            int diff = newSize - oldSize;
+
+                            for (int x = i; x < hdr->_lookupEntryCount; x++)
+                            {
+
+                                lookup[x] += diff;
+                            }
+                        }
+                        currentOffset = nextOffset;
+                    }
+                }
+            }
+        }
 
         public int GetSize()
         {

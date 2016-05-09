@@ -1,6 +1,4 @@
-﻿using System;
-using BrawlLib.SSBB.ResourceNodes;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Drawing;
 using BrawlLib.SSBB;
 
@@ -283,6 +281,9 @@ namespace System.Windows.Forms
         public bool _updating = false;
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if (_updating)
+                return;
+
             if (IndexChanged != null)
                 IndexChanged(this, null);
             //if (_mainWindow != null && !_updating)

@@ -2,10 +2,6 @@
 //Original source:
 //http://users.telenet.be/tfautre/softdev/tristripper/
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace BrawlLib.Modeling.Triangle_Converter
 {

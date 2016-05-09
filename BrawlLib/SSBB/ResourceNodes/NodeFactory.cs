@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using BrawlLib.IO;
 using BrawlLib.Wii.Compression;
 using System.IO;
-using System.Windows.Forms;
-using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -14,11 +12,11 @@ namespace BrawlLib.SSBB.ResourceNodes
     //Factory is for initializing root node, and unknown child nodes.
     public static class NodeFactory
     {
-#if DEBUG
-        private const bool UseRawDataNode = true;
-#else
+//#if DEBUG
+//        private const bool UseRawDataNode = true;
+//#else
         private const bool UseRawDataNode = false;
-#endif
+//#endif
         
         private static List<ResourceParser> _parsers = new List<ResourceParser>();
         static NodeFactory()
@@ -39,10 +37,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         };
 
         //Parser commands must initialize the node before returning.
-        public unsafe static ResourceNode FromFile(ResourceNode parent, string path)
+        public unsafe static ResourceNode FromFile(ResourceNode parent, string path, FileOptions options = FileOptions.RandomAccess)
         {
             ResourceNode node = null;
-            FileMap map = FileMap.FromFile(path, FileMapProtect.Read);
+            FileMap map = FileMap.FromFile(path, FileMapProtect.Read, 0, 0, options);
             try
             {
                 DataSource source = new DataSource(map);
@@ -52,7 +50,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (Forced.ContainsKey(ext))
                     {
                         node = Activator.CreateInstance(Forced[ext]) as ResourceNode;
-                        FileMap uncomp = Compressor.TryExpand(ref source);
+                        FileMap uncomp = Compressor.TryExpand(ref source, false);
                         if (uncomp != null)
                             node.Initialize(parent, source, new DataSource(uncomp));
                         else

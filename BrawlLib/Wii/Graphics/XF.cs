@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Runtime.InteropServices;
-using System.ComponentModel;
 
 namespace BrawlLib.Wii.Graphics
 {
@@ -30,6 +28,27 @@ namespace BrawlLib.Wii.Graphics
 
         public XFData() { }
         public XFData(XFMemoryAddr mem) { _addr = mem; }
+        public XFData(ushort mem) { _addr = (XFMemoryAddr)mem; }
+        public XFData(XFMemoryAddr mem, List<uint> values)
+        {
+            _addr = mem;
+            _values = values;
+        }
+        public XFData(ushort mem, List<uint> values)
+        {
+            _addr = (XFMemoryAddr)mem;
+            _values = values;
+        }
+        public XFData(XFMemoryAddr mem, params uint[] values)
+        {
+            _addr = mem;
+            _values = values.ToList();
+        }
+        public XFData(ushort mem, params uint[] values)
+        {
+            _addr = (XFMemoryAddr)mem;
+            _values = values.ToList();
+        }
 
         public unsafe static List<XFData> Parse(VoidPtr address)
         {
@@ -71,27 +90,43 @@ namespace BrawlLib.Wii.Graphics
     }
 
     //TexMtxInfo
-    //0000 0000 0000 0001   Unk (None)
+    //0000 0000 0000 0001   Padding
     //0000 0000 0000 0010   Projection
     //0000 0000 0000 1100   Input Form
     //0000 0000 0111 0000   Texgen Type
-    //0000 0011 1000 0000   Source Row
-    //0001 1100 0000 0000   Emboss Source
-    //1110 0000 0000 0000   Emboss Light
+    //0000 1111 1000 0000   Source Row
+    //0111 0000 0000 0000   Emboss Source
+    //1000 0000 0000 0000   Emboss Light (all remaining bits)
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct XFTexMtxInfo
     {
-        internal uint _data;
+        internal Bin32 _data;
 
-        public TexProjection Projection { get { return (TexProjection)((_data >> 1) & 1); } }
-        public TexInputForm InputForm { get { return (TexInputForm)((_data >> 2) & 3); } }
-        public TexTexgenType TexGenType { get { return (TexTexgenType)((_data >> 4) & 7); } }
-        public TexSourceRow SourceRow { get { return (TexSourceRow)((_data >> 7) & 7); } }
-        public int EmbossSource { get { return (int)((_data >> 10) & 7); } }
-        public int EmbossLight { get { return (int)((_data >> 13) & 7); } }
+        public TexProjection Projection { get { return (TexProjection)(_data[1] ? 1 : 0); } set { _data[1] = (uint)value != 0; } }
+        public TexInputForm InputForm { get { return (TexInputForm)_data[2, 2]; } set { _data[2, 2] = (uint)value; } }
+        public TexTexgenType TexGenType { get { return (TexTexgenType)_data[4, 3]; } set { _data[4, 3] = (uint)value; } }
+        public TexSourceRow SourceRow { get { return (TexSourceRow)_data[7, 5]; } set { _data[7, 5] = (uint)value; } }
+        public int EmbossSource { get { return (int)_data[12, 3]; } set { _data[12, 3] = (uint)value; } }
+        public int EmbossLight { get { return (int)_data[15, 17]; } set { _data[15, 17] = (uint)value; } }
 
         public XFTexMtxInfo(uint value) { _data = value; }
+        public XFTexMtxInfo(
+            TexProjection projection,
+            TexInputForm inputForm,
+            TexTexgenType genType,
+            TexSourceRow sourceRow,
+            int embossSource,
+            int embossLight)
+        {
+            _data = 0;
+            Projection = projection;
+            InputForm = inputForm;
+            TexGenType = genType;
+            SourceRow = sourceRow;
+            EmbossSource = embossSource;
+            EmbossLight = embossLight;
+        }
 
         public override string ToString()
         {
@@ -225,7 +260,7 @@ namespace BrawlLib.Wii.Graphics
     [Serializable, StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct XFArrayFlags
     {
-        internal buint _data;
+        internal Bin32 _data;
 
         //0000 0000 0000 0000 0000 0001 Pos Matrix
         //0000 0000 0000 0000 0000 0010 TexMtx0
@@ -249,18 +284,18 @@ namespace BrawlLib.Wii.Graphics
         //0000 1000 0000 0000 0000 0000 Tex6
         //0001 0000 0000 0000 0000 0000 Tex7
 
-        public bool HasPosMatrix { get { return (_data & 1) != 0; } set { _data = _data & 0xFFFFFFFE | (uint)(value ? 1 : 0); } }
-        public bool HasPositions { get { return (_data & 0x200) != 0; } set { _data = _data & 0xFFFFFDFF | (uint)(value ? 0x200 : 0); } }
-        public bool HasNormals { get { return (_data & 0x400) != 0; } set { _data = _data & 0xFFFFFBFF | (uint)(value ? 0x400 : 0); } }
+        public bool HasPosMatrix { get { return _data[0]; } set { _data[0] = value; } }
+        public bool HasPositions { get { return _data[9]; } set { _data[9] = value; } }
+        public bool HasNormals { get { return _data[10]; } set { _data[10] = value; } }
 
-        public bool GetHasTexMatrix(int index) { return (_data & 2 << index) != 0; }
-        public void SetHasTexMatrix(int index, bool exists) { _data = _data & ~((uint)2 << index) | ((uint)(exists ? 2 : 0) << index); }
+        public bool GetHasTexMatrix(int index) { return _data[index + 1]; }
+        public void SetHasTexMatrix(int index, bool exists) { _data[index + 1] = exists; }
 
-        public bool GetHasColor(int index) { return (_data & 0x800 << index) != 0; }
-        public void SetHasColor(int index, bool exists) { _data = _data & ~((uint)0x800 << index) | ((uint)(exists ? 0x800 : 0) << index); }
+        public bool GetHasColor(int index) { return _data[index + 11]; }
+        public void SetHasColor(int index, bool exists) { _data[index + 11] = exists; }
 
-        public bool GetHasUVs(int index) { return (_data & 0x2000 << index) != 0; }
-        public void SetHasUVs(int index, bool exists) { _data = _data & ~((uint)0x2000 << index) | ((uint)(exists ? 0x2000 : 0) << index); }
+        public bool GetHasUVs(int index) { return _data[index + 13]; }
+        public void SetHasUVs(int index, bool exists) { _data[index + 13] = exists; }
 
         public override string ToString()
         {

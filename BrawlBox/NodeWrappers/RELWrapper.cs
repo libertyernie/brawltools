@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -72,22 +69,22 @@ namespace BrawlBox.NodeWrappers
         public void Constructor()
         {
             RELNode r = _resource as RELNode;
-            if (r._prologReloc != null)
+            if (r._prologSect != -1)
             {
-                ModuleDataNode s = r._prologReloc._section;
+                ModuleDataNode s = r._sections[r._prologSect];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
                     {
                         l.Focus();
-                        l.Position = r._prologReloc._index * 4;
+                        l.Position = r._prologIndex * 4;
                         l.hexBox1.Focus();
                         return;
                     }
 
                 SectionEditor e = new SectionEditor(s as ModuleSectionNode);
                 e.Show();
-                e.Position = r._prologReloc._index * 4;
+                e.Position = r._prologIndex * 4;
                 e.hexBox1.Focus();
             }
             else
@@ -97,22 +94,22 @@ namespace BrawlBox.NodeWrappers
         public void Destructor()
         {
             RELNode r = _resource as RELNode;
-            if (r._epilogReloc != null)
+            if (r._epilogSect != -1)
             {
-                ModuleDataNode s = r._epilogReloc._section;
+                ModuleDataNode s = r._sections[r._epilogSect];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
                     {
                         l.Focus();
-                        l.Position = r._epilogReloc._index * 4;
+                        l.Position = r._epilogIndex * 4;
                         l.hexBox1.Focus();
                         return;
                     }
 
                 SectionEditor e = new SectionEditor(s as ModuleSectionNode);
                 e.Show();
-                e.Position = r._epilogReloc._index * 4;
+                e.Position = r._epilogIndex * 4;
                 e.hexBox1.Focus();
             }
             else
@@ -122,22 +119,22 @@ namespace BrawlBox.NodeWrappers
         public void Unresolved()
         {
             RELNode r = _resource as RELNode;
-            if (r._unresReloc != null)
+            if (r._unresSect != -1)
             {
-                ModuleDataNode s = r._unresReloc._section;
+                ModuleDataNode s = r._sections[r._unresSect];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
                     {
                         l.Focus();
-                        l.Position = r._unresReloc._index * 4;
+                        l.Position = r._unresIndex * 4;
                         l.hexBox1.Focus();
                         return;
                     }
 
                 SectionEditor e = new SectionEditor(s as ModuleSectionNode);
                 e.Show();
-                e.Position = r._unresReloc._index * 4;
+                e.Position = r._unresIndex * 4;
                 e.hexBox1.Focus();
             }
             else
@@ -180,13 +177,13 @@ namespace BrawlBox.NodeWrappers
 
         public void Export2()
         {
-            if (_modelViewerOpen)
-                return;
+            //if (_modelViewerOpen)
+            //    return;
 
-            string outPath;
-            int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            if (index != 0)
-                (_resource as ModuleSectionNode).ExportInitialized(outPath);
+            //string outPath;
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //    (_resource as ModuleSectionNode).ExportInitialized(outPath);
         }
 
         public void Open()
@@ -251,7 +248,7 @@ namespace BrawlBox.NodeWrappers
         public void Open()
         {
             RELMethodNode r = _resource as RELMethodNode;
-            ModuleSectionNode section = r.Root.Children[r.TargetSectionID] as ModuleSectionNode;
+            ModuleSectionNode section = r.Root.Children[(int)r.TargetSection] as ModuleSectionNode;
 
             foreach (SectionEditor l in SectionEditor._openedSections)
                 if (l._section == section)
@@ -314,13 +311,13 @@ namespace BrawlBox.NodeWrappers
 
         public void Export2()
         {
-            if (_modelViewerOpen)
-                return;
+            //if (_modelViewerOpen)
+            //    return;
 
-            string outPath;
-            int index = Program.SaveFile(ExportFilter, Text, out outPath);
-            if (index != 0)
-                (_resource as ModuleSectionNode).ExportInitialized(outPath);
+            //string outPath;
+            //int index = Program.SaveFile(ExportFilter, Text, out outPath);
+            //if (index != 0)
+            //    (_resource as ModuleSectionNode).ExportInitialized(outPath);
         }
 
         public void Open()

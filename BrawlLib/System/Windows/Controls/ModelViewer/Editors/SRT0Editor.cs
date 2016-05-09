@@ -1,5 +1,4 @@
-﻿using System;
-using BrawlLib.Wii.Animations;
+﻿using BrawlLib.Wii.Animations;
 using BrawlLib.SSBB.ResourceNodes;
 using System.ComponentModel;
 using System.Collections.Generic;
@@ -1001,17 +1000,14 @@ namespace System.Windows.Forms
             SRTAnimationFrame frame;
             float* p = (float*)&frame;
 
-            for (int i = 0; i < 9; i++)
+            for (int i = 0; i < 5; i++)
             {
-                if (i == 2 || i == 4 || i == 5 || i == 8)
-                    continue;
-
-                if ((!FrameScale.Checked && i < 3))
+                if ((!FrameScale.Checked && i < 2))
                     p[i] = 1;
                 else if (
-                    (FrameScale.Checked && i < 3) ||
-                    (FrameRot.Checked && i >= 3 && i < 6) ||
-                    (FrameTrans.Checked && i >= 6))
+                    (FrameScale.Checked && i < 2) ||
+                    (FrameRot.Checked && i == 2) ||
+                    (FrameTrans.Checked && i > 2))
                     p[i] = _transBoxes[i].Value;
             }
 
@@ -1025,20 +1021,24 @@ namespace System.Windows.Forms
             IDataObject da = Clipboard.GetDataObject();
             if (da.GetDataPresent("SRTAnimationFrame"))
             {
-                SRTAnimationFrame frame = (SRTAnimationFrame)da.GetData("SRTAnimationFrame");
-
-                float* p = (float*)&frame;
-
-                BoxChangedCreateUndo(this, null);
-
-                for (int i = 0; i < 5; i++)
+                object o = da.GetData("SRTAnimationFrame");
+                if (o != null && o is SRTAnimationFrame)
                 {
-                    if ((FrameScale.Checked && i < 2) ||
-                        (FrameRot.Checked && i == 2) ||
-                        (FrameTrans.Checked && i > 2))
-                        _transBoxes[i].Value = p[i];
-                    //_transBoxes[i].Value = p[i];
-                    BoxChanged(_transBoxes[i], null);
+                    SRTAnimationFrame frame = (SRTAnimationFrame)o;
+
+                    float* p = (float*)&frame;
+
+                    BoxChangedCreateUndo(this, null);
+
+                    for (int i = 0; i < 5; i++)
+                    {
+                        if ((FrameScale.Checked && i < 2) ||
+                            (FrameRot.Checked && i == 2) ||
+                            (FrameTrans.Checked && i > 2))
+                            _transBoxes[i].Value = p[i];
+                        //_transBoxes[i].Value = p[i];
+                        BoxChanged(_transBoxes[i], null);
+                    }
                 }
             }
         }

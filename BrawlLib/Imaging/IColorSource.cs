@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace BrawlLib.Imaging
+﻿namespace BrawlLib.Imaging
 {
     public interface IColorSource
     {

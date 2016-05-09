@@ -1,10 +1,8 @@
 ﻿using System;
 using BrawlLib.SSBBTypes;
 using System.Audio;
-using BrawlLib.Wii.Audio;
 using System.IO;
 using BrawlLib.IO;
-using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
@@ -29,7 +27,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             if (_name == null)
-                _name = String.Format("Audio[{0}]", Index);
+                _name = String.Format("[{0}]Audio", Index);
             
             Info = *(WaveInfo*)WorkingUncompressed.Address;
 

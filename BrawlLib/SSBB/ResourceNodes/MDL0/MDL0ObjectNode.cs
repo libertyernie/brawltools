@@ -7,11 +7,9 @@ using BrawlLib.Modeling;
 using BrawlLib.Wii.Models;
 using BrawlLib.Wii.Graphics;
 using System.Windows.Forms;
-using BrawlLib.Imaging;
-using System.Runtime.InteropServices;
 using OpenTK.Graphics.OpenGL;
 using System.Drawing;
-using BrawlLib.Modeling.Triangle_Converter;
+using System.Linq;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -30,21 +28,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                for (int i = 0; i < 8; i++)
-                    if (_manager.HasTextureMatrix[i])
-                        return true;
+                if (_manager != null)
+                    for (int i = 0; i < 8; i++)
+                        if (_manager.HasTextureMatrix[i])
+                            return true;
                 return false;
-            }
-        }
-
-        public byte _drawIndex;
-        public byte DrawPriority
-        {
-            get { return _drawIndex; }
-            set
-            {
-                _drawIndex = value;
-                SignalPropertyChange();
             }
         }
 
@@ -52,29 +40,30 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal XFVertexSpecs _vertexSpecs;
 
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix0 { get { return _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
+        public bool HasTextureMatrix0 { get { return _manager == null ? false : _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix1 { get { return _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
+        public bool HasTextureMatrix1 { get { return _manager == null ? false : _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix2 { get { return _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
+        public bool HasTextureMatrix2 { get { return _manager == null ? false : _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix3 { get { return _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
+        public bool HasTextureMatrix3 { get { return _manager == null ? false : _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix4 { get { return _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
+        public bool HasTextureMatrix4 { get { return _manager == null ? false : _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix5 { get { return _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
+        public bool HasTextureMatrix5 { get { return _manager == null ? false : _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix6 { get { return _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
+        public bool HasTextureMatrix6 { get { return _manager == null ? false : _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix7 { get { return _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
+        public bool HasTextureMatrix7 { get { return _manager == null ? false : _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
 
         private void SetTexMtx(int index, bool value)
         {
-            if (!Weighted)
+            if (!Weighted || _manager == null)
                 return;
+
             _manager.HasTextureMatrix[index] = value;
             SignalPropertyChange();
-            _rebuild = true;
+            _forceRebuild = true;
         }
 
         [Category("Object Data")]
@@ -88,7 +77,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Object Data")]
         public int FaceCount { get { return _numFaces; } }
 
-        internal List<IMatrixNode> _influences;
         [Browsable(false)]
         public List<IMatrixNode> Influences { get { return _influences; } }
 
@@ -98,47 +86,91 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Vertices & Normals
 
-        internal MDL0VertexNode _vertexNode;
-        internal MDL0NormalNode _normalNode;
+        public MDL0VertexNode _vertexNode;
+        public MDL0NormalNode _normalNode;
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListVertices))]
         public string VertexNode
         {
             get { return _vertexNode == null ? null : _vertexNode._name; }
             set
             {
+                //Can't remove the vertex node!
+                //Do nothing if attempting to set to null
                 if (!String.IsNullOrEmpty(value))
                 {
-                    MDL0VertexNode node = Model.FindChild(String.Format("Vertices/{0}", value), false) as MDL0VertexNode;
-                    if (node != null && _vertexNode != null && node.NumVertices >= _vertexNode.NumVertices)
+                    MDL0VertexNode newNode = Model.FindChild(String.Format("Vertices/{0}", value), false) as MDL0VertexNode;
+                    if (newNode != null)
                     {
-                        if (_vertexNode != null && _vertexNode._objects.Contains(this))
-                            _vertexNode._objects.Remove(this);
+                        if (_vertexNode != null)
+                        {
+                            if (newNode.NumVertices < _vertexNode.NumVertices)
+                            {
+                                MessageBox.Show(String.Format("Not enough vertices.\nNeeds: {0}\nSelection: {1}", _vertexNode.NumVertices, newNode.NumVertices));
+                                return;
+                            }
 
-                        (_vertexNode = node)._objects.Add(this);
-                        _elementIndices[0] = (short)node.Index;
+                            if (_vertexNode._objects.Contains(this))
+                                _vertexNode._objects.Remove(this);
+                        }
+
+                        (_vertexNode = newNode)._objects.Add(this);
+                        _elementIndices[0] = (short)newNode.Index;
+                    }
+                    else
+                    {
+                        MessageBox.Show("A vertex node with this name was not found.");
+                        return;
                     }
                 }
                 SignalPropertyChange();
             }
         }
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListNormals))]
         public string NormalNode
         {
             get { return _normalNode == null ? null : _normalNode._name; }
             set
             {
-                if (!String.IsNullOrEmpty(value))
-                {
-                    MDL0NormalNode node = Model.FindChild(String.Format("Normals/{0}", value), false) as MDL0NormalNode;
-                    if (node != null && _normalNode != null && node.NumEntries >= _normalNode.NumEntries)
+                MDL0NormalNode oldNode = _normalNode;
+                if (String.IsNullOrEmpty(value))
+                    if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                     {
-                        if (_normalNode != null && _normalNode._objects.Contains(this))
-                            _normalNode._objects.Remove(this);
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
 
-                        (_normalNode = node)._objects.Add(this);
-                        _elementIndices[1] = (short)node.Index;
+                        _normalNode = null;
+                        _elementIndices[1] = -1;
+                        _forceRebuild = true;
+                    }
+                    else return; //No point setting a null node to null
+                else
+                {
+                    MDL0NormalNode newNode = Model.FindChild(String.Format("Normals/{0}", value), false) as MDL0NormalNode;
+                    if (newNode != null)
+                    {
+                        if (_normalNode != null)
+                        {
+                            if (newNode.NumEntries < _normalNode.NumEntries)
+                            {
+                                MessageBox.Show(String.Format("Not enough normals.\nNeeds: {0}\nSelection: {1}", _normalNode.NumEntries, newNode.NumEntries));
+                                return;
+                            }
+
+                            if (_normalNode._objects.Contains(this))
+                                _normalNode._objects.Remove(this);
+                        }
+
+                        (_normalNode = newNode)._objects.Add(this);
+                        _elementIndices[1] = (short)newNode.Index;
+                    }
+                    else
+                    {
+                        MessageBox.Show("A normal node with this name was not found.");
+                        return;
                     }
                 }
                 SignalPropertyChange();
@@ -149,61 +181,59 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Colors
 
-        internal MDL0ColorNode[] _colorSet = new MDL0ColorNode[2];
+        public MDL0ColorNode[] _colorSet = new MDL0ColorNode[2];
         private void SetColors(int id, string value)
         {
             MDL0ColorNode oldNode = _colorSet[id];
             if (String.IsNullOrEmpty(value))
-                if (oldNode != null)
+                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
                     if (oldNode._objects.Contains(this))
                         oldNode._objects.Remove(this);
 
                     _colorSet[id] = null;
                     _elementIndices[id + 2] = -1;
-                    _rebuild = true;
+                    _forceRebuild = true;
                 }
-                else return;
+                else return; //No point setting a null node to null
             else
             {
                 MDL0ColorNode newNode = Model.FindChild(String.Format("Colors/{0}", value), false) as MDL0ColorNode;
-                if (newNode != null && newNode.NumEntries != 0)
+                if (newNode != null)
                 {
                     if (oldNode != null)
                     {
-                        if (newNode.NumEntries >= oldNode.NumEntries)
-                        {
-                            if (oldNode._objects.Contains(this))
-                                oldNode._objects.Remove(this);
-
-                            (_colorSet[id] = newNode)._objects.Add(this);
-                            _elementIndices[id + 2] = (short)newNode.Index;
-                        }
-                        else if (newNode.NumEntries > 0)
+                        if (newNode.NumEntries < oldNode.NumEntries)
                         {
                             if (MessageBox.Show(null, "This node has less colors than in the originally linked color node.\nAny colors that cannot be found will use the first color instead.\nIs this okay?", "", MessageBoxButtons.YesNo) == DialogResult.No)
                                 return;
 
-                            if (oldNode._objects.Contains(this))
-                                oldNode._objects.Remove(this);
-
-                            (_colorSet[id] = newNode)._objects.Add(this);
-                            _elementIndices[id + 2] = (short)newNode.Index;
-                            _rebuild = true;
+                            _forceRebuild = true;
                         }
+
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
                     }
-                    else return;
+
+                    (_colorSet[id] = newNode)._objects.Add(this);
+                    _elementIndices[id + 2] = (short)newNode.Index;
                 }
-                else return;
+                else
+                {
+                    MessageBox.Show("A color node with this name was not found.");
+                    return;
+                }
             }
             SignalPropertyChange();
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListColors))]
         public string ColorNode0
         {
             get { return _colorSet[0] == null ? null : _colorSet[0]._name; }
             set { SetColors(0, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListColors))]
         public string ColorNode1
         {
@@ -215,31 +245,37 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region UVs
 
-        internal MDL0UVNode[] _uvSet = new MDL0UVNode[8];
+        public MDL0UVNode[] _uvSet = new MDL0UVNode[8];
         private void SetUVs(int id, string value)
         {
             MDL0UVNode oldNode = _uvSet[id];
             if (String.IsNullOrEmpty(value))
-                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Do you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                if (oldNode != null && MessageBox.Show(RootNode._mainForm, "Are you sure you want to remove this reference?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 {
                     if (oldNode._objects.Contains(this))
                         oldNode._objects.Remove(this);
 
                     _uvSet[id] = null;
                     _elementIndices[id + 4] = -1;
-                    _rebuild = true;
+                    _forceRebuild = true;
                 }
-                else return;
+                else return; //No point setting a null node to null
             else
             {
                 MDL0UVNode newNode = Model.FindChild(String.Format("UVs/{0}", value), false) as MDL0UVNode;
-                if (newNode != null && oldNode != null)
+                if (newNode != null)
                 {
-                    if (newNode.NumEntries != oldNode.NumEntries && MessageBox.Show(RootNode._mainForm, "Entry counts are not equal.\nThis might cause problems.\nContinue anyway?", "Continue?", MessageBoxButtons.OKCancel) == DialogResult.Cancel)
-                        return;
+                    if (oldNode != null)
+                    {
+                        if (newNode.NumEntries < oldNode.NumEntries)
+                        {
+                            MessageBox.Show(String.Format("Not enough UVs.\nNeeds: {0}\nSelection: {1}", oldNode.NumEntries, newNode.NumEntries));
+                            return;
+                        }
 
-                    if (oldNode._objects.Contains(this))
-                        oldNode._objects.Remove(this);
+                        if (oldNode._objects.Contains(this))
+                            oldNode._objects.Remove(this);
+                    }
 
                     (_uvSet[id] = newNode)._objects.Add(this);
                     _elementIndices[id + 4] = (short)newNode.Index;
@@ -248,49 +284,56 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             SignalPropertyChange();
         }
-
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord0
         {
             get { return _uvSet[0] == null ? null : _uvSet[0]._name; }
             set { SetUVs(0, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord1
         {
             get { return _uvSet[1] == null ? null : _uvSet[1]._name; }
             set { SetUVs(1, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord2
         {
             get { return _uvSet[2] == null ? null : _uvSet[2]._name; }
             set { SetUVs(2, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord3
         {
             get { return _uvSet[3] == null ? null : _uvSet[3]._name; }
             set { SetUVs(3, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord4
         {
             get { return _uvSet[4] == null ? null : _uvSet[4]._name; }
             set { SetUVs(4, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord5
         {
             get { return _uvSet[5] == null ? null : _uvSet[5]._name; }
             set { SetUVs(5, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord6
         {
             get { return _uvSet[6] == null ? null : _uvSet[6]._name; }
             set { SetUVs(6, value); }
         }
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListUVs))]
         public string TexCoord7
         {
@@ -305,6 +348,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal MDL0FurPosNode _furPosNode;
         internal MDL0FurVecNode _furVecNode;
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListFurPos))]
         public string FurLayerCoordNode
         {
@@ -327,6 +371,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        [Category("Mesh Assets")]
         [TypeConverter(typeof(DropDownListFurVec))]
         public string FurVectorNode
         {
@@ -365,12 +410,17 @@ namespace BrawlLib.SSBB.ResourceNodes
         private int _tableLen = 0;
 
         internal short[] _elementIndices = new short[14];
-        public bool _rebuild = false, _reOptimized = false;
+        public bool _forceRebuild = false, _reOptimized = false;
+
+        internal List<IMatrixNode> _influences;
+        public BindingList<DrawCall> _drawCalls = new BindingList<DrawCall>();
 
         #endregion
 
         #region Single Bind linkage
-        [Browsable(true), TypeConverter(typeof(DropDownListBones))]
+
+        [Category("Object Data")]
+        [TypeConverter(typeof(DropDownListBones))]
         public string SingleBind
         {
             get { return _matrixNode == null ? "(none)" : _matrixNode.IsPrimaryNode ? ((MDL0BoneNode)_matrixNode)._name : "(multiple)"; }
@@ -390,180 +440,38 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (_matrixNode == value)
                     return;
 
-                if (value is MDL0BoneNode && _matrixNode is Influence)
+                if (_manager != null)
                 {
                     foreach (Vertex3 v in _manager._vertices)
                     {
-                        v.Position *= ((MDL0BoneNode)value).InverseMatrix;
-                        //v._normal *= ((MDL0BoneNode)value).InverseMatrix.GetRotationMatrix();
+                        v.DeferUpdateAssets();
+                        v.ChangeInfluence(value);
+
+                        if (v._matrixNode != null && v._matrixNode.Users.Contains(v))
+                            v._matrixNode.Users.Remove(v);
                     }
-                    SetEditedVertices();
-                    //SetEditedNormals();
-                }
-                else if (value is Influence && _matrixNode is MDL0BoneNode)
-                {
-                    foreach (Vertex3 v in _manager._vertices)
-                    {
-                        v.Position *= ((MDL0BoneNode)_matrixNode).Matrix;
-                        //v._normal *= ((MDL0BoneNode)_matrixNode).Matrix.GetRotationMatrix();
-                    }
-                    SetEditedVertices();
-                    //SetEditedNormals();
+                    if (_updateAssets)
+                        SetEditedAssets(false, true, true);
                 }
 
                 if (_matrixNode != null)
                 {
-                    if (_matrixNode is MDL0BoneNode)
-                        ((MDL0BoneNode)_matrixNode)._infPolys.Remove(this);
-                    else
-                    {
-                        _matrixNode.ReferenceCount--;
+                    if (_matrixNode is MDL0BoneNode && ((MDL0BoneNode)_matrixNode)._singleBindObjects.Contains(this))
+                        ((MDL0BoneNode)_matrixNode)._singleBindObjects.Remove(this);
+                    else if (_matrixNode.Users.Contains(this))
                         _matrixNode.Users.Remove(this);
-                    }
                 }
                 if ((_matrixNode = value) != null)
                 {
                     //Singlebind bones aren't added to NodeMix, but its node id is still built as influenced
-                    //_singleBind.ReferenceCount++;
-                    if (_matrixNode is MDL0BoneNode)
-                        ((MDL0BoneNode)_matrixNode)._infPolys.Add(this);
-                    else
-                    {
-                        _matrixNode.ReferenceCount++;
+                    if (_matrixNode is MDL0BoneNode && !((MDL0BoneNode)_matrixNode)._singleBindObjects.Contains(this))
+                        ((MDL0BoneNode)_matrixNode)._singleBindObjects.Add(this);
+                    else if (!_matrixNode.Users.Contains(this))
                         _matrixNode.Users.Add(this);
-                    }
                 }
-            }
-        }
-        #endregion
 
-        #region Material linkage
-        //public void EvalMaterials(ref string message)
-        //{
-        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-        //        if (OpaMaterialNode != null)
-        //            message += Name + "\n";
-        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-        //        if (XluMaterialNode != null)
-        //            message += Name + "\n";
-        //}
-        //public void FixMaterials(ref string message)
-        //{
-        //    if (XluMaterialNode != null && !XluMaterialNode.XLUMaterial)
-        //    {
-        //        if (OpaMaterialNode == null)
-        //            OpaMaterialNode = XluMaterialNode;
-        //        else
-        //            message += Name + "\n";
-        //        XluMaterialNode = null;
-        //    }
-        //    if (OpaMaterialNode != null && OpaMaterialNode.XLUMaterial)
-        //    {
-        //        if (XluMaterialNode == null)
-        //            XluMaterialNode = OpaMaterialNode;
-        //        else
-        //            message += Name + "\n";
-        //        OpaMaterialNode = null;
-        //    }
-        //}
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode UsableMaterialNode
-        {
-            get
-            {
-                if (OpaMaterialNode != null)
-                    return OpaMaterialNode;
-                else
-                    return XluMaterialNode;
+                _updateAssets = true;
             }
-            set
-            {
-                if (value.XLUMaterial)
-                    XluMaterialNode = value;
-                else 
-                    OpaMaterialNode = value;
-            }
-        }
-
-        internal MDL0MaterialNode _opaMaterial, _xluMaterial;
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode OpaMaterialNode
-        {
-            get { return _opaMaterial; }
-            set
-            {
-                if (_opaMaterial == value)
-                    return;
-                if (_opaMaterial != null)
-                    _opaMaterial._objects.Remove(this);
-                if ((_opaMaterial = value) != null)
-                    _opaMaterial._objects.Add(this);
-            }
-        }
-
-        /// <summary>
-        /// Does not signal a property change!
-        /// </summary>
-        [Browsable(false)]
-        public MDL0MaterialNode XluMaterialNode
-        {
-            get { return _xluMaterial; }
-            set
-            {
-                if (_xluMaterial == value)
-                    return;
-                if (_xluMaterial != null)
-                    _xluMaterial._objects.Remove(this);
-                if ((_xluMaterial = value) != null)
-                    _xluMaterial._objects.Add(this);
-            }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListOpaMaterials))]
-        public string OpaMaterial
-        {
-            get { return _opaMaterial == null ? null : _opaMaterial._name; }
-            set { if (String.IsNullOrEmpty(value)) OpaMaterialNode = null; else { OpaMaterialNode = Model.FindOrCreateOpaMaterial(value); } }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListXluMaterials))]
-        public string XluMaterial
-        {
-            get { return _xluMaterial == null ? null : _xluMaterial._name; }
-            set { if (String.IsNullOrEmpty(value)) XluMaterialNode = null; else { XluMaterialNode = Model.FindOrCreateXluMaterial(value); } }
-        }
-        #endregion
-
-        #region Bone linkage
-        public MDL0BoneNode _visBoneNode;
-        [Browsable(false)]
-        public MDL0BoneNode VisibilityBoneNode
-        {
-            get { return _visBoneNode; }
-            set
-            {
-                if (_visBoneNode == value)
-                    return;
-                if (_visBoneNode != null)
-                    _visBoneNode._manPolys.Remove(this);
-                if ((_visBoneNode = value) != null)
-                {
-                    _visBoneNode._manPolys.Add(this);
-                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
-                }
-            }
-        }
-        [Browsable(true), TypeConverter(typeof(DropDownListBones))]
-        public string VisibilityBone //This attaches the object to a bone controlled by a VIS0
-        {
-            get { return _visBoneNode == null ? null : _visBoneNode._name; }
-            set { VisibilityBoneNode = String.IsNullOrEmpty(value) ? null : Model.FindBone(value); Model.SignalPropertyChange(); }
         }
         #endregion
 
@@ -573,7 +481,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void Dispose()
         {
-            if (_manager != null)
+            if (_manager != null && _parent != null && _parent._disposed)
             {
                 _manager.Dispose();
                 _manager = null;
@@ -673,15 +581,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _elementIndices[13] = (short)(_furPosNode != null ? _furPosNode.Index : -1);
 
             //Create primitive manager
-            if (_parent != null)
-            {
-                int i = 0;
-                _manager = new PrimitiveManager(header, Model._assets, linker.NodeCache);
-
-                if (_manager._vertices != null)
-                    foreach (Vertex3 v in _manager._vertices)
-                        v.Parent = this;
-            }
+            _manager = new PrimitiveManager(header, Model._assets, linker.NodeCache, this);
 
             //Read internal object node cache and read influence list
             if (Model._linker.NodeCache != null && _matrixNode == null)
@@ -698,17 +598,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (header->_totalLength % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper data length.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
             }
             if ((int)(0x24 + header->_primitives._offset) % 0x20 != 0)
             {
                 Model._errors.Add("Object " + Index + " has an improper primitives start offset.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
             }
             if (CheckVertexFormat())
             {
                 Model._errors.Add("Object " + Index + " has a facepoint descriptor that does not match its linked nodes.");
-                SignalPropertyChange(); _rebuild = true;
+                SignalPropertyChange();
+                _forceRebuild = true;
 
                 for (int i = 0; i < 2; i++)
                     if (_colorSet[i] != null && _manager._faceData[i + 2] == null)
@@ -720,7 +623,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < 8; i++)
                     _manager.HasTextureMatrix[i] = false;
                 SignalPropertyChange();
-                _rebuild = true;
+                _forceRebuild = true;
             }
 
             //if (!Weighted)
@@ -757,9 +660,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         #region Rebuilding
-
-        [Browsable(false)]
-        public bool HasNonFloatVertices { get { return _vertexNode !=  null && _vertexNode.Format != WiiVertexComponentType.Float; } }
 
         public void RecalcIndices()
         {
@@ -842,7 +742,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                         if (first)
                         {
                             if (v.MatrixNode != null)
+                            {
+                                DeferUpdateAssets();
                                 MatrixNode = model._linker.NodeCache[v.MatrixNode.NodeIndex];
+                            }
 
                             first = false;
                         }
@@ -872,11 +775,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             RecalcIndices();
 
             //Check that the facepoint descriptor matches the linked nodes
-            if (!_rebuild)
-                _rebuild = CheckVertexFormat();
+            if (!_forceRebuild)
+                _forceRebuild = CheckVertexFormat();
+
+            //Primitives need to be 
+            _manager._remakePrimitives = model._isImport || _reOptimized || _manager.AssetsChanged;
 
             //Rebuild only under certain circumstances
-            if ((_manager._isImportOrReopimized = model._isImport || _reOptimized) || _rebuild)
+            if (_manager._remakePrimitives || _forceRebuild)
             {
                 _manager._isWeighted = Weighted;
 
@@ -898,13 +804,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 //Add def length
                 size = _tableLen + 0xE0;
 
-                if (model._isImport)
+                //If assets have been changed, linked asset nodes must be recreated!
+                //This will merge internally stored face data buffers into facepoints,
+                //then group them and store the groups in _primGroups
+                if (model._isImport || _manager.AssetsChanged)
                     _manager.GroupPrimitives(
                         Collada._importOptions._useTristrips,
                         Collada._importOptions._cacheSize,
                         Collada._importOptions._minStripLen,
                         Collada._importOptions._pushCacheHits,
-                        Collada._importOptions._forceCCW,
+                        !model._isImport ? false : Collada._importOptions._forceCCW,
                         out _numFacepoints,
                         out _numFaces);
 
@@ -931,7 +840,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 (_uvSet[5] == null ? 0 : 0x20 + 
                 (_uvSet[7] == null ? 0 : 0x20)));
 
-            if (_manager._isImportOrReopimized || _rebuild)
+            if (_manager._remakePrimitives || _forceRebuild)
             {
                 //Set header values
                 header->_totalLength = length;
@@ -990,6 +899,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 //Write primitives
                 _manager.WritePrimitives(header, model._linker.NodeCache);
+
+                _manager.AssetsChanged = false;
             }
             else
             {
@@ -1010,7 +921,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     *(bshort*)((byte*)header + 0x62) = _elementIndices[13];
                 }
             }
-            _rebuild = _reOptimized = false;
+            _forceRebuild = _reOptimized = false;
         }
 
         private void WriteWeightTable(VoidPtr addr)
@@ -1063,8 +974,21 @@ namespace BrawlLib.SSBB.ResourceNodes
         #region Rendering
 
         [Browsable(false)]
-        public bool IsRendering { get { return _render; } set { _render = value; } }
-        public bool _render = true;
+        public bool IsRendering
+        {
+            get
+            {
+                foreach (DrawCall c in _drawCalls)
+                    if (c._render)
+                        return true;
+                return false;
+            }
+            set
+            {
+                foreach (DrawCall c in _drawCalls)
+                    c._render = value;
+            } 
+        }
 
         [Browsable(false)]
         public bool Attached { get { return _attached; } set { _attached = value; } }
@@ -1082,232 +1006,236 @@ namespace BrawlLib.SSBB.ResourceNodes
             return box;
         }
 
-        //public void UpdateProgram(ModelPanel mainWindow)
-        //{
-        //    bool temp = false;
-        //    bool force = true;
-        //    bool updateProgram = force || _renderUpdate || UsableMaterialNode._renderUpdate || UsableMaterialNode.ShaderNode._renderUpdate;
-        //    if (updateProgram)
-        //    {
-        //        temp = true;
-
-        //        if (_programHandle > 0)
-        //            GL.DeleteProgram(_programHandle);
-
-        //        _programHandle = GL.CreateProgram();
-
-        //        int status;
-        //        string info;
-
-        //        if (_renderUpdate)
-        //        {
-        //            vertexShaderSource = ShaderGenerator.GenerateVertexShader(this);
-
-        //            GL.ShaderSource(vertexShaderHandle, vertexShaderSource);
-        //            GL.CompileShader(vertexShaderHandle);
-
-        //            GL.GetShaderInfoLog(vertexShaderHandle, out info);
-        //            GL.GetShader(vertexShaderHandle, OpenTK.Graphics.OpenGL.ShaderParameter.CompileStatus, out status);
-
-        //            if (status != 1)
-        //                Console.WriteLine(info + "\n\n" + vertexShaderSource + "\n\n");
-        //            else
-        //                GL.AttachShader(_programHandle, vertexShaderHandle);
-        //        }
-        //        if (_renderUpdate || UsableMaterialNode._renderUpdate || UsableMaterialNode.ShaderNode._renderUpdate)
-        //        {
-        //            _fragShaderSource = ShaderGenerator.GeneratePixelShader(this);
-
-        //            GL.ShaderSource(_fragShaderHandle, _fragShaderSource);
-        //            GL.CompileShader(_fragShaderHandle);
-
-        //            GL.GetShaderInfoLog(_fragShaderHandle, out info);
-        //            GL.GetShader(_fragShaderHandle, OpenTK.Graphics.OpenGL.ShaderParameter.CompileStatus, out status);
-
-        //            if (status != 1)
-        //                Console.WriteLine(info + "\n\n" + _fragShaderSource + "\n\n");
-        //            else
-        //                GL.AttachShader(_programHandle, _fragShaderHandle);
-
-        //            UsableMaterialNode._renderUpdate = UsableMaterialNode.ShaderNode._renderUpdate = false;
-        //        }
-
-        //        _renderUpdate = false;
-
-        //        GL.LinkProgram(_programHandle);
-        //    }
-
-        //    GL.UseProgram(_programHandle);
-
-        //    if (temp)
-        //    {
-        //        SetUniforms(_programHandle, mainWindow);
-        //        //UsableMaterialNode.SetUniforms(_programHandle);
-        //    }
-        //    //if (UsableMaterialNode._lightSet != null)
-        //    //    SetLightUniforms(_programHandle);
-        //}
-
-        internal void Render(bool wireframe)
+        BlendingFactorSrc[] _blendSrc = 
         {
-            if (!_render || _manager == null)
+            BlendingFactorSrc.Zero, BlendingFactorSrc.One,
+            BlendingFactorSrc.DstColor, BlendingFactorSrc.OneMinusDstColor,
+            BlendingFactorSrc.SrcAlpha, BlendingFactorSrc.OneMinusSrcAlpha, 
+            BlendingFactorSrc.DstAlpha, BlendingFactorSrc.OneMinusDstAlpha
+        };
+        BlendingFactorDest[] _blendDst =
+        {
+            BlendingFactorDest.Zero, BlendingFactorDest.One, 
+            BlendingFactorDest.SrcColor, BlendingFactorDest.OneMinusSrcColor,
+            BlendingFactorDest.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha,
+            BlendingFactorDest.DstAlpha, BlendingFactorDest.OneMinusDstAlpha
+        };
+        LogicOp[] _logicOp =
+        {
+            LogicOp.Clear, LogicOp.And, LogicOp.AndReverse, LogicOp.Copy,
+            LogicOp.AndInverted, LogicOp.Noop, LogicOp.Xor, LogicOp.Or,
+            LogicOp.Nor, LogicOp.Equiv, LogicOp.Invert, LogicOp.OrReverse,
+            LogicOp.CopyInverted, LogicOp.OrInverted, LogicOp.Nand, LogicOp.Set
+        };
+        CullFaceMode[] _cullMode =
+        {
+            CullFaceMode.Front,
+            CullFaceMode.Back,
+            CullFaceMode.FrontAndBack
+        };
+        DepthFunction[] _depthFunc =
+        {
+            DepthFunction.Never,
+            DepthFunction.Less,
+            DepthFunction.Equal,
+            DepthFunction.Lequal,
+            DepthFunction.Greater,
+            DepthFunction.Notequal,
+            DepthFunction.Gequal,
+            DepthFunction.Always
+        };
+        AlphaFunction[] _alphaFunc =
+        {
+            AlphaFunction.Never,
+            AlphaFunction.Less,
+            AlphaFunction.Equal,
+            AlphaFunction.Lequal,
+            AlphaFunction.Greater,
+            AlphaFunction.Notequal,
+            AlphaFunction.Gequal,
+            AlphaFunction.Always
+        };
+
+        internal void Render(bool wireframe, bool useShaders, MDL0MaterialNode material)
+        {
+            if (_manager == null)
                 return;
 
-            bool useShaders = TKContext.CurrentContext._shadersEnabled;
-            MDL0MaterialNode material = UsableMaterialNode;
+            if (!TKContext._shadersSupported)
+                useShaders = false;
+
+            _manager.PrepareStream();
 
             if (wireframe)
             {
                 GL.Enable(EnableCap.CullFace);
                 GL.CullFace(CullFaceMode.Back);
-                _manager.PrepareStream();
-                _manager.DisableTextures();
                 GL.Color4(Color.Black);
+
+                _manager.BindStream();
+                _manager.DisableTextures();
                 _manager.RenderMesh();
                 _manager.DetachStreams();
+
                 return;
             }
+            
+            GL.MatrixMode(MatrixMode.Texture);
 
-            //if (useShaders)
-            //{
-            //    UpdateProgram(mainWindow);
-
-            //    _manager.PrepareStreamNew(_programHandle);
-
-            //    if (material != null)
-            //    {
-            //        switch ((int)material.CullMode)
-            //        {
-            //            case 0: //None
-            //                GL.Disable(EnableCap.CullFace);
-            //                break;
-            //            case 1: //Outside
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.Front);
-            //                break;
-            //            case 2: //Inside
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.Back);
-            //                break;
-            //            case 3: //Double
-            //                GL.Enable(EnableCap.CullFace);
-            //                GL.CullFace(CullFaceMode.FrontAndBack);
-            //                break;
-            //        }
-
-            //        if (material.Children.Count == 0)
-            //            _manager.RenderMesh();
-            //        else
-            //        {
-            //            foreach (MDL0MaterialRefNode mr in material.Children)
-            //            {
-            //                if (mr._texture != null && (!mr._texture.Enabled || mr._texture.Rendered))
-            //                    continue;
-
-            //                mr.Bind(ctx, _programHandle);
-            //            }
-            //            GL.BindVertexArray(_manager._arrayHandle);
-            //            _manager.RenderMesh();
-            //        }
-            //    }
-            //    else
-            //        _manager.RenderMesh();
-
-            //    _manager.DetachStreamsNew();
-            //}
-            //else
+            bool anyRendered = false;
+            if (material != null)
             {
-                GL.Enable(EnableCap.Texture2D);
-                _manager.PrepareStream();
-
-                GL.MatrixMode(MatrixMode.Modelview);
-                if (material != null)
-                {
-                    switch ((int)material.CullMode)
-                    {
-                        case 0: //None
-                            GL.Disable(EnableCap.CullFace);
-                            break;
-                        case 1: //Outside
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.Front);
-                            break;
-                        case 2: //Inside
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.Back);
-                            break;
-                        case 3: //Double
-                            GL.Enable(EnableCap.CullFace);
-                            GL.CullFace(CullFaceMode.FrontAndBack);
-                            break;
-                    }
-
-                    //if (material.EnableBlend)
-                    //{
-                    //    GL.Disable(EnableCap.AlphaTest);
-                    //    GL.Enable(EnableCap.Blend);
-                    //    int src = (int)material._blendMode.SrcFactor, dst = (int)material._blendMode.DstFactor;
-                    //    if (src > 1)
-                    //        src += (int)BlendingFactorSrc.SrcColor;
-                    //    if (dst > 1)
-                    //        dst += (int)BlendingFactorDest.SrcColor;
-                    //    GL.BlendFunc((BlendingFactorSrc)src, (BlendingFactorDest)dst);
-                    //}
-                    //else
-                    //{
-                    //    GL.Disable(EnableCap.Blend);
-                    //    GL.Enable(EnableCap.AlphaTest);
-                    //    GL.AlphaFunc(AlphaFunction.Never + (int)material._alphaFunc.Comp0, (float)material._alphaFunc._ref0 / 255.0f);
-                    //}
-
-                    if (material.Children.Count == 0)
-                    {
-                        _manager.DisableTextures();
-                        _manager.RenderMesh();
-                    }
-                    else
-                    {
-                        bool anyRendered = false;
-                        foreach (MDL0MaterialRefNode mr in material.Children)
-                        {
-                            if (mr._texture == null || !mr._texture.Enabled)
-                                continue;
-                            else
-                                anyRendered = true;
-
-                            GL.MatrixMode(MatrixMode.Texture);
-                            GL.PushMatrix();
-
-                            fixed (Matrix* m = &mr._frameState._transform)
-                                GL.MultMatrix((float*)m);
-
-                            GL.MatrixMode(MatrixMode.Modelview);
-
-                            mr.Bind(-1);
-
-                            _manager.ApplyTexture(mr.Coordinates);
-                            _manager.RenderMesh();
-
-                            GL.MatrixMode(MatrixMode.Texture);
-                            GL.PopMatrix();
-                            GL.MatrixMode(MatrixMode.Modelview);
-                        }
-
-                        if (!anyRendered)
-                        {
-                            _manager.DisableTextures();
-                            _manager.RenderMesh();
-                        }
-                    }
-                }
+                if (!useShaders)
+                    AlphaTest(material);
                 else
                 {
-                    _manager.DisableTextures();
-                    _manager.RenderMesh();
+                    material.UseProgram(this, Control.ModifierKeys == Keys.Alt);
+                    Blend(material);
                 }
 
-                _manager.DetachStreams();
+                //Blend(material);
+                Cull(material);
+                DepthTest(material);
+
+                if (useShaders)
+                {
+                    for (int i = 0; i < 8; i++)
+                    {
+                        GL.ClientActiveTexture(TextureUnit.Texture0 + i);
+                        GL.ActiveTexture(TextureUnit.Texture0 + i);
+
+                        if (i >= material.Children.Count)
+                        {
+                            GL.DisableClientState(ArrayCap.TextureCoordArray);
+                            GL.Disable(EnableCap.Texture2D);
+                            continue;
+                        }
+                        else
+                            GL.Enable(EnableCap.Texture2D);
+
+                        MDL0MaterialRefNode mr = (MDL0MaterialRefNode)material.Children[i];
+                        if (mr._texture == null || !mr._texture.Enabled)
+                            continue;
+
+                        Matrix m = mr.GetTransform(_matrixNode != null || _manager.HasTextureMatrix[i]);
+                        GL.LoadMatrix((float*)&m);
+
+                        mr.Bind(material._programHandle);
+                        _manager.ApplyTexture(mr.Coordinates);
+                    }
+                    anyRendered = true;
+                    _manager.BindStream();
+                    _manager.RenderMesh();
+                }
+                else //Fixed functionality
+                {
+                    GL.Enable(EnableCap.Texture2D);
+
+                    _manager.BindStream();
+                    for (int i = material.Children.Count - 1; i >= 0; i--)
+                    {
+                        MDL0MaterialRefNode mr = (MDL0MaterialRefNode)material.Children[i];
+                        if (mr._texture == null || !mr._texture.Enabled)
+                            continue;
+
+                        anyRendered = true;
+
+                        fixed (Matrix* m = &mr._frameState._transform)
+                            GL.LoadMatrix((float*)m);
+
+                        mr.Bind(material._programHandle);
+                        _manager.ApplyTexture(mr.Coordinates);
+
+                        _manager.RenderMesh();
+                    }
+                }
             }
+
+            if (!anyRendered)
+            {
+                _manager.DisableTextures();
+                _manager.RenderMesh();
+            }
+
+            _manager.DetachStreams();
+        }
+
+        void AlphaTest(MDL0MaterialNode material)
+        {
+            GXAlphaFunction alpha = material._alphaFunc;
+
+            AlphaOp logic = alpha.Logic;
+            AlphaCompare func0 = alpha.Comp0;
+            AlphaCompare func1 = alpha.Comp1;
+
+            GL.Enable(EnableCap.AlphaTest);
+            if ((logic == AlphaOp.Or && (func0 == AlphaCompare.Always || func1 == AlphaCompare.Always)) ||
+                (logic == AlphaOp.And && (func0 == AlphaCompare.Always && func1 == AlphaCompare.Always)))
+            {
+                GL.AlphaFunc(AlphaFunction.Always, 0.0f);
+                GL.Disable(EnableCap.AlphaTest);
+            }
+            else if ((logic == AlphaOp.And && (func0 == AlphaCompare.Never || func0 == AlphaCompare.Never)) ||
+                (logic == AlphaOp.Or && (func0 == AlphaCompare.Never && func0 == AlphaCompare.Never)))
+            {
+                GL.Enable(EnableCap.AlphaTest);
+                GL.AlphaFunc(AlphaFunction.Never, 0.0f);
+            }
+            else
+            {
+                GL.Enable(EnableCap.AlphaTest);
+                if ((logic == AlphaOp.Or && func0 == AlphaCompare.Never) ||
+                    (logic == AlphaOp.And && func0 == AlphaCompare.Always))
+                    GL.AlphaFunc(_alphaFunc[(int)func1], (float)alpha._ref1 / 255.0f);
+                else
+                    GL.AlphaFunc(_alphaFunc[(int)func0], (float)alpha._ref0 / 255.0f);
+            }
+        }
+
+        void Blend(MDL0MaterialNode material)
+        {
+            BlendMode b = material._blendMode;
+            if (b.EnableBlend/* && !b.EnableLogicOp*/)
+            {
+                GL.Enable(EnableCap.Blend);
+                if (b.Subtract)
+                    GL.BlendEquation(BlendEquationMode.FuncSubtract);
+                else
+                    GL.BlendEquation(BlendEquationMode.FuncAdd);
+                GL.BlendFunc(_blendSrc[(int)b.SrcFactor], _blendDst[(int)b.DstFactor]);
+            }
+            else
+                GL.Disable(EnableCap.Blend);
+            if (b.EnableLogicOp /*&& !b.EnableBlend*/)
+            {
+                GL.Enable(EnableCap.ColorLogicOp);
+                GL.LogicOp(_logicOp[(int)b.LogicOp]);
+            }
+            else
+                GL.Disable(EnableCap.ColorLogicOp);
+        }
+
+        void Cull(MDL0MaterialNode material)
+        {
+            if ((int)material.CullMode == 0)
+                GL.Disable(EnableCap.CullFace);
+            else
+            {
+                GL.Enable(EnableCap.CullFace);
+                GL.CullFace(_cullMode[(int)material.CullMode - 1]);
+            }
+        }
+        
+        void DepthTest(MDL0MaterialNode material)
+        {
+            if (material._zMode.EnableDepthTest)
+            {
+                GL.Enable(EnableCap.DepthTest);
+                GL.DepthFunc(_depthFunc[(int)material._zMode.DepthFunction]);
+                GL.DepthMask(material._zMode.EnableDepthUpdate);
+            }
+            else
+                GL.Disable(EnableCap.DepthTest);
         }
 
         public void DrawBox()
@@ -1315,175 +1243,153 @@ namespace BrawlLib.SSBB.ResourceNodes
             TKContext.DrawWireframeBox(GetBox());
         }
 
-        public bool _renderUpdate = false;
-
-        public string vertexShaderSource;
-        public int vertexShaderHandle;
-
-        internal void WeightVertices() 
+        internal void Weight() 
         {
             if (_manager != null) 
                 _manager.Weight();
         }
+        internal void Unweight(bool updateAssets)
+        {
+            if (_manager != null)
+                _manager.Unweight(updateAssets);
+        }
 
         internal override void Bind() 
         {
-            if (_visBoneNode == null)
-                _render = true;
-            else
-                if (_visBoneNode._name == "EyeYellowM")
-                    _render = false;
-                else
-                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
-
-            //if (ctx != null && ctx._shadersEnabled)
-            //{
-            //    vertexShaderHandle = GL.CreateShader(OpenTK.Graphics.OpenGL.ShaderType.VertexShader);
-            //    _fragShaderHandle = GL.CreateShader(OpenTK.Graphics.OpenGL.ShaderType.FragmentShader);
-
-            //    _renderUpdate = true;
-
-            //    if (_manager != null)
-            //        _manager.Bind();
-            //}
+            //foreach (DrawCall c in _drawCalls)
+            //    c.Bind();
         }
-        internal override void Unbind() 
-        {
-            _render = false;
-
-            //if (vertexShaderHandle != 0)
-            //    GL.DeleteShader(vertexShaderHandle);
-
-            //if (_fragShaderHandle != 0)
-            //    GL.DeleteShader(_fragShaderHandle);
-
-            //if (_programHandle != 0)
-            //    GL.DeleteProgram(_programHandle);
-
-            //if (_manager != null)
-            //    _manager.Unbind();
-        }
+        internal override void Unbind() { }
 
         public void Attach()
         {
             _attached = true;
-            _render = true;
-
             Model.Attach();
-            
         }
         public void Detach()
         {
             _attached = false;
-            _render = false;
 
             if (Model != null)
                 Model.Detach();
         }
 
-        public void Refresh() { if (Model != null) Model.Refresh(); }
-
-        public void Render(params object[] args)
+        public void Refresh()
         {
-            GL.Enable(EnableCap.Lighting);
-            GL.Enable(EnableCap.DepthTest);
-            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            if (Model != null)
+                Model.Refresh();
+        }
 
-            Render(false);
+        public void PreRender(ModelPanelViewport v)
+        {
+            if (Model != null)
+                Model.PreRender(v);
         }
 
         #endregion
 
         #region Etc
-        public void ConvertInf()
+
+        public override void SignalPropertyChange()
+        {
+            base.SignalPropertyChange();
+
+            TKContext.InvalidateModelPanels(this);
+        }
+
+        public void TryConvertMatrixToVertex()
+        {
+            if (_matrixNode != null)
+            {
+                IMatrixNode m = MatrixNode;
+                MatrixNode = null;
+                foreach (Vertex3 v in _manager._vertices)
+                {
+                    v.DeferUpdateAssets();
+                    v.MatrixNode = m;
+                }
+            }
+        }
+        public void TryConvertMatrixToObject()
         {
             if (_matrixNode == null)
             {
-                IMatrixNode inf = null;
-                bool ok = true;
+                IMatrixNode mtxNode = null;
+                bool singlebind = true;
+
+                int i = 0;
                 foreach (Vertex3 v in _manager._vertices)
                 {
-                    if (inf == null)
-                        inf = v.MatrixNode;
-                    else if (inf != v.MatrixNode)
+                    i++;
+
+                    if (mtxNode == null)
+                        mtxNode = v.MatrixNode;
+
+                    if (v.MatrixNode != mtxNode)
                     {
-                        ok = false;
+                        singlebind = false;
                         break;
                     }
                 }
-                if (ok)
+
+                if (singlebind)
                 {
-                    MatrixNode = inf;
-                    foreach (Vertex3 v in _manager._vertices)
-                        v.MatrixNode = null;
+                    DeferUpdateAssets();
+                    MatrixNode = mtxNode;
                 }
             }
-            else
-            {
-                foreach (Vertex3 v in _manager._vertices)
-                    v.MatrixNode = MatrixNode;
-                MatrixNode = null;
-            }
         }
-        public void SetVerticesFromWeighted()
+        private bool _updateAssets = true;
+        public void DeferUpdateAssets() { _updateAssets = false; }
+        public void SetEditedAssets(bool forceNewNode, params bool[] types)
         {
-            for (int i = 0; i < _manager._vertices.Count; i++)
-            {
-                Vertex3 vec = _manager._vertices[i];
-                //if (vec._moved)
-                _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.GetInvMatrix() * vec.WeightedPosition;
-            }
-
-            _vertexNode.ForceRebuild = true; 
-            if (_vertexNode.Format == WiiVertexComponentType.Float)
-                _vertexNode.ForceFloat = true;
+            if (types.Length > 0 && types[0])
+                SetEditedVertices(forceNewNode);
+            if (types.Length > 1 && types[1])
+                SetEditedNormals(forceNewNode);
+            if (types.Length > 2 && types[2])
+                SetEditedColors(0, forceNewNode);
+            if (types.Length > 3 && types[3])
+                SetEditedColors(1, forceNewNode);
+            for (int i = 0; i < 8; i++)
+                if (types.Length > i + 4 && types[i + 4])
+                    SetEditedUVs(i, forceNewNode);
         }
-        //public void SetEditedNormals()
-        //{
-        //    for (int i = 0; i < _manager._vertices.Count; i++)
-        //    {
-        //        Vertex3 vec = _manager._vertices[i];
-        //        if (vec._moved)
-        //            _vertexNode.Vertices[_manager._vertices[i]._facepoints[0].NormalIndex] = vec._normal;
-        //    }
+        public void SetEditedVertices(bool forceNewNode = false) { _manager.PositionsChanged(this, forceNewNode); }
+        public void SetEditedNormals(bool forceNewNode = false) { _manager.NormalsChanged(this, forceNewNode); }
+        public void SetEditedColors(int id, bool forceNewNode = false) { _manager.ColorsChanged(this, id, forceNewNode); }
+        public void SetEditedUVs(int id, bool forceNewNode = false) { _manager.UVsChanged(this, id, forceNewNode); }
 
-        //    _normalNode.ForceRebuild = true;
-        //    if (_normalNode.Format == WiiVertexComponentType.Float)
-        //        _normalNode.ForceFloat = true;
-        //}
-        public void SetEditedVertices()
+        public MDL0ObjectNode HardCopy()
         {
-            for (int i = 0; i < _manager._vertices.Count; i++)
+            MDL0ObjectNode o = new MDL0ObjectNode()
             {
-                Vertex3 vec = _manager._vertices[i];
-                //if (vec._moved)
-                    _vertexNode.Vertices[_manager._vertices[i]._facepoints[0]._vertexIndex] = vec.Position;
-            }
-            
-            _vertexNode.ForceRebuild = true;
-            if (_vertexNode.Format == WiiVertexComponentType.Float)
-                _vertexNode.ForceFloat = true;
-        }
-
-        public MDL0ObjectNode HardCopy() 
-        {
-            MDL0ObjectNode o = new MDL0ObjectNode() { _manager = _manager, Name = Name };
-            o._vertexNode = _vertexNode;
-            o._normalNode = _normalNode;
+                _manager = _manager.HardCopy(),
+                Name = Name,
+                _vertexNode = _vertexNode,
+                _normalNode = _normalNode,
+                _furVecNode = _furVecNode,
+                _furPosNode = _furPosNode,
+                _matrixNode = _matrixNode,
+                _elementIndices = _elementIndices,
+                _numFacepoints = _numFacepoints,
+                _numFaces = _numFaces,
+                _drawCalls = new BindingList<DrawCall>()
+            };
             for (int i = 0; i < 2; i++)
                 o._colorSet[i] = _colorSet[i];
             for (int i = 0; i < 8; i++)
                 o._uvSet[i] = _uvSet[i];
-            //o.Nodes = Nodes;
-            o._opaMaterial = _opaMaterial;
-            o._xluMaterial = _xluMaterial;
-            o._furVecNode = _furVecNode;
-            o._furPosNode = _furPosNode;
-            o._visBoneNode = _visBoneNode;
-            o._manager._primGroups = _manager._primGroups;
-            o._matrixNode = _matrixNode;
-            o._elementIndices = _elementIndices;
-            o._uncompSource = o._origSource = new DataSource(WorkingUncompressed.Address, WorkingUncompressed.Length, Wii.Compression.CompressionType.None);
+            foreach (DrawCall c in _drawCalls)
+                o._drawCalls.Add(new DrawCall(o)
+                {
+                    MaterialNode = c.MaterialNode,
+                    VisibilityBoneNode = c.VisibilityBoneNode,
+                    DrawPriority = c.DrawPriority,
+                    DrawPass = c.DrawPass
+                });
+
+            o.SignalPropertyChange();
             return o;
         }
 
@@ -1492,7 +1398,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return MemberwiseClone() as MDL0ObjectNode; 
         }
 
-        public override void Remove()
+        public void Remove(bool v, bool n, bool c1, bool c2, params bool[] uv)
         {
             MDL0Node node = Model;
 
@@ -1503,118 +1409,332 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             if (_vertexNode != null)
-                if (_vertexNode._objects.Count == 1)
-                    if (MessageBox.Show("Do you want to remove this object's vertex node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                        _vertexNode.Remove();
-                    else _vertexNode._objects.Remove(this);
-                else _vertexNode._objects.Remove(this);
+            {
+                _vertexNode._objects.Remove(this);
+                if (_vertexNode._objects.Count == 0 && v)
+                    _vertexNode.Remove();
+            }
 
             if (_normalNode != null)
-                if (_normalNode._objects.Count == 1)
+            {
+                _normalNode._objects.Remove(this);
+                if (_normalNode._objects.Count == 0 && n)
                     _normalNode.Remove();
-                else _normalNode._objects.Remove(this);
+            }
 
             for (int i = 0; i < 2; i++)
                 if (_colorSet[i] != null)
-                    if (_colorSet[i]._objects.Count == 1)
+                {
+                    _colorSet[i]._objects.Remove(this);
+                    if (_colorSet[i]._objects.Count == 0 && (i == 0 ? c1 : c2))
                         _colorSet[i].Remove();
-                    else _colorSet[i]._objects.Remove(this);
+                }
 
             for (int i = 0; i < 8; i++)
                 if (_uvSet[i] != null)
-                    if (_uvSet[i]._objects.Count == 1)
+                {
+                    _uvSet[i]._objects.Remove(this);
+                    if (_uvSet[i]._objects.Count == 0 && uv[i])
                         _uvSet[i].Remove();
-                    else _uvSet[i]._objects.Remove(this);
-
+                }
+            
             MatrixNode = null;
-            VisibilityBoneNode = null;
-            OpaMaterialNode = null;
-            XluMaterialNode = null;
+
+            foreach (DrawCall c in _drawCalls)
+            {
+                c.VisibilityBoneNode = null;
+                c.MaterialNode = null;
+            }
+
+            _drawCalls.Clear();
+
+            if (DrawCallsChanged != null)
+                DrawCallsChanged(null, null);
 
             if (_manager != null)
-                foreach (Vertex3 v in _manager._vertices)
-                    if (v.MatrixNode != null)
-                    {
-                        v.MatrixNode.Users.Remove(v);
-                        v.MatrixNode.ReferenceCount--;
-                    }
-
-            base.Remove();
+                foreach (Vertex3 vertex in _manager._vertices)
+                    if (vertex.MatrixNode != null)
+                        vertex.MatrixNode.Users.Remove(vertex);
 
             Dispose();
-
-            if (node._objList != null)
-                foreach (MDL0ObjectNode p in node._objList)
-                    p.RecalcIndices();
+            base.Remove();
         }
 
-        public static int DrawCompareOpa(ResourceNode n1, ResourceNode n2)
+        public override void Remove()
         {
-            //First compare draw priorities
-            if (((MDL0ObjectNode)n1).DrawPriority > ((MDL0ObjectNode)n2).DrawPriority)
-                return 1;
-            if (((MDL0ObjectNode)n1).DrawPriority < ((MDL0ObjectNode)n2).DrawPriority)
-                return -1;
-
-            //Make sure the node isn't null
-            if (((MDL0ObjectNode)n1).OpaMaterialNode != null && ((MDL0ObjectNode)n2).OpaMaterialNode == null)
-                return 1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode == null && ((MDL0ObjectNode)n2).OpaMaterialNode != null)
-                return -1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode == null && ((MDL0ObjectNode)n2).OpaMaterialNode == null)
-                return 0;
-
-            //Now check material draw priority
-            if (((MDL0ObjectNode)n1).OpaMaterialNode.Index > ((MDL0ObjectNode)n2).OpaMaterialNode.Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).OpaMaterialNode.Index < ((MDL0ObjectNode)n2).OpaMaterialNode.Index)
-                return -1;
-
-            //Finally compare the object index
-            if (((MDL0ObjectNode)n1).Index > ((MDL0ObjectNode)n2).Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).Index < ((MDL0ObjectNode)n2).Index)
-                return -1;
-
-            //Should never return equal
-            return 0;
+            Remove(
+                _vertexNode != null && _vertexNode._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's vertex node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _normalNode != null && _normalNode._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's normal node?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _colorSet[0] != null && _colorSet[0]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's color node 1?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _colorSet[1] != null && _colorSet[1]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's color node 2?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[0] != null && _uvSet[0]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 1?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[1] != null && _uvSet[1]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 2?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[2] != null && _uvSet[2]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 3?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[3] != null && _uvSet[3]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 4?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[4] != null && _uvSet[4]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 5?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[5] != null && _uvSet[5]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 6?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[6] != null && _uvSet[6]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 7?", "", MessageBoxButtons.YesNo) == DialogResult.Yes,
+                _uvSet[7] != null && _uvSet[7]._objects.Count == 1 && MessageBox.Show("Do you want to remove this object's uv node 8?", "", MessageBoxButtons.YesNo) == DialogResult.Yes);
         }
-        public static int DrawCompareXlu(ResourceNode n1, ResourceNode n2)
-        {
-            //First compare draw priorities
-            if (((MDL0ObjectNode)n1).DrawPriority > ((MDL0ObjectNode)n2).DrawPriority)
-                return 1;
-            if (((MDL0ObjectNode)n1).DrawPriority < ((MDL0ObjectNode)n2).DrawPriority)
-                return -1;
 
-            //Make sure the node isn't null
-            if (((MDL0ObjectNode)n1).XluMaterialNode != null && ((MDL0ObjectNode)n2).XluMaterialNode == null)
-                return 1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode == null && ((MDL0ObjectNode)n2).XluMaterialNode != null)
-                return -1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode == null && ((MDL0ObjectNode)n2).XluMaterialNode == null)
-                return 0;
-
-            //Now check material draw priority
-            if (((MDL0ObjectNode)n1).XluMaterialNode.Index > ((MDL0ObjectNode)n2).XluMaterialNode.Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).XluMaterialNode.Index < ((MDL0ObjectNode)n2).XluMaterialNode.Index)
-                return -1;
-
-            //Finally compare the object index
-            if (((MDL0ObjectNode)n1).Index > ((MDL0ObjectNode)n2).Index)
-                return 1;
-            if (((MDL0ObjectNode)n1).Index < ((MDL0ObjectNode)n2).Index)
-                return -1;
-
-            //Should never return equal
-            return 0;
-        }
         #endregion
+
+        public event EventHandler DrawCallsChanged;
+        
+        public void OnDrawCallsChanged()
+        {
+            if (_attached)
+            {
+                if (DrawCallsChanged != null)
+                    DrawCallsChanged(this, null);
+            }
+            else if (Model != null && Model.Attached)
+                Model.OnDrawCallsChanged();
+        }
+
+        [Browsable(false)]
+        public List<DrawCallBase> DrawCalls
+        {
+            get { return _drawCalls.Select(x => x as DrawCallBase).ToList(); }
+        }
+    }
+
+    public unsafe class DrawCall : DrawCallBase
+    {
+        public DrawCall(MDL0ObjectNode parent) { _parentObject = parent; }
+
+        [Browsable(false)]
+        public override IObject Parent { get { return _parentObject; } }
+
+        public MDL0ObjectNode _parentObject;
+
+        public override string ToString()
+        {
+            return String.Format("{0} {1}: {2} {3}",
+                _isXLU ? "XLU" : "OPA",
+                _drawOrder.ToString(),
+                _material == null ? "(null)" : _material.Name,
+                _visBoneNode == null ? "(null)" : _visBoneNode.Name);
+        }
+
+        //Data stored in actual MDL0 opa/xlu draw call
+        internal MDL0BoneNode _visBoneNode;
+        internal MDL0MaterialNode _material;
+        internal bool _isXLU;
+        internal byte _drawOrder = 0;
+
+        [Category("Object Draw Call"), TypeConverter(typeof(DropDownListMaterialsDrawCall))]
+        public string Material
+        {
+            get { return _material == null ? null : _material._name; }
+            set
+            {
+                MaterialNode = String.IsNullOrEmpty(value) ? null :
+                    _isXLU ? _parentObject.Model.FindOrCreateXluMaterial(value) : _parentObject.Model.FindOrCreateOpaMaterial(value);
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        [Category("Object Draw Call"), TypeConverter(typeof(DropDownListBonesDrawCall))]
+        public string VisibilityBone //This attaches the object to a bone controlled by a VIS0
+        {
+            get { return _visBoneNode == null ? null : _visBoneNode._name; }
+            set
+            {
+                VisibilityBoneNode = String.IsNullOrEmpty(value) ? null : _parentObject.Model.FindBone(value);
+                _parentObject.Model.SignalPropertyChange();
+            }
+        }
+
+        public enum DrawPassType
+        {
+            Opaque,
+            Transparent
+        }
+
+        [Category("Object Draw Call")]
+        public DrawPassType DrawPass
+        {
+            get { return _isXLU ? DrawPassType.Transparent : DrawPassType.Opaque; }
+            set
+            {
+                _isXLU = value == DrawPassType.Opaque ? false : true;
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        [Category("Object Draw Call")]
+        public byte DrawPriority
+        {
+            get { return _drawOrder; }
+            set
+            {
+                _drawOrder = value;
+                _parentObject.SignalPropertyChange();
+            }
+        }
+
+        /// <summary>
+        /// Does not signal a property change!
+        /// </summary>
+        [Browsable(false)]
+        public MDL0MaterialNode MaterialNode
+        {
+            get { return _material; }
+            set
+            {
+                if (_material == value)
+                    return;
+                if (_material != null)
+                    _material._objects.Remove(_parentObject);
+                if ((_material = value) != null)
+                    _material._objects.Add(_parentObject);
+            }
+        }
+        /// <summary>
+        /// Does not signal a property change!
+        /// </summary>
+        [Browsable(false)]
+        public MDL0BoneNode VisibilityBoneNode
+        {
+            get { return _visBoneNode; }
+            set
+            {
+                if (_visBoneNode == value)
+                    return;
+                if (_visBoneNode != null && _visBoneNode._visDrawCalls.Contains(this))
+                    _visBoneNode._visDrawCalls.Remove(this);
+                if ((_visBoneNode = value) != null)
+                {
+                    if (!_visBoneNode._visDrawCalls.Contains(this))
+                        _visBoneNode._visDrawCalls.Add(this);
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+                }
+            }
+        }
+
+        public override int CompareTo(DrawCallBase y)
+        {
+            return DrawCompare(this, y as DrawCall);
+        }
+
+        public static int DrawCompare(DrawCall n1, DrawCall n2)
+        {
+            //First compare with render pass
+            if ((n1.DrawPass == DrawPassType.Opaque || n1.MaterialNode == null) && 
+                (n2.DrawPass == DrawPassType.Transparent && n2.MaterialNode != null))
+                return -1;
+            if ((n2.DrawPass == DrawPassType.Opaque || n2.MaterialNode == null) &&
+                (n1.DrawPass == DrawPassType.Transparent && n1.MaterialNode != null))
+                return 1;
+
+            //Compare draw priorities
+            if (n1.DrawPriority > n2.DrawPriority)
+                return 1;
+            if (n1.DrawPriority < n2.DrawPriority)
+                return -1;
+
+            //Make sure the node isn't null
+            if (n1.MaterialNode != null && n2.MaterialNode == null)
+                return 1;
+            if (n1.MaterialNode == null && n2.MaterialNode != null)
+                return -1;
+            if (n1.MaterialNode == null && n2.MaterialNode == null)
+                return 0;
+
+            //Now check material draw index
+            if (n1.MaterialNode.Index > n2.MaterialNode.Index)
+                return 1;
+            if (n1.MaterialNode.Index < n2.MaterialNode.Index)
+                return -1;
+
+            //Compare the object index
+            if (n1._parentObject.Index > n2._parentObject.Index)
+                return 1;
+            if (n1._parentObject.Index < n2._parentObject.Index)
+                return -1;
+
+            //Same object, so compare draw call index
+            if (n1._parentObject._drawCalls.IndexOf(n1) > n2._parentObject._drawCalls.IndexOf(n2))
+                return 1;
+            if (n1._parentObject._drawCalls.IndexOf(n1) < n2._parentObject._drawCalls.IndexOf(n2))
+                return -1;
+
+            //Should never return equal
+            return 0;
+        }
+
+        public override void Bind()
+        {
+            if (_visBoneNode == null)
+                _render = true;
+            else
+                if (_visBoneNode._name == "EyeYellowM")
+                    _render = false;
+                else
+                    _render = _visBoneNode._boneFlags.HasFlag(BoneFlags.Visible);
+
+            if (DrawPass == DrawCall.DrawPassType.Transparent &&
+                MaterialNode != null &&
+                MaterialNode.Children.Count != 0 &&
+                MaterialNode.Children[0].Name == "TShadow1")
+                _render = false;
+        }
+
+        public override void Render(ModelPanelViewport viewport)
+        {
+            if (!_render || _parentObject == null)
+                return;
+
+            MDL0Node model = _parentObject.Model;
+            bool usesOffset = model != null && model._matrixOffset != null;
+            if (usesOffset)
+            {
+                GL.PushMatrix();
+                Matrix m = model._matrixOffset.Value;
+                GL.MultMatrix((float*)&m);
+            }
+
+            ModelRenderAttributes attrib = viewport._renderAttrib;
+            MDL0MaterialNode mat = MaterialNode;
+            if (attrib._renderPolygons)
+            {
+                bool shaders = attrib._renderShaders && mat != null;
+                if (shaders && !mat._scn0Applied)
+                    mat.ApplyViewportLighting(viewport);
+
+                float polyOffset = DrawPriority;
+                if (attrib._renderWireframe)
+                    polyOffset -= 1.0f;
+                if (polyOffset != 0.0f)
+                {
+                    GL.Enable(EnableCap.PolygonOffsetFill);
+                    GL.PolygonOffset(1.0f, -polyOffset);
+                }
+                else
+                    GL.Disable(EnableCap.PolygonOffsetFill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+                _parentObject.Render(false, shaders, mat);
+            }
+            if (attrib._renderWireframe)
+            {
+                GL.Disable(EnableCap.PolygonOffsetFill);
+                GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+                GL.LineWidth(0.5f);
+                _parentObject.Render(true, false, mat);
+            }
+
+            if (usesOffset)
+                GL.PopMatrix();
+        }
     }
 
     public interface IMatrixNodeUser //Objects and Vertices
     {
+        //The next time MatrixNode is set, vertices and normals will not be updated.
+        //This is so that assets aren't updated until after vertex loops complete.
+        //Resets after MatrixNode is set.
+        void DeferUpdateAssets();
         IMatrixNode MatrixNode { get; set; }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Runtime.InteropServices;
 using System;
-using System.Collections.Generic;
 
 namespace BrawlLib.SSBBTypes
 {

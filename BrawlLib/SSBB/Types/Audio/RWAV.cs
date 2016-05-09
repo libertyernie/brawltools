@@ -1,9 +1,10 @@
 using System;
 using System.Runtime.InteropServices;
-using System.ComponentModel;
 
 namespace BrawlLib.SSBBTypes
 {
+#if RSTMLIB
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct RWAV
     {
@@ -120,6 +121,7 @@ namespace BrawlLib.SSBBTypes
         PCM16 = 1,
         ADPCM = 2
     }
+#endif
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct AudioFormatInfo
@@ -148,6 +150,42 @@ namespace BrawlLib.SSBBTypes
         public bshort _lyn1; //History data for the loop point. If the sample does not loop, this value is zero.
         public bshort _lyn2; //History data for the loop point. If the sample does not loop, this value is zero.
         public short _pad;
+
+        public unsafe ADPCMInfo(CSTMADPCMInfo o, ushort gain = 0)
+        {
+            fixed (short* ptr = _coefs)
+            {
+                bshort* swap_ptr = (bshort*)ptr;
+                for (int i = 0; i < 16; i++)
+                    swap_ptr[i] = o._coefs[i];
+            }
+
+            _gain = gain;
+            _ps = o._ps;
+            _yn1 = o._yn1;
+            _yn2 = o._yn2;
+            _lps = o._lps;
+            _lyn1 = o._lyn1;
+            _lyn2 = o._lyn2;
+            _pad = o._pad;
+        }
+
+        public unsafe ADPCMInfo(FSTMADPCMInfo o, ushort gain = 0) {
+            fixed (short* ptr = _coefs)
+            {
+                for (int i = 0; i < 16; i++)
+                    ptr[i] = o._coefs[i];
+            }
+
+            _gain = gain;
+            _ps = o._ps;
+            _yn1 = o._yn1;
+            _yn2 = o._yn2;
+            _lps = o._lps;
+            _lyn1 = o._lyn1;
+            _lyn2 = o._lyn2;
+            _pad = o._pad;
+        }
 
         public short[] Coefs
         {

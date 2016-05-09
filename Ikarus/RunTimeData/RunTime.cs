@@ -1,13 +1,11 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using Ikarus.MovesetFile;
 using System.Windows.Forms;
-using OpenTK.Input;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
 using System.Linq;
-using System.Text;
 using WiimoteLib;
 using Ikarus.UI;
 
@@ -96,7 +94,11 @@ namespace Ikarus.ModelViewer
         public static ArticleInfo[] _articles;
         public static List<HitBox> _hitBoxes = new List<HitBox>();
 
+#if DEBUG
+        public static bool _muteSFX = true;
+#else
         public static bool _muteSFX = false;
+#endif
 
         public static CoolTimer Timer { get { return MainWindow._timer; } }
         public static bool IsRunning { get { return Timer.IsRunning; } }
@@ -137,12 +139,12 @@ namespace Ikarus.ModelViewer
         {
             Timer.Stop(); 
             Playing = false; 
-            if (MainWindow._capture)
-            {
-                MainWindow.RenderToGIF(MainWindow.images.ToArray());
-                MainWindow.images.Clear();
-                MainWindow._capture = false;
-            }
+            //if (MainWindow._capture)
+            //{
+            //    MainWindow.RenderToGIF(MainWindow.images.ToArray());
+            //    MainWindow.images.Clear();
+            //    MainWindow._capture = false;
+            //}
         }
 
         public static void TogglePlay()
@@ -294,23 +296,16 @@ namespace Ikarus.ModelViewer
             //Reset articles
             if (_articles != null)
                 foreach (ArticleInfo i in _articles)
-                {
-                    if (i == null)
-                        continue;
-
-                    i.Running = true;
-                    i.SubactionIndex = -1;
-                }
+                    if (i != null)
+                        i.ResetSubactionVariables();
 
             //Reset model visiblity to its default state
             if (MainWindow.TargetModel != null && 
                 MainWindow.TargetModel.Objects.Length > 0 && 
-                Manager.Moveset != null)
-            {
-                ModelVisibility node = Manager.Moveset.Data._modelVis;
-                if (node != null)
-                    node.ResetVisibility(0);
-            }
+                Manager.Moveset != null &&
+                Manager.Moveset.Data != null &&
+                Manager.Moveset.Data._modelVis != null)
+                Manager.Moveset.Data._modelVis.ResetVisibility();
         }
 
         public static void ResetCharPos()
@@ -365,8 +360,8 @@ namespace Ikarus.ModelViewer
                     if (a != null && a.Running)
                         a.SetFrame(frame - 1);
 
-            if (MainWindow._capture && Playing)
-                MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
+            //if (MainWindow._capture && Playing)
+            //    MainWindow.images.Add(MainWindow.ModelPanel.GetScreenshot(MainWindow.ModelPanel.ClientRectangle, false));
         }
 
         private static void UpdateScripts(int index)

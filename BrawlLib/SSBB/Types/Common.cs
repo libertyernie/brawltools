@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBBTypes
@@ -57,7 +56,7 @@ namespace BrawlLib.SSBBTypes
         }
     }
 
-    struct DataBlock
+    public struct DataBlock
     {
         private VoidPtr _address;
         private uint _length;
@@ -108,7 +107,7 @@ namespace BrawlLib.SSBBTypes
 
         public DataBlockCollection Entries { get { return new DataBlockCollection(DataBlock); } }
     }
-
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct NW4FCommonHeader
     {
@@ -167,7 +166,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct RuintList
+    public unsafe struct RuintList
     {
         //This address is the base of all ruint entry offsets
 
@@ -210,8 +209,10 @@ namespace BrawlLib.SSBBTypes
         }
     }
 
+#if RSTMLIB
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct SSBBEntryHeader
+    public unsafe struct SSBBEntryHeader
     {
         public const uint Size = 8;
 
@@ -348,7 +349,7 @@ namespace BrawlLib.SSBBTypes
 
             //Get the length of the string
             int strLen = pString->_length;
-            if (strLen < 0) return;
+            if (strLen < 0 || strLen > ushort.MaxValue) return;
             
             //Create a byte pointer to the struct's string data
             byte* pChar = (byte*)pString + 4, sChar;
@@ -413,4 +414,5 @@ namespace BrawlLib.SSBBTypes
             }
         }
     }
+#endif
 }

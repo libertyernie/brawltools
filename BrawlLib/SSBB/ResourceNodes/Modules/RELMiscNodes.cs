@@ -1,25 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using System.IO;
-using System.Drawing;
-using BrawlLib.IO;
-using System.PowerPcAssembly;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
     public class RELGroupNode : RELEntryNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.NoEdit; } }
+        public override ResourceType ResourceType { get { return ResourceType.NoEditFolder; } }
     }
 
     public unsafe class RELEntryNode : ResourceNode
     {
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
         internal VoidPtr Data { get { return WorkingUncompressed.Address; } }
+
+        [Browsable(false)]
+        public uint ModuleID { get { return ((ModuleNode)Root).ID; } }
 
         [Browsable(false)]
         public uint RootOffset { get { return Root != null && Data != 0 ? ((uint)Data - (uint)BaseAddress) : 0; } }

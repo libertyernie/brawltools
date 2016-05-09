@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
@@ -224,7 +221,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             int newStart = (int)((float)start * ratio + 0.5f);
 
                             for (int w = 0; w < newSpan; w++)
-                                newBools[newStart + w] = true;
+                                newBools[(newStart + w).Clamp(0, newBools.Length - 1)] = true;
 
                             i = z + 1;
                         }

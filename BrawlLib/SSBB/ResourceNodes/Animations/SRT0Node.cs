@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Wii.Animations;
@@ -588,6 +585,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal void SetSize(int count, bool looped)
         {
             Keyframes.FrameLimit = count + (looped ? 1 : 0);
+            Keyframes.Loop = looped;
             SignalPropertyChange();
         }
 
@@ -601,7 +599,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 if (_keyframes == null)
-                    _keyframes = AnimationConverter.DecodeKeyframes(Header, Parent != null ? Parent.Parent as SRT0Node : null);
+                    _keyframes = AnimationConverter.DecodeKeyframes(Header, Parent != null ? Parent.Parent as SRT0Node : null, 5, 1, 1);
                 return _keyframes;
             }
         }

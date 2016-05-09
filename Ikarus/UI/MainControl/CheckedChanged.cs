@@ -1,21 +1,6 @@
 ﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
-using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 using System.Windows.Forms;
-using Ikarus;
 using Ikarus.ModelViewer;
 
 namespace Ikarus.UI
@@ -64,12 +49,12 @@ namespace Ikarus.UI
             _updating = true;
             if (orthographicToolStripMenuItem.Checked)
             {
-                modelPanel.SetProjectionType(true);
+                //modelPanel.SetProjectionType(true);
                 perspectiveToolStripMenuItem.Checked = false;
             }
             else
             {
-                modelPanel.SetProjectionType(false);
+                //modelPanel.SetProjectionType(false);
                 perspectiveToolStripMenuItem.Checked = true;
             }
             _updating = false;
@@ -83,12 +68,12 @@ namespace Ikarus.UI
             _updating = true;
             if (perspectiveToolStripMenuItem.Checked)
             {
-                modelPanel.SetProjectionType(false);
+                //modelPanel.SetProjectionType(false);
                 orthographicToolStripMenuItem.Checked = false;
             }
             else
             {
-                modelPanel.SetProjectionType(true);
+                //modelPanel.SetProjectionType(true);
                 orthographicToolStripMenuItem.Checked = true;
             }
             _updating = false;
@@ -100,7 +85,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.Stretch;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -113,7 +98,7 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 stretchToolStripMenuItem1.Checked = resizeToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.Center;
                 _updating = false;
                 modelPanel.Invalidate();
             }
@@ -126,45 +111,45 @@ namespace Ikarus.UI
             {
                 _updating = true;
                 centerToolStripMenuItem1.Checked = stretchToolStripMenuItem1.Checked = false;
-                modelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
+                //modelPanel.BackgroundImageType = GLPanel.BGImageType.ResizeWithBars;
                 _updating = false;
                 modelPanel.Invalidate();
             }
         }
         private void chkShaders_CheckedChanged(object sender, EventArgs e)
         {
-            if (modelPanel.Context != null)
-            {
-                if (modelPanel.Context._version < 2 && chkShaders.Checked)
-                {
-                    MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
-                    MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
+            //if (modelPanel.Context != null)
+            //{
+            //    if (modelPanel.Context._version < 2 && chkShaders.Checked)
+            //    {
+            //        MessageBox.Show("You need at least OpenGL 2.0 to view shaders.", "GLSL not supported",
+            //        MessageBoxButtons.OK, MessageBoxIcon.Exclamation);
 
-                    chkShaders.Checked = false;
-                    return;
-                }
-                else
-                {
-                    if (modelPanel.Context._shadersEnabled && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
-                    modelPanel.Context._shadersEnabled = chkShaders.Checked;
-                }
-            }
-            modelPanel.Invalidate();
+            //        chkShaders.Checked = false;
+            //        return;
+            //    }
+            //    else
+            //    {
+            //        if (modelPanel.Context._shadersSupported && !chkShaders.Checked) { GL.UseProgram(0); GL.ActiveTexture(TextureUnit.Texture0); }
+            //        modelPanel.Context._shadersSupported = chkShaders.Checked;
+            //    }
+            //}
+            //modelPanel.Invalidate();
         }
 
         private void showCameraCoordinatesToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel._showCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
+            //modelPanel._showCamCoords = showCameraCoordinatesToolStripMenuItem.Checked;
         }
 
         private void enableTextOverlaysToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
+            //modelPanel.TextOverlaysEnabled = enableTextOverlaysToolStripMenuItem.Checked;
         }
 
         private void enablePointAndLineSmoothingToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
         {
-            modelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
+            //modelPanel._enableSmoothing = enablePointAndLineSmoothingToolStripMenuItem.Checked;
         }
 
         private void stPersonToolStripMenuItem_CheckedChanged(object sender, EventArgs e)
@@ -320,21 +305,21 @@ namespace Ikarus.UI
             if (modelListsPanel1._syncObjTex)
                 modelListsPanel1.UpdateTextures();
 
-            if (TargetAnimType == NW4RAnimType.VIS)
-                if (listPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
-                {
-                    int x = 0;
-                    foreach (object i in vis0Editor.listBox1.Items)
-                        if (i.ToString() == listPanel.TargetObject.VisibilityBone)
-                        {
-                            vis0Editor.listBox1.SelectedIndex = x;
-                            break;
-                        }
-                        else
-                            x++;
-                    if (x == vis0Editor.listBox1.Items.Count)
-                        vis0Editor.listBox1.SelectedIndex = -1;
-                }
+            //if (TargetAnimType == NW4RAnimType.VIS)
+            //    if (listPanel.TargetObject != null && vis0Editor.listBox1.Items.Count != 0)
+            //    {
+            //        int x = 0;
+            //        foreach (object i in vis0Editor.listBox1.Items)
+            //            if (i.ToString() == listPanel.TargetObject.VisibilityBone)
+            //            {
+            //                vis0Editor.listBox1.SelectedIndex = x;
+            //                break;
+            //            }
+            //            else
+            //                x++;
+            //        if (x == vis0Editor.listBox1.Items.Count)
+            //            vis0Editor.listBox1.SelectedIndex = -1;
+            //    }
 
             modelPanel.Invalidate(); 
         }

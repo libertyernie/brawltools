@@ -4,7 +4,6 @@ using System.Drawing;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Drawing.Design;
-using System.Windows.Forms.Design;
 using System.Runtime.Serialization;
 
 namespace BrawlLib.Imaging
@@ -69,6 +68,7 @@ namespace BrawlLib.Imaging
         public static explicit operator ARGBPixel(Color val) { return (ARGBPixel)val.ToArgb(); }
         public static explicit operator Color(ARGBPixel p) { return Color.FromArgb((int)p); }
         public static explicit operator Vector3(ARGBPixel p) { return new Vector3(p.R * ColorFactor, p.G * ColorFactor, p.B * ColorFactor); }
+        public static implicit operator Vector4(ARGBPixel p) { return new Vector4(p.R * ColorFactor, p.G * ColorFactor, p.B * ColorFactor, p.A * ColorFactor); }
 
         public ARGBPixel Min(ARGBPixel p) { return new ARGBPixel(Math.Min(A, p.A), Math.Min(R, p.R), Math.Min(G, p.G), Math.Min(B, p.B)); }
         public ARGBPixel Max(ARGBPixel p) { return new ARGBPixel(Math.Max(A, p.A), Math.Max(R, p.R), Math.Max(G, p.G), Math.Max(B, p.B)); }
@@ -219,6 +219,9 @@ namespace BrawlLib.Imaging
             ARGBPixel a = (ARGBPixel)p;
             return Color.FromArgb((int)a); 
         }
+        public static implicit operator RGBAPixel(Vector4 p) { return new RGBAPixel((byte)(p._x * 255.0f), (byte)(p._y * 255.0f), (byte)(p._z * 255.0f), (byte)(p._w * 255.0f)); }
+        public static implicit operator Vector4(RGBAPixel p) { return new Vector4(p.R / 255.0f, p.G / 255.0f, p.B / 255.0f, p.A / 255.0f); }
+        public static implicit operator Vector3(RGBAPixel p) { return new Vector3(p.R / 255.0f, p.G / 255.0f, p.B / 255.0f); }
 
         public RGBAPixel(byte r, byte g, byte b, byte a) { R = r; G = g; B = b; A = a; }
 
@@ -276,6 +279,12 @@ namespace BrawlLib.Imaging
             }
             return 1;
         }
+
+        public static RGBAPixel operator &(RGBAPixel p1, RGBAPixel p2)
+        { return new RGBAPixel((byte)(p1.R & p2.R), (byte)(p1.G & p2.G), (byte)(p1.B & p2.B), (byte)(p1.A & p2.A)); }
+
+        public static RGBAPixel operator |(RGBAPixel p1, RGBAPixel p2)
+        { return new RGBAPixel((byte)(p1.R | p2.R), (byte)(p1.G | p2.G), (byte)(p1.B | p2.B), (byte)(p1.A | p2.A)); }
 
         public static bool operator ==(RGBAPixel p1, RGBAPixel p2) { return *(int*)&p1 == *(int*)&p2; }
         public static bool operator !=(RGBAPixel p1, RGBAPixel p2) { return *(int*)&p1 != *(int*)&p2; }
@@ -418,6 +427,8 @@ namespace BrawlLib.Imaging
 
         public static explicit operator GXColorS10(ARGBPixel p) { return new GXColorS10() { A = p.A, B = p.B, G = p.G, R = p.R }; }
         public static explicit operator ARGBPixel(GXColorS10 p) { return new ARGBPixel() { A = (byte)(p.A & 0xFF), B = (byte)(p.B & 0xFF), G = (byte)(p.G & 0xFF), R = (byte)(p.R & 0xFF) }; }
+        public static explicit operator RGBAPixel(GXColorS10 p) { return new RGBAPixel() { A = (byte)(p.A & 0xFF), B = (byte)(p.B & 0xFF), G = (byte)(p.G & 0xFF), R = (byte)(p.R & 0xFF) }; }
+        public static implicit operator Vector4(GXColorS10 p) { return new Vector4(p.R / 255.0f, p.G / 255.0f, p.B / 255.0f, p.A / 255.0f); }
 
         public GXColorS10(short a, short r, short g, short b) { A = a; R = r; G = g; B = b; }
 
@@ -471,6 +482,9 @@ namespace BrawlLib.Imaging
             G = (short)(G & 0xFF);
             B = (short)(B & 0xFF);
         }
+
+        [Browsable(false)]
+        public VoidPtr Address { get { fixed (void* p = &this)return p; } }
 
         public override bool Equals(object obj)
         {

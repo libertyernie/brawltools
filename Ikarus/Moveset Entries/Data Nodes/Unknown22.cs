@@ -1,17 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using BrawlLib.SSBBTypes;
 using System.ComponentModel;
-using Ikarus;
 
 namespace Ikarus.MovesetFile
 {
     public unsafe class Unknown22 : MovesetEntryNode
     {
         int _unk1, _unk2, _actionOffset;
-        Script _script;
+        public Script _script;
 
         [Category("Unknown Offset 22")]
         public int Unknown1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
@@ -31,17 +26,16 @@ namespace Ikarus.MovesetFile
                 _script = Parse<Script>(_actionOffset);
         }
 
+        protected override int OnGetLookupCount()
+        {
+            //Script lookup count is retrieved separately
+            return _script != null && _script.Count > 0 ? 1 : 0;
+        }
+
         protected override int OnGetSize()
         {
-            _lookupCount = 0;
-            int size = 12;
-            if (_script != null)
-            {
-                //size += _script.GetSize();
-                if (_script.Count > 0)
-                    _lookupCount = _script._lookupCount + 1;
-            }
-            return size;
+            //Get script size separately
+            return 12;
         }
 
         protected override void OnWrite(VoidPtr address)
@@ -55,7 +49,7 @@ namespace Ikarus.MovesetFile
             if (_script != null && _script.Count > 0)
             {
                 data->_actionOffset = Offset(_script.RebuildAddress);
-                _lookupOffsets.Add(&data->_actionOffset);
+                Lookup(&data->_actionOffset);
             }
         }
     }

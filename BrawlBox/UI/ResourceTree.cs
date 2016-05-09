@@ -1,14 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlBox.Properties;
 using System.Runtime.InteropServices;
-using System.Linq;
-using System.IO;
 
 namespace BrawlBox
 {
@@ -74,8 +70,9 @@ namespace BrawlBox
                         Resources.GBLK,
                         Resources.GMPS,
                         Resources.Redirect,
-                        Resources.REL,//50
-                        Resources.BGMG,
+                        Resources.REL,
+                        Resources.BGMG,//50
+                        Resources.SharedTEX0,
                     });
                 }
                 return _imgList;
@@ -220,7 +217,9 @@ namespace BrawlBox
             SelectedNode = _dragNode;
 
             imageListDrag.Images.Clear();
-            imageListDrag.ImageSize = new Size(_dragNode.Bounds.Size.Width + Indent + 7, _dragNode.Bounds.Height);
+            imageListDrag.ImageSize = new Size(
+                (_dragNode.Bounds.Size.Width + Indent + 7).Clamp(1, 256), 
+                _dragNode.Bounds.Height.Clamp(1, 256));
 
             Bitmap bmp = new Bitmap(_dragNode.Bounds.Width + Indent + 7, _dragNode.Bounds.Height);
 
@@ -398,7 +397,7 @@ namespace BrawlBox
 
             good = CompareTypes(dragging, dropping);
 
-            if (dropping.Parent is BRESGroupNode)
+            //if (dropping.Parent is BRESGroupNode)
                 foreach (Type t in dropping.Parent.AllowedChildTypes)
                     if (good = CompareToType(dragging.GetType(), t))
                         break;

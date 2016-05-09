@@ -68,6 +68,9 @@ namespace BrawlBox
                             {
                                 tn.Link(n);
                                 found = true;
+                                // Move node to bottom, to ensure that nodes are shown and saved in the same order as in the original data
+                                nodes.Remove(tn);
+                                nodes.Add(tn);
                                 break;
                             }
 
@@ -112,6 +115,7 @@ namespace BrawlBox
                 res.Renamed += OnRenamed;
                 res.MovedUp += OnMovedUp;
                 res.MovedDown += OnMovedDown;
+                res.PropertyChanged += OnPropertyChanged;
                 res.UpdateProps += OnUpdateProperties;
                 res.UpdateControl += OnUpdateCurrentControl;
             }
@@ -130,6 +134,7 @@ namespace BrawlBox
                 _resource.Renamed -= OnRenamed;
                 _resource.MovedUp -= OnMovedUp;
                 _resource.MovedDown -= OnMovedDown;
+                _resource.PropertyChanged -= OnPropertyChanged;
                 _resource.UpdateProps -= OnUpdateProperties;
                 _resource.UpdateControl -= OnUpdateCurrentControl;
                 _resource = null;
@@ -149,8 +154,10 @@ namespace BrawlBox
         }
         internal protected virtual void OnUpdateCurrentControl(object sender, EventArgs e)
         {
-            MainForm.Instance._currentControl = null;
-            MainForm.Instance.resourceTree_SelectionChanged(this, null);
+            MainForm form = MainForm.Instance;
+            //var g = form.propertyGrid1.SelectedGridItem;
+            form._currentControl = null;
+            form.resourceTree_SelectionChanged(this, null);
         }
         internal protected virtual void OnChildAdded(ResourceNode parent, ResourceNode child)
         {
@@ -170,7 +177,7 @@ namespace BrawlBox
                         w.Remove();
                     }
         }
-        internal protected virtual void OnRestored(ResourceNode node)
+        internal protected void RefreshView(ResourceNode node)
         {
             Link(node);
 
@@ -180,15 +187,13 @@ namespace BrawlBox
                 TreeView.SelectedNode = this;
             }
         }
+        internal protected virtual void OnRestored(ResourceNode node)
+        {
+            RefreshView(node);
+        }
         internal protected virtual void OnReplaced(ResourceNode node)
         {
-            Link(node);
-
-            if ((TreeView != null) && (TreeView.SelectedNode == this))
-            {
-                ((ResourceTree)TreeView).SelectedNode = null;
-                TreeView.SelectedNode = this;
-            }
+            RefreshView(node);
         }
         internal protected virtual void OnRenamed(ResourceNode node) { Text = node.Name; }
 
@@ -206,12 +211,17 @@ namespace BrawlBox
             res.EnsureVisible();
             //res.TreeView.SelectedNode = res;
         }
+        internal protected virtual void OnPropertyChanged(ResourceNode node) { }
 
         internal protected virtual void OnExpand()
         {
             if (!_discovered)
             {
                 Nodes.Clear();
+
+                if (_resource._isPopulating)
+                    while (_resource._isPopulating) { Application.DoEvents(); }
+
                 foreach (ResourceNode n in _resource.Children)
                     Nodes.Add(Wrap(_owner, n));
                 _discovered = true;

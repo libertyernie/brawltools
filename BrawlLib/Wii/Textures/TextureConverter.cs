@@ -1,12 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Drawing.Imaging;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.IO;
-using System.Drawing.Drawing2D;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Imaging;
 using BrawlLib.IO;
@@ -160,8 +154,18 @@ namespace BrawlLib.Wii.Textures
             int w = src.Width, h = src.Height;
             int bw = BlockWidth, bh = BlockHeight;
 
-            PixelFormat fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
-
+            PixelFormat fmt;
+			switch (RawFormat) {
+				case WiiPixelFormat.CI4:
+				case WiiPixelFormat.CI8:
+				case WiiPixelFormat.CMPR:
+					fmt = src.IsIndexed() ? src.PixelFormat : PixelFormat.Format32bppArgb;
+					break;
+				default:
+					fmt = PixelFormat.Format32bppArgb;
+					break;
+			}
+			
             FileMap fileView = FileMap.FromTempFile(GetFileSize(w, h, mipLevels) + 0x40);
             try
             {
@@ -202,7 +206,7 @@ namespace BrawlLib.Wii.Textures
                 tex->_minFilter = 1;
                 tex->_magFilter = 1;
                 tex->_minLOD = 0;
-                tex->_maxLOD = (short)(mipLevels - 1);
+                tex->_maxLOD = (byte)(mipLevels - 1);
                 tex->PixelFormat = RawFormat;
                 tex->_width = (ushort)w;
                 tex->_height = (ushort)h;
@@ -350,7 +354,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;
@@ -372,7 +376,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;
@@ -389,7 +393,7 @@ namespace BrawlLib.Wii.Textures
             catch (Exception x)
             {
                 fileView.Dispose();
-                throw x;
+                throw;
                 //MessageBox.Show(x.ToString());
                 //fileView.Dispose();
                 //return null;

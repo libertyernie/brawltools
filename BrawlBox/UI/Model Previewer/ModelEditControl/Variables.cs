@@ -1,19 +1,6 @@
-﻿using System;
-using BrawlLib.OpenGL;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using BrawlLib.SSBB.ResourceNodes;
-using System.IO;
-using BrawlLib.Modeling;
-using System.Drawing;
-using BrawlLib.Wii.Animations;
 using System.Collections.Generic;
-using BrawlLib.SSBBTypes;
-using BrawlLib.IO;
-using BrawlLib;
-using System.Drawing.Imaging;
-using Gif.Components;
-using OpenTK.Graphics.OpenGL;
-using BrawlLib.Imaging;
 
 namespace System.Windows.Forms
 {
@@ -21,10 +8,9 @@ namespace System.Windows.Forms
     {
         public List<CollisionNode> _collisions = new List<CollisionNode>();
         private CollisionNode _targetCollision;
-        public ResourceNode _externalAnimationsNode;
 
         private bool _syncTexToObj;
-        public bool _maximize, _savePosition;
+        public bool _maximize, _savePosition, _hideMainWindow;
         private bool _snapToCollisions;
         private bool _renderCollisions = true;
 
@@ -85,12 +71,6 @@ namespace System.Windows.Forms
             set { ScreenCapBgLocText.Text = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public ResourceNode ExternalAnimationsNode
-        {
-            get { return _externalAnimationsNode; }
-            set { _externalAnimationsNode = value; }
-        }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool InterpolationFormOpen
         {
             get { return interpolationEditorToolStripMenuItem.Checked; }
@@ -114,9 +94,17 @@ namespace System.Windows.Forms
             get { return _targetAnimType; }
             set
             {
+                if (_targetAnimType == value)
+                {
+                    SetCurrentControl();
+                    return;
+                }
+
+                int frame = CurrentFrame;
                 _targetAnimType = value;
                 leftPanel.TargetAnimType = TargetAnimType;
                 SetCurrentControl();
+                SetFrame(frame);
             }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
@@ -129,8 +117,8 @@ namespace System.Windows.Forms
         public override bool PlayVIS0 { get { return playVIS0ToolStripMenuItem.Checked; } set { playCHR0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool PlayCLR0 { get { return playCLR0ToolStripMenuItem.Checked; } set { playCLR0ToolStripMenuItem.Checked = value; } }
-        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(true)]
-        public override bool PlaySCN0 { get; set; }
+        [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
+        public override bool PlaySCN0 { get { return playSCN0ToolStripMenuItem.Checked; } set { playSCN0ToolStripMenuItem.Checked = value; } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override bool PlaySHP0 { get { return playSHP0ToolStripMenuItem.Checked; } set { playSHP0ToolStripMenuItem.Checked = value; } }
 

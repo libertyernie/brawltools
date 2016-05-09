@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using BrawlLib.SSBBTypes;
 using System.ComponentModel;
 using BrawlLib.Imaging;
@@ -14,7 +12,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     public unsafe class SCN0LightNode : SCN0EntryNode, IBoolArraySource, IColorSource, IKeyframeSource
     {
         internal SCN0Light* Data { get { return (SCN0Light*)WorkingUncompressed.Address; } }
-        public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+        public override ResourceType ResourceType { get { return ResourceType.SCN0Light; } }
 
         #region Variables
 
@@ -352,7 +350,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 ref _numEntries[0]);
 
             if (!SpecularEnabled)
+            {
+                _constants[1] = (_fixedFlags & FixedFlags.SpecColorConstant) != 0;
                 return false;
+            }
 
             //Read light specular color
             ReadColors(
@@ -385,6 +386,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (int i = 0; i < 2; i++)
             {
+                if (i == 1 && !SpecularEnabled)
+                    break;
+
                 _matches[i] = FindColorMatch(_constants[i], Scene.FrameCount, i) as SCN0LightNode;
                 if (_matches[i] == null && !_constants[i])
                     _dataLengths[1] += 4 * (FrameCount + 1);
@@ -395,7 +399,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //If this light uses specular lighting, 
             //increment SCN0 specular light count
-            if (UsageFlags.HasFlag(UsageFlags.SpecularEnabled) && Scene != null)
+            if (SpecularEnabled && Scene != null)
                 Scene._specLights++;
 
             return SCN0Light.Size;
@@ -426,7 +430,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //Encode keyframe data
             for (int i = 0, index = 0; i < 14; i++)
-                if (!(i == 3 || i == 7 || i == 9 || i == 11))
+                if (!(i == 3 || i == 7 || i == 10 || i == 12))
                     _dataAddrs[0] += EncodeKeyframes(
                         Keyframes[index],
                         _dataAddrs[0],
@@ -446,6 +450,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _matches[0] == null ? null : _matches[0]._lightAddress,
                 (RGBAPixel*)_dataAddrs[1]);
 
+            //Only bother writing if specular is enabled
             if (SpecularEnabled)
                 _dataAddrs[1] += WriteColors(
                     ref newFlags,
@@ -458,6 +463,17 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ref _specularAddress,
                     _matches[1] == null ? null : _matches[1]._specularAddress,
                     (RGBAPixel*)_dataAddrs[1]);
+            else
+            {
+                //The value is set to 0
+                header->_specularColor = new RGBAPixel();
+
+                //The flag, while unused, seems to be set to the same state as the color constant flag
+                if (_constants[0])
+                    newFlags |= (int)FixedFlags.SpecColorConstant;
+                else
+                    newFlags &= (int)~FixedFlags.SpecColorConstant;
+            }
 
             if (!ConstantVisibility && _entryCount != 0)
             {
@@ -544,6 +560,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public bool GetEntry(int index)
         {
+            if (_data.Length == 0)
+                return Enabled;
+
             int i = index >> 3;
             int bit = 1 << (7 - (index & 0x7));
             return (_data[i] & bit) != 0;
@@ -588,7 +607,102 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public static bool _generateTangents = true;
 
-        public LightAnimationFrame GetAnimFrame(int index)
+        public GLSLLightFrame GetGLSLAnimFrame(float index)
+        {
+            bool enabled = GetEnabled(index);
+
+            //No point calculating anything if the light isn't used
+            if (!enabled)
+                return new GLSLLightFrame();
+
+            Vector4 color = new Vector4(0.0f),
+                specColor = new Vector4(0.0f);
+            Vector3 
+                pos = GetStart(index),
+                aim = GetEnd(index),
+
+                diffAttnK = LightType != SSBBTypes.LightType.Directional ? 
+                GetLightDistCoefs(index) : new Vector3(1.0f, 0.0f, 0.0f),
+
+                diffAttnA = LightType == SSBBTypes.LightType.Spotlight ? 
+                GetLightSpotCoefs(index) : new Vector3(1.0f, 0.0f, 0.0f),
+
+                specAttnK = SpecularEnabled ? 
+                GetSpecDistCoefs(index) : new Vector3(1.0f, 0.0f, 0.0f);
+
+            //No point calculating colors if neither color nor alpha is used
+            if (ColorEnabled || AlphaEnabled)
+            {
+                if (ConstantColor)
+                    color = (Vector4)_solidColors[0];
+                else
+                {
+                    //Interpolate the color, in case the index isn't an integer
+
+                    int colorIndex = (int)Math.Truncate(index);
+                    color = (Vector4)_lightColor[colorIndex.Clamp(0, _lightColor.Count - 1)];
+                    if (colorIndex + 1 < _lightColor.Count)
+                    {
+                        float frac = index - colorIndex;
+                        Vector4 interp = (Vector4)_lightColor[colorIndex + 1];
+                        color += (interp - color) * frac;
+                    }
+                }
+                if (SpecularEnabled)
+                {
+                    if (ConstantSpecular)
+                        specColor = (Vector4)_solidColors[1];
+                    else
+                    {
+                        //Interpolate the color, in case the index isn't an integer
+
+                        int specIndex = (int)Math.Truncate(index);
+                        specColor = (Vector4)_specColor[specIndex.Clamp(0, _specColor.Count - 1)];
+                        if (specIndex + 1 < _specColor.Count)
+                        {
+                            float frac = index - specIndex;
+                            Vector4 interp = (Vector4)_specColor[specIndex + 1];
+                            specColor += (interp - specColor) * frac;
+                        }
+                    }
+                }
+                if (!ColorEnabled)
+                {
+                    color._x = 0.0f;
+                    color._y = 0.0f;
+                    color._z = 0.0f;
+                    specColor._x = 0.0f;
+                    specColor._y = 0.0f;
+                    specColor._z = 0.0f;
+                }
+                if (!AlphaEnabled)
+                {
+                    color._w = 0.0f;
+                    specColor._w = 0.0f;
+                }
+            }
+
+            return new GLSLLightFrame(
+                enabled,
+                LightType,
+                pos,
+                aim,
+                color,
+                diffAttnK,
+                diffAttnA,
+                SpecularEnabled,
+                specColor,
+                specAttnK);
+        }
+
+        public bool GetEnabled(float frame)
+        {
+            return !VisibilityEnabled ? false :
+                ConstantVisibility ? UsageFlags.HasFlag(UsageFlags.Enabled) :
+                GetEntry((int)frame);
+        }
+
+        public LightAnimationFrame GetAnimFrame(float index)
         {
             LightAnimationFrame frame;
             float* dPtr = (float*)&frame;
@@ -600,10 +714,40 @@ namespace BrawlLib.SSBB.ResourceNodes
                 frame.Index = index;
             }
 
-            //if (((FixedFlags)_flags1).HasFlag(FixedFlags.EnabledConstant))
-            //    frame.Enabled = UsageFlags.HasFlag(UsageFlags.Enabled);
-            //else
-            //    frame.Enabled = index < _enabled.Count ? _enabled[index] : false;
+            frame.Enabled = GetEnabled(index);
+
+            if (ConstantColor)
+                frame.Color = (Vector4)_solidColors[0];
+            else if (_lightColor.Count > 0)
+            {
+                int colorIndex = ((int)Math.Truncate(index)).Clamp(0, _lightColor.Count - 1);
+                Vector4 color = (Vector4)_lightColor[colorIndex];
+                if (colorIndex + 1 < _lightColor.Count)
+                {
+                    float frac = index - colorIndex;
+                    Vector4 interp = (Vector4)_lightColor[colorIndex + 1];
+                    color += (interp - color) * frac;
+                }
+                frame.Color = color;
+            }
+
+            if (SpecularEnabled)
+            {
+                if (ConstantSpecular)
+                    frame.SpecularColor = (Vector4)_solidColors[1];
+                else if (_specColor.Count > 0)
+                {
+                    int specIndex = ((int)Math.Truncate(index)).Clamp(0, _specColor.Count - 1);
+                    Vector4 specColor = (Vector4)_specColor[specIndex];
+                    if (specIndex + 1 < _specColor.Count)
+                    {
+                        float frac = index - specIndex;
+                        Vector4 interp = (Vector4)_specColor[specIndex + 1];
+                        specColor += (interp - specColor) * frac;
+                    }
+                    frame.SpecularColor = specColor;
+                }
+            }
 
             return frame;
         }
@@ -643,34 +787,33 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             SignalPropertyChange();
         }
-        public Vector3 GetStart(int frame)
+        public Vector3 GetStart(float frame)
         {
             return new Vector3(
                 StartX.GetFrameValue(frame),
                 StartY.GetFrameValue(frame),
                 StartZ.GetFrameValue(frame));
         }
-        public Vector3 GetEnd(int frame)
+        public Vector3 GetEnd(float frame)
         {
             return new Vector3(
                 EndX.GetFrameValue(frame),
                 EndY.GetFrameValue(frame),
                 EndZ.GetFrameValue(frame));
         }
-        public Vector3 GetLightSpot(int frame)
+        public Vector3 GetLightSpotCoefs(float frame)
         {
-            float a0, a1, a2, r, d, cr;
-
-            SpotFn spot_func = SpotFunction;
-            float cutoff = SpotCut.GetFrameValue(frame);
+            return GetLightSpotCoefs(SpotCut.GetFrameValue(frame), SpotFunction);
+        }
+        public static Vector3 GetLightSpotCoefs(float cutoff, SpotFn spotFunc)
+        {
+            //a2x^2 + a1x + a0
+            float a0, a1, a2, d, cr = (float)Math.Cos(cutoff * Maths._deg2radf);
 
             if (cutoff <= 0.0f || cutoff > 90.0f)
-                spot_func = SpotFn.Off;
+                spotFunc = SpotFn.Off;
 
-            r = cutoff * Maths._deg2radf;
-            cr = (float)Math.Cos(r);
-
-            switch (spot_func)
+            switch (spotFunc)
             {
                 case SpotFn.Flat:
                     a0 = -1000.0f * cr;
@@ -715,39 +858,49 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return new Vector3(a0, a1, a2);
         }
-        public Vector3 GetLightDistAttn(int frame)
+        public Vector3 GetLightDistCoefs(float frame)
         {
+            return GetLightDistCoefs(RefDist.GetFrameValue(frame), RefBright.GetFrameValue(frame), DistanceFunction);
+        }
+        public Vector3 GetSpecDistCoefs(float frame)
+        {
+            return GetSpecShineDistCoefs(SpecShininess.GetFrameValue(frame));
+        }
+        public static Vector3 GetSpecShineDistCoefs(float shininess)
+        {
+            return new Vector3(shininess / 2.0f, 0.0f, 1.0f - shininess / 2.0f);
+        }
+        public static Vector3 GetLightDistCoefs(float distance, float brightness, DistAttnFn distFunc)
+        {
+            //constant attn, linear attn, quadratic attn
+            //k2x^2 + k1x + k0
             float k0, k1, k2;
 
-            float ref_dist = RefDist.GetFrameValue(frame);
-            float ref_br = RefBright.GetFrameValue(frame);
-            DistAttnFn dist_func = DistanceFunction;
+            if (distance < 0.0F || brightness <= 0.0F || brightness >= 1.0F)
+                distFunc = DistAttnFn.Off;
 
-            if (ref_dist < 0.0F || ref_br <= 0.0F || ref_br >= 1.0F)
-                dist_func = DistAttnFn.Off;
-
-            switch (dist_func)
+            switch (distFunc)
             {
                 case DistAttnFn.Gentle:
-                    k0 = 1.0F;
-                    k1 = (1.0F - ref_br) / (ref_br * ref_dist);
-                    k2 = 0.0F;
+                    k0 = 1.0f;
+                    k1 = (1.0f - brightness) / (brightness * distance);
+                    k2 = 0.0f;
                     break;
                 case DistAttnFn.Medium:
-                    k0 = 1.0F;
-                    k1 = 0.5F * (1.0f - ref_br) / (ref_br * ref_dist);
-                    k2 = 0.5F * (1.0f - ref_br) / (ref_br * ref_dist * ref_dist);
+                    k0 = 1.0f;
+                    k1 = 0.5f * (1.0f - brightness) / (brightness * distance);
+                    k2 = 0.5f * (1.0f - brightness) / (brightness * distance * distance);
                     break;
                 case DistAttnFn.Steep:
-                    k0 = 1.0F;
-                    k1 = 0.0F;
-                    k2 = (1.0F - ref_br) / (ref_br * ref_dist * ref_dist);
+                    k0 = 1.0f;
+                    k1 = 0.0f;
+                    k2 = (1.0f - brightness) / (brightness * distance * distance);
                     break;
                 case DistAttnFn.Off:
                 default:
-                    k0 = 1.0F;
-                    k1 = 0.0F;
-                    k2 = 0.0F;
+                    k0 = 1.0f;
+                    k1 = 0.0f;
+                    k2 = 0.0f;
                     break;
             }
 
@@ -773,7 +926,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Browsable(false)]
         public KeyframeArray SpotCut { get { return Keyframes[8]; } }
         [Browsable(false)]
-        public KeyframeArray SpotBright { get { return Keyframes[9]; } }
+        public KeyframeArray SpecShininess { get { return Keyframes[9]; } }
 
         private KeyframeCollection _keyframes = null;
         [Browsable(false)]
@@ -783,14 +936,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 if (_keyframes == null)
                 {
-                    _keyframes = new KeyframeCollection(10, Scene.FrameCount + (Scene.Loop ? 1 : 0));
-                    for (int i = 0, index = 0; i < 14; i++)
-                        if (!(i == 3 || i == 7 || i == 9 || i == 11))
-                            DecodeKeyframes(
-                                Keyframes[index],
-                                Data->_startPoint._x.Address + i * 4,
-                                (int)_fixedFlags,
-                                (int)_ordered[index++]);
+                    _keyframes = new KeyframeCollection(10, Scene == null ? 1 : Scene.FrameCount + (Scene.Loop ? 1 : 0));
+                    if (Data != null && _name != "<null>")
+                        for (int i = 0, index = 0; i < 14; i++)
+                            if (!(i == 3 || i == 7 || i == 10 || i == 12))
+                                DecodeKeyframes(
+                                    Keyframes[index],
+                                    Data->_startPoint._x.Address + i * 4,
+                                    (int)_fixedFlags,
+                                    (int)_ordered[index++]);
 
                 }
                 return _keyframes;

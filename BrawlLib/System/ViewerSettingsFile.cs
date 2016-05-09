@@ -1,13 +1,9 @@
-﻿using System;
-using BrawlLib.Imaging;
-using BrawlLib.SSBBTypes;
+﻿using BrawlLib.Imaging;
 using System.Collections.Generic;
-using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Reflection;
-using BrawlLib.OpenGL;
 using System.Windows.Forms;
 using System.Drawing;
 
@@ -30,6 +26,7 @@ namespace System
         public bool DisplayExternalAnims;
         public bool DisplayNonBRRESAnims;
         public bool UseBindStateBox;
+        public bool UsePixelLighting;
         public bool SyncTexToObj;
         public bool SyncObjToVIS0;
         public bool DisableBonesOnPlay;
@@ -44,7 +41,8 @@ namespace System
         public bool SnapToColl;
         public bool FlatBoneList;
         public bool BoneListContains;
-
+        
+        public bool HideMainWindow;
         public bool SavePosition;
         public int _width, _height, _posX, _posY;
 
