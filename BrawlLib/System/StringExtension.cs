@@ -111,5 +111,13 @@ namespace System
                 m += c;
             return m;
         }
+
+        public static string Reverse(this string s)
+        {
+            string newString = "";
+            for (int i = s.Length - 1; i >= 0; --i)
+                newString += s[i];
+            return newString;
+        }
     }
 }

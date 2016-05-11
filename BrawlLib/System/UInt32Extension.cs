@@ -2,8 +2,11 @@
 {
     public static class UInt32Extension
     {
+        public static BrawlLib.SSBBTypes.Endian Endian = BrawlLib.SSBBTypes.Endian.Big;
         public static UInt32 Reverse(this UInt32 value)
         {
+            if (Endian == BrawlLib.SSBBTypes.Endian.Little)
+                return value;
             return ((value >> 24) & 0xFF) | (value << 24) | ((value >> 8) & 0xFF00) | ((value & 0xFF00) << 8);
         }
         public static UInt32 Align(this UInt32 value, uint align)

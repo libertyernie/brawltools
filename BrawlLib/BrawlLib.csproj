@@ -160,6 +160,7 @@
     <None Include="SSBB\ResourceNodes\BMD\BMDNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDObjectNode.cs" />
     <None Include="SSBB\ResourceNodes\BMD\BMDMaterialNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Animations\VBNNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\OMONode.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\BFRESNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLBoneNode.cs" />

@@ -2,8 +2,11 @@
 {
     public static class UInt64Extension
     {
+        public static BrawlLib.SSBBTypes.Endian Endian = BrawlLib.SSBBTypes.Endian.Big;
         public static unsafe UInt64 Reverse(this UInt64 value)
         {
+            if (Endian == BrawlLib.SSBBTypes.Endian.Little)
+                return value;
             return
                 ((value >> 56) & 0xFF) | ((value & 0xFF) << 56) |
                 ((value >> 40) & 0xFF00) | ((value & 0xFF00) << 40) |

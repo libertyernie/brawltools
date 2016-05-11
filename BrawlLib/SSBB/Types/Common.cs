@@ -27,7 +27,7 @@ namespace BrawlLib.SSBBTypes
             else
                 *(buint*)Address = tag;
         }
-        public uint Get(bool returnLittleEndian)
+        public uint GetValue(bool returnLittleEndian)
         {
             if (returnLittleEndian)
                 return *(uint*)Address;
@@ -35,7 +35,13 @@ namespace BrawlLib.SSBBTypes
                 return *(buint*)Address;
         }
 
-        public string Get() { return new String(Address, 0, 4); }
+        public string Get(bool returnLittleEndian = false)
+        {
+            string s = new String(Address, 0, 4);
+            if (returnLittleEndian)
+                s.Reverse();
+            return s;
+        }
         public void Set(string tag)
         {
             if (tag.Length > 4)
@@ -46,7 +52,7 @@ namespace BrawlLib.SSBBTypes
         public static implicit operator BinTag(string r) { return new BinTag(r); }
         public static implicit operator string(BinTag r) { return r.Get(); }
         public static implicit operator BinTag(uint r) { return new BinTag(r, true); }
-        public static implicit operator uint(BinTag r) { return r.Get(true); }
+        public static implicit operator uint(BinTag r) { return r.GetValue(true); }
 
         public sbyte* Address { get { fixed (void* ptr = &this)return (sbyte*)ptr; } }
 

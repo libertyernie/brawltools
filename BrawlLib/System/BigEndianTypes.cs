@@ -1,7 +1,20 @@
-﻿using System.Runtime.InteropServices;
+﻿using BrawlLib.SSBBTypes;
+using System.Runtime.InteropServices;
 
 namespace System
 {
+    public class EndianMode
+    {
+        public static void SetEndian(Endian endian)
+        {
+            Int16Extension.Endian =
+            Int32Extension.Endian =
+            Int64Extension.Endian = 
+            UInt16Extension.Endian =
+            UInt32Extension.Endian =
+            UInt64Extension.Endian = endian;
+        }
+    }
     [StructLayout(LayoutKind.Sequential)]
     public unsafe struct bint
     {
