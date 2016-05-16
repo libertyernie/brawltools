@@ -15,17 +15,8 @@ namespace System.Windows.Forms
             base.ModelPanel_PostRender(panel);
 
             //Clear depth buffer so we can hit-detect
-            GL.Clear(ClearBufferMask.DepthBufferBit);
+            //GL.Clear(ClearBufferMask.DepthBufferBit);
             GL.Enable(EnableCap.DepthTest);
-
-            //Render objects
-            if (_targetCollisionNode != null)
-                _targetCollisionNode.Render();
-
-            if (ModelPanel.RenderBones)
-                foreach (IRenderedObject o in ModelPanel._renderList)
-                    if (o is IModel)
-                        ((IModel)o).RenderBones(ModelPanel.CurrentViewport);
 
             //Render selection box
             if (!_selecting)
