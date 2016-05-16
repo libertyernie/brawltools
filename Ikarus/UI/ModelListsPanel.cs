@@ -616,8 +616,6 @@ namespace Ikarus.UI
 
         public void Reset()
         {
-            bonesPanel1.Reset();
-
             lstObjects.BeginUpdate();
             lstObjects.Items.Clear();
             lstTextures.BeginUpdate();

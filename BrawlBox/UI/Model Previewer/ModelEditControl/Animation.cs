@@ -19,6 +19,8 @@ namespace System.Windows.Forms
             {
                 if (vertexEditor.Visible)
                     ToggleVertexEditor();
+                if (_collisionEditorControl.Visible)
+                    ToggleCollisionEditor();
 
                 prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;
@@ -44,6 +46,8 @@ namespace System.Windows.Forms
             {
                 if (weightEditor.Visible)
                     ToggleWeightEditor();
+                if (_collisionEditorControl.Visible)
+                    ToggleCollisionEditor();
 
                 prevHeight = animEditors.Height;
                 prevWidth = animCtrlPnl.Width;

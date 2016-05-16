@@ -2,6 +2,7 @@
 using System.Drawing;
 using BrawlLib.Modeling;
 using System.ComponentModel;
+using System.Collections.Generic;
 
 namespace System.Windows.Forms
 {
@@ -34,6 +35,12 @@ namespace System.Windows.Forms
         private ToolStripMenuItem moveUpToolStripMenuItem;
         private ToolStripMenuItem moveDownToolStripMenuItem;
         private ToolStripMenuItem nameToolStripMenuItem;
+        private ContextMenuStrip ctxModel;
+        private ToolStripMenuItem editOriginTransformToolStripMenuItem;
+        private ToolStripMenuItem toolStripMenuItem7;
+        private ToolStripMenuItem toolStripMenuItem8;
+        private ToolStripMenuItem toolStripMenuItem3;
+        private ToolStripMenuItem toolStripMenuItem1;
         private Panel pnlBones;
 
         private void InitializeComponent()
@@ -62,10 +69,17 @@ namespace System.Windows.Forms
             this.moveUpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.moveDownToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.imageList1 = new System.Windows.Forms.ImageList(this.components);
+            this.ctxModel = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem3 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem7 = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem8 = new System.Windows.Forms.ToolStripMenuItem();
+            this.editOriginTransformToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlKeyframes.SuspendLayout();
             this.pnlBones.SuspendLayout();
             this.panel1.SuspendLayout();
             this.ctxBones.SuspendLayout();
+            this.ctxModel.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlKeyframes
@@ -137,9 +151,9 @@ namespace System.Windows.Forms
             // 
             this.txtSearchBone.Dock = System.Windows.Forms.DockStyle.Fill;
             this.txtSearchBone.ForeColor = System.Drawing.Color.Gray;
-            this.txtSearchBone.Location = new System.Drawing.Point(44, 0);
+            this.txtSearchBone.Location = new System.Drawing.Point(54, 0);
             this.txtSearchBone.Name = "txtSearchBone";
-            this.txtSearchBone.Size = new System.Drawing.Size(46, 20);
+            this.txtSearchBone.Size = new System.Drawing.Size(18, 22);
             this.txtSearchBone.TabIndex = 30;
             this.txtSearchBone.Text = "Search for a bone...";
             this.txtSearchBone.Visible = false;
@@ -151,11 +165,11 @@ namespace System.Windows.Forms
             // 
             this.chkContains.AutoSize = true;
             this.chkContains.Dock = System.Windows.Forms.DockStyle.Right;
-            this.chkContains.Location = new System.Drawing.Point(90, 0);
+            this.chkContains.Location = new System.Drawing.Point(72, 0);
             this.chkContains.Margin = new System.Windows.Forms.Padding(0);
             this.chkContains.Name = "chkContains";
             this.chkContains.Padding = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.chkContains.Size = new System.Drawing.Size(70, 21);
+            this.chkContains.Size = new System.Drawing.Size(88, 21);
             this.chkContains.TabIndex = 32;
             this.chkContains.Text = "Contains";
             this.chkContains.UseVisualStyleBackColor = false;
@@ -172,7 +186,7 @@ namespace System.Windows.Forms
             this.chkFlat.Margin = new System.Windows.Forms.Padding(0);
             this.chkFlat.Name = "chkFlat";
             this.chkFlat.Padding = new System.Windows.Forms.Padding(1, 0, 0, 0);
-            this.chkFlat.Size = new System.Drawing.Size(44, 21);
+            this.chkFlat.Size = new System.Drawing.Size(54, 21);
             this.chkFlat.TabIndex = 31;
             this.chkFlat.Text = "Flat";
             this.chkFlat.UseVisualStyleBackColor = false;
@@ -180,6 +194,7 @@ namespace System.Windows.Forms
             // 
             // ctxBones
             // 
+            this.ctxBones.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.ctxBones.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.nameToolStripMenuItem,
             this.boneIndex,
@@ -192,71 +207,71 @@ namespace System.Windows.Forms
             this.moveUpToolStripMenuItem,
             this.moveDownToolStripMenuItem});
             this.ctxBones.Name = "ctxBones";
-            this.ctxBones.Size = new System.Drawing.Size(175, 192);
+            this.ctxBones.Size = new System.Drawing.Size(211, 224);
             // 
             // nameToolStripMenuItem
             // 
             this.nameToolStripMenuItem.Enabled = false;
             this.nameToolStripMenuItem.Name = "nameToolStripMenuItem";
-            this.nameToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.nameToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.nameToolStripMenuItem.Text = "<name>";
             // 
             // boneIndex
             // 
             this.boneIndex.Enabled = false;
             this.boneIndex.Name = "boneIndex";
-            this.boneIndex.Size = new System.Drawing.Size(174, 22);
+            this.boneIndex.Size = new System.Drawing.Size(210, 26);
             this.boneIndex.Text = "Bone Index";
             // 
             // renameBoneToolStripMenuItem
             // 
             this.renameBoneToolStripMenuItem.Name = "renameBoneToolStripMenuItem";
-            this.renameBoneToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.renameBoneToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.renameBoneToolStripMenuItem.Text = "Rename";
             this.renameBoneToolStripMenuItem.Click += new System.EventHandler(this.renameBoneToolStripMenuItem_Click);
             // 
             // ctxBonesDivider1
             // 
             this.ctxBonesDivider1.Name = "ctxBonesDivider1";
-            this.ctxBonesDivider1.Size = new System.Drawing.Size(171, 6);
+            this.ctxBonesDivider1.Size = new System.Drawing.Size(207, 6);
             // 
             // addToParentToolStripMenuItem
             // 
             this.addToParentToolStripMenuItem.Name = "addToParentToolStripMenuItem";
-            this.addToParentToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addToParentToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.addToParentToolStripMenuItem.Text = "Add To Parent";
             this.addToParentToolStripMenuItem.Click += new System.EventHandler(this.addToParentToolStripMenuItem_Click);
             // 
             // addToNextUpToolStripMenuItem
             // 
             this.addToNextUpToolStripMenuItem.Name = "addToNextUpToolStripMenuItem";
-            this.addToNextUpToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addToNextUpToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.addToNextUpToolStripMenuItem.Text = "Add To Next Up";
             this.addToNextUpToolStripMenuItem.Click += new System.EventHandler(this.addToNextUpToolStripMenuItem_Click);
             // 
             // addToNextDownToolStripMenuItem
             // 
             this.addToNextDownToolStripMenuItem.Name = "addToNextDownToolStripMenuItem";
-            this.addToNextDownToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.addToNextDownToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.addToNextDownToolStripMenuItem.Text = "Add To Next Down";
             this.addToNextDownToolStripMenuItem.Click += new System.EventHandler(this.addToNextDownToolStripMenuItem_Click);
             // 
             // ctxBonesDivider2
             // 
             this.ctxBonesDivider2.Name = "ctxBonesDivider2";
-            this.ctxBonesDivider2.Size = new System.Drawing.Size(171, 6);
+            this.ctxBonesDivider2.Size = new System.Drawing.Size(207, 6);
             // 
             // moveUpToolStripMenuItem
             // 
             this.moveUpToolStripMenuItem.Name = "moveUpToolStripMenuItem";
-            this.moveUpToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.moveUpToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.moveUpToolStripMenuItem.Text = "Move Up";
             this.moveUpToolStripMenuItem.Click += new System.EventHandler(this.moveUpToolStripMenuItem_Click);
             // 
             // moveDownToolStripMenuItem
             // 
             this.moveDownToolStripMenuItem.Name = "moveDownToolStripMenuItem";
-            this.moveDownToolStripMenuItem.Size = new System.Drawing.Size(174, 22);
+            this.moveDownToolStripMenuItem.Size = new System.Drawing.Size(210, 26);
             this.moveDownToolStripMenuItem.Text = "Move Down";
             this.moveDownToolStripMenuItem.Click += new System.EventHandler(this.moveDownToolStripMenuItem_Click);
             // 
@@ -265,6 +280,50 @@ namespace System.Windows.Forms
             this.imageList1.ColorDepth = System.Windows.Forms.ColorDepth.Depth8Bit;
             this.imageList1.ImageSize = new System.Drawing.Size(16, 16);
             this.imageList1.TransparentColor = System.Drawing.Color.Transparent;
+            // 
+            // ctxModel
+            // 
+            this.ctxModel.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxModel.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.toolStripMenuItem1,
+            this.toolStripMenuItem3,
+            this.toolStripMenuItem8,
+            this.toolStripMenuItem7,
+            this.editOriginTransformToolStripMenuItem});
+            this.ctxModel.Name = "ctxBones";
+            this.ctxModel.Size = new System.Drawing.Size(196, 162);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Enabled = false;
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(195, 26);
+            this.toolStripMenuItem1.Text = "<name>";
+            // 
+            // toolStripMenuItem3
+            // 
+            this.toolStripMenuItem3.Name = "toolStripMenuItem3";
+            this.toolStripMenuItem3.Size = new System.Drawing.Size(195, 26);
+            this.toolStripMenuItem3.Text = "Rename";
+            // 
+            // toolStripMenuItem7
+            // 
+            this.toolStripMenuItem7.Name = "toolStripMenuItem7";
+            this.toolStripMenuItem7.Size = new System.Drawing.Size(195, 26);
+            this.toolStripMenuItem7.Text = "Move Up";
+            // 
+            // toolStripMenuItem8
+            // 
+            this.toolStripMenuItem8.Name = "toolStripMenuItem8";
+            this.toolStripMenuItem8.Size = new System.Drawing.Size(195, 26);
+            this.toolStripMenuItem8.Text = "Move Down";
+            // 
+            // editOriginTransformToolStripMenuItem
+            // 
+            this.editOriginTransformToolStripMenuItem.Name = "editOriginTransformToolStripMenuItem";
+            this.editOriginTransformToolStripMenuItem.Size = new System.Drawing.Size(195, 26);
+            this.editOriginTransformToolStripMenuItem.Text = "Transform Origin";
+            this.editOriginTransformToolStripMenuItem.Click += new System.EventHandler(this.editOriginTransformToolStripMenuItem_Click);
             // 
             // BonesPanel
             // 
@@ -277,6 +336,7 @@ namespace System.Windows.Forms
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.ctxBones.ResumeLayout(false);
+            this.ctxModel.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -301,10 +361,10 @@ namespace System.Windows.Forms
             set { _mainWindow.SelectedBone = value; }
         }
 
-        public TreeNode[] _treeNodes;
+        public Dictionary<IModel, TreeNode[]> _treeNodes;
 
         public bool _updating;
-        public void Reset()
+        public void TargetModelChanged()
         {
             _updating = true;
             //if (!chkFlat.Checked)
@@ -350,25 +410,53 @@ namespace System.Windows.Forms
 
         private void PopulateBoneTree()
         {
-            if (TargetModel != null)
+            _treeNodes = new Dictionary<IModel, TreeNode[]>();
+            if (_mainWindow.EditingAll)
             {
-                _treeNodes = new TreeNode[TargetModel.BoneCache.Length];
+                foreach (IModel m in _mainWindow._targetModels)
+                {
+                    _treeNodes.Add(m, new TreeNode[m.BoneCache.Length]);
+
+                    TreeNode node = new TreeNode()
+                    {
+                        Tag = m,
+                        Text = ((ResourceNode)m).Name,
+                        Checked = m.IsRendering
+                    };
+                    boneTree.Nodes.Add(node);
+
+                    foreach (IBoneNode bone in m.RootBones)
+                        RecursivePopulate(m, bone, node.Nodes);
+                }
+            }
+            else if (TargetModel != null)
+            {
+                _treeNodes.Add(TargetModel, new TreeNode[TargetModel.BoneCache.Length]);
+
+                TreeNode node = new TreeNode()
+                {
+                    Tag = TargetModel,
+                    Text = ((ResourceNode)TargetModel).Name,
+                    Checked = TargetModel.IsRendering
+                };
+                boneTree.Nodes.Add(node);
+
                 foreach (IBoneNode bone in TargetModel.RootBones)
-                    RecursivePopulate(bone, boneTree.Nodes);
+                    RecursivePopulate(TargetModel, bone, node.Nodes);
             }
 
             boneTree.ExpandAll();
         }
 
-        private void RecursivePopulate(IBoneNode bone, TreeNodeCollection nodes)
+        private void RecursivePopulate(IModel model, IBoneNode bone, TreeNodeCollection nodes)
         {
             TreeNode node = new TreeNode() { Tag = bone, Text = bone.Name, Checked = bone.IsRendering };
 
-            _treeNodes[bone.BoneIndex] = node;
+            _treeNodes[model][bone.BoneIndex] = node;
             nodes.Add(node);
 
             foreach (IBoneNode b in ((ResourceNode)bone).Children)
-                RecursivePopulate(b, node.Nodes);
+                RecursivePopulate(model, b, node.Nodes);
         }
 
         private void lstBones_MouseDown(object sender, MouseEventArgs e)
@@ -457,13 +545,19 @@ namespace System.Windows.Forms
         private void boneTree_AfterSelect(object sender, TreeViewEventArgs e)
         {
             if (!chkFlat.Checked && boneTree.SelectedNode != null)
-                SetBone(boneTree.SelectedNode.Tag as IBoneNode);
+            {
+                ResourceNode r = boneTree.SelectedNode.Tag as ResourceNode;
+                if (r is IModel)
+                    TargetModel = r as IModel;
+                else
+                    SetBone(boneTree.SelectedNode.Tag as IBoneNode);
+            }
         }
 
         public void SetSelectedBone(IBoneNode bone)
         {
-            if (_treeNodes != null && bone != null && bone.BoneIndex < _treeNodes.Length)
-                boneTree.SelectedNode = _treeNodes[bone.BoneIndex];
+            if (_treeNodes != null && bone != null && _treeNodes.ContainsKey(bone.IModel))
+                boneTree.SelectedNode = _treeNodes[bone.IModel][bone.BoneIndex];
 
             lstBones.SelectedItem = bone;
         }
@@ -478,7 +572,7 @@ namespace System.Windows.Forms
             ResourceNode node = SelectedBone as ResourceNode;
             if (node != null && node.ToParent())
             {
-                TreeNode bone = _treeNodes[SelectedBone.BoneIndex], parent = null;
+                TreeNode bone = _treeNodes[SelectedBone.IModel][SelectedBone.BoneIndex], parent = null;
                 if (bone != null && bone.Parent != null)
                     parent = bone.Parent;
                 else
@@ -500,7 +594,7 @@ namespace System.Windows.Forms
             ResourceNode node = SelectedBone as ResourceNode;
             if (node != null && node.AddUp())
             {
-                TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
+                TreeNode bone = _treeNodes[SelectedBone.IModel][SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevNode != null)
                     prev = bone.PrevNode;
                 else
@@ -522,7 +616,7 @@ namespace System.Windows.Forms
             ResourceNode node = SelectedBone as ResourceNode;
             if (node != null && node.AddDown())
             {
-                TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
+                TreeNode bone = _treeNodes[SelectedBone.IModel][SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextNode != null)
                     next = bone.NextNode;
                 else
@@ -544,7 +638,7 @@ namespace System.Windows.Forms
             ResourceNode node = SelectedBone as ResourceNode;
             if (node != null && node.MoveUp())
             {
-                TreeNode bone = _treeNodes[SelectedBone.BoneIndex], prev = null;
+                TreeNode bone = _treeNodes[SelectedBone.IModel][SelectedBone.BoneIndex], prev = null;
                 if (bone != null && bone.PrevVisibleNode != null)
                     prev = bone.PrevVisibleNode;
                 else
@@ -567,7 +661,7 @@ namespace System.Windows.Forms
             ResourceNode node = SelectedBone as ResourceNode;
             if (node != null && node.MoveDown())
             {
-                TreeNode bone = _treeNodes[SelectedBone.BoneIndex], next = null;
+                TreeNode bone = _treeNodes[SelectedBone.IModel][SelectedBone.BoneIndex], next = null;
                 if (bone != null && bone.NextVisibleNode != null)
                     next = bone.NextVisibleNode;
                 else
@@ -624,6 +718,20 @@ namespace System.Windows.Forms
             {
                 (e.Node.Tag as IBoneNode).IsRendering = e.Node.Checked;
                 _mainWindow.ModelPanel.Invalidate();
+            }
+        }
+
+        private void editOriginTransformToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (TransformAttributesForm f = new TransformAttributesForm(
+                TargetModel.OriginTranslation, 
+                TargetModel.OriginRotation, 
+                TargetModel.OriginScale))
+            {
+                if (f.ShowDialog() == DialogResult.OK)
+                {
+                    
+                }
             }
         }
     }

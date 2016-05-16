@@ -2000,5 +2000,22 @@ namespace BrawlLib.SSBB.ResourceNodes
                 new List<DrawCallBase>() : 
                 _objList.SelectMany(x => ((MDL0ObjectNode)x).DrawCalls).ToList(); }
         }
+
+        private Vector3 _originTranslation, _originRotation, _originScale = new Vector3(1.0f);
+        public Vector3 OriginTranslation
+        {
+            get { return _originTranslation; }
+            set { _originTranslation = value; }
+        }
+        public Vector3 OriginRotation
+        {
+            get { return _originRotation; }
+            set { _originRotation = value; }
+        }
+        public Vector3 OriginScale
+        {
+            get { return _originScale; }
+            set { _originScale = value; }
+        }
     }
 }

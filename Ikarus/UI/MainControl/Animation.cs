@@ -51,14 +51,6 @@ namespace Ikarus.UI
                 _targetModel.IsTargetModel = true;
             }
 
-            if (_resetCamera)
-            {
-                ModelPanel.ResetCamera();
-                SetFrame(0);
-            }
-            else
-                _resetCamera = true;
-
             OnModelChanged();
         }
 

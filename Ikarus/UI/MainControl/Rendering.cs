@@ -8,13 +8,13 @@ namespace Ikarus.UI
 {
     public partial class MainControl : ModelEditorBase
     {
-        public unsafe override void modelPanel1_PreRender(ModelPanelViewport sender)
+        protected override void ModelPanel_PreRender(ModelPanelViewport sender)
         {
-            base.modelPanel1_PreRender(sender);
+            base.ModelPanel_PreRender(sender);
             Attributes.PreRender();
         }
 
-        public unsafe override void modelPanel1_PostRender(ModelPanelViewport sender)
+        protected override void ModelPanel_PostRender(ModelPanelViewport sender)
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);
@@ -40,7 +40,7 @@ namespace Ikarus.UI
                     e.Render(modelPanel.Camera.GetPoint());
             }
 
-            base.modelPanel1_PostRender(sender);
+            base.ModelPanel_PostRender(sender);
         }
     }
 }

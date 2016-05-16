@@ -7,16 +7,98 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        public uint _allowedUndos = 50;
-        public List<SaveState> _undoSaves = new List<SaveState>();
-        public List<SaveState> _redoSaves = new List<SaveState>();
-        public int _saveIndex = 0;
         public bool AwaitingRedoSave { get { return _currentUndo != null; } }
-        public bool _undoing = false;
+        public bool CanUndo { get { return _saveIndex >= 0; } }
+        public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
 
-        public SaveState _currentUndo;
+        private SaveState RedoSave { get { return _saveIndex < _redoSaves.Count && _saveIndex >= 0 ? _redoSaves[_saveIndex] : null; } }
+        private SaveState UndoSave { get { return _saveIndex < _undoSaves.Count && _saveIndex >= 0 ? _undoSaves[_saveIndex] : null; } }
 
-        void AddUndo(SaveState save)
+        public uint _allowedUndos = 50;
+        private List<SaveState> _undoSaves = new List<SaveState>();
+        private List<SaveState> _redoSaves = new List<SaveState>();
+        private int _saveIndex = 0;
+        private bool _undoing = false;
+        private SaveState _currentUndo;
+
+        #region Public Undo functions
+
+        public void Undo()
+        {
+            _translating = _scaling = _rotating = false;
+
+            if (AwaitingRedoSave)
+                CancelUndoStateChange();
+            else if (CanUndo)
+            {
+                ModelPanel.BeginUpdate();
+
+                if (!_undoing)
+                    _saveIndex--;
+                _undoing = true;
+
+                if (_saveIndex < _undoSaves.Count && _saveIndex >= 0)
+                    ApplySaveState(UndoSave);
+
+                //Decrement index after applying save
+                _saveIndex--;
+
+                UpdateUndoButtons();
+
+                ModelPanel.EndUpdate();
+            }
+        }
+        public void Redo()
+        {
+            _translating = _scaling = _rotating = false;
+
+            if (AwaitingRedoSave)
+                CancelUndoStateChange();
+
+            if (CanRedo)
+            {
+                ModelPanel.BeginUpdate();
+
+                if (_undoing)
+                    _saveIndex++;
+                _undoing = false;
+
+                if (_saveIndex < _redoSaves.Count && _saveIndex >= 0)
+                    ApplySaveState(RedoSave);
+
+                //Increment index after applying save
+                _saveIndex++;
+
+                UpdateUndoButtons();
+
+                ModelPanel.EndUpdate();
+            }
+        }
+        public void CancelUndoStateChange()
+        {
+            if (!AwaitingRedoSave)
+            {
+#if DEBUG
+                throw new Exception("Nothing to cancel.");
+#else
+                return;
+#endif
+            }
+
+            _currentUndo = null;
+        }
+
+        #endregion
+
+        #region State management
+        protected void AddState(SaveState state)
+        {
+            if (!AwaitingRedoSave)
+                AddUndo(state);
+            else
+                AddRedo(state);
+        }
+        private void AddUndo(SaveState save)
         {
             if (AwaitingRedoSave)
             {
@@ -30,7 +112,7 @@ namespace System.Windows.Forms
             save._isUndo = true;
             _currentUndo = save;
         }
-        void AddRedo(SaveState save)
+        private void AddRedo(SaveState save)
         {
             if (!AwaitingRedoSave)
             {
@@ -68,21 +150,37 @@ namespace System.Windows.Forms
             _currentUndo = null;
             UpdateUndoButtons();
         }
-
-        void AddState(SaveState state)
+        /// <summary>
+        /// This will apply states added to the undo buffer.
+        /// Override to apply custom undo states
+        /// </summary>
+        protected virtual void ApplySaveState(SaveState state)
         {
-            if (!AwaitingRedoSave)
-                AddUndo(state);
-            else
-                AddRedo(state);
+            if (state is BoneState)
+                ApplyBoneState((BoneState)state);
+            else if (state is VertexState)
+                ApplyVertexState((VertexState)state);
+        }
+        #endregion
+
+        public virtual void UpdateUndoButtons() { }
+
+        public void ResetUndoBuffer()
+        {
+            _undoSaves.Clear();
+            _redoSaves.Clear();
+            _saveIndex = -1;
+            _undoing = false;
+            _currentUndo = null;
         }
 
+        #region Undo types
         /// <summary>
         /// Call twice; before and after changes
         /// </summary>
         public void BoneChange(params IBoneNode[] bones)
         {
-            SaveState state = new BoneState()
+            AddState(new BoneState()
             {
                 _bones = bones,
                 _frameStates = bones.Select(x => x.FrameState).ToArray(),
@@ -90,103 +188,13 @@ namespace System.Windows.Forms
                 _frameIndex = CurrentFrame,
                 _updateBoneOnly = CHR0Editor.chkMoveBoneOnly.Checked,
                 _updateBindState = CHR0Editor.chkUpdateBindPose.Checked,
-            };
-
-            AddState(state);
+            });
         }
-        /// <summary>
-        /// Call twice; before and after changes
-        /// </summary>
-        public void VertexChange(List<Vertex3> vertices)
-        {
-            SaveState state = new VertexState()
-            {
-                _chr0 = _chr0,
-                _animFrame = CurrentFrame,
-                _vertices = vertices,
-                _weightedPositions = vertices.Select(x => x.WeightedPosition).ToList(),
-                _targetModel = TargetModel,
-            };
-
-            AddState(state);
-        }
-
-        public void CancelChangeState()
-        {
-            if (!AwaitingRedoSave)
-            {
-#if DEBUG
-                throw new Exception("Nothing to cancel.");
-#else
-                return;
-#endif
-            }
-
-            _currentUndo = null;
-        }
-
-        public bool CanUndo { get { return _saveIndex >= 0; } }
-        public bool CanRedo { get { return _saveIndex < _undoSaves.Count; } }
-
-        public void Undo()
-        {
-            _translating = _scaling = _rotating = false;
-
-            if (AwaitingRedoSave)
-                CancelChangeState();
-            else if (CanUndo)
-            {
-                ModelPanel.BeginUpdate();
-
-                if (!_undoing)
-                    _saveIndex--;
-                _undoing = true;
-
-                if (_saveIndex < _undoSaves.Count && _saveIndex >= 0)
-                    ApplyState();
-
-                //Decrement index after applying save
-                _saveIndex--;
-
-                UpdateUndoButtons();
-
-                ModelPanel.EndUpdate();
-            }
-        }
-        public void Redo()
-        {
-            _translating = _scaling = _rotating = false;
-
-            if (AwaitingRedoSave)
-                CancelChangeState();
-
-            if (CanRedo)
-            {
-                ModelPanel.BeginUpdate();
-
-                if (_undoing)
-                    _saveIndex++;
-                _undoing = false;
-
-                if (_saveIndex < _redoSaves.Count && _saveIndex >= 0)
-                    ApplyState();
-
-                //Increment index after applying save
-                _saveIndex++;
-
-                UpdateUndoButtons();
-
-                ModelPanel.EndUpdate();
-            }
-        }
-
-        void ApplyBoneState(BoneState state)
+        private void ApplyBoneState(BoneState state)
         {
             if (TargetModel != state._targetModel)
-            {
-                _resetCamera = false;
                 TargetModel = state._targetModel;
-            }
+
             SelectedCHR0 = state._animation;
             CurrentFrame = state._frameIndex;
             CHR0Editor.chkUpdateBindPose.Checked = state._updateBindState;
@@ -197,18 +205,28 @@ namespace System.Windows.Forms
                 CHR0Editor.ApplyState(state._frameStates[i]);
             }
         }
-
-        void ApplyVertexState(VertexState state)
+        /// <summary>
+        /// Call twice; before and after changes
+        /// </summary>
+        public void VertexChange(List<Vertex3> vertices)
+        {
+            AddState(new VertexState()
+            {
+                _chr0 = _chr0,
+                _animFrame = CurrentFrame,
+                _vertices = vertices,
+                _weightedPositions = vertices.Select(x => x.WeightedPosition).ToList(),
+                _targetModel = TargetModel,
+            });
+        }
+        private void ApplyVertexState(VertexState state)
         {
             IModel model = TargetModel;
             CHR0Node n = _chr0;
             int frame = CurrentFrame;
 
             if (TargetModel != state._targetModel)
-            {
-                _resetCamera = false;
                 TargetModel = state._targetModel;
-            }
 
             SelectedCHR0 = state._chr0;
             CurrentFrame = state._animFrame;
@@ -221,29 +239,13 @@ namespace System.Windows.Forms
             _vertexLoc = null;
 
             if (TargetModel != model)
-            {
-                _resetCamera = false;
                 TargetModel = model;
-            }
+
             SelectedCHR0 = n;
             CurrentFrame = frame;
 
             UpdateModel();
         }
-
-        public SaveState RedoSave { get { return _saveIndex < _redoSaves.Count && _saveIndex >= 0 ? _redoSaves[_saveIndex] : null; } }
-        public SaveState UndoSave { get { return _saveIndex < _undoSaves.Count && _saveIndex >= 0 ? _undoSaves[_saveIndex] : null; } }
-        
-        private void ApplyState()
-        {
-            SaveState current = _undoing ? UndoSave : RedoSave;
-
-            if (current is BoneState)
-                ApplyBoneState((BoneState)current);
-            else if (current is VertexState)
-                ApplyVertexState((VertexState)current);
-        }
-
-        public virtual void UpdateUndoButtons() { }
+        #endregion
     }
 }

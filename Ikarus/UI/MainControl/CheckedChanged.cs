@@ -410,14 +410,8 @@ namespace Ikarus.UI
         {
             if (_updating)
                 return;
-
-            _resetCamera = false;
-
+            
             Manager.TargetCharacter = (CharName)Enum.Parse(typeof(CharName), comboCharacters.SelectedItem.ToString());
-
-            _undoSaves.Clear();
-            _redoSaves.Clear();
-            _saveIndex = -1;
         }
 
         private void chkBones_CheckedChanged(object sender, EventArgs e)

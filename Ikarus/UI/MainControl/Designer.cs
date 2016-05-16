@@ -1742,7 +1742,6 @@ namespace Ikarus.UI
         }
         public void Reset()
         {
-            _resetCamera = false;
             modelPanel.ClearAll();
             if (Manager.SelectedInfo != null)
             {

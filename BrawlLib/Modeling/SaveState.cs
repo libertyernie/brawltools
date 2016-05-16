@@ -9,20 +9,6 @@ namespace BrawlLib.Modeling
         public bool _isUndo = true;
     }
 
-    public class CollisionState : SaveState
-    {
-        public List<CollisionLink> _collisionLinks;
-        public List<Vector2> _linkVectors;
-        public bool _split;
-        public bool _merge;
-        public bool _create;
-        public bool _delete;
-
-        public CollisionNode _collisionNode;
-        public CollisionObject _collisionObject;
-        public CollisionPlane _collisionPlane;
-    }
-
     public class VertexState : SaveState
     {
         public int _animFrame;

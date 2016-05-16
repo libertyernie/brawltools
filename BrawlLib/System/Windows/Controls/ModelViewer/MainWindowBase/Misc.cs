@@ -44,11 +44,11 @@ namespace System.Windows.Forms
                 KeyframePanel.visEditor.IndexChanged += new EventHandler(VISIndexChanged);
             }
 
-            ModelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(this.modelPanel1_PreRender));
-            ModelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(this.modelPanel1_PostRender));
-            ModelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseDown));
-            ModelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseMove));
-            ModelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(this.modelPanel1_MouseUp));
+            ModelPanel.PreRender += (EventPreRender = new GLRenderEventHandler(ModelPanel_PreRender));
+            ModelPanel.PostRender += (EventPostRender = new GLRenderEventHandler(ModelPanel_PostRender));
+            ModelPanel.MouseDown += (EventMouseDown = new System.Windows.Forms.MouseEventHandler(ModelPanel_MouseDown));
+            ModelPanel.MouseMove += (EventMouseMove = new System.Windows.Forms.MouseEventHandler(ModelPanel_MouseMove));
+            ModelPanel.MouseUp += (EventMouseUp = new System.Windows.Forms.MouseEventHandler(ModelPanel_MouseUp));
 
             if (PlaybackPanel != null)
                 if (PlaybackPanel.Width <= PlaybackPanel.MinimumSize.Width)
@@ -123,14 +123,6 @@ namespace System.Windows.Forms
             }
             else
                 EditingAll = true; //No target model so all is the only option
-
-            if (_resetCamera)
-            {
-                ModelPanel.ResetCamera();
-                SetFrame(0);
-            }
-            else
-                _resetCamera = true;
 
             OnModelChanged();
 

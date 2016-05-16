@@ -152,7 +152,6 @@ namespace Ikarus
                 model = SelectedInfo.SelectedModel;
             }
             
-            control._resetCamera = false;
             control.TargetModel = model;
         }
 

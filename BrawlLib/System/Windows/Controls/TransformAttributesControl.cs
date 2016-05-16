@@ -2,10 +2,18 @@
 
 namespace System.Windows.Forms
 {
-    public partial class TransformAttributesControl : UserControl {
+    public partial class TransformAttributesControl : UserControl{
 		private NumericInputBox[] _boxes;
 
-		public TransformAttributesControl() {
+        public delegate void RotationChanged(Vector3 newRot);
+        public delegate void TranslationChanged(Vector3 newTrans);
+        public delegate void ScaleChanged(Vector3 newScale);
+
+        public event RotationChanged OnRotationChanged;
+        public event TranslationChanged OnTranslationChanged;
+        public event ScaleChanged OnScaleChanged;
+
+        public TransformAttributesControl() {
 			InitializeComponent();
 
 			_boxes = new NumericInputBox[] {
@@ -78,5 +86,20 @@ namespace System.Windows.Forms
 		public Matrix GetMatrix() {
 			return Matrix.TransformMatrix(ScaleVector, RotateVector, TranslateVector);
 		}
-	}
+        private void rot_ValueChanged(object sender, EventArgs e)
+        {
+            if (OnRotationChanged != null)
+                OnRotationChanged(RotateVector);
+        }
+        private void trans_ValueChanged(object sender, EventArgs e)
+        {
+            if (OnTranslationChanged != null)
+                OnTranslationChanged(RotateVector);
+        }
+        private void scale_ValueChanged(object sender, EventArgs e)
+        {
+            if (OnScaleChanged != null)
+                OnScaleChanged(ScaleVector);
+        }
+    }
 }

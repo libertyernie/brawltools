@@ -3,15 +3,46 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL;
+using BrawlLib.Modeling;
 
 namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-        public unsafe override void modelPanel1_PostRender(ModelPanelViewport panel)
+        protected override void ModelPanel_PostRender(ModelPanelViewport panel)
         {
             RenderBrawlStageData(panel);
-            base.modelPanel1_PostRender(panel);
+            base.ModelPanel_PostRender(panel);
+
+            //Clear depth buffer so we can hit-detect
+            GL.Clear(ClearBufferMask.DepthBufferBit);
+            GL.Enable(EnableCap.DepthTest);
+
+            //Render objects
+            if (_targetCollisionNode != null)
+                _targetCollisionNode.Render();
+
+            if (ModelPanel.RenderBones)
+                foreach (IRenderedObject o in ModelPanel._renderList)
+                    if (o is IModel)
+                        ((IModel)o).RenderBones(ModelPanel.CurrentViewport);
+
+            //Render selection box
+            if (!_selecting)
+                return;
+
+            GL.Enable(EnableCap.DepthTest);
+            GL.Disable(EnableCap.CullFace);
+
+            //Draw lines
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Line);
+            GL.Color4(0.0f, 0.0f, 1.0f, 0.5f);
+            TKContext.DrawBox(_selectStart, _selectEnd);
+
+            //Draw box
+            GL.PolygonMode(MaterialFace.FrontAndBack, PolygonMode.Fill);
+            GL.Color4(1.0f, 1.0f, 0.0f, 0.2f);
+            TKContext.DrawBox(_selectStart, _selectEnd);
         }
 
         public void RenderBrawlStageData(ModelPanelViewport panel)

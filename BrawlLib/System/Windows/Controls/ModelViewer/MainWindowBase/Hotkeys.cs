@@ -139,6 +139,8 @@ namespace System.Windows.Forms
             };
         }
 
+        #region Hotkey Functions
+
 #if DEBUG
         private bool HotkeyRenderDepthPressed()
         {
@@ -346,7 +348,7 @@ namespace System.Windows.Forms
             }
             return false;
         }
-        private bool HotkeyCancelChange()
+        protected virtual bool HotkeyCancelChange()
         {
             if (!AwaitingRedoSave)
                 return false;
@@ -359,7 +361,7 @@ namespace System.Windows.Forms
                 for (int i = 0; i < v._vertices.Count; i++)
                     v._vertices[i].WeightedPosition = v._weightedPositions[i];
                 
-                CancelChangeState();
+                CancelUndoStateChange();
                 UpdateModel();
             }
             else if (_rotating || _translating || _scaling)
@@ -392,7 +394,7 @@ namespace System.Windows.Forms
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
                 }
 
-                CancelChangeState();
+                CancelUndoStateChange();
             }
 
             _rotating = false;
@@ -425,6 +427,12 @@ namespace System.Windows.Forms
             if (PlaybackPanel != null)
                 PlaybackPanel.btnPrevFrame_Click(this, null);
             return true;
+        }
+        #endregion
+
+        protected bool GetDragNewBoneModifier()
+        {
+            return Alt;
         }
     }
 }

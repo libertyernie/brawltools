@@ -146,7 +146,7 @@ namespace System.Windows.Forms
 
         #endregion
 
-        protected virtual void modelPanel1_MouseDown(object sender, MouseEventArgs e)
+        protected virtual void ModelPanel_MouseDown(object sender, MouseEventArgs e)
         {
             _createdNewBone = false;
 
@@ -193,7 +193,7 @@ namespace System.Windows.Forms
 
         #region Mouse Up
 
-        protected virtual void modelPanel1_MouseUp(object sender, MouseEventArgs e)
+        protected virtual void ModelPanel_MouseUp(object sender, MouseEventArgs e)
         {
             _createdNewBone = false;
 
@@ -238,144 +238,8 @@ namespace System.Windows.Forms
         #endregion
 
         #region Mouse Move
-
-        private Vector3 GetLocalTransform(
-            MouseEventArgs e,
-            ModelPanelViewport viewport,
-            Matrix localTransform,
-            Matrix invLocalTransform,
-            Matrix localParentTransform, 
-            out Vector3? worldPoint)
-        {
-            worldPoint = null;
-
-            Vector3 point;
-            if (GetTransformPoint(new Vector2(e.X, e.Y), out point, viewport, localTransform))
-            {
-                Vector3 transform = new Vector3(), lPoint;
-
-                CoordinateType coord = _coordinateTypes[(int)ControlType];
-                switch (ControlType)
-                {
-                    case TransformType.Rotation:
-
-                        lPoint = invLocalTransform * point;
-    
-                        if (_lastPointLocal == lPoint)
-                            return new Vector3();
-
-                        //Get matrix with new rotation applied
-                        Matrix m = localParentTransform * Matrix.AxisAngleMatrix(_lastPointLocal, lPoint);
-
-                        //Derive angles from matrices, get difference
-                        transform = (m.GetAngles() - localParentTransform.GetAngles()).RemappedToRange(-180.0f, 180.0f);
-
-                        break;
-
-                    case TransformType.Translation:
-                    case TransformType.Scale:
-
-                        if (ControlType == TransformType.Scale && _snapX && _snapY && _snapZ)
-                        {
-                            //Get scale factor
-                            //TODO: calculate with distance between screen points instead
-                            transform = new Vector3((point / _lastPointWorld)._y);
-                            break;
-                        }
-
-                        lPoint = invLocalTransform * point;
-
-                        if (_lastPointLocal == lPoint)
-                            return new Vector3();
-
-                        if (!(ControlType == TransformType.Translation && _snapCirc))
-                            switch (coord)
-                            {
-                                case CoordinateType.World:
-
-                                    //Limit world point with snaps
-                                    if (!_snapX) point._x = _lastPointWorld._x;
-                                    if (!_snapY) point._y = _lastPointWorld._y;
-                                    if (!_snapZ) point._z = _lastPointWorld._z;
-
-                                    //Remake local point with edited world point
-                                    lPoint = invLocalTransform * point;
-
-                                    break;
-                                case CoordinateType.Local:
-
-                                    //Limit local point with snaps
-                                    if (!_snapX) lPoint._x = _lastPointLocal._x;
-                                    if (!_snapY) lPoint._y = _lastPointLocal._y;
-                                    if (!_snapZ) lPoint._z = _lastPointLocal._z;
-
-                                    break;
-                                case CoordinateType.Screen:
-
-                                    break;
-                            }
-
-                        if (ControlType == TransformType.Scale)
-                            transform = ((localParentTransform * lPoint) / (localParentTransform * _lastPointLocal));
-                        else
-                            transform = localParentTransform * lPoint - localParentTransform * _lastPointLocal;
-                        
-                        break;
-                }
-
-                worldPoint = point;
-                _lastPointWorld = point;
-
-                return transform;
-            }
-            return new Vector3();
-        }
-
-        public delegate void ApplyLocalBoneTransformFunc(int index, float offset);
-        public ApplyLocalBoneTransformFunc[] _boneTransform;
-
-        //Transforms are in order T, R, S
-        //We have to edit the transform to before rotation has been applied for translation
-        public bool _translateAfterRotation;
-        public Matrix GetBoneInvWorldMtx()
-        {
-            if (SelectedBone == null)
-                return Matrix.Identity;
-
-            if (!_translateAfterRotation &&
-                ControlType == TransformType.Translation && 
-                _coordinateTypes[0] == CoordinateType.Local)
-                return SelectedBone.FrameState._transform.GetRotationMatrix() * SelectedBone.InverseMatrix;
-            else
-                return SelectedBone.InverseMatrix;
-        }
-        public Matrix GetBoneWorldMtx()
-        {
-            if (SelectedBone == null)
-                return Matrix.Identity;
-
-            if (!_translateAfterRotation &&
-                ControlType == TransformType.Translation &&
-                _coordinateTypes[0] == CoordinateType.Local)
-                return SelectedBone.Matrix * SelectedBone.FrameState._iTransform.GetRotationMatrix();
-            else
-                return SelectedBone.Matrix;
-        }
-        public Matrix GetBoneParentTransformMtx()
-        {            
-            if (SelectedBone == null)
-                return Matrix.Identity;
-
-            if (!_translateAfterRotation &&
-                ControlType == TransformType.Translation &&
-                _coordinateTypes[0] == CoordinateType.Local)
-                return SelectedBone.FrameState._transform * SelectedBone.FrameState._iTransform.GetRotationMatrix();
-            else
-                return SelectedBone.FrameState._transform;
-        }
-
-        bool _createdNewBone = false;
-        protected unsafe virtual void modelPanel1_MouseMove(object sender, MouseEventArgs e)
+        private bool _createdNewBone = false;
+        protected unsafe virtual void ModelPanel_MouseMove(object sender, MouseEventArgs e)
         {
             if (_playing)
                 return;
@@ -396,7 +260,7 @@ namespace System.Windows.Forms
                         GetBoneParentTransformMtx(),
                         out point);
 
-                    if (Alt && !_createdNewBone)
+                    if (GetDragNewBoneModifier() && !_createdNewBone)
                     {
                         if (SelectedBone is MDL0BoneNode)
                         {
@@ -436,7 +300,7 @@ namespace System.Windows.Forms
                             }
 
                             if (BonesPanel != null)
-                                BonesPanel.Reset();
+                                BonesPanel.TargetModelChanged();
 
                             SelectedBone = newBone;
                         }
@@ -490,6 +354,147 @@ namespace System.Windows.Forms
             //if not dragging a point AND (highlighting is allowed, or not but selecting)
             if (!moving && (!DoNotHighlightOnMouseMove || (DoNotHighlightOnMouseMove && viewport.Selecting)))
                 HighlightStuff(e, panel);
+        }
+        private Vector3 GetLocalTransform(
+            MouseEventArgs e,
+            ModelPanelViewport viewport,
+            Matrix localTransform,
+            Matrix invLocalTransform,
+            Matrix localParentTransform,
+            out Vector3? worldPoint)
+        {
+            worldPoint = null;
+
+            Vector3 point;
+            if (GetTransformPoint(new Vector2(e.X, e.Y), out point, viewport, localTransform))
+            {
+                Vector3 transform = new Vector3(), lPoint;
+
+                CoordinateType coord = _coordinateTypes[(int)ControlType];
+                switch (ControlType)
+                {
+                    case TransformType.Rotation:
+
+                        lPoint = invLocalTransform * point;
+
+                        if (_lastPointLocal == lPoint)
+                            return new Vector3();
+
+                        //Get matrix with new rotation applied
+                        Matrix m = localParentTransform * Matrix.AxisAngleMatrix(_lastPointLocal, lPoint);
+
+                        //Derive angles from matrices, get difference
+                        transform = (m.GetAngles() - localParentTransform.GetAngles()).RemappedToRange(-180.0f, 180.0f);
+
+                        break;
+
+                    case TransformType.Translation:
+                    case TransformType.Scale:
+
+                        if (ControlType == TransformType.Scale && _snapX && _snapY && _snapZ)
+                        {
+                            //Get scale factor
+                            //TODO: calculate with distance between screen points instead
+                            transform = new Vector3((point / _lastPointWorld)._y);
+                            break;
+                        }
+
+                        lPoint = invLocalTransform * point;
+
+                        if (_lastPointLocal == lPoint)
+                            return new Vector3();
+
+                        if (!(ControlType == TransformType.Translation && _snapCirc))
+                            switch (coord)
+                            {
+                                case CoordinateType.World:
+
+                                    //Limit world point with snaps
+                                    if (!_snapX)
+                                        point._x = _lastPointWorld._x;
+                                    if (!_snapY)
+                                        point._y = _lastPointWorld._y;
+                                    if (!_snapZ)
+                                        point._z = _lastPointWorld._z;
+
+                                    //Remake local point with edited world point
+                                    lPoint = invLocalTransform * point;
+
+                                    break;
+                                case CoordinateType.Local:
+
+                                    //Limit local point with snaps
+                                    if (!_snapX)
+                                        lPoint._x = _lastPointLocal._x;
+                                    if (!_snapY)
+                                        lPoint._y = _lastPointLocal._y;
+                                    if (!_snapZ)
+                                        lPoint._z = _lastPointLocal._z;
+
+                                    break;
+                                case CoordinateType.Screen:
+
+                                    break;
+                            }
+
+                        if (ControlType == TransformType.Scale)
+                            transform = ((localParentTransform * lPoint) / (localParentTransform * _lastPointLocal));
+                        else
+                            transform = localParentTransform * lPoint - localParentTransform * _lastPointLocal;
+
+                        break;
+                }
+
+                worldPoint = point;
+                _lastPointWorld = point;
+
+                return transform;
+            }
+            return new Vector3();
+        }
+
+        public delegate void ApplyLocalBoneTransformFunc(int index, float offset);
+        public ApplyLocalBoneTransformFunc[] _boneTransform;
+
+        //Transforms are in order T, R, S
+        //We have to edit the transform to before rotation has been applied for translation
+        public bool _translateAfterRotation;
+
+        public Matrix GetBoneInvWorldMtx()
+        {
+            if (SelectedBone == null)
+                return Matrix.Identity;
+
+            if (!_translateAfterRotation &&
+                ControlType == TransformType.Translation &&
+                _coordinateTypes[0] == CoordinateType.Local)
+                return SelectedBone.FrameState._transform.GetRotationMatrix() * SelectedBone.InverseMatrix;
+            else
+                return SelectedBone.InverseMatrix;
+        }
+        public Matrix GetBoneWorldMtx()
+        {
+            if (SelectedBone == null)
+                return Matrix.Identity;
+
+            if (!_translateAfterRotation &&
+                ControlType == TransformType.Translation &&
+                _coordinateTypes[0] == CoordinateType.Local)
+                return SelectedBone.Matrix * SelectedBone.FrameState._iTransform.GetRotationMatrix();
+            else
+                return SelectedBone.Matrix;
+        }
+        public Matrix GetBoneParentTransformMtx()
+        {
+            if (SelectedBone == null)
+                return Matrix.Identity;
+
+            if (!_translateAfterRotation &&
+                ControlType == TransformType.Translation &&
+                _coordinateTypes[0] == CoordinateType.Local)
+                return SelectedBone.FrameState._transform * SelectedBone.FrameState._iTransform.GetRotationMatrix();
+            else
+                return SelectedBone.FrameState._transform;
         }
         #endregion
 
@@ -839,7 +844,7 @@ namespace System.Windows.Forms
 
         public IBoneNode _hiBone = null;
         public Vertex3 _hiVertex = null;
-        public void HighlightStuff(MouseEventArgs e, ModelPanel panel)
+        public virtual void HighlightStuff(MouseEventArgs e, ModelPanel panel)
         {
             panel.Capture();
 

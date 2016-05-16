@@ -1,57 +1,40 @@
 ﻿namespace System.Windows.Forms
 {
-    public partial class TransformAttributesForm : Form {
-		public TransformAttributesForm() {
-			InitializeComponent();
+    public partial class TransformAttributesForm : Form
+    {
+        public TransformAttributesForm() { InitializeComponent(); }
+        public TransformAttributesForm(Vector3 t, Vector3 r, Vector3 s)
+        {
+            InitializeComponent();
+            _transformControl.ScaleVector = s;
+            _transformControl.RotateVector = r;
+            _transformControl.TranslateVector = t;
+        }
+        public bool TwoDimensional
+        {
+			get { return _transformControl.TwoDimensional; }
+			set { _transformControl.TwoDimensional = value; }
 		}
-
-		public bool TwoDimensional {
-			get {
-				return transformAttributesControl1.TwoDimensional;
-			}
-			set {
-				transformAttributesControl1.TwoDimensional = value;
-			}
+		public float this[int index]
+        {
+			get { return _transformControl[index]; }
+			set { _transformControl[index] = value; }
 		}
-
-		public float this[int index] {
-			get {
-				return transformAttributesControl1[index];
-			}
-			set {
-				transformAttributesControl1[index] = value;
-			}
+		public Vector3 ScaleVector
+        {
+			get { return _transformControl.ScaleVector; }
+			set { _transformControl.ScaleVector = value; }
 		}
-
-		public Vector3 ScaleVector {
-			get {
-				return transformAttributesControl1.ScaleVector;
-			}
-			set {
-				transformAttributesControl1.ScaleVector = value;
-			}
+		public Vector3 RotateVector
+        {
+			get { return _transformControl.RotateVector; }
+			set { _transformControl.RotateVector = value; }
 		}
-
-		public Vector3 RotateVector {
-			get {
-				return transformAttributesControl1.RotateVector;
-			}
-			set {
-				transformAttributesControl1.RotateVector = value;
-			}
+		public Vector3 TranslateVector
+        {
+			get { return _transformControl.TranslateVector; }
+			set { _transformControl.TranslateVector = value; }
 		}
-
-		public Vector3 TranslateVector {
-			get {
-				return transformAttributesControl1.TranslateVector;
-			}
-			set {
-				transformAttributesControl1.TranslateVector = value;
-			}
-		}
-
-		public Matrix GetMatrix() {
-			return transformAttributesControl1.GetMatrix();
-		}
+		public Matrix GetMatrix() { return _transformControl.GetMatrix(); }
 	}
 }

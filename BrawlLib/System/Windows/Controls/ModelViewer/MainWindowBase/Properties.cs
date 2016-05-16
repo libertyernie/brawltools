@@ -400,11 +400,9 @@ namespace System.Windows.Forms
                 }
 
                 //Check if the user selected a bone from another model.
-                if (EditingAll && boneSelected && TargetModel != _selectedBone.IModel)
-                {
-                    _resetCamera = false;
-                    TargetModel = _selectedBone.IModel;
-                }
+                IModel newModel = _selectedBone == null ? null : _selectedBone.IModel;
+                if (newModel != TargetModel)
+                    TargetModel = newModel;
 
                 if (BonesPanel != null)
                     BonesPanel.SetSelectedBone(_selectedBone);

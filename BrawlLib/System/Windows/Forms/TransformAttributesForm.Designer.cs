@@ -24,20 +24,20 @@
 		/// </summary>
 		private void InitializeComponent() {
 			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TransformAttributesForm));
-			this.transformAttributesControl1 = new System.Windows.Forms.TransformAttributesControl();
+			this._transformControl = new System.Windows.Forms.TransformAttributesControl();
 			this.btnOkay = new System.Windows.Forms.Button();
 			this.btnCancel = new System.Windows.Forms.Button();
 			this.SuspendLayout();
 			// 
 			// transformAttributesControl1
 			// 
-			this.transformAttributesControl1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+			this._transformControl.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-			this.transformAttributesControl1.Location = new System.Drawing.Point(12, 12);
-			this.transformAttributesControl1.Name = "transformAttributesControl1";
-			this.transformAttributesControl1.Size = new System.Drawing.Size(260, 80);
-			this.transformAttributesControl1.TabIndex = 0;
-			this.transformAttributesControl1.TwoDimensional = false;
+			this._transformControl.Location = new System.Drawing.Point(12, 12);
+			this._transformControl.Name = "transformAttributesControl1";
+			this._transformControl.Size = new System.Drawing.Size(260, 80);
+			this._transformControl.TabIndex = 0;
+			this._transformControl.TwoDimensional = false;
 			// 
 			// btnOkay
 			// 
@@ -68,7 +68,7 @@
 			this.ClientSize = new System.Drawing.Size(284, 161);
 			this.Controls.Add(this.btnCancel);
 			this.Controls.Add(this.btnOkay);
-			this.Controls.Add(this.transformAttributesControl1);
+			this.Controls.Add(this._transformControl);
 			this.Name = "TransformAttributesForm";
 			this.Text = "Transform";
 			this.ResumeLayout(false);
@@ -77,7 +77,7 @@
 
 		#endregion
 
-		private TransformAttributesControl transformAttributesControl1;
+		public TransformAttributesControl _transformControl;
 		private Button btnOkay;
 		private Button btnCancel;
 	}

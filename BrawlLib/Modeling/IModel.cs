@@ -16,6 +16,9 @@ namespace BrawlLib.Modeling
         IObject[] Objects { get; }
         int SelectedObjectIndex { get; set; }
         bool IsTargetModel { get; set; }
+        Vector3 OriginTranslation { get; set; }
+        Vector3 OriginRotation { get; set; }
+        Vector3 OriginScale { get; set; }
 
         void ResetToBindState();
         void ApplyCHR(CHR0Node node, float index);

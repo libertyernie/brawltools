@@ -8,7 +8,7 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditorBase : UserControl
     {
-        public unsafe virtual void modelPanel1_PreRender(ModelPanelViewport vp)
+        protected virtual void ModelPanel_PreRender(ModelPanelViewport vp)
         {
             if (vp != null)
             {
@@ -20,7 +20,7 @@ namespace System.Windows.Forms
             }
         }
 
-        public unsafe virtual void modelPanel1_PostRender(ModelPanelViewport vp)
+        protected virtual void ModelPanel_PostRender(ModelPanelViewport vp)
         {
             GL.Enable(EnableCap.Blend);
             GL.BlendFunc(BlendingFactorSrc.SrcAlpha, BlendingFactorDest.OneMinusSrcAlpha);

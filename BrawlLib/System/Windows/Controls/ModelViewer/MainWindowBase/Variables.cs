@@ -65,7 +65,6 @@ namespace System.Windows.Forms
         public bool _rotating, _translating, _scaling;
         protected bool _snapX, _snapY, _snapZ, _snapCirc;
         protected bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
-        public bool _resetCamera = true;
         protected bool _enableTransform = true;
         protected bool _playing = false;
         protected bool _bonesWereOff = false;

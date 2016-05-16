@@ -321,10 +321,7 @@ namespace System.Windows.Forms
             ModelPanel.RemoveTarget(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
-            {
-                _resetCamera = false;
                 TargetModel = _targetModels[0];
-            }
 
             ModelPanel.Invalidate();
         }
@@ -335,10 +332,7 @@ namespace System.Windows.Forms
             _targetModels.Remove(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
-            {
-                _resetCamera = false;
                 TargetModel = _targetModels[0];
-            }
 
             ModelPanel.Invalidate();
         }

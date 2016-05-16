@@ -477,8 +477,6 @@ namespace Ikarus.UI
 
         private void hideFromSceneToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             modelPanel.RemoveTarget(TargetModel);
 
             if (_targetModels != null && _targetModels.Count != 0)
@@ -489,8 +487,6 @@ namespace Ikarus.UI
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            _resetCamera = false;
-
             modelPanel.RemoveTarget(TargetModel);
             _targetModels.Remove(TargetModel);
             comboCharacters.Items.Remove(TargetModel);

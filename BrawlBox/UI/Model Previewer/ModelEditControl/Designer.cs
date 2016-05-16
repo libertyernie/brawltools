@@ -2,6 +2,7 @@
 using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 using BrawlBox;
+using System.Linq;
 
 namespace System.Windows.Forms
 {
@@ -29,7 +30,6 @@ namespace System.Windows.Forms
         private ToolStripMenuItem fileToolStripMenuItem;
         private ToolStripMenuItem editToolStripMenuItem;
         private ToolStripMenuItem openModelsToolStripMenuItem;
-        private ToolStripMenuItem kinectToolStripMenuItem;
         private ToolStripMenuItem notYetImplementedToolStripMenuItem;
         private ToolStripMenuItem newSceneToolStripMenuItem;
         private ToolStripMenuItem viewToolStripMenuItem1;
@@ -171,6 +171,12 @@ namespace System.Windows.Forms
         private ToolStripMenuItem afterRotationToolStripMenuItem;
         private ToolStripMenuItem btnWeightEditor;
         private ToolStripMenuItem btnVertexEditor;
+        public ToolStripMenuItem collisionEditorModeToolStripMenuItem;
+        private ToolStripMenuItem btnMerge;
+        private ToolStripMenuItem btnSplit;
+        private ToolStripMenuItem btnSameY;
+        private ToolStripMenuItem btnSameX;
+        public CollisionEditorControl _collisionEditorControl;
         public RightPanel rightPanel;
 
         private void InitializeComponent()
@@ -289,6 +295,11 @@ namespace System.Windows.Forms
             this.EnableLiveTextureFolder = new System.Windows.Forms.ToolStripMenuItem();
             this.btnWeightEditor = new System.Windows.Forms.ToolStripMenuItem();
             this.btnVertexEditor = new System.Windows.Forms.ToolStripMenuItem();
+            this.collisionEditorModeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnMerge = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnSplit = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnSameY = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnSameX = new System.Windows.Forms.ToolStripMenuItem();
             this.targetModelToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.chkEditAll = new System.Windows.Forms.ToolStripMenuItem();
             this.hideFromSceneToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -298,7 +309,6 @@ namespace System.Windows.Forms
             this.chkExternalAnims = new System.Windows.Forms.ToolStripMenuItem();
             this.chkBRRESAnims = new System.Windows.Forms.ToolStripMenuItem();
             this.chkNonBRRESAnims = new System.Windows.Forms.ToolStripMenuItem();
-            this.kinectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.syncKinectToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.notYetImplementedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.startTrackingToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -338,6 +348,7 @@ namespace System.Windows.Forms
             this.clr0Editor = new System.Windows.Forms.CLR0Editor();
             this.weightEditor = new System.Windows.Forms.WeightEditor();
             this.vertexEditor = new System.Windows.Forms.VertexEditor();
+            this._collisionEditorControl = new System.Windows.Forms.CollisionEditorControl();
             this.rightPanel = new System.Windows.Forms.RightPanel();
             this.leftPanel = new System.Windows.Forms.LeftPanel();
             this.menuStrip1.SuspendLayout();
@@ -413,18 +424,18 @@ namespace System.Windows.Forms
             // menuStrip1
             // 
             this.menuStrip1.BackColor = System.Drawing.SystemColors.Control;
-            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.menuStrip1.Dock = System.Windows.Forms.DockStyle.Left;
             this.menuStrip1.ImageScalingSize = new System.Drawing.Size(20, 20);
             this.menuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fileToolStripMenuItem,
             this.editToolStripMenuItem,
             this.viewToolStripMenuItem1,
             this.toolsToolStripMenuItem,
-            this.targetModelToolStripMenuItem,
-            this.kinectToolStripMenuItem});
+            this.targetModelToolStripMenuItem});
+            this.menuStrip1.LayoutStyle = System.Windows.Forms.ToolStripLayoutStyle.HorizontalStackWithOverflow;
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(358, 28);
+            this.menuStrip1.Size = new System.Drawing.Size(461, 26);
             this.menuStrip1.TabIndex = 13;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -437,7 +448,7 @@ namespace System.Windows.Forms
             this.openMovesetToolStripMenuItem,
             this.closeToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 22);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // newSceneToolStripMenuItem
@@ -512,7 +523,7 @@ namespace System.Windows.Forms
             this.takeScreenshotToolStripMenuItem,
             this.settingsToolStripMenuItem});
             this.editToolStripMenuItem.Name = "editToolStripMenuItem";
-            this.editToolStripMenuItem.Size = new System.Drawing.Size(73, 24);
+            this.editToolStripMenuItem.Size = new System.Drawing.Size(73, 22);
             this.editToolStripMenuItem.Text = "Options";
             // 
             // btnUndo
@@ -606,7 +617,7 @@ namespace System.Windows.Forms
             this.fileTypesToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.viewToolStripMenuItem1.Name = "viewToolStripMenuItem1";
-            this.viewToolStripMenuItem1.Size = new System.Drawing.Size(53, 24);
+            this.viewToolStripMenuItem1.Size = new System.Drawing.Size(53, 22);
             this.viewToolStripMenuItem1.Text = "View";
             // 
             // editorsToolStripMenuItem
@@ -1236,15 +1247,16 @@ namespace System.Windows.Forms
             this.selectedAnimationToolStripMenuItem,
             this.liveTextureFolderToolStripMenuItem,
             this.btnWeightEditor,
-            this.btnVertexEditor});
+            this.btnVertexEditor,
+            this.collisionEditorModeToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(56, 24);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(56, 22);
             this.toolsToolStripMenuItem.Text = "Tools";
             // 
             // interpolationEditorToolStripMenuItem
             // 
             this.interpolationEditorToolStripMenuItem.Name = "interpolationEditorToolStripMenuItem";
-            this.interpolationEditorToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.interpolationEditorToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
             this.interpolationEditorToolStripMenuItem.Text = "Interpolation Editor";
             this.interpolationEditorToolStripMenuItem.Click += new System.EventHandler(this.interpolationEditorToolStripMenuItem_Click);
             // 
@@ -1258,7 +1270,7 @@ namespace System.Windows.Forms
             this.interpolationToolStripMenuItem});
             this.selectedAnimationToolStripMenuItem.Enabled = false;
             this.selectedAnimationToolStripMenuItem.Name = "selectedAnimationToolStripMenuItem";
-            this.selectedAnimationToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.selectedAnimationToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
             this.selectedAnimationToolStripMenuItem.Text = "Selected Animation";
             // 
             // portToolStripMenuItem
@@ -1323,7 +1335,7 @@ namespace System.Windows.Forms
             this.LiveTextureFolderPath,
             this.EnableLiveTextureFolder});
             this.liveTextureFolderToolStripMenuItem.Name = "liveTextureFolderToolStripMenuItem";
-            this.liveTextureFolderToolStripMenuItem.Size = new System.Drawing.Size(220, 26);
+            this.liveTextureFolderToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
             this.liveTextureFolderToolStripMenuItem.Text = "Live Texture Folder";
             // 
             // LiveTextureFolderPath
@@ -1344,7 +1356,7 @@ namespace System.Windows.Forms
             // 
             this.btnWeightEditor.Name = "btnWeightEditor";
             this.btnWeightEditor.ShortcutKeyDisplayString = "9 Key";
-            this.btnWeightEditor.Size = new System.Drawing.Size(220, 26);
+            this.btnWeightEditor.Size = new System.Drawing.Size(228, 26);
             this.btnWeightEditor.Text = "Weight Editor";
             this.btnWeightEditor.Click += new System.EventHandler(this.btnWeightEditor_Click);
             // 
@@ -1352,9 +1364,49 @@ namespace System.Windows.Forms
             // 
             this.btnVertexEditor.Name = "btnVertexEditor";
             this.btnVertexEditor.ShortcutKeyDisplayString = "0 Key";
-            this.btnVertexEditor.Size = new System.Drawing.Size(220, 26);
+            this.btnVertexEditor.Size = new System.Drawing.Size(228, 26);
             this.btnVertexEditor.Text = "Vertex Editor";
             this.btnVertexEditor.Click += new System.EventHandler(this.btnVertexEditor_Click);
+            // 
+            // collisionEditorModeToolStripMenuItem
+            // 
+            this.collisionEditorModeToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnMerge,
+            this.btnSplit,
+            this.btnSameY,
+            this.btnSameX});
+            this.collisionEditorModeToolStripMenuItem.Name = "collisionEditorModeToolStripMenuItem";
+            this.collisionEditorModeToolStripMenuItem.Size = new System.Drawing.Size(228, 26);
+            this.collisionEditorModeToolStripMenuItem.Text = "Collision Editor Mode";
+            this.collisionEditorModeToolStripMenuItem.Click += new System.EventHandler(this.collisionEditorModeToolStripMenuItem_Click);
+            // 
+            // btnMerge
+            // 
+            this.btnMerge.Name = "btnMerge";
+            this.btnMerge.Size = new System.Drawing.Size(181, 26);
+            this.btnMerge.Text = "Merge";
+            this.btnMerge.Click += new System.EventHandler(this.btnMerge_Click);
+            // 
+            // btnSplit
+            // 
+            this.btnSplit.Name = "btnSplit";
+            this.btnSplit.Size = new System.Drawing.Size(181, 26);
+            this.btnSplit.Text = "Split";
+            this.btnSplit.Click += new System.EventHandler(this.btnSplit_Click);
+            // 
+            // btnSameY
+            // 
+            this.btnSameY.Name = "btnSameY";
+            this.btnSameY.Size = new System.Drawing.Size(181, 26);
+            this.btnSameY.Text = "Average Y";
+            this.btnSameY.Click += new System.EventHandler(this.btnSameY_Click);
+            // 
+            // btnSameX
+            // 
+            this.btnSameX.Name = "btnSameX";
+            this.btnSameX.Size = new System.Drawing.Size(181, 26);
+            this.btnSameX.Text = "Average X";
+            this.btnSameX.Click += new System.EventHandler(this.btnSameX_Click);
             // 
             // targetModelToolStripMenuItem
             // 
@@ -1368,7 +1420,7 @@ namespace System.Windows.Forms
             this.chkBRRESAnims,
             this.chkNonBRRESAnims});
             this.targetModelToolStripMenuItem.Name = "targetModelToolStripMenuItem";
-            this.targetModelToolStripMenuItem.Size = new System.Drawing.Size(112, 24);
+            this.targetModelToolStripMenuItem.Size = new System.Drawing.Size(112, 22);
             this.targetModelToolStripMenuItem.Text = "Target Model:";
             // 
             // chkEditAll
@@ -1436,11 +1488,6 @@ namespace System.Windows.Forms
             this.chkNonBRRESAnims.Text = "Display animations not in BRRES";
             this.chkNonBRRESAnims.CheckedChanged += new System.EventHandler(this.UpdateAnimList_Event);
             // 
-            // kinectToolStripMenuItem
-            // 
-            this.kinectToolStripMenuItem.Name = "kinectToolStripMenuItem";
-            this.kinectToolStripMenuItem.Size = new System.Drawing.Size(12, 24);
-            // 
             // syncKinectToolStripMenuItem
             // 
             this.syncKinectToolStripMenuItem.Name = "syncKinectToolStripMenuItem";
@@ -1458,15 +1505,15 @@ namespace System.Windows.Forms
             // 
             // models
             // 
-            this.models.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
+            this.models.Dock = System.Windows.Forms.DockStyle.Fill;
             this.models.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.models.FormattingEnabled = true;
+            this.models.IntegralHeight = false;
             this.models.Items.AddRange(new object[] {
             "All"});
-            this.models.Location = new System.Drawing.Point(349, 1);
+            this.models.Location = new System.Drawing.Point(461, 0);
             this.models.Name = "models";
-            this.models.Size = new System.Drawing.Size(115, 24);
+            this.models.Size = new System.Drawing.Size(35, 24);
             this.models.TabIndex = 21;
             this.models.SelectedIndexChanged += new System.EventHandler(this.models_SelectedIndexChanged);
             // 
@@ -1484,7 +1531,7 @@ namespace System.Windows.Forms
             // 
             // splitter1
             // 
-            this.splitter1.Location = new System.Drawing.Point(464, 0);
+            this.splitter1.Location = new System.Drawing.Point(496, 0);
             this.splitter1.Name = "splitter1";
             this.splitter1.Size = new System.Drawing.Size(3, 26);
             this.splitter1.TabIndex = 31;
@@ -1508,10 +1555,10 @@ namespace System.Windows.Forms
             this.btnSaveCam,
             this.toolStripSeparator2,
             this.cboToolSelect});
-            this.toolStrip1.Location = new System.Drawing.Point(464, 0);
+            this.toolStrip1.Location = new System.Drawing.Point(496, 0);
             this.toolStrip1.Name = "toolStrip1";
             this.toolStrip1.Padding = new System.Windows.Forms.Padding(6, 0, 0, 0);
-            this.toolStrip1.Size = new System.Drawing.Size(341, 26);
+            this.toolStrip1.Size = new System.Drawing.Size(309, 26);
             this.toolStrip1.TabIndex = 30;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -1553,7 +1600,7 @@ namespace System.Windows.Forms
             this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.chkCollisions.Name = "chkCollisions";
-            this.chkCollisions.Size = new System.Drawing.Size(76, 21);
+            this.chkCollisions.Size = new System.Drawing.Size(76, 23);
             this.chkCollisions.Text = "Collisions";
             this.chkCollisions.Visible = false;
             this.chkCollisions.Click += new System.EventHandler(this.toggleRenderCollisions_Event);
@@ -1660,7 +1707,7 @@ namespace System.Windows.Forms
             this.panel2.Dock = System.Windows.Forms.DockStyle.Left;
             this.panel2.Location = new System.Drawing.Point(0, 0);
             this.panel2.Name = "panel2";
-            this.panel2.Size = new System.Drawing.Size(464, 26);
+            this.panel2.Size = new System.Drawing.Size(496, 26);
             this.panel2.TabIndex = 29;
             // 
             // spltRight
@@ -1768,6 +1815,7 @@ namespace System.Windows.Forms
             this.animCtrlPnl.Controls.Add(this.clr0Editor);
             this.animCtrlPnl.Controls.Add(this.weightEditor);
             this.animCtrlPnl.Controls.Add(this.vertexEditor);
+            this.animCtrlPnl.Controls.Add(this._collisionEditorControl);
             this.animCtrlPnl.Dock = System.Windows.Forms.DockStyle.Left;
             this.animCtrlPnl.Location = new System.Drawing.Point(0, 0);
             this.animCtrlPnl.Name = "animCtrlPnl";
@@ -1866,6 +1914,17 @@ namespace System.Windows.Forms
             this.vertexEditor.TabIndex = 32;
             this.vertexEditor.Visible = false;
             // 
+            // _collisionEditorControl
+            // 
+            this._collisionEditorControl.AutoSize = true;
+            this._collisionEditorControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this._collisionEditorControl.Location = new System.Drawing.Point(0, 0);
+            this._collisionEditorControl.MinimumSize = new System.Drawing.Size(659, 134);
+            this._collisionEditorControl.Name = "_collisionEditorControl";
+            this._collisionEditorControl.Size = new System.Drawing.Size(659, 134);
+            this._collisionEditorControl.TabIndex = 33;
+            this._collisionEditorControl.Visible = false;
+            // 
             // rightPanel
             // 
             this.rightPanel.Dock = System.Windows.Forms.DockStyle.Right;
@@ -1914,6 +1973,7 @@ namespace System.Windows.Forms
             this.panel1.ResumeLayout(false);
             this.animEditors.ResumeLayout(false);
             this.animCtrlPnl.ResumeLayout(false);
+            this.animCtrlPnl.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -1928,6 +1988,11 @@ namespace System.Windows.Forms
                 Instances.Add(this);
 
             InitializeComponent();
+
+            _collisionEditorControl._mainWindow = this;
+            collisionEditorModeToolStripMenuItem.Enabled = false;
+            _collisionEditorMode = false;
+            UpdateCollisionButtons();
 
             leftPanel._mainWindow = this;
             rightPanel.pnlKeyframes._mainWindow =
@@ -2020,6 +2085,11 @@ namespace System.Windows.Forms
 
         public void AppendTarget(CollisionNode collision)
         {
+            if (collision == null)
+                return;
+
+            collisionEditorModeToolStripMenuItem.Enabled = true;
+
             if (!_collisions.Contains(collision))
                 _collisions.Add(collision);
 
@@ -2027,6 +2097,26 @@ namespace System.Windows.Forms
                 o._render = true;
 
             chkCollisions.Visible = _collisions.Count > 0;
+
+            // Link bones
+            foreach (CollisionObject obj in collision._objects)
+            {
+                if (obj._modelName == "" || 
+                    obj._boneName == "" || 
+                    obj._flags[1])
+                    continue;
+
+                MDL0Node model = _targetModels.
+                    Where(m => m is MDL0Node && ((ResourceNode)m).Name == obj._modelName).
+                    FirstOrDefault() as MDL0Node;
+
+                if (model != null)
+                {
+                    MDL0BoneNode bone = model._linker.BoneCache.Where(b => b.Name == obj._boneName).FirstOrDefault() as MDL0BoneNode;
+                    if (bone != null)
+                        obj._linkedBone = bone;
+                }
+            }
         }
 
         public override void LoadModels(ResourceNode node)
@@ -2158,17 +2248,6 @@ namespace System.Windows.Forms
             ModelPanel.CurrentViewport.RenderSCN0Controls = (sCN0ToolStripMenuItem.Checked = !sCN0ToolStripMenuItem.Checked);
         }
 
-        protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
-        {
-            if (e.Button == Forms.MouseButtons.Left && !(_scaling || _translating || _rotating))
-            {
-                weightEditor.TargetVertices = _selectedVertices;
-                vertexEditor.TargetVertices = _selectedVertices;
-            }
-
-            base.modelPanel1_MouseUp(sender, e);
-        }
-
         private void btnWeightEditor_Click(object sender, EventArgs e)
         {
             ToggleWeightEditor();
@@ -2177,6 +2256,43 @@ namespace System.Windows.Forms
         private void btnVertexEditor_Click(object sender, EventArgs e)
         {
             ToggleVertexEditor();
+        }
+
+        private void collisionEditorModeToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            ToggleCollisionEditor();
+        }
+
+        public void ToggleCollisionEditor()
+        {
+            animEditors.Visible = true;
+            if (!(collisionEditorModeToolStripMenuItem.Checked = !collisionEditorModeToolStripMenuItem.Checked))
+            {
+                animEditors.Height = prevHeight;
+                animCtrlPnl.Width = prevWidth;
+                _collisionEditorControl.Visible = false;
+                _currentControl.Visible = true;
+            }
+            else
+            {
+                if (weightEditor.Visible)
+                    ToggleWeightEditor();
+                if (vertexEditor.Visible)
+                    ToggleVertexEditor();
+
+                prevHeight = animEditors.Height;
+                prevWidth = animCtrlPnl.Width;
+                animCtrlPnl.Width = _collisionEditorControl.MinimumSize.Width;
+                animEditors.Height = _collisionEditorControl.MinimumSize.Height;
+                _collisionEditorControl.Visible = true;
+                _currentControl.Visible = false;
+            }
+            _collisionEditorMode = collisionEditorModeToolStripMenuItem.Checked;
+            leftPanel.CollisionModeChanged();
+            foreach (ModelPanelViewport v in ModelPanel)
+                v.AllowSelection = !_collisionEditorMode;
+            UpdateCollisionButtons();
+            CheckDimensions();
         }
     }
 }

@@ -31,77 +31,6 @@ namespace System.Windows.Forms
             model.ResetToBindState();
         }
 
-        private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            _updating = true;
-            switch (ControlType)
-            {
-                case TransformType.None:
-                    rotationToolStripMenuItem.Checked = 
-                    translationToolStripMenuItem.Checked = 
-                    scaleToolStripMenuItem.Checked = false;
-                    break;
-                case TransformType.Scale:
-                    rotationToolStripMenuItem.Checked = 
-                    translationToolStripMenuItem.Checked = false;
-                    scaleToolStripMenuItem.Checked = true;
-                    break;
-                case TransformType.Rotation:
-                    translationToolStripMenuItem.Checked = 
-                    scaleToolStripMenuItem.Checked = false;
-                    rotationToolStripMenuItem.Checked = true;
-                    break;
-                case TransformType.Translation:
-                    rotationToolStripMenuItem.Checked =
-                    scaleToolStripMenuItem.Checked = false;
-                    translationToolStripMenuItem.Checked = true;
-                    break;
-            }
-            _updating = false;
-
-            _snapCirc = _snapX = _snapY = _snapZ = false;
-            ModelPanel.Invalidate();
-        }
-
-        protected override void OnModelChanged()
-        {
-            _updating = true;
-            if (_targetModel != null && TargetCollision == null)
-                models.SelectedItem = _targetModel;
-
-            leftPanel.Reset();
-            rightPanel.Reset();
-
-            weightEditor.TargetVertices = _selectedVertices;
-            vertexEditor.TargetVertices = _selectedVertices;
-
-            _updating = false;
-        }
-
-        private void models_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            if (_updating)
-                return;
-
-            //Leave the target model and collision alone if just switching to edit all
-            //if (!EditingAll)
-            //{
-                object item = models.SelectedItem;
-
-                _resetCamera = false;
-                TargetModel = item is IModel ? (IModel)item : null;
-                TargetCollision = item is CollisionNode ? (CollisionNode)item : null;
-            //}
-            _undoSaves.Clear();
-            _redoSaves.Clear();
-            _saveIndex = -1;
-        }
-
-        private void ModelEditControl_SizeChanged(object sender, EventArgs e)
-        {
-            CheckDimensions();
-        }
-
         public void CheckDimensions()
         {
             int totalWidth = animEditors.Width;
@@ -110,14 +39,20 @@ namespace System.Windows.Forms
             {
                 s = _currentControl.Visible ?
                     (_currentControl is SCN0Editor ? scn0Editor.GetDimensions() : _currentControl.MinimumSize) :
-                    (!weightEditor.Visible && !vertexEditor.Visible ? new Size(0, 0) : s);
+                    (!weightEditor.Visible && 
+                    !vertexEditor.Visible &&
+                    !_collisionEditorControl.Visible ? new Size(0, 0) : s);
             }
-            else if (!weightEditor.Visible && !vertexEditor.Visible)
+            else if (!weightEditor.Visible && 
+                !vertexEditor.Visible && 
+                !_collisionEditorControl.Visible)
                 s = new Drawing.Size(0, 0);
             else if (weightEditor.Visible)
                 s = weightEditor.MinimumSize;
             else if (vertexEditor.Visible)
                 s = vertexEditor.MinimumSize;
+            else if (_collisionEditorControl.Visible)
+                s = _collisionEditorControl.GetDimensions();
 
             //See if the scroll bar needs to be visible
             int addedHeight = 0;
@@ -162,6 +97,7 @@ namespace System.Windows.Forms
 
             ResetBoneColors();
             SaveSettings();
+            ClearCollisionSelection();
 
             if (_viewerForm != null)
                 _viewerForm.Close();
@@ -181,12 +117,6 @@ namespace System.Windows.Forms
             
             return true;
         }
-
-        protected override void OnSelectedBoneChanged()
-        {
-            weightEditor.BoneChanged();
-            chkZoomExtents.Enabled = AllowZoomExtents;
-        }
         public override void UpdateUndoButtons()
         {
             btnUndo.Enabled = CanUndo;
@@ -198,6 +128,12 @@ namespace System.Windows.Forms
             if (_currentControl is SCN0Editor)
             {
                 Drawing.Size s = scn0Editor.GetDimensions();
+                animEditors.Height = s.Height;
+                animCtrlPnl.Width = s.Width;
+            }
+            else if (_collisionEditorControl.Visible)
+            {
+                Drawing.Size s = _collisionEditorControl.GetDimensions();
                 animEditors.Height = s.Height;
                 animCtrlPnl.Width = s.Width;
             }
@@ -237,24 +173,6 @@ namespace System.Windows.Forms
 
         protected override void UpdateSRT0FocusControls(SRT0Node node) { leftPanel.UpdateSRT0Selection(node); }
         protected override void UpdatePAT0FocusControls(PAT0Node node) { leftPanel.UpdatePAT0Selection(node); }
-
-        protected override unsafe void modelPanel1_MouseMove(object sender, MouseEventArgs e)
-        {
-            base.modelPanel1_MouseMove(sender, e);
-
-            if (_translating && VertexLoc == null && SelectedBone != null && SnapBonesToCollisions)
-                SnapYIfClose();
-        }
-
-        //protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
-        //{
-        //    base.modelPanel1_MouseUp(sender, e);
-
-        //    if (e.Button == Forms.MouseButtons.Left)
-        //    {
-
-        //    }
-        //}
 
         public override void ApplyVIS0ToInterface()
         {
@@ -301,187 +219,6 @@ namespace System.Windows.Forms
             }
             VIS0Updating = false;
         }
-
-        #region Hotkeys
-        private bool HotkeySelectAllVertices()
-        {
-            if (!ModelPanel.Focused)
-                return false;
-
-            ClearSelectedVertices();
-            if (EditingAll)
-            {
-                if (_targetModels != null)
-                    foreach (IModel mdl in _targetModels)
-                        SelectAllVertices(mdl);
-            }
-            else if (TargetModel != null)
-                SelectAllVertices(TargetModel);
-
-            OnSelectedVerticesChanged();
-
-            weightEditor.TargetVertices = _selectedVertices;
-            vertexEditor.TargetVertices = _selectedVertices;
-
-            ModelPanel.Invalidate();
-
-            return true;
-        }
-        private bool HotkeyToggleLeftPanel()
-        {
-            if (ModelPanel.Focused)
-            {
-                btnLeftToggle_Click(this, EventArgs.Empty);
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyToggleTopPanel()
-        {
-            if (ModelPanel.Focused)
-            {
-                btnTopToggle_Click(this, EventArgs.Empty);
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyToggleRightPanel()
-        {
-            if (ModelPanel.Focused)
-            {
-                btnRightToggle_Click(this, EventArgs.Empty);
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyToggleBottomPanel()
-        {
-            if (ModelPanel.Focused)
-            {
-                btnBottomToggle_Click(this, EventArgs.Empty);
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyToggleAllPanels()
-        {
-            if (ModelPanel.Focused)
-            {
-                if (leftPanel.Visible || rightPanel.Visible || animEditors.Visible || controlPanel.Visible)
-                    showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = false;
-                else
-                    showBottom.Checked = showRight.Checked = showLeft.Checked = showTop.Checked = true;
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyScaleTool()
-        {
-            if (ModelPanel.Focused)
-            {
-                ControlType = TransformType.Scale;
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyRotateTool()
-        {
-            if (ModelPanel.Focused)
-            {
-                ControlType = TransformType.Rotation;
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyTranslateTool()
-        {
-            if (ModelPanel.Focused)
-            {
-                ControlType = TransformType.Translation;
-                return true;
-            }
-            return false;
-        }
-
-        private bool HotkeyWeightEditor()
-        {
-            if (ModelPanel.Focused)
-            {
-                ToggleWeightEditor();
-                return true;
-            }
-            return false;
-        }
-        private bool HotkeyVertexEditor()
-        {
-            if (ModelPanel.Focused)
-            {
-                ToggleVertexEditor();
-                return true;
-            }
-            return false;
-        }
-
-        public override void InitHotkeyList()
-        {
-            base.InitHotkeyList();
-
-            List<HotKeyInfo> temp = new List<HotKeyInfo>()
-            {
-                new HotKeyInfo(Keys.A, true, false, false, HotkeySelectAllVertices),
-                new HotKeyInfo(Keys.A, false, false, false, HotkeyToggleLeftPanel),
-                new HotKeyInfo(Keys.D, false, false, false, HotkeyToggleRightPanel),
-                new HotKeyInfo(Keys.W, false, false, false, HotkeyToggleTopPanel),
-                new HotKeyInfo(Keys.S, false, false, false, HotkeyToggleBottomPanel),
-                new HotKeyInfo(Keys.D, true, true, false, HotkeyToggleAllPanels),
-                new HotKeyInfo(Keys.E, false, false, false, HotkeyScaleTool),
-                new HotKeyInfo(Keys.R, false, false, false, HotkeyRotateTool),
-                new HotKeyInfo(Keys.T, false, false, false, HotkeyTranslateTool),
-                new HotKeyInfo(Keys.D0, false, false, false, HotkeyVertexEditor),
-                new HotKeyInfo(Keys.D9, false, false, false, HotkeyWeightEditor),
-            };
-            _hotkeyList.AddRange(temp);
-        }
-        #endregion
-
-        #region Collisions
-        private bool PointCollides(Vector3 point) {
-            float f;
-            return PointCollides(point, out f);
-        }
-        private bool PointCollides(Vector3 point, out float y_result) {
-            y_result = float.MaxValue;
-            Vector2 v2 = new Vector2(point._x, point._y);
-            foreach (CollisionNode coll in _collisions) {
-                foreach (CollisionObject obj in coll._objects) {
-                    if (obj._render) {
-                        foreach (CollisionPlane plane in obj._planes) {
-                            if (plane._type == BrawlLib.SSBBTypes.CollisionPlaneType.Floor) {
-                                if (plane.PointLeft._x < v2._x && plane.PointRight._x > v2._x) {
-                                    float x = v2._x;
-                                    float m = (plane.PointLeft._y - plane.PointRight._y)
-                                        / (plane.PointLeft._x - plane.PointRight._x);
-                                    float b = plane.PointRight._y - m * plane.PointRight._x;
-                                    float y_target = m * x + b;
-                                    //Console.WriteLine(y_target);
-                                    if (Math.Abs(y_target - v2._y) <= Math.Abs(y_result - v2._y)) {
-                                        y_result = y_target;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            return (Math.Abs(y_result - v2._y) <= 5);
-        }
-        private void SnapYIfClose() {
-            float f;
-            if (PointCollides(new Vector3(chr0Editor._transBoxes[6].Value, chr0Editor._transBoxes[7].Value, chr0Editor._transBoxes[8].Value), out f)) {
-                ApplyTranslation(1, f - chr0Editor._transBoxes[7].Value);
-            }
-        }
-        #endregion
 
         #region Settings
         public override void SaveSettings()
@@ -621,14 +358,6 @@ namespace System.Windows.Forms
         private void showTop_CheckedChanged(object sender, EventArgs e) { controlPanel.Visible = showTop.Checked; }
         #endregion
 
-        protected override void OnSelectedVerticesChanged()
-        {
-            //weightEditor.TargetVertices = _selectedVertices;
-            //vertexEditor.TargetVertices = _selectedVertices;
-
-            base.OnSelectedVerticesChanged();
-        }
-
         public void LinkZoom(ModelPanelViewport control, ModelPanelViewport affected)
         {
             control.Zoomed += affected.Zoom;
@@ -676,7 +405,75 @@ namespace System.Windows.Forms
         }
 
         #region Changed Events
+        protected override void OnSelectedVerticesChanged()
+        {
+            //weightEditor.TargetVertices = _selectedVertices;
+            //vertexEditor.TargetVertices = _selectedVertices;
 
+            base.OnSelectedVerticesChanged();
+        }
+        private void cboToolSelect_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            _updating = true;
+            switch (ControlType)
+            {
+                case TransformType.None:
+                    rotationToolStripMenuItem.Checked =
+                    translationToolStripMenuItem.Checked =
+                    scaleToolStripMenuItem.Checked = false;
+                    break;
+                case TransformType.Scale:
+                    rotationToolStripMenuItem.Checked =
+                    translationToolStripMenuItem.Checked = false;
+                    scaleToolStripMenuItem.Checked = true;
+                    break;
+                case TransformType.Rotation:
+                    translationToolStripMenuItem.Checked =
+                    scaleToolStripMenuItem.Checked = false;
+                    rotationToolStripMenuItem.Checked = true;
+                    break;
+                case TransformType.Translation:
+                    rotationToolStripMenuItem.Checked =
+                    scaleToolStripMenuItem.Checked = false;
+                    translationToolStripMenuItem.Checked = true;
+                    break;
+            }
+            _updating = false;
+
+            _snapCirc = _snapX = _snapY = _snapZ = false;
+            ModelPanel.Invalidate();
+        }
+        protected override void OnModelChanged()
+        {
+            _updating = true;
+            if (_targetModel != null && TargetCollisionObject == null)
+                models.SelectedItem = _targetModel;
+
+            leftPanel.Reset();
+            rightPanel.Reset();
+
+            weightEditor.TargetVertices = _selectedVertices;
+            vertexEditor.TargetVertices = _selectedVertices;
+
+            _updating = false;
+        }
+        private void models_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (_updating)
+                return;
+
+            object item = models.SelectedItem;
+            TargetModel = item is IModel ? (IModel)item : null;
+        }
+        private void ModelEditControl_SizeChanged(object sender, EventArgs e)
+        {
+            CheckDimensions();
+        }
+        protected override void OnSelectedBoneChanged()
+        {
+            weightEditor.BoneChanged();
+            chkZoomExtents.Enabled = AllowZoomExtents;
+        }
         private void modelPanel_OnCurrentViewportChanged(GLViewport p)
         {
             ModelPanelViewport v = p as ModelPanelViewport;
@@ -734,17 +531,14 @@ namespace System.Windows.Forms
             showCameraCoordinatesToolStripMenuItem.Checked = v._showCamCoords;
             loadImageToolStripMenuItem.Text = v.BackgroundImage == null ? "Load Image" : "Clear Image";
         }
-
         private void UpdateAnimList_Event(object sender, EventArgs e)
         {
             leftPanel.UpdateAnimations();
         }
-
         private void Invalidate_Event(object sender, EventArgs e)
         {
             ModelPanel.Invalidate();
         }
-
         public void SelectedPolygonChanged()
         {
             //We can't return here if the selected polygon is set to null.
@@ -787,7 +581,6 @@ namespace System.Windows.Forms
 
             ModelPanel.Invalidate();
         }
-
         void ModelPanel_UseBindStateBoxesChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -797,7 +590,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void ModelPanel_ApplyBillboardBonesChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -807,7 +599,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void ModelPanel_RenderShadersChanged(ModelPanel panel, bool value)
         {
             //Only update if the focused panel triggered the event
@@ -818,7 +609,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void ModelPanel_RenderWireframeChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -828,7 +618,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void ModelPanel_RenderVerticesChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -838,7 +627,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void ModelPanel_RenderPolygonsChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -848,7 +636,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_RenderOffscreenChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -858,7 +645,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_RenderNormalsChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -868,7 +654,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_FirstPersonCameraChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -878,7 +663,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_RenderFloorChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -888,7 +672,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_RenderModelBoxChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -916,7 +699,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void modelPanel_RenderBonesChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
@@ -926,7 +708,7 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-        private void ModelPanel_ScaleBonesChanged(ModelPanel panel, bool value)
+        void ModelPanel_ScaleBonesChanged(ModelPanel panel, bool value)
         {
             if (ModelPanel == panel && !_updating)
             {
@@ -935,7 +717,6 @@ namespace System.Windows.Forms
                 _updating = false;
             }
         }
-
         void OnRenderCollisionsChanged()
         {
             if (_updating)
@@ -948,9 +729,9 @@ namespace System.Windows.Forms
                     foreach (CollisionObject o in m._objects)
                         o._render = RenderCollisions;
             else
-                if (TargetCollision != null)
+                if (TargetCollisionNode != null)
                 {
-                    foreach (CollisionObject o in TargetCollision._objects)
+                    foreach (CollisionObject o in TargetCollisionNode._objects)
                         o._render = RenderCollisions;
                     for (int i = 0; i < leftPanel.lstObjects.Items.Count; i++)
                         leftPanel.lstObjects.SetItemChecked(i, RenderCollisions);
@@ -958,7 +739,6 @@ namespace System.Windows.Forms
             modelPanel.Invalidate();
             _updating = false;
         }
-
         #endregion
     }
 }

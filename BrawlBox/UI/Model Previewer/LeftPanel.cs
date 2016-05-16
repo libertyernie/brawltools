@@ -21,7 +21,7 @@ namespace System.Windows.Forms
         private Panel pnlAnims;
         private Button btnAnims;
         private Panel pnlTextures;
-        private CheckedListBox lstTextures;
+        public CheckedListBox lstTextures;
         private CheckBox chkAllTextures;
         private Button btnTextures;
         private ProxySplitter spltObjTex;
@@ -66,6 +66,9 @@ namespace System.Windows.Forms
         public CheckBox chkContains;
         private Splitter spltDrawCalls;
         public CheckedListBox lstDrawCalls;
+        private ContextMenuStrip ctxCollisionObjects;
+        private ToolStripMenuItem btnNewCollision;
+        private ToolStripMenuItem btnDeleteCollision;
         private Panel pnlObjects;
 
         private void InitializeComponent()
@@ -73,6 +76,7 @@ namespace System.Windows.Forms
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.ListViewGroup listViewGroup2 = new System.Windows.Forms.ListViewGroup("Animations", System.Windows.Forms.HorizontalAlignment.Left);
             this.pnlObjects = new System.Windows.Forms.Panel();
+            this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.lstObjects = new System.Windows.Forms.CheckedListBox();
             this.spltDrawCalls = new System.Windows.Forms.Splitter();
             this.lstDrawCalls = new System.Windows.Forms.CheckedListBox();
@@ -90,8 +94,8 @@ namespace System.Windows.Forms
             this.txtSearchAnim = new System.Windows.Forms.TextBox();
             this.chkContains = new System.Windows.Forms.CheckBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.btnSaveAnims = new System.Windows.Forms.Button();
             this.btnLoad = new System.Windows.Forms.Button();
+            this.btnSaveAnims = new System.Windows.Forms.Button();
             this.fileType = new System.Windows.Forms.ComboBox();
             this.btnAnims = new System.Windows.Forms.Button();
             this.ctxTextures = new System.Windows.Forms.ContextMenuStrip(this.components);
@@ -104,6 +108,7 @@ namespace System.Windows.Forms
             this.renameTextureTextureToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.resetToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlTextures = new System.Windows.Forms.Panel();
+            this.overTexPnl = new System.Windows.Forms.TransparentPanel();
             this.lstTextures = new System.Windows.Forms.CheckedListBox();
             this.chkAllTextures = new System.Windows.Forms.CheckBox();
             this.btnTextures = new System.Windows.Forms.Button();
@@ -120,10 +125,11 @@ namespace System.Windows.Forms
             this.renameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.deleteToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.createNewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.overObjPnl = new System.Windows.Forms.TransparentPanel();
             this.spltObjTex = new System.Windows.Forms.ProxySplitter();
             this.spltAnimObj = new System.Windows.Forms.ProxySplitter();
-            this.overTexPnl = new System.Windows.Forms.TransparentPanel();
+            this.ctxCollisionObjects = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.btnNewCollision = new System.Windows.Forms.ToolStripMenuItem();
+            this.btnDeleteCollision = new System.Windows.Forms.ToolStripMenuItem();
             this.pnlObjects.SuspendLayout();
             this.pnlAnims.SuspendLayout();
             this.ctxAnimList.SuspendLayout();
@@ -132,6 +138,7 @@ namespace System.Windows.Forms
             this.ctxTextures.SuspendLayout();
             this.pnlTextures.SuspendLayout();
             this.ctxAnim.SuspendLayout();
+            this.ctxCollisionObjects.SuspendLayout();
             this.SuspendLayout();
             // 
             // pnlObjects
@@ -151,6 +158,15 @@ namespace System.Windows.Forms
             this.pnlObjects.Size = new System.Drawing.Size(172, 150);
             this.pnlObjects.TabIndex = 0;
             // 
+            // overObjPnl
+            // 
+            this.overObjPnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.overObjPnl.Location = new System.Drawing.Point(0, 66);
+            this.overObjPnl.Name = "overObjPnl";
+            this.overObjPnl.Size = new System.Drawing.Size(170, 45);
+            this.overObjPnl.TabIndex = 8;
+            this.overObjPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overObjPnl_Paint);
+            // 
             // lstObjects
             // 
             this.lstObjects.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -162,9 +178,9 @@ namespace System.Windows.Forms
             this.lstObjects.Name = "lstObjects";
             this.lstObjects.Size = new System.Drawing.Size(170, 45);
             this.lstObjects.TabIndex = 4;
-            this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstPolygons_ItemCheck);
-            this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstPolygons_SelectedValueChanged);
-            this.lstObjects.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstPolygons_KeyDown);
+            this.lstObjects.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.lstObjects_ItemCheck);
+            this.lstObjects.SelectedValueChanged += new System.EventHandler(this.lstObjects_SelectedValueChanged);
+            this.lstObjects.KeyDown += new System.Windows.Forms.KeyEventHandler(this.lstObjects_KeyDown);
             this.lstObjects.Leave += new System.EventHandler(this.lstObjects_Leave);
             // 
             // spltDrawCalls
@@ -358,17 +374,6 @@ namespace System.Windows.Forms
             this.panel1.Size = new System.Drawing.Size(170, 26);
             this.panel1.TabIndex = 27;
             // 
-            // btnSaveAnims
-            // 
-            this.btnSaveAnims.Dock = System.Windows.Forms.DockStyle.Right;
-            this.btnSaveAnims.Location = new System.Drawing.Point(51, 0);
-            this.btnSaveAnims.Name = "btnSaveAnims";
-            this.btnSaveAnims.Size = new System.Drawing.Size(60, 26);
-            this.btnSaveAnims.TabIndex = 28;
-            this.btnSaveAnims.Text = "Save";
-            this.btnSaveAnims.UseVisualStyleBackColor = true;
-            this.btnSaveAnims.Click += new System.EventHandler(this.button2_Click);
-            // 
             // btnLoad
             // 
             this.btnLoad.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -379,6 +384,17 @@ namespace System.Windows.Forms
             this.btnLoad.Text = "Load";
             this.btnLoad.UseVisualStyleBackColor = true;
             this.btnLoad.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // btnSaveAnims
+            // 
+            this.btnSaveAnims.Dock = System.Windows.Forms.DockStyle.Right;
+            this.btnSaveAnims.Location = new System.Drawing.Point(51, 0);
+            this.btnSaveAnims.Name = "btnSaveAnims";
+            this.btnSaveAnims.Size = new System.Drawing.Size(60, 26);
+            this.btnSaveAnims.TabIndex = 28;
+            this.btnSaveAnims.Text = "Save";
+            this.btnSaveAnims.UseVisualStyleBackColor = true;
+            this.btnSaveAnims.Click += new System.EventHandler(this.button2_Click);
             // 
             // fileType
             // 
@@ -485,6 +501,15 @@ namespace System.Windows.Forms
             this.pnlTextures.Name = "pnlTextures";
             this.pnlTextures.Size = new System.Drawing.Size(172, 164);
             this.pnlTextures.TabIndex = 3;
+            // 
+            // overTexPnl
+            // 
+            this.overTexPnl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.overTexPnl.Location = new System.Drawing.Point(0, 46);
+            this.overTexPnl.Name = "overTexPnl";
+            this.overTexPnl.Size = new System.Drawing.Size(170, 116);
+            this.overTexPnl.TabIndex = 9;
+            this.overTexPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overTexPnl_Paint);
             // 
             // lstTextures
             // 
@@ -637,15 +662,6 @@ namespace System.Windows.Forms
             this.createNewToolStripMenuItem.Text = "Create New Animation";
             this.createNewToolStripMenuItem.Click += new System.EventHandler(this.createNewToolStripMenuItem_Click);
             // 
-            // overObjPnl
-            // 
-            this.overObjPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overObjPnl.Location = new System.Drawing.Point(0, 66);
-            this.overObjPnl.Name = "overObjPnl";
-            this.overObjPnl.Size = new System.Drawing.Size(170, 45);
-            this.overObjPnl.TabIndex = 8;
-            this.overObjPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overObjPnl_Paint);
-            // 
             // spltObjTex
             // 
             this.spltObjTex.Cursor = System.Windows.Forms.Cursors.HSplit;
@@ -666,14 +682,29 @@ namespace System.Windows.Forms
             this.spltAnimObj.TabIndex = 1;
             this.spltAnimObj.Dragged += new System.Windows.Forms.SplitterEventHandler(this.spltAnimObj_Dragged);
             // 
-            // overTexPnl
+            // ctxCollisionObjects
             // 
-            this.overTexPnl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.overTexPnl.Location = new System.Drawing.Point(0, 46);
-            this.overTexPnl.Name = "overTexPnl";
-            this.overTexPnl.Size = new System.Drawing.Size(170, 116);
-            this.overTexPnl.TabIndex = 9;
-            this.overTexPnl.Paint += new System.Windows.Forms.PaintEventHandler(this.overTexPnl_Paint);
+            this.ctxCollisionObjects.ImageScalingSize = new System.Drawing.Size(20, 20);
+            this.ctxCollisionObjects.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.btnNewCollision,
+            this.btnDeleteCollision});
+            this.ctxCollisionObjects.Name = "ctxCollisionObjects";
+            this.ctxCollisionObjects.Size = new System.Drawing.Size(182, 84);
+            this.ctxCollisionObjects.Opening += new System.ComponentModel.CancelEventHandler(this.contextMenuStrip1_Opening);
+            // 
+            // btnNewCollision
+            // 
+            this.btnNewCollision.Name = "btnNewCollision";
+            this.btnNewCollision.Size = new System.Drawing.Size(181, 26);
+            this.btnNewCollision.Text = "New Object";
+            this.btnNewCollision.Click += new System.EventHandler(this.btnNewCollision_Click);
+            // 
+            // btnDeleteCollision
+            // 
+            this.btnDeleteCollision.Name = "btnDeleteCollision";
+            this.btnDeleteCollision.Size = new System.Drawing.Size(181, 26);
+            this.btnDeleteCollision.Text = "Delete";
+            this.btnDeleteCollision.Click += new System.EventHandler(this.btnDeleteCollision_Click);
             // 
             // LeftPanel
             // 
@@ -693,6 +724,7 @@ namespace System.Windows.Forms
             this.ctxTextures.ResumeLayout(false);
             this.pnlTextures.ResumeLayout(false);
             this.ctxAnim.ResumeLayout(false);
+            this.ctxCollisionObjects.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -711,8 +743,12 @@ namespace System.Windows.Forms
 
         public ListViewGroup _AnimGroupBRRES = new ListViewGroup("In BRRES");
         public ListViewGroup _AnimGroupNotBRRES = new ListViewGroup("Not In BRRES");
-        //private ListViewGroup _AnimGroupExternal = new ListViewGroup("External File");
         public List<ListViewGroup> _AnimGroupsExternal = new List<ListViewGroup>();
+
+        public bool _pat0Updating = false;
+        public int _polyIndex = -1;
+        public int _boneIndex = -1;
+        public int _texIndex = -1;
 
         public bool _syncPat0 = false;
         private bool _updating = false;
@@ -752,10 +788,10 @@ namespace System.Windows.Forms
             set { _mainWindow.TargetModel = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CollisionNode TargetCollision
+        public CollisionNode TargetCollisionNode
         {
-            get { return _mainWindow.TargetCollision; }
-            set { _mainWindow.TargetCollision = value; }
+            get { return _mainWindow.TargetCollisionNode; }
+            set { _mainWindow.TargetCollisionNode = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public CHR0Node SelectedCHR0
@@ -803,7 +839,6 @@ namespace System.Windows.Forms
             InitializeComponent();
             listAnims.Groups.Add(_AnimGroupBRRES);
             listAnims.Groups.Add(_AnimGroupNotBRRES);
-            //listAnims.Groups.Add(_AnimGroupExternal);
         }
 
         public bool LoadAnims(
@@ -847,8 +882,6 @@ namespace System.Windows.Forms
                 node.Name.StartsWith(compare, StringComparison.OrdinalIgnoreCase))
             {
                 ListViewGroup u = externalGroup != null ? externalGroup : ib ? _AnimGroupBRRES : _AnimGroupNotBRRES;
-                if (u == null)
-                    Console.WriteLine();
                 listAnims.Items.Add(new ListViewItem(node.Name, (int)node.ResourceType, u) { Tag = node });
             }
             return found;
@@ -952,9 +985,11 @@ namespace System.Windows.Forms
                 overTexPnl.Invalidate();
             }
         }
-
         public void UpdateTextures()
         {
+            if (_mainWindow._collisionEditorMode)
+                return;
+
             _mainWindow.Updating = true;
 
             string Name = lstTextures.SelectedItems != null && lstTextures.SelectedItems.Count > 0 ? lstTextures.SelectedItems[0].ToString() : null;
@@ -984,12 +1019,13 @@ namespace System.Windows.Forms
 
             //Reselect the animation
             //lstTextures.Focus();
-            for (int i = 0; i < lstTextures.Items.Count; i++)
-                if (lstTextures.Items[i].ToString() == Name)
-                {
-                    lstTextures.SetSelected(i, true);
-                    break;
-                }
+            if (Name != null)
+                for (int i = 0; i < lstTextures.Items.Count; i++)
+                    if (lstTextures.Items[i].ToString() == Name)
+                    {
+                        lstTextures.SetSelected(i, true);
+                        break;
+                    }
 
             _mainWindow.Updating = false;
         }
@@ -1006,25 +1042,31 @@ namespace System.Windows.Forms
             chkAllObj.CheckState = CheckState.Checked;
             chkAllTextures.CheckState = CheckState.Checked;
 
-			pnlAnims.Enabled = pnlTextures.Enabled = chkSyncVis.Enabled = (TargetCollision == null);
+			pnlAnims.Enabled = pnlTextures.Enabled = chkSyncVis.Enabled = (TargetCollisionNode == null);
 
-			if (TargetCollision != null)
-				foreach (CollisionObject obj in TargetCollision._objects)
-					lstObjects.Items.Add(obj, obj._render);
-            else if (TargetModel != null)
+            if (_mainWindow._collisionEditorMode)
             {
-                UpdateAnimations(TargetAnimType);
-                if (TargetModel is MDL0Node)
+                foreach (CollisionNode obj in _mainWindow._collisions)
+                    lstObjects.Items.Add(obj, true);
+                
+                foreach (CollisionObject obj in _mainWindow.CollisionObjects)
+                    lstTextures.Items.Add(obj, true);
+            }
+            else
+            {
+                if (TargetModel != null)
                 {
-                    MDL0Node model = TargetModel as MDL0Node;
+                    UpdateAnimations(TargetAnimType);
+                    if (TargetModel is MDL0Node)
+                    {
+                        MDL0Node model = TargetModel as MDL0Node;
 
-                    if (model._objList != null)
-                        foreach (MDL0ObjectNode poly in model._objList)
-                            lstObjects.Items.Add(poly, poly.IsRendering);
+                        if (model._objList != null)
+                            foreach (MDL0ObjectNode poly in model._objList)
+                                lstObjects.Items.Add(poly, poly.IsRendering);
 
-                    if (model._texList != null)
-                        foreach (MDL0TextureNode tref in model._texList)
-                            lstTextures.Items.Add(tref, tref.Enabled);
+                        UpdateTextures();
+                    }
                 }
             }
 
@@ -1042,13 +1084,6 @@ namespace System.Windows.Forms
             //    i++;
             //}
         }
-
-        //private void WrapBone(MDL0BoneNode bone)
-        //{
-        //    lstBones.Items.Add(bone, bone._render);
-        //    foreach (MDL0BoneNode b in bone.Children)
-        //        WrapBone(b);
-        //}
 
         private void spltAnimObj_Dragged(object sender, SplitterEventArgs e)
         {
@@ -1097,76 +1132,227 @@ namespace System.Windows.Forms
             if (height != pnlAnims.Height)
                 pnlTextures.Height -= e.Y;
         }
-
-        private void lstPolygons_SelectedValueChanged(object sender, EventArgs e)
+        public void CollisionModeChanged()
         {
-            if ((_selectedObject = lstObjects.SelectedItem as IObject) != null)
+            if (_mainWindow._collisionEditorMode)
             {
-                if (lstDrawCalls.Visible = spltDrawCalls.Visible =
-                    _selectedObject is MDL0ObjectNode)
-                {
-                    MDL0ObjectNode o = _selectedObject as MDL0ObjectNode;
-
-                    _updating = true;
-
-                    lstDrawCalls.DataSource = o._drawCalls;
-                    lstDrawCalls.SelectedIndex = o._drawCalls.Count > 0 ? 0 : -1;
-                    for (int i = 0; i < lstDrawCalls.Items.Count; i++)
-                        lstDrawCalls.SetItemChecked(i, o._drawCalls[i]._render);
-
-                    _updating = false;
-                }
+                btnObjects.Text = "Collision Nodes";
+                btnTextures.Text = "Collision Objects";
+                chkSyncVis.Visible = false;
+                lstDrawCalls.Visible = spltDrawCalls.Visible = false;
+                lstTextures.ContextMenuStrip = ctxCollisionObjects;
             }
             else
-                lstDrawCalls.Visible = spltDrawCalls.Visible = false;
-
-            _mainWindow.SelectedPolygonChanged();
-            overObjPnl.Invalidate();
-            overTexPnl.Invalidate();
+            {
+                btnObjects.Text = "Objects";
+                btnTextures.Text = "Textures";
+                chkSyncVis.Visible = true;
+                lstTextures.ContextMenuStrip = ctxTextures;
+            }
+            Reset();
         }
+        private void lstObjects_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (_mainWindow._collisionEditorMode)
+            {
+                _mainWindow.TargetCollisionNode = lstObjects.SelectedItem as CollisionNode;
+            }
+            else
+            {
+                if ((_selectedObject = lstObjects.SelectedItem as IObject) != null)
+                {
+                    if (lstDrawCalls.Visible = spltDrawCalls.Visible =
+                        _selectedObject is MDL0ObjectNode)
+                    {
+                        MDL0ObjectNode o = _selectedObject as MDL0ObjectNode;
 
-        public bool _pat0Updating = false; 
-        
-        public int _polyIndex = -1;
-        public int _boneIndex = -1;
-        public int _texIndex = -1;
+                        _updating = true;
 
-        private void lstPolygons_ItemCheck(object sender, ItemCheckEventArgs e)
+                        lstDrawCalls.DataSource = o._drawCalls;
+                        lstDrawCalls.SelectedIndex = o._drawCalls.Count > 0 ? 0 : -1;
+                        for (int i = 0; i < lstDrawCalls.Items.Count; i++)
+                            lstDrawCalls.SetItemChecked(i, o._drawCalls[i]._render);
+
+                        _updating = false;
+                    }
+                }
+                else
+                    lstDrawCalls.Visible = spltDrawCalls.Visible = false;
+
+                _mainWindow.SelectedPolygonChanged();
+                overObjPnl.Invalidate();
+                overTexPnl.Invalidate();
+            }
+        }
+        private void lstObjects_ItemCheck(object sender, ItemCheckEventArgs e)
         {
             if (_updating)
                 return;
 
-            MDL0ObjectNode poly = lstObjects.Items[e.Index] as MDL0ObjectNode;
-
-            if (poly != null)
+            if (_mainWindow._collisionEditorMode)
             {
-                bool matches = poly.IsRendering == (e.NewValue == CheckState.Checked);
+                CollisionNode n = lstObjects.Items[e.Index] as CollisionNode;
+                if (n == _mainWindow.TargetCollisionNode)
+                    for (int i = 0; i < lstTextures.Items.Count; ++i)
+                        lstTextures.SetItemChecked(i, e.NewValue != CheckState.Unchecked);
+                else
+                    foreach (CollisionObject o in n._objects)
+                        o._render = e.NewValue != CheckState.Unchecked;
+            }
+            else
+            {
+                MDL0ObjectNode poly = lstObjects.Items[e.Index] as MDL0ObjectNode;
 
-                if (!matches)
-                    poly.IsRendering = e.NewValue == CheckState.Checked;
-
-                if (poly == SelectedObject)
+                if (poly != null)
                 {
-                    _updating = true;
-                    for (int i = 0; i < lstDrawCalls.Items.Count; i++)
-                        if (i < poly._drawCalls.Count)
-                            lstDrawCalls.SetItemChecked(i, poly._drawCalls[i]._render);
-                    _updating = false;
+                    bool matches = poly.IsRendering == (e.NewValue == CheckState.Checked);
+
+                    if (!matches)
+                        poly.IsRendering = e.NewValue == CheckState.Checked;
+
+                    if (poly == SelectedObject)
+                    {
+                        _updating = true;
+                        for (int i = 0; i < lstDrawCalls.Items.Count; i++)
+                            if (i < poly._drawCalls.Count)
+                                lstDrawCalls.SetItemChecked(i, poly._drawCalls[i]._render);
+                        _updating = false;
+                    }
+
+                    if (!matches && chkSyncVis.Checked)
+                        UpdateVIS0(poly);
                 }
 
-                if (!matches && chkSyncVis.Checked)
-                    ChecksChanged(poly);
+                CollisionObject obj = lstObjects.Items[e.Index] as CollisionObject;
+                if (obj != null)
+                    obj._render = e.NewValue == CheckState.Checked;
             }
 
-            CollisionObject obj = lstObjects.Items[e.Index] as CollisionObject;
-            if (obj != null)
+            _mainWindow.ModelPanel.Invalidate();
+        }
+        private void lstTextures_SelectedValueChanged(object sender, EventArgs e)
+        {
+            if (_mainWindow._collisionEditorMode)
+            {
+                _mainWindow._selectedCollisionObject = lstTextures.SelectedItem as CollisionObject;
+                _mainWindow._collisionEditorControl.ObjectSelected();
+                //_mainWindow.SnapObject();
+            }
+            else
+            {
+                if (_selectedTexture != null)
+                    _selectedTexture.Selected = false;
+
+                if ((_selectedTexture = lstTextures.SelectedItem as MDL0TextureNode) != null)
+                {
+                    _selectedTexture.Selected = true;
+
+                    overObjPnl.Invalidate();
+                    overTexPnl.Invalidate();
+
+                    if (_mainWindow.SyncTexturesToObjectList)
+                        _selectedTexture.ObjOnly = true;
+
+                    if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode != null)
+                        TargetTexRef = _selectedObject != null ? ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
+                }
+            }
+            if (!_updating)
+                _mainWindow.ModelPanel.Invalidate();
+        }
+        private void lstTextures_ItemCheck(object sender, ItemCheckEventArgs e)
+        {
+            if (_mainWindow._collisionEditorMode)
+            {
+                CollisionObject obj = lstTextures.Items[e.Index] as CollisionObject;
                 obj._render = e.NewValue == CheckState.Checked;
+                _mainWindow.ClearCollisionSelection();
+                _mainWindow.ModelPanel.Invalidate();
+            }
+            else
+            {
+                MDL0TextureNode tref = lstTextures.Items[e.Index] as MDL0TextureNode;
+                tref.Enabled = e.NewValue == CheckState.Checked;
+            }
 
             if (!_updating)
                 _mainWindow.ModelPanel.Invalidate();
         }
+        private void chkAllPoly_CheckStateChanged(object sender, EventArgs e)
+        {
+            if (lstObjects.Items.Count == 0)
+                return;
 
-        public void ChecksChanged(MDL0ObjectNode poly)
+            //_updating = true;
+
+            lstObjects.BeginUpdate();
+            for (int i = 0; i < lstObjects.Items.Count; i++)
+                lstObjects.SetItemCheckState(i, chkAllObj.CheckState);
+            lstObjects.EndUpdate();
+
+            //_updating = false;
+
+            _mainWindow.ModelPanel.Invalidate();
+        }
+        private void chkAllTextures_CheckStateChanged(object sender, EventArgs e)
+        {
+            _updating = true;
+
+            lstTextures.BeginUpdate();
+            for (int i = 0; i < lstTextures.Items.Count; i++)
+                lstTextures.SetItemCheckState(i, chkAllTextures.CheckState);
+            lstTextures.EndUpdate();
+
+            _updating = false;
+
+            _mainWindow.ModelPanel.Invalidate();
+        }
+        private void btnObjects_Click(object sender, EventArgs e)
+        {
+            if (lstObjects.Visible)
+            {
+                pnlObjects.Tag = pnlObjects.Height;
+                pnlObjects.Height = btnObjects.Height;
+                lstObjects.Visible = chkSyncVis.Visible = chkAllObj.Visible = overObjPnl.Visible = false;
+            }
+            else
+            {
+                pnlObjects.Height = (int)pnlObjects.Tag;
+                pnlAnims.Dock = DockStyle.Top;
+                pnlTextures.Dock = DockStyle.Bottom;
+                pnlObjects.Dock = DockStyle.Fill;
+                lstObjects.Visible = chkSyncVis.Visible = chkAllObj.Visible = overObjPnl.Visible = true;
+            }
+        }
+        private void btnTextures_Click(object sender, EventArgs e)
+        {
+            if (lstTextures.Visible)
+            {
+                pnlTextures.Tag = pnlTextures.Height;
+                pnlTextures.Height = btnTextures.Height;
+                lstTextures.Visible = chkAllTextures.Visible = spltObjTex.Visible = overTexPnl.Visible = false;
+            }
+            else
+            {
+                pnlTextures.Height = (int)pnlTextures.Tag;
+                lstTextures.Visible = chkAllTextures.Visible = spltObjTex.Visible = overTexPnl.Visible = true;
+            }
+        }
+        private void btnAnims_Click(object sender, EventArgs e)
+        {
+            if (listAnims.Visible)
+            {
+                pnlAnims.Tag = pnlAnims.Height;
+                pnlAnims.Height = btnAnims.Height;
+                listAnims.Visible = fileType.Visible = spltAnimObj.Visible = false;
+            }
+            else
+            {
+                pnlAnims.Height = (int)pnlAnims.Tag;
+                listAnims.Visible = fileType.Visible = spltAnimObj.Visible = true;
+            }
+        }
+        private void UpdateVIS0(MDL0ObjectNode poly)
         {
             bool temp = false;
             if (!_mainWindow.VIS0Updating)
@@ -1210,118 +1396,6 @@ namespace System.Windows.Forms
                         _mainWindow.UpdateVis0(_polyIndex, i, poly._drawCalls[i]._render);
             }
         }
-
-        private void lstTextures_SelectedValueChanged(object sender, EventArgs e)
-        {
-            if (_selectedTexture != null)
-                _selectedTexture.Selected = false;
-
-            if ((_selectedTexture = lstTextures.SelectedItem as MDL0TextureNode) != null)
-            {
-                _selectedTexture.Selected = true;
-
-                overObjPnl.Invalidate();
-                overTexPnl.Invalidate();
-
-                if (_mainWindow.SyncTexturesToObjectList)
-                    _selectedTexture.ObjOnly = true;
-
-                if (_selectedObject is MDL0ObjectNode && ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode != null)
-                    TargetTexRef = _selectedObject != null ? ((MDL0ObjectNode)_selectedObject)._drawCalls[0].MaterialNode.FindChild(_selectedTexture.Name, true) as MDL0MaterialRefNode : null;
-            }
-            if (!_updating)
-                _mainWindow.ModelPanel.Invalidate();
-        }
-
-        private void chkAllPoly_CheckStateChanged(object sender, EventArgs e)
-        {
-            if (lstObjects.Items.Count == 0)
-                return;
-
-            //_updating = true;
-
-            lstObjects.BeginUpdate();
-            for (int i = 0; i < lstObjects.Items.Count; i++)
-                lstObjects.SetItemCheckState(i, chkAllObj.CheckState);
-            lstObjects.EndUpdate();
-
-            //_updating = false;
-
-            _mainWindow.ModelPanel.Invalidate();
-        }
-
-        private void btnObjects_Click(object sender, EventArgs e)
-        {
-            if (lstObjects.Visible)
-            {
-                pnlObjects.Tag = pnlObjects.Height;
-                pnlObjects.Height = btnObjects.Height;
-                lstObjects.Visible = chkSyncVis.Visible = chkAllObj.Visible = overObjPnl.Visible = false;
-            }
-            else
-            {
-                pnlObjects.Height = (int)pnlObjects.Tag;
-                pnlAnims.Dock = DockStyle.Top;
-                pnlTextures.Dock = DockStyle.Bottom;
-                pnlObjects.Dock = DockStyle.Fill;
-                lstObjects.Visible = chkSyncVis.Visible = chkAllObj.Visible = overObjPnl.Visible = true;
-            }
-        }
-
-        private void btnTextures_Click(object sender, EventArgs e)
-        {
-            if (lstTextures.Visible)
-            {
-                pnlTextures.Tag = pnlTextures.Height;
-                pnlTextures.Height = btnTextures.Height;
-                lstTextures.Visible = chkAllTextures.Visible = spltObjTex.Visible = overTexPnl.Visible = false;
-            }
-            else
-            {
-                pnlTextures.Height = (int)pnlTextures.Tag;
-                lstTextures.Visible = chkAllTextures.Visible = spltObjTex.Visible = overTexPnl.Visible = true;
-            }
-        }
-
-        private void btnAnims_Click(object sender, EventArgs e)
-        {
-            if (listAnims.Visible)
-            {
-                pnlAnims.Tag = pnlAnims.Height;
-                pnlAnims.Height = btnAnims.Height;
-                listAnims.Visible = fileType.Visible = spltAnimObj.Visible = false;
-            }
-            else
-            {
-                pnlAnims.Height = (int)pnlAnims.Tag;
-                listAnims.Visible = fileType.Visible = spltAnimObj.Visible = true;
-            }
-        }
-
-        private void lstTextures_ItemCheck(object sender, ItemCheckEventArgs e)
-        {
-            MDL0TextureNode tref = lstTextures.Items[e.Index] as MDL0TextureNode;
-
-            tref.Enabled = e.NewValue == CheckState.Checked;
-
-            if (!_updating)
-                _mainWindow.ModelPanel.Invalidate();
-        }
-
-        private void chkAllTextures_CheckStateChanged(object sender, EventArgs e)
-        {
-            _updating = true;
-
-            lstTextures.BeginUpdate();
-            for (int i = 0; i < lstTextures.Items.Count; i++)
-                lstTextures.SetItemCheckState(i, chkAllTextures.CheckState);
-            lstTextures.EndUpdate();
-
-            _updating = false;
-
-            _mainWindow.ModelPanel.Invalidate();
-        }
-
         private void viewToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (_selectedTexture == null)
@@ -1393,10 +1467,17 @@ namespace System.Windows.Forms
 
             if (e.Button == MouseButtons.Right)
             {
-                if (_selectedTexture != null)
-                    lstTextures.ContextMenuStrip = ctxTextures;
+                if (_mainWindow._collisionEditorMode)
+                {
+                    lstTextures.ContextMenuStrip = ctxCollisionObjects;
+                }
                 else
-                    lstTextures.ContextMenuStrip = null;
+                {
+                    if (_selectedTexture != null)
+                        lstTextures.ContextMenuStrip = ctxTextures;
+                    else
+                        lstTextures.ContextMenuStrip = null;
+                }
             }
         }
 
@@ -1414,7 +1495,7 @@ namespace System.Windows.Forms
             if (e.KeyCode == Keys.Escape)
                 lstTextures.SelectedItem = null;
         }
-        private void lstPolygons_KeyDown(object sender, KeyEventArgs e)
+        private void lstObjects_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Escape)
                 lstObjects.SelectedItem = null;
@@ -1665,14 +1746,20 @@ namespace System.Windows.Forms
 
         private void lstObjects_Leave(object sender, EventArgs e)
         {
-            overObjPnl.Invalidate();
-            overTexPnl.Invalidate();
+            if (!_mainWindow._collisionEditorMode)
+            {
+                overObjPnl.Invalidate();
+                overTexPnl.Invalidate();
+            }
         }
 
         private void lstTextures_Leave(object sender, EventArgs e)
         {
-            overObjPnl.Invalidate();
-            overTexPnl.Invalidate();
+            if (!_mainWindow._collisionEditorMode)
+            {
+                overObjPnl.Invalidate();
+                overTexPnl.Invalidate();
+            }
         }
 
         private void deleteToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1852,12 +1939,12 @@ namespace System.Windows.Forms
                 c._render = !c._render;
                 UpdateObjectCheckState(lstObjects.SelectedIndex);
                 if (chkSyncVis.Checked)
-                    ChecksChanged(c._parentObject);
+                    UpdateVIS0(c._parentObject);
                 _mainWindow.ModelPanel.Invalidate();
             }
         }
 
-        public void UpdateObjectCheckState(int i)
+        private void UpdateObjectCheckState(int i)
         {
             if (i < 0 || i > lstObjects.Items.Count)
                 return;
@@ -1909,6 +1996,38 @@ namespace System.Windows.Forms
                 obj._drawCalls[i]._render = render;
                 UpdateObjectCheckState(objKey);
             }
+        }
+
+        private void contextMenuStrip1_Opening(object sender, CancelEventArgs e)
+        {
+            btnDeleteCollision.Visible = _mainWindow.TargetCollisionObject != null;
+        }
+
+        private void btnNewCollision_Click(object sender, EventArgs e)
+        {
+            CollisionObject o = new CollisionObject();
+            _mainWindow.TargetCollisionNode._objects.Add(o);
+            lstTextures.Items.Clear();
+            foreach (CollisionObject obj in _mainWindow.CollisionObjects)
+                lstTextures.Items.Add(obj, true);
+        }
+
+        private void btnDeleteCollision_Click(object sender, EventArgs e)
+        {
+            if (_mainWindow._selectedCollisionObject == null)
+                return;
+
+            _mainWindow.ClearCollisionSelection();
+
+            _mainWindow.TargetCollisionNode._objects.Remove(_mainWindow._selectedCollisionObject);
+            lstTextures.Items.Remove(_mainWindow._selectedCollisionObject);
+            _mainWindow.CollisionObjects.Remove(_mainWindow._selectedCollisionObject);
+            _mainWindow._selectedCollisionObject = null;
+            
+            lstTextures.Items.Clear();
+            foreach (CollisionObject obj in _mainWindow.CollisionObjects)
+                lstTextures.Items.Add(obj, true);
+            _mainWindow.ModelPanel.Invalidate();
         }
     }
 }

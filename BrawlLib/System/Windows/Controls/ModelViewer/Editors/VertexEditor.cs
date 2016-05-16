@@ -57,7 +57,7 @@ namespace System.Windows.Forms
             this.numPosZ.MaximumValue = 3.402823E+38F;
             this.numPosZ.MinimumValue = -3.402823E+38F;
             this.numPosZ.Name = "numPosZ";
-            this.numPosZ.Size = new System.Drawing.Size(78, 20);
+            this.numPosZ.Size = new System.Drawing.Size(78, 22);
             this.numPosZ.TabIndex = 6;
             this.numPosZ.Text = "0";
             this.numPosZ.ValueChanged += new System.EventHandler(this.numPosZ_TextChanged);
@@ -80,7 +80,7 @@ namespace System.Windows.Forms
             this.numPosY.MaximumValue = 3.402823E+38F;
             this.numPosY.MinimumValue = -3.402823E+38F;
             this.numPosY.Name = "numPosY";
-            this.numPosY.Size = new System.Drawing.Size(78, 20);
+            this.numPosY.Size = new System.Drawing.Size(78, 22);
             this.numPosY.TabIndex = 4;
             this.numPosY.Text = "0";
             this.numPosY.ValueChanged += new System.EventHandler(this.numPosY_TextChanged);
@@ -103,7 +103,7 @@ namespace System.Windows.Forms
             this.numPosX.MaximumValue = 3.402823E+38F;
             this.numPosX.MinimumValue = -3.402823E+38F;
             this.numPosX.Name = "numPosX";
-            this.numPosX.Size = new System.Drawing.Size(78, 20);
+            this.numPosX.Size = new System.Drawing.Size(78, 22);
             this.numPosX.TabIndex = 0;
             this.numPosX.Text = "0";
             this.numPosX.ValueChanged += new System.EventHandler(this.numPosX_TextChanged);
@@ -150,7 +150,7 @@ namespace System.Windows.Forms
             this.numNormZ.MaximumValue = 3.402823E+38F;
             this.numNormZ.MinimumValue = -3.402823E+38F;
             this.numNormZ.Name = "numNormZ";
-            this.numNormZ.Size = new System.Drawing.Size(78, 20);
+            this.numNormZ.Size = new System.Drawing.Size(78, 22);
             this.numNormZ.TabIndex = 6;
             this.numNormZ.Text = "0";
             this.numNormZ.ValueChanged += new System.EventHandler(this.numNormZ_ValueChanged);
@@ -173,7 +173,7 @@ namespace System.Windows.Forms
             this.numNormX.MaximumValue = 3.402823E+38F;
             this.numNormX.MinimumValue = -3.402823E+38F;
             this.numNormX.Name = "numNormX";
-            this.numNormX.Size = new System.Drawing.Size(78, 20);
+            this.numNormX.Size = new System.Drawing.Size(78, 22);
             this.numNormX.TabIndex = 0;
             this.numNormX.Text = "0";
             this.numNormX.ValueChanged += new System.EventHandler(this.numNormX_ValueChanged);
@@ -206,7 +206,7 @@ namespace System.Windows.Forms
             this.numNormY.MaximumValue = 3.402823E+38F;
             this.numNormY.MinimumValue = -3.402823E+38F;
             this.numNormY.Name = "numNormY";
-            this.numNormY.Size = new System.Drawing.Size(78, 20);
+            this.numNormY.Size = new System.Drawing.Size(78, 22);
             this.numNormY.TabIndex = 4;
             this.numNormY.Text = "0";
             this.numNormY.ValueChanged += new System.EventHandler(this.numNormY_ValueChanged);
@@ -244,7 +244,7 @@ namespace System.Windows.Forms
             "Color 1"});
             this.colorIndex.Location = new System.Drawing.Point(6, 14);
             this.colorIndex.Name = "colorIndex";
-            this.colorIndex.Size = new System.Drawing.Size(99, 21);
+            this.colorIndex.Size = new System.Drawing.Size(99, 24);
             this.colorIndex.TabIndex = 7;
             this.colorIndex.SelectedIndexChanged += new System.EventHandler(this.colorIndex_SelectedIndexChanged);
             // 
@@ -266,7 +266,7 @@ namespace System.Windows.Forms
             this.label7.AutoSize = true;
             this.label7.Location = new System.Drawing.Point(120, 38);
             this.label7.Name = "label7";
-            this.label7.Size = new System.Drawing.Size(104, 13);
+            this.label7.Size = new System.Drawing.Size(136, 17);
             this.label7.TabIndex = 13;
             this.label7.Text = "No vertices selected";
             // 
@@ -277,8 +277,9 @@ namespace System.Windows.Forms
             this.comboBox1.FormattingEnabled = true;
             this.comboBox1.Location = new System.Drawing.Point(98, -22);
             this.comboBox1.Name = "comboBox1";
-            this.comboBox1.Size = new System.Drawing.Size(121, 21);
+            this.comboBox1.Size = new System.Drawing.Size(121, 24);
             this.comboBox1.TabIndex = 14;
+            this.comboBox1.Visible = false;
             // 
             // label8
             // 
@@ -286,9 +287,10 @@ namespace System.Windows.Forms
             this.label8.AutoSize = true;
             this.label8.Location = new System.Drawing.Point(6, -19);
             this.label8.Name = "label8";
-            this.label8.Size = new System.Drawing.Size(86, 13);
+            this.label8.Size = new System.Drawing.Size(111, 17);
             this.label8.TabIndex = 15;
             this.label8.Text = "Facepoint Index:";
+            this.label8.Visible = false;
             // 
             // VertexEditor
             // 

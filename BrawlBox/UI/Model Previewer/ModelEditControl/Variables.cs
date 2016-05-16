@@ -6,9 +6,6 @@ namespace System.Windows.Forms
 {
     public partial class ModelEditControl : ModelEditorBase
     {
-        public List<CollisionNode> _collisions = new List<CollisionNode>();
-        private CollisionNode _targetCollision;
-
         private bool _syncTexToObj;
         public bool _maximize, _savePosition, _hideMainWindow;
         private bool _snapToCollisions;
@@ -27,10 +24,10 @@ namespace System.Windows.Forms
             set { _renderCollisions = value; OnRenderCollisionsChanged(); }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
-        public CollisionNode TargetCollision
+        public CollisionObject TargetCollisionObject
         {
-            get { return _targetCollision; }
-            set { _targetCollision = value; }
+            get { return _selectedCollisionObject; }
+            set { _selectedCollisionObject = value; }
         }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public override BonesPanel BonesPanel { get { return rightPanel.pnlBones; } }
