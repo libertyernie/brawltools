@@ -75,5 +75,8 @@ namespace BrawlLib
 
         public static string Havok =
             SupportedFilesHandler.GetCompleteFilter("hkx", "xml");
+
+        public static string VBN =
+            SupportedFilesHandler.GetCompleteFilter("vbn");
     }
 }

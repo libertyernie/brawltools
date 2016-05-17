@@ -21,7 +21,7 @@ namespace BrawlLib.Modeling
         IModel IModel { get; }
         List<Influence> LinkedInfluences { get; }
         bool IsRendering { get; set; }
-        void Render(bool targetModel, ModelPanelViewport viewport, Vector3 position = new Vector3());
+        void Render(bool targetModel, ModelPanelViewport viewport, Vector3 parentPos = new Vector3());
         void RecalcBindState(bool updateMesh, bool moveMeshWithBone, bool updateAssetLists = true);
         void RecalcFrameState(ModelPanelViewport v = null);
     }

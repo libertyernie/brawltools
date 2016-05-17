@@ -635,7 +635,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
         public void RecalcBindState(bool updateMesh, bool moveMeshWithBone, bool updateAssetLists = true)
         {
             if (!updateMesh)
-                RecursiveRecalcBindState(true, false);
+                RecursiveRecalcBindState(true);
             else
             {
                 //Get all objects that are influenced by these bones
@@ -643,7 +643,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 RecursiveGetInfluencedObjects(ref changed);
 
                 if (!moveMeshWithBone) //Need to stop vertices rigged to one bone from moving
-                    RecursiveRecalcBindState(false, false);
+                    RecursiveRecalcBindState(false);
                 else //Need to move vertices rigged to influences to the new position
                 {
                     //Note: vertex position precision goes down over time for influences
@@ -678,7 +678,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                                     }
                         }
 
-                    RecursiveRecalcBindState(true, false);
+                    RecursiveRecalcBindState(true);
                     foreach (Influence inf in Model._influences._influences)
                         inf.CalcMatrix();
 
@@ -745,7 +745,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 bone.RecursiveGetInfluencedObjects(ref changed);
         }
 
-        private void RecursiveRecalcBindState(bool updateMesh, bool animPose)
+        private void RecursiveRecalcBindState(bool updateMesh)
         {
             if (!updateMesh)
                 InfluenceAssets(false);
@@ -765,7 +765,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 InfluenceAssets(true);
 
             foreach (MDL0BoneNode bone in Children)
-                bone.RecursiveRecalcBindState(updateMesh, animPose);
+                bone.RecursiveRecalcBindState(updateMesh);
 
             SignalPropertyChange();
         }

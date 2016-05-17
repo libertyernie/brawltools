@@ -176,5 +176,7 @@
         HavokGroup = 0x8501,
 
         OMO = 0x7000,
+        VBN = 0x8600,
+        VBNBone = 0x8700,
     }
 }
