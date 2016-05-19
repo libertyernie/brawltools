@@ -38,6 +38,36 @@ namespace BrawlLib.SSBB
 
         public override string ToString() { return Name; }
 
+        public string[] PacNames {
+            get {
+                string s = PacBasename;
+                return s == "starfox" ? new string[] { "STGSTARFOX_GDIFF.pac" } :
+                        s == "emblem" ? new string[] {
+                                "STGEMBLEM_00.pac",
+                                "STGEMBLEM_01.pac",
+                                "STGEMBLEM_02.pac" } :
+                        s == "mariopast" ? new string[] {
+                                "STGMARIOPAST_00.pac",
+                                "STGMARIOPAST_01.pac" } :
+                        s == "metalgear" ? new string[] {
+                                "STGMETALGEAR_00.pac",
+                                "STGMETALGEAR_01.pac",
+                                "STGMETALGEAR_02.pac" } :
+                        s == "tengan" ? new string[] {
+                                "STGTENGAN_1.pac",
+                                "STGTENGAN_2.pac",
+                                "STGTENGAN_3.pac" } :
+                        s == "village" ? new string[] {
+                                "STGVILLAGE_00.pac",
+                                "STGVILLAGE_01.pac",
+                                "STGVILLAGE_02.pac",
+                                "STGVILLAGE_03.pac",
+                                "STGVILLAGE_04.pac" } :
+                        s == "custom" ? new string[0] :
+                        new string[] { "STG" + s.ToUpper() + ".pac" };
+            }
+        }
+
         public readonly static Stage[] Stages = new Stage[] {
             //        ID    Display Name              .rel filename        Name without STG
             new Stage(0x00, "STGCUSTOM##.pac",        "st_custom##.rel",   "custom"),
