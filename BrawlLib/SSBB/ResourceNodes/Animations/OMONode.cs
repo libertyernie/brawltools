@@ -11,6 +11,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 {
     public unsafe class OMONode : ResourceNode
     {
+        public static VBNNode _skeleton;
+        public string Skeleton { get { return _skeleton == null ? "" : _skeleton.Name; } }
+
         internal OMOHeader* Header { get { return (OMOHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.OMO; } }
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOEntryNode) }; } }
@@ -61,10 +64,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         const string _category = "Bone Entry";
 
         [Category(_category)]
-        public uint BoneHash
+        public string BoneHash
         {
-            get { return _boneHash; }
-            set { _boneHash = value; SignalPropertyChange(); }
+            get { return _boneHash.ToString("X8"); }
         }
         [Category(_category), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 Flags
@@ -79,6 +81,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             _flags = Header->_flags;
 
             _name = _boneHash.ToString("X");
+            if (OMONode._skeleton != null)
+            {
+                foreach (VBNBoneNode b in OMONode._skeleton.BoneCache)
+                {
+                    if (b._hash == _boneHash)
+                    {
+                        _name = b.Name;
+                        break;
+                    }
+                }
+            }
+            
             return false;
         }
     }
