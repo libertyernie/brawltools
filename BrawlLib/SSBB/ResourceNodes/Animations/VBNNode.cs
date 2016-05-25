@@ -81,6 +81,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             set { _unk4 = value; SignalPropertyChange(); }
         }
 
+        public string[] Bones
+        {
+            get { return _boneCache.Select(x => x.Name).ToArray(); }
+        }
+
         private InfluenceManager _manager = new InfluenceManager();
         [Browsable(false)]
         public InfluenceManager Influences { get { return _manager; } }
@@ -131,9 +136,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 uint id = bone._parentID;
                 ResourceNode parent;
                 if (id == 0x0FFFFFFF)
-                {
                     parent = this;
-                }
                 else
                     parent = _boneCache[(int)id];
                 if (parent != bone)
@@ -148,6 +151,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 b.RecalcBindState(false, false);
                 b.RecalcFrameState();
             }
+            _boneCache = _boneCache.OrderBy(x => ((VBNBoneNode)x)._hash).ToArray();
         }
 
         internal static ResourceNode TryParse(DataSource source)
@@ -221,11 +225,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _bindState; }
             set { _bindState = value; SignalPropertyChange(); }
         }
-        [Category(_category)]
+        [Category(_category), Browsable(false)]
         public uint HashValue
         {
             get { return _hash; }
             set { _hash = value; SignalPropertyChange(); }
+        }
+        [Category(_category)]
+        public string HashHex
+        {
+            get { return _hash.ToString("X8"); }
         }
 
         public Matrix _bindMatrix, _invBindMatrix, _frameMatrix, _invFrameMatrix;
@@ -290,11 +299,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return;
 
             //Draw name if selected
-            if (NodeColor != Color.Transparent && viewport != null)
-            {
-                Vector3 screenPos = viewport.Camera.Project(_frameMatrix.GetPoint());
-                viewport.ScreenText[Name] = new Vector3(screenPos._x, screenPos._y - 9.0f, screenPos._z);
-            }
+            //if (NodeColor != Color.Transparent && viewport != null)
+            //{
+            //    Vector3 screenPos = viewport.Camera.Project(_frameMatrix.GetPoint());
+            //    viewport.ScreenText[Name] = new Vector3(screenPos._x, screenPos._y - 9.0f, screenPos._z);
+            //}
 
             float alpha = targetModel ? 1.0f : 0.45f;
 

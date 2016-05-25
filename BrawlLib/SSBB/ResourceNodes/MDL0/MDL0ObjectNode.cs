@@ -1310,34 +1310,24 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
         }
-        public void TryConvertMatrixToObject()
+        public bool TryConvertMatrixToObject()
         {
             if (_matrixNode == null)
             {
                 IMatrixNode mtxNode = null;
-                bool singlebind = true;
-
-                int i = 0;
-                foreach (Vertex3 v in _manager._vertices)
+                for (int i = 0; i < _manager._vertices.Count; ++i)
                 {
-                    i++;
-
                     if (mtxNode == null)
-                        mtxNode = v.MatrixNode;
+                        mtxNode = _manager._vertices[i].MatrixNode;
 
-                    if (v.MatrixNode != mtxNode)
-                    {
-                        singlebind = false;
-                        break;
-                    }
+                    if (_manager._vertices[i].MatrixNode != mtxNode)
+                        return false;
                 }
-
-                if (singlebind)
-                {
-                    DeferUpdateAssets();
-                    MatrixNode = mtxNode;
-                }
+                DeferUpdateAssets();
+                MatrixNode = mtxNode;
+                return true;
             }
+            return false;
         }
         private bool _updateAssets = true;
         public void DeferUpdateAssets() { _updateAssets = false; }

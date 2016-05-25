@@ -37,6 +37,8 @@ namespace BrawlLib.SSBBTypes
             _frameDataOffset = 0;
         }
 
+        public VoidPtr GetFrameAddr(int frameIndex) { return Address + _frameDataOffset + frameIndex * _frameSize; }
+
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 
