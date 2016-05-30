@@ -364,9 +364,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public void UpdateName()
         {
-            var item = BrawlLib.SSBB.Item.Items.Where(s => s.ID == ItemID).FirstOrDefault();
+            var item = Item.Items.Where(s => s.ID == ItemID).FirstOrDefault();
+			bool changed = this._changed;
             Name = "0x" + ItemID.ToString("X2") + (item == null ? "" : (" - " + item.Name));
-        }
+			this._changed = changed;
+		}
 
     }
 
