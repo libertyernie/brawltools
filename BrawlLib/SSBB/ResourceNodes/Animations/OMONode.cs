@@ -159,6 +159,126 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get { return _flags[24]; }
         }
+        [Category("Flags")]
+        public bool Flag23
+        {
+            get { return _flags[23]; }
+        }
+        [Category("Flags")]
+        public bool Flag22
+        {
+            get { return _flags[22]; }
+        }
+        [Category("Flags")]
+        public bool Flag21
+        {
+            get { return _flags[21]; }
+        }
+        [Category("Flags")]
+        public bool Flag20
+        {
+            get { return _flags[20]; }
+        }
+        [Category("Flags")]
+        public bool Flag19
+        {
+            get { return _flags[19]; }
+        }
+        [Category("Flags")]
+        public bool Flag18
+        {
+            get { return _flags[18]; }
+        }
+        [Category("Flags")]
+        public bool Flag17
+        {
+            get { return _flags[17]; }
+        }
+        [Category("Flags")]
+        public bool Flag16
+        {
+            get { return _flags[16]; }
+        }
+        [Category("Flags")]
+        public bool Flag15
+        {
+            get { return _flags[15]; }
+        }
+        [Category("Flags")]
+        public bool Flag14
+        {
+            get { return _flags[14]; }
+        }
+        [Category("Flags")]
+        public bool Flag13
+        {
+            get { return _flags[13]; }
+        }
+        [Category("Flags")]
+        public bool Flag12
+        {
+            get { return _flags[12]; }
+        }
+        [Category("Flags")]
+        public bool Flag11
+        {
+            get { return _flags[11]; }
+        }
+        [Category("Flags")]
+        public bool Flag10
+        {
+            get { return _flags[10]; }
+        }
+        [Category("Flags")]
+        public bool Flag9
+        {
+            get { return _flags[9]; }
+        }
+        [Category("Flags")]
+        public bool Flag8
+        {
+            get { return _flags[8]; }
+        }
+        [Category("Flags")]
+        public bool Flag7
+        {
+            get { return _flags[7]; }
+        }
+        [Category("Flags")]
+        public bool Flag6
+        {
+            get { return _flags[6]; }
+        }
+        [Category("Flags")]
+        public bool Flag5
+        {
+            get { return _flags[5]; }
+        }
+        [Category("Flags")]
+        public bool Flag4
+        {
+            get { return _flags[4]; }
+        }
+        [Category("Flags")]
+        public bool Flag3
+        {
+            get { return _flags[3]; }
+        }
+        [Category("Flags")]
+        public bool Flag2
+        {
+            get { return _flags[2]; }
+        }
+        [Category("Flags")]
+        public bool Flag1
+        {
+            get { return _flags[1]; }
+        }
+        [Category("Flags")]
+        public bool Flag0
+        {
+            get { return _flags[0]; }
+        }
 
         internal UnsafeBuffer _fixedBuffer, _frameBuffer;
         private UnsafeBuffer Buffer { get { return ShowFrameData ? _frameBuffer : _fixedBuffer; } }
