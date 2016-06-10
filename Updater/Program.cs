@@ -228,7 +228,7 @@ namespace Net
         static void Main(string[] args)
         {
             //Prevent crash that occurs when this dll is not present
-            if (!File.Exists("Octokit.dll"))
+            if (!File.Exists(System.Windows.Forms.Application.StartupPath + "/Octokit.dll"))
             {
                 MessageBox.Show("Unable to find Octokit.dll.");
                 return;
