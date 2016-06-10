@@ -14,7 +14,7 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
 
- - v0.77 - BrawlLib v0.24
+ - v0.77- (6/9/2016) - BrawlLib v0.24 
  . Added support for adding, replacing, removing and renaming RSAR entries and folders
  . Added support for adding, replacing and removing files from the RSAR and all types of entries in RSAR files
  . Added support for sharing TEX0 image data to reduce repetitive file space use
