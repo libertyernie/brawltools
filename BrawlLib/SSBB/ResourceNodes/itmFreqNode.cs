@@ -308,11 +308,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        private int _subID;
-        [DisplayName("Sub Item ID")]
+        private int _costumeID;
+        [DisplayName("Costume ID")]
         [Category("Item")]
-        [Description("Seems to be sub-item to spawn from initial item. (e.x Barrel/Crate skin)")]
-        public int SubID { get { return _subID; } set { _subID = value; SignalPropertyChange(); } }
+        [Description("Item costume to use. (e.x Present Barrel/Crate)")]
+        public int SubID { get { return _costumeID; } set { _costumeID = value; SignalPropertyChange(); } }
 
         private float _frequency;
         [DisplayName("Frequency")]
@@ -337,7 +337,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.OnInitialize();
 
             _id = Header->_ID;
-            _subID = Header->_subItem;
+            _costumeID = Header->_subItem;
             _frequency = Header->_frequency;
             _action = Header->_action;
             _subaction = Header->_subaction;
@@ -355,7 +355,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             Header->_frequency = _frequency;
             Header->_ID = _id;
             Header->_subaction = _subaction;
-            Header->_subItem = _subID;
+            Header->_subItem = _costumeID;
         }
         public override int OnCalculateSize(bool force)
         {
