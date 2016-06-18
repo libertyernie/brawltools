@@ -681,7 +681,8 @@ namespace Ikarus.ModelViewer
                     else
                     {
                         //Check if we have data to work with
-                        if (Root.Model._objList == null ||
+                        if (Root.Model == null ||
+                            Root.Model._objList == null ||
                             Root.Data._modelVis.Count == 0) break;
 
                         visNode = Root.Data._modelVis;
