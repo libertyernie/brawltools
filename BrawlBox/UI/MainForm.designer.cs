@@ -597,6 +597,7 @@ namespace BrawlBox
             // 
             // audioPlaybackPanel1
             // 
+            this.audioPlaybackPanel1.AutoScaleMode = AutoScaleMode.None;
             this.audioPlaybackPanel1.Location = new System.Drawing.Point(199, 113);
             this.audioPlaybackPanel1.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.audioPlaybackPanel1.Name = "audioPlaybackPanel1";
