@@ -269,12 +269,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-    <None Include="UI\AudioPlaybackControl.cs">
-      <SubType>UserControl</SubType>
-    </None>
-    <None Include="UI\AudioPlaybackControl.designer.cs">
-      <DependentUpon>AudioPlaybackControl.cs</DependentUpon>
-    </None>
     <Compile Include="UI\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
