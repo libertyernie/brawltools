@@ -1302,6 +1302,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (_matrixNode != null)
             {
                 IMatrixNode m = MatrixNode;
+                v.DeferUpdateAssets();
                 MatrixNode = null;
                 foreach (Vertex3 v in _manager._vertices)
                 {

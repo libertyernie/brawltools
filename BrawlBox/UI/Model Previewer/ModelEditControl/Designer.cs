@@ -1853,7 +1853,6 @@ namespace System.Windows.Forms
             this.weightEditor.Size = new System.Drawing.Size(264, 103);
             this.weightEditor.TabIndex = 31;
             this.weightEditor.Visible = false;
-            this.weightEditor.WeightIncrement = 0.1F;
             // 
             // vertexEditor
             // 

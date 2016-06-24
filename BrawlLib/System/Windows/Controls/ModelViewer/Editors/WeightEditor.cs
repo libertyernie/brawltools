@@ -187,7 +187,7 @@ namespace System.Windows.Forms
             this.numWeight.Name = "numWeight";
             this.numWeight.Size = new System.Drawing.Size(62, 20);
             this.numWeight.TabIndex = 3;
-            this.numWeight.Text = "0";
+            this.numWeight.Text = "100";
             this.numWeight.ValueChanged += new System.EventHandler(this.numWeight_ValueChanged);
             // 
             // btnPaste
@@ -312,11 +312,13 @@ namespace System.Windows.Forms
                     {
                         int i = _bones.IndexOf(_targetBone);
                         lstBoneWeights.SelectedIndex = i;
-                        numWeight.Value = i != -1 ? ((BoneWeight)lstBoneWeights.Items[i]).Weight * 100.0f : 0;
+                        if (i < 0)
+                            numWeight.Value = 100.0f;
+                        //numWeight.Value = i != -1 ? ((BoneWeight)lstBoneWeights.Items[i]).Weight * 100.0f : 0;
                     }
                     else
                     {
-                        numWeight.Value = 0;
+                        numWeight.Value = 100.0f;
                         lstBoneWeights.SelectedIndex = -1;
                     }
                 }
@@ -325,7 +327,7 @@ namespace System.Windows.Forms
                     btnLock.Enabled = false;
                     btnLock.Text = "Lock";
                     lblBoneName.Text = "(None)";
-                    numWeight.Value = 0;
+                    numWeight.Value = 0.0f;
                     lstBoneWeights.SelectedIndex = -1;
                 }
 
@@ -625,9 +627,11 @@ namespace System.Windows.Forms
             //Move influence to each vertex before modifying the influence of one vertex
             if (obj.MatrixNode != null)
                 obj.TryConvertMatrixToVertex();
-
-            vertex.DeferUpdateAssets();
+            
             vertex.MatrixNode = matrixNode;
+
+            if (obj.MatrixNode == null)
+                obj.TryConvertMatrixToObject();
 
             return true;
         }
@@ -673,19 +677,16 @@ namespace System.Windows.Forms
                 ResetList();
             }
         }
-
-        private float _increment = 0.1f;
-        public float WeightIncrement { get { return _increment; } set { _increment = value; } }
         
         private void btnSubtract_Click(object sender, EventArgs e)
         {
-            IncrementWeight(-_increment / 100.0f);
+            IncrementWeight(-numAdd.Value / 100.0f);
             ResetList();
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
-            IncrementWeight(_increment / 100.0f);
+            IncrementWeight(numAdd.Value / 100.0f);
             ResetList();
         }
 
