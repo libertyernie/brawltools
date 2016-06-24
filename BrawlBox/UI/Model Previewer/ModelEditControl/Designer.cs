@@ -2159,7 +2159,8 @@ namespace System.Windows.Forms
 
         protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == Forms.MouseButtons.Left && !(_scaling || _translating || _rotating))
+            if (e.Button == Forms.MouseButtons.Left && 
+                !_vertexSelection.IsMoving())
             {
                 weightEditor.TargetVertices = _selectedVertices;
                 vertexEditor.TargetVertices = _selectedVertices;

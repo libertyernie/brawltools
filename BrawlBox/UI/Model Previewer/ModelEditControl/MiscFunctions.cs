@@ -59,7 +59,8 @@ namespace System.Windows.Forms
             }
             _updating = false;
 
-            _snapCirc = _snapX = _snapY = _snapZ = false;
+            _boneSelection.ResetAll();
+            _vertexSelection.ResetAll();
             ModelPanel.Invalidate();
         }
 
@@ -242,7 +243,9 @@ namespace System.Windows.Forms
         {
             base.modelPanel1_MouseMove(sender, e);
 
-            if (_translating && VertexLoc == null && SelectedBone != null && SnapBonesToCollisions)
+            if (_boneSelection._translating && 
+                SelectedBone != null && 
+                SnapBonesToCollisions)
                 SnapYIfClose();
         }
 

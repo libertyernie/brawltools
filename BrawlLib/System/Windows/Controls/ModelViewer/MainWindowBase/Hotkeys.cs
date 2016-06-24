@@ -358,46 +358,45 @@ namespace System.Windows.Forms
 
                 for (int i = 0; i < v._vertices.Count; i++)
                     v._vertices[i].WeightedPosition = v._weightedPositions[i];
-                
+
+                _vertexSelection.ResetActions();
                 CancelChangeState();
                 UpdateModel();
+
             }
-            else if (_rotating || _translating || _scaling)
+            else if (_boneSelection.IsMoving())
             {
-                if (_rotating)
+                if (_boneSelection._rotating)
                 {
-                    CHR0Editor.numRotX.Value = _oldAngles._x;
-                    CHR0Editor.numRotY.Value = _oldAngles._y;
-                    CHR0Editor.numRotZ.Value = _oldAngles._z;
+                    CHR0Editor.numRotX.Value = _boneSelection._oldAngles._x;
+                    CHR0Editor.numRotY.Value = _boneSelection._oldAngles._y;
+                    CHR0Editor.numRotZ.Value = _boneSelection._oldAngles._z;
                     CHR0Editor.BoxChanged(CHR0Editor.numRotX, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numRotY, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numRotZ, null);
                 }
-                if (_translating)
+                if (_boneSelection._translating)
                 {
-                    CHR0Editor.numTransX.Value = _oldPosition._x;
-                    CHR0Editor.numTransY.Value = _oldPosition._y;
-                    CHR0Editor.numTransZ.Value = _oldPosition._z;
+                    CHR0Editor.numTransX.Value = _boneSelection._oldPosition._x;
+                    CHR0Editor.numTransY.Value = _boneSelection._oldPosition._y;
+                    CHR0Editor.numTransZ.Value = _boneSelection._oldPosition._z;
                     CHR0Editor.BoxChanged(CHR0Editor.numTransX, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numTransY, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numTransZ, null);
                 }
-                if (_scaling)
+                if (_boneSelection._scaling)
                 {
-                    CHR0Editor.numScaleX.Value = _oldScale._x;
-                    CHR0Editor.numScaleY.Value = _oldScale._y;
-                    CHR0Editor.numScaleZ.Value = _oldScale._z;
+                    CHR0Editor.numScaleX.Value = _boneSelection._oldScale._x;
+                    CHR0Editor.numScaleY.Value = _boneSelection._oldScale._y;
+                    CHR0Editor.numScaleZ.Value = _boneSelection._oldScale._z;
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleX, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleY, null);
                     CHR0Editor.BoxChanged(CHR0Editor.numScaleZ, null);
                 }
 
+                _boneSelection.ResetActions();
                 CancelChangeState();
             }
-
-            _rotating = false;
-            _translating = false;
-            _scaling = false;
 
             ModelPanel.CurrentViewport.AllowSelection = true;
             return false;

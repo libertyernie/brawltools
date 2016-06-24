@@ -45,7 +45,7 @@ namespace System.Windows.Forms
             //I don't know how to test a sub depth buffer and then always make it pass on the actual buffer
             GL.Clear(ClearBufferMask.DepthBufferBit);
 
-            RenderTransformControl(vp);
+            RenderTransformControls(vp);
             RenderDepth(vp);
         }
 
@@ -268,9 +268,9 @@ namespace System.Windows.Forms
         };
 
         #region Transform Control Rendering
-        public unsafe void RenderTransformControl(ModelPanelViewport panel)
+        public unsafe void RenderTransformControls(ModelPanelViewport panel)
         {
-            if (_playing)
+            if (_playing || ControlType == TransformType.None)
                 return;
 
             bool hasBone = SelectedBone != null;
@@ -284,60 +284,73 @@ namespace System.Windows.Forms
                 {
                     pos = BoneLoc(SelectedBone);
                     radius = OrbRadius(pos, panel.Camera);
-                    if (ControlType != TransformType.None)
-                        switch (_coordinateTypes[(int)ControlType])
-                        {
-                            case CoordinateType.Local:
-                                rot = GetBoneWorldMtx().GetRotationMatrix();
-                                break;
-                            case CoordinateType.World:
-                                //rot = Matrix.Identity; //Already set to identity above
-                                break;
-                            case CoordinateType.Screen:
-                                //rot = CameraFacingRotationMatrix(panel, pos);
-                                rot = Matrix.RotationMatrix(panel.Camera._rotation);
-                                break;
-                        }
+                    switch (_coordinateTypes[(int)ControlType])
+                    {
+                        case CoordinateType.Local:
+                            rot = GetBoneWorldMtx().GetRotationMatrix();
+                            break;
+                        case CoordinateType.World:
+                            //rot = Matrix.Identity; //Already set to identity above
+                            break;
+                        case CoordinateType.Screen:
+                            //rot = CameraFacingRotationMatrix(panel, pos);
+                            rot = Matrix.RotationMatrix(panel.Camera._rotation);
+                            break;
+                    }
+                    RenderTransformControl(pos, rot, radius, panel, _boneSelection);
                 }
-                else
+                
+                if (VertexLoc.HasValue)
                 {
                     pos = VertexLoc.Value;
                     radius = OrbRadius(pos, panel.Camera);
-                    if (ControlType != TransformType.None)
-                        switch (_coordinateTypes[(int)ControlType])
-                        {
-                            case CoordinateType.Local:
-                            case CoordinateType.World:
-                                //rot = Matrix.Identity; //Already set to identity above
-                                break;
-                            case CoordinateType.Screen:
-                                rot = CameraFacingRotationMatrix(panel, pos);
-                                break;
-                        }
-                }
-
-                switch (ControlType)
-                {
-                    case TransformType.Translation:
-                        RenderTranslationControl(pos, radius, rot, panel);
-                        break;
-                    case TransformType.Rotation:
-                        RenderRotationControl(pos, radius, rot, panel);
-                        break;
-                    case TransformType.Scale:
-                        RenderScaleControl(pos, radius, rot, panel);
-                        break;
+                    switch (_coordinateTypes[(int)ControlType])
+                    {
+                        case CoordinateType.Local:
+                        case CoordinateType.World:
+                            //rot = Matrix.Identity; //Already set to identity above
+                            break;
+                        case CoordinateType.Screen:
+                            rot = CameraFacingRotationMatrix(panel, pos);
+                            break;
+                    }
+                    RenderTransformControl(pos, rot, radius, panel, _vertexSelection);
                 }
             }
         }
-        public unsafe void RenderTranslationControl(Vector3 position, float radius, Matrix rotation, ModelPanelViewport panel)
+        public void RenderTransformControl(
+            Vector3 pos, 
+            Matrix rot, 
+            float radius, 
+            ModelPanelViewport panel,
+            SelectionParams selection)
+        {
+            switch (ControlType)
+            {
+                case TransformType.Translation:
+                    RenderTranslationControl(pos, radius, rot, panel, selection);
+                    break;
+                case TransformType.Rotation:
+                    RenderRotationControl(pos, radius, rot, panel, selection);
+                    break;
+                case TransformType.Scale:
+                    RenderScaleControl(pos, radius, rot, panel, selection);
+                    break;
+            }
+        }
+        public unsafe void RenderTranslationControl(
+            Vector3 position, 
+            float radius, 
+            Matrix rotation, 
+            ModelPanelViewport panel,
+            SelectionParams selection)
         {
             Matrix m = Matrix.TransformMatrix(new Vector3(radius * 0.25f), new Vector3(), position) * CameraFacingRotationMatrix(panel, position);
 
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            GL.Color4(_hiCirc || _snapCirc ? Color.Yellow : Color.Gray);
+            GL.Color4(selection._hiCirc || selection._snapCirc ? Color.Yellow : Color.Gray);
 
             GL.Begin(BeginMode.LineLoop);
 
@@ -356,7 +369,7 @@ namespace System.Windows.Forms
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            GetTranslationAxes().Call();
+            GetTranslationAxes(selection).Call();
 
             GL.PopMatrix();
 
@@ -364,14 +377,19 @@ namespace System.Windows.Forms
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Z"] = panel.Camera.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderScaleControl(Vector3 pos, float radius, Matrix rotation, ModelPanelViewport panel)
+        public unsafe void RenderScaleControl(
+            Vector3 pos, 
+            float radius,
+            Matrix rotation, 
+            ModelPanelViewport panel,
+            SelectionParams selection)
         {
             //Enter local space
             Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), pos) * rotation;
             GL.PushMatrix();
             GL.MultMatrix((float*)&m);
 
-            GetScaleAxes().Call();
+            GetScaleAxes(selection).Call();
 
             GL.PopMatrix();
             
@@ -379,7 +397,12 @@ namespace System.Windows.Forms
             panel.ScreenText["Y"] = panel.Camera.Project(new Vector3(0, _axisLDist + 0.1f, 0) * m) - new Vector3(8.0f, 8.0f, 0);
             panel.ScreenText["Z"] = panel.Camera.Project(new Vector3(0, 0, _axisLDist + 0.1f) * m) - new Vector3(8.0f, 8.0f, 0);
         }
-        public unsafe void RenderRotationControl(Vector3 position, float radius, Matrix rotation, ModelPanelViewport panel)
+        public unsafe void RenderRotationControl(
+            Vector3 position,
+            float radius,
+            Matrix rotation,
+            ModelPanelViewport panel,
+            SelectionParams selection)
         {
             Matrix m = Matrix.TransformMatrix(new Vector3(radius), new Vector3(), position) * CameraFacingRotationMatrix(panel, position);
 
@@ -406,7 +429,7 @@ namespace System.Windows.Forms
             circle.Call();
 
             //Circ
-            if (_snapCirc || _hiCirc)
+            if (selection._snapCirc || selection._hiCirc)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(1.0f, 0.8f, 0.5f, 1.0f);
@@ -429,7 +452,7 @@ namespace System.Windows.Forms
             GL.MultMatrix((float*)&m);
 
             //Z
-            if (_snapZ || _hiZ)
+            if (selection._snapZ || selection._hiZ)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(0.0f, 0.0f, 1.0f, 1.0f);
@@ -438,7 +461,7 @@ namespace System.Windows.Forms
             GL.Rotate(90.0f, 0.0f, 1.0f, 0.0f);
 
             //X
-            if (_snapX || _hiX)
+            if (selection._snapX || selection._hiX)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
@@ -447,7 +470,7 @@ namespace System.Windows.Forms
             GL.Rotate(90.0f, 1.0f, 0.0f, 0.0f);
 
             //Y
-            if (_snapY || _hiY)
+            if (selection._snapY || selection._hiY)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
@@ -467,7 +490,7 @@ namespace System.Windows.Forms
         public const float _axisHalfLDist = 0.75f;
         public const float _apthm = 0.075f;
         public const float _dst = 1.5f;
-        public GLDisplayList GetTranslationAxes()
+        public GLDisplayList GetTranslationAxes(SelectionParams selection)
         {
             //Create the axes.
             GLDisplayList axis = new GLDisplayList();
@@ -481,21 +504,21 @@ namespace System.Windows.Forms
 
             //X
 
-            if ((_snapX && _snapY) || (_hiX && _hiY))
+            if ((selection._snapX && selection._snapY) || (selection._hiX && selection._hiY))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
             GL.Vertex3(_axisHalfLDist, 0.0f, 0.0f);
             GL.Vertex3(_axisHalfLDist, _axisHalfLDist, 0.0f);
 
-            if ((_snapX && _snapZ) || (_hiX && _hiZ))
+            if ((selection._snapX && selection._snapZ) || (selection._hiX && selection._hiZ))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
             GL.Vertex3(_axisHalfLDist, 0.0f, 0.0f);
             GL.Vertex3(_axisHalfLDist, 0.0f, _axisHalfLDist);
 
-            if (_snapX || _hiX)
+            if (selection._snapX || selection._hiX)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
@@ -528,21 +551,21 @@ namespace System.Windows.Forms
 
             //Y
 
-            if ((_snapY && _snapX) || (_hiY && _hiX))
+            if ((selection._snapY && selection._snapX) || (selection._hiY && selection._hiX))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
             GL.Vertex3(0.0f, _axisHalfLDist, 0.0f);
             GL.Vertex3(_axisHalfLDist, _axisHalfLDist, 0.0f);
 
-            if ((_snapY && _snapZ) || (_hiY && _hiZ))
+            if ((selection._snapY && selection._snapZ) || (selection._hiY && selection._hiZ))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
             GL.Vertex3(0.0f, _axisHalfLDist, 0.0f);
             GL.Vertex3(0.0f, _axisHalfLDist, _axisHalfLDist);
 
-            if (_snapY || _hiY)
+            if (selection._snapY || selection._hiY)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
@@ -575,21 +598,21 @@ namespace System.Windows.Forms
 
             //Z
 
-            if ((_snapZ && _snapX) || (_hiZ && _hiX))
+            if ((selection._snapZ && selection._snapX) || (selection._hiZ && selection._hiX))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Blue);
             GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
             GL.Vertex3(_axisHalfLDist, 0.0f, _axisHalfLDist);
 
-            if ((_snapZ && _snapY) || (_hiZ && _hiY))
+            if ((selection._snapZ && selection._snapY) || (selection._hiZ && selection._hiY))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Blue);
             GL.Vertex3(0.0f, 0.0f, _axisHalfLDist);
             GL.Vertex3(0.0f, _axisHalfLDist, _axisHalfLDist);
 
-            if (_snapZ || _hiZ)
+            if (selection._snapZ || selection._hiZ)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Blue);
@@ -624,7 +647,7 @@ namespace System.Windows.Forms
         }
         public const float _scaleHalf1LDist = 0.8f;
         public const float _scaleHalf2LDist = 1.2f;
-        public GLDisplayList GetScaleAxes()
+        public GLDisplayList GetScaleAxes(SelectionParams selection)
         {
             //Create the axes.
             GLDisplayList axis = new GLDisplayList();
@@ -637,7 +660,7 @@ namespace System.Windows.Forms
             GL.Begin(BeginMode.Lines);
 
             //X
-            if ((_snapY && _snapZ) || (_hiY && _hiZ))
+            if ((selection._snapY && selection._snapZ) || (selection._hiY && selection._hiZ))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
@@ -646,7 +669,7 @@ namespace System.Windows.Forms
             GL.Vertex3(0.0f, _scaleHalf2LDist, 0.0f);
             GL.Vertex3(0.0f, 0.0f, _scaleHalf2LDist);
 
-            if (_snapX || _hiX)
+            if (selection._snapX || selection._hiX)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Red);
@@ -679,7 +702,7 @@ namespace System.Windows.Forms
             GL.Begin(BeginMode.Lines);
 
             //Y
-            if ((_snapZ && _snapX) || (_hiZ && _hiX))
+            if ((selection._snapZ && selection._snapX) || (selection._hiZ && selection._hiX))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
@@ -688,7 +711,7 @@ namespace System.Windows.Forms
             GL.Vertex3(0.0f, 0.0f, _scaleHalf2LDist);
             GL.Vertex3(_scaleHalf2LDist, 0.0f, 0.0f);
 
-            if (_snapY || _hiY)
+            if (selection._snapY || selection._hiY)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Green);
@@ -720,7 +743,7 @@ namespace System.Windows.Forms
             GL.Begin(BeginMode.Lines);
 
             //Z
-            if ((_snapX && _snapY) || (_hiX && _hiY))
+            if ((selection._snapX && selection._snapY) || (selection._hiX && selection._hiY))
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Blue);
@@ -729,7 +752,7 @@ namespace System.Windows.Forms
             GL.Vertex3(0.0f, _scaleHalf2LDist, 0.0f);
             GL.Vertex3(_scaleHalf2LDist, 0.0f, 0.0f);
 
-            if (_snapZ || _hiZ)
+            if (selection._snapZ || selection._hiZ)
                 GL.Color4(Color.Yellow);
             else
                 GL.Color4(Color.Blue);
@@ -822,9 +845,10 @@ namespace System.Windows.Forms
             Vector2 mousePoint,
             out Vector3 point,
             ModelPanelViewport panel,
-            Vector3 center)
+            Vector3 center,
+            SelectionParams selection)
         {
-            return GetTransformPoint(mousePoint, out point, panel, Matrix.TranslationMatrix(center));
+            return GetTransformPoint(mousePoint, out point, panel, Matrix.TranslationMatrix(center), selection);
         }
 
         /// <summary>
@@ -835,7 +859,8 @@ namespace System.Windows.Forms
             Vector2 mousePoint,
             out Vector3 point,
             ModelPanelViewport panel,
-            Matrix localTransform)
+            Matrix localTransform,
+            SelectionParams selection)
         {
             Vector3 lineStart = panel.UnProject(mousePoint._x, mousePoint._y, 0.0f);
             Vector3 lineEnd = panel.UnProject(mousePoint._x, mousePoint._y, 1.0f);
@@ -843,7 +868,7 @@ namespace System.Windows.Forms
             Vector3 camera = panel.Camera.GetPoint();
             Vector3 normal = new Vector3();
 
-            bool axisSnap = _snapX || _snapY || _snapZ;
+            bool axisSnap = selection._snapX || selection._snapY || selection._snapZ;
             CoordinateType coord = _coordinateTypes[(int)ControlType];
 
             switch (ControlType)
@@ -856,24 +881,24 @@ namespace System.Windows.Forms
                         switch (coord)
                         {
                             case CoordinateType.Screen:
-                                if (_snapX || _snapY || _snapZ)
+                                if (selection._snapX || selection._snapY || selection._snapZ)
                                     normal = camera.Normalize(center);
                                 break;
                             case CoordinateType.Local:
                                 normal = (localTransform * new Vector3(
-                                    _snapX ? 1.0f : 0.0f,
-                                    _snapY ? 1.0f : 0.0f,
-                                    _snapZ ? 1.0f : 0.0f)).Normalize(center);
+                                    selection._snapX ? 1.0f : 0.0f,
+                                    selection._snapY ? 1.0f : 0.0f,
+                                    selection._snapZ ? 1.0f : 0.0f)).Normalize(center);
                                 break;
                             case CoordinateType.World:
                                 normal = new Vector3(
-                                    _snapX ? 1.0f : 0.0f,
-                                    _snapY ? 1.0f : 0.0f,
-                                    _snapZ ? 1.0f : 0.0f);
+                                    selection._snapX ? 1.0f : 0.0f,
+                                    selection._snapY ? 1.0f : 0.0f,
+                                    selection._snapZ ? 1.0f : 0.0f);
                                 break;
                         }
                     }
-                    else if (_snapCirc)
+                    else if (selection._snapCirc)
                     {
                         radius *= _circOrbScale;
                         normal = camera.Normalize(center);
@@ -896,7 +921,7 @@ namespace System.Windows.Forms
 
                     if (axisSnap)
                     {
-                        if (_snapX && _snapY && _snapZ)
+                        if (selection._snapX && selection._snapY && selection._snapZ)
                             normal = Vector3.UnitZ * Matrix.RotationMatrix(panel.Camera._rotation);
                         else
                         {
@@ -912,18 +937,18 @@ namespace System.Windows.Forms
                                     if (coord == CoordinateType.World)
                                         localTransform = Matrix.TranslationMatrix(center) * Matrix.ScaleMatrix(localTransform.GetScale());
 
-                                    if (_snapX && _snapY)
+                                    if (selection._snapX && selection._snapY)
                                         normal = (localTransform * Vector3.UnitZ).Normalize(center);
-                                    else if (_snapX && _snapZ)
+                                    else if (selection._snapX && selection._snapZ)
                                         normal = (localTransform * Vector3.UnitY).Normalize(center);
-                                    else if (_snapY && _snapZ)
+                                    else if (selection._snapY && selection._snapZ)
                                         normal = (localTransform * Vector3.UnitX).Normalize(center);
                                     else //One of the snaps
                                     {
                                         Vector3 unitSnapAxis = new Vector3(
-                                            _snapX ? 1.0f : 0.0f,
-                                            _snapY ? 1.0f : 0.0f,
-                                            _snapZ ? 1.0f : 0.0f);
+                                            selection._snapX ? 1.0f : 0.0f,
+                                            selection._snapY ? 1.0f : 0.0f,
+                                            selection._snapZ ? 1.0f : 0.0f);
 
                                         float camDist = camera.TrueDistance(center);
                                         Vector3 camVec = camera.Normalize(center);

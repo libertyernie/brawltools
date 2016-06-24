@@ -130,7 +130,8 @@ namespace System.Windows.Forms
 
         public void Undo()
         {
-            _translating = _scaling = _rotating = false;
+            _boneSelection.ResetActions();
+            _vertexSelection.ResetActions();
 
             if (AwaitingRedoSave)
                 CancelChangeState();
@@ -155,7 +156,8 @@ namespace System.Windows.Forms
         }
         public void Redo()
         {
-            _translating = _scaling = _rotating = false;
+            _boneSelection.ResetActions();
+            _vertexSelection.ResetActions();
 
             if (AwaitingRedoSave)
                 CancelChangeState();

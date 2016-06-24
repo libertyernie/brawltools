@@ -58,13 +58,84 @@ namespace System.Windows.Forms
 
         protected NW4RAnimType _targetAnimType;
 
-        protected Vector3 _lastPointLocal, _lastPointWorld;
-        protected Vector3 _oldAngles, _oldPosition, _oldScale;
         protected Vector3? _vertexLoc = null;
 
-        public bool _rotating, _translating, _scaling;
-        protected bool _snapX, _snapY, _snapZ, _snapCirc;
-        protected bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
+        public class SelectionParams
+        {
+            public bool _rotating, _translating, _scaling;
+            public bool _snapX, _snapY, _snapZ, _snapCirc;
+            public bool _hiX, _hiY, _hiZ, _hiCirc, _hiSphere;
+            public Vector3 _lastPointLocal, _lastPointWorld;
+            public Vector3 _oldAngles, _oldPosition, _oldScale;
+
+            public void ResetSnaps()
+            {
+                _snapX = _snapY = _snapZ = _snapCirc = false;
+            }
+            public void ResetActions()
+            {
+                _rotating = _translating = _scaling = false;
+            }
+            public void ResetHighlights()
+            {
+                _hiX = _hiY = _hiZ = _hiCirc = _hiSphere = false;
+            }
+            public void ResetAll()
+            {
+                ResetActions();
+                ResetSnaps();
+                ResetHighlights();
+            }
+            public bool IsMoving()
+            {
+                return _rotating || _translating || _scaling;
+            }
+            public bool SnappingAny()
+            {
+                return _snapX || _snapY || _snapZ || _snapCirc;
+            }
+            public bool HighlightingAny()
+            {
+                return _hiX || _hiY || _hiZ || _hiCirc || _hiSphere;
+            }
+            public void Update(
+                TransformType type, 
+                Vector3 worldPoint, 
+                Vector3 localPoint,
+                Vector3 oldAngles,
+                Vector3 oldPosition,
+                Vector3 oldScale)
+            {
+                _lastPointLocal = localPoint;
+                _lastPointWorld = worldPoint;
+                _rotating = type == TransformType.Rotation;
+                _translating = type == TransformType.Translation;
+                _scaling = type == TransformType.Scale;
+                _oldAngles = oldAngles;
+                _oldPosition = oldPosition;
+                _oldScale = oldScale;
+            }
+            public void Update(
+                TransformType type,
+                Vector3 worldPoint,
+                Vector3 localPoint,
+                FrameState oldFrameState)
+            {
+                Update(type, worldPoint, localPoint, oldFrameState._rotate, oldFrameState._translate, oldFrameState._scale);
+            }
+            public void ApplySnaps()
+            {
+                _snapX = _hiX;
+                _snapY = _hiY;
+                _snapZ = _hiZ;
+                _snapCirc = _hiCirc;
+            }
+        }
+
+        public SelectionParams 
+            _boneSelection = new SelectionParams(), 
+            _vertexSelection = new SelectionParams();
+
         public bool _resetCamera = true;
         protected bool _enableTransform = true;
         protected bool _playing = false;
