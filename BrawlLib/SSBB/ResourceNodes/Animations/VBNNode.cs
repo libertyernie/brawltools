@@ -19,12 +19,14 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal VBNHeader* Header { get { return (VBNHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.VBN; } }
-        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOEntryNode) }; } }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOBoneEntryNode) }; } }
 
         public Endian _endian = Endian.Little;
 
         public VBNNode() { }
         const string _category = "Skeleton";
+
+        public Dictionary<uint, VBNBoneNode> _boneDictionary;
 
         public VBNBoneNode[] _boneCache = new VBNBoneNode[0];
         public VBNBoneNode[] _rootBones = new VBNBoneNode[0];
@@ -119,6 +121,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _versionMax = Header->_versionMax;
             uint boneCount = Header->_boneCount;
             EndianMode.SetEndian(Endian.Big);
+            _boneDictionary = new Dictionary<uint, VBNBoneNode>();
             return boneCount > 0;
         }
 
@@ -133,6 +136,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _boneCache = _children.Select(x => x as VBNBoneNode).ToArray();
             foreach (VBNBoneNode bone in _boneCache)
             {
+                _boneDictionary.Add(bone.HashValue, bone);
+
                 uint id = bone._parentID;
                 ResourceNode parent;
                 if (id == 0x0FFFFFFF)
@@ -198,6 +203,28 @@ namespace BrawlLib.SSBB.ResourceNodes
         public Box GetBox()
         {
             return new Box();
+        }
+
+        public void ApplyOMO(OMONode omo, float frame)
+        {
+            foreach (VBNBoneNode b in _boneCache)
+                b._frameState = b._bindState;
+            if (omo != null && frame > 0)
+                foreach (OMOBoneEntryNode b in omo.Children)
+                    if (_boneDictionary.ContainsKey(b._boneHash))
+                    {
+                        VBNBoneNode bone = _boneDictionary[b._boneHash];
+                        FrameState newState = b._frameStates[(int)frame - 1];
+                        if (b.HasScale)
+                            bone._frameState._scale = newState._scale;
+                        if (b.HasRotation)
+                            bone._frameState._rotate = newState._rotate;
+                        if (b.HasTranslation)
+                            bone._frameState._translate = newState._translate;
+                        bone._frameState.CalcTransforms();
+                    }
+            foreach (VBNBoneNode b in Children)
+                b.RecalcFrameState();
         }
     }
 

@@ -177,7 +177,8 @@ namespace System.Windows.Forms
                 "brres",
                 "mrg", "mrgc",
                 "arc", "szs",
-                "chr0", "srt0", "pat0", "vis0", "shp0", "clr0", "scn0");
+                "chr0", "srt0", "pat0", "vis0", "shp0", "clr0", "scn0",
+                "omo");
 
             if (_mainWindow._dlgOpen.ShowDialog() == DialogResult.OK)
                 foreach (string file in _mainWindow._dlgOpen.FileNames)

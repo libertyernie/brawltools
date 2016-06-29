@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BrawlLib.SSBB.ResourceNodes;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -38,6 +39,7 @@ namespace BrawlLib.SSBBTypes
         }
 
         public VoidPtr GetFrameAddr(int frameIndex) { return Address + _frameDataOffset + frameIndex * _frameSize; }
+        public VoidPtr FixedData { get { return Address + _fixedDataOffset; } }
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
@@ -65,6 +67,116 @@ namespace BrawlLib.SSBBTypes
         public buint _boneHash; //matches id in vbn (2 bytes after bone parent index in vbn)
         public buint _offsetInFixedData;
         public buint _offsetInFrame;
+        
+        public bool HasScale
+        {
+            get { return _flags[26]; }
+        }
+        public bool HasRotation
+        {
+            get { return _flags[25]; }
+        }
+        public bool HasTranslation
+        {
+            get { return _flags[24]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag23
+        //{
+        //    get { return _flags[23]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag22
+        //{
+        //    get { return _flags[22]; }
+        //}
+        public bool TranslationConstant
+        {
+            get { return _flags[21]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag20
+        //{
+        //    get { return _flags[20]; }
+        //}
+        public bool TranslationAnimated
+        {
+            get { return _flags[19]; }
+        }
+        public bool TranslationFrame
+        {
+            get { return _flags[18]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag17
+        //{
+        //    get { return _flags[17]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag16
+        //{
+        //    get { return _flags[16]; }
+        //}
+        public OMORotType RotationFlags
+        {
+            get { return (OMORotType)_flags[12, 4]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag11
+        //{
+        //    get { return _flags[11]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag10
+        //{
+        //    get { return _flags[10]; }
+        //}
+        public bool ScaleConstant
+        {
+            get { return _flags[9]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag8
+        //{
+        //    get { return _flags[8]; }
+        //}
+        public bool ScaleAnimated
+        {
+            get { return _flags[7]; }
+        }
+        public bool ScaleFrame
+        {
+            get { return _flags[6]; }
+        }
+        //[Category("Flags")]
+        //public bool Flag5
+        //{
+        //    get { return _flags[5]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag4
+        //{
+        //    get { return _flags[4]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag3
+        //{
+        //    get { return _flags[3]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag2
+        //{
+        //    get { return _flags[2]; }
+        //}
+        //[Category("Flags")]
+        //public bool Flag1
+        //{
+        //    get { return _flags[1]; }
+        //}
+        public bool AlwaysOn
+        {
+            get { return _flags[0]; }
+        }
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }

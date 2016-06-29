@@ -1553,7 +1553,7 @@ namespace System.Windows.Forms
             this.chkCollisions.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
             this.chkCollisions.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.chkCollisions.Name = "chkCollisions";
-            this.chkCollisions.Size = new System.Drawing.Size(76, 21);
+            this.chkCollisions.Size = new System.Drawing.Size(76, 23);
             this.chkCollisions.Text = "Collisions";
             this.chkCollisions.Visible = false;
             this.chkCollisions.Click += new System.EventHandler(this.toggleRenderCollisions_Event);
@@ -1778,6 +1778,7 @@ namespace System.Windows.Forms
             // 
             this.vis0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.vis0Editor.Location = new System.Drawing.Point(0, 0);
+            this.vis0Editor.MinimumSize = new System.Drawing.Size(210, 55);
             this.vis0Editor.Name = "vis0Editor";
             this.vis0Editor.Padding = new System.Windows.Forms.Padding(4);
             this.vis0Editor.Size = new System.Drawing.Size(264, 60);
@@ -1788,6 +1789,7 @@ namespace System.Windows.Forms
             // 
             this.pat0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.pat0Editor.Location = new System.Drawing.Point(0, 0);
+            this.pat0Editor.MinimumSize = new System.Drawing.Size(402, 77);
             this.pat0Editor.Name = "pat0Editor";
             this.pat0Editor.Size = new System.Drawing.Size(402, 77);
             this.pat0Editor.TabIndex = 27;
@@ -1797,6 +1799,7 @@ namespace System.Windows.Forms
             // 
             this.shp0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.shp0Editor.Location = new System.Drawing.Point(0, 0);
+            this.shp0Editor.MinimumSize = new System.Drawing.Size(533, 106);
             this.shp0Editor.Name = "shp0Editor";
             this.shp0Editor.Size = new System.Drawing.Size(533, 106);
             this.shp0Editor.TabIndex = 28;
@@ -1806,6 +1809,7 @@ namespace System.Windows.Forms
             // 
             this.srt0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.srt0Editor.Location = new System.Drawing.Point(0, 0);
+            this.srt0Editor.MinimumSize = new System.Drawing.Size(483, 78);
             this.srt0Editor.Name = "srt0Editor";
             this.srt0Editor.Size = new System.Drawing.Size(483, 78);
             this.srt0Editor.TabIndex = 20;
@@ -1813,10 +1817,12 @@ namespace System.Windows.Forms
             // 
             // chr0Editor
             // 
+            this.chr0Editor.AutoSize = true;
             this.chr0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.chr0Editor.Location = new System.Drawing.Point(0, 0);
+            this.chr0Editor.MinimumSize = new System.Drawing.Size(619, 117);
             this.chr0Editor.Name = "chr0Editor";
-            this.chr0Editor.Size = new System.Drawing.Size(582, 78);
+            this.chr0Editor.Size = new System.Drawing.Size(619, 117);
             this.chr0Editor.TabIndex = 19;
             this.chr0Editor.Visible = false;
             // 
@@ -1833,8 +1839,9 @@ namespace System.Windows.Forms
             // 
             this.clr0Editor.Dock = System.Windows.Forms.DockStyle.Fill;
             this.clr0Editor.Location = new System.Drawing.Point(0, 0);
+            this.clr0Editor.MinimumSize = new System.Drawing.Size(256, 74);
             this.clr0Editor.Name = "clr0Editor";
-            this.clr0Editor.Size = new System.Drawing.Size(264, 60);
+            this.clr0Editor.Size = new System.Drawing.Size(264, 74);
             this.clr0Editor.TabIndex = 30;
             this.clr0Editor.Visible = false;
             // 
@@ -1908,6 +1915,7 @@ namespace System.Windows.Forms
             this.panel1.ResumeLayout(false);
             this.animEditors.ResumeLayout(false);
             this.animCtrlPnl.ResumeLayout(false);
+            this.animCtrlPnl.PerformLayout();
             this.ResumeLayout(false);
 
         }

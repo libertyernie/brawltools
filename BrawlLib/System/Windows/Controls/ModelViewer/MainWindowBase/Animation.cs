@@ -19,7 +19,7 @@ namespace System.Windows.Forms
         {
             switch (type)
             {
-                case NW4RAnimType.CHR: return SelectedCHR0;
+                case NW4RAnimType.CHR: return _omoNode != null ? (NW4RAnimationNode)_omoNode : SelectedCHR0;
                 case NW4RAnimType.SRT: return SelectedSRT0;
                 case NW4RAnimType.SHP: return SelectedSHP0;
                 case NW4RAnimType.PAT: return SelectedPAT0;
@@ -29,11 +29,15 @@ namespace System.Windows.Forms
                 default: return null;
             }
         }
+        public OMONode _omoNode;
         public void SetAnimation(NW4RAnimType type, NW4RAnimationNode value)
         {
             switch (type)
             {
-                case NW4RAnimType.CHR: SelectedCHR0 = value as CHR0Node; break;
+                case NW4RAnimType.CHR:
+                    _omoNode = value as OMONode;
+                    SelectedCHR0 = value as CHR0Node;
+                    break;
                 case NW4RAnimType.SRT: SelectedSRT0 = value as SRT0Node; break;
                 case NW4RAnimType.SHP: SelectedSHP0 = value as SHP0Node; break;
                 case NW4RAnimType.PAT: SelectedPAT0 = value as PAT0Node; break;
@@ -301,6 +305,12 @@ namespace System.Windows.Forms
         public virtual void UpdateModel(IModel model, float frame)
         {
             //TODO: support for applying more than one animation per type
+
+            if (model is VBNNode)
+            {
+                VBNNode m = model as VBNNode;
+                m.ApplyOMO(_omoNode, frame);
+            }
 
             model.ApplyCHR(PlayCHR0 ? _chr0 : null, frame);
             model.ApplySRT(PlaySRT0 ? _srt0 : null, frame);

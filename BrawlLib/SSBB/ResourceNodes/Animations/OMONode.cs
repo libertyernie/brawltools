@@ -9,37 +9,31 @@ using BrawlLib.Modeling;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class OMONode : ResourceNode
+    public unsafe class OMONode : NW4RAnimationNode
     {
         public static VBNNode _skeleton;
         public string Skeleton { get { return _skeleton == null ? "" : _skeleton.Name; } }
 
         internal OMOHeader* Header { get { return (OMOHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.OMO; } }
-        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOEntryNode) }; } }
+        public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOBoneEntryNode) }; } }
 
         public OMONode() { }
         const string _category = "Bone Animation";
-
-        public int _frameCount;
+        
         public int _frameSize;
 
-        [Category(_category)]
-        public int FrameCount
-        {
-            get { return _frameCount; }
-            set { _frameCount = value; SignalPropertyChange(); }
-        }
         [Category(_category)]
         public int FrameSize
         {
             get { return _frameSize; }
-            set { _frameSize = value; SignalPropertyChange(); }
+            //set { _frameSize = value; SignalPropertyChange(); }
         }
 
         public override bool OnInitialize()
         {
-            _frameCount = Header->_frameCount;
+            _name = _origPath;
+            _numFrames = Header->_frameCount;
             _frameSize = Header->_frameSize;
             return Header->_boneCount > 0;
         }
@@ -69,30 +63,178 @@ namespace BrawlLib.SSBB.ResourceNodes
                 int fixedDataSize = (int)(nextOffsetInFixed - offsetInFixed);
                 int frameDataSize = (int)(nextOffsetInFrame - offsetInFrame);
 
-                UnsafeBuffer fixedData = new UnsafeBuffer(fixedDataSize);
-                Memory.Move(fixedData.Address, (VoidPtr)Header + fixedOff + offsetInFixed, (uint)fixedData.Length);
+                VoidPtr fixedData = Header->FixedData + offsetInFixed;
+                VoidPtr fixedDataStart = fixedData;
 
-                UnsafeBuffer frameData = new UnsafeBuffer(frameDataSize);
-                Memory.Move(frameData.Address, (VoidPtr)Header + frameOff + offsetInFrame, (uint)frameData.Length);
-
-                new OMOEntryNode()
+                OMORangeAnim s = null, r = null, t = null;
+                OpenTK.Quaternion? _quat = null;
+                
+                if (entry->HasScale)
                 {
-                    _fixedBuffer = fixedData,
-                    _frameBuffer = frameData,
-                    _fixedDataSize = fixedDataSize,
-                    _frameDataSize = frameDataSize,
+                    if (entry->ScaleConstant)
+                    {
+                        Vector3 value = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        s = new OMORangeAnim(value);
+                    }
+                    else if (entry->ScaleAnimated)
+                    {
+                        Vector3 min = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        Vector3 max = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        s = new OMORangeAnim(min, max);
+                    }
+                }
+                if (entry->HasRotation)
+                {
+                    if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                    {
+                        Vector3 value = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        r = new OMORangeAnim(value);
+                    }
+                    else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                    {
+                        Vector3 min = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        Vector3 max = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        r = new OMORangeAnim(min, max);
+                    }
+                    else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
+                    {
+                        MessageBox.Show("Quat1");
+                        Vector4 q = *(BVec4*)fixedData;
+                        fixedData += 16;
+                        _quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
+                    }
+                }
+                if (entry->HasTranslation)
+                {
+                    if (entry->TranslationConstant)
+                    {
+                        Vector3 value = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        t = new OMORangeAnim(value);
+                    }
+                    else if (entry->TranslationAnimated)
+                    {
+                        Vector3 min = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        Vector3 max = *(BVec3*)fixedData;
+                        fixedData += 12;
+                        t = new OMORangeAnim(min, max);
+                    }
+                }
+
+                if ((int)fixedData - (int)fixedDataStart != fixedDataSize)
+                    MessageBox.Show("Fixed data length mismatch");
+
+                FrameState[] states = new FrameState[_numFrames];
+                for (int x = 0; x < _numFrames; x++)
+                {
+                    bushort* frameData = (bushort*)(Header->GetFrameAddr(x) + offsetInFrame);
+                    VoidPtr frameDataStart = frameData;
+
+                    FrameState state = FrameState.Neutral;
+                    if (entry->HasScale)
+                    {
+                        if (entry->ScaleConstant)
+                            state._scale = s.GetValue();
+                        else if (entry->ScaleAnimated)
+                            state._scale = s.GetValue(*frameData++, *frameData++, *frameData++);
+                        else if (entry->ScaleFrame)
+                        {
+                            state._scale = *(BVec3*)frameData;
+                            frameData += 6;
+                        }
+                    }
+                    if (entry->HasRotation)
+                    {
+                        if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                            state._rotate = r.GetValue();
+                        else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                            state._rotate = r.GetValue(*frameData++, *frameData++, *frameData++);
+                        else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
+                        {
+                            MessageBox.Show("Quat2");
+                        }
+                        else if (entry->RotationFlags.HasFlag(OMORotType.Frame))
+                        {
+                            MessageBox.Show("RotFrame");
+                        }
+                        state._rotate *= Maths._rad2degf;
+                    }
+                    if (entry->HasTranslation)
+                    {
+                        if (entry->TranslationConstant)
+                            state._translate = t.GetValue();
+                        else if (entry->TranslationAnimated)
+                            state._translate = t.GetValue(*frameData++, *frameData++, *frameData++);
+                        else if (entry->TranslationFrame)
+                        {
+                            state._translate = *(BVec3*)frameData;
+                            frameData += 6;
+                        }
+                    }
+                    state.CalcTransforms();
+                    states[x] = state;
+
+                    if ((int)frameData - (int)frameDataStart != frameDataSize)
+                        MessageBox.Show("Frame data length mismatch");
+                }
+
+                new OMOBoneEntryNode()
+                {
+                    _frameStates = states
                 }
                 .Initialize(this, (VoidPtr)Header + Header->_boneTableOffset + i * 0x10, 0x10);
             }
         }
 
+        public override string ToString()
+        {
+            return Name;
+        }
+
         internal static ResourceNode TryParse(DataSource source) { return *(BinTag*)source.Address == OMOHeader.Tag ? new OMONode() : null; }
     }
 
-    public unsafe class OMOEntryNode : ResourceNode, IBufferNode
+    public class OMORangeAnim
+    {
+        public OMORangeAnim(Vector3 minValue, Vector3 maxValue)
+        {
+            _minValue = minValue;
+            _range = maxValue - minValue;
+        }
+        public OMORangeAnim(Vector3 constantValue)
+        {
+            _minValue = constantValue;
+            _range = Vector3.Zero;
+        }
+
+        Vector3 _minValue;
+        Vector3 _range;
+        
+        public Vector3 GetValue(ushort x = 0, ushort y = 0, ushort z = 0)
+        {
+            float px = (float)x / (float)0xFFFF;
+            float py = (float)y / (float)0xFFFF;
+            float pz = (float)z / (float)0xFFFF;
+            return new Vector3(
+                _minValue._x + _range._x * px,
+                _minValue._y + _range._y * py,
+                _minValue._z + _range._z * pz);
+        }
+    }
+
+    public unsafe class OMOBoneEntryNode : ResourceNode
     {
         internal OMOBoneEntry* Header { get { return (OMOBoneEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
+
+        internal OMONode ParentOMO { get { return (OMONode)Parent; } }
 
         public uint _boneHash;
         public Bin32 _flags;
@@ -107,21 +249,63 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category(_category), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 Flags
         {
-            get { return _flags; }
-            set { _flags = value; SignalPropertyChange(); }
+            get { return Header->_flags; }
         }
-
-        internal int _frameDataSize, _fixedDataSize;
-        public int FixedDataLength
+        [Category("Flags")]
+        public bool HasScale
         {
-            get { return _fixedDataSize; }
+            get { return Header->HasScale; }
         }
-        public int FrameDataLength
+        [Category("Flags")]
+        public bool HasRotation
         {
-            get { return _frameDataSize; }
+            get { return Header->HasRotation; }
         }
-        private static bool _showFrameData;
-        public bool ShowFrameData { get { return _showFrameData; } set { _showFrameData = value; UpdateCurrentControl(); } }
+        [Category("Flags")]
+        public bool HasTranslation
+        {
+            get { return Header->HasTranslation; }
+        }
+        [Category("Flags")]
+        public bool TranslationConstant
+        {
+            get { return Header->TranslationConstant; }
+        }
+        [Category("Flags")]
+        public bool TranslationAnimated
+        {
+            get { return Header->TranslationAnimated; }
+        }
+        [Category("Flags")]
+        public bool TranslationFrame
+        {
+            get { return Header->TranslationFrame; }
+        }
+        [Category("Flags")]
+        public OMORotType RotationFlags
+        {
+            get { return Header->RotationFlags; }
+        }
+        [Category("Flags")]
+        public bool ScaleConstant
+        {
+            get { return Header->ScaleConstant; }
+        }
+        [Category("Flags")]
+        public bool ScaleAnimated
+        {
+            get { return Header->ScaleAnimated; }
+        }
+        [Category("Flags")]
+        public bool ScaleFrame
+        {
+            get { return Header->ScaleFrame; }
+        }
+        [Category("Flags")]
+        public bool AlwaysOn
+        {
+            get { return Header->AlwaysOn; }
+        }
 
         public override bool OnInitialize()
         {
@@ -143,148 +327,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             
             return false;
         }
+        public FrameState[] FrameStates { get { return _frameStates; } }
+        public FrameState[] _frameStates;
+    }
 
-        [Category("Flags")]
-        public bool HasScale
-        {
-            get { return _flags[26]; }
-        }
-        [Category("Flags")]
-        public bool HasRotation
-        {
-            get { return _flags[25]; }
-        }
-        [Category("Flags")]
-        public bool HasTranslation
-        {
-            get { return _flags[24]; }
-        }
-        [Category("Flags")]
-        public bool Flag23
-        {
-            get { return _flags[23]; }
-        }
-        [Category("Flags")]
-        public bool Flag22
-        {
-            get { return _flags[22]; }
-        }
-        [Category("Flags")]
-        public bool Flag21
-        {
-            get { return _flags[21]; }
-        }
-        [Category("Flags")]
-        public bool Flag20
-        {
-            get { return _flags[20]; }
-        }
-        [Category("Flags")]
-        public bool Flag19
-        {
-            get { return _flags[19]; }
-        }
-        [Category("Flags")]
-        public bool Flag18
-        {
-            get { return _flags[18]; }
-        }
-        [Category("Flags")]
-        public bool Flag17
-        {
-            get { return _flags[17]; }
-        }
-        [Category("Flags")]
-        public bool Flag16
-        {
-            get { return _flags[16]; }
-        }
-        [Category("Flags")]
-        public bool Flag15
-        {
-            get { return _flags[15]; }
-        }
-        [Category("Flags")]
-        public bool Flag14
-        {
-            get { return _flags[14]; }
-        }
-        [Category("Flags")]
-        public bool Flag13
-        {
-            get { return _flags[13]; }
-        }
-        [Category("Flags")]
-        public bool Flag12
-        {
-            get { return _flags[12]; }
-        }
-        [Category("Flags")]
-        public bool Flag11
-        {
-            get { return _flags[11]; }
-        }
-        [Category("Flags")]
-        public bool Flag10
-        {
-            get { return _flags[10]; }
-        }
-        [Category("Flags")]
-        public bool Flag9
-        {
-            get { return _flags[9]; }
-        }
-        [Category("Flags")]
-        public bool Flag8
-        {
-            get { return _flags[8]; }
-        }
-        [Category("Flags")]
-        public bool Flag7
-        {
-            get { return _flags[7]; }
-        }
-        [Category("Flags")]
-        public bool Flag6
-        {
-            get { return _flags[6]; }
-        }
-        [Category("Flags")]
-        public bool Flag5
-        {
-            get { return _flags[5]; }
-        }
-        [Category("Flags")]
-        public bool Flag4
-        {
-            get { return _flags[4]; }
-        }
-        [Category("Flags")]
-        public bool Flag3
-        {
-            get { return _flags[3]; }
-        }
-        [Category("Flags")]
-        public bool Flag2
-        {
-            get { return _flags[2]; }
-        }
-        [Category("Flags")]
-        public bool Flag1
-        {
-            get { return _flags[1]; }
-        }
-        [Category("Flags")]
-        public bool Flag0
-        {
-            get { return _flags[0]; }
-        }
-
-        internal UnsafeBuffer _fixedBuffer, _frameBuffer;
-        private UnsafeBuffer Buffer { get { return ShowFrameData ? _frameBuffer : _fixedBuffer; } }
-
-        public bool IsValid() { return Buffer != null && Buffer.Length > 0; }
-        public VoidPtr GetAddress() { return Buffer.Address; }
-        public int GetLength() { return Buffer.Length; }
+    [Flags]
+    public enum OMORotType
+    {
+        Fixed = 0x7,
+        Quaternion = 0x6,
+        Euler = 0x5,
+        Frame = 0xA
     }
 }

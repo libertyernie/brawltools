@@ -881,18 +881,35 @@ namespace System.Windows.Forms
             CHR0EntryNode entry;
             if (TargetBone != null)
             {
-                if ((SelectedAnimation != null) && (CurrentFrame >= 1) && ((entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode) != null))
+                if ((SelectedAnimation != null || _mainWindow._omoNode != null) && CurrentFrame >= 1)
                 {
-                    KeyframeEntry e = entry.Keyframes.GetKeyframe(index, CurrentFrame - 1);
-                    if (e == null)
+                    if (TargetBone is VBNBoneNode && _mainWindow._omoNode != null)
                     {
-                        box.Value = entry.Keyframes.GetFrameValue(index, CurrentFrame - 1);
-                        box.BackColor = Color.White;
+                        VBNBoneNode b = TargetBone as VBNBoneNode;
+                        foreach (OMOBoneEntryNode e in _mainWindow._omoNode.Children)
+                        {
+                            if (e._boneHash == b._hash)
+                            {
+                                FrameState state = b._frameState;
+                                box.Value = ((float*)&state)[index];
+                                box.BackColor = Color.Yellow;
+                                break;
+                            }
+                        }
                     }
-                    else
+                    else if ((entry = SelectedAnimation.FindChild(bone.Name, false) as CHR0EntryNode) != null)
                     {
-                        box.Value = e._value;
-                        box.BackColor = Color.Yellow;
+                        KeyframeEntry e = entry.Keyframes.GetKeyframe(index, CurrentFrame - 1);
+                        if (e == null)
+                        {
+                            box.Value = entry.Keyframes.GetFrameValue(index, CurrentFrame - 1);
+                            box.BackColor = Color.White;
+                        }
+                        else
+                        {
+                            box.Value = e._value;
+                            box.BackColor = Color.Yellow;
+                        }
                     }
                 }
                 else
