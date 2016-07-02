@@ -20,7 +20,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public OMONode() { }
         const string _category = "Bone Animation";
-        
+
         public int _frameSize;
 
         [Category(_category)]
@@ -63,68 +63,68 @@ namespace BrawlLib.SSBB.ResourceNodes
                 int fixedDataSize = (int)(nextOffsetInFixed - offsetInFixed);
                 int frameDataSize = (int)(nextOffsetInFrame - offsetInFrame);
 
-                VoidPtr fixedData = Header->FixedData + offsetInFixed;
+                BVec3* fixedData = (BVec3*)(Header->FixedData + offsetInFixed);
                 VoidPtr fixedDataStart = fixedData;
 
                 OMORangeAnim s = null, r = null, t = null;
-                OpenTK.Quaternion? _quat = null;
-                
+                //OpenTK.Quaternion? _quat = null;
+
+                Vector3[]
+                    ScaleInterp = new Vector3[_numFrames],
+                    RotInterp = new Vector3[_numFrames],
+                    TransInterp = new Vector3[_numFrames];
+                Vector3 
+                    ScaleMin = Vector3.Zero,
+                    ScaleMax = Vector3.Zero,
+                    RotMin = Vector3.Zero,
+                    RotMax = Vector3.Zero,
+                    TransMin = Vector3.Zero,
+                    TransMax = Vector3.Zero;
+
                 if (entry->HasScale)
                 {
                     if (entry->ScaleConstant)
                     {
-                        Vector3 value = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        s = new OMORangeAnim(value);
+                        s = new OMORangeAnim(*fixedData++);
                     }
                     else if (entry->ScaleAnimated)
                     {
-                        Vector3 min = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        Vector3 max = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        s = new OMORangeAnim(min, max);
+                        ScaleMin = *fixedData++;
+                        ScaleMax = *fixedData++;
+                        s = new OMORangeAnim(ScaleMin, ScaleMax);
                     }
                 }
                 if (entry->HasRotation)
                 {
                     if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
                     {
-                        Vector3 value = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        r = new OMORangeAnim(value);
+                        r = new OMORangeAnim(*fixedData++);
                     }
                     else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
                     {
-                        Vector3 min = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        Vector3 max = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        r = new OMORangeAnim(min, max);
+                        RotMin = *fixedData++;
+                        RotMax = *fixedData++;
+                        r = new OMORangeAnim(RotMin, RotMax);
                     }
                     else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
                     {
                         MessageBox.Show("Quat1");
-                        Vector4 q = *(BVec4*)fixedData;
-                        fixedData += 16;
-                        _quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
+                        //Vector4 q = *(BVec4*)fixedData;
+                        //fixedData += 16;
+                        //_quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
                     }
                 }
                 if (entry->HasTranslation)
                 {
                     if (entry->TranslationConstant)
                     {
-                        Vector3 value = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        t = new OMORangeAnim(value);
+                        t = new OMORangeAnim(*fixedData++);
                     }
                     else if (entry->TranslationAnimated)
                     {
-                        Vector3 min = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        Vector3 max = *(BVec3*)fixedData;
-                        fixedData += 12;
-                        t = new OMORangeAnim(min, max);
+                        TransMin = *fixedData++;
+                        TransMax = *fixedData++;
+                        t = new OMORangeAnim(TransMin, TransMax);
                     }
                 }
 
@@ -141,9 +141,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (entry->HasScale)
                     {
                         if (entry->ScaleConstant)
+                        {
                             state._scale = s.GetValue();
+                        }
                         else if (entry->ScaleAnimated)
-                            state._scale = s.GetValue(*frameData++, *frameData++, *frameData++);
+                        {
+                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
+                            state._scale = s.GetValue(ref interp);
+                            ScaleInterp[x] = interp;
+                        }
                         else if (entry->ScaleFrame)
                         {
                             state._scale = *(BVec3*)frameData;
@@ -153,9 +159,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (entry->HasRotation)
                     {
                         if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                        {
                             state._rotate = r.GetValue();
+                        }
                         else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
-                            state._rotate = r.GetValue(*frameData++, *frameData++, *frameData++);
+                        {
+                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
+                            state._rotate = r.GetValue(ref interp);
+                            RotInterp[x] = interp;
+                        }
                         else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
                         {
                             MessageBox.Show("Quat2");
@@ -169,9 +181,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (entry->HasTranslation)
                     {
                         if (entry->TranslationConstant)
+                        {
                             state._translate = t.GetValue();
+                        }
                         else if (entry->TranslationAnimated)
-                            state._translate = t.GetValue(*frameData++, *frameData++, *frameData++);
+                        {
+                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
+                            state._translate = t.GetValue(ref interp);
+                            TransInterp[x] = interp;
+                        }
                         else if (entry->TranslationFrame)
                         {
                             state._translate = *(BVec3*)frameData;
@@ -187,6 +205,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 new OMOBoneEntryNode()
                 {
+                    ScaleMin = ScaleMin,
+                    ScaleMax = ScaleMax,
+                    ScaleInterp = ScaleInterp,
+                    RotMin = RotMin,
+                    RotMax = RotMax,
+                    RotInterp = RotInterp,
+                    TransMin = TransMin,
+                    TransMax = TransMax,
+                    TransInterp = TransInterp,
                     _frameStates = states
                 }
                 .Initialize(this, (VoidPtr)Header + Header->_boneTableOffset + i * 0x10, 0x10);
@@ -206,7 +233,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public OMORangeAnim(Vector3 minValue, Vector3 maxValue)
         {
             _minValue = minValue;
-            _range = maxValue - minValue;
+            _range = maxValue;
         }
         public OMORangeAnim(Vector3 constantValue)
         {
@@ -216,7 +243,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         Vector3 _minValue;
         Vector3 _range;
-        
+
+        public Vector3 GetValue(ref Vector3 interp)
+        {
+            interp /= 0xFFFF;
+            return _minValue + _range * interp;
+        }
         public Vector3 GetValue(ushort x = 0, ushort y = 0, ushort z = 0)
         {
             float px = (float)x / (float)0xFFFF;
@@ -306,6 +338,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get { return Header->AlwaysOn; }
         }
+
+        [Category("Flags")]
+        public Vector3 ScaleMin { get; set; }
+        [Category("Flags")]
+        public Vector3 ScaleMax { get; set; }
+        [Category("Flags")]
+        public Vector3[] ScaleInterp { get; set; }
+        [Category("Flags")]
+        public Vector3 RotMin { get; set; }
+        [Category("Flags")]
+        public Vector3 RotMax { get; set; }
+        [Category("Flags")]
+        public Vector3[] RotInterp { get; set; }
+        [Category("Flags")]
+        public Vector3 TransMin { get; set; }
+        [Category("Flags")]
+        public Vector3 TransMax { get; set; }
+        [Category("Flags")]
+        public Vector3[] TransInterp { get; set; }
 
         public override bool OnInitialize()
         {

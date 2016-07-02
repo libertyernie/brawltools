@@ -53,6 +53,17 @@ namespace BrawlBox.NodeWrappers
             {
                 OMONode._skeleton = NodeFactory.FromFile(null, o.FileName) as VBNNode;
                 OMONode._skeleton.Populate();
+                OMONode r = _resource as OMONode;
+                foreach (OMOBoneEntryNode b in r.Children)
+                    foreach (VBNBoneNode n in OMONode._skeleton.BoneCache)
+                    {
+                        if (n._hash == b._boneHash)
+                        {
+                            b.Name = n.Name;
+                            break;
+                        }
+                    }
+                r.IsDirty = false;
             }
         }
         public void ClearSkeleton()
