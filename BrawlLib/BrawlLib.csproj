@@ -163,6 +163,7 @@
     <Compile Include="SSBB\ResourceNodes\Animations\VBNNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Animations\OMONode.cs" />
     <Compile Include="SSBB\ResourceNodes\Archives\BFRESNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Archives\PACKNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLBoneNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLGroupNode.cs" />
     <Compile Include="SSBB\ResourceNodes\FMDL\FMDLBufferNode.cs" />
@@ -214,6 +215,7 @@
     <Compile Include="SSBB\Types\ClassicStageTbl.cs" />
     <Compile Include="SSBB\Types\Common2Tbl.cs" />
     <Compile Include="SSBB\Types\AllstarStageTbl.cs" />
+    <Compile Include="SSBB\Types\PACK.cs" />
     <Compile Include="SSBB\Types\EventMatch.cs" />
     <Compile Include="SSBB\Types\ISO.cs" />
     <Compile Include="SSBB\Types\SCLA.cs" />

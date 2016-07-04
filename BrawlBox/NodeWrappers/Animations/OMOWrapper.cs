@@ -20,6 +20,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Load Skeleton", null, LoadSkeletonAction, Keys.Control | Keys.L));
             _menu.Items.Add(new ToolStripMenuItem("&Clear Skeleton", null, ClearSkeletonAction, Keys.Control | Keys.B));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&New Bone Entry", null, NewAction, Keys.Control | Keys.N));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripSeparator());
@@ -29,6 +30,7 @@ namespace BrawlBox.NodeWrappers
         }
         protected static void LoadSkeletonAction(object sender, EventArgs e) { GetInstance<OMOWrapper>().LoadSkeleton(); }
         protected static void ClearSkeletonAction(object sender, EventArgs e) { GetInstance<OMOWrapper>().ClearSkeleton(); }
+        protected static void NewAction(object sender, EventArgs e) { GetInstance<OMOWrapper>().NewBoneEntry(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[6].Enabled = true;
@@ -69,6 +71,14 @@ namespace BrawlBox.NodeWrappers
         public void ClearSkeleton()
         {
             OMONode._skeleton = null;
+        }
+        public void NewBoneEntry()
+        {
+            OMOBoneEntryNode b = new OMOBoneEntryNode() { _boneHash = 0 };
+            b._name = b._boneHash.ToString("X8");
+            _resource.AddChild(b);
+            BaseWrapper w = this.FindResource(b, false);
+            w.EnsureVisible();
         }
     }
 }

@@ -70,7 +70,7 @@ namespace System
                 RetrieveCorrAnims = true,
                 SyncTexToObj = false,
                 SyncObjToVIS0 = false,
-                DisableBonesOnPlay = true,
+                DisableBonesOnPlay = false,
                 Maximize = false,
                 GenTansCHR = true,
                 GenTansSRT = true,

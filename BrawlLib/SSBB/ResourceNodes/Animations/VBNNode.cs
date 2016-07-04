@@ -214,13 +214,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     if (_boneDictionary.ContainsKey(b._boneHash))
                     {
                         VBNBoneNode bone = _boneDictionary[b._boneHash];
-                        FrameState newState = b._frameStates[(int)frame - 1];
+                        FrameState animState = b._frameStates[(int)frame - 1];
                         if (b.HasScale)
-                            bone._frameState._scale = newState._scale;
+                            bone._frameState._scale = animState._scale;
                         if (b.HasRotation)
-                            bone._frameState._rotate = newState._rotate;
+                            bone._frameState._rotate = animState._rotate;
                         if (b.HasTranslation)
-                            bone._frameState._translate = newState._translate;
+                            bone._frameState._translate = animState._translate;
                         bone._frameState.CalcTransforms();
                     }
             foreach (VBNBoneNode b in Children)

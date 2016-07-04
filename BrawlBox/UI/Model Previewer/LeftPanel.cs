@@ -828,6 +828,7 @@ namespace System.Windows.Forms
                 case ResourceType.U8Folder:
                 case ResourceType.BRES:
                 case ResourceType.BRESGroup:
+                case ResourceType.PACK:
                     foreach (ResourceNode n in node.Children)
                         found = LoadAnims(n, type, compare, contains, ib, externalGroup) || found;
                     break;

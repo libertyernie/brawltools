@@ -178,5 +178,6 @@
         OMO = 0x7000,
         VBN = 0x8600,
         VBNBone = 0x8700,
+        PACK = 0x8800,
     }
 }

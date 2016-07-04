@@ -81,39 +81,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     TransMin = Vector3.Zero,
                     TransMax = Vector3.Zero;
 
-                if (entry->HasScale)
-                {
-                    if (entry->ScaleConstant)
-                    {
-                        s = new OMORangeAnim(*fixedData++);
-                    }
-                    else if (entry->ScaleAnimated)
-                    {
-                        ScaleMin = *fixedData++;
-                        ScaleMax = *fixedData++;
-                        s = new OMORangeAnim(ScaleMin, ScaleMax);
-                    }
-                }
-                if (entry->HasRotation)
-                {
-                    if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
-                    {
-                        r = new OMORangeAnim(*fixedData++);
-                    }
-                    else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
-                    {
-                        RotMin = *fixedData++;
-                        RotMax = *fixedData++;
-                        r = new OMORangeAnim(RotMin, RotMax);
-                    }
-                    else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
-                    {
-                        MessageBox.Show("Quat1");
-                        //Vector4 q = *(BVec4*)fixedData;
-                        //fixedData += 16;
-                        //_quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
-                    }
-                }
                 if (entry->HasTranslation)
                 {
                     if (entry->TranslationConstant)
@@ -127,6 +94,39 @@ namespace BrawlLib.SSBB.ResourceNodes
                         t = new OMORangeAnim(TransMin, TransMax);
                     }
                 }
+                if (entry->HasRotation)
+                {
+                    if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                    {
+                        r = new OMORangeAnim((Vector3)(*fixedData++) * Maths._rad2degf);
+                    }
+                    else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                    {
+                        RotMin = *fixedData++;
+                        RotMax = *fixedData++;
+                        r = new OMORangeAnim(RotMin, RotMax);
+                    }
+                    else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
+                    {
+                        //MessageBox.Show("Quat1");
+                        //Vector4 q = *(BVec4*)fixedData;
+                        fixedData = (BVec3*)((VoidPtr)fixedData + 16);
+                        //_quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
+                    }
+                }
+                if (entry->HasScale)
+                {
+                    if (entry->ScaleConstant)
+                    {
+                        s = new OMORangeAnim(*fixedData++);
+                    }
+                    else if (entry->ScaleAnimated)
+                    {
+                        ScaleMin = *fixedData++;
+                        ScaleMax = *fixedData++;
+                        s = new OMORangeAnim(ScaleMin, ScaleMax);
+                    }
+                }
 
                 if ((int)fixedData - (int)fixedDataStart != fixedDataSize)
                     MessageBox.Show("Fixed data length mismatch");
@@ -138,46 +138,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                     VoidPtr frameDataStart = frameData;
 
                     FrameState state = FrameState.Neutral;
-                    if (entry->HasScale)
-                    {
-                        if (entry->ScaleConstant)
-                        {
-                            state._scale = s.GetValue();
-                        }
-                        else if (entry->ScaleAnimated)
-                        {
-                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            state._scale = s.GetValue(ref interp);
-                            ScaleInterp[x] = interp;
-                        }
-                        else if (entry->ScaleFrame)
-                        {
-                            state._scale = *(BVec3*)frameData;
-                            frameData += 6;
-                        }
-                    }
-                    if (entry->HasRotation)
-                    {
-                        if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
-                        {
-                            state._rotate = r.GetValue();
-                        }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
-                        {
-                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            state._rotate = r.GetValue(ref interp);
-                            RotInterp[x] = interp;
-                        }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
-                        {
-                            MessageBox.Show("Quat2");
-                        }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.Frame))
-                        {
-                            MessageBox.Show("RotFrame");
-                        }
-                        state._rotate *= Maths._rad2degf;
-                    }
                     if (entry->HasTranslation)
                     {
                         if (entry->TranslationConstant)
@@ -193,6 +153,48 @@ namespace BrawlLib.SSBB.ResourceNodes
                         else if (entry->TranslationFrame)
                         {
                             state._translate = *(BVec3*)frameData;
+                            frameData += 6;
+                        }
+                    }
+                    //TODO: maybe rotations are in world space, not parent space?
+                    if (entry->HasRotation)
+                    {
+                        if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                        {
+                            state._rotate = r.GetValue();
+                        }
+                        else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                        {
+                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
+                            state._rotate = r.GetValue(ref interp);
+                            RotInterp[x] = interp;
+                        }
+                        else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
+                        {
+                            //MessageBox.Show("Quat2");
+                            frameData++;
+                        }
+                        else if (entry->RotationFlags.HasFlag(OMORotType.InFrame))
+                        {
+                            MessageBox.Show("RotFrame");
+                        }
+                        state._rotate *= Maths._rad2degf;
+                    }
+                    if (entry->HasScale)
+                    {
+                        if (entry->ScaleConstant)
+                        {
+                            state._scale = s.GetValue();
+                        }
+                        else if (entry->ScaleAnimated)
+                        {
+                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
+                            state._scale = s.GetValue(ref interp);
+                            ScaleInterp[x] = interp;
+                        }
+                        else if (entry->ScaleFrame)
+                        {
+                            state._scale = *(BVec3*)frameData;
                             frameData += 6;
                         }
                     }
@@ -270,6 +272,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public uint _boneHash;
         public Bin32 _flags;
+        OMOBoneEntry _hdr;
 
         const string _category = "Bone Entry";
 
@@ -281,62 +284,62 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category(_category), TypeConverter(typeof(Bin32StringConverter))]
         public Bin32 Flags
         {
-            get { return Header->_flags; }
+            get { return _flags; }
         }
         [Category("Flags")]
         public bool HasScale
         {
-            get { return Header->HasScale; }
+            get { return _hdr.HasScale; }
         }
         [Category("Flags")]
         public bool HasRotation
         {
-            get { return Header->HasRotation; }
+            get { return _hdr.HasRotation; }
         }
         [Category("Flags")]
         public bool HasTranslation
         {
-            get { return Header->HasTranslation; }
+            get { return _hdr.HasTranslation; }
         }
         [Category("Flags")]
         public bool TranslationConstant
         {
-            get { return Header->TranslationConstant; }
+            get { return _hdr.TranslationConstant; }
         }
         [Category("Flags")]
         public bool TranslationAnimated
         {
-            get { return Header->TranslationAnimated; }
+            get { return _hdr.TranslationAnimated; }
         }
         [Category("Flags")]
         public bool TranslationFrame
         {
-            get { return Header->TranslationFrame; }
+            get { return _hdr.TranslationFrame; }
         }
         [Category("Flags")]
         public OMORotType RotationFlags
         {
-            get { return Header->RotationFlags; }
+            get { return _hdr.RotationFlags; }
         }
         [Category("Flags")]
         public bool ScaleConstant
         {
-            get { return Header->ScaleConstant; }
+            get { return _hdr.ScaleConstant; }
         }
         [Category("Flags")]
         public bool ScaleAnimated
         {
-            get { return Header->ScaleAnimated; }
+            get { return _hdr.ScaleAnimated; }
         }
         [Category("Flags")]
         public bool ScaleFrame
         {
-            get { return Header->ScaleFrame; }
+            get { return _hdr.ScaleFrame; }
         }
         [Category("Flags")]
         public bool AlwaysOn
         {
-            get { return Header->AlwaysOn; }
+            get { return _hdr.AlwaysOn; }
         }
 
         [Category("Flags")]
@@ -362,8 +365,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             _boneHash = Header->_boneHash;
             _flags = Header->_flags;
+            _hdr = *Header;
 
-            _name = _boneHash.ToString("X");
+            _name = _boneHash.ToString("X8");
             if (OMONode._skeleton != null)
             {
                 foreach (VBNBoneNode b in OMONode._skeleton.BoneCache)
@@ -385,9 +389,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     [Flags]
     public enum OMORotType
     {
+        InFrame = 0x8,
         Fixed = 0x7,
         Quaternion = 0x6,
         Euler = 0x5,
-        Frame = 0xA
     }
 }

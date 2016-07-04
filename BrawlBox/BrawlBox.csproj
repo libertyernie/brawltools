@@ -139,7 +139,8 @@
     <None Include="NodeWrappers\BMDWrapper.cs" />
     <None Include="NodeWrappers\RARCWrapper.cs" />
     <None Include="NodeWrappers\FMDLWrapper.cs" />
-    <Compile Include="NodeWrappers\OMOWrapper.cs" />
+    <Compile Include="NodeWrappers\Archives\PACKWrapper.cs" />
+    <Compile Include="NodeWrappers\Animations\OMOWrapper.cs" />
     <Compile Include="NodeWrappers\VBNWrapper.cs" />
     <Compile Include="NodeWrappers\SndBgmTitleDataFolderWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\ADSJWrapper.cs" />
