@@ -166,7 +166,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
                             Vector3 value = r.GetValue(ref interp);
-                            float w = -(value._x + value._y + value._z);
+                            float w = (float)Math.Sqrt(1 - (value._x * value._x + value._y * value._y + value._z * value._z));
                             state._rotate = new Vector4(value, w).ToEuler(Vector4.RotSeq.zyx) * Maths._rad2degf;
                             RotInterp[x] = interp;
                         }
