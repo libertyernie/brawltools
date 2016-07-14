@@ -156,17 +156,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                             frameData += 6;
                         }
                     }
-                    //TODO: maybe rotations are in world space, not parent space?
                     if (entry->HasRotation)
                     {
                         if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
                         {
-                            state._rotate = r.GetValue();
+                            state._rotate = r.GetValue() * Maths._rad2degf;
                         }
                         else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
                         {
                             Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            state._rotate = r.GetValue(ref interp);
+                            Vector3 value = r.GetValue(ref interp);
+                            float w = -(value._x + value._y + value._z);
+                            state._rotate = new Vector4(value, w).ToEuler(Vector4.RotSeq.zyx) * Maths._rad2degf;
                             RotInterp[x] = interp;
                         }
                         else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
@@ -178,7 +179,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                         {
                             MessageBox.Show("RotFrame");
                         }
-                        state._rotate *= Maths._rad2degf;
                     }
                     if (entry->HasScale)
                     {

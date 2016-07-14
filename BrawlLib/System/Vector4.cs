@@ -11,6 +11,7 @@ namespace System
         public float _x, _y, _z, _w;
 
         public Vector4(float x, float y, float z, float w) { this._x = x; this._y = y; this._z = z; this._w = w; }
+        public Vector4(Vector3 v, float w) { this._x = v._x; this._y = v._y; this._z = v._z; this._w = w; }
         public Vector4(float s) { _x = s; _y = s; _z = s; _w = 1; }
         public Vector4(SerializationInfo info, StreamingContext context)
         {
@@ -98,73 +99,170 @@ namespace System
         public static readonly Vector4 One = new Vector4(1, 1, 1, 1);
         public static readonly Vector4 Identity = new Vector4(0, 0, 0, 1);
 
-        public void ToAxisAngle(out Vector3 axis, out float angle)
+        //public void ToAxisAngle(out Vector3 axis, out float angle)
+        //{
+        //    Vector4 result = ToAxisAngle();
+        //    axis = new Vector3(result._x, result._y, result._z);
+        //    angle = result._w;
+        //}
+
+        //public Vector4 ToAxisAngle()
+        //{
+        //    Vector4 q = this;
+        //    if (q._w > 1.0f)
+        //        q.Normalize();
+
+        //    Vector4 result = new Vector4();
+
+        //    result._w = 2.0f * (float)System.Math.Acos(q._w);
+        //    float den = (float)System.Math.Sqrt(1.0 - q._w * q._w);
+        //    if (den > 0.0001f)
+        //    {
+        //        result._x = q._x / den;
+        //        result._y = q._y / den;
+        //        result._z = q._z / den;
+        //    }
+        //    else
+        //        result._x = 1;
+
+        //    return result;
+        //}
+
+        //public static Vector4 FromAxisAngle(Vector3 axis, float angle)
+        //{
+        //    if (axis.Dot() == 0.0f)
+        //        return Identity;
+
+        //    Vector4 result = Identity;
+
+        //    angle *= 0.5f;
+        //    axis.Normalize();
+        //    result._x = axis._x * (float)System.Math.Sin(angle);
+        //    result._y = axis._y * (float)System.Math.Sin(angle);
+        //    result._z = axis._z * (float)System.Math.Sin(angle);
+        //    result._w = (float)System.Math.Cos(angle);
+
+        //    return result.Normalize();
+        //}
+
+        //public static Vector4 FromEulerAngles(Vector3 v)
+        //{
+        //    Vector3 
+        //        vx = new Vector3(1, 0, 0),
+        //        vy = new Vector3(0, 1, 0), 
+        //        vz = new Vector3(0, 0, 1);
+        //    Vector4 qx, qy, qz;
+
+        //    qx = FromAxisAngle(vx, v._x);
+        //    qy = FromAxisAngle(vy, v._y);
+        //    qz = FromAxisAngle(vz, v._z);
+
+        //    return qx * qy * qz;
+        //}
+
+        //public Vector3 ToEuler()
+        //{
+        //    return new Vector3(
+        //        (float)Math.Atan2(2 * (_x * _y + _z * _w), 1 - 2 * (_y * _y + _z * _z)),
+        //        (float)Math.Asin(2 * (_x * _z - _w * _y)),
+        //        (float)Math.Atan2(2 * (_x * _w + _y * _z), 1 - 2 * (_z * _z + _w * _w)));
+        //}
+
+        public enum RotSeq
         {
-            Vector4 result = ToAxisAngle();
-            axis = new Vector3(result._x, result._y, result._z);
-            angle = result._w;
+            zyx, zyz, zxy, zxz,
+            yxz, yxy, yzx, yzy,
+            xyz, xyx, xzy, xzx,
+        }
+        
+        private Vector3 TwoAxisRot(double r11, double r12, double r21, double r31, double r32)
+        {
+            return new Vector3((float)Math.Atan2(r11, r12), (float)Math.Acos(r21), (float)Math.Atan2(r31, r32));
         }
 
-        public Vector4 ToAxisAngle()
+        private Vector3 ThreeAxisRot(double r11, double r12, double r21, double r31, double r32)
         {
-            Vector4 q = this;
-            if (q._w > 1.0f)
-                q.Normalize();
+            return new Vector3((float)Math.Atan2(r31, r32), (float)Math.Asin(r21), (float)Math.Atan2(r11, r12));
+        }
 
-            Vector4 result = new Vector4();
-
-            result._w = 2.0f * (float)System.Math.Acos(q._w);
-            float den = (float)System.Math.Sqrt(1.0 - q._w * q._w);
-            if (den > 0.0001f)
+        public Vector3 ToEuler(RotSeq rotSeq)
+        {
+            switch (rotSeq)
             {
-                result._x = q._x / den;
-                result._y = q._y / den;
-                result._z = q._z / den;
+                case RotSeq.zyx:
+                    return ThreeAxisRot(2.0 * (_x * _y + _w * _z),
+                                 _w * _w + _x * _x - _y * _y - _z * _z,
+                                -2.0 * (_x * _z - _w * _y),
+                                 2.0 * (_y * _z + _w * _x),
+                                 _w * _w - _x * _x - _y * _y + _z * _z);
+                case RotSeq.zyz:
+                    return TwoAxisRot(2.0 * (_y * _z - _w * _x),
+                               2.0 * (_x * _z + _w * _y),
+                               _w * _w - _x * _x - _y * _y + _z * _z,
+                               2.0 * (_y * _z + _w * _x),
+                              -2.0 * (_x * _z - _w * _y));
+                case RotSeq.zxy:
+                    return ThreeAxisRot(-2.0 * (_x * _y - _w * _z),
+                                  _w * _w - _x * _x + _y * _y - _z * _z,
+                                  2.0 * (_y * _z + _w * _x),
+                                 -2.0 * (_x * _z - _w * _y),
+                                  _w * _w - _x * _x - _y * _y + _z * _z);
+                case RotSeq.zxz:
+                    return TwoAxisRot(2.0 * (_x * _z + _w * _y),
+                              -2.0 * (_y * _z - _w * _x),
+                               _w * _w - _x * _x - _y * _y + _z * _z,
+                               2.0 * (_x * _z - _w * _y),
+                               2.0 * (_y * _z + _w * _x));
+                case RotSeq.yxz:
+                    return ThreeAxisRot(2.0 * (_x * _z + _w * _y),
+                                 _w * _w - _x * _x - _y * _y + _z * _z,
+                                -2.0 * (_y * _z - _w * _x),
+                                 2.0 * (_x * _y + _w * _z),
+                                 _w * _w - _x * _x + _y * _y - _z * _z);
+                case RotSeq.yxy:
+                    return TwoAxisRot(2.0 * (_x * _y - _w * _z),
+                               2.0 * (_y * _z + _w * _x),
+                               _w * _w - _x * _x + _y * _y - _z * _z,
+                               2.0 * (_x * _y + _w * _z),
+                              -2.0 * (_y * _z - _w * _x));
+                case RotSeq.yzx:
+                    return ThreeAxisRot(-2.0 * (_x * _z - _w * _y),
+                                  _w * _w + _x * _x - _y * _y - _z * _z,
+                                  2.0 * (_x * _y + _w * _z),
+                                 -2.0 * (_y * _z - _w * _x),
+                                  _w * _w - _x * _x + _y * _y - _z * _z);
+                case RotSeq.yzy:
+                    return TwoAxisRot(2.0 * (_y * _z + _w * _x),
+                              -2.0 * (_x * _y - _w * _z),
+                               _w * _w - _x * _x + _y * _y - _z * _z,
+                               2.0 * (_y * _z - _w * _x),
+                               2.0 * (_x * _y + _w * _z));
+                case RotSeq.xyz:
+                    return ThreeAxisRot(-2.0 * (_y * _z - _w * _x),
+                                _w * _w - _x * _x - _y * _y + _z * _z,
+                                2.0 * (_x * _z + _w * _y),
+                               -2.0 * (_x * _y - _w * _z),
+                                _w * _w + _x * _x - _y * _y - _z * _z);
+                case RotSeq.xyx:
+                    return TwoAxisRot(2.0 * (_x * _y + _w * _z),
+                              -2.0 * (_x * _z - _w * _y),
+                               _w * _w + _x * _x - _y * _y - _z * _z,
+                               2.0 * (_x * _y - _w * _z),
+                               2.0 * (_x * _z + _w * _y));
+                case RotSeq.xzy:
+                    return ThreeAxisRot(2.0 * (_y * _z + _w * _x),
+                                 _w * _w - _x * _x + _y * _y - _z * _z,
+                                -2.0 * (_x * _y - _w * _z),
+                                 2.0 * (_x * _z + _w * _y),
+                                 _w * _w + _x * _x - _y * _y - _z * _z);
+                case RotSeq.xzx:
+                    return TwoAxisRot(2.0 * (_x * _z - _w * _y),
+                               2.0 * (_x * _y + _w * _z),
+                               _w * _w + _x * _x - _y * _y - _z * _z,
+                               2.0 * (_x * _z + _w * _y),
+                              -2.0 * (_x * _y - _w * _z));
             }
-            else
-                result._x = 1;
-
-            return result;
-        }
-
-        public static Vector4 FromAxisAngle(Vector3 axis, float angle)
-        {
-            if (axis.Dot() == 0.0f)
-                return Identity;
-
-            Vector4 result = Identity;
-
-            angle *= 0.5f;
-            axis.Normalize();
-            result._x = axis._x * (float)System.Math.Sin(angle);
-            result._y = axis._y * (float)System.Math.Sin(angle);
-            result._z = axis._z * (float)System.Math.Sin(angle);
-            result._w = (float)System.Math.Cos(angle);
-
-            return result.Normalize();
-        }
-
-        public static Vector4 FromEulerAngles(Vector3 v)
-        {
-            Vector3 
-                vx = new Vector3(1, 0, 0),
-                vy = new Vector3(0, 1, 0), 
-                vz = new Vector3(0, 0, 1);
-            Vector4 qx, qy, qz;
-
-            qx = FromAxisAngle(vx, v._x);
-            qy = FromAxisAngle(vy, v._y);
-            qz = FromAxisAngle(vz, v._z);
-
-            return qx * qy * qz;
-        }
-
-        public Vector3 ToEuler()
-        {
-            return new Vector3(
-                (float)Math.Atan2(2 * (_x * _y + _z * _w), 1 - 2 * (_y * _y + _z * _z)),
-                (float)Math.Asin(2 * (_x * _z - _w * _y)),
-                (float)Math.Atan2(2 * (_x * _w + _y * _z), 1 - 2 * (_z * _z + _w * _w)));
+            return Vector3.Zero;
         }
 
         [Browsable(false)]
