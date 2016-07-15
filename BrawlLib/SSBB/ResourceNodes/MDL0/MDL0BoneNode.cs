@@ -125,6 +125,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _boneFlags |= BoneFlags.Visible;
                 else
                     _boneFlags &= ~BoneFlags.Visible;
+                SignalPropertyChange();
             }
         }
         [Category("Bone")]
@@ -137,6 +138,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _boneFlags |= BoneFlags.SegScaleCompApply;
                 else
                     _boneFlags &= ~BoneFlags.SegScaleCompApply;
+                SignalPropertyChange();
             }
         }
         [Category("Bone")]
@@ -149,6 +151,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _boneFlags |= BoneFlags.SegScaleCompParent;
                 else
                     _boneFlags &= ~BoneFlags.SegScaleCompParent;
+                SignalPropertyChange();
             }
         }
         [Category("Bone")]
@@ -161,6 +164,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _boneFlags |= BoneFlags.ClassicScaleOff;
                 else
                     _boneFlags &= ~BoneFlags.ClassicScaleOff;
+                SignalPropertyChange();
             }
         }
         [Category("Bone"), Description("The index of this bone in the raw array of bones in the file.")]
@@ -281,6 +285,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     _boneFlags |= BoneFlags.HasBillboardParent;
                 else
                     _boneFlags &= ~BoneFlags.HasBillboardParent;
+                SignalPropertyChange();
             }
         }
 

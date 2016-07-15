@@ -1750,8 +1750,11 @@ namespace System.Windows.Forms
             else if (e.KeyCode == Keys.Delete)
             {
                 if (_selectedPlanes.Count > 0)
+                {
                     foreach (CollisionPlane plane in _selectedPlanes)
                         plane.Delete();
+                    TargetNode.SignalPropertyChange();
+                }
                 else if (_selectedLinks.Count == 1)
                     _selectedLinks[0].Pop();
 

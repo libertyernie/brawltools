@@ -280,7 +280,8 @@ namespace BrawlLib.Modeling
         {
             bindMatrix *= node._matrix;
 
-            if (node._type == NodeType.JOINT)
+            if (node._type == NodeType.JOINT || 
+                (node._type == NodeType.NONE && node._instances.Count == 0))
             {
                 Error = "There was a problem creating a new bone.";
 

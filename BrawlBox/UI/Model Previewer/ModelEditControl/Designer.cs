@@ -1854,7 +1854,6 @@ namespace System.Windows.Forms
             this.weightEditor.Size = new System.Drawing.Size(264, 103);
             this.weightEditor.TabIndex = 31;
             this.weightEditor.Visible = false;
-            this.weightEditor.WeightIncrement = 0.1F;
             // 
             // vertexEditor
             // 
@@ -2162,7 +2161,8 @@ namespace System.Windows.Forms
 
         protected override void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
-            if (e.Button == Forms.MouseButtons.Left && !(_scaling || _translating || _rotating))
+            if (e.Button == Forms.MouseButtons.Left && 
+                !_vertexSelection.IsMoving())
             {
                 weightEditor.TargetVertices = _selectedVertices;
                 vertexEditor.TargetVertices = _selectedVertices;

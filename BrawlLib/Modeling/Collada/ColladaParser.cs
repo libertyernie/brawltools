@@ -1125,16 +1125,6 @@ namespace BrawlLib.Modeling
             internal Matrix _invMatrix = Matrix.Identity;
             internal List<NodeEntry> _children = new List<NodeEntry>();
             internal List<InstanceEntry> _instances = new List<InstanceEntry>();
-
-            public static int Compare(NodeEntry n1, NodeEntry n2)
-            {
-                if ((n1._type == NodeType.NODE || n1._type == NodeType.NONE) && n2._type == NodeType.JOINT)
-                    return 1;
-                if (n1._type == NodeType.JOINT && (n2._type == NodeType.NODE || n2._type == NodeType.NONE))
-                    return -1;
-
-                return 0;
-            }
         }
         private enum InstanceType
         {

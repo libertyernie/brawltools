@@ -43,6 +43,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             int index = -1;
 
+            //Make sure all texture names are assigned before clearing the list
+            Populate();
+
             //Reset list to recollect
             _textureFiles.Clear();
 
@@ -71,6 +74,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void RegeneratePaletteList()
         {
             int index = -1;
+
+            //Make sure all palette names are assigned before clearing the list
+            Populate();
 
             //Reset list to recollect
             _paletteFiles.Clear();
@@ -1096,6 +1102,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return PAT0Texture.Size;
         }
 
+        //[Browsable(false)]
         public int ImageCount
         {
             get

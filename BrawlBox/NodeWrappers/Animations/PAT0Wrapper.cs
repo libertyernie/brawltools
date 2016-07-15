@@ -53,18 +53,9 @@ namespace BrawlBox.NodeWrappers
 
         public PAT0Wrapper() { ContextMenuStrip = _menu; }
 
-        public override string ExportFilter
-        {
-            get
-            {
-                return FileFilters.PAT0;
-            }
-        }
+        public override string ExportFilter { get { return FileFilters.PAT0; } }
 
-        public void NewEntry()
-        {
-            ((PAT0Node)_resource).CreateEntry();
-        }
+        public void NewEntry() { ((PAT0Node)_resource).CreateEntry(); }
         private void Merge()
         {
 

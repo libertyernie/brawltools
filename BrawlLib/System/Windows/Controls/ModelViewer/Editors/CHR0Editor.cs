@@ -1011,10 +1011,7 @@ namespace System.Windows.Forms
                 //This will make the model not move with the bone
                 //This will recalculate matrices and vertices/normals
                 //AFTER a drag change is made, not during
-                if (chkUpdateBindPose.Checked && 
-                    !_mainWindow._rotating &&
-                    !_mainWindow._translating &&
-                    !_mainWindow._scaling)
+                if (chkUpdateBindPose.Checked && !_mainWindow._boneSelection.IsMoving())
                     bone.RecalcBindState(true, !chkMoveBoneOnly.Checked);
 
                 ((ResourceNode)bone).SignalPropertyChange();
