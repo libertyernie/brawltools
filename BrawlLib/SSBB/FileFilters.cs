@@ -15,9 +15,9 @@ namespace BrawlLib
         public static string PLT0 =
             SupportedFilesHandler.GetCompleteFilter("plt0");
         public static string CHR0Import = 
-            SupportedFilesHandler.GetCompleteFilter("chr0", "anim", "txt", "json");
+            SupportedFilesHandler.GetCompleteFilter("chr0", "anim", "txt", "json", "omo");
         public static string CHR0Export =
-            SupportedFilesHandler.GetCompleteFilter("chr0", "anim");
+            SupportedFilesHandler.GetCompleteFilter("chr0", "anim", "omo");
         public static string CLR0 =
             SupportedFilesHandler.GetCompleteFilter("clr0");
         public static string PAT0 = 
@@ -78,5 +78,7 @@ namespace BrawlLib
 
         public static string VBN =
             SupportedFilesHandler.GetCompleteFilter("vbn");
+        public static string OMO =
+            SupportedFilesHandler.GetCompleteFilter("omo", "chr0");
     }
 }

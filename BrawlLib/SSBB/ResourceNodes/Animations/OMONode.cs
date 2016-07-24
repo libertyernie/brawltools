@@ -19,22 +19,33 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override Type[] AllowedChildTypes { get { return new Type[] { typeof(OMOBoneEntryNode) }; } }
 
         public OMONode() { }
-        const string _category = "Bone Animation";
 
         public int _frameSize;
 
-        [Category(_category)]
-        public int FrameSize
+        public string Unknown1
         {
-            get { return _frameSize; }
-            //set { _frameSize = value; SignalPropertyChange(); }
+            get { return "0x" + _unk1.ToString("X8"); }
+            set
+            {
+                string val = value;
+                if (val.StartsWith("0x"))
+                    val = val.Substring(2);
+                if (uint.TryParse(val, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture.NumberFormat, out _unk1))
+                    SignalPropertyChange();
+            }
         }
+        public ushort Unknown2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
+
+        uint _unk1;
+        ushort _unk2;
 
         public override bool OnInitialize()
         {
             _name = _origPath;
             _numFrames = Header->_frameCount;
             _frameSize = Header->_frameSize;
+            _unk1 = Header->_unk1;
+            _unk2 = Header->_unk2;
             return Header->_boneCount > 0;
         }
 
@@ -43,11 +54,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             for (int i = 0; i < Header->_boneCount; ++i)
             {
                 OMOBoneEntry* entry = (OMOBoneEntry*)((VoidPtr)Header + Header->_boneTableOffset + i * 0x10);
-                uint fixedOff = Header->_fixedDataOffset;
-                uint frameOff = Header->_frameDataOffset;
-                uint offsetInFixed = entry->_offsetInFixedData;
-                uint offsetInFrame = entry->_offsetInFrame;
-                uint nextOffsetInFixed, nextOffsetInFrame;
+                int fixedOff = Header->_fixedDataOffset;
+                int frameOff = Header->_frameDataOffset;
+                int offsetInFixed = entry->_offsetInFixedData;
+                int offsetInFrame = entry->_offsetInFrame;
+                int nextOffsetInFixed, nextOffsetInFrame;
                 if (i + 1 != Header->_boneCount)
                 {
                     OMOBoneEntry* nextEntry = (OMOBoneEntry*)((VoidPtr)entry + 0x10);
@@ -66,71 +77,58 @@ namespace BrawlLib.SSBB.ResourceNodes
                 BVec3* fixedData = (BVec3*)(Header->FixedData + offsetInFixed);
                 VoidPtr fixedDataStart = fixedData;
 
-                OMORangeAnim s = null, r = null, t = null;
-                //OpenTK.Quaternion? _quat = null;
+                Vector3 transMin = Vector3.Zero, rotMin = Vector3.Zero, scaleMin = Vector3.One;
+                Vector3 transRange = Vector3.Zero, rotRange = Vector3.Zero, scaleRange = Vector3.Zero;
+                Vector4 constQuat;
 
-                Vector3[]
-                    ScaleInterp = new Vector3[_numFrames],
-                    RotInterp = new Vector3[_numFrames],
-                    TransInterp = new Vector3[_numFrames];
-                Vector3 
-                    ScaleMin = Vector3.Zero,
-                    ScaleMax = Vector3.Zero,
-                    RotMin = Vector3.Zero,
-                    RotMax = Vector3.Zero,
-                    TransMin = Vector3.Zero,
-                    TransMax = Vector3.Zero;
+                bool constant = entry->RotationFlags.HasFlag(OMORotType.Fixed);
+                bool euler = entry->RotationFlags.HasFlag(OMORotType.Euler);
+                bool quat = entry->RotationFlags.HasFlag(OMORotType.Quaternion);
+                bool frame = entry->RotationFlags.HasFlag(OMORotType.InFrame);
 
-                if (entry->HasTranslation)
+                #region Fixed data
+                if (entry->HasTranslation && (entry->TranslationConstant || entry->TranslationAnimated))
                 {
-                    if (entry->TranslationConstant)
-                    {
-                        t = new OMORangeAnim(*fixedData++);
-                    }
-                    else if (entry->TranslationAnimated)
-                    {
-                        TransMin = *fixedData++;
-                        TransMax = *fixedData++;
-                        t = new OMORangeAnim(TransMin, TransMax);
-                    }
+                    transMin = *fixedData++;
+                    if (entry->TranslationAnimated && !entry->TranslationConstant)
+                        transRange = *fixedData++;
                 }
                 if (entry->HasRotation)
                 {
-                    if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                    if (constant || euler)
                     {
-                        r = new OMORangeAnim((Vector3)(*fixedData++) * Maths._rad2degf);
+                        rotMin = *fixedData++;
+                        if (euler && !constant)
+                            rotRange = *fixedData++;
                     }
-                    else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                    else if (quat)
                     {
-                        RotMin = *fixedData++;
-                        RotMax = *fixedData++;
-                        r = new OMORangeAnim(RotMin, RotMax);
-                    }
-                    else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
-                    {
-                        //MessageBox.Show("Quat1");
-                        //Vector4 q = *(BVec4*)fixedData;
+                        //MessageBox.Show("Unknown Rot Type");
+                        constQuat = *(BVec4*)fixedData;
                         fixedData = (BVec3*)((VoidPtr)fixedData + 16);
-                        //_quat = new OpenTK.Quaternion(q._x, q._y, q._z, q._w);
                     }
                 }
-                if (entry->HasScale)
+                if (entry->HasScale && (entry->ScaleConstant || entry->ScaleAnimated))
                 {
-                    if (entry->ScaleConstant)
-                    {
-                        s = new OMORangeAnim(*fixedData++);
-                    }
-                    else if (entry->ScaleAnimated)
-                    {
-                        ScaleMin = *fixedData++;
-                        ScaleMax = *fixedData++;
-                        s = new OMORangeAnim(ScaleMin, ScaleMax);
-                    }
+                    scaleMin = *fixedData++;
+                    if (entry->ScaleAnimated && !entry->ScaleConstant)
+                        scaleRange = *fixedData++;
                 }
 
-                if ((int)fixedData - (int)fixedDataStart != fixedDataSize)
+                int diff = (int)fixedData - (int)fixedDataStart;
+                if (diff != fixedDataSize)
                     MessageBox.Show("Fixed data length mismatch");
 
+                #endregion
+
+                if (entry->HasTranslation && entry->TranslationFrame)
+                    MessageBox.Show("Trans Frame");
+                if (entry->HasRotation && frame)
+                    MessageBox.Show("Rot Frame");
+                if (entry->HasScale && entry->ScaleFrame)
+                    MessageBox.Show("Scale Frame");
+
+                #region Frame data
                 FrameState[] states = new FrameState[_numFrames];
                 for (int x = 0; x < _numFrames; x++)
                 {
@@ -138,87 +136,346 @@ namespace BrawlLib.SSBB.ResourceNodes
                     VoidPtr frameDataStart = frameData;
 
                     FrameState state = FrameState.Neutral;
+                    Vector3 interp = Vector3.Zero;
+
                     if (entry->HasTranslation)
                     {
-                        if (entry->TranslationConstant)
+                        if (entry->TranslationFrame)
                         {
-                            state._translate = t.GetValue();
+                            //state._translate = *(BVec3*)frameData;
+                            //frameData += 6;
                         }
-                        else if (entry->TranslationAnimated)
+                        else
                         {
-                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            state._translate = t.GetValue(ref interp);
-                            TransInterp[x] = interp;
-                        }
-                        else if (entry->TranslationFrame)
-                        {
-                            state._translate = *(BVec3*)frameData;
-                            frameData += 6;
+                            if (entry->TranslationAnimated)
+                                interp = new Vector3(*frameData++, *frameData++, *frameData++) / 0xFFFF;
+
+                            state._translate = transMin + transRange * interp;
                         }
                     }
                     if (entry->HasRotation)
                     {
-                        if (entry->RotationFlags.HasFlag(OMORotType.Fixed))
+                        if (frame)
                         {
-                            state._rotate = r.GetValue() * Maths._rad2degf;
+                            
                         }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.Euler))
+                        else if (constant || euler)
                         {
-                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            Vector3 value = r.GetValue(ref interp);
-                            float w = (float)Math.Sqrt(1 - (value._x * value._x + value._y * value._y + value._z * value._z));
-                            state._rotate = new Vector4(value, w).ToEuler(Vector4.RotSeq.zyx) * Maths._rad2degf;
-                            RotInterp[x] = interp;
+                            bool isAnimated = euler && !constant;
+
+                            if (isAnimated)
+                                interp = new Vector3(*frameData++, *frameData++, *frameData++) / 0xFFFF;
+
+                            Vector3 v = rotMin + rotRange * interp;
+
+                            if (isAnimated)
+                            {
+                                float w = (float)Math.Sqrt(1.0f - (v._x * v._x + v._y * v._y + v._z * v._z));
+                                v = new Vector4(v, w).ToEuler(Vector4.RotSeq.zyx);
+                            }
+
+                            state._rotate = v * Maths._rad2degf;
                         }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.Quaternion))
+                        else if (quat)
                         {
-                            //MessageBox.Show("Quat2");
-                            frameData++;
-                        }
-                        else if (entry->RotationFlags.HasFlag(OMORotType.InFrame))
-                        {
-                            MessageBox.Show("RotFrame");
+                            Vector4 interpQ = new Vector4((float)(ushort)(*frameData++) / 0xFFFF);
+
                         }
                     }
                     if (entry->HasScale)
                     {
-                        if (entry->ScaleConstant)
+                        if (entry->ScaleFrame)
                         {
-                            state._scale = s.GetValue();
+                            //state._scale = *(BVec3*)frameData;
+                            //frameData += 6;
                         }
-                        else if (entry->ScaleAnimated)
+                        else
                         {
-                            Vector3 interp = new Vector3(*frameData++, *frameData++, *frameData++);
-                            state._scale = s.GetValue(ref interp);
-                            ScaleInterp[x] = interp;
-                        }
-                        else if (entry->ScaleFrame)
-                        {
-                            state._scale = *(BVec3*)frameData;
-                            frameData += 6;
+                            if (entry->ScaleAnimated)
+                                interp = new Vector3(*frameData++, *frameData++, *frameData++) / 0xFFFF;
+
+                            state._scale = scaleMin + scaleRange * interp;
                         }
                     }
                     state.CalcTransforms();
                     states[x] = state;
 
-                    if ((int)frameData - (int)frameDataStart != frameDataSize)
+                    diff = (int)frameData - (int)frameDataStart;
+                    if (diff != frameDataSize)
                         MessageBox.Show("Frame data length mismatch");
                 }
+                #endregion
 
-                new OMOBoneEntryNode()
+                new OMOBoneEntryNode() { _frameStates = states }.Initialize(this, (VoidPtr)Header + Header->_boneTableOffset + i * 0x10, 0x10);
+            }
+        }
+
+        internal override void GetStrings(StringTable strings)
+        {
+            
+        }
+        protected internal override void PostProcess(VoidPtr bresAddress, VoidPtr dataAddress, int dataLength, StringTable stringTable)
+        {
+
+        }
+
+        int _rebuildFrameSize, _rebuildFixedSize;
+        public override int OnCalculateSize(bool force)
+        {
+            _rebuildFrameSize = 0;
+
+            int size = OMOHeader.Size + Children.Count * OMOBoneEntry.Size;
+            foreach (OMOBoneEntryNode b in Children)
+            {
+                b._rebuildScaleMin = new Vector3(float.MaxValue);
+                b._rebuildRotMin = new Vector3(float.MaxValue);
+                b._rebuildTransMin = new Vector3(float.MaxValue);
+
+                Vector3 scaleMax = new Vector3(float.MinValue);
+                Vector3 rotMax = new Vector3(float.MinValue);
+                Vector3 transMax = new Vector3(float.MinValue);
+
+                foreach (FrameState s in b.FrameStates)
                 {
-                    ScaleMin = ScaleMin,
-                    ScaleMax = ScaleMax,
-                    ScaleInterp = ScaleInterp,
-                    RotMin = RotMin,
-                    RotMax = RotMax,
-                    RotInterp = RotInterp,
-                    TransMin = TransMin,
-                    TransMax = TransMax,
-                    TransInterp = TransInterp,
-                    _frameStates = states
+                    scaleMax.Max(s._scale);
+                    rotMax.Max(s._rotate);
+                    transMax.Max(s._translate);
+
+                    b._rebuildScaleMin.Min(s._scale);
+                    b._rebuildRotMin.Min(s._rotate);
+                    b._rebuildTransMin.Min(s._translate);
                 }
-                .Initialize(this, (VoidPtr)Header + Header->_boneTableOffset + i * 0x10, 0x10);
+
+                b._rebuildScaleRange = scaleMax - b._rebuildScaleMin;
+                b._rebuildRotRange = rotMax - b._rebuildRotMin;
+                b._rebuildTransRange = transMax - b._rebuildTransMin;
+
+                _rebuildFixedSize += b.GetFixedSize();
+                _rebuildFrameSize += b.GetFrameSize();
+            }
+            return size + _rebuildFixedSize + _rebuildFrameSize * _numFrames;
+        }
+
+        public override void OnRebuild(VoidPtr address, int length, bool force)
+        {
+            OMOHeader* hdr = (OMOHeader*)address;
+            hdr->_tag = OMOHeader.Tag;
+            hdr->_versionMax = 1;
+            hdr->_versionMin = 3;
+            hdr->_unk1 = _unk1;
+            hdr->_unk2 = _unk2;
+            hdr->_frameCount = (ushort)_numFrames;
+            hdr->_frameSize = (ushort)_rebuildFrameSize;
+            hdr->_boneCount = (ushort)Children.Count;
+            hdr->_boneTableOffset = OMOHeader.Size;
+            hdr->_fixedDataOffset = OMOHeader.Size + Children.Count * OMOBoneEntry.Size;
+            hdr->_frameDataOffset = hdr->_fixedDataOffset + _rebuildFixedSize;
+
+            OMOBoneEntry* entries = (OMOBoneEntry*)(address + hdr->_boneTableOffset);
+            BVec3* fixedData = (BVec3*)hdr->FixedData;
+            bushort* frameData = (bushort*)hdr->GetFrameAddr(0);
+            int frameOffset = 0;
+
+            foreach (OMOBoneEntryNode b in Children)
+            {
+                entries->_boneHash = b._boneHash;
+                entries->_flags = b._flags;
+                entries->_offsetInFixedData = fixedData - hdr->FixedData;
+                entries->_offsetInFrame = frameOffset;
+                entries++;
+
+                frameOffset += b._rebuildFrameSize;
+
+                bool constant = b.RotationFlags.HasFlag(OMORotType.Fixed);
+                bool euler = b.RotationFlags.HasFlag(OMORotType.Euler);
+                bool quat = b.RotationFlags.HasFlag(OMORotType.Quaternion);
+                bool frame = b.RotationFlags.HasFlag(OMORotType.InFrame);
+
+                if (b.HasTranslation)
+                {
+                    if (b.TranslationFrame)
+                    {
+
+                    }
+                    else if (b.TranslationConstant || b.TranslationAnimated)
+                    {
+                        *fixedData++ = b._rebuildTransMin;
+                        if (!b.TranslationConstant && b.TranslationAnimated)
+                            *fixedData++ = b._rebuildTransRange;
+                    }
+                }
+                if (b.HasRotation)
+                {
+                    if (frame)
+                    {
+
+                    }
+                    else if (constant || euler)
+                    {
+                        *fixedData++ = b._rebuildRotMin;
+                        if (euler && !constant)
+                            *fixedData++ = b._rebuildRotRange;
+                    }
+                    else if (quat)
+                    {
+
+                    }
+                }
+                if (b.HasScale)
+                {
+                    if (b.ScaleFrame)
+                    {
+
+                    }
+                    else if (b.ScaleConstant || b.ScaleAnimated)
+                    {
+                        *fixedData++ = b._rebuildScaleMin;
+                        if (!b.ScaleConstant && b.ScaleAnimated)
+                            *fixedData++ = b._rebuildScaleRange;
+                    }
+                }
+
+                for (int i = 0; i < _numFrames; ++i)
+                {
+                    FrameState state = b.FrameStates[i];
+                    if (b.HasTranslation)
+                    {
+                        if (b.TranslationFrame)
+                        {
+                            *(BVec3*)frameData = state._translate;
+                            frameData += 6;
+                        }
+                        else if (!b.TranslationConstant && b.TranslationAnimated)
+                        {
+                            Vector3 interp = ((state._translate - b._rebuildTransMin) / b._rebuildTransRange) * 0xFFFF;
+                            *frameData++ = (ushort)(int)(interp._x + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._y + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._z + 0.5f);
+                        }
+                    }
+                    if (b.HasRotation)
+                    {
+                        if (frame)
+                        {
+
+                        }
+                        else if (euler && !constant)
+                        {
+                            Vector4 q = (state._rotate * Maths._deg2radf).ToQuat();
+                            Vector3 v = new Vector3(q._x, q._y, q._z);
+
+                            Vector3 interp = ((v - b._rebuildRotMin) / b._rebuildRotRange) * 0xFFFF;
+                            *frameData++ = (ushort)(int)(interp._x + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._y + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._z + 0.5f);
+                        }
+                        else if (quat)
+                        {
+                            //Vector4 interpQ = new Vector4((float)(ushort)(*frameData++) / 0xFFFF);
+
+                        }
+                    }
+                    if (b.HasScale)
+                    {
+                        if (b.ScaleFrame)
+                        {
+                            *(BVec3*)frameData = state._scale;
+                            frameData += 6;
+                        }
+                        else if (!b.ScaleConstant && b.ScaleAnimated)
+                        {
+                            Vector3 interp = ((state._scale - b._rebuildScaleMin) / b._rebuildScaleRange) * 0xFFFF;
+                            *frameData++ = (ushort)(int)(interp._x + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._y + 0.5f);
+                            *frameData++ = (ushort)(int)(interp._z + 0.5f);
+                        }
+                    }
+                }
+            }
+        }
+
+        public CHR0Node ToCHR0()
+        {
+            CHR0Node node = new CHR0Node();
+            node.Name = Name;
+            node.FrameCount = _numFrames;
+            foreach (OMOBoneEntryNode b in Children)
+            {
+                CHR0EntryNode c = new CHR0EntryNode();
+                c._keyframes = new KeyframeCollection(9, _numFrames, 1.0f, 1.0f, 1.0f);
+                c.Keyframes.FrameLimit = _numFrames;
+                c.Name = b.Name;
+
+                bool[] exclude = new bool[9] { true, true, true, true, true, true, true, true, true };
+                if (b.HasScale && 
+                    !b.ScaleConstant && 
+                    b.ScaleAnimated)
+                {
+                    exclude[0] = false;
+                    exclude[1] = false;
+                    exclude[2] = false;
+                }
+                if (b.HasRotation && 
+                    !b.RotationFlags.HasFlag(OMORotType.Fixed) &&
+                    (b.RotationFlags.HasFlag(OMORotType.InFrame) || 
+                    b.RotationFlags.HasFlag(OMORotType.Euler) ||
+                    b.RotationFlags.HasFlag(OMORotType.Quaternion)))
+                {
+                    exclude[3] = false;
+                    exclude[4] = false;
+                    exclude[5] = false;
+                }
+                if (b.HasTranslation && 
+                    !b.TranslationConstant && 
+                    b.ScaleAnimated)
+                {
+                    exclude[6] = false;
+                    exclude[7] = false;
+                    exclude[8] = false;
+                }
+
+                for (int i = 0; i < _numFrames; ++i)
+                    fixed (FrameState* addr = &b.FrameStates[i])
+                    {
+                        float* values = (float*)addr;
+                        for (int x = 0; x < 9; ++x)
+                            if (!exclude[x])
+                                c.Keyframes.SetFrameValue(x, i, values[x]);
+                    }
+
+                fixed (FrameState* addr = &b.FrameStates[0])
+                {
+                    float* values = (float*)addr;
+                    for (int x = 0; x < 9; ++x)
+                        if (exclude[x])
+                            c.Keyframes.SetFrameValue(x, 0, values[x]);
+                }
+
+                node.AddChild(c);
+            }
+            return node;
+        }
+        public void FromCHR0(CHR0Node n)
+        {
+            Name = n.Name;
+            _numFrames = n._numFrames;
+            while (Children.Count > 0)
+                Children[0].Remove();
+            foreach (CHR0EntryNode e in n.Children)
+            {
+                OMOBoneEntryNode b = new OMOBoneEntryNode();
+                b._frameStates = new FrameState[_numFrames];
+                b.Name = e.Name;
+                for (int i = 0; i < _numFrames; ++i)
+                {
+                    fixed (FrameState* addr = &b.FrameStates[i])
+                    {
+                        float* values = (float*)addr;
+                        for (int x = 0; x < 9; ++x)
+                            values[x] = e.Keyframes.GetFrameValue(x, i);
+                    }
+                }
+                AddChild(b);
             }
         }
 
@@ -230,45 +487,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal static ResourceNode TryParse(DataSource source) { return *(BinTag*)source.Address == OMOHeader.Tag ? new OMONode() : null; }
     }
 
-    public class OMORangeAnim
-    {
-        public OMORangeAnim(Vector3 minValue, Vector3 maxValue)
-        {
-            _minValue = minValue;
-            _range = maxValue;
-        }
-        public OMORangeAnim(Vector3 constantValue)
-        {
-            _minValue = constantValue;
-            _range = Vector3.Zero;
-        }
-
-        Vector3 _minValue;
-        Vector3 _range;
-
-        public Vector3 GetValue(ref Vector3 interp)
-        {
-            interp /= 0xFFFF;
-            return _minValue + _range * interp;
-        }
-        public Vector3 GetValue(ushort x = 0, ushort y = 0, ushort z = 0)
-        {
-            float px = (float)x / (float)0xFFFF;
-            float py = (float)y / (float)0xFFFF;
-            float pz = (float)z / (float)0xFFFF;
-            return new Vector3(
-                _minValue._x + _range._x * px,
-                _minValue._y + _range._y * py,
-                _minValue._z + _range._z * pz);
-        }
-    }
-
     public unsafe class OMOBoneEntryNode : ResourceNode
     {
         internal OMOBoneEntry* Header { get { return (OMOBoneEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
         internal OMONode ParentOMO { get { return (OMONode)Parent; } }
+
+        public Vector3 _rebuildScaleMin, _rebuildRotMin, _rebuildTransMin;
+        public Vector3 _rebuildScaleRange, _rebuildRotRange, _rebuildTransRange;
 
         public uint _boneHash;
         public Bin32 _flags;
@@ -342,25 +569,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _hdr.AlwaysOn; }
         }
 
-        [Category("Flags")]
-        public Vector3 ScaleMin { get; set; }
-        [Category("Flags")]
-        public Vector3 ScaleMax { get; set; }
-        [Category("Flags")]
-        public Vector3[] ScaleInterp { get; set; }
-        [Category("Flags")]
-        public Vector3 RotMin { get; set; }
-        [Category("Flags")]
-        public Vector3 RotMax { get; set; }
-        [Category("Flags")]
-        public Vector3[] RotInterp { get; set; }
-        [Category("Flags")]
-        public Vector3 TransMin { get; set; }
-        [Category("Flags")]
-        public Vector3 TransMax { get; set; }
-        [Category("Flags")]
-        public Vector3[] TransInterp { get; set; }
-
         public override bool OnInitialize()
         {
             _boneHash = Header->_boneHash;
@@ -382,6 +590,102 @@ namespace BrawlLib.SSBB.ResourceNodes
             
             return false;
         }
+
+        public int _rebuildFrameSize;
+        internal int GetFrameSize()
+        {
+            int size = 0;
+            if (HasTranslation)
+            {
+                if (TranslationFrame)
+                    size += 12;
+                else if (!TranslationConstant && TranslationAnimated)
+                    size += 6;
+            }
+            if (HasRotation)
+            {
+                bool constant = RotationFlags.HasFlag(OMORotType.Fixed);
+                bool euler = RotationFlags.HasFlag(OMORotType.Euler);
+                bool quat = RotationFlags.HasFlag(OMORotType.Quaternion);
+                bool frame = RotationFlags.HasFlag(OMORotType.InFrame);
+
+                if (frame)
+                {
+
+                }
+                else if (!constant)
+                {
+                    if (euler)
+                        size += 6;
+                    else if (quat)
+                        size += 2;
+                }
+            }
+            if (HasScale)
+            {
+                if (ScaleFrame)
+                    size += 12;
+                else if (!ScaleConstant && ScaleAnimated)
+                    size += 6;
+            }
+            return _rebuildFrameSize = size;
+        }
+
+        public int GetFixedSize()
+        {
+            int size = 0;
+            if (HasTranslation)
+            {
+                if (TranslationFrame)
+                {
+
+                }
+                else if (TranslationConstant || TranslationAnimated)
+                {
+                    size += 12;
+                    if (!TranslationConstant && TranslationAnimated)
+                        size += 12;
+                }
+            }
+            if (HasRotation)
+            {
+                bool constant = RotationFlags.HasFlag(OMORotType.Fixed);
+                bool euler = RotationFlags.HasFlag(OMORotType.Euler);
+                bool quat = RotationFlags.HasFlag(OMORotType.Quaternion);
+                bool frame = RotationFlags.HasFlag(OMORotType.InFrame);
+
+                if (frame)
+                {
+
+                }
+                else if (constant || euler)
+                {
+                    size += 12;
+                    if (euler && !constant)
+                        size += 12;
+                }
+                else if (quat)
+                {
+                    //Vector4 interpQ = new Vector4((float)(ushort)(*frameData++) / 0xFFFF);
+
+                }
+            }
+            if (HasScale)
+            {
+                if (ScaleFrame)
+                {
+
+                }
+                else if (ScaleConstant || ScaleAnimated)
+                {
+                    size += 12;
+                    if (!ScaleConstant && ScaleAnimated)
+                        size += 12;
+                }
+            }
+            return size;
+        }
+
         public FrameState[] FrameStates { get { return _frameStates; } }
         public FrameState[] _frameStates;
     }

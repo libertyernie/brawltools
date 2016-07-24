@@ -139,6 +139,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 Collada.Serialize(new CHR0Node[] { this }, 60.0f, false, outPath);
             else if (outPath.EndsWith(".anim", StringComparison.OrdinalIgnoreCase))
                 AnimFormat.Serialize(this, false, outPath);
+            else if (outPath.EndsWith(".omo", StringComparison.OrdinalIgnoreCase))
+            {
+                OMONode omo = new OMONode();
+                omo.FromCHR0(this);
+                omo.Export(outPath);
+            }
             else
                 base.Export(outPath);
         }
@@ -157,6 +163,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return CHR0TextImporter.Convert(path);
                 if (path.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
                     return CHR0JsonImporter.Convert(path);
+                if (path.EndsWith(".omo", StringComparison.OrdinalIgnoreCase))
+                {
+                    OMONode omo = NodeFactory.FromFile(null, path) as OMONode;
+                    return omo.ToCHR0();
+                }
                 //if (path.EndsWith(".bvh", StringComparison.OrdinalIgnoreCase))
                 //    return BVH.Import(path);
                 //if (path.EndsWith(".vmd", StringComparison.OrdinalIgnoreCase))

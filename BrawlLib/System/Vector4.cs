@@ -16,8 +16,8 @@ namespace System
         public Vector4(SerializationInfo info, StreamingContext context)
         {
             _x = info.GetSingle("_x");
-            _z = info.GetSingle("_y");
-            _y = info.GetSingle("_z");
+            _y = info.GetSingle("_y");
+            _z = info.GetSingle("_z");
             _w = info.GetSingle("_w");
         }
         public void GetObjectData(SerializationInfo info, StreamingContext context)
@@ -38,16 +38,7 @@ namespace System
 
         public static Vector4 operator *(Vector4 v1, Vector4 v2)
         {
-            Vector4 v = new Vector4();
-
-            Vector3 x1 = new Vector3(v1._x, v1._y, v1._z);
-            Vector3 x2 = new Vector3(v2._x, v2._y, v2._z);
-            float w1 = v1._w;
-            float w2 = v2._w;
-
-            //Vector3 s = new Vector3(w1 * w2 - x1.Dot(x2), w1 * x2 + w2 * x1 + x1.Cross(x2));
-
-            return v;
+            return new Vector4(v1._x * v2._x, v1._y * v2._y, v1._z * v2._z, v1._w * v2._w);
         }
 
         public static bool operator ==(Vector4 v1, Vector4 v2) { return (v1._x == v2._x) && (v1._y == v2._y) && (v1._z == v2._z) && (v1._w == v2._w); }
@@ -263,6 +254,18 @@ namespace System
                               -2.0 * (_x * _y - _w * _z));
             }
             return Vector3.Zero;
+        }
+
+        public Vector4 QuatMult(Vector4 other)
+        {
+            Vector4 q = this;
+            Vector4 r = other;
+            Vector4 t = new Vector4();
+            t._x = (r._x * q._x - r._y * q._y - r._z * q._z - r._w * q._w);
+            t._y = (r._x * q._y + r._y * q._x - r._z * q._w + r._w * q._z);
+            t._z = (r._x * q._z + r._y * q._w + r._z * q._x - r._w * q._y);
+            t._w = (r._x * q._w - r._y * q._z + r._z * q._y + r._w * q._x);
+            return t;
         }
 
         [Browsable(false)]

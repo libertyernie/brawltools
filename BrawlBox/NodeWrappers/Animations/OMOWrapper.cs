@@ -33,19 +33,19 @@ namespace BrawlBox.NodeWrappers
         protected static void NewAction(object sender, EventArgs e) { GetInstance<OMOWrapper>().NewBoneEntry(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[6].Enabled = true;
+            _menu.Items[10].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             OMOWrapper w = GetInstance<OMOWrapper>();
-            _menu.Items[6].Enabled = w.Parent != null;
+            _menu.Items[10].Enabled = w.Parent != null;
         }
         #endregion
 
         public OMOWrapper() { ContextMenuStrip = _menu; }
 
-        public override string ExportFilter { get { return FileFilters.Raw; } }
-
+        public override string ExportFilter { get { return FileFilters.OMO; } }
+        
         public void LoadSkeleton()
         {
             OpenFileDialog o = new OpenFileDialog();
@@ -57,6 +57,7 @@ namespace BrawlBox.NodeWrappers
                 OMONode._skeleton.Populate();
                 OMONode r = _resource as OMONode;
                 foreach (OMOBoneEntryNode b in r.Children)
+                {
                     foreach (VBNBoneNode n in OMONode._skeleton.BoneCache)
                     {
                         if (n._hash == b._boneHash)
@@ -65,6 +66,7 @@ namespace BrawlBox.NodeWrappers
                             break;
                         }
                     }
+                }
                 r.IsDirty = false;
             }
         }

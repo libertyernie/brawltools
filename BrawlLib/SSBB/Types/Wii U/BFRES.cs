@@ -13,9 +13,9 @@ namespace BrawlLib.SSBBTypes
         public const int Size = 16;
 
         public BinTag _tag;
-        public byte _versionMajor; //3
-        public byte _versionMinor; //0, 3, 4
-        public bushort _flags; //0, 1, 2, 4
+        public byte _versionMajor; //2, 3
+        public byte _versionMinor; //0, 2, 3, 4, 5
+        public bushort _flags; //0, 1, 2, 4, 6
         public bushort _endian;
         public bushort _rootOffset; //0x10
         public buint _fileSize; //Total size of resource package file

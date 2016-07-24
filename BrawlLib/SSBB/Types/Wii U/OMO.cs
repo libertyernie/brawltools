@@ -14,29 +14,16 @@ namespace BrawlLib.SSBBTypes
         public static readonly string Tag = "OMO ";
 
         public BinTag _tag;
-        public bushort _versionMin; //1
-        public bushort _versionMax; //3
-        public buint _unknown; //0x091B152E
-        public buint _boneCount;
+        public bushort _versionMax; //1
+        public bushort _versionMin; //3
+        public buint _unk1; //0x09XXXXXX usually
+        public bushort _unk2; //0, 2
+        public bushort _boneCount;
         public bushort _frameCount;
         public bushort _frameSize;
-        public buint _boneTableOffset;
-        public buint _fixedDataOffset;
-        public buint _frameDataOffset;
-
-        public OMOHeader(int frameCount, int boneCount)
-        {
-            _tag = Tag;
-            _versionMin = 1;
-            _versionMax = 3;
-            _unknown = 0x091B152E;
-            _boneCount = (uint)boneCount;
-            _frameCount = (ushort)frameCount;
-            _frameSize = 0;
-            _boneTableOffset = 0x20;
-            _fixedDataOffset = _boneTableOffset + _boneCount * OMOBoneEntry.Size;
-            _frameDataOffset = 0;
-        }
+        public bint _boneTableOffset;
+        public bint _fixedDataOffset;
+        public bint _frameDataOffset;
 
         public VoidPtr GetFrameAddr(int frameIndex) { return Address + _frameDataOffset + frameIndex * _frameSize; }
         public VoidPtr FixedData { get { return Address + _fixedDataOffset; } }
@@ -52,33 +39,40 @@ namespace BrawlLib.SSBBTypes
         //0000 0100 0000 0000 0000 0000 0000 0000   has scale
         //0000 0010 0000 0000 0000 0000 0000 0000   has rot
         //0000 0001 0000 0000 0000 0000 0000 0000   has trans
-        //0000 0000 0010 0000 0000 0000 0000 0000   trans const
-        //0000 0000 0000 1000 0000 0000 0000 0000   trans interp
-        //0000 0000 0000 0000 0111 0000 0000 0000   rot const
-        //0000 0000 0000 0000 0101 0000 0000 0000   rot interp
-        //0000 0000 0000 0000 0000 0010 0000 0000   scale const
-        //0000 0000 0000 0000 0000 0000 1000 0000   scale interp
-        //0000 0000 0000 0000 0000 0000 0000 0001   enabled (always on?)
+        //0000 0000 0010 0000 0000 0000 0000 0000   trans fixed
+        //0000 0000 0000 1000 0000 0000 0000 0000   trans animated
+        //0000 0000 0000 0100 0000 0000 0000 0000   trans frame
+        //0000 0000 0000 0000 1000 0000 0000 0000   rot frame
+        //0000 0000 0000 0000 0111 0000 0000 0000   rot fixed
+        //0000 0000 0000 0000 0110 0000 0000 0000   rot animated type 1
+        //0000 0000 0000 0000 0101 0000 0000 0000   rot animated type 2
+        //0000 0000 0000 0000 0000 0010 0000 0000   scale fixed
+        //0000 0000 0000 0000 0000 0000 1000 0000   scale animated
+        //0000 0000 0000 0000 0000 0000 0100 0000   scale frame
+        //0000 0000 0000 0000 0000 0000 0000 0001   always on
 
         //02087081
         //0000 0010 0000 1000 0111 0000 1000 0001
 
         public Bin32 _flags;
         public buint _boneHash; //matches id in vbn (2 bytes after bone parent index in vbn)
-        public buint _offsetInFixedData;
-        public buint _offsetInFrame;
+        public bint _offsetInFixedData;
+        public bint _offsetInFrame;
         
         public bool HasScale
         {
             get { return _flags[26]; }
+            set { _flags[26] = value; }
         }
         public bool HasRotation
         {
             get { return _flags[25]; }
+            set { _flags[25] = value; }
         }
         public bool HasTranslation
         {
             get { return _flags[24]; }
+            set { _flags[24] = value; }
         }
         //[Category("Flags")]
         //public bool Flag23
@@ -93,6 +87,7 @@ namespace BrawlLib.SSBBTypes
         public bool TranslationConstant
         {
             get { return _flags[21]; }
+            set { _flags[21] = value; }
         }
         //[Category("Flags")]
         //public bool Flag20
@@ -102,10 +97,12 @@ namespace BrawlLib.SSBBTypes
         public bool TranslationAnimated
         {
             get { return _flags[19]; }
+            set { _flags[19] = value; }
         }
         public bool TranslationFrame
         {
             get { return _flags[18]; }
+            set { _flags[18] = value; }
         }
         //[Category("Flags")]
         //public bool Flag17
@@ -120,6 +117,7 @@ namespace BrawlLib.SSBBTypes
         public OMORotType RotationFlags
         {
             get { return (OMORotType)_flags[12, 4]; }
+            set { _flags[12, 4] = (uint)value; }
         }
         //[Category("Flags")]
         //public bool Flag11
@@ -134,6 +132,7 @@ namespace BrawlLib.SSBBTypes
         public bool ScaleConstant
         {
             get { return _flags[9]; }
+            set { _flags[9] = value; }
         }
         //[Category("Flags")]
         //public bool Flag8
@@ -143,10 +142,12 @@ namespace BrawlLib.SSBBTypes
         public bool ScaleAnimated
         {
             get { return _flags[7]; }
+            set { _flags[7] = value; }
         }
         public bool ScaleFrame
         {
             get { return _flags[6]; }
+            set { _flags[6] = value; }
         }
         //[Category("Flags")]
         //public bool Flag5
@@ -176,6 +177,7 @@ namespace BrawlLib.SSBBTypes
         public bool AlwaysOn
         {
             get { return _flags[0]; }
+            set { _flags[0] = value; }
         }
 
         public VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
@@ -226,7 +228,8 @@ namespace BrawlLib.SSBBTypes
     {
         public const int Size = 0x4C;
 
-        public fixed byte _name[0x44];
+        public fixed byte _name[0x40];
+        public buint _unknown; //0, 2, 3
         public buint _parentIndex;
         public buint _hash;
 

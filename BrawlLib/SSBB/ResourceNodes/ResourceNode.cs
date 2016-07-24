@@ -136,8 +136,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                 _name = value;
                 _changed = true;
-                if (Renamed != null)
-                    Renamed(this);
+                Renamed?.Invoke(this);
             }
         }
         [Browsable(false)]
@@ -180,8 +179,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public virtual void SignalPropertyChange()
         {
-            if (PropertyChanged != null)
-                PropertyChanged(this);
+            PropertyChanged?.Invoke(this);
             _changed = true;
         }
 
@@ -260,8 +258,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             _disposed = true;
 
-            if (Disposing != null)
-                Disposing(this);
+            Disposing?.Invoke(this);
 
             //if (_parent != null)
             //{
@@ -291,21 +288,9 @@ namespace BrawlLib.SSBB.ResourceNodes
 
 #endregion
 
-        public void SelectChildAtIndex(int index)
-        {
-            if (SelectChild != null)
-                SelectChild(index);
-        }   
-        public void UpdateProperties()
-        {
-            if (UpdateProps != null)
-                UpdateProps(this, null);
-        }
-        public void UpdateCurrentControl()
-        {
-            if (UpdateControl != null)
-                UpdateControl(this, null);
-        }
+        public void SelectChildAtIndex(int index) { SelectChild?.Invoke(index); }   
+        public void UpdateProperties() { UpdateProps?.Invoke(this, null); }
+        public void UpdateCurrentControl() { UpdateControl?.Invoke(this, null); }
 
 #region Moving
 
@@ -466,8 +451,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _children = new List<ResourceNode>();
 
             _changed = false;
-            if (Restored != null)
-                Restored(this);
+            Restored?.Invoke(this);
         }
 #endregion
 
@@ -484,8 +468,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if ((_children != null) && (_children.Remove(child)))
             {
                 child._parent = null;
-                if (ChildRemoved != null)
-                    ChildRemoved(this, child);
+                ChildRemoved?.Invoke(this, child);
                 _changed = true;
             }
         }
@@ -571,14 +554,12 @@ namespace BrawlLib.SSBB.ResourceNodes
             _replaced = false;
 
             _changed = false;
-            if (Replaced != null)
-                Replaced(this);
+            Replaced?.Invoke(this);
         }
 
         protected void ForceReplacedEvent()
         {
-            if (Replaced != null)
-                Replaced(this);
+            Replaced?.Invoke(this);
         }
 
 #endregion

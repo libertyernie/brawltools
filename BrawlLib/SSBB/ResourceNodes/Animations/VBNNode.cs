@@ -136,7 +136,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _boneCache = _children.Select(x => x as VBNBoneNode).ToArray();
             foreach (VBNBoneNode bone in _boneCache)
             {
-                _boneDictionary.Add(bone.HashValue, bone);
+                _boneDictionary.Add(bone._hash, bone);
 
                 uint id = bone._parentID;
                 ResourceNode parent;
@@ -157,6 +157,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 b.RecalcFrameState();
             }
             _boneCache = _boneCache.OrderBy(x => ((VBNBoneNode)x)._hash).ToArray();
+            //foreach (VBNBoneNode b in _boneCache)
+            //    Console.WriteLine(b._hash.ToString("X8") + " " + b.Name);
         }
 
         internal static ResourceNode TryParse(DataSource source)
@@ -243,6 +245,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _parentID;
         public uint _hash;
         public int _boneIndex;
+        public uint _unk;
         
         const string _category = "Bone";
 
@@ -252,16 +255,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return _bindState; }
             set { _bindState = value; SignalPropertyChange(); }
         }
-        [Category(_category), Browsable(false)]
-        public uint HashValue
-        {
-            get { return _hash; }
-            set { _hash = value; SignalPropertyChange(); }
-        }
         [Category(_category)]
         public string HashHex
         {
             get { return _hash.ToString("X8"); }
+        }
+        [Category(_category)]
+        public uint Flag
+        {
+            get { return _unk; }
+            set { _unk = value; SignalPropertyChange(); }
         }
 
         public Matrix _bindMatrix, _invBindMatrix, _frameMatrix, _invFrameMatrix;
@@ -316,6 +319,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _parentID = Header->_parentIndex;
             _hash = Header->_hash;
             _name = Header->GetString();
+            _unk = Header->_unknown;
 
             return false;
         }
