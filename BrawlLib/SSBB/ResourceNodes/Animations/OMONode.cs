@@ -171,7 +171,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                             if (isAnimated)
                             {
                                 float w = (float)Math.Sqrt(1.0f - (v._x * v._x + v._y * v._y + v._z * v._z));
-                                v = new Vector4(v, w).ToEuler(Vector4.RotSeq.zyx);
+
+                                float n;
+                                float xs, ys, zs;
+                                float wx, wy, wz;
+                                float xx, xy, xz;
+                                float yy, yz, zz;
+
+                                n = (v._x * v._x) + (v._y * v._y) + (v._z * v._z) + (w * w);
+                                n = (n > 0.0f) ? (2.0f / n) : 0.0f;
+
+                                xs = v._x * n; ys = v._y * n; zs = v._z * n;
+                                wx = (float)(w * xs); wy = (float)(w * ys); wz = (float)(w * zs);
+                                xx = v._x * xs; xy = v._x * ys; xz = v._x * zs;
+                                yy = v._y * ys; yz = v._y * zs; zz = v._z * zs;
+
+                                v._x = (float)Math.Atan2(yz + wx, 1.0f - (xx + yy));
+                                v._y = (float)Math.Atan2(-(xz - wy), Math.Sqrt((yz + wx) * (yz + wx) + (1.0f - (xx + yy)) * (1.0f - (xx + yy))));
+                                v._z = (float)Math.Atan2((xy + wz), 1.0f - (yy + zz));
+
+                                //v = new Vector4(v, w).ToEuler(Vector4.RotSeq.zyx);
                             }
 
                             state._rotate = v * Maths._rad2degf;
