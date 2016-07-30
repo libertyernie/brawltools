@@ -11,6 +11,8 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Reflection;
+using BrawlBox.API;
 
 namespace BrawlBox
 {
@@ -77,6 +79,15 @@ namespace BrawlBox
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
+
+            var plugins = Application.StartupPath + "/Plugins";
+            API_ENGINE.Plugins.Clear();
+            pluginToolStripMenuItem.DropDown.Items.Clear();
+            foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+            {
+                API_ENGINE.CreatePlugin(str);
+                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+            }
         }
 
         private delegate bool DelegateOpenFile(String s);
@@ -226,7 +237,7 @@ namespace BrawlBox
             mdL0ObjectControl1.SetTarget(null);
             if (hexBox1.ByteProvider != null)
                 ((Be.Windows.Forms.DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
-            
+
             Control newControl = null;
             Control newControl2 = null;
 
@@ -247,7 +258,8 @@ namespace BrawlBox
                                 (byte*)d.GetAddress(),
                                 d.GetLength(),
                                 d.GetLength(),
-                                FileAccess.ReadWrite)) { _supportsInsDel = false };
+                                FileAccess.ReadWrite))
+                        { _supportsInsDel = false };
                         newControl = hexBox1;
                     }
                 }
@@ -336,18 +348,18 @@ namespace BrawlBox
                     newControl = previewPanel2;
                 }
                 else if (node is IRenderedObject)
-				{
+                {
                     newControl = modelPanel1;
-				}
-				else if (node is STDTNode)
-				{
-					STDTNode stdt = (STDTNode)node;
+                }
+                else if (node is STDTNode)
+                {
+                    STDTNode stdt = (STDTNode)node;
 
-					attributeGrid1.Clear();
-					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
-					attributeGrid1.TargetNode = stdt;
-					newControl = attributeGrid1;
-				}
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = stdt;
+                    newControl = attributeGrid1;
+                }
 
                 if (node is IColorSource && !disable2nd)
                 {
@@ -413,7 +425,7 @@ namespace BrawlBox
             {
                 if (node._children == null)
                     node.Populate(0);
-                
+
                 if (node is IModel && ModelEditControl.Instances.Count == 0)
                 {
                     IModel m = node as IModel;
@@ -432,7 +444,7 @@ namespace BrawlBox
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (!Program.Close()) 
+            if (!Program.Close())
                 e.Cancel = true;
 
             base.OnClosing(e);
@@ -454,7 +466,7 @@ namespace BrawlBox
         private void eFLSEffectListToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<EFLSNode>(); }
         private void rEFFParticlesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFFNode>(); }
         private void rEFTParticleTexturesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFTNode>(); }
-        
+
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) { Program.Save(); }
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) { Program.SaveAs(); }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e) { Program.Close(); }
@@ -568,6 +580,12 @@ namespace BrawlBox
                 else
                     splitter.IsSplitterFixed = false;
             }
+        }
+
+        private void onPluginClicked(object sender, EventArgs e)
+        {
+            var plg = API_ENGINE.Plugins.Find(x => x.Name == ((ToolStripItem)sender).Text);
+            plg?.Execute();
         }
     }
 
