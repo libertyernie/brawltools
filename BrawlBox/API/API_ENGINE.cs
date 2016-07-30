@@ -8,6 +8,7 @@ using System.Text;
 using Microsoft.Scripting;
 using IronPython.Runtime.Exceptions;
 using System.Reflection;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlBox.API
 {
@@ -29,14 +30,10 @@ namespace BrawlBox.API
         public static void AddAssemblies()
         {
             Assembly mainAssembly = Assembly.GetExecutingAssembly();
-
-            string rootDir = Directory.GetParent(mainAssembly.Location).FullName;
-            string pluginsPath = Path.Combine(rootDir, "./lib/BrawlLib.dll");
-
-            Assembly pluginsAssembly = Assembly.LoadFile(pluginsPath);
+            Assembly brawllib = Assembly.GetAssembly(typeof(ResourceNode));
 
             Runtime.LoadAssembly(mainAssembly);
-            Runtime.LoadAssembly(pluginsAssembly);
+            Runtime.LoadAssembly(brawllib);
 
         }
         public static void CreatePlugin(string path)
@@ -73,6 +70,10 @@ namespace BrawlBox.API
 
         public static void AddPlugin(PluginScript plugin) =>
             Plugins.Add(plugin);
-
+    }
+    public static class bboxapi
+    {
+        public static ResourceNode RootNode { get { return Program.RootNode; } }
+        public static string String = "Hello World~!";
     }
 }
