@@ -6,6 +6,8 @@ using Microsoft.Scripting;
 using IronPython.Runtime.Exceptions;
 using IronPython.Hosting;
 using Microsoft.Scripting.Hosting;
+using BrawlLib.SSBB.ResourceNodes;
+using System.IO;
 
 namespace BrawlBox.API
 {
@@ -26,5 +28,20 @@ namespace BrawlBox.API
         {
             Script.Execute(Scope);
         }
+    }
+
+    public class PluginLoader : ResourceNode
+    {
+        internal static ResourceNode TryParse(DataSource source)
+        {
+            ResourceNode n = null;
+            foreach (var ldr in API_ENGINE.Loaders)
+                if ((n = ldr.TryParseLoader(new UnsafeStream(source.Address, (uint)source.Length))) != null)
+                    break;
+            return n;
+
+        }
+
+        virtual public ResourceNode TryParseLoader(Stream stream) { return null; }
     }
 }

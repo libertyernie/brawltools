@@ -81,12 +81,17 @@ namespace BrawlBox
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
 
             var plugins = Application.StartupPath + "/Plugins";
+            var loaders = $"{Application.StartupPath}/Loaders";
             API_ENGINE.Plugins.Clear();
             pluginToolStripMenuItem.DropDown.Items.Clear();
             foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
             {
                 API_ENGINE.CreatePlugin(str);
                 pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+            }
+            foreach(var str in Directory.EnumerateFiles(loaders, "*.py"))
+            {
+                API_ENGINE.CreateLoader(str);
             }
         }
 
