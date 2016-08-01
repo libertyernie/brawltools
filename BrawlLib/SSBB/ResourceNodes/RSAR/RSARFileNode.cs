@@ -11,7 +11,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal VoidPtr Data { get { return (VoidPtr)WorkingUncompressed.Address; } }
         
-        internal DataSource _audioSource;
+        public DataSource _audioSource;
         
         internal RSARNode RSARNode
         {

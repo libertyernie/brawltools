@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 namespace BrawlLib.SSBBTypes
 {
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct RWSDHeader
+    public unsafe struct RWSDHeader
     {
         public const uint Tag = 0x44535752;
         public const int Size = 0x20;
@@ -23,7 +23,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct RWSD_DATAHeader
+    public unsafe struct RWSD_DATAHeader
     {
         public const uint Tag = 0x41544144;
 
@@ -35,7 +35,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct RWSD_DATAEntry
+    public unsafe struct RWSD_DATAEntry
     {
         //Base of these offsets is the address of _list in the main data header
 
@@ -110,7 +110,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct WAVEHeader
+    public unsafe struct WAVEHeader
     {
         public const uint Tag = 0x45564157;
 

@@ -16,7 +16,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override ResourceType ResourceType { get { return ResourceType.RSARGroup; } }
 
-        internal BindingList<RSARFileNode> _files = new BindingList<RSARFileNode>();
+        public BindingList<RSARFileNode> _files = new BindingList<RSARFileNode>();
 
         public override bool OnInitialize()
         {

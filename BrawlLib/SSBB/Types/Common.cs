@@ -72,7 +72,7 @@ namespace BrawlLib.SSBBTypes
         }
     }
 
-    unsafe struct DataBlockCollection
+    public unsafe struct DataBlockCollection
     {
         private DataBlock _block;
 
@@ -87,7 +87,7 @@ namespace BrawlLib.SSBBTypes
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    unsafe struct NW4RCommonHeader
+    public unsafe struct NW4RCommonHeader
     {
         public const uint Size = 0x10;
 
