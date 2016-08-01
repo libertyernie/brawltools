@@ -8,7 +8,7 @@ class RFNTNode(PluginLoader):
         return ResourceType.NoEditFolder
 
     # Called by super class to check if this loader matches the data
-    def TryParseLoader(self, stream):
+    def TryParse(self, stream):
         src = file(stream)
         src.seek(5,0)
         i = struct.unpack('>I', src.read(4))[0]

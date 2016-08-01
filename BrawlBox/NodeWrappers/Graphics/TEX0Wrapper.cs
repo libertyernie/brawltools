@@ -54,7 +54,7 @@ namespace BrawlBox.NodeWrappers
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
                     dlg.ImageSource = inStream;
-                    dlg.ShowDialog(MainForm.Instance, ResourceNode as TEX0Node);
+                    dlg.ShowDialog(MainForm.Instance, Resource as TEX0Node);
                 }
         }
 
@@ -62,8 +62,8 @@ namespace BrawlBox.NodeWrappers
         {
             using (TextureConverterDialog dlg = new TextureConverterDialog())
             {
-                dlg.LoadImages((ResourceNode as TEX0Node).GetImage(0));
-                dlg.ShowDialog(MainForm.Instance, ResourceNode as TEX0Node);
+                dlg.LoadImages((Resource as TEX0Node).GetImage(0));
+                dlg.ShowDialog(MainForm.Instance, Resource as TEX0Node);
             }
         }
 

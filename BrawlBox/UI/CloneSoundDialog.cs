@@ -143,7 +143,7 @@ namespace BrawlBox
 
             if (treeResource.SelectedNode != null)
             {
-                RSARSoundNode existing = ((BaseWrapper)treeResource.SelectedNode).ResourceNode as RSARSoundNode;
+                RSARSoundNode existing = ((BaseWrapper)treeResource.SelectedNode).Resource as RSARSoundNode;
                 if (existing != null)
                 {
                     _newNode._sound3dParam = existing._sound3dParam;
@@ -178,7 +178,7 @@ namespace BrawlBox
             if (txtName.Text != "")
             {
                 GenericWrapper node = treeResource.SelectedNode as GenericWrapper;
-                btnOk.Enabled = (node != null) && (node.ResourceNode is RSARSoundNode);
+                btnOk.Enabled = (node != null) && (node.Resource is RSARSoundNode);
             }
             else
                 btnOk.Enabled = false;

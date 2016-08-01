@@ -80,18 +80,20 @@ namespace BrawlBox
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
 
-            var plugins = Application.StartupPath + "/Plugins";
+            var plugins = $"{Application.StartupPath}/Plugins";
             var loaders = $"{Application.StartupPath}/Loaders";
-            API_ENGINE.Plugins.Clear();
+
+            API.bboxapi.Plugins.Clear();
+            API.bboxapi.Loaders.Clear();
             pluginToolStripMenuItem.DropDown.Items.Clear();
             foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
             {
-                API_ENGINE.CreatePlugin(str);
+                API.bboxapi.CreatePlugin(str, false);
                 pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
             }
-            foreach(var str in Directory.EnumerateFiles(loaders, "*.py"))
+            foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
             {
-                API_ENGINE.CreateLoader(str);
+                API.bboxapi.CreatePlugin(str, true);
             }
         }
 
@@ -249,7 +251,7 @@ namespace BrawlBox
             BaseWrapper w;
             ResourceNode node = null;
             bool disable2nd = false;
-            if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).ResourceNode) != null))
+            if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).Resource) != null))
             {
                 propertyGrid1.SelectedObject = node;
 
@@ -589,7 +591,7 @@ namespace BrawlBox
 
         private void onPluginClicked(object sender, EventArgs e)
         {
-            var plg = API_ENGINE.Plugins.Find(x => x.Name == ((ToolStripItem)sender).Text);
+            var plg = API.bboxapi.Plugins.Find(x => x.Name == ((ToolStripItem)sender).Text);
             plg?.Execute();
         }
     }

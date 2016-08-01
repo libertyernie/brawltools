@@ -37,7 +37,7 @@ namespace BrawlBox
         protected bool _discovered = false;
 
         protected ResourceNode _resource;
-        public ResourceNode ResourceNode
+        public ResourceNode Resource
         {
             get { return _resource; }
             //set { Link(value); }

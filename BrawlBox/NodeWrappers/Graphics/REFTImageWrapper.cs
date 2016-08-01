@@ -47,8 +47,8 @@ namespace BrawlBox.NodeWrappers
         {
             using (TextureConverterDialog dlg = new TextureConverterDialog())
             {
-                dlg.LoadImages((ResourceNode as REFTEntryNode).GetImage(0));
-                dlg.ShowDialog(MainForm.Instance, ResourceNode as REFTEntryNode);
+                dlg.LoadImages((Resource as REFTEntryNode).GetImage(0));
+                dlg.ShowDialog(MainForm.Instance, Resource as REFTEntryNode);
             }
         }
 

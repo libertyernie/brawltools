@@ -402,7 +402,7 @@ namespace BrawlBox
                     {
                         _rootPath = path;
                         MainForm.Instance.UpdateName();
-                        w.ResourceNode.IsDirty = false;
+                        w.Resource.IsDirty = false;
                         return true;
                     }
 #if !DEBUG

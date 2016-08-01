@@ -82,7 +82,7 @@ namespace BrawlBox.NodeWrappers
         public void CopySound()
         {
             using (CloneSoundDialog dlg = new CloneSoundDialog())
-                dlg.ShowDialog(null, ResourceNode as RSARFolderNode);
+                dlg.ShowDialog(null, Resource as RSARFolderNode);
         }
 
         public void NewBank()

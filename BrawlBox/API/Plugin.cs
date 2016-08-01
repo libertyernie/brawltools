@@ -35,13 +35,13 @@ namespace BrawlBox.API
         internal static ResourceNode TryParse(DataSource source)
         {
             ResourceNode n = null;
-            foreach (var ldr in API_ENGINE.Loaders)
-                if ((n = ldr.TryParseLoader(new UnsafeStream(source.Address, (uint)source.Length))) != null)
+            foreach (var ldr in bboxapi.Loaders)
+                if ((n = ldr.TryParse(new UnsafeStream(source.Address, (uint)source.Length))) != null)
                     break;
             return n;
 
         }
 
-        virtual public ResourceNode TryParseLoader(Stream stream) { return null; }
+        virtual public ResourceNode TryParse(Stream stream) { return null; }
     }
 }
