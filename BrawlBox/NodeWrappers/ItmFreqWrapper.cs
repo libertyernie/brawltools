@@ -9,7 +9,7 @@ using BrawlLib.SSBBTypes;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.NoEdit)]
-    class ItmFreqWrapper : GenericWrapper
+    public class ItmFreqWrapper : GenericWrapper
     {
         #region Menu
 

@@ -1,4 +1,4 @@
-from BrawlBox import ARCWrapper
+from BrawlBox.NodeWrappers import ARCWrapper
 from BrawlBox.API import *
 from BrawlLib.SSBB.ResourceNodes import *
 import struct

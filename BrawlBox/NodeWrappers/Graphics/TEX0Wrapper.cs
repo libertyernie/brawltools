@@ -8,7 +8,7 @@ namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.TEX0)]
     [NodeWrapper(ResourceType.SharedTEX0)]
-    class TEX0Wrapper : GenericWrapper
+    public class TEX0Wrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static TEX0Wrapper()

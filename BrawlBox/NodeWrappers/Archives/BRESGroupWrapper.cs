@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BRESGroup)]
-    class BRESGroupWrapper : GenericWrapper
+    public class BRESGroupWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static BRESGroupWrapper() 

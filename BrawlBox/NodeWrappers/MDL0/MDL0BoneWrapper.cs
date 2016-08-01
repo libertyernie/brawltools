@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.MDL0Bone)]
-    class MDL0BoneWrapper : GenericWrapper
+    public class MDL0BoneWrapper : GenericWrapper
     {
         #region Menu
 

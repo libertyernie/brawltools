@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.VIS0)]
-    class VIS0Wrapper : GenericWrapper
+    public class VIS0Wrapper : GenericWrapper
     {
         #region Menu
 

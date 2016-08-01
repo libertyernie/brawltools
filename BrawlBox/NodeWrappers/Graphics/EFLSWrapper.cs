@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.EFLS)]
-    class EFLSWrapper : GenericWrapper
+    public class EFLSWrapper : GenericWrapper
     {
         #region Menu
 
@@ -56,7 +56,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.EFLSEntry)]
-    class EFLSEntryWrapper : GenericWrapper
+    public class EFLSEntryWrapper : GenericWrapper
     {
         #region Menu
 

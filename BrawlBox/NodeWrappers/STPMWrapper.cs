@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.STPM)]
-    class STPMWrapper : GenericWrapper
+    public class STPMWrapper : GenericWrapper
     {
         #region Menu
 

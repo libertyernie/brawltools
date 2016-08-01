@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.PAT0)]
-    class PAT0Wrapper : GenericWrapper
+    public class PAT0Wrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -77,7 +77,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.PAT0Entry)]
-    class PAT0EntryWrapper : GenericWrapper
+    public class PAT0EntryWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -124,7 +124,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.PAT0Texture)]
-    class PAT0TextureWrapper : GenericWrapper
+    public class PAT0TextureWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -164,7 +164,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.PAT0TextureEntry)]
-    class PAT0TextureEntryWrapper : GenericWrapper
+    public class PAT0TextureEntryWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;

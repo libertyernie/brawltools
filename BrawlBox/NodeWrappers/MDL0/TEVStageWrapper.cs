@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.TEVStage)]
-    class TEVStageWrapper : GenericWrapper
+    public class TEVStageWrapper : GenericWrapper
     {
         #region Menu
 

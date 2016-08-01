@@ -5,7 +5,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.NoEditEntry)]
-    class NoEditEntryWrapper : GenericWrapper
+    public class NoEditEntryWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static NoEditEntryWrapper()
@@ -28,7 +28,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.NoEditFolder)]
-    class NoEditFolderWrapper : GenericWrapper
+    public class NoEditFolderWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static NoEditFolderWrapper()

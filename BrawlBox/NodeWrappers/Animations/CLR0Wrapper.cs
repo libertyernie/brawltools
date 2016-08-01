@@ -7,7 +7,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CLR0)]
-    class CLR0Wrapper : GenericWrapper
+    public class CLR0Wrapper : GenericWrapper
     {
         #region Menu
 
@@ -63,7 +63,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.CLR0Material)]
-    class CLR0MaterialWrapper : GenericWrapper
+    public class CLR0MaterialWrapper : GenericWrapper
     {
         #region Menu
 
@@ -117,7 +117,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.CLR0MaterialEntry)]
-    class CLR0MaterialEntryWrapper : GenericWrapper
+    public class CLR0MaterialEntryWrapper : GenericWrapper
     {
         #region Menu
 

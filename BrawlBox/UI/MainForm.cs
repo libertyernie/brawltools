@@ -595,6 +595,28 @@ namespace BrawlBox
             var plg = API.bboxapi.Plugins.Find(x => x.Name == ((ToolStripItem)sender).Text);
             plg?.Execute();
         }
+
+        private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new OpenFileDialog() { Filter = "Python file (.py)|*.py|All Files|*" })
+            {
+                if(dlg.ShowDialog() == DialogResult.OK)
+                {
+                    bboxapi.RunScript(dlg.FileName);
+                }
+            }
+        }
+
+        private void reloadPluginsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            API.bboxapi.Plugins.Clear();
+            pluginToolStripMenuItem.DropDown.Items.Clear();
+            foreach (var str in Directory.EnumerateFiles($"{Application.StartupPath}/Plugins", "*.py"))
+            {
+                API.bboxapi.CreatePlugin(str, false);
+                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+            }
+        }
     }
 
     public class RecentFileHandler : Component

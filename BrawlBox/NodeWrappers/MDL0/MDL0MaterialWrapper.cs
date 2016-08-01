@@ -7,7 +7,7 @@ using BrawlLib.Wii.Graphics;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.MDL0Material)]
-    class MDL0MaterialWrapper : GenericWrapper
+    public class MDL0MaterialWrapper : GenericWrapper
     {
         #region Menu
 

@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CollisionDef)]
-    class CollisionWrapper : GenericWrapper
+    public class CollisionWrapper : GenericWrapper
     {
         #region Menu
 

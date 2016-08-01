@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.RSARFileSoundGroup)]
-    class RWSDSoundGroupWrapper : GenericWrapper
+    public class RWSDSoundGroupWrapper : GenericWrapper
     {
         #region Menu
 

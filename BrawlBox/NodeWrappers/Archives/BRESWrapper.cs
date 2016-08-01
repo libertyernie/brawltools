@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BRES)]
-    class BRESWrapper : GenericWrapper
+    public class BRESWrapper : GenericWrapper
     {
         #region Menu
 

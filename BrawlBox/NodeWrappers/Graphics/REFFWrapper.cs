@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.REFF)]
-    class REFFWrapper : GenericWrapper
+    public class REFFWrapper : GenericWrapper
     {
         #region Menu
 

@@ -8,7 +8,7 @@ using BrawlLib.Wii.Animations;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CHR0)]
-    class CHR0Wrapper : GenericWrapper
+    public class CHR0Wrapper : GenericWrapper
     {
         #region Menu
 
@@ -93,7 +93,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.CHR0Entry)]
-    class CHR0EntryWrapper : GenericWrapper
+    public class CHR0EntryWrapper : GenericWrapper
     {
         #region Menu
 

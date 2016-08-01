@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BLOC)]
-    class BLOCWrapper : GenericWrapper
+    public class BLOCWrapper : GenericWrapper
     {
         #region Menu
 

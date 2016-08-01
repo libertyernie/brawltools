@@ -9,7 +9,7 @@ using BrawlLib.IO;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.Havok)]
-    class HavokWrapper : GenericWrapper
+    public class HavokWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static HavokWrapper()

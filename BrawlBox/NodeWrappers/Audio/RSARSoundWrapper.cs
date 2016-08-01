@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.RSARSound)]
-    class RSARSoundWrapper : GenericWrapper
+    public class RSARSoundWrapper : GenericWrapper
     {
         public override string ExportFilter { get { return FileFilters.WAV; } }
 

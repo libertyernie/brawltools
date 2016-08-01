@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.TPL)]
-    class TPLWrapper : GenericWrapper
+    public class TPLWrapper : GenericWrapper
     {
         #region Menu
 
@@ -77,7 +77,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.TPLTexture)]
-    class TPLTextureNodeWrapper : GenericWrapper
+    public class TPLTextureNodeWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static TPLTextureNodeWrapper()

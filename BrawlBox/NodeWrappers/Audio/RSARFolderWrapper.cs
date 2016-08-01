@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.RSARFolder)]
-    class RSARFolderWrapper : GenericWrapper
+    public class RSARFolderWrapper : GenericWrapper
     {
         #region Menu
 

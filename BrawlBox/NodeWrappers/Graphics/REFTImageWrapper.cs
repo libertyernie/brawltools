@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.REFTImage)]
-    class REFTImageWrapper : GenericWrapper
+    public class REFTImageWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static REFTImageWrapper()

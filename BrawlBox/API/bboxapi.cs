@@ -47,30 +47,34 @@ namespace BrawlBox.API
         internal static List<PluginScript> Plugins { get; set; }
         internal static List<PluginLoader> Loaders { get; set; }
 
-        public static ResourceNode RootNode
-        {
-            get
-            {
-                return MainForm.Instance.RootNode.Resource;
-            }
-        }
-        public static ResourceNode SelectedNode
-        {
-            get
-            {
-                return ((BaseWrapper)MainForm.Instance.resourceTree.SelectedNode).Resource;
-            }
-        }
-        public static BrawlBox.NodeWrappers.BaseWrapper SelectedNodeWrapper
-        {
-            get
-            {
-                return (BaseWrapper)MainForm.Instance.resourceTree.SelectedNode;
-            }
-        }
-
         internal static Dictionary<Type, ToolStripMenuItem[]> ContextMenuHooks { get; set; }
 
+        internal static void RunScript(string path)
+        {
+            try
+            {
+                ScriptSource script = Engine.CreateScriptSourceFromFile(path);
+                CompiledCode code = script.Compile();
+                ScriptScope scope = Engine.CreateScope();
+                script.Execute();
+            }
+            catch (SyntaxErrorException e)
+            {
+                string msg = $"Syntax error in \"{Path.GetFileName(path)}\"\n{e.Message}";
+                ShowMessage(msg, Path.GetFileName(path));
+            }
+            catch (SystemExitException e)
+            {
+                string msg = $"SystemExit in \"{Path.GetFileName(path)}\"\n{e.Message}";
+                ShowMessage(msg, Path.GetFileName(path));
+            }
+
+            catch (Exception e)
+            {
+                string msg = $"Error running script \"{Path.GetFileName(path)}\"\n{e.Message}";
+                ShowMessage(msg, Path.GetFileName(path));
+            }
+        }
         internal static void CreatePlugin(string path, bool loader)
         {
             try
@@ -101,6 +105,46 @@ namespace BrawlBox.API
             }
         }
 
+        private static void ResourceTree_SelectionChanged(object sender, EventArgs e)
+        {
+            var resourceTree = (TreeView)sender;
+            if ((resourceTree.SelectedNode is BaseWrapper))
+            {
+                var wrapper = (BaseWrapper)resourceTree.SelectedNode;
+                var type = wrapper.GetType();
+
+                if (ContextMenuHooks.ContainsKey(type))
+                    wrapper.ContextMenuStrip.Items.AddRange(ContextMenuHooks[type]);
+
+            }
+        }
+
+        #region Exposed API members
+        public static ResourceNode RootNode
+        {
+            get
+            {
+                if (MainForm.Instance.RootNode != null)
+                    return MainForm.Instance.RootNode.Resource;
+                else
+                    return null;
+            }
+        }
+        public static ResourceNode SelectedNode
+        {
+            get
+            {
+                return ((BaseWrapper)MainForm.Instance.resourceTree.SelectedNode).Resource;
+            }
+        }
+        public static BaseWrapper SelectedNodeWrapper
+        {
+            get
+            {
+                return (BaseWrapper)MainForm.Instance.resourceTree.SelectedNode;
+            }
+        }
+
         public static void ShowMessage(string msg, string title)
         {
             MessageBox.Show(msg, title);
@@ -118,18 +162,6 @@ namespace BrawlBox.API
             else
                 ContextMenuHooks.Add(wrapper, items);
         }
-        private static void ResourceTree_SelectionChanged(object sender, EventArgs e)
-        {
-            var resourceTree = (TreeView)sender;
-            if ((resourceTree.SelectedNode is BaseWrapper))
-            {
-                var wrapper = (BaseWrapper)resourceTree.SelectedNode;
-                var type = wrapper.GetType();
-
-                if (ContextMenuHooks.ContainsKey(type))
-                    wrapper.ContextMenuStrip.Items.AddRange(ContextMenuHooks[type]);
-
-            }
-        }
+        #endregion
     }
 }
