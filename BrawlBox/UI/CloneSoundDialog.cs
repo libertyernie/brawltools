@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {

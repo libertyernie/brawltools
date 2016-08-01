@@ -6,7 +6,7 @@ using System.ComponentModel;
 using BrawlLib;
 using System.Collections.Generic;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BRES)]
     class BRESWrapper : GenericWrapper

@@ -4,7 +4,7 @@ using BrawlLib;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.EFLS)]
     class EFLSWrapper : GenericWrapper

@@ -13,6 +13,7 @@ using System.IO;
 using System.Windows.Forms;
 using System.Reflection;
 using BrawlBox.API;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {

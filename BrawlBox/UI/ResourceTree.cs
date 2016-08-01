@@ -5,6 +5,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlBox.Properties;
 using System.Runtime.InteropServices;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {

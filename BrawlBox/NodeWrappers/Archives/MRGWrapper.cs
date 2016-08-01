@@ -5,7 +5,7 @@ using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using BrawlLib;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.MRG)]
     class MRGWrapper : GenericWrapper
