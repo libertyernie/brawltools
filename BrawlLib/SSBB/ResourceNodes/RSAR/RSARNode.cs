@@ -156,6 +156,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                     //Must be external file.
                     n = new RSARExtFileNode();
                     source = new DataSource(fileHeader, 0);
+                    if (fileHeader->_dataLen > 0)
+                        Console.WriteLine(x + " " + fileHeader->_dataLen);
                 }
                 else
                 {

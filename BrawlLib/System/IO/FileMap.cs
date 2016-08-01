@@ -54,7 +54,12 @@ namespace BrawlLib.IO
         }
         public static FileMap FromTempFile(int length)
         {
-            FileStream stream = new FileStream(Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
+            string path;
+            return FromTempFile(length, out path);
+        }
+        public static FileMap FromTempFile(int length, out string path)
+        {
+            FileStream stream = new FileStream(path = Path.GetTempFileName(), FileMode.Open, FileAccess.ReadWrite, FileShare.Read, 8, FileOptions.RandomAccess | FileOptions.DeleteOnClose);
             try { return FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, length); }
             catch (Exception x) { stream.Dispose(); throw; }
         }
