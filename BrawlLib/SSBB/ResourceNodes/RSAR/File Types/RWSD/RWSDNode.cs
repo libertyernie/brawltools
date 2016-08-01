@@ -124,8 +124,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             for (int i = 0; i < count; i++)
             {
+                string name = "Entry" + i;
+                if (_labels != null && i < _labels.Length)
+                    name = _labels[i].String;
+
                 RWSD_DATAEntry* entry = (RWSD_DATAEntry*)list->Get(list, i);
-                RWSDDataNode node = new RWSDDataNode() { _name = _labels[i].String };
+                RWSDDataNode node = new RWSDDataNode() { _name = name };
                 node._offset = list;
                 node.Initialize(Children[0], entry, 0);
             }
