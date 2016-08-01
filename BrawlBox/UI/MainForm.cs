@@ -183,6 +183,7 @@ namespace BrawlBox
                 saveAsToolStripMenuItem.Enabled = false;
                 saveToolStripMenuItem.Enabled = false;
             }
+            resourceTree_SelectionChanged(null, null);
 
             UpdateName();
         }
@@ -401,6 +402,8 @@ namespace BrawlBox
                 if (_currentControl != null)
                     _currentControl.Visible = true;
             }
+            else if (_currentControl != null && !_currentControl.Visible)
+                _currentControl.Visible = true;
             if (_currentControl != null)
             {
                 if (_secondaryControl != null)
