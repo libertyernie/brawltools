@@ -162,6 +162,37 @@ namespace BrawlBox.API
             else
                 ContextMenuHooks.Add(wrapper, items);
         }
+
+        public static string OpenFileDialog()
+        {
+            using (var dlg = new OpenFileDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                    return dlg.FileName;
+                else
+                    return string.Empty;
+            }
+        }
+        public static string OpenFolderDialog()
+        {
+            using (var dlg = new FolderBrowserDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                    return dlg.SelectedPath;
+                else
+                    return string.Empty;
+            }
+        }
+        public static string SaveFileDialog()
+        {
+            using (var dlg = new SaveFileDialog())
+            {
+                if (dlg.ShowDialog() == DialogResult.OK)
+                    return dlg.FileName;
+                else
+                    return string.Empty;
+            }
+        }
         #endregion
     }
 }
