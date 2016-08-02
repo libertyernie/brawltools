@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.REFTImage)]
-    class REFTImageWrapper : GenericWrapper
+    public class REFTImageWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static REFTImageWrapper()
@@ -47,8 +47,8 @@ namespace BrawlBox.NodeWrappers
         {
             using (TextureConverterDialog dlg = new TextureConverterDialog())
             {
-                dlg.LoadImages((ResourceNode as REFTEntryNode).GetImage(0));
-                dlg.ShowDialog(MainForm.Instance, ResourceNode as REFTEntryNode);
+                dlg.LoadImages((Resource as REFTEntryNode).GetImage(0));
+                dlg.ShowDialog(MainForm.Instance, Resource as REFTEntryNode);
             }
         }
 

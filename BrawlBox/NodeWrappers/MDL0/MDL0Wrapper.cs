@@ -10,7 +10,7 @@ using BrawlLib.SSBB;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.MDL0)]
-    class MDL0Wrapper : GenericWrapper
+    public class MDL0Wrapper : GenericWrapper
     {
         #region Menu
 

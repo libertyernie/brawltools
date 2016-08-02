@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.TPL)]
-    class TPLWrapper : GenericWrapper
+    public class TPLWrapper : GenericWrapper
     {
         #region Menu
 
@@ -66,7 +66,7 @@ namespace BrawlBox.NodeWrappers
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
                     dlg.ImageSource = path;
-                    if (dlg.ShowDialog(MainForm.Instance, ResourceNode as TPLNode) == DialogResult.OK)
+                    if (dlg.ShowDialog(MainForm.Instance, Resource as TPLNode) == DialogResult.OK)
                     {
                         BaseWrapper w = this.FindResource(dlg.TPLTextureNode, true);
                         w.EnsureVisible();
@@ -77,7 +77,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.TPLTexture)]
-    class TPLTextureNodeWrapper : GenericWrapper
+    public class TPLTextureNodeWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static TPLTextureNodeWrapper()
@@ -116,8 +116,8 @@ namespace BrawlBox.NodeWrappers
         {
             using (TextureConverterDialog dlg = new TextureConverterDialog())
             {
-                dlg.LoadImages((ResourceNode as TPLTextureNode).GetImage(0));
-                dlg.ShowDialog(MainForm.Instance, ResourceNode as TPLTextureNode);
+                dlg.LoadImages((Resource as TPLTextureNode).GetImage(0));
+                dlg.ShowDialog(MainForm.Instance, Resource as TPLTextureNode);
             }
         }
 

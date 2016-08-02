@@ -6,10 +6,10 @@ using System.ComponentModel;
 using BrawlLib;
 using System.Collections.Generic;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BRES)]
-    class BRESWrapper : GenericWrapper
+    public class BRESWrapper : GenericWrapper
     {
         #region Menu
 
@@ -135,7 +135,7 @@ namespace BrawlBox
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
                     dlg.ImageSource = path;
-                    if (dlg.ShowDialog(MainForm.Instance, ResourceNode as BRRESNode) == DialogResult.OK)
+                    if (dlg.ShowDialog(MainForm.Instance, Resource as BRRESNode) == DialogResult.OK)
                     {
                         BaseWrapper w = this.FindResource(dlg.TEX0TextureNode, true);
                         w.EnsureVisible();

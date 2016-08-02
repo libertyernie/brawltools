@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.REL)]
-    class RELWrapper : GenericWrapper
+    public class RELWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -145,7 +145,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.RELSection)]
-    class RELSectionWrapper : GenericWrapper
+    public class RELSectionWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -204,7 +204,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.RELMethod)]
-    class RELMethodWrapper : GenericWrapper
+    public class RELMethodWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -272,14 +272,14 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.RELExternalMethod)]
-    class RELExternalMethodWrapper : GenericWrapper
+    public class RELExternalMethodWrapper : GenericWrapper
     {
         public RELExternalMethodWrapper() { BackColor = System.Drawing.Color.FromArgb(255, 255, 180, 180); }
 
     }
 
     [NodeWrapper(ResourceType.RELInheritance)]
-    class RELInheritanceWrapper : GenericWrapper
+    public class RELInheritanceWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;

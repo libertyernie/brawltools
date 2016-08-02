@@ -4,10 +4,10 @@ using BrawlLib;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.EFLS)]
-    class EFLSWrapper : GenericWrapper
+    public class EFLSWrapper : GenericWrapper
     {
         #region Menu
 
@@ -56,7 +56,7 @@ namespace BrawlBox
     }
 
     [NodeWrapper(ResourceType.EFLSEntry)]
-    class EFLSEntryWrapper : GenericWrapper
+    public class EFLSEntryWrapper : GenericWrapper
     {
         #region Menu
 

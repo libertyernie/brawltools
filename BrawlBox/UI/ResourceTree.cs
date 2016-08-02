@@ -5,6 +5,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Drawing;
 using BrawlBox.Properties;
 using System.Runtime.InteropServices;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {
@@ -254,7 +255,7 @@ namespace BrawlBox
                 Program.Open(file);
             else
             {
-                ResourceNode dest = ((BaseWrapper)t).ResourceNode;
+                ResourceNode dest = ((BaseWrapper)t).Resource;
                 try
                 {
                     if ((node = NodeFactory.FromFile(null, file)) != null)
@@ -463,8 +464,8 @@ namespace BrawlBox
                 {
                     BaseWrapper drag = ((BaseWrapper)_dragNode);
                     BaseWrapper drop = ((BaseWrapper)dropNode);
-                    ResourceNode dragging = drag.ResourceNode;
-                    ResourceNode dropping = drop.ResourceNode;
+                    ResourceNode dragging = drag.Resource;
+                    ResourceNode dropping = drop.Resource;
 
                     if (dropping.Parent == null)
                         goto End;

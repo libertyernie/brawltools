@@ -7,6 +7,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.Diagnostics;
 using Microsoft.Win32;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {
@@ -117,7 +118,7 @@ namespace BrawlBox
                     else
                         Say(String.Format("Error: Unable to find node or path '{0}'!", args[1]));
                 }
-                
+
                 Application.Run(MainForm.Instance);
             }
             catch (FileNotFoundException x)
@@ -209,10 +210,10 @@ namespace BrawlBox
             if (!Close())
                 return false;
 
-            #if !DEBUG
+#if !DEBUG
             try
             {
-            #endif
+#endif
                 if ((_rootNode = NodeFactory.FromFile(null, _rootPath = path)) != null)
                 {
                     MainForm.Instance.Reset();
@@ -224,10 +225,10 @@ namespace BrawlBox
                     Say("Unable to recognize input file.");
                     MainForm.Instance.Reset();
                 }
-            #if !DEBUG
+#if !DEBUG
             }
             catch (Exception x) { Say(x.ToString()); }
-            #endif
+#endif
 
             Close();
 
@@ -258,7 +259,7 @@ namespace BrawlBox
                             }
                             catch
                             {
-                                
+
                             }
                         }
                     }
@@ -274,31 +275,31 @@ namespace BrawlBox
         {
             if (_rootNode != null)
             {
-                #if !DEBUG
+#if !DEBUG
                 try
                 {
-                #endif
+#endif
 
-                if (_rootPath == null)
-                    return SaveAs();
+                    if (_rootPath == null)
+                        return SaveAs();
 
-                bool force = Control.ModifierKeys == (Keys.Control | Keys.Shift);
-                if (!force && !_rootNode.IsDirty)
-                {
-                    MessageBox.Show("No changes have been made.");
-                    return false;
-                }
+                    bool force = Control.ModifierKeys == (Keys.Control | Keys.Shift);
+                    if (!force && !_rootNode.IsDirty)
+                    {
+                        MessageBox.Show("No changes have been made.");
+                        return false;
+                    }
 
-                _rootNode.Merge(force);
-                _rootNode.Export(_rootPath);
-                _rootNode.IsDirty = false;
+                    _rootNode.Merge(force);
+                    _rootNode.Export(_rootPath);
+                    _rootNode.IsDirty = false;
 
-                return true;
+                    return true;
 
-                #if !DEBUG
+#if !DEBUG
                 }
                 catch (Exception x) { Say(x.Message); }
-                #endif
+#endif
             }
             return false;
         }
@@ -315,10 +316,10 @@ namespace BrawlBox
         {
             _openDlg.Filter = filter;
             //_openDlg.AutoUpgradeEnabled = false;
-            #if !DEBUG
+#if !DEBUG
             try
             {
-            #endif
+#endif
                 if (_openDlg.ShowDialog() == DialogResult.OK)
                 {
                     fileName = _openDlg.FileName;
@@ -327,10 +328,10 @@ namespace BrawlBox
                     else
                         return _openDlg.FilterIndex;
                 }
-            #if !DEBUG
+#if !DEBUG
             }
             catch (Exception ex) { Say(ex.ToString()); }
-            #endif
+#endif
             fileName = null;
             return 0;
         }
@@ -392,31 +393,31 @@ namespace BrawlBox
         {
             if (MainForm.Instance.RootNode is GenericWrapper)
             {
-                #if !DEBUG
+#if !DEBUG
                 try
                 {
-                #endif
+#endif
                     GenericWrapper w = MainForm.Instance.RootNode as GenericWrapper;
                     string path = w.Export();
                     if (path != null)
                     {
                         _rootPath = path;
                         MainForm.Instance.UpdateName();
-                        w.ResourceNode.IsDirty = false;
+                        w.Resource.IsDirty = false;
                         return true;
                     }
-                #if !DEBUG
+#if !DEBUG
                 }
                 catch (Exception x) { Say(x.Message); }
                 //finally { }
-                #endif
+#endif
             }
             return false;
         }
 
         public static bool CanRunGithubApp(bool showMessages, out string path)
         {
-            path = System.Windows.Forms.Application.StartupPath + "\\Updater.exe";
+            path = $"{Application.StartupPath}\\lib\\Updater.exe";
             if (!File.Exists(path))
             {
                 if (showMessages)

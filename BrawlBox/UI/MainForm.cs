@@ -11,6 +11,9 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Windows.Forms;
+using System.Reflection;
+using BrawlBox.API;
+using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {
@@ -77,6 +80,22 @@ namespace BrawlBox
 
             RecentFileHandler = new RecentFileHandler(this.components);
             RecentFileHandler.RecentFileToolStripItem = this.recentFilesToolStripMenuItem;
+
+            var plugins = $"{Application.StartupPath}/Plugins";
+            var loaders = $"{Application.StartupPath}/Loaders";
+
+            API.bboxapi.Plugins.Clear();
+            API.bboxapi.Loaders.Clear();
+            pluginToolStripMenuItem.DropDown.Items.Clear();
+            foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+            {
+                API.bboxapi.CreatePlugin(str, false);
+                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+            }
+            foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
+            {
+                API.bboxapi.CreatePlugin(str, true);
+            }
         }
 
         private delegate bool DelegateOpenFile(String s);
@@ -227,14 +246,14 @@ namespace BrawlBox
             mdL0ObjectControl1.SetTarget(null);
             if (hexBox1.ByteProvider != null)
                 ((Be.Windows.Forms.DynamicFileByteProvider)hexBox1.ByteProvider).Dispose();
-            
+
             Control newControl = null;
             Control newControl2 = null;
 
             BaseWrapper w;
             ResourceNode node = null;
             bool disable2nd = false;
-            if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).ResourceNode) != null))
+            if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).Resource) != null))
             {
                 propertyGrid1.SelectedObject = node;
 
@@ -248,7 +267,8 @@ namespace BrawlBox
                                 (byte*)d.GetAddress(),
                                 d.GetLength(),
                                 d.GetLength(),
-                                FileAccess.ReadWrite)) { _supportsInsDel = false };
+                                FileAccess.ReadWrite))
+                        { _supportsInsDel = false };
                         newControl = hexBox1;
                     }
                 }
@@ -337,18 +357,18 @@ namespace BrawlBox
                     newControl = previewPanel2;
                 }
                 else if (node is IRenderedObject)
-				{
+                {
                     newControl = modelPanel1;
-				}
-				else if (node is STDTNode)
-				{
-					STDTNode stdt = (STDTNode)node;
+                }
+                else if (node is STDTNode)
+                {
+                    STDTNode stdt = (STDTNode)node;
 
-					attributeGrid1.Clear();
-					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
-					attributeGrid1.TargetNode = stdt;
-					newControl = attributeGrid1;
-				}
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = stdt;
+                    newControl = attributeGrid1;
+                }
 
                 if (node is IColorSource && !disable2nd)
                 {
@@ -416,7 +436,7 @@ namespace BrawlBox
             {
                 if (node._children == null)
                     node.Populate(0);
-                
+
                 if (node is IModel && ModelEditControl.Instances.Count == 0)
                 {
                     IModel m = node as IModel;
@@ -435,7 +455,7 @@ namespace BrawlBox
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            if (!Program.Close()) 
+            if (!Program.Close())
                 e.Cancel = true;
 
             base.OnClosing(e);
@@ -457,7 +477,7 @@ namespace BrawlBox
         private void eFLSEffectListToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<EFLSNode>(); }
         private void rEFFParticlesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFFNode>(); }
         private void rEFTParticleTexturesToolStripMenuItem_Click(object sender, EventArgs e) { Program.New<REFTNode>(); }
-        
+
         private void saveToolStripMenuItem_Click(object sender, EventArgs e) { Program.Save(); }
         private void saveAsToolStripMenuItem_Click(object sender, EventArgs e) { Program.SaveAs(); }
         private void closeToolStripMenuItem_Click(object sender, EventArgs e) { Program.Close(); }
@@ -570,6 +590,34 @@ namespace BrawlBox
                 }
                 else
                     splitter.IsSplitterFixed = false;
+            }
+        }
+
+        private void onPluginClicked(object sender, EventArgs e)
+        {
+            var plg = API.bboxapi.Plugins.Find(x => x.Name == ((ToolStripItem)sender).Text);
+            plg?.Execute();
+        }
+
+        private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            using (var dlg = new OpenFileDialog() { Filter = "Python file (.py)|*.py|All Files|*" })
+            {
+                if(dlg.ShowDialog() == DialogResult.OK)
+                {
+                    bboxapi.RunScript(dlg.FileName);
+                }
+            }
+        }
+
+        private void reloadPluginsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            API.bboxapi.Plugins.Clear();
+            pluginToolStripMenuItem.DropDown.Items.Clear();
+            foreach (var str in Directory.EnumerateFiles($"{Application.StartupPath}/Plugins", "*.py"))
+            {
+                API.bboxapi.CreatePlugin(str, false);
+                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
             }
         }
     }

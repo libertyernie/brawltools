@@ -4,10 +4,10 @@ using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CollisionDef)]
-    class CollisionWrapper : GenericWrapper
+    public class CollisionWrapper : GenericWrapper
     {
         #region Menu
 

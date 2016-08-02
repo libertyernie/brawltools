@@ -5,10 +5,10 @@ using System.ComponentModel;
 using BrawlLib;
 using System.Collections.Generic;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.U8Folder)]
-    class U8FolderWrapper : GenericWrapper
+    public class U8FolderWrapper : GenericWrapper
     {
         #region Menu
 

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.MDef)]
-    class MDefWrapper : GenericWrapper
+    public class MDefWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -437,7 +437,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.Event)]
-    class MDefEventWrapper : GenericWrapper
+    public class MDefEventWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -550,7 +550,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.Parameter)]
-    class MDefEventParameterWrapper : GenericWrapper
+    public class MDefEventParameterWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -630,7 +630,7 @@ namespace BrawlBox.NodeWrappers
         }
     }
     [NodeWrapper(ResourceType.MDefHurtboxList)]
-    class MDefHurtboxListWrapper : GenericWrapper
+    public class MDefHurtboxListWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -660,7 +660,7 @@ namespace BrawlBox.NodeWrappers
         }
     }
     [NodeWrapper(ResourceType.MDefActionList)]
-    class MDefActionListWrapper : GenericWrapper
+    public class MDefActionListWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -732,7 +732,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.MDefSubActionGroup)]
-    class MDefSubActionGroupWrapper : GenericWrapper
+    public class MDefSubActionGroupWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -764,7 +764,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.MDefActionGroup)]
-    class MDefActionGroupWrapper : GenericWrapper
+    public class MDefActionGroupWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -890,7 +890,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.MDefMdlVisRef)]
-    class MDefMdlVisRefWrapper : GenericWrapper
+    public class MDefMdlVisRefWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -934,7 +934,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.MDefMdlVisSwitch)]
-    class MDefMdlVisSwitchWrapper : GenericWrapper
+    public class MDefMdlVisSwitchWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -1003,7 +1003,7 @@ namespace BrawlBox.NodeWrappers
         }
     }
     [NodeWrapper(ResourceType.MDefMdlVisGroup)]
-    class MDefMdlVisGroupWrapper : GenericWrapper
+    public class MDefMdlVisGroupWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -1046,7 +1046,7 @@ namespace BrawlBox.NodeWrappers
         }
     }
     [NodeWrapper(ResourceType.MDefSubroutineList)]
-    class MDefSubroutineListWrapper : GenericWrapper
+    public class MDefSubroutineListWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -1084,7 +1084,7 @@ namespace BrawlBox.NodeWrappers
         }
     }
     [NodeWrapper(ResourceType.MDefActionOverrideList)]
-    class MDefActionOverrideListWrapper : GenericWrapper
+    public class MDefActionOverrideListWrapper : GenericWrapper
     {
         #region Menu
         private static ContextMenuStrip _menu;
@@ -1116,7 +1116,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.MDefRefList)]
-    class MDefRefListWrapper : GenericWrapper
+    public class MDefRefListWrapper : GenericWrapper
     {
         static bool shown = false;
 

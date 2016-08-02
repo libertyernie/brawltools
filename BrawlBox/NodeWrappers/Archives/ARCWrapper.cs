@@ -7,10 +7,10 @@ using BrawlLib.SSBBTypes;
 using BrawlLib;
 using BrawlLib.Modeling;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.ARC)]
-    class ARCWrapper : GenericWrapper
+    public class ARCWrapper : GenericWrapper
     {
         #region Menu
 

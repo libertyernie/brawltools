@@ -26,6 +26,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (t.IsSubclassOf(typeof(ResourceNode)))
                     if ((del = Delegate.CreateDelegate(typeof(ResourceParser), t, "TryParse", false, false)) != null)
                         _parsers.Add(del as ResourceParser);
+
+            foreach(Type t in Assembly.GetEntryAssembly().GetTypes())
+            {
+                if (t.IsSubclassOf(typeof(ResourceNode)))
+                    if ((del = Delegate.CreateDelegate(typeof(ResourceParser), t, "TryParse", false, false)) != null)
+                        _parsers.Add(del as ResourceParser);
+            }
         }
 
         private static readonly Dictionary<string, Type> Forced = new Dictionary<string, Type>()

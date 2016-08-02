@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.ADSJ)]
-    class ADSJWrapper : GenericWrapper
+    public class ADSJWrapper : GenericWrapper
     {
         #region Menu
 

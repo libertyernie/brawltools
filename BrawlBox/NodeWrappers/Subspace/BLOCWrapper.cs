@@ -3,10 +3,10 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BLOC)]
-    class BLOCWrapper : GenericWrapper
+    public class BLOCWrapper : GenericWrapper
     {
         #region Menu
 

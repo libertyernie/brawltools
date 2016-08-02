@@ -5,10 +5,10 @@ using System.ComponentModel;
 using BrawlLib.SSBBTypes;
 using BrawlLib;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.U8)]
-    class U8Wrapper : GenericWrapper
+    public class U8Wrapper : GenericWrapper
     {
         #region Menu
 

@@ -6,7 +6,7 @@ using System.ComponentModel;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.GSND)]
-    class GSNDWrapper : GenericWrapper
+    public class GSNDWrapper : GenericWrapper
     {
         #region Menu
 

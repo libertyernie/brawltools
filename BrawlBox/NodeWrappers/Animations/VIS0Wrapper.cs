@@ -4,10 +4,10 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.VIS0)]
-    class VIS0Wrapper : GenericWrapper
+    public class VIS0Wrapper : GenericWrapper
     {
         #region Menu
 

@@ -7,7 +7,7 @@ using BrawlLib;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.REFT)]
-    class REFTWrapper : GenericWrapper
+    public class REFTWrapper : GenericWrapper
     {
         #region Menu
 
@@ -57,7 +57,7 @@ namespace BrawlBox.NodeWrappers
                 using (TextureConverterDialog dlg = new TextureConverterDialog())
                 {
                     dlg.ImageSource = path;
-                    if (dlg.ShowDialog(MainForm.Instance, ResourceNode as REFTNode) == DialogResult.OK)
+                    if (dlg.ShowDialog(MainForm.Instance, Resource as REFTNode) == DialogResult.OK)
                     {
                         BaseWrapper w = this.FindResource(dlg.REFTTextureNode, true);
                         w.EnsureVisible();

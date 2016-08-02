@@ -4,7 +4,7 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = false, AllowMultiple = true)]
     sealed class NodeWrapperAttribute : Attribute
@@ -22,7 +22,7 @@ namespace BrawlBox
                 {
                     _wrappers = new Dictionary<ResourceType, Type>();
                     foreach (Type t in Assembly.GetExecutingAssembly().GetTypes())
-                        foreach(NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
+                        foreach (NodeWrapperAttribute attr in t.GetCustomAttributes(typeof(NodeWrapperAttribute), true))
                             _wrappers[attr._type] = t;
                 }
                 return _wrappers;
@@ -37,7 +37,7 @@ namespace BrawlBox
         protected bool _discovered = false;
 
         protected ResourceNode _resource;
-        public ResourceNode ResourceNode
+        public ResourceNode Resource
         {
             get { return _resource; }
             //set { Link(value); }
@@ -79,7 +79,7 @@ namespace BrawlBox
                     }
 
                     //Remove empty nodes
-                    for (int i = 0; i < nodes.Count; )
+                    for (int i = 0; i < nodes.Count;)
                     {
                         BaseWrapper n = nodes[i] as BaseWrapper;
                         if (n._resource == null)
@@ -169,7 +169,7 @@ namespace BrawlBox
         }
         internal protected virtual void OnChildRemoved(ResourceNode parent, ResourceNode child)
         {
-            foreach(BaseWrapper w in Nodes)
+            foreach (BaseWrapper w in Nodes)
                 if (w != null)
                     if (w._resource == child)
                     {

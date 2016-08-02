@@ -8,7 +8,7 @@ using BrawlLib.Wii.Animations;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.SCN0)]
-    class SCN0Wrapper : GenericWrapper
+    public class SCN0Wrapper : GenericWrapper
     {
         #region Menu
         
@@ -96,7 +96,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.SCN0Camera)]
-    class SCN0CameraWrapper : GenericWrapper
+    public class SCN0CameraWrapper : GenericWrapper
     {
         #region Menu
 
@@ -149,7 +149,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.SCN0Fog)]
-    class SCN0FogWrapper : GenericWrapper
+    public class SCN0FogWrapper : GenericWrapper
     {
         #region Menu
 
@@ -202,7 +202,7 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.SCN0Light)]
-    class SCN0LightWrapper : GenericWrapper
+    public class SCN0LightWrapper : GenericWrapper
     {
         #region Menu
 

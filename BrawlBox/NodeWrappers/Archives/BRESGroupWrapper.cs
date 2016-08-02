@@ -3,10 +3,10 @@ using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
 
-namespace BrawlBox
+namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.BRESGroup)]
-    class BRESGroupWrapper : GenericWrapper
+    public class BRESGroupWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static BRESGroupWrapper() 

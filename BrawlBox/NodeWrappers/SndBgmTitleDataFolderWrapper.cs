@@ -6,7 +6,7 @@ using System.Windows.Forms;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.SndBgmTitleDataFolder)]
-    class SndBgmTitleDataFolderWrapper : GenericWrapper
+    public class SndBgmTitleDataFolderWrapper : GenericWrapper
     {
         private static ContextMenuStrip _menu;
         static SndBgmTitleDataFolderWrapper()
