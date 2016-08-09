@@ -227,17 +227,15 @@ namespace BrawlLib.SSBBTypes
 
         public uint _tag;
         public bint _length;
-        int _pad1, _pad2;
 
         public void Set(int length)
         {
             _tag = Tag;
             _length = length;
-            _pad1 = _pad2 = 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public VoidPtr Data { get { return Address + 0x10; } }
+        public VoidPtr Data { get { return Address + 8; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
