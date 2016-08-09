@@ -80,7 +80,8 @@ namespace BrawlLib.SSBBTypes
             list = Part2;
             list->_numEntries._data = 1; //Number is little-endian
             list->Entries[0] = 0x58;
-            *(AudioFormatInfo*)list->Get(offset, 0) = new AudioFormatInfo(2, 0, 1, 0);
+            *(AudioFormatInfo*)list->Get(offset, 0) = 
+                channels == 1 ? new AudioFormatInfo(1, 0, 0, 0) : new AudioFormatInfo(2, 0, 1, 0);
 
             //Set adpcm infos
             list = Part3;
