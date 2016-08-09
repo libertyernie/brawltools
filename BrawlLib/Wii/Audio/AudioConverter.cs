@@ -193,7 +193,7 @@ namespace BrawlLib.Wii.Audio
             int* buffer1 = stackalloc int[128];
             int* buffer2 = stackalloc int[112];
 
-            long bestDistance = long.MaxValue, distAccum;
+            double bestDistance = double.MaxValue, distAccum;
             int bestIndex = 0;
             int bestScale = 0;
 
@@ -219,7 +219,7 @@ namespace BrawlLib.Wii.Audio
                 for (int y = 0; y < samples; y++)
                 {
                     //Multiply previous samples by coefs
-                    *t1++ = v1 = ((*sPtr++ * coefs[1]) + (*sPtr++ * coefs[0])) >> 11;
+                    *t1++ = v1 = ((*sPtr++ * coefs[1]) + (*sPtr++ * coefs[0])) / 2048;
                     //Subtract from current sample
                     v2 = *sPtr-- - v1;
                     //Clamp
@@ -230,7 +230,7 @@ namespace BrawlLib.Wii.Audio
                 }
 
                 //Set initial scale
-                for (scale = 0; (scale <= 12) && ((distance > 7) || (distance < -8)); scale++, distance >>= 1) ;
+                for (scale = 0; (scale <= 12) && ((distance > 7) || (distance < -8)); scale++, distance /= 2) ;
                 scale = (scale <= 1) ? -1 : scale - 2;
 
                 do
@@ -274,11 +274,7 @@ namespace BrawlLib.Wii.Audio
                         *t1-- = v2 = (v1 >= 32767) ? 32767 : (v1 <= -32768) ? -32768 : v1;
                         //Accumulate distance
                         v3 = *sPtr++ - v2;
-                        distAccum += v3 * v3;
-
-                        //Break if we're higher than a previous search
-                        if (distAccum >= bestDistance)
-                            break;
+                        distAccum += (double)v3 * v3;
                     }
 
                     for (int x = index + 8; x > 256; x >>= 1)

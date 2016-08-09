@@ -80,7 +80,8 @@ namespace BrawlLib.SSBBTypes
             list = Part2;
             list->_numEntries._data = 1; //Number is little-endian
             list->Entries[0] = 0x58;
-            *(AudioFormatInfo*)list->Get(offset, 0) = new AudioFormatInfo(2, 0, 1, 0);
+            *(AudioFormatInfo*)list->Get(offset, 0) = 
+                channels == 1 ? new AudioFormatInfo(1, 0, 0, 0) : new AudioFormatInfo(2, 0, 1, 0);
 
             //Set adpcm infos
             list = Part3;
@@ -227,17 +228,15 @@ namespace BrawlLib.SSBBTypes
 
         public uint _tag;
         public bint _length;
-        int _pad1, _pad2;
 
         public void Set(int length)
         {
             _tag = Tag;
             _length = length;
-            _pad1 = _pad2 = 0;
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-        public VoidPtr Data { get { return Address + 0x10; } }
+        public VoidPtr Data { get { return Address + 8; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

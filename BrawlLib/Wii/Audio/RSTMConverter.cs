@@ -167,6 +167,12 @@ namespace BrawlLib.Wii.Audio
             //Encode blocks
             byte* dPtr = (byte*)data->Data;
             bshort* pyn = (bshort*)adpc->Data;
+            for (int x = 0; x < channels; x++)
+            {
+                *pyn++ = 0;
+                *pyn++ = 0;
+            }
+
             for (int sIndex = 0, bIndex = 1; sIndex < totalSamples; sIndex += 0x3800, bIndex++)
             {
                 int blockSamples = Math.Min(totalSamples - sIndex, 0x3800);
