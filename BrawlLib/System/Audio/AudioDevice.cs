@@ -11,9 +11,11 @@
         {
             get
             {
-                switch (Environment.OSVersion.Platform)
-                {
+                switch (Environment.OSVersion.Platform) {
+#if RSTMLIB
+#else
                     case PlatformID.Win32NT: return wAudioDevice.PlaybackDevices;
+#endif
                 }
                 return null;
             }
@@ -21,11 +23,12 @@
 
         public static AudioDevice DefaultPlaybackDevice
         {
-            get
-            {
-                switch (Environment.OSVersion.Platform)
-                {
+            get {
+                switch (Environment.OSVersion.Platform) {
+#if RSTMLIB
+#else
                     case PlatformID.Win32NT: return wAudioDevice.DefaultPlaybackDevice;
+#endif
                 }
                 return null;
             }
@@ -33,11 +36,12 @@
 
         public static AudioDevice DefaultVoicePlaybackDevice
         {
-            get
-            {
-                switch (Environment.OSVersion.Platform)
-                {
+            get {
+                switch (Environment.OSVersion.Platform) {
+#if RSTMLIB
+#else
                     case PlatformID.Win32NT: return wAudioDevice.DefaultVoicePlaybackDevice;
+#endif
                 }
                 return null;
             }

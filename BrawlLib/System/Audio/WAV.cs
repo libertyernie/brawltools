@@ -1,6 +1,9 @@
 ﻿using System.Runtime.InteropServices;
 using System.IO;
+#if RSTMLIB
+#else
 using BrawlLib.IO;
+#endif
 
 namespace System.Audio
 {
@@ -198,6 +201,8 @@ namespace System.Audio
         }
     }
 
+#if RSTMLIB
+#else
     public unsafe static class WAV
     {
         public static IAudioStream FromFile(string path)
@@ -226,4 +231,5 @@ namespace System.Audio
             }
         }
     }
+#endif
 }
