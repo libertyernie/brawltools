@@ -566,6 +566,7 @@ namespace System.Windows.Forms
         public BrstmConverterDialog(IAudioStream audioStream)
         {
             _sourceStream = audioStream;
+            this.Text = "Loop Point Definition";
 #else
         public BrstmConverterDialog()
         {
@@ -601,6 +602,11 @@ namespace System.Windows.Forms
                     _provider.Attach(this);
             }
 
+#if RSTMLIB
+            // _sourceStream is already populated by the constructor.
+            LoadAudio("Internal audio");
+            btnBrowse.Visible = false;
+#else
             if (_audioSource == null)
             {
                 if (!LoadAudio())
@@ -614,6 +620,7 @@ namespace System.Windows.Forms
                 Close();
                 return;
             }
+#endif
 
             base.OnShown(e);
         }
