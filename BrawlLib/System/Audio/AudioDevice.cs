@@ -12,10 +12,7 @@
             get
             {
                 switch (Environment.OSVersion.Platform) {
-#if RSTMLIB
-#else
                     case PlatformID.Win32NT: return wAudioDevice.PlaybackDevices;
-#endif
                 }
                 return null;
             }
@@ -25,10 +22,7 @@
         {
             get {
                 switch (Environment.OSVersion.Platform) {
-#if RSTMLIB
-#else
                     case PlatformID.Win32NT: return wAudioDevice.DefaultPlaybackDevice;
-#endif
                 }
                 return null;
             }

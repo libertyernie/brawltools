@@ -3,7 +3,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
     <ProjectGuid>{41C94979-CE5A-4582-888A-1BEE98DD43D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -13,7 +13,7 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -22,9 +22,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -32,7 +32,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -49,12 +49,18 @@
     <Compile Include="Platform\Linux.cs" />
     <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
+    <Compile Include="Platform\Win32.DirectSound.cs" />
+    <Compile Include="Platform\Win32.DirectSoundBuffer.cs" />
     <Compile Include="SSBB\Types\Audio\CSTM.cs" />
     <Compile Include="SSBB\Types\Audio\FSTM.cs" />
     <Compile Include="System\Audio\AudioBuffer.cs" />
     <Compile Include="System\Audio\AudioDevice.cs" />
     <Compile Include="System\Audio\AudioProvider.cs" />
     <Compile Include="System\Audio\BufferData.cs" />
+    <Compile Include="System\Audio\wAudioBuffer.cs" />
+    <Compile Include="System\Audio\wAudioDevice.cs" />
+    <Compile Include="System\Audio\wAudioProvider.cs" />
+    <Compile Include="System\Audio\WAV.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Memory.cs" />
     <Compile Include="System\StringExtension.cs" />

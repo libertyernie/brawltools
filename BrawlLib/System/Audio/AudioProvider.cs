@@ -15,10 +15,7 @@ namespace System.Audio
         {
             switch (Environment.OSVersion.Platform)
             {
-#if RSTMLIB
-#else
                 case PlatformID.Win32NT: return new wAudioProvider(device);
-#endif
                 default: return null;
             }
         }
