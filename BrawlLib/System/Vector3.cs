@@ -255,10 +255,21 @@ namespace System
 
         public Vector4 ToQuat()
         {
-            Vector4 qx = new Vector4((float)Math.Sin(_x / 2.0f), 0.0f, 0.0f, (float)Math.Cos(_x / 2.0f));
-            Vector4 qy = new Vector4(0.0f, (float)Math.Sin(_y / 2.0f), 0.0f, (float)Math.Cos(_y / 2.0f));
-            Vector4 qz = new Vector4(0.0f, 0.0f, (float)Math.Sin(_z / 2.0f), (float)Math.Cos(_z / 2.0f));
-            return qz.QuatMult(qy).QuatMult(qx);
+
+            double c1 = Math.Cos(_x / 2);
+            double c2 = Math.Cos(_y / 2);
+            double c3 = Math.Cos(_z / 2);
+
+            double s1 = Math.Sin(_x / 2);
+            double s2 = Math.Sin(_y / 2);
+            double s3 = Math.Sin(_z / 2);
+
+            float w = (float)((c1 * c2 * c3) - (s1 * s2 * s3));
+            float x = (float)((s1 * s2 * c3) + (c1 * c2 * s3));
+            float y = (float)((s1 * c2 * c3) + (c1 * s2 * s3));
+            float z = (float)((c1 * s2 * c3) - (s1 * c2 * s3));
+
+            return new Vector4(w, x, y, z);
         }
 
         public bool IsInTriangle(Vector3 triPt1, Vector3 triPt2, Vector3 triPt3)
