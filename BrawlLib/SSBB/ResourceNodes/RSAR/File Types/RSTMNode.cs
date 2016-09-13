@@ -103,7 +103,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _blockSize = part1->_blockSize;
             _bps = part1->_bitsPerSample;
 
-            int offset = ((int)(Header->DATAData->Data) - (int)(Header));
+            int offset = Header->DATAData->Data - Header;
             if (offset < WorkingUncompressed.Length)
             {
                 _audioSource = new DataSource(Header->DATAData->Data, WorkingUncompressed.Length - offset);

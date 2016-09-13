@@ -214,35 +214,35 @@ namespace System.Windows.Forms
             set { TargetChanged(value); }
         }
 
-		private int? _volume;
-		/// <summary>
-		/// How much quieter to make the audio output, in hundredths of a decibel.
-		/// Custom Song Volume code's difference between 7F (max) and 3F seems to be 1/4 volume - about -6dB. In other words, both the maximum and minimum amplitudes are halved.
-		/// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb280955%28v=vs.85%29.aspx
-		/// </summary>
-		public int? Volume {
-			get {
-				return _volume;
-			}
-			set {
-				_volume = value;
-				if (CurrentBuffer != null && _volume != null) {
-					CurrentBuffer.Volume = _volume.Value;
-				}
-			}
-		}
+        private int? _volume;
+        /// <summary>
+        /// How much quieter to make the audio output, in hundredths of a decibel.
+        /// Custom Song Volume code's difference between 7F (max) and 3F seems to be 1/4 volume - about -6dB. In other words, both the maximum and minimum amplitudes are halved.
+        /// See: http://msdn.microsoft.com/en-us/library/windows/desktop/bb280955%28v=vs.85%29.aspx
+        /// </summary>
+        public int? Volume {
+            get {
+                return _volume;
+            }
+            set {
+                _volume = value;
+                if (CurrentBuffer != null && _volume != null) {
+                    CurrentBuffer.Volume = _volume.Value;
+                }
+            }
+        }
 
-		/// <summary>
-		/// Sets Volume appropriately.
-		/// Range: above .00001, below or at 1. Anything lower than .00001 will set Volume to -10000.
-		/// </summary>
-		public double? VolumePercent {
-			set {
-				if (value == null) {
-					Volume = null;
-				} else {
-					Volume = Math.Max(-10000, (int)(Math.Log10(value.Value) * 2000));
-				}
+        /// <summary>
+        /// Sets Volume appropriately.
+        /// Range: above .00001, below or at 1. Anything lower than .00001 will set Volume to -10000.
+        /// </summary>
+        public double? VolumePercent {
+            set {
+                if (value == null) {
+                    Volume = null;
+                } else {
+                    Volume = Math.Max(-10000, (int)(Math.Log10(value.Value) * 2000));
+                }
 
                 //This should really be in the volume property, but this way I don't need to do more calculations
                 BrawlLib.Properties.Settings.Default.AudioVolumePercent = value;
@@ -250,8 +250,8 @@ namespace System.Windows.Forms
 
                 if (!_updating)
                     trackBarVolume.Value = (int)(value * 100d + 0.5d);
-			}
-		}
+            }
+        }
 
         private AudioProvider _provider;
 
@@ -319,42 +319,44 @@ namespace System.Windows.Forms
         {
             if (_targetSource == newTarget)
                 return;
-
+            
             Close();
-
+            
             if ((_targetSource = newTarget) == null)
                 return;
             if ((TargetStreams = _targetSource.CreateStreams()) == null)
                 return;
             if (_targetStream == null)
                 return;
-
+            
             //Create provider
             if (_provider == null)
             {
                 _provider = AudioProvider.Create(null);
-                _provider.Attach(this);
+                if (_provider != null)
+                    _provider.Attach(this);
             }
-
+            
             chkLoop.Checked = false;
             chkLoop.Enabled = _targetStream.IsLooping;
-
+            
             //Create buffer for stream
-            for (int i = 0; i < _buffers.Length; i++)
-                _buffers[i] = _provider.CreateBuffer(_targetStreams[i]);
-
+            if (_provider != null)
+                for (int i = 0; i < _buffers.Length; i++)
+                    _buffers[i] = _provider.CreateBuffer(_targetStreams[i]);
+            
             if (_targetStream.Frequency > 0)
                 _sampleTime = new DateTime((long)_targetStream.Samples * 10000000 / _targetStream.Frequency);
-
+            
             trackBarPosition.Value = 0;
             trackBarPosition.TickStyle = TickStyle.None;
             trackBarPosition.Maximum = _targetStream.Samples;
             trackBarPosition.TickFrequency = _targetStream.Samples / 8;
             trackBarPosition.TickStyle = TickStyle.BottomRight;
-
+            
             if (_targetStream.Frequency > 0)
                 UpdateTimeDisplay();
-
+            
             Enabled = _targetStream.Samples > 0;
         }
 
@@ -373,7 +375,8 @@ namespace System.Windows.Forms
             if (_isPlaying)
             {
                 Stop();
-                CurrentBuffer.Seek(sample);
+                if (CurrentBuffer != null)
+                    CurrentBuffer.Seek(sample);
                 Play();
             }
         }
@@ -397,8 +400,8 @@ namespace System.Windows.Forms
             //Start timer
             tmrUpdate.Start();
 
-			//Change volume
-			if (Volume != null) CurrentBuffer.Volume = Volume.Value;
+            //Change volume
+            if (Volume != null) CurrentBuffer.Volume = Volume.Value;
             //Begin playback
             CurrentBuffer.Play();
 
