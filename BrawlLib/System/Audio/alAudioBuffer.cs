@@ -8,11 +8,12 @@ namespace System.Audio
     {
         alAudioProvider _parent;
         int source;
-        List<int> buffers;
+        List<int> buffersToQueue;
+        int addToCursor;
 
         internal override int PlayCursor
         {
-            get { int v; AL.GetSource((uint)source, ALGetSourcei.SampleOffset, out v); return v; }
+            get { int v; AL.GetSource((uint)source, ALGetSourcei.SampleOffset, out v); return v + addToCursor; }
             set { AL.Source((uint)source, ALSourcei.SampleOffset, value); }
         }
         public override int Volume
@@ -30,7 +31,7 @@ namespace System.Audio
         {
             _parent = parent;
 
-            buffers = new List<int>();
+            buffersToQueue = new List<int>();
 
             int size = DefaultBufferSpan * (int)fmt.nSamplesPerSec * fmt.nChannels * fmt.wBitsPerSample / 8;
             if (size == 0)
@@ -87,12 +88,25 @@ namespace System.Audio
             }
             else
             {
-                lock (buffers)
+                lock (buffersToQueue)
                 {
-                    buffers.Add(buffer);
+                    buffersToQueue.Add(buffer);
                 }
             }
             Marshal.FreeHGlobal(data.Part1Address);
+
+            int dequeuedBuffers;
+            AL.GetSource(source, ALGetSourcei.BuffersProcessed, out dequeuedBuffers);
+            if (dequeuedBuffers > 0) {
+                int[] bufferids = new int[dequeuedBuffers];
+                AL.SourceUnqueueBuffers(source, dequeuedBuffers, bufferids);
+                foreach (int id in bufferids) {
+                    int length = 0;
+                    AL.GetBuffer(id, ALGetBufferi.Size, out length);
+                    addToCursor += length;
+                    AL.DeleteBuffer(id);
+                }
+            }
         }
 
         public static ALFormat GetSoundFormat(int channels, int bits)
@@ -108,18 +122,33 @@ namespace System.Audio
         public override void Play()
         {
             source = AL.GenSource();
-            lock (buffers)
+            Console.WriteLine($"Source {source} created");
+            lock (buffersToQueue)
             {
-                foreach (int buffer in buffers)
+                foreach (int buffer in buffersToQueue)
                     AL.SourceQueueBuffer(source, buffer);
-                buffers.Clear();
+                buffersToQueue.Clear();
             }
             AL.SourcePlay(source);
         }
         public override void Stop() 
         {
             AL.SourceStop(source);
+
+            int dequeuedBuffers;
+            AL.GetSource(source, ALGetSourcei.BuffersProcessed, out dequeuedBuffers);
+            if (dequeuedBuffers > 0) {
+                int[] bufferids = new int[dequeuedBuffers];
+                AL.SourceUnqueueBuffers(source, dequeuedBuffers, bufferids);
+                foreach (int id in bufferids) {
+                    AL.DeleteBuffer(id);
+                }
+            }
+
+            addToCursor = 0;
+
             AL.DeleteSource(source);
+            Console.WriteLine($"Source {source} deleted");
             source = 0;
         }
     }
