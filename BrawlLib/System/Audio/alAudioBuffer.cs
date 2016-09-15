@@ -27,6 +27,8 @@ namespace System.Audio
             {
                 lock (sourceLock)
                 {
+                    if (sourceLock.currentSource == 0)
+                        return 0;
                     int v;
                     AL.GetSource(sourceLock.currentSource, ALGetSourcei.SampleOffset, out v);
                     return v + sourceLock.addToCursor;
@@ -36,15 +38,38 @@ namespace System.Audio
             {
                 lock (sourceLock)
                 {
+                    if (sourceLock.currentSource == 0)
+                        return;
                     AL.Source(sourceLock.currentSource, ALSourcei.SampleOffset, value - sourceLock.addToCursor  );
                 }
             }
         }
+
+        private int _volume;
         public override int Volume
         {
-            get { return 0; }
-            set { }
+            get
+            {
+                lock (sourceLock)
+                {
+                    if (sourceLock.currentSource == 0) return _volume;
+                    float v;
+                    AL.GetSource((uint)sourceLock.currentSource, ALSourcef.Gain, out v);
+                    return Math.Max(-10000, (int)(Math.Log10(v) * 2000));
+                }
+            }
+            set
+            {
+                lock (sourceLock)
+                {
+                    _volume = value;
+                    if (sourceLock.currentSource == 0) return;
+                    double pct = Math.Pow(10, (double)value / 2000);
+                    AL.Source(sourceLock.currentSource, ALSourcef.Gain, (float)pct);
+                }
+            }
         }
+
         public override int Pan
         {
             get { throw new NotImplementedException(); }
@@ -172,13 +197,13 @@ namespace System.Audio
                     throw new Exception("Cannot start when already playing");
 
                 sourceLock.currentSource = AL.GenSource();
-                Console.WriteLine($"Source {sourceLock.currentSource} created");
                 lock (buffersToQueue)
                 {
                     foreach (int buffer in buffersToQueue)
                         AL.SourceQueueBuffer(sourceLock.currentSource, buffer);
                     buffersToQueue.Clear();
                 }
+                Volume = _volume;
                 AL.SourcePlay(sourceLock.currentSource);
             }
         }
@@ -196,7 +221,6 @@ namespace System.Audio
                 sourceLock.addToCursor = 0;
 
                 AL.DeleteSource(sourceLock.currentSource);
-                Console.WriteLine($"Source {sourceLock.currentSource} deleted");
                 sourceLock.currentSource = 0;
             }
         }
