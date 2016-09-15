@@ -13,6 +13,16 @@ namespace System.Audio
 
         public static AudioProvider Create(AudioDevice device)
         {
+            if (device == null)
+            {
+                try
+                {
+                    var ap = new alAudioProvider();
+                    return ap;
+                }
+                catch (TypeInitializationException) { }
+            }
+
             switch (Environment.OSVersion.Platform)
             {
                 case PlatformID.Win32NT: return new wAudioProvider(device);
