@@ -41,10 +41,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             uint _audioLen;
             VoidPtr _dataAddr = ((RSARFileNode)Parent._parent)._audioSource.Address + Info._dataLocation;
-            if (Index != Parent.Children.Count - 1)
-                _audioLen = ((WAVESoundNode)Parent.Children[Index + 1]).Info._dataLocation - Info._dataLocation;
-            else
-                _audioLen = (uint)((RSARFileNode)Parent._parent)._audioSource.Length - Info._dataLocation;
+
+            uint nextBiggest = (uint)((RSARFileNode)Parent._parent)._audioSource.Length;
+            foreach (WAVESoundNode s in Parent.Children)
+                if (s != this && s.Info._dataLocation > Info._dataLocation && s.Info._dataLocation < nextBiggest)
+                    nextBiggest = s.Info._dataLocation;
+
+            _audioLen = nextBiggest - Info._dataLocation;
 
             Init(_dataAddr, (int)_audioLen, (WaveInfo*)WorkingUncompressed.Address);
         }
