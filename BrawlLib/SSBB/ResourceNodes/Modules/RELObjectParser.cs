@@ -45,6 +45,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return null;
 
             uint relOffset = cmd.Apply(Manager.GetUint(index), 0);
+            if (_objectSection._dataOffset + relOffset > _objectSection._dataSize)
+                return null;
+
             string name = new string((sbyte*)(_objectSection.Header + relOffset));
 
             if (String.IsNullOrWhiteSpace(name))

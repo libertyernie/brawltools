@@ -121,6 +121,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint BSSAlign { get { return _bssAlign; } }
         [Category("Relocatable Module")]
         public uint FixSize { get { return _fixSize; } }
+        [Category("Relocatable Module")]
+        [DisplayName("Imported Modules")]
+        public string[] ImportedModules { get; private set; }
 
         #region Stage module conversion - designer properties
         [Category("Brawl Stage Module")]
@@ -247,16 +250,20 @@ namespace BrawlLib.SSBB.ResourceNodes
             _fixSize = Header->_commandOffset;
 
             _imports = new SortedDictionary<uint, List<RELLink>>();
+            var impNames = new string[Header->ImportListCount];
+
             for (int i = 0; i < Header->ImportListCount; i++)
             {
                 RELImportEntry* entry = (RELImportEntry*)&Header->Imports[i];
                 uint id = (uint)entry->_moduleId;
                 _imports.Add(id, new List<RELLink>());
+                impNames[i] = _idNames.ContainsKey(id) ? _idNames[id] : $"Module{id}";
 
                 RELLink* link = (RELLink*)(WorkingUncompressed.Address + (uint)entry->_offset);
                 do { _imports[id].Add(*link); }
                 while ((link++)->_type != RELLinkType.End);
             }
+            ImportedModules = impNames;
 
             if (_name == null)
                 _name = _idNames.ContainsKey(_id) ? _idNames[_id] : Path.GetFileName(_origPath);
@@ -584,40 +591,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                         header->_bssSize = (uint)s._calcSize;
                     }
                 }
-
-
-            //if (_prologSect != -1)
-            //{
-            //    header->_prologSection = (byte)_prologSect;
-            //    header->_prologOffset = _prologOffset;
-            //}
-            //else
-            //{
-            //    header->_prologOffset = 0;
-            //    header->_prologSection = 0;
-            //}
-
-            //if (_epilogSect != -1)
-            //{
-            //    header->_epilogSection = (byte)_epilogSect;
-            //    header->_epilogOffset = (uint)sections[_epilogSect].Offset + (uint)_epilogIndex * 4;
-            //}
-            //else
-            //{
-            //    header->_epilogSection = 0;
-            //    header->_epilogOffset = 0;
-            //}
-
-            //if (_unresSect != -1)
-            //{
-            //    header->_unresolvedSection = (byte)_unresSect;
-            //    header->_unresolvedOffset = (uint)sections[_unresSect].Offset + (uint)_unresIndex * 4;
-            //}
-            //else
-            //{
-            //    header->_unresolvedSection = 0;
-            //    header->_unresolvedOffset = 0;
-            //}
 
             RELImportEntry* imports = (RELImportEntry*)dataAddr;
             header->_impOffset = (uint)(dataAddr - address);
