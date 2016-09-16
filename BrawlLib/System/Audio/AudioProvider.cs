@@ -1,5 +1,7 @@
 ﻿using System.Windows.Forms;
 using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
 
 namespace System.Audio
 {
@@ -13,21 +15,26 @@ namespace System.Audio
 
         public static AudioProvider Create(AudioDevice device)
         {
+#if RSTMLIB
+#else
             if (device == null)
             {
                 try
                 {
-                    var ap = new alAudioProvider();
-                    return ap;
+                    return new alAudioProvider();
                 }
                 catch (TypeInitializationException) { }
             }
+#endif
 
             switch (Environment.OSVersion.Platform)
             {
-                case PlatformID.Win32NT: return new wAudioProvider(device);
-                default: return null;
+                case PlatformID.Win32NT:
+                    if (IntPtr.Size <= 4) return new wAudioProvider(device);
+                    break;
             }
+
+            return null;
         }
 
         ~AudioProvider() { Dispose(); }

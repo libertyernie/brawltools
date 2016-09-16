@@ -600,6 +600,8 @@ namespace System.Windows.Forms
                 _provider = AudioProvider.Create(null);
                 if (_provider != null)
                     _provider.Attach(this);
+                else
+                    btnPlay.Enabled = false;
             }
 
 #if RSTMLIB
