@@ -44,12 +44,12 @@ namespace System.Windows.Forms
             if (section.Root is RELNode)
             {
                 RELNode r = (RELNode)section.Root;
-                if (r._prologSect != -1 && r._prologSect == section.Index)
-                    _manager._constructorIndex = r._prologIndex;
-                if (r._epilogSect != -1 && r._epilogSect == section.Index)
-                    _manager._destructorIndex = r._epilogIndex;
-                if (r._unresSect != -1 && r._unresSect == section.Index)
-                    _manager._unresolvedIndex = r._unresIndex;
+                if (r.PrologSection == section.Index)
+                    _manager._constructorIndex = (int)r._prologOffset / 4;
+                if (r.EpilogSection == section.Index)
+                    _manager._destructorIndex = (int)r._epilogOffset / 4;
+                if (r.UnresolvedSection == section.Index)
+                    _manager._unresolvedIndex = (int)r._unresolvedOffset / 4;
                 //if (r._nameReloc != null && r._nameReloc._section == section)
                 //    _nameReloc = r._nameReloc;
             }
@@ -371,11 +371,11 @@ namespace System.Windows.Forms
                         bool u = _updating;
                         _updating = true;
                         chkConstructor.Checked =
-                            _selectedRelocationIndex == _manager._constructorIndex && _section.Index == r._prologSect;
+                            _selectedRelocationIndex == _manager._constructorIndex && _section.Index == r._prologSection;
                         chkDestructor.Checked =
-                            _selectedRelocationIndex == _manager._destructorIndex && _section.Index == r._epilogSect;
+                            _selectedRelocationIndex == _manager._destructorIndex && _section.Index == r._epilogSection;
                         chkUnresolved.Checked =
-                            _selectedRelocationIndex == _manager._unresolvedIndex && _section.Index == r._unresSect;
+                            _selectedRelocationIndex == _manager._unresolvedIndex && _section.Index == r._unresolvedSection;
                         _updating = u;
                     }
 
@@ -847,30 +847,21 @@ namespace System.Windows.Forms
                 {
                     RELNode r = _section.Root as RELNode;
 
-                    if (r._prologSect == _section.Index && r._prologIndex != _manager._constructorIndex)
+                    if (r.PrologSection == _section.Index && r._prologOffset / 4 != _manager._constructorIndex)
                     {
-                        //if (r._prologReloc != null)
-                        //    r._prologReloc._prolog = false;
-
-                        r._prologIndex = _manager._constructorIndex;
+                        r._prologOffset = (uint)_manager._constructorIndex * 4;
                         r.SignalPropertyChange();
                     }
 
-                    if (r._prologSect == _section.Index && r._epilogIndex != _manager._destructorIndex)
+                    if (r.EpilogSection == _section.Index && r._epilogOffset / 4 != _manager._destructorIndex)
                     {
-                        //if (r._epilogReloc != null)
-                        //    r._epilogReloc._epilog = false;
-
-                        r._epilogIndex = _manager._destructorIndex;
+                        r._epilogOffset = (uint)_manager._destructorIndex * 4;
                         r.SignalPropertyChange();
                     }
 
-                    if (r._prologSect == _section.Index && r._unresIndex != _manager._unresolvedIndex)
+                    if (r.UnresolvedSection == _section.Index && r._unresolvedOffset / 4 != _manager._unresolvedIndex)
                     {
-                        //if (r._unresReloc != null)
-                        //    r._unresReloc._unresolved = false;
-
-                        r._unresIndex = _manager._unresolvedIndex;
+                        r._unresolvedOffset = (uint)_manager._unresolvedIndex * 4;
                         r.SignalPropertyChange();
                     }
                 }
