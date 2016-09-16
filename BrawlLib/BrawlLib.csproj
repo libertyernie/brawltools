@@ -131,6 +131,9 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="OpenTK.dll.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="System\ComponentModel\CustomPropertyDescriptor.cs" />
     <None Include="System\ComponentModel\DelegatePropertyDescriptor.cs" />
     <Compile Include="Modeling\Collada\ColladaImportDialog.cs">
@@ -257,6 +260,8 @@
     <None Include="SSBB\Types\Wii U\FTEX.cs" />
     <None Include="SSBB\Types\Wii U\SARC.cs" />
     <Compile Include="System\AttributeInfo.cs" />
+    <Compile Include="System\Audio\alAudioProvider.cs" />
+    <Compile Include="System\Audio\alAudioBuffer.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />
@@ -310,9 +315,7 @@
     <Compile Include="OpenGL\TKContext.cs" />
     <Compile Include="OpenGL\GLCamera.cs" />
     <Compile Include="OpenGL\GLDisplayList.cs" />
-    <Compile Include="OpenGL\GLPanel.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
+    <Compile Include="OpenGL\GLPanel.cs" />
     <Compile Include="OpenGL\GLTexture.cs" />
     <Compile Include="OpenGL\IRenderedObject.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />

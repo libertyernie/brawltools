@@ -1032,7 +1032,9 @@ mkdir Python
 %25windir%25\system32\xcopy "$(SolutionDir)$(ProjectName)\Lib" "$(TargetDir)/Python" /Y /I /E
 %25windir%25\system32\xcopy "$(TargetDir)*.dll" "$(TargetDir)/Lib" /Y /I
 %25windir%25\system32\xcopy "$(TargetDir)*.dll" "$(TargetDir)/lib" /Y /I
+%25windir%25\system32\xcopy "$(TargetDir)*.dll.config" "$(TargetDir)/lib" /Y /I
 del *.dll
+del *.dll.config
 del updater.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
