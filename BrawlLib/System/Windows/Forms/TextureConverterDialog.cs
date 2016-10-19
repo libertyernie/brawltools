@@ -608,11 +608,15 @@ namespace System.Windows.Forms
             {
                 numPaletteCount.Enabled = false;
                 cboAlgorithm.Enabled = false;
+                chkSwapRGB.Enabled = false;
+                chkSwapAlpha.Enabled = false;
             }
             else
             {
                 numPaletteCount.Enabled = true;
                 cboAlgorithm.Enabled = true;
+                chkSwapRGB.Enabled = true;
+                chkSwapAlpha.Enabled = true;
             }
         }
 
