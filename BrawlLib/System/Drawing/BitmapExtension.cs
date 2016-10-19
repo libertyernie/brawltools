@@ -359,6 +359,32 @@ namespace System
             return dst;
         }
 
+        // TODO: use LockBits in InvertColors and InvertAlpha to speed up operation
+
+        public static Bitmap InvertColors(this Bitmap bmp) {
+            Bitmap output = new Bitmap(bmp.Width, bmp.Height);
+            for (int x=0; x<bmp.Width; x++) {
+                for (int y=0; y<bmp.Height; y++) {
+                    Color c = bmp.GetPixel(x, y);
+                    c = Color.FromArgb(c.A, (byte)~c.R, (byte)~c.G, (byte)~c.B);
+                    output.SetPixel(x, y, c);
+                }
+            }
+            return output;
+        }
+
+        public static Bitmap InvertAlpha(this Bitmap bmp) {
+            Bitmap output = new Bitmap(bmp.Width, bmp.Height);
+            for (int x=0; x<bmp.Width; x++) {
+                for (int y=0; y<bmp.Height; y++) {
+                    Color c = bmp.GetPixel(x, y);
+                    c = Color.FromArgb((byte)~c.A, c);
+                    output.SetPixel(x, y, c);
+                }
+            }
+            return output;
+        }
+
         public static void SaveTGA(this Bitmap bmp, string path)
         {
             TGA.ToFile(bmp, path);
