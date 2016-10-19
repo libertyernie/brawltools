@@ -529,6 +529,11 @@ namespace System.Windows.Forms
             }
             FixPaletteFields();
 
+            if (Source.GuessIfAlphaInverted()) {
+                chkSwapAlpha.Checked = true;
+                Source = Source.InvertAlpha();
+            }
+
             _updating = false;
             UpdatePreview();
         }
