@@ -359,30 +359,74 @@ namespace System
             return dst;
         }
 
-        // TODO: use LockBits in InvertColors and InvertAlpha to speed up operation
+        public static unsafe Bitmap InvertColors(this Bitmap bmp) {
+            if (bmp.PixelFormat == PixelFormat.Format32bppArgb) {
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
 
-        public static Bitmap InvertColors(this Bitmap bmp) {
-            Bitmap output = new Bitmap(bmp.Width, bmp.Height);
-            for (int x=0; x<bmp.Width; x++) {
-                for (int y=0; y<bmp.Height; y++) {
-                    Color c = bmp.GetPixel(x, y);
-                    c = Color.FromArgb(c.A, (byte)~c.R, (byte)~c.G, (byte)~c.B);
-                    output.SetPixel(x, y, c);
+                Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+                BitmapData inData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                BitmapData outData = output.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+                uint* inPtr = (uint*)inData.Scan0;
+                uint* outPtr = (uint*)outData.Scan0;
+
+                int length = Math.Abs(inData.Stride) * bmp.Height / sizeof(uint);
+
+                for (int i=0; i<length; i++) {
+                    outPtr[i] = inPtr[i] ^ 0xFFFFFF;
                 }
+
+                bmp.UnlockBits(inData);
+                output.UnlockBits(outData);
+
+                return output;
+            } else {
+                // Slower, but works for any input pixel format
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height);
+                for (int x = 0; x < bmp.Width; x++) {
+                    for (int y = 0; y < bmp.Height; y++) {
+                        Color c = bmp.GetPixel(x, y);
+                        c = Color.FromArgb(c.A, (byte)~c.R, (byte)~c.G, (byte)~c.B);
+                        output.SetPixel(x, y, c);
+                    }
+                }
+                return output;
             }
-            return output;
         }
 
-        public static Bitmap InvertAlpha(this Bitmap bmp) {
-            Bitmap output = new Bitmap(bmp.Width, bmp.Height);
-            for (int x=0; x<bmp.Width; x++) {
-                for (int y=0; y<bmp.Height; y++) {
-                    Color c = bmp.GetPixel(x, y);
-                    c = Color.FromArgb((byte)~c.A, c);
-                    output.SetPixel(x, y, c);
+        public static unsafe Bitmap InvertAlpha(this Bitmap bmp) {
+            if (bmp.PixelFormat == PixelFormat.Format32bppArgb) {
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+
+                Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+                BitmapData inData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                BitmapData outData = output.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+                uint* inPtr = (uint*)inData.Scan0;
+                uint* outPtr = (uint*)outData.Scan0;
+
+                int length = Math.Abs(inData.Stride) * bmp.Height / sizeof(uint);
+
+                for (int i = 0; i < length; i++) {
+                    outPtr[i] = inPtr[i] ^ 0xFF000000;
                 }
+
+                bmp.UnlockBits(inData);
+                output.UnlockBits(outData);
+
+                return output;
+            } else {
+                // Slower, but works for any input pixel format
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height);
+                for (int x = 0; x < bmp.Width; x++) {
+                    for (int y = 0; y < bmp.Height; y++) {
+                        Color c = bmp.GetPixel(x, y);
+                        c = Color.FromArgb((byte)~c.A, c);
+                        output.SetPixel(x, y, c);
+                    }
+                }
+                return output;
             }
-            return output;
         }
 
         public static void SaveTGA(this Bitmap bmp, string path)
