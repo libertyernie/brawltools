@@ -71,7 +71,9 @@ namespace System.Windows.Forms
         private Label label12;
         private GCHandle? _pixelData;
         private CheckBox chkImportPalette;
-    
+        private CheckBox chkSwapRGB;
+        private CheckBox chkSwapAlpha;
+
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap TextureData { get { return _textureData; } }
 
@@ -832,10 +834,12 @@ namespace System.Windows.Forms
             this.panel1 = new System.Windows.Forms.Panel();
             this.txtPath = new System.Windows.Forms.TextBox();
             this.panel2 = new System.Windows.Forms.Panel();
-            this.button1 = new System.Windows.Forms.Button();
-            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
             this.numMIPPreview = new System.Windows.Forms.NumericUpDown();
             this.label12 = new System.Windows.Forms.Label();
+            this.button1 = new System.Windows.Forms.Button();
+            this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
+            this.chkSwapAlpha = new System.Windows.Forms.CheckBox();
+            this.chkSwapRGB = new System.Windows.Forms.CheckBox();
             this.pictureBox1 = new System.Windows.Forms.GoodPictureBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numLOD)).BeginInit();
@@ -889,7 +893,7 @@ namespace System.Windows.Forms
             0});
             this.numLOD.Name = "numLOD";
             this.numLOD.Size = new System.Drawing.Size(98, 20);
-            this.numLOD.TabIndex = 9;
+            this.numLOD.TabIndex = 3;
             this.numLOD.Value = new decimal(new int[] {
             1,
             0,
@@ -902,7 +906,7 @@ namespace System.Windows.Forms
             this.label5.Location = new System.Drawing.Point(6, 42);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(63, 20);
-            this.label5.TabIndex = 8;
+            this.label5.TabIndex = 2;
             this.label5.Text = "MIP Levels:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -915,7 +919,7 @@ namespace System.Windows.Forms
             this.cboFormat.Location = new System.Drawing.Point(75, 15);
             this.cboFormat.Name = "cboFormat";
             this.cboFormat.Size = new System.Drawing.Size(98, 21);
-            this.cboFormat.TabIndex = 7;
+            this.cboFormat.TabIndex = 1;
             this.cboFormat.SelectedIndexChanged += new System.EventHandler(this.cboFormat_SelectedIndexChanged);
             // 
             // label4
@@ -923,7 +927,7 @@ namespace System.Windows.Forms
             this.label4.Location = new System.Drawing.Point(6, 16);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(63, 20);
-            this.label4.TabIndex = 6;
+            this.label4.TabIndex = 0;
             this.label4.Text = "Format:";
             this.label4.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -934,7 +938,7 @@ namespace System.Windows.Forms
             this.btnRecommend.Location = new System.Drawing.Point(75, 14);
             this.btnRecommend.Name = "btnRecommend";
             this.btnRecommend.Size = new System.Drawing.Size(98, 21);
-            this.btnRecommend.TabIndex = 5;
+            this.btnRecommend.TabIndex = 1;
             this.btnRecommend.Text = "Recommend";
             this.btnRecommend.UseVisualStyleBackColor = true;
             this.btnRecommend.Click += new System.EventHandler(this.btnRecommend_Click);
@@ -963,7 +967,7 @@ namespace System.Windows.Forms
             this.label9.Location = new System.Drawing.Point(6, 71);
             this.label9.Name = "label9";
             this.label9.Size = new System.Drawing.Size(85, 20);
-            this.label9.TabIndex = 7;
+            this.label9.TabIndex = 6;
             this.label9.Text = "Data Size:";
             this.label9.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -984,7 +988,7 @@ namespace System.Windows.Forms
             this.lblDataSize.Location = new System.Drawing.Point(97, 71);
             this.lblDataSize.Name = "lblDataSize";
             this.lblDataSize.Size = new System.Drawing.Size(76, 20);
-            this.lblDataSize.TabIndex = 6;
+            this.lblDataSize.TabIndex = 7;
             this.lblDataSize.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblColors
@@ -994,7 +998,7 @@ namespace System.Windows.Forms
             this.lblColors.Location = new System.Drawing.Point(97, 31);
             this.lblColors.Name = "lblColors";
             this.lblColors.Size = new System.Drawing.Size(76, 20);
-            this.lblColors.TabIndex = 4;
+            this.lblColors.TabIndex = 3;
             this.lblColors.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblSize
@@ -1004,7 +1008,7 @@ namespace System.Windows.Forms
             this.lblSize.Location = new System.Drawing.Point(94, 11);
             this.lblSize.Name = "lblSize";
             this.lblSize.Size = new System.Drawing.Size(79, 20);
-            this.lblSize.TabIndex = 3;
+            this.lblSize.TabIndex = 1;
             this.lblSize.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // label3
@@ -1012,7 +1016,7 @@ namespace System.Windows.Forms
             this.label3.Location = new System.Drawing.Point(6, 51);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(85, 20);
-            this.label3.TabIndex = 2;
+            this.label3.TabIndex = 4;
             this.label3.Text = "Transparent:";
             this.label3.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1021,7 +1025,7 @@ namespace System.Windows.Forms
             this.label2.Location = new System.Drawing.Point(6, 31);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(85, 20);
-            this.label2.TabIndex = 1;
+            this.label2.TabIndex = 2;
             this.label2.Text = "Colors:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1037,10 +1041,10 @@ namespace System.Windows.Forms
             // btnOkay
             // 
             this.btnOkay.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnOkay.Location = new System.Drawing.Point(8, 111);
+            this.btnOkay.Location = new System.Drawing.Point(8, 134);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(80, 23);
-            this.btnOkay.TabIndex = 3;
+            this.btnOkay.TabIndex = 10;
             this.btnOkay.Text = "Okay";
             this.btnOkay.UseVisualStyleBackColor = true;
             this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
@@ -1048,10 +1052,10 @@ namespace System.Windows.Forms
             // btnCancel
             // 
             this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnCancel.Location = new System.Drawing.Point(94, 111);
+            this.btnCancel.Location = new System.Drawing.Point(94, 134);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(80, 23);
-            this.btnCancel.TabIndex = 4;
+            this.btnCancel.TabIndex = 11;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -1080,7 +1084,7 @@ namespace System.Windows.Forms
             this.chkImportPalette.Location = new System.Drawing.Point(9, 95);
             this.chkImportPalette.Name = "chkImportPalette";
             this.chkImportPalette.Size = new System.Drawing.Size(164, 17);
-            this.chkImportPalette.TabIndex = 14;
+            this.chkImportPalette.TabIndex = 6;
             this.chkImportPalette.Text = "Import Palette";
             this.chkImportPalette.UseVisualStyleBackColor = true;
             this.chkImportPalette.CheckedChanged += new System.EventHandler(this.chkImportPalette_CheckedChanged);
@@ -1094,7 +1098,7 @@ namespace System.Windows.Forms
             this.cboAlgorithm.Location = new System.Drawing.Point(75, 68);
             this.cboAlgorithm.Name = "cboAlgorithm";
             this.cboAlgorithm.Size = new System.Drawing.Size(98, 21);
-            this.cboAlgorithm.TabIndex = 13;
+            this.cboAlgorithm.TabIndex = 5;
             this.cboAlgorithm.SelectedIndexChanged += new System.EventHandler(this.formatChanged);
             // 
             // label8
@@ -1102,7 +1106,7 @@ namespace System.Windows.Forms
             this.label8.Location = new System.Drawing.Point(6, 69);
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(63, 20);
-            this.label8.TabIndex = 12;
+            this.label8.TabIndex = 4;
             this.label8.Text = "Algorithm:";
             this.label8.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1128,7 +1132,7 @@ namespace System.Windows.Forms
             0});
             this.numPaletteCount.Name = "numPaletteCount";
             this.numPaletteCount.Size = new System.Drawing.Size(97, 20);
-            this.numPaletteCount.TabIndex = 10;
+            this.numPaletteCount.TabIndex = 3;
             this.numPaletteCount.Value = new decimal(new int[] {
             16,
             0,
@@ -1141,7 +1145,7 @@ namespace System.Windows.Forms
             this.label7.Location = new System.Drawing.Point(6, 42);
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(63, 20);
-            this.label7.TabIndex = 11;
+            this.label7.TabIndex = 2;
             this.label7.Text = "Colors:";
             this.label7.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1154,7 +1158,7 @@ namespace System.Windows.Forms
             this.cboPaletteFormat.Location = new System.Drawing.Point(75, 15);
             this.cboPaletteFormat.Name = "cboPaletteFormat";
             this.cboPaletteFormat.Size = new System.Drawing.Size(98, 21);
-            this.cboPaletteFormat.TabIndex = 10;
+            this.cboPaletteFormat.TabIndex = 1;
             this.cboPaletteFormat.SelectedIndexChanged += new System.EventHandler(this.formatChanged);
             // 
             // label6
@@ -1162,7 +1166,7 @@ namespace System.Windows.Forms
             this.label6.Location = new System.Drawing.Point(6, 16);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(63, 20);
-            this.label6.TabIndex = 10;
+            this.label6.TabIndex = 0;
             this.label6.Text = "Format:";
             this.label6.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -1171,6 +1175,8 @@ namespace System.Windows.Forms
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.chkSwapRGB);
+            this.groupBox4.Controls.Add(this.chkSwapAlpha);
             this.groupBox4.Controls.Add(this.chkConstrainProps);
             this.groupBox4.Controls.Add(this.btnApplyDims);
             this.groupBox4.Controls.Add(this.label11);
@@ -1183,7 +1189,7 @@ namespace System.Windows.Forms
             this.groupBox4.Controls.Add(this.btnCancel);
             this.groupBox4.Location = new System.Drawing.Point(3, 309);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(179, 143);
+            this.groupBox4.Size = new System.Drawing.Size(179, 166);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
             // 
@@ -1195,7 +1201,7 @@ namespace System.Windows.Forms
             this.chkConstrainProps.Location = new System.Drawing.Point(9, 87);
             this.chkConstrainProps.Name = "chkConstrainProps";
             this.chkConstrainProps.Size = new System.Drawing.Size(126, 17);
-            this.chkConstrainProps.TabIndex = 15;
+            this.chkConstrainProps.TabIndex = 7;
             this.chkConstrainProps.Text = "Constrain Proportions";
             this.chkConstrainProps.UseVisualStyleBackColor = true;
             this.chkConstrainProps.CheckedChanged += new System.EventHandler(this.chkConstrainProps_CheckedChanged);
@@ -1207,7 +1213,7 @@ namespace System.Windows.Forms
             this.btnApplyDims.Location = new System.Drawing.Point(125, 60);
             this.btnApplyDims.Name = "btnApplyDims";
             this.btnApplyDims.Size = new System.Drawing.Size(48, 21);
-            this.btnApplyDims.TabIndex = 14;
+            this.btnApplyDims.TabIndex = 6;
             this.btnApplyDims.Text = "Apply";
             this.btnApplyDims.UseVisualStyleBackColor = true;
             this.btnApplyDims.Click += new System.EventHandler(this.btnApplyDims_Click);
@@ -1217,7 +1223,7 @@ namespace System.Windows.Forms
             this.label11.Location = new System.Drawing.Point(58, 60);
             this.label11.Name = "label11";
             this.label11.Size = new System.Drawing.Size(15, 21);
-            this.label11.TabIndex = 13;
+            this.label11.TabIndex = 4;
             this.label11.Text = "X";
             this.label11.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
@@ -1238,7 +1244,7 @@ namespace System.Windows.Forms
             0});
             this.numH.Name = "numH";
             this.numH.Size = new System.Drawing.Size(46, 20);
-            this.numH.TabIndex = 12;
+            this.numH.TabIndex = 5;
             this.numH.Value = new decimal(new int[] {
             1,
             0,
@@ -1263,7 +1269,7 @@ namespace System.Windows.Forms
             0});
             this.numW.Name = "numW";
             this.numW.Size = new System.Drawing.Size(46, 20);
-            this.numW.TabIndex = 11;
+            this.numW.TabIndex = 3;
             this.numW.Value = new decimal(new int[] {
             1,
             0,
@@ -1276,7 +1282,7 @@ namespace System.Windows.Forms
             this.label10.Location = new System.Drawing.Point(6, 38);
             this.label10.Name = "label10";
             this.label10.Size = new System.Drawing.Size(81, 20);
-            this.label10.TabIndex = 10;
+            this.label10.TabIndex = 2;
             this.label10.Text = "Dimensions:";
             this.label10.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
@@ -1290,7 +1296,7 @@ namespace System.Windows.Forms
             this.panel1.Location = new System.Drawing.Point(379, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(185, 455);
+            this.panel1.Size = new System.Drawing.Size(185, 478);
             this.panel1.TabIndex = 9;
             // 
             // txtPath
@@ -1300,7 +1306,7 @@ namespace System.Windows.Forms
             this.txtPath.Name = "txtPath";
             this.txtPath.ReadOnly = true;
             this.txtPath.Size = new System.Drawing.Size(212, 20);
-            this.txtPath.TabIndex = 0;
+            this.txtPath.TabIndex = 2;
             // 
             // panel2
             // 
@@ -1314,17 +1320,6 @@ namespace System.Windows.Forms
             this.panel2.Size = new System.Drawing.Size(379, 20);
             this.panel2.TabIndex = 1;
             // 
-            // button1
-            // 
-            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
-            this.button1.Location = new System.Drawing.Point(304, 0);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 20);
-            this.button1.TabIndex = 10;
-            this.button1.Text = "Browse...";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
             // numMIPPreview
             // 
             this.numMIPPreview.Dock = System.Windows.Forms.DockStyle.Left;
@@ -1336,7 +1331,7 @@ namespace System.Windows.Forms
             0});
             this.numMIPPreview.Name = "numMIPPreview";
             this.numMIPPreview.Size = new System.Drawing.Size(51, 20);
-            this.numMIPPreview.TabIndex = 10;
+            this.numMIPPreview.TabIndex = 1;
             this.numMIPPreview.Value = new decimal(new int[] {
             1,
             0,
@@ -1351,10 +1346,43 @@ namespace System.Windows.Forms
             this.label12.Location = new System.Drawing.Point(0, 0);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(41, 20);
-            this.label12.TabIndex = 11;
+            this.label12.TabIndex = 0;
             this.label12.Text = "MIP:";
             this.label12.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             this.label12.Visible = false;
+            // 
+            // button1
+            // 
+            this.button1.Dock = System.Windows.Forms.DockStyle.Right;
+            this.button1.Location = new System.Drawing.Point(304, 0);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(75, 20);
+            this.button1.TabIndex = 3;
+            this.button1.Text = "Browse...";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // chkSwapAlpha
+            // 
+            this.chkSwapAlpha.AutoSize = true;
+            this.chkSwapAlpha.Location = new System.Drawing.Point(94, 110);
+            this.chkSwapAlpha.Name = "chkSwapAlpha";
+            this.chkSwapAlpha.Size = new System.Drawing.Size(83, 17);
+            this.chkSwapAlpha.TabIndex = 9;
+            this.chkSwapAlpha.Text = "Swap Alpha";
+            this.chkSwapAlpha.UseVisualStyleBackColor = true;
+            this.chkSwapAlpha.CheckedChanged += new System.EventHandler(this.chkSwapAlpha_CheckedChanged);
+            // 
+            // chkSwapRGB
+            // 
+            this.chkSwapRGB.AutoSize = true;
+            this.chkSwapRGB.Location = new System.Drawing.Point(9, 110);
+            this.chkSwapRGB.Name = "chkSwapRGB";
+            this.chkSwapRGB.Size = new System.Drawing.Size(79, 17);
+            this.chkSwapRGB.TabIndex = 8;
+            this.chkSwapRGB.Text = "Swap RGB";
+            this.chkSwapRGB.UseVisualStyleBackColor = true;
+            this.chkSwapRGB.CheckedChanged += new System.EventHandler(this.chkSwapRGB_CheckedChanged);
             // 
             // pictureBox1
             // 
@@ -1363,13 +1391,13 @@ namespace System.Windows.Forms
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Picture = null;
-            this.pictureBox1.Size = new System.Drawing.Size(379, 435);
-            this.pictureBox1.TabIndex = 8;
+            this.pictureBox1.Size = new System.Drawing.Size(379, 458);
+            this.pictureBox1.TabIndex = 0;
             // 
             // TextureConverterDialog
             // 
             this.AcceptButton = this.btnOkay;
-            this.ClientSize = new System.Drawing.Size(564, 455);
+            this.ClientSize = new System.Drawing.Size(564, 478);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -1411,6 +1439,7 @@ namespace System.Windows.Forms
         public void ResizeImage(int w, int h)
         {
             _updating = true;
+            chkSwapRGB.Checked = chkSwapAlpha.Checked = false;
             if (w == _base.Width && h == _base.Height)
                 Source = _base;
             else
@@ -1420,6 +1449,34 @@ namespace System.Windows.Forms
 
             if (Resized != null)
                 Resized(w, h);
+
+            _updating = false;
+        }
+
+        private void chkSwapRGB_CheckedChanged(object sender, EventArgs e) {
+            if ((_source == null) || (_updating))
+                return;
+
+            _updating = true;
+
+            Source = Source.InvertColors();
+
+            FixImportPaletteFields();
+            UpdatePreview();
+
+            _updating = false;
+        }
+
+        private void chkSwapAlpha_CheckedChanged(object sender, EventArgs e) {
+            if ((_source == null) || (_updating))
+                return;
+
+            _updating = true;
+
+            Source = Source.InvertAlpha();
+
+            FixImportPaletteFields();
+            UpdatePreview();
 
             _updating = false;
         }
