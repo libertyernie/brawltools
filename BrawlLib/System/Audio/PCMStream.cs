@@ -91,6 +91,47 @@ namespace System.Audio
             _samplePos = 0;
         }
 
+        internal PCMStream(RSTMHeader* header, void* audioSource) {
+            StrmDataInfo* info = header->HEADData->Part1;
+            if (info->_format._channels != 2) throw new NotImplementedException("Cannot load PCM16 audio with more or less than 2 channels");
+
+            int size = info->_numSamples * info->_format._channels * sizeof(short);
+            _sourceMap = FileMap.FromTempFile(size);
+
+            byte* fromL = (byte*)audioSource;
+            byte* fromR = fromL;
+            byte* to = (byte*)_sourceMap.Address;
+
+            for (int block = 0; block < info->_numBlocks; block++) {
+                int bs = (block == info->_numBlocks - 1)
+                    ? info->_lastBlockSize
+                    : info->_blockSize;
+                fromR += bs;
+                for (int i=0; i<bs; i+=2) {
+                    to[0] = fromL[1];
+                    to[1] = fromL[0];
+                    to[2] = fromR[1];
+                    to[3] = fromR[0];
+                    fromL += 2;
+                    fromR += 2;
+                    to += 4;
+                }
+                fromL += bs;
+            }
+
+            _bps = 16;
+            _numChannels = info->_format._channels;
+            _frequency = info->_sampleRate;
+            _numSamples = info->_numSamples;
+
+            _source = (short*)_sourceMap.Address;
+            _samplePos = 0;
+
+            _looped = info->_format._looped != 0;
+            _loopStart = info->_loopStartSample;
+            _loopEnd = _numSamples;
+        }
+
         public int ReadSamples(VoidPtr destAddr, int numSamples)
         {
             short* sPtr = _source + (_samplePos * _numChannels);

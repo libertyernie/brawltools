@@ -59,8 +59,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public IAudioStream[] CreateStreams()
         {
+            StrmDataInfo* info = Header->HEADData->Part1;
             if (Header != null)
-                return ADPCMStream.GetStreams(Header, _audioSource.Address);
+                switch ((WaveEncoding)info->_format._encoding) {
+                    case WaveEncoding.ADPCM:
+                        return ADPCMStream.GetStreams(Header, _audioSource.Address);
+                    case WaveEncoding.PCM16:
+                        return new IAudioStream[] {
+                            new PCMStream(Header, _audioSource.Address)
+                        };
+                }
             return new IAudioStream[] { null };
         }
 
