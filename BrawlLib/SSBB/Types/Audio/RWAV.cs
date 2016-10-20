@@ -114,6 +114,7 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
+#endif
 
     public enum WaveEncoding
     {
@@ -121,7 +122,6 @@ namespace BrawlLib.SSBBTypes
         PCM16 = 1,
         ADPCM = 2
     }
-#endif
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct AudioFormatInfo

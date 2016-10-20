@@ -93,7 +93,7 @@ namespace System.Audio
 
         internal PCMStream(RSTMHeader* header, void* audioSource) {
             StrmDataInfo* info = header->HEADData->Part1;
-            if (info->_format._channels != 2) throw new NotImplementedException("Cannot load PCM16 audio with more or less than 2 channels");
+            if (info->_format._channels > 2) throw new NotImplementedException("Cannot load PCM16 audio with more than 2 channels");
 
             int size = info->_numSamples * info->_format._channels * sizeof(short);
             _sourceMap = FileMap.FromTempFile(size);
@@ -102,21 +102,31 @@ namespace System.Audio
             byte* fromR = fromL;
             byte* to = (byte*)_sourceMap.Address;
 
-            for (int block = 0; block < info->_numBlocks; block++) {
+            bool stereo = info->_format._channels == 2;
+
+            for (int block = 0; block < info->_numBlocks; block++)
+            {
                 int bs = (block == info->_numBlocks - 1)
                     ? info->_lastBlockSize
                     : info->_blockSize;
-                fromR += bs;
-                for (int i=0; i<bs; i+=2) {
+                if (stereo)
+                    fromR += bs;
+                for (int i=0; i<bs; i+=2)
+                {
                     to[0] = fromL[1];
                     to[1] = fromL[0];
-                    to[2] = fromR[1];
-                    to[3] = fromR[0];
                     fromL += 2;
-                    fromR += 2;
-                    to += 4;
+                    to += 2;
+                    if (stereo)
+                    {
+                        to[0] = fromR[1];
+                        to[1] = fromR[0];
+                        fromR += 2;
+                        to += 2;
+                    }
                 }
-                fromL += bs;
+                if (stereo)
+                    fromL += bs;
             }
 
             _bps = 16;
