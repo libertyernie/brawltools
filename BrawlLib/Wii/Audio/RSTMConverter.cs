@@ -22,9 +22,15 @@ namespace BrawlLib.Wii.Audio
         }
         static unsafe IAudioStream[] CreateStreams(RSTMHeader* rstm)
         {
-            if (rstm->HEADData->Part1->_format._encoding != (byte)WaveEncoding.ADPCM)
-                throw new Exception("RSTMLib does not support decoding RSTM files with PCM encoding. Only ADPCM is supported.");
-            return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
+            switch ((WaveEncoding)rstm->HEADData->Part1->_format._encoding) {
+                case WaveEncoding.ADPCM:
+                    return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
+                case WaveEncoding.PCM16:
+                    return new IAudioStream[] {
+                        new PCMStream(rstm, rstm->DATAData->Data)
+                    };
+            }
+            throw new Exception("RSTMLib does not support decoding RSTM files with this encoding.");
         }
 #endif
 

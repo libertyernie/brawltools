@@ -103,7 +103,9 @@ namespace BrawlLib.Wii.Audio
             _numChannels = channels;
             _startChannel = startChannel;
         }
-
+        
+#if RSTMLIB
+#else
         public ADPCMStream(RSTMHeader* pRSTM, VoidPtr dataAddr)
         {
             HEADHeader* pHeader = pRSTM->HEADData;
@@ -185,8 +187,7 @@ namespace BrawlLib.Wii.Audio
             }
             _lastBlockSize = _lastBlockSamples.Align(14) / 14 * 8;
         }
-#if RSTMLIB
-#else
+
         public VoidPtr _dataAddress;
         public ADPCMStream(WaveInfo* pWAVE, VoidPtr dataAddr)
         {

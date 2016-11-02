@@ -57,6 +57,7 @@
     <Compile Include="System\Audio\AudioDevice.cs" />
     <Compile Include="System\Audio\AudioProvider.cs" />
     <Compile Include="System\Audio\BufferData.cs" />
+    <Compile Include="System\Audio\PCMStream.cs" />
     <Compile Include="System\Audio\wAudioBuffer.cs" />
     <Compile Include="System\Audio\wAudioDevice.cs" />
     <Compile Include="System\Audio\wAudioProvider.cs" />

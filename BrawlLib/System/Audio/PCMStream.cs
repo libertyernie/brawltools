@@ -1,11 +1,15 @@
-﻿using BrawlLib.IO;
-using BrawlLib.SSBBTypes;
+﻿using BrawlLib.SSBBTypes;
+using System.Runtime.InteropServices;
 
 namespace System.Audio
 {
     public unsafe class PCMStream : IAudioStream
     {
-        private FileMap _sourceMap;
+        private IntPtr _allocatedHGlobal = IntPtr.Zero;
+#if RSTMLIB
+#else
+        private BrawlLib.IO.FileMap _sourceMap;
+#endif
 
         private short* _source;
 
@@ -35,17 +39,18 @@ namespace System.Audio
             set { _samplePos = Math.Max(Math.Min(value, _numSamples), 0); }
         }
 
-        internal PCMStream(FileMap map)
+        public PCMStream(byte[] wavData)
         {
-            _sourceMap = map;
+            _allocatedHGlobal = Marshal.AllocHGlobal(wavData.Length);
+            Marshal.Copy(wavData, 0, _allocatedHGlobal, wavData.Length);
 
-            RIFFHeader* header = (RIFFHeader*)_sourceMap.Address;
+            RIFFHeader* header = (RIFFHeader*)_allocatedHGlobal;
             _bps = header->_fmtChunk._bitsPerSample;
             _numChannels = header->_fmtChunk._channels;
             _frequency = (int)header->_fmtChunk._samplesSec;
             _numSamples = (int)(header->_dataChunk._chunkSize / header->_fmtChunk._blockAlign);
 
-            _source = (short*)(_sourceMap.Address + header->GetSize());
+            _source = (short*)((byte*)_allocatedHGlobal + header->GetSize());
             _samplePos = 0;
 
             _looped = false;
@@ -61,6 +66,8 @@ namespace System.Audio
             }
         }
 
+#if RSTMLIB
+#else
         internal PCMStream(short* source, int samples, int sampleRate, int channels, int bps)
         {
             _sourceMap = null;
@@ -90,17 +97,18 @@ namespace System.Audio
             _source = (short*)dataAddr;
             _samplePos = 0;
         }
+#endif
 
         internal PCMStream(RSTMHeader* header, void* audioSource) {
             StrmDataInfo* info = header->HEADData->Part1;
             if (info->_format._channels > 2) throw new NotImplementedException("Cannot load PCM16 audio with more than 2 channels");
 
             int size = info->_numSamples * info->_format._channels * sizeof(short);
-            _sourceMap = FileMap.FromTempFile(size);
+            _allocatedHGlobal = Marshal.AllocHGlobal(size);
 
             byte* fromL = (byte*)audioSource;
             byte* fromR = fromL;
-            byte* to = (byte*)_sourceMap.Address;
+            byte* to = (byte*)_allocatedHGlobal;
 
             bool stereo = info->_format._channels == 2;
 
@@ -134,7 +142,7 @@ namespace System.Audio
             _frequency = info->_sampleRate;
             _numSamples = info->_numSamples;
 
-            _source = (short*)_sourceMap.Address;
+            _source = (short*)_allocatedHGlobal;
             _samplePos = 0;
 
             _looped = info->_format._looped != 0;
@@ -165,10 +173,18 @@ namespace System.Audio
 
         public void Dispose()
         {
+#if RSTMLIB
+#else
             if (_sourceMap != null)
             {
                 _sourceMap.Dispose();
                 _sourceMap = null;
+            }
+#endif
+            if (_allocatedHGlobal != IntPtr.Zero)
+            {
+                Marshal.FreeHGlobal(_allocatedHGlobal);
+                _allocatedHGlobal = IntPtr.Zero;
             }
             GC.SuppressFinalize(this);
         }

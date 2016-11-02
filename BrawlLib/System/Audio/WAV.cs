@@ -201,35 +201,69 @@ namespace System.Audio
         }
     }
 
-#if RSTMLIB
-#else
     public unsafe static class WAV
     {
         public static IAudioStream FromFile(string path)
         {
-            return new PCMStream(FileMap.FromFile(path, FileMapProtect.Read));
+            return new PCMStream(File.ReadAllBytes(path));
         }
 
         public static void ToFile(IAudioStream source, string path, int samplePosition = 0, int maxSampleCount = int.MaxValue)
         {
+            File.WriteAllBytes(path, ToByteArray(source, samplePosition, maxSampleCount));
+        }
+
+        public static byte[] ToByteArray(IAudioStream source, int samplePosition = 0, int maxSampleCount = int.MaxValue, bool appendSmplChunk = false)
+        {
             int sampleCount = Math.Min(maxSampleCount, (source.Samples - samplePosition));
-            using (FileStream stream = new FileStream(path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.SequentialScan))
+            
+            //Estimate size
+            int outLen = 44 + (sampleCount * source.Channels * 2);
+            if (appendSmplChunk && source.IsLooping)
+                outLen += 68;
+
+            //Create byte array
+            byte[] wavData = new byte[outLen];
+            fixed (byte* address = wavData)
             {
-                //Estimate size
-                int outLen = 44 + (sampleCount * source.Channels * 2);
+                RIFFHeader* riff = (RIFFHeader*)address;
+                *riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, sampleCount);
 
-                //Create file map
-                stream.SetLength(outLen);
-                using (FileMap map = FileMap.FromStreamInternal(stream, FileMapProtect.ReadWrite, 0, outLen))
+                source.SamplePosition = samplePosition;
+                source.ReadSamples(address + 44, sampleCount);
+
+                if (appendSmplChunk && source.IsLooping)
                 {
-                    RIFFHeader* riff = (RIFFHeader*)map.Address;
-                    *riff = new RIFFHeader(1, source.Channels, 16, source.Frequency, sampleCount);
-
-                    source.SamplePosition = samplePosition;
-                    source.ReadSamples(map.Address + 44, sampleCount);
+                    riff->_length += 68;
+                    smplChunk* smpl = (smplChunk*)(address + outLen - 68);
+                    *smpl = new smplChunk
+                    {
+                        _chunkTag = smplChunk.smplTag,
+                        _chunkSize = 60,
+                        _dwManufacturer = 0,
+                        _dwProduct = 0,
+                        _dwSamplePeriod = 0,
+                        _dwMIDIUnityNote = 0,
+                        _dwMIDIPitchFraction = 0,
+                        _dwSMPTEFormat = 0,
+                        _dwSMPTEOffset = 0,
+                        _cSampleLoops = 1,
+                        _cbSamplerData = 0
+                    };
+                    smplLoop* loop = (smplLoop*)(address + outLen - 24);
+                    *loop = new smplLoop
+                    {
+                        _dwIdentifier = 0,
+                        _dwType = 0,
+                        _dwStart = (uint)source.LoopStartSample,
+                        _dwEnd = (uint)source.LoopEndSample,
+                        _dwFraction = 0,
+                        _dwPlayCount = 0
+                    };
                 }
             }
+
+            return wavData;
         }
     }
-#endif
 }
