@@ -59,6 +59,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public IAudioStream[] CreateStreams()
         {
+            if (Header == null)
+                return null;
             StrmDataInfo* info = Header->HEADData->Part1;
             if (Header != null)
                 switch ((WaveEncoding)info->_format._encoding) {
