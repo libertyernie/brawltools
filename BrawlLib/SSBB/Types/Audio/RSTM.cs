@@ -37,6 +37,9 @@ namespace BrawlLib.SSBBTypes
             _dataOffset = (len += adpcLen);
             _dataLength = dataLen;
 
+            if (adpcLen == 0)
+                _adpcOffset = 0;
+
             _header._length = len + dataLen;
 
             //Fill padding
@@ -59,7 +62,7 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 
-        public void Set(int size, int channels)
+        public void Set(int size, int channels, WaveEncoding encoding)
         {
             RuintList* list;
             VoidPtr offset = _entries.Address;
@@ -80,6 +83,7 @@ namespace BrawlLib.SSBBTypes
             list = Part2;
             list->_numEntries._data = 1; //Number is little-endian
             list->Entries[0] = 0x58;
+            // TODO: This is not actually AudioFormatInfo. Set it as a buint instead.
             *(AudioFormatInfo*)list->Get(offset, 0) = 
                 channels == 1 ? new AudioFormatInfo(1, 0, 0, 0) : new AudioFormatInfo(2, 0, 1, 0);
 
@@ -91,17 +95,26 @@ namespace BrawlLib.SSBBTypes
                 //Set initial pointer
                 list->Entries[i] = dataOffset;
 
-                //Set embedded pointer
-                *(ruint*)(offset + dataOffset) = dataOffset + 8;
-                dataOffset += 8;
+                if (encoding == WaveEncoding.ADPCM)
+                {
+                    //Set embedded pointer
+                    *(ruint*)(offset + dataOffset) = dataOffset + 8;
+                    dataOffset += 8;
 
-                //Set info
-                //*(ADPCMInfo*)(offset + dataOffset) = info[i];
-                dataOffset += ADPCMInfo.Size;
+                    //Set info
+                    //*(ADPCMInfo*)(offset + dataOffset) = info[i];
+                    dataOffset += ADPCMInfo.Size;
 
-                //Set padding
-                //*(short*)(offset + dataOffset) = 0;
-                //dataOffset += 2;
+                    //Set padding
+                    //*(short*)(offset + dataOffset) = 0;
+                    //dataOffset += 2;
+                }
+                else
+                {
+                    //Set embedded pointer
+                    *(ruint*)(offset + dataOffset) = 0;
+                    dataOffset += 8;
+                }
             }
 
             //Fill remaining
