@@ -272,34 +272,37 @@ namespace BrawlLib.Wii.Audio
             }
             else if (encoding == WaveEncoding.PCM16)
             {
-                ////Fill buffers
-                //stream.SamplePosition = 0;
-                //short* sampleBuffer = stackalloc short[channels];
-
-                //for (int i = 2; i < bufferSamples; i++)
-                //{
-                //    if (stream.SamplePosition == stream.LoopEndSample && looped)
-                //        stream.SamplePosition = stream.LoopStartSample;
-
-                //    stream.ReadSamples(sampleBuffer, 1);
-                //    for (int x = 0; x < channels; x++)
-                //        channelBuffers[x][i] = sampleBuffer[x];
-                //}
-
                 bshort* destPtr = (bshort*)data->Data;
                 for (int i=0; i<blocks; i++)
                 {
-                    short[][] blocksByChannel = new short[channels][];
-                    if (i < blocks - 1)
+                    int samplesPerChannel = i < blocks - 1
+                        ? part1->_samplesPerBlock
+                        : part1->_lastBlockSamples;
+                    int bytesPerChannel = i < blocks - 1
+                        ? part1->_blockSize
+                        : part1->_lastBlockTotal;
+                    short[] sampleData = new short[channels * bytesPerChannel / sizeof(short)];
+
+                    fixed (short* sampleDataPtr = sampleData)
                     {
-                        // Handle regular blocks
-                        throw new NotImplementedException();
+                        int read = 0;
+                        do
+                        {
+                            if (stream.SamplePosition == stream.LoopEndSample && looped)
+                                stream.SamplePosition = stream.LoopStartSample;
+                            int s = stream.ReadSamples(sampleDataPtr + read, samplesPerChannel - read);
+                            if (s == 0)
+                                throw new Exception("No samples could be read from the stream");
+                            read += s;
+                        }
+                        while (read < samplesPerChannel);
                     }
-                    else
-                    {
-                        // Handle last block
-                        throw new NotImplementedException();
-                    }
+
+                    for (int j = 0; j < channels; j++)
+                        for (int k = j; k < sampleData.Length; k += channels)
+                            *(destPtr++) = sampleData[k];
+
+                    progress.Update(progress.CurrentValue + (samplesPerChannel * channels * 3));
                 }
             }
 
