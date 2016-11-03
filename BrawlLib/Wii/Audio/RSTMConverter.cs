@@ -35,7 +35,7 @@ namespace BrawlLib.Wii.Audio
 #endif
 
 #if RSTMLIB
-        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
+        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
 #else
         public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
 #endif
