@@ -99,24 +99,51 @@ namespace System.Audio
         }
 #endif
 
-        internal PCMStream(RSTMHeader* header, void* audioSource) {
-            StrmDataInfo* info = header->HEADData->Part1;
-            if (info->_format._channels > 2) throw new NotImplementedException("Cannot load PCM16 audio with more than 2 channels");
+        internal static PCMStream[] GetStreams(RSTMHeader* pRSTM, VoidPtr dataAddr) {
+            HEADHeader* pHeader = pRSTM->HEADData;
+            StrmDataInfo* part1 = pHeader->Part1;
+            int c = part1->_format._channels;
+            PCMStream[] streams = new PCMStream[c.RoundUpToEven() / 2];
 
-            int size = info->_numSamples * info->_format._channels * sizeof(short);
+            for (int i = 0; i < streams.Length; i++) {
+                int x = (i + 1) * 2 <= c ? 2 : 1;
+                streams[i] = new PCMStream(pRSTM, x, i * 2, dataAddr);
+            }
+
+            return streams;
+        }
+
+        internal PCMStream(RSTMHeader* header, int channels, int startChannel, void* audioSource) {
+            StrmDataInfo* info = header->HEADData->Part1;
+            if (channels > 2) throw new NotImplementedException("Cannot load PCM16 audio with more than 2 channels");
+            if (info->_format._channels < channels) throw new Exception("Not enough channels");
+            
+            int size = info->_numSamples * channels * sizeof(short);
             _allocatedHGlobal = Marshal.AllocHGlobal(size);
 
             byte* fromL = (byte*)audioSource;
             byte* fromR = fromL;
             byte* to = (byte*)_allocatedHGlobal;
 
-            bool stereo = info->_format._channels == 2;
+            bool stereo = channels == 2;
 
             for (int block = 0; block < info->_numBlocks; block++)
             {
                 int bs = (block == info->_numBlocks - 1)
                     ? info->_lastBlockSize
                     : info->_blockSize;
+
+                if (block == 0)
+                {
+                    fromL += (bs * startChannel);
+                    fromR += (bs * startChannel);
+                }
+                else
+                {
+                    fromL += bs * (info->_format._channels - channels);
+                    fromR += bs * (info->_format._channels - channels);
+                }
+
                 if (stereo)
                     fromR += bs;
                 for (int i=0; i<bs; i+=2)
@@ -138,7 +165,7 @@ namespace System.Audio
             }
 
             _bps = 16;
-            _numChannels = info->_format._channels;
+            _numChannels = channels;
             _frequency = info->_sampleRate;
             _numSamples = info->_numSamples;
 

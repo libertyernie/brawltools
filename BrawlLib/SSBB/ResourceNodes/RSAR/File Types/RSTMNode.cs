@@ -67,9 +67,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     case WaveEncoding.ADPCM:
                         return ADPCMStream.GetStreams(Header, _audioSource.Address);
                     case WaveEncoding.PCM16:
-                        return new IAudioStream[] {
-                            new PCMStream(Header, _audioSource.Address)
-                        };
+                        return PCMStream.GetStreams(Header, _audioSource.Address);
                 }
             return new IAudioStream[] { null };
         }
