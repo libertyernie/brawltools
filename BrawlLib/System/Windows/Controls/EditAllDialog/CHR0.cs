@@ -599,7 +599,7 @@ namespace System.Windows.Forms
             this.ScaleZ.Name = "ScaleZ";
             this.ScaleZ.Size = new System.Drawing.Size(96, 20);
             this.ScaleZ.TabIndex = 14;
-            this.ScaleZ.Text = "0";
+            this.ScaleZ.Text = "1";
             // 
             // ScaleY
             // 
@@ -608,7 +608,7 @@ namespace System.Windows.Forms
             this.ScaleY.Name = "ScaleY";
             this.ScaleY.Size = new System.Drawing.Size(96, 20);
             this.ScaleY.TabIndex = 13;
-            this.ScaleY.Text = "0";
+            this.ScaleY.Text = "1";
             // 
             // ScaleX
             // 
@@ -617,7 +617,7 @@ namespace System.Windows.Forms
             this.ScaleX.Name = "ScaleX";
             this.ScaleX.Size = new System.Drawing.Size(96, 20);
             this.ScaleX.TabIndex = 12;
-            this.ScaleX.Text = "0";
+            this.ScaleX.Text = "1";
             // 
             // keyframeCopy
             // 
