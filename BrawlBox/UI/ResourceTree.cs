@@ -9,7 +9,7 @@ using BrawlBox.NodeWrappers;
 
 namespace BrawlBox
 {
-    public class ResourceTree : TreeView
+    public class ResourceTree : TreeViewMS
     {
         private static ImageList _imgList;
         public static ImageList Images
@@ -162,13 +162,19 @@ namespace BrawlBox
             else if (m.Msg == 0x205)
             {
                 int x = (int)m.LParam & 0xFFFF, y = (int)m.LParam >> 16;
-
-                if ((_allowContextMenus) && (_selected != null) && (_selected.ContextMenuStrip != null))
+                
+                if ((_allowContextMenus) && (_selected != null))
                 {
-                    Rectangle r = _selected.Bounds;
-                    r.X -= 25; r.Width += 25;
-                    if (r.Contains(x, y))
-                        _selected.ContextMenuStrip.Show(this, x, y);
+                    var menuStrip = this.SelectedNodes.Count > 1
+                        ? null
+                        : _selected.ContextMenuStrip;
+                    if (menuStrip != null)
+                    {
+                        Rectangle r = _selected.Bounds;
+                        r.X -= 25; r.Width += 25;
+                        if (r.Contains(x, y))
+                            _selected.ContextMenuStrip.Show(this, x, y);
+                    }
                 }
             }
 
