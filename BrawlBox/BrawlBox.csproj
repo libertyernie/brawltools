@@ -168,6 +168,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeWrappers\MultiSelectableWrapper.cs" />
     <Compile Include="UI\TreeViewMS.cs">
       <SubType>Component</SubType>
     </Compile>

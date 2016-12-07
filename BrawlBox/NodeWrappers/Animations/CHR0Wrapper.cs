@@ -8,11 +8,11 @@ using BrawlLib.Wii.Animations;
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CHR0)]
-    public class CHR0Wrapper : GenericWrapper
+    public class CHR0Wrapper : GenericWrapper, MultiSelectableWrapper
     {
         #region Menu
 
-        private static ContextMenuStrip _menu;
+        private static ContextMenuStrip _menu, _multiSelectMenu;
         static CHR0Wrapper()
         {
             _menu = new ContextMenuStrip();
@@ -34,6 +34,8 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
+
+            _multiSelectMenu = null;
         }
         protected static void NewBoneAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().NewBone(); }
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
@@ -58,6 +60,8 @@ namespace BrawlBox.NodeWrappers
 
         public override string ExportFilter { get { return FileFilters.CHR0Export; } }
         public override string ImportFilter { get { return FileFilters.CHR0Import; } }
+
+        public ContextMenuStrip MultiSelectMenuStrip { get { return _multiSelectMenu; } }
 
         public void NewBone()
         {

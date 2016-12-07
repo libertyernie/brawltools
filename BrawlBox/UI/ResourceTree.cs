@@ -166,19 +166,35 @@ namespace BrawlBox
                 if ((_allowContextMenus) && (_selected != null))
                 {
                     var menuStrip = this.SelectedNodes.Count > 1
-                        ? null
+                        ? GetMultiSelectMenuStrip()
                         : _selected.ContextMenuStrip;
                     if (menuStrip != null)
                     {
                         Rectangle r = _selected.Bounds;
                         r.X -= 25; r.Width += 25;
                         if (r.Contains(x, y))
-                            _selected.ContextMenuStrip.Show(this, x, y);
+                            menuStrip.Show(this, x, y);
                     }
                 }
             }
 
             base.WndProc(ref m);
+        }
+
+        private ContextMenuStrip GetMultiSelectMenuStrip() {
+            var nodes = this.SelectedNodes;
+            var singleNode = this.SelectedNode as MultiSelectableWrapper;
+            if (singleNode == null) return null;
+            
+            foreach (var node in nodes) {
+                var type = node.GetType();
+                if (!type.IsAssignableFrom(singleNode.GetType())) {
+                    // More than one type of node is selected
+                    return null;
+                }
+            }
+
+            return singleNode.MultiSelectMenuStrip;
         }
 
         public void Clear()
