@@ -4,6 +4,8 @@ using BrawlLib;
 using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.Wii.Animations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -35,12 +37,15 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
 
-            _multiSelectMenu = null;
+            _multiSelectMenu = new ContextMenuStrip();
+            _multiSelectMenu.Items.Add(new ToolStripMenuItem("Edit All", null, EditAllAction));
         }
         protected static void NewBoneAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().NewBone(); }
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
+        protected static void EditAllAction(object sender, EventArgs e) { EditAll(GetInstances<CHR0Wrapper>()); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[12].Enabled = true;
@@ -93,6 +98,12 @@ namespace BrawlBox.NodeWrappers
             BaseWrapper res = this.FindResource(_resource, false);
             res.EnsureVisible();
             res.TreeView.SelectedNode = res;
+        }
+
+        private static void EditAll(IEnumerable<BaseWrapper> wrappers)
+        {
+            EditAllDialog ctd = new EditAllDialog();
+            ctd.ShowDialog(_owner, wrappers.Select(n => n.Resource));
         }
     }
 

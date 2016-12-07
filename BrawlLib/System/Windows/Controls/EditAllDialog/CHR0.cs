@@ -1,5 +1,6 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
 using BrawlLib.Wii.Animations;
+using System.Collections.Generic;
 
 namespace System.Windows.Forms
 {
@@ -796,7 +797,7 @@ namespace System.Windows.Forms
             enableLoop.Enabled = editLoop.Checked;
         }
 
-        public void Apply(ResourceNode node)
+        public void Apply(IEnumerable<CHR0Node> CHR0)
         {
             string _name = name.Text;
             KeyframeEntry kfe = null;
@@ -820,7 +821,6 @@ namespace System.Windows.Forms
             Vector3 scale = new Vector3(ScaleX.Value, ScaleY.Value, ScaleZ.Value);
             Vector3 rot = new Vector3(RotateX.Value, RotateY.Value, RotateZ.Value);
             Vector3 trans = new Vector3(TranslateX.Value, TranslateY.Value, TranslateZ.Value);
-            ResourceNode[] CHR0 = node.FindChildrenByType(null, ResourceType.CHR0);
             foreach (CHR0Node n in CHR0)
             {
                 if (NameContains.Checked && !n.Name.Contains(targetName.Text))

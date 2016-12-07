@@ -1,10 +1,12 @@
 ﻿using BrawlLib.SSBB.ResourceNodes;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace System.Windows.Forms
 {
     public class EditAllDialog : Form
     {
-        private ResourceNode _node;
+        private CHR0Node[] _nodes;
         private EditAllCHR0Editor editAllCHR0Editor1;
         private CHR0EntryNode _copyNode = null;
 
@@ -79,14 +81,25 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             //if (_enabled[0])
-                editAllCHR0Editor1.Apply(_node);
+                editAllCHR0Editor1.Apply(_nodes);
             DialogResult = DialogResult.OK; 
             Close();
         }
 
         public void ShowDialog(IWin32Window owner, ResourceNode resource)
         {
-            _node = resource; 
+            var arr = resource.FindChildrenByType(null, ResourceType.CHR0)
+                .Select(n => (CHR0Node)n)
+                .ToArray();
+            ShowDialog(owner, arr);
+        }
+
+        public void ShowDialog(IWin32Window owner, IEnumerable<ResourceNode> nodes)
+        {
+            _nodes = nodes
+                .Select(n => n as CHR0Node)
+                .Where(n => n != null)
+                .ToArray();
             _enabled = new bool[5];
             base.ShowDialog(owner);
         }
