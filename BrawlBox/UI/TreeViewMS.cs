@@ -6,7 +6,7 @@ using System.Text;
 using System.Windows.Forms;
 
 namespace BrawlBox {
-    /// <summary>
+	/// <summary>
 	/// http://www.arstdesign.com/articles/treeviewms.html
 	/// </summary>
 	public class TreeViewMS : System.Windows.Forms.TreeView
@@ -216,6 +216,7 @@ namespace BrawlBox {
 			if (m_coll.Count==0) return;
 
 			TreeNode n0 = (TreeNode) m_coll[0];
+			if (n0.TreeView == null) return;
 			Color back = n0.TreeView.BackColor;
 			Color fore = n0.TreeView.ForeColor;
 

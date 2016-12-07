@@ -108,11 +108,11 @@ namespace BrawlBox.NodeWrappers
     }
 
     [NodeWrapper(ResourceType.CHR0Entry)]
-    public class CHR0EntryWrapper : GenericWrapper
+    public class CHR0EntryWrapper : GenericWrapper, MultiSelectableWrapper
     {
         #region Menu
 
-        private static ContextMenuStrip _menu;
+        private static ContextMenuStrip _menu, _multiSelectMenu;
         static CHR0EntryWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -129,7 +129,11 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
+
+            _multiSelectMenu = new ContextMenuStrip();
+            _multiSelectMenu.Items.Add(new ToolStripMenuItem("Edit All", null, EditAllAction));
         }
+        protected static void EditAllAction(object sender, EventArgs e) { EditAll(GetInstances<CHR0EntryWrapper>()); }
         protected static void ViewInterp(object sender, EventArgs e) { GetInstance<CHR0EntryWrapper>().ViewInterp(); }
         private void ViewInterp()
         {
@@ -158,5 +162,13 @@ namespace BrawlBox.NodeWrappers
 
         public CHR0EntryWrapper(IWin32Window owner) { _owner = owner; ContextMenuStrip = _menu; }
         public CHR0EntryWrapper() { _owner = null; ContextMenuStrip = _menu; }
+
+        public ContextMenuStrip MultiSelectMenuStrip { get { return _multiSelectMenu; } }
+
+        private static void EditAll(IEnumerable<BaseWrapper> wrappers)
+        {
+            EditAllDialog ctd = new EditAllDialog();
+            ctd.ShowDialog(_owner, wrappers.Select(n => n.Resource));
+        }
     }
 }

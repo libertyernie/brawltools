@@ -7,6 +7,7 @@ namespace System.Windows.Forms
     public class EditAllDialog : Form
     {
         private CHR0Node[] _nodes;
+        private CHR0EntryNode[] _entries;
         private EditAllCHR0Editor editAllCHR0Editor1;
         private CHR0EntryNode _copyNode = null;
 
@@ -81,23 +82,27 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             //if (_enabled[0])
-                editAllCHR0Editor1.Apply(_nodes);
+                if (_nodes.Length > 0)
+                    editAllCHR0Editor1.Apply(_nodes);
+                else
+                    editAllCHR0Editor1.Apply(_entries);
             DialogResult = DialogResult.OK; 
             Close();
         }
 
         public void ShowDialog(IWin32Window owner, ResourceNode resource)
         {
-            var arr = resource.FindChildrenByType(null, ResourceType.CHR0)
-                .Select(n => (CHR0Node)n)
-                .ToArray();
-            ShowDialog(owner, arr);
+            ShowDialog(owner, resource.FindChildrenByType(null, ResourceType.CHR0));
         }
 
         public void ShowDialog(IWin32Window owner, IEnumerable<ResourceNode> nodes)
         {
             _nodes = nodes
                 .Select(n => n as CHR0Node)
+                .Where(n => n != null)
+                .ToArray();
+            _entries = nodes
+                .Select(n => n as CHR0EntryNode)
                 .Where(n => n != null)
                 .ToArray();
             _enabled = new bool[5];
