@@ -168,6 +168,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="NodeWrappers\MultiSelectableWrapper.cs" />
+    <Compile Include="UI\TreeViewMS.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <None Include="app.config" />
     <None Include="Lib\ensurepip\_bundled\pip-1.5.6-py2.py3-none-any.whl" />
     <None Include="Lib\ensurepip\_bundled\setuptools-3.6-py2.py3-none-any.whl" />

@@ -4,15 +4,17 @@ using BrawlLib;
 using System.Windows.Forms;
 using System.ComponentModel;
 using BrawlLib.Wii.Animations;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace BrawlBox.NodeWrappers
 {
     [NodeWrapper(ResourceType.CHR0)]
-    public class CHR0Wrapper : GenericWrapper
+    public class CHR0Wrapper : GenericWrapper, MultiSelectableWrapper
     {
         #region Menu
 
-        private static ContextMenuStrip _menu;
+        private static ContextMenuStrip _menu, _multiSelectMenu;
         static CHR0Wrapper()
         {
             _menu = new ContextMenuStrip();
@@ -34,11 +36,16 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
+
+            _multiSelectMenu = new ContextMenuStrip();
+            _multiSelectMenu.Items.Add(new ToolStripMenuItem("Edit All", null, EditAllAction));
         }
         protected static void NewBoneAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().NewBone(); }
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
+        protected static void EditAllAction(object sender, EventArgs e) { EditAll(GetInstances<CHR0Wrapper>()); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[12].Enabled = true;
@@ -58,6 +65,8 @@ namespace BrawlBox.NodeWrappers
 
         public override string ExportFilter { get { return FileFilters.CHR0Export; } }
         public override string ImportFilter { get { return FileFilters.CHR0Import; } }
+
+        public ContextMenuStrip MultiSelectMenuStrip { get { return _multiSelectMenu; } }
 
         public void NewBone()
         {
@@ -90,14 +99,20 @@ namespace BrawlBox.NodeWrappers
             res.EnsureVisible();
             res.TreeView.SelectedNode = res;
         }
+
+        private static void EditAll(IEnumerable<BaseWrapper> wrappers)
+        {
+            EditAllDialog ctd = new EditAllDialog();
+            ctd.ShowDialog(_owner, wrappers.Select(n => n.Resource));
+        }
     }
 
     [NodeWrapper(ResourceType.CHR0Entry)]
-    public class CHR0EntryWrapper : GenericWrapper
+    public class CHR0EntryWrapper : GenericWrapper, MultiSelectableWrapper
     {
         #region Menu
 
-        private static ContextMenuStrip _menu;
+        private static ContextMenuStrip _menu, _multiSelectMenu;
         static CHR0EntryWrapper()
         {
             _menu = new ContextMenuStrip();
@@ -114,7 +129,11 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
+
+            _multiSelectMenu = new ContextMenuStrip();
+            _multiSelectMenu.Items.Add(new ToolStripMenuItem("Edit All", null, EditAllAction));
         }
+        protected static void EditAllAction(object sender, EventArgs e) { EditAll(GetInstances<CHR0EntryWrapper>()); }
         protected static void ViewInterp(object sender, EventArgs e) { GetInstance<CHR0EntryWrapper>().ViewInterp(); }
         private void ViewInterp()
         {
@@ -143,5 +162,13 @@ namespace BrawlBox.NodeWrappers
 
         public CHR0EntryWrapper(IWin32Window owner) { _owner = owner; ContextMenuStrip = _menu; }
         public CHR0EntryWrapper() { _owner = null; ContextMenuStrip = _menu; }
+
+        public ContextMenuStrip MultiSelectMenuStrip { get { return _multiSelectMenu; } }
+
+        private static void EditAll(IEnumerable<BaseWrapper> wrappers)
+        {
+            EditAllDialog ctd = new EditAllDialog();
+            ctd.ShowDialog(_owner, wrappers.Select(n => n.Resource));
+        }
     }
 }

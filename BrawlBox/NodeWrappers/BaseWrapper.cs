@@ -3,6 +3,7 @@ using System.Windows.Forms;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Linq;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -47,6 +48,7 @@ namespace BrawlBox.NodeWrappers
         //protected BaseWrapper(ResourceNode resourceNode) { Link(resourceNode); }
 
         protected static T GetInstance<T>() where T : BaseWrapper { return MainForm.Instance.resourceTree.SelectedNode as T; }
+        protected static IEnumerable<T> GetInstances<T>() where T : BaseWrapper { return MainForm.Instance.resourceTree.SelectedNodes.Select(n => n as T).Where(n => n != null); }
 
         public void Link(ResourceNode res)
         {
