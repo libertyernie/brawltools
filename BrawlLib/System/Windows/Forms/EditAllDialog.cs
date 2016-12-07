@@ -82,10 +82,10 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             //if (_enabled[0])
-                if (_nodes.Length > 0)
-                    editAllCHR0Editor1.Apply(_nodes);
-                else
+                if (_entries != null)
                     editAllCHR0Editor1.Apply(_entries);
+                else
+                    editAllCHR0Editor1.Apply(_nodes);
             DialogResult = DialogResult.OK; 
             Close();
         }
@@ -101,10 +101,13 @@ namespace System.Windows.Forms
                 .Select(n => n as CHR0Node)
                 .Where(n => n != null)
                 .ToArray();
-            _entries = nodes
-                .Select(n => n as CHR0EntryNode)
-                .Where(n => n != null)
-                .ToArray();
+            if (!_nodes.Any()) {
+                editAllCHR0Editor1.OnlyEntryNodesSelected();
+                _entries = nodes
+                    .Select(n => n as CHR0EntryNode)
+                    .Where(n => n != null)
+                    .ToArray();
+            }
             _enabled = new bool[5];
             base.ShowDialog(owner);
         }

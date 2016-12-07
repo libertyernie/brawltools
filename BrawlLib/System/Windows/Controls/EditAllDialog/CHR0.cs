@@ -797,6 +797,14 @@ namespace System.Windows.Forms
             enableLoop.Enabled = editLoop.Checked;
         }
 
+        public void OnlyEntryNodesSelected() {
+            groupBox1.Enabled =
+                name.Enabled =
+                keyframeCopy.Enabled =
+                copyKeyframes.Enabled =
+                false;
+        }
+
         public void Apply(IEnumerable<CHR0Node> CHR0)
         {
             string _name = name.Text;
