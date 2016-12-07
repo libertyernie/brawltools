@@ -5,8 +5,8 @@ import os
 
 dir = bboxapi.OpenFolderDialog()
 if dir is not None:
-	from_ext = ".pac"
-	to_ext = ".pcs"
+	from_ext = ".pcs"
+	to_ext = ".pac"
 
 	if not from_ext.startswith("."):
 		from_ext = "." + from_ext;
@@ -20,6 +20,9 @@ if dir is not None:
 				no_ext, ext = os.path.splitext(file)
 				node = NodeFactory.FromFile(None, os.path.join(root, file))
 				try:
+					if (from_ext == ".pcs"):
+						node.Compression = "None"
 					node.Export(os.path.join(root, no_ext + to_ext))
+					node.Dispose()
 				except:
 					bboxapi.ShowMessage("Cannot export " + file + " as format " + to_ext, "Error")
