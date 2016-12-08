@@ -390,7 +390,7 @@ namespace Gif.Components
 				name = name.Trim().ToLower();
 				status = Read( new FileInfo( name ).OpenRead() );
 			} 
-			catch (IOException e) 
+			catch (IOException) 
 			{
 				status = STATUS_OPEN_ERROR;
 			}
@@ -584,7 +584,7 @@ namespace Gif.Components
 			{
 				curByte = inStream.ReadByte();
 			} 
-			catch (IOException e) 
+			catch (IOException) 
 			{
 				status = STATUS_FORMAT_ERROR;
 			}
@@ -613,7 +613,7 @@ namespace Gif.Components
 						n += count;
 					}
 				} 
-				catch (IOException e) 
+				catch (IOException) 
 				{
 				}
 
@@ -641,7 +641,7 @@ namespace Gif.Components
 			{
 				n = inStream.Read(c, 0, c.Length );
 			} 
-			catch (IOException e) 
+			catch (IOException) 
 			{
 			}
 			if (n < nbytes) 

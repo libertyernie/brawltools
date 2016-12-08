@@ -351,7 +351,7 @@ namespace BrawlLib.Wii.Textures
                 EncodePalette(fileView.Address + 0x40, pal, format);
                 return fileView;
             }
-            catch (Exception x)
+            catch (Exception)
             {
                 fileView.Dispose();
                 throw;
@@ -373,7 +373,7 @@ namespace BrawlLib.Wii.Textures
                 EncodePalette(fileView.Address + 0xC, pal, format);
                 return fileView;
             }
-            catch (Exception x)
+            catch (Exception)
             {
                 fileView.Dispose();
                 throw;
@@ -390,7 +390,7 @@ namespace BrawlLib.Wii.Textures
                 EncodePalette(fileView.Address, pal, format);
                 return fileView;
             }
-            catch (Exception x)
+            catch (Exception)
             {
                 fileView.Dispose();
                 throw;
