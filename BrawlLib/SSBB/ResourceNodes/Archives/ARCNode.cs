@@ -60,7 +60,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
                 else if (entry is BRRESNode)
-                    ((BRRESNode)entry).ExportToFolder(outFolder);
+                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
         }
 
         public void ReplaceFromFolder(string inFolder)
@@ -80,8 +80,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
                 else if (entry is BRRESNode)
                 {
-                    ((BRRESNode)entry).ReplaceFromFolder(inFolder);
-                    continue;
+                    dirs = dir.GetDirectories(entry.Name);
+                    if (dirs.Length > 0) {
+                        ((BRRESNode)entry).ReplaceFromFolder(dirs[0].FullName);
+                        continue;
+                    }
+                    else
+                    {
+                        ((BRRESNode)entry).ReplaceFromFolder(inFolder);
+                        continue;
+                    }
                 }
             }
         }
