@@ -83,9 +83,21 @@ namespace BrawlLib
         /// Maps node types to the default extension when using Export All.
         /// Nodes that are inside a BRES do not need to be defined here - they will get an extension assigned in BRRESNode.cs.
         /// </summary>
-        public static Dictionary<Type, string> DefaultExportAllExtensions = new Dictionary<Type, string>() {
+        private static Dictionary<Type, string> DefaultExportAllExtensions = new Dictionary<Type, string>() {
             [typeof(MSBinNode)] = "msbin",
             [typeof(CollisionNode)] = "coll"
         };
+
+        public static string GetDefaultExportAllExtension(Type type) {
+            string ext = null;
+            while (type != null) {
+                if (DefaultExportAllExtensions.TryGetValue(type, out ext)) {
+                    if (!ext.StartsWith(".")) ext = "." + ext;
+                    break;
+                }
+                type = type.BaseType;
+            }
+            return ext ?? "";
+        }
     }
 }

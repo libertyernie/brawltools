@@ -63,15 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
                 else
                 {
-                    string ext = null;
-                    Type type = entry.GetType();
-                    while (type != null) {
-                        if (FileFilters.DefaultExportAllExtensions.TryGetValue(type, out ext)) {
-                            if (!ext.StartsWith(".")) ext = "." + ext;
-                            break;
-                        }
-                        type = type.BaseType;
-                    }
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
                     entry.Export(Path.Combine(outFolder, entry.Name + ext));
                 }
         }
@@ -79,6 +71,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public void ReplaceFromFolder(string inFolder)
         {
             DirectoryInfo dir = new DirectoryInfo(inFolder);
+            FileInfo[] files = dir.GetFiles();
             DirectoryInfo[] dirs;
             foreach (ARCEntryNode entry in Children)
             {
@@ -102,6 +95,18 @@ namespace BrawlLib.SSBB.ResourceNodes
                     {
                         ((BRRESNode)entry).ReplaceFromFolder(inFolder);
                         continue;
+                    }
+                }
+                else
+                {
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
+                    foreach (FileInfo info in files)
+                    {
+                        if (info.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase) && info.Name.Equals(entry.Name + ext, StringComparison.OrdinalIgnoreCase))
+                        {
+                            entry.Replace(info.FullName);
+                            break;
+                        }
                     }
                 }
             }
