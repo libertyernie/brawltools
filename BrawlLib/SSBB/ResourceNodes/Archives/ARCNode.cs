@@ -61,6 +61,19 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
                 else if (entry is BRRESNode)
                     ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
+                else
+                {
+                    string ext = null;
+                    Type type = entry.GetType();
+                    while (type != null) {
+                        if (FileFilters.DefaultExportAllExtensions.TryGetValue(type, out ext)) {
+                            if (!ext.StartsWith(".")) ext = "." + ext;
+                            break;
+                        }
+                        type = type.BaseType;
+                    }
+                    entry.Export(Path.Combine(outFolder, entry.Name + ext));
+                }
         }
 
         public void ReplaceFromFolder(string inFolder)

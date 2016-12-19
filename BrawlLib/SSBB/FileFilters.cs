@@ -1,4 +1,7 @@
-﻿using BrawlLib.SSBB;
+﻿using System;
+using System.Collections.Generic;
+using BrawlLib.SSBB;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib
 {
@@ -75,5 +78,14 @@ namespace BrawlLib
 
         public static string Havok =
             SupportedFilesHandler.GetCompleteFilter("hkx", "xml");
+
+        /// <summary>
+        /// Maps node types to the default extension when using Export All.
+        /// Nodes that are inside a BRES do not need to be defined here - they will get an extension assigned in BRRESNode.cs.
+        /// </summary>
+        public static Dictionary<Type, string> DefaultExportAllExtensions = new Dictionary<Type, string>() {
+            [typeof(MSBinNode)] = "msbin",
+            [typeof(CollisionNode)] = "coll"
+        };
     }
 }
