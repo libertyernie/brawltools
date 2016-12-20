@@ -65,6 +65,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                     ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
                 else
                 {
+                    if (entry.WorkingSource.Length == 0)
+                        continue;
+
                     string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
                     string path = Path.Combine(outFolder, entry.Name + ext);
 
