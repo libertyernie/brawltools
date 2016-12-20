@@ -54,7 +54,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
             _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption));
             _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Regenerate Metal Materials", null, MetalAction));
+            _menu.Items.Add(new ToolStripMenuItem("(&Re)generate Metal Materials", null, MetalAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
@@ -207,7 +207,7 @@ namespace BrawlBox.NodeWrappers
 
         public void AutoMetal()
         {
-            if (MessageBox.Show(null, "Are you sure you want to regenerate metal materials for Brawl?\nAll existing metal materials and shaders will be reset.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show(null, "Are you sure you want to (re)generate metal materials for Brawl?\nAll existing metal materials and shaders will be reset.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 ((MDL0Node)_resource).GenerateMetalMaterials();
         }
 
