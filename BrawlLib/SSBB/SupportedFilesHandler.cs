@@ -83,7 +83,10 @@ namespace BrawlLib.SSBB
 
             //Brawl-specific files
             new SupportedFileInfo(true, "Brawl Message Pack", "msbin"),
-            new SupportedFileInfo(false, "Brawl Stage Collision File", "coll"),
+            new SupportedFileInfo(true, "Brawl Stage Collision File", "coll"),
+            new SupportedFileInfo(true, "Brawl STPM File", "stpm"),
+            new SupportedFileInfo(true, "Brawl STDT File", "stdt"),
+            new SupportedFileInfo(true, "Brawl SCLA File", "scla"),
 
             //Gamecube
             //new SupportedFileInfo(true, "J3D v3 Model", "bmd"),

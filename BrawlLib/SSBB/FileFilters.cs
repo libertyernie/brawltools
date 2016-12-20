@@ -69,6 +69,12 @@ namespace BrawlLib
             "BLOC Adventure Archive (*.BLOC)|*.bloc";
         public static string FMDL =
             SupportedFilesHandler.GetCompleteFilter("fmdl");
+        public static string STPM =
+            SupportedFilesHandler.GetCompleteFilter("stpm");
+        public static string STDT =
+            SupportedFilesHandler.GetCompleteFilter("stdt");
+        public static string SCLA =
+            SupportedFilesHandler.GetCompleteFilter("scla");
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,
@@ -85,7 +91,10 @@ namespace BrawlLib
         /// </summary>
         private static Dictionary<Type, string> DefaultExportAllExtensions = new Dictionary<Type, string>() {
             [typeof(MSBinNode)] = "msbin",
-            [typeof(CollisionNode)] = "coll"
+            [typeof(CollisionNode)] = "coll",
+            [typeof(STPMNode)] = "stpm",
+            [typeof(STDTNode)] = "stdt",
+            [typeof(SCLANode)] = "scla"
         };
 
         public static string GetDefaultExportAllExtension(Type type) {

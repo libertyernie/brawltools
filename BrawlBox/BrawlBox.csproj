@@ -169,6 +169,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NodeWrappers\MultiSelectableWrapper.cs" />
+    <Compile Include="NodeWrappers\SCLAWrapper.cs" />
     <Compile Include="UI\TreeViewMS.cs">
       <SubType>Component</SubType>
     </Compile>
