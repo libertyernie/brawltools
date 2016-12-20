@@ -34,7 +34,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         protected override string GetName() {
-            return $"STDT [{_fileIndex}]";
+            return base.GetName("STDT");
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force) {

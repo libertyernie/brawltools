@@ -18,7 +18,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         protected override string GetName() {
-            return $"Stage Parameters [{_fileIndex}]";
+            return base.GetName("Stage Parameters");
         }
 
         const int _entrySize = 260;

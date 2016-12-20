@@ -17,7 +17,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
 
         protected override string GetName() {
-            return $"SCLA [{_fileIndex}]";
+            return base.GetName("SCLA");
         }
 
         const int _entrySize = 0x54;

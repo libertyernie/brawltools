@@ -57,7 +57,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!Directory.Exists(outFolder))
                 Directory.CreateDirectory(outFolder);
 
-            List<string> directChildrenExported = new List<string>();
+            List<string> directChildrenExportedPaths = new List<string>();
             foreach (ARCEntryNode entry in Children)
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
@@ -67,11 +67,12 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
                     string path = Path.Combine(outFolder, entry.Name + ext);
-                    if (directChildrenExported.Contains(entry.Name))
+
+                    if (directChildrenExportedPaths.Contains(path))
                         throw new Exception($"There is more than one node underneath {this.Name} with the name {entry.Name}.");
                     else
                     {
-                        directChildrenExported.Add(entry.Name);
+                        directChildrenExportedPaths.Add(path);
                         entry.Export(path);
                     }
                 }
@@ -271,7 +272,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected virtual string GetName()
         {
-            return String.Format("{0}[{1}]", _fileType, _fileIndex);
+            return GetName(_fileType.ToString());
+        }
+
+        protected virtual string GetName(string fileType)
+        {
+            string s = string.Format("{0}[{1}]", fileType, _fileIndex);
+            if (_group != 0)
+                s += "[Group " + _group + "]";
+            return s; 
         }
 
         protected void UpdateName()
