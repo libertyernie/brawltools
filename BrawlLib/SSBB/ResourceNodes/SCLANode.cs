@@ -13,10 +13,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            if (_name == null)
-                _name = "SCLA";
-
             return Header->_count > 0;
+        }
+
+        protected override string GetName() {
+            return $"SCLA [{_fileIndex}]";
         }
 
         const int _entrySize = 0x54;

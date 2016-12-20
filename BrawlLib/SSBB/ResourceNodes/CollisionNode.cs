@@ -35,6 +35,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             return false;
         }
 
+        protected override string GetName() {
+            return $"Collision Data [{_fileIndex}]";
+        }
+
         private int _pointCount, _planeCount;
         public override int OnCalculateSize(bool force)
         {

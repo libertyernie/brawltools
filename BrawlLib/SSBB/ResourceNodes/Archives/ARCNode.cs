@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using BrawlLib.IO;
 using BrawlLib.Wii.Compression;
+using System.Collections.Generic;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -56,6 +57,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!Directory.Exists(outFolder))
                 Directory.CreateDirectory(outFolder);
 
+            List<string> directChildrenExported = new List<string>();
             foreach (ARCEntryNode entry in Children)
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
@@ -64,7 +66,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                 else
                 {
                     string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
-                    entry.Export(Path.Combine(outFolder, entry.Name + ext));
+                    string path = Path.Combine(outFolder, entry.Name + ext);
+                    if (directChildrenExported.Contains(entry.Name))
+                        throw new Exception($"There is more than one node underneath {this.Name} with the name {entry.Name}.");
+                    else
+                    {
+                        directChildrenExported.Add(entry.Name);
+                        entry.Export(path);
+                    }
                 }
         }
 
