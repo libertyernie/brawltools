@@ -150,6 +150,18 @@ namespace BrawlBox.API
             MessageBox.Show(msg, title);
         }
 
+        public static bool? ShowYesNoPrompt(string msg, string title)
+        {
+            DialogResult result = MessageBox.Show(msg, title, MessageBoxButtons.YesNo);
+            return result == DialogResult.Yes;
+        }
+
+        public static bool? ShowOKCancelPrompt(string msg, string title)
+        {
+            DialogResult result = MessageBox.Show(msg, title, MessageBoxButtons.OKCancel);
+            return result == DialogResult.OK;
+        }
+
         public static void AddLoader(PluginLoader loader)
         {
             Loaders.Add(loader);

@@ -354,10 +354,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Plugins\Batch convert %28pcs to pac, include subfolders%29.py">
+    <Content Include="Plugins\Batch convert %28pcs to pac%29.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Plugins\Batch convert %28pac to pcs, include subfolders%29.py">
+    <Content Include="Plugins\Batch convert %28pac to pcs%29.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="Properties\Settings.settings">
