@@ -19,6 +19,8 @@ they be held accountable for the manner in which it is used.
  while changes beginning with a period (.) serve to add/modify
  features that BrawlBox doesn't use.
 
+ See BrawlBox's Changelog.txt for more recent changes (mid-2014 and newer.)
+
  (7/26/2014) - BrawlLib 0.20b
  	* BLOC archives are now rebuildable
 		* GSND files are now partially editable

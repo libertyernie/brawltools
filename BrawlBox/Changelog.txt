@@ -1,6 +1,6 @@
 ﻿
-BrawlBox Data Viewer - Version 0.77
-Copyright © 2009 - 2016 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
+BrawlBox Data Viewer - Version 0.78
+Copyright © 2009 - 2017 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -13,6 +13,26 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+ 
+ - v0.78 - BrawlLib 0.25
+ . Added a facility for writing BrawlBox plugins in Python (bboxapi). A few samples are included.
+ . Added support for more filetypes in Export All and Replace All
+ . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
+ . Added multi-select support (using Ctrl or Shift buttons) to the BrawlBox tree view. If all selected nodes are CHR0 animations or individual CHR0 entries, you can launch the "Edit All Animations" dialog from the right-click menu.
+ . Changed the default scale value in "Edit All Animations" to from 0 to 1
+ . Added support for encoding and decoding 16-bit PCM in RSTM containers
+ . Added "swap RGB" and "swap alpha" options to the texture converter dialog. "Swap alpha" will be turned on automatically if there are more distinct RGB values among fully transparent pixels than among partially opaque pixels.
+ . Added OpenAL audio output support (if OpenAL is not available, DirectSound will be used)
+ . Fixed crashing when opening modules whose section[5] isn't the object section
+ . Fixed resolution and rebuilding of Prolog, Epilog, and Unresolved addresses in .rel files
+ . Fixed getting length of sfx data written out of order
+ . Fixed bug where after replacing an RSAR file and reopening the RSAR, the replaced file would show as "external"
+ . Fixed crash opening an RWSD with no labels
+ . Fixed weight editor bugs
+ . Fixed ADPCM encoding to match Nintendo's implementation (pull requests #59 and #68)
+ . Fixed model import bug where bones that were not included in any skin modifier were not imported
+ . Various MDL0 fixes
+
 
  - v0.77- (6/9/2016) - BrawlLib v0.24 
  . Added support for adding, replacing, removing and renaming RSAR entries and folders
