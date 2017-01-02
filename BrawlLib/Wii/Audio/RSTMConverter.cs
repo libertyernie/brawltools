@@ -26,9 +26,7 @@ namespace BrawlLib.Wii.Audio
                 case WaveEncoding.ADPCM:
                     return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
                 case WaveEncoding.PCM16:
-                    return new IAudioStream[] {
-                        new PCMStream(rstm, rstm->DATAData->Data)
-                    };
+                    return PCMStream.GetStreams(rstm, rstm->DATAData->Data);
             }
             throw new Exception("RSTMLib does not support decoding RSTM files with this encoding.");
         }
