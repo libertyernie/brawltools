@@ -15,9 +15,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal HKXHeader* Header { get { return (HKXHeader*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Havok; } }
 
-        protected override string GetName()
-        {
-            return String.Format("HavokData[{0}]", _fileIndex);
+        protected override string GetName() {
+            return base.GetName("HavokData");
         }
 
         [Category("Havok Physics")]

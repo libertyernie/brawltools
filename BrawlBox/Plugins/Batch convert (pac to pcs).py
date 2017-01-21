@@ -5,6 +5,8 @@ import os
 
 dir = bboxapi.OpenFolderDialog()
 if dir is not None:
+	include_subfolders = bboxapi.ShowYesNoPrompt("Include subfolders?", "Batch conversion")
+
 	from_ext = ".pac"
 	to_ext = ".pcs"
 
@@ -16,7 +18,7 @@ if dir is not None:
 
 	for root, dirs, files in os.walk(dir):
 		for file in files:
-			if file.endswith(from_ext):
+			if file.lower().endswith(from_ext):
 				no_ext, ext = os.path.splitext(file)
 				node = NodeFactory.FromFile(None, os.path.join(root, file))
 				try:
@@ -24,5 +26,5 @@ if dir is not None:
 					node.Dispose()
 				except:
 					bboxapi.ShowMessage("Cannot export " + file + " as format " + to_ext, "Error")
-		#Uncomment break below to skip subfolders
-		#break
+		if not include_subfolders:
+			break

@@ -14,10 +14,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            if (_name == null)
-                _name = "Stage Parameters";
-
             return Header->_count > 0;
+        }
+
+        protected override string GetName() {
+            return base.GetName("Stage Parameters");
         }
 
         const int _entrySize = 260;

@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.IO;
 using BrawlLib.IO;
 using BrawlLib.Wii.Compression;
+using System.Collections.Generic;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -56,16 +57,34 @@ namespace BrawlLib.SSBB.ResourceNodes
             if (!Directory.Exists(outFolder))
                 Directory.CreateDirectory(outFolder);
 
+            List<string> directChildrenExportedPaths = new List<string>();
             foreach (ARCEntryNode entry in Children)
                 if (entry is ARCNode)
                     ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
                 else if (entry is BRRESNode)
-                    ((BRRESNode)entry).ExportToFolder(outFolder);
+                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
+                else
+                {
+                    if (entry.WorkingSource.Length == 0)
+                        continue;
+
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
+                    string path = Path.Combine(outFolder, entry.Name + ext);
+
+                    if (directChildrenExportedPaths.Contains(path))
+                        throw new Exception($"There is more than one node underneath {this.Name} with the name {entry.Name}.");
+                    else
+                    {
+                        directChildrenExportedPaths.Add(path);
+                        entry.Export(path);
+                    }
+                }
         }
 
         public void ReplaceFromFolder(string inFolder)
         {
             DirectoryInfo dir = new DirectoryInfo(inFolder);
+            FileInfo[] files = dir.GetFiles();
             DirectoryInfo[] dirs;
             foreach (ARCEntryNode entry in Children)
             {
@@ -80,8 +99,28 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
                 else if (entry is BRRESNode)
                 {
-                    ((BRRESNode)entry).ReplaceFromFolder(inFolder);
-                    continue;
+                    dirs = dir.GetDirectories(entry.Name);
+                    if (dirs.Length > 0) {
+                        ((BRRESNode)entry).ReplaceFromFolder(dirs[0].FullName);
+                        continue;
+                    }
+                    else
+                    {
+                        ((BRRESNode)entry).ReplaceFromFolder(inFolder);
+                        continue;
+                    }
+                }
+                else
+                {
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
+                    foreach (FileInfo info in files)
+                    {
+                        if (info.Extension.Equals(ext, StringComparison.OrdinalIgnoreCase) && info.Name.Equals(entry.Name + ext, StringComparison.OrdinalIgnoreCase))
+                        {
+                            entry.Replace(info.FullName);
+                            break;
+                        }
+                    }
                 }
             }
         }
@@ -236,7 +275,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected virtual string GetName()
         {
-            return String.Format("{0}[{1}]", _fileType, _fileIndex);
+            return GetName(_fileType.ToString());
+        }
+
+        protected virtual string GetName(string fileType)
+        {
+            string s = string.Format("{0}[{1}]", fileType, _fileIndex);
+            if (_group != 0)
+                s += "[Group " + _group + "]";
+            return s; 
         }
 
         protected void UpdateName()

@@ -1,4 +1,7 @@
-﻿using BrawlLib.SSBB;
+﻿using System;
+using System.Collections.Generic;
+using BrawlLib.SSBB;
+using BrawlLib.SSBB.ResourceNodes;
 
 namespace BrawlLib
 {
@@ -66,6 +69,12 @@ namespace BrawlLib
             "BLOC Adventure Archive (*.BLOC)|*.bloc";
         public static string FMDL =
             SupportedFilesHandler.GetCompleteFilter("fmdl");
+        public static string STPM =
+            SupportedFilesHandler.GetCompleteFilter("stpm");
+        public static string STDT =
+            SupportedFilesHandler.GetCompleteFilter("stdt");
+        public static string SCLA =
+            SupportedFilesHandler.GetCompleteFilter("scla");
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,
@@ -75,5 +84,53 @@ namespace BrawlLib
 
         public static string Havok =
             SupportedFilesHandler.GetCompleteFilter("hkx", "xml");
+
+        /// <summary>
+        /// Maps node types to the default extension when using Export All.
+        /// Nodes that are inside a BRES do not need to be defined here - they will get an extension assigned in BRRESNode.cs.
+        /// </summary>
+        private static Dictionary<Type, string> DefaultExportAllExtensions = new Dictionary<Type, string>() {
+            [typeof(MDL0Node)] = "mdl0",
+            [typeof(TEX0Node)] = "png",
+            [typeof(PLT0Node)] = "plt0",
+            [typeof(CHR0Node)] = "chr0",
+            [typeof(CLR0Node)] = "clr0",
+            [typeof(PAT0Node)] = "pat0",
+            [typeof(VIS0Node)] = "vis0",
+            [typeof(SRT0Node)] = "srt0",
+            [typeof(SCN0Node)] = "scn0",
+            [typeof(SHP0Node)] = "shp0",
+            [typeof(MSBinNode)] = "msbin",
+            [typeof(RSTMNode)] = "brstm",
+            [typeof(RWSDNode)] = "brwsd",
+            [typeof(RBNKNode)] = "brbnk",
+            [typeof(RSEQNode)] = "brseq",
+            [typeof(REFFNode)] = "breff",
+            [typeof(REFTNode)] = "breft",
+            [typeof(EFLSNode)] = "efls",
+            [typeof(CollisionNode)] = "coll",
+            [typeof(RELNode)] = "rel",
+            [typeof(DOLNode)] = "dol",
+            [typeof(RSARNode)] = "brsar",
+            [typeof(TPLNode)] = "tpl",
+            [typeof(MDL0ObjectNode)] = "obj",
+            [typeof(BLOCNode)] = "bloc",
+            [typeof(STPMNode)] = "stpm",
+            [typeof(STDTNode)] = "stdt",
+            [typeof(SCLANode)] = "scla",
+            [typeof(HavokNode)] = "hkx",
+        };
+
+        public static string GetDefaultExportAllExtension(Type type) {
+            string ext = null;
+            while (type != null) {
+                if (DefaultExportAllExtensions.TryGetValue(type, out ext)) {
+                    if (!ext.StartsWith(".")) ext = "." + ext;
+                    break;
+                }
+                type = type.BaseType;
+            }
+            return ext ?? "";
+        }
     }
 }
