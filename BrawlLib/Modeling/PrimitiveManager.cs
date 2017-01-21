@@ -78,6 +78,7 @@ namespace BrawlLib.Modeling
             }
         }
         public bool[] HasTextureMatrix = new bool[8];
+        public bool[] UseIdentityTexMtx = new bool[8];
 
         //Set these in OnCalculateSize!
         public bool _remakePrimitives; //Otherwise, copies previous raw primitive values
@@ -523,7 +524,7 @@ namespace BrawlLib.Modeling
                 pData += 2;
 
                 //Extract facepoints here!
-                desc.Run(ref pData, pAssets, pOut, value, group, ref indices, cache);
+                desc.Run(ref pData, pAssets, pOut, value, group, ref indices, cache, UseIdentityTexMtx);
 
                 Next:
                 if (length > 0 && pData >= pEnd)
@@ -914,7 +915,13 @@ namespace BrawlLib.Modeling
                     case GXAttribute.Tex6MtxId:
                     case GXAttribute.Tex7MtxId:
                         if (d._type == XFDataFormat.Direct)
-                            *(byte*)address++ = (byte)(30 + (3 * g._nodes.IndexOf(f.NodeID)));
+                        {
+                            int texId = d._attr - GXAttribute.Tex0MtxId;
+                            byte value = (byte)(3 * g._nodes.IndexOf(f.NodeID));
+                            if (!UseIdentityTexMtx[texId])
+                                value += 30;
+                            *(byte*)address++ = value;
+                        }
                         break;
                     case GXAttribute.Position:
                         switch (d._type)

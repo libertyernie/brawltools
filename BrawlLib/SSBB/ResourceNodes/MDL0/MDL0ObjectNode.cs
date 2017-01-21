@@ -40,21 +40,38 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal XFVertexSpecs _vertexSpecs;
 
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix0 { get { return _manager == null ? false : _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
+        public bool TextureMatrix0Enabled { get { return _manager != null && _manager.HasTextureMatrix[0]; } set { SetTexMtx(0, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix1 { get { return _manager == null ? false : _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
+        public bool TextureMatrix1Enabled { get { return _manager != null && _manager.HasTextureMatrix[1]; } set { SetTexMtx(1, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix2 { get { return _manager == null ? false : _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
+        public bool TextureMatrix2Enabled { get { return _manager != null && _manager.HasTextureMatrix[2]; } set { SetTexMtx(2, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix3 { get { return _manager == null ? false : _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
+        public bool TextureMatrix3Enabled { get { return _manager != null && _manager.HasTextureMatrix[3]; } set { SetTexMtx(3, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix4 { get { return _manager == null ? false : _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
+        public bool TextureMatrix4Enabled { get { return _manager != null && _manager.HasTextureMatrix[4]; } set { SetTexMtx(4, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix5 { get { return _manager == null ? false : _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
+        public bool TextureMatrix5Enabled { get { return _manager != null && _manager.HasTextureMatrix[5]; } set { SetTexMtx(5, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix6 { get { return _manager == null ? false : _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
+        public bool TextureMatrix6Enabled { get { return _manager != null && _manager.HasTextureMatrix[6]; } set { SetTexMtx(6, value); } }
         [Category("Texture Matrices")]
-        public bool HasTextureMatrix7 { get { return _manager == null ? false : _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
+        public bool TextureMatrix7Enabled { get { return _manager != null && _manager.HasTextureMatrix[7]; } set { SetTexMtx(7, value); } }
+
+        [Category("Texture Matrices")]
+        public bool TextureMatrix0Identity { get { return _manager != null && _manager.UseIdentityTexMtx[0]; } set { SetTexMtxIdentity(0, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix1Identity { get { return _manager != null && _manager.UseIdentityTexMtx[1]; } set { SetTexMtxIdentity(1, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix2Identity { get { return _manager != null && _manager.UseIdentityTexMtx[2]; } set { SetTexMtxIdentity(2, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix3Identity { get { return _manager != null && _manager.UseIdentityTexMtx[3]; } set { SetTexMtxIdentity(3, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix4Identity { get { return _manager != null && _manager.UseIdentityTexMtx[4]; } set { SetTexMtxIdentity(4, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix5Identity { get { return _manager != null && _manager.UseIdentityTexMtx[5]; } set { SetTexMtxIdentity(5, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix6Identity { get { return _manager != null && _manager.UseIdentityTexMtx[6]; } set { SetTexMtxIdentity(6, value); } }
+        [Category("Texture Matrices")]
+        public bool TextureMatrix7Identity { get { return _manager != null && _manager.UseIdentityTexMtx[7]; } set { SetTexMtxIdentity(7, value); } }
 
         private void SetTexMtx(int index, bool value)
         {
@@ -62,6 +79,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return;
 
             _manager.HasTextureMatrix[index] = value;
+            SignalPropertyChange();
+            _forceRebuild = true;
+        }
+        private void SetTexMtxIdentity(int index, bool value)
+        {
+            if (!Weighted || _manager == null)
+                return;
+
+            _manager.UseIdentityTexMtx[index] = value;
             SignalPropertyChange();
             _forceRebuild = true;
         }

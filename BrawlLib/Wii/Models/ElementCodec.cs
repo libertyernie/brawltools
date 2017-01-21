@@ -547,7 +547,8 @@ namespace BrawlLib.Wii.Models
             int count,
             PrimitiveGroup group,
             ref ushort* indices,
-            IMatrixNode[] nodeTable)
+            IMatrixNode[] nodeTable,
+            bool[] textureMatrixIdentity)
         {
             //pIn is the address in the primitives
             //pOut is address of the face data buffers
@@ -595,9 +596,29 @@ namespace BrawlLib.Wii.Models
                         case DecodeOp.TexMtx6:
                         case DecodeOp.TexMtx7:
                             index = (int)o - (int)DecodeOp.TexMtx0;
-                            //if (*pIn++ == 0x60) //Identity matrix...
-                            //    Console.WriteLine();
-                            pTexMtx[index] = (byte)(*pIn++ / 3);
+                            byte value = *pIn++;
+                            if (value % 3 != 0)
+                            {
+                                Console.WriteLine("Raw texture matrix value is 0x{0}", value.ToString());
+                            }
+                            else
+                            {
+                                value /= 3;
+                                if (value < 10)
+                                {
+                                    textureMatrixIdentity[index] = true;
+                                    //Console.WriteLine("Texture matrix value is {0}", value.ToString());
+                                }
+                                else if (value >= 20)
+                                {
+                                    Console.WriteLine("Texture matrix value is {0}", value.ToString());
+                                }
+                                else
+                                {
+                                    pTexMtx[index] = (byte)(value - 10);
+                                    textureMatrixIdentity[index] = false;
+                                }
+                            }
                             goto Continue;
 
                         case DecodeOp.ElementDirect:
