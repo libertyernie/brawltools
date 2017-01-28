@@ -87,14 +87,20 @@ namespace BrawlBox
             API.bboxapi.Plugins.Clear();
             API.bboxapi.Loaders.Clear();
             pluginToolStripMenuItem.DropDown.Items.Clear();
-            foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+            if (Directory.Exists(plugins))
             {
-                API.bboxapi.CreatePlugin(str, false);
-                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+                foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+                {
+                    API.bboxapi.CreatePlugin(str, false);
+                    pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+                }
             }
-            foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
+            if (Directory.Exists(loaders))
             {
-                API.bboxapi.CreatePlugin(str, true);
+                foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
+                {
+                    API.bboxapi.CreatePlugin(str, true);
+                }
             }
         }
 
