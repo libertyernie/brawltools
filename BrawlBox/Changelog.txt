@@ -14,7 +14,7 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  
- - v0.78 - BrawlLib 0.25
+ - v0.78 (1/28/17) - BrawlLib 0.25
  . Added a facility for writing BrawlBox plugins in Python (bboxapi). A few samples are included.
  . Added support for more filetypes in Export All and Replace All
  . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
@@ -22,7 +22,8 @@ they be held accountable for the manner in which it is used.
  . Changed the default scale value in "Edit All Animations" to from 0 to 1
  . Added support for encoding and decoding 16-bit PCM in RSTM containers
  . Added "swap RGB" and "swap alpha" options to the texture converter dialog. "Swap alpha" will be turned on automatically if there are more distinct RGB values among fully transparent pixels than among partially opaque pixels.
- . Added OpenAL audio output support (if OpenAL is not available, DirectSound will be used)
+ . Added OpenAL audio output support (if OpenAL is not available, DirectSound will be used like before)
+ . Added support for setting texture matrices to identity in MDL0 objects
  . Fixed crashing when opening modules whose section[5] isn't the object section
  . Fixed resolution and rebuilding of Prolog, Epilog, and Unresolved addresses in .rel files
  . Fixed getting length of sfx data written out of order

@@ -64,6 +64,25 @@ namespace BrawlBox
 #else
             Text += " DEBUG";
 #endif
+
+            foreach (string filename in new string[] {
+                "BrawlLib.dll",
+                "OpenTK.dll",
+                "Octokit.dll",
+                "Updater.exe"
+            }) {
+                string directory = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+                if (File.Exists(Path.Combine(directory, filename))) {
+                    if (File.Exists(Path.Combine(directory, "lib", filename))) {
+                        MessageBox.Show(@"The directory structure of BrawlBox has changed.
+Please delete the files BrawlLib.dll, OpenTK.dll, Octokit.dll, and Updater.exe;
+newer versions of these files should be located in the Lib directory.");
+                        Enabled = false;
+                        break;
+                    }
+                }
+            }
+
             soundPackControl1._grid = propertyGrid1;
             soundPackControl1.lstSets.SmallImageList = ResourceTree.Images;
             foreach (Control c in splitContainer2.Panel2.Controls)
@@ -87,14 +106,20 @@ namespace BrawlBox
             API.bboxapi.Plugins.Clear();
             API.bboxapi.Loaders.Clear();
             pluginToolStripMenuItem.DropDown.Items.Clear();
-            foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+            if (Directory.Exists(plugins))
             {
-                API.bboxapi.CreatePlugin(str, false);
-                pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+                foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+                {
+                    API.bboxapi.CreatePlugin(str, false);
+                    pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
+                }
             }
-            foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
+            if (Directory.Exists(loaders))
             {
-                API.bboxapi.CreatePlugin(str, true);
+                foreach (var str in Directory.EnumerateFiles(loaders, "*.py"))
+                {
+                    API.bboxapi.CreatePlugin(str, true);
+                }
             }
         }
 
