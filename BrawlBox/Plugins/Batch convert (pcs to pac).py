@@ -4,7 +4,7 @@ from BrawlLib.SSBB.ResourceNodes import *
 import os
 
 dir = bboxapi.OpenFolderDialog()
-if dir is not None:
+if dir is not "":
 	include_subfolders = bboxapi.ShowYesNoPrompt("Include subfolders?", "Batch conversion")
 
 	from_ext = ".pcs"
