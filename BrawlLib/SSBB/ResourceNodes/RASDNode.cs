@@ -3,7 +3,7 @@ using BrawlLib.SSBBTypes;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
-    public unsafe class RASDNode : U8EntryNode
+    public unsafe class RASDNode : BRESEntryNode
     {
         internal RASD* Header { get { return (RASD*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
