@@ -14,7 +14,7 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  
- - v0.78 - BrawlLib 0.25
+ - v0.78 (1/28/17) - BrawlLib 0.25
  . Added a facility for writing BrawlBox plugins in Python (bboxapi). A few samples are included.
  . Added support for more filetypes in Export All and Replace All
  . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
