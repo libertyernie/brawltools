@@ -94,7 +94,7 @@ namespace BrawlLib.Wii.Audio
 
                 //Initialize sections
                 rstm->Set(infoSize, seekSize, dataSize);
-                info->Set(infoSize, channels, (WaveEncoding)info->Part1->_format._encoding);
+                info->Set(infoSize, channels, (WaveEncoding)cstm->INFOData->_dataInfo._format._encoding);
                 seek->Set(seekSize);
                 data->Set(dataSize);
 
