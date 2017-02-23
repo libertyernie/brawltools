@@ -1,5 +1,5 @@
 ﻿
-BrawlBox Data Viewer - Version 0.78
+BrawlBox Data Viewer - Version 0.78 Release Candidate 1
 Copyright © 2009 - 2017 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
@@ -14,8 +14,8 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  
- - v0.78 (1/28/17) - BrawlLib 0.25
- . Added a facility for writing BrawlBox plugins in Python (bboxapi). A few samples are included.
+ - v0.78 (?/??/17) - BrawlLib 0.25
+ . Added a facility for writing BrawlBox plugins in Python (bboxapi). A sample plugin is included.
  . Added support for more filetypes in Export All and Replace All
  . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
  . Added multi-select support (using Ctrl or Shift buttons) to the BrawlBox tree view. If all selected nodes are CHR0 animations or individual CHR0 entries, you can launch the "Edit All Animations" dialog from the right-click menu.
@@ -31,7 +31,9 @@ they be held accountable for the manner in which it is used.
  . Fixed crash opening an RWSD with no labels
  . Fixed weight editor bugs
  . Fixed ADPCM encoding to match Nintendo's implementation (pull requests #59 and #68)
+ . Fixed bug when trying to determine the encoding of a .bfstm or .brstm file
  . Fixed model import bug where bones that were not included in any skin modifier were not imported
+ . Fixed bug where RASD nodes found in "External" BRES folders would not allow the BRES to be saved
  . Various MDL0 fixes
 
 
