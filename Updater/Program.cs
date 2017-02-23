@@ -227,6 +227,8 @@ namespace Net
 
         static void Main(string[] args)
         {
+            System.Windows.Forms.Application.EnableVisualStyles();
+            
             //Prevent crash that occurs when this dll is not present
             if (!File.Exists(System.Windows.Forms.Application.StartupPath + "/Octokit.dll"))
             {
