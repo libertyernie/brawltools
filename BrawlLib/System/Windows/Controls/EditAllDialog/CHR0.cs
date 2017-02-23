@@ -834,17 +834,25 @@ namespace System.Windows.Forms
                 if (NameContains.Checked && !n.Name.Contains(targetName.Text))
                     continue;
 
-                if (editLoop.Checked)
+                if (editLoop.Checked) {
+                    n.SignalPropertyChange();
                     n.Loop = enableLoop.Checked;
+                }
 
-                if (Rename.Checked)
+                if (Rename.Checked) {
+                    n.SignalPropertyChange();
                     n.Name = n.Parent.FindName(newName.Text);
+                }
 
-                if (ChangeVersion.Checked)
+                if (ChangeVersion.Checked) {
+                    n.SignalPropertyChange();
                     n.Version = Version.SelectedIndex + 4;
+                }
 
-                if (Port.Checked && _targetModel != null && model != null)
+                if (Port.Checked && _targetModel != null && model != null) {
+                    n.SignalPropertyChange();
                     n.Port(_targetModel, model);
+                }
 
                 if (copyKeyframes.Checked)
                 {
@@ -901,6 +909,7 @@ namespace System.Windows.Forms
             int low = 0, high = 3;
             if (ScaleReplace.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -910,6 +919,7 @@ namespace System.Windows.Forms
             }
             else if (ScaleClear.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -917,6 +927,7 @@ namespace System.Windows.Forms
             }
             else if (ScaleAdd.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -941,6 +952,7 @@ namespace System.Windows.Forms
             }
             else if (ScaleSubtract.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -965,6 +977,7 @@ namespace System.Windows.Forms
             }
             else if (ScaleMultiply.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -989,6 +1002,7 @@ namespace System.Windows.Forms
             }
             else if (ScaleDivide.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1018,6 +1032,7 @@ namespace System.Windows.Forms
             low = 3; high = 6;
             if (RotateReplace.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -1027,6 +1042,7 @@ namespace System.Windows.Forms
             }
             else if (RotateClear.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -1034,6 +1050,7 @@ namespace System.Windows.Forms
             }
             else if (RotateAdd.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1058,6 +1075,7 @@ namespace System.Windows.Forms
             }
             else if (RotateSubtract.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1082,6 +1100,7 @@ namespace System.Windows.Forms
             }
             else if (RotateMultiply.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1106,6 +1125,7 @@ namespace System.Windows.Forms
             }
             else if (RotateDivide.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1135,6 +1155,7 @@ namespace System.Windows.Forms
             low = 6; high = 9;
             if (TranslateReplace.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = 0x10; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -1144,6 +1165,7 @@ namespace System.Windows.Forms
             }
             else if (TranslateClear.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if (entry.GetKeyframe(i, x) != null)
@@ -1151,6 +1173,7 @@ namespace System.Windows.Forms
             }
             else if (TranslateAdd.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1175,6 +1198,7 @@ namespace System.Windows.Forms
             }
             else if (TranslateSubtract.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1199,6 +1223,7 @@ namespace System.Windows.Forms
             }
             else if (TranslateMultiply.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
@@ -1223,6 +1248,7 @@ namespace System.Windows.Forms
             }
             else if (TranslateDivide.Checked)
             {
+                entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
                         if ((kfe = entry.GetKeyframe(i, x)) != null)
