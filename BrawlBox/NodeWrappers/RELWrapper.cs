@@ -70,7 +70,7 @@ namespace BrawlBox.NodeWrappers
         {
             RELNode r = _resource as RELNode;
 
-                ModuleDataNode s = r._sections[r._prologSection];
+                ModuleDataNode s = r.Sections[r._prologSection];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
@@ -91,7 +91,7 @@ namespace BrawlBox.NodeWrappers
         {
             RELNode r = _resource as RELNode;
 
-                ModuleDataNode s = r._sections[r._epilogSection];
+                ModuleDataNode s = r.Sections[r._epilogSection];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
@@ -113,7 +113,7 @@ namespace BrawlBox.NodeWrappers
         {
             RELNode r = _resource as RELNode;
 
-                ModuleDataNode s = r._sections[r._unresolvedSection];
+                ModuleDataNode s = r.Sections[r._unresolvedSection];
 
                 foreach (SectionEditor l in SectionEditor._openedSections)
                     if (l._section == s)
