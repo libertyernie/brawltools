@@ -337,6 +337,7 @@ namespace BrawlLib.SSBBTypes
         // Actually big endian, but you can't use fixed on structs here
         public fixed short _coefs[16];
 
+        public bushort _gain;
         public bshort _ps; //Predictor and scale. This will be initialized to the predictor and scale value of the sample's first frame.
         public bshort _yn1; //History data; used to maintain decoder state during sample playback.
         public bshort _yn2; //History data; used to maintain decoder state during sample playback.
@@ -351,7 +352,8 @@ namespace BrawlLib.SSBBTypes
             fixed (short* ptr = _coefs)
                 for (int i = 0; i < 16; i++)
                     ptr[i] = c[i].Reverse();
-
+            
+            _gain = o._gain;
             _ps = o._ps;
             _yn1 = o._yn1;
             _yn2 = o._yn2;

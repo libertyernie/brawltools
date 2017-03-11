@@ -339,6 +339,7 @@ namespace BrawlLib.SSBBTypes
 
         public fixed short _coefs[16];
 
+        public ushort _gain;
         public short _ps; //Predictor and scale. This will be initialized to the predictor and scale value of the sample's first frame.
         public short _yn1; //History data; used to maintain decoder state during sample playback.
         public short _yn2; //History data; used to maintain decoder state during sample playback.
@@ -354,6 +355,7 @@ namespace BrawlLib.SSBBTypes
                 for (int i = 0; i < 16; i++)
                     ptr[i] = c[i];
 
+            _gain = o._gain;
             _ps = o._ps;
             _yn1 = o._yn1;
             _yn2 = o._yn2;
