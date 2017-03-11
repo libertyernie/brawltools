@@ -81,6 +81,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             if (Header->_header._tag == CSTMHeader.Tag)
             {
+                ShowADPCMConversionWarning();
                 byte[] brstm_temp = CSTMConverter.ToRSTM((CSTMHeader*)Header);
                 fixed (byte* ptr = brstm_temp)
                 {
@@ -90,6 +91,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
             else if (Header->_header._tag == FSTMHeader.Tag)
             {
+                ShowADPCMConversionWarning();
                 byte[] brstm_temp = FSTMConverter.ToRSTM((FSTMHeader*)Header);
                 fixed (byte* ptr = brstm_temp)
                 {
@@ -119,6 +121,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             return false;
+        }
+
+        public static bool ADPCMConversionWarningShown = false;
+        public static void ShowADPCMConversionWarning() {
+            if (!ADPCMConversionWarningShown) {
+                ADPCMConversionWarningShown = true;
+                System.Windows.Forms.MessageBox.Show("Note: FSTM and CSTM support is still in beta. Playback and output files might not be completely accurate.");
+            }
         }
 
         public override unsafe void Export(string outPath)
@@ -152,6 +162,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                             if (outPath.EndsWith(".bcstm"))
                             {
+                                ShowADPCMConversionWarning();
                                 byte[] bcstm_temp = CSTMConverter.FromRSTM(hdr);
                                 fixed (byte* ptr = bcstm_temp)
                                 {
@@ -160,6 +171,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                             }
                             else if (outPath.EndsWith(".bfstm"))
                             {
+                                ShowADPCMConversionWarning();
                                 byte[] bfstm_temp = FSTMConverter.FromRSTM(hdr);
                                 fixed (byte* ptr = bfstm_temp)
                                 {
