@@ -24,6 +24,10 @@ namespace Net
         public static async Task UpdateCheck() { await UpdateCheck(false); }
         public static async Task UpdateCheck(bool Overwrite)
         {
+            if (AppPath.EndsWith("lib", StringComparison.CurrentCultureIgnoreCase)) {
+                AppPath = AppPath.Substring(0, AppPath.Length - 4);
+            }
+
             // check to see if the user is online, and that github is up and running.
             Console.WriteLine("Checking connection to server.");
             using (Ping s = new Ping())
