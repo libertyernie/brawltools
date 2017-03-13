@@ -4,12 +4,18 @@ using System.Runtime.InteropServices;
 
 namespace System.Audio
 {
+    /// <summary>
+    /// The alAudioBuffer presents itself to BrawlLib as one buffer big enough
+    /// to hold the whole IAudioSource, while maintaining OpenAL's buffers
+    /// internally.
+    /// </summary>
     unsafe class alAudioBuffer : AudioBuffer
     {
         // This class stores the source id and the length of discarded buffers.
         private class alSourceLock
         {
             public int currentSource;
+            // Total length of discarded buffers. Maybe there's a better way to do this?
             public int addToCursor;
         }
 
@@ -20,6 +26,8 @@ namespace System.Audio
 
         // Buffers that need to be added to the stream once it starts playing.
         List<int> buffersToQueue;
+
+        private UnsafeBuffer _internalBuffer;
 
         internal override int PlayCursor
         {
@@ -76,16 +84,18 @@ namespace System.Audio
             set { throw new NotImplementedException(); }
         }
         
-        internal alAudioBuffer(alAudioProvider parent, WaveFormatEx fmt)
+        internal alAudioBuffer(alAudioProvider parent, WaveFormatEx fmt, int sampleSize)
         {
             _parent = parent;
 
             buffersToQueue = new List<int>();
             sourceLock = new alSourceLock();
 
-            int size = DefaultBufferSpan * (int)fmt.nSamplesPerSec * fmt.nChannels * fmt.wBitsPerSample / 8;
+            int size = sampleSize * fmt.nChannels * fmt.wBitsPerSample / 8;
             if (size == 0)
                 return;
+
+            _internalBuffer = new UnsafeBuffer(size);
 
             _format = fmt.wFormatTag;
             _frequency = (int)fmt.nSamplesPerSec;
@@ -98,6 +108,8 @@ namespace System.Audio
 
         public override void Dispose()
         {
+            _internalBuffer?.Dispose();
+            _internalBuffer = null;
             base.Dispose();
         }
 
@@ -117,9 +129,12 @@ namespace System.Audio
             {
                 // Create a "fake" BufferData that does not point to an actual sound buffer.
                 // We'll populate the real buffer when we unlock it.
-                IntPtr audioData = Marshal.AllocHGlobal(length);
+                if (_internalBuffer == null || _internalBuffer.Length < length)
+                {
+                    throw new Exception("alAudioBuffer not big enough");
+                }
 
-                data._part1Address = audioData;
+                data._part1Address = _internalBuffer.Address;
                 data._part1Length = length;
                 data._part1Samples = length / _blockAlign;
 
@@ -151,10 +166,7 @@ namespace System.Audio
                     }
                 }
             }
-
-            // Free temporary memory buffer now that the data is in the real buffer
-            Marshal.FreeHGlobal(data.Part1Address);
-
+            
             Dequeue();
         }
 

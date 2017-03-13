@@ -27,7 +27,7 @@ namespace System.Audio
 
             WaveFormatEx fmt = new WaveFormatEx(target.Format, target.Channels, target.Frequency, target.BitsPerSample);
 
-            return new alAudioBuffer(this, fmt) { _source = target, _owner = this };
+            return new alAudioBuffer(this, fmt, target.Samples) { _source = target, _owner = this };
         }
     }
 }
