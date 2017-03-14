@@ -84,6 +84,11 @@ namespace BrawlLib.Wii.Audio
                 sPtr += _blockLen;
             }
 
+            for (int cIndex = 0; cIndex < _numChannels; cIndex++) {
+                yn1 = *ynCache++;
+                yn2 = *ynCache++;
+            }
+
             //Fill block states in a linear fashion
             sPtr = (byte*)dataAddr;
             for (int sIndex = 0, bIndex = 0; sIndex < _numSamples; sIndex += _samplesPerBlock, bIndex++)
