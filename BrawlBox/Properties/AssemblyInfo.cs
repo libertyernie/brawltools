@@ -12,7 +12,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("BrawlBox")]
-[assembly: AssemblyCopyright(@"Copyright © 2009 - 2016 Bryan Moulton, BlackJax96, libertyernie && Sammi Husky
+[assembly: AssemblyCopyright(@"Copyright © 2009 - 2017 Bryan Moulton, BlackJax96, libertyernie && Sammi Husky
 Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 [assembly: AssemblyTrademark(@"Characters are copyrighted by the following:
 © Nintendo / HAL Laboratory, Inc. / Pokemon / Creatures Inc. / GAME FREAK Inc. / SHIGESATO ITOI / APE Inc. / INTELLIGENT SYSTEMS / Konami Digital Entertainment Co., Ltd. / SEGA")]
@@ -37,4 +37,4 @@ Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.78.*")]
-[assembly: AssemblyFileVersion("0.78.0.0")]
+[assembly: AssemblyFileVersion("0.78.1.0")]

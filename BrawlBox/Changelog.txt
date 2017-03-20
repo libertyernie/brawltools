@@ -14,7 +14,13 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  
- - v0.78 (3/11/17) - BrawlLib 0.25
+ - v0.78 - BrawlLib 0.25
+
+ Hotfix 1 (3/20/17)
+ . Fixed an RSTM decoding regression (issue #108)
+ . Avoid memory leak when using OpenAL for audio
+
+ Initial Release (3/11/17)
  . Added a facility for writing BrawlBox plugins in Python (bboxapi). A sample plugin is included.
  . Added support for more filetypes in Export All and Replace All
  . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
