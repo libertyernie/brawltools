@@ -271,6 +271,7 @@ namespace BrawlLib.Wii.Audio
             else if (encoding == WaveEncoding.PCM16)
             {
                 bshort* destPtr = (bshort*)data->Data;
+                stream.SamplePosition = 0;
                 for (int i=0; i<blocks; i++)
                 {
                     int samplesPerChannel = i < blocks - 1
