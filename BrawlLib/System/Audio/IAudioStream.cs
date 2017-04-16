@@ -13,7 +13,7 @@
         int SamplePosition { get; set; }
 
         //Reads numSamples audio samples into the address specified by destAddr.
-        //Returns the actual number of samples read.
+        //Returns the actual number of samples read (per channel).
         //Cannot loop automatically, because sample offsets would then be incorrect.
         int ReadSamples(VoidPtr destAddr, int numSamples);
 

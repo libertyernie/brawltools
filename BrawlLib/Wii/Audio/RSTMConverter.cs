@@ -289,7 +289,7 @@ namespace BrawlLib.Wii.Audio
                         {
                             if (stream.SamplePosition == stream.LoopEndSample && looped)
                                 stream.SamplePosition = stream.LoopStartSample;
-                            int s = stream.ReadSamples(sampleDataPtr + read, samplesPerChannel - read);
+                            int s = stream.ReadSamples(sampleDataPtr + (read * channels), samplesPerChannel - read);
                             if (s == 0)
                                 throw new Exception("No samples could be read from the stream");
                             read += s;
