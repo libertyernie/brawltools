@@ -132,20 +132,23 @@ namespace System.Audio
                 int bs = (block == info->_numBlocks - 1)
                     ? info->_lastBlockSize
                     : info->_blockSize;
+                int bt = (block == info->_numBlocks - 1)
+                    ? info->_lastBlockTotal
+                    : info->_blockSize;
 
                 if (block == 0)
                 {
-                    fromL += (bs * startChannel);
-                    fromR += (bs * startChannel);
+                    fromL += (bt * startChannel);
+                    fromR += (bt * startChannel);
                 }
                 else
                 {
-                    fromL += bs * (info->_format._channels - channels);
-                    fromR += bs * (info->_format._channels - channels);
+                    fromL += bt * (info->_format._channels - channels);
+                    fromR += bt * (info->_format._channels - channels);
                 }
 
                 if (stereo)
-                    fromR += bs;
+                    fromR += bt;
                 for (int i=0; i<bs; i+=2)
                 {
                     to[0] = fromL[1];
@@ -160,8 +163,13 @@ namespace System.Audio
                         to += 2;
                     }
                 }
+                for (int i = bs; i < bt; i++)
+                {
+                    fromL++;
+                    fromR++;
+                }
                 if (stereo)
-                    fromL += bs;
+                    fromL += bt;
             }
 
             _bps = 16;
