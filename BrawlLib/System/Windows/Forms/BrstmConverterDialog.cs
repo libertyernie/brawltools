@@ -604,6 +604,8 @@ namespace System.Windows.Forms
         private bool _playing = false;
         private bool _updating = false;
 
+        private static WaveEncoding PreviousEncoding = WaveEncoding.ADPCM;
+
 #if RSTMLIB
         public BrstmConverterDialog(IAudioStream audioStream)
         {
@@ -621,7 +623,7 @@ namespace System.Windows.Forms
             ddlEncoding.Items.Clear();
             ddlEncoding.Items.Add(WaveEncoding.ADPCM);
             ddlEncoding.Items.Add(WaveEncoding.PCM16);
-            ddlEncoding.SelectedIndex = 0;
+            ddlEncoding.SelectedItem = PreviousEncoding;
         }
 
         new public DialogResult ShowDialog(IWin32Window owner)
@@ -912,6 +914,7 @@ namespace System.Windows.Forms
                 {
                     case 0:
                         var encoding = (WaveEncoding)ddlEncoding.SelectedItem;
+                        PreviousEncoding = encoding;
                         _audioData = RSTMConverter.Encode(_sourceStream, progress, encoding);
                         break;
                     case 1:
