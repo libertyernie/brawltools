@@ -287,9 +287,21 @@ namespace BrawlLib.Wii.Audio
                         int read = 0;
                         do
                         {
-                            if (stream.SamplePosition == stream.LoopEndSample && looped)
-                                stream.SamplePosition = stream.LoopStartSample;
-                            int s = stream.ReadSamples(sampleDataPtr + (read * channels), samplesPerChannel - read);
+                            // If this is a looped stream, we will want to pause at the loop end
+                            // point so that the next loop iteration knows to reset to the loop
+                            // start point. This is implemented here instead of in ReadSamples
+                            // because other code in BrawlLib assumes that a return value less
+                            // than numSamples indicates the stream has ended. It's not needed
+                            // in the ADPCM encoder, which only reads one sample at a time.
+
+                            int max = samplesPerChannel - read;
+                            if (looped) {
+                                if (stream.SamplePosition == stream.LoopEndSample)
+                                    stream.SamplePosition = stream.LoopStartSample;
+                                else if (stream.SamplePosition + max > stream.LoopEndSample)
+                                    max = stream.LoopEndSample - stream.SamplePosition;
+                            }
+                            int s = stream.ReadSamples(sampleDataPtr + (read * channels), max);
                             if (s == 0)
                                 throw new Exception("No samples could be read from the stream");
                             read += s;
