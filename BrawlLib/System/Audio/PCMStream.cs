@@ -6,10 +6,7 @@ namespace System.Audio
     public unsafe class PCMStream : IAudioStream
     {
         private IntPtr _allocatedHGlobal = IntPtr.Zero;
-#if RSTMLIB
-#else
         private BrawlLib.IO.FileMap _sourceMap;
-#endif
 
         private short* _source;
 
@@ -65,9 +62,7 @@ namespace System.Audio
                 _loopEnd = (int)loops[0]._dwEnd;
             }
         }
-
-#if RSTMLIB
-#else
+        
         internal PCMStream(short* source, int samples, int sampleRate, int channels, int bps)
         {
             _sourceMap = null;
@@ -97,7 +92,6 @@ namespace System.Audio
             _source = (short*)dataAddr;
             _samplePos = 0;
         }
-#endif
 
         internal static PCMStream[] GetStreams(RSTMHeader* pRSTM, VoidPtr dataAddr) {
             HEADHeader* pHeader = pRSTM->HEADData;
@@ -208,14 +202,11 @@ namespace System.Audio
 
         public void Dispose()
         {
-#if RSTMLIB
-#else
             if (_sourceMap != null)
             {
                 _sourceMap.Dispose();
                 _sourceMap = null;
             }
-#endif
             if (_allocatedHGlobal != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(_allocatedHGlobal);

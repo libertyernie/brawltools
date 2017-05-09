@@ -1,8 +1,5 @@
 ﻿using System;
-#if RSTMLIB
-#else
 using BrawlLib.IO;
-#endif
 using System.Audio;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
@@ -12,31 +9,7 @@ namespace BrawlLib.Wii.Audio
 {
     public static class RSTMConverter
     {
-#if RSTMLIB
-        public static unsafe IAudioStream[] CreateStreams(byte[] rstm)
-        {
-            fixed (byte* ptr = rstm)
-            {
-                return CreateStreams((RSTMHeader*)ptr);
-            }
-        }
-        static unsafe IAudioStream[] CreateStreams(RSTMHeader* rstm)
-        {
-            switch ((WaveEncoding)rstm->HEADData->Part1->_format._encoding) {
-                case WaveEncoding.ADPCM:
-                    return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
-                case WaveEncoding.PCM16:
-                    return PCMStream.GetStreams(rstm, rstm->DATAData->Data);
-            }
-            throw new Exception("RSTMLib does not support decoding RSTM files with this encoding.");
-        }
-#endif
-
-#if RSTMLIB
-        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
-#else
         public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
-#endif
         {
             int tmp;
             bool looped = stream.IsLooping;
@@ -108,16 +81,10 @@ namespace BrawlLib.Wii.Audio
                 ? ((blocks - 1) * 4 * channels + 0x10).Align(0x20)
                 : 0;
             int dataSize = ((blocks - 1) * 0x2000 + lbTotal) * channels + 0x20;
-
-#if RSTMLIB
-            //Create byte array
-            byte[] array = new byte[rstmSize + headSize + adpcSize + dataSize];
-            fixed (byte* address = array) {
-#else
+            
             //Create file map
             FileMap map = FileMap.FromTempFile(rstmSize + headSize + adpcSize + dataSize);
             VoidPtr address = map.Address;
-#endif
 
             //Get section pointers
             RSTMHeader* rstm = (RSTMHeader*)address;
@@ -319,13 +286,8 @@ namespace BrawlLib.Wii.Audio
 
             if (progress != null)
                 progress.Finish();
-
-#if RSTMLIB
-            }
-            return array;
-#else
+            
             return map;
-#endif
         }
     }
 }

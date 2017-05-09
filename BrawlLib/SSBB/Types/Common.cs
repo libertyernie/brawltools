@@ -208,9 +208,7 @@ namespace BrawlLib.SSBBTypes
             *((ruint*)Address + index) = new ruint(refType, dataType, (int)address - Address);
         }
     }
-
-#if RSTMLIB
-#else
+    
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct SSBBEntryHeader
     {
@@ -414,5 +412,4 @@ namespace BrawlLib.SSBBTypes
             }
         }
     }
-#endif
 }

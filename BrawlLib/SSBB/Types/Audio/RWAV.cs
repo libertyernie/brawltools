@@ -3,8 +3,6 @@ using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBBTypes
 {
-#if RSTMLIB
-#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     unsafe struct RWAV
     {
@@ -114,7 +112,6 @@ namespace BrawlLib.SSBBTypes
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
     }
-#endif
 
     public enum WaveEncoding
     {

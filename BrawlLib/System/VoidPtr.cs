@@ -8,6 +8,8 @@ namespace System
         //address
         public void* address;
 
+#if LOOP_SELECTION_DIALOG_LIB
+#else
         public byte Byte { get { return *(byte*)address; } }
         public sbyte SByte { get { return *(sbyte*)address; } }
         public ushort UShort { get { return *(bushort*)address; } }
@@ -15,6 +17,7 @@ namespace System
         public uint UInt { get { return *(buint*)address; } }
         public int Int { get { return *(bint*)address; } }
         public float Single { get { return *(bfloat*)address; } }
+#endif
 
         public static int operator -(VoidPtr p1, VoidPtr p2) { return checked((int)((byte*)p1.address - (byte*)p2.address)); }
 

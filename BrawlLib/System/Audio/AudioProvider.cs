@@ -15,7 +15,7 @@ namespace System.Audio
 
         public static AudioProvider Create(AudioDevice device)
         {
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
 #else
             if (device == null)
             {
