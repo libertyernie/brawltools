@@ -1372,10 +1372,6 @@ namespace BrawlLib.SSBBTypes
                 clrEnv = _oddColorEnv;
                 alphaEnv = _oddAlphaEnv;
                 cmd = _oddCmd;
-
-                _oddColorEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + (index << 1));
-                _oddAlphaEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + (index << 1));
-                _oddCmd.Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index);
             }
 
             clrEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + (index << 1));
