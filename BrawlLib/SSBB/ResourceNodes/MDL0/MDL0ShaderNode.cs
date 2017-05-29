@@ -240,16 +240,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             StageGroup* grp = Header->First;
             for (int r = 0; r < 8; r++, grp = grp->Next)
-                if (grp->mask.Reg == 0x61)
+                if (grp->_mask.Reg == 0x61)
                 {
                     MDL0TEVStageNode s0 = new MDL0TEVStageNode();
 
-                    KSel ksel = new KSel(grp->ksel.Data.Value);
-                    RAS1_TRef tref = new RAS1_TRef(grp->tref.Data.Value);
+                    KSel ksel = new KSel(grp->_ksel.Data.Value);
+                    RAS1_TRef tref = new RAS1_TRef(grp->_tref.Data.Value);
 
-                    s0._colorEnv = grp->eClrEnv.Data;
-                    s0._alphaEnv = grp->eAlpEnv.Data;
-                    s0._cmd = grp->eCMD.Data;
+                    s0._colorEnv = grp->_evenColorEnv.Data;
+                    s0._alphaEnv = grp->_evenAlphaEnv.Data;
+                    s0._cmd = grp->_evenCmd.Data;
 
                     s0._kcSel = ksel.KCSel0;
                     s0._kaSel = ksel.KASel0;
@@ -262,13 +262,13 @@ namespace BrawlLib.SSBB.ResourceNodes
                     s0._parent = this;
                     _children.Add(s0);
 
-                    if (grp->oClrEnv.Reg == 0x61 && grp->oAlpEnv.Reg == 0x61 && grp->oCMD.Reg == 0x61)
+                    if (grp->_oddColorEnv.Reg == 0x61 && grp->_oddAlphaEnv.Reg == 0x61 && grp->_oddCmd.Reg == 0x61)
                     {
                         MDL0TEVStageNode s1 = new MDL0TEVStageNode();
 
-                        s1._colorEnv = grp->oClrEnv.Data;
-                        s1._alphaEnv = grp->oAlpEnv.Data;
-                        s1._cmd = grp->oCMD.Data;
+                        s1._colorEnv = grp->_oddColorEnv.Data;
+                        s1._alphaEnv = grp->_oddAlphaEnv.Data;
+                        s1._cmd = grp->_oddCmd.Data;
 
                         s1._kcSel = ksel.KCSel1;
                         s1._kaSel = ksel.KASel1;
@@ -315,21 +315,21 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 MDL0TEVStageNode c = (MDL0TEVStageNode)Children[i]; //Current Stage
 
-                if (i % 2 == 0) //Even Stage
+                if ((i & 1) == 0) //Even Stage
                 {
                     *grp = StageGroup.Default;
 
-                    grp->SetGroup(i / 2);
+                    grp->SetGroup(i >> 1);
                     grp->SetStage(i);
 
-                    grp->eClrEnv.Data = c._colorEnv;
-                    grp->eAlpEnv.Data = c._alphaEnv;
-                    grp->eCMD.Data = c._cmd;
+                    grp->_evenColorEnv.Data = c._colorEnv;
+                    grp->_evenAlphaEnv.Data = c._alphaEnv;
+                    grp->_evenCmd.Data = c._cmd;
 
                     if (i == Children.Count - 1) //Last stage is even, odd stage isn't used
                     {
-                        grp->ksel.Data = new KSel(0, 0, c._kcSel, c._kaSel, 0, 0);
-                        grp->tref.Data = new RAS1_TRef(c._texMapID, c._texCoord, c._texEnabled, c._colorChan, TexMapID.TexMap7, TexCoordID.TexCoord7, false, ColorSelChan.Zero);
+                        grp->_ksel.Data = new KSel(0, 0, c._kcSel, c._kaSel, 0, 0);
+                        grp->_tref.Data = new RAS1_TRef(c._texMapID, c._texCoord, c._texEnabled, c._colorChan, TexMapID.TexMap7, TexCoordID.TexCoord7, false, ColorSelChan.Zero);
                     }
                 }
                 else //Odd Stage
@@ -338,12 +338,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
                     grp->SetStage(i);
 
-                    grp->oClrEnv.Data = c._colorEnv;
-                    grp->oAlpEnv.Data = c._alphaEnv;
-                    grp->oCMD.Data = c._cmd;
+                    grp->_oddColorEnv.Data = c._colorEnv;
+                    grp->_oddAlphaEnv.Data = c._alphaEnv;
+                    grp->_oddCmd.Data = c._cmd;
 
-                    grp->ksel.Data = new KSel(0, 0, p._kcSel, p._kaSel, c._kcSel, c._kaSel);
-                    grp->tref.Data = new RAS1_TRef(p._texMapID, p._texCoord, p._texEnabled, p._colorChan, c._texMapID, c._texCoord, c._texEnabled, c._colorChan);
+                    grp->_ksel.Data = new KSel(0, 0, p._kcSel, p._kaSel, c._kcSel, c._kaSel);
+                    grp->_tref.Data = new RAS1_TRef(p._texMapID, p._texCoord, p._texEnabled, p._colorChan, c._texMapID, c._texCoord, c._texEnabled, c._colorChan);
 
                     grp = grp->Next;
                 }
