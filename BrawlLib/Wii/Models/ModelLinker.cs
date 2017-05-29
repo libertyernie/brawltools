@@ -39,7 +39,7 @@ namespace BrawlLib.Wii.Models
             return false;
         }
 
-        internal static readonly System.Type[] TypeBank = new System.Type[] 
+        internal static readonly Type[] TypeBank = new Type[] 
         {
             typeof(MDL0DefNode), //0, special handling
             typeof(MDL0BoneNode),
@@ -134,9 +134,9 @@ namespace BrawlLib.Wii.Models
             BoneCache = new MDL0BoneNode[0];
 
             bint* offsets = (bint*)((byte*)pModel + 0x10);
-            if (Version >= 9 && Version <= 11)
+            if (Version >= 8 && Version <= 11)
             {
-                List<MDLResourceType> iList = IndexBank[Version];
+                List<MR> iList = IndexBank[Version];
                 int groupCount = iList.Count;
                 int offset;
 
@@ -176,22 +176,23 @@ namespace BrawlLib.Wii.Models
 
         public static ModelLinker Prepare(MDL0Node model)
         {
-            ModelLinker linker = new ModelLinker();
-
-            linker.Model = model;
-            linker.Version = model._version;
+            ModelLinker linker = new ModelLinker()
+            {
+                Model = model,
+                Version = model._version
+            };
 
             //Get flattened bone list and assign it to bone cache
             linker.RegenerateBoneCache();
 
-            MDLResourceType resType;
+            MR resType;
             int index;
-            List<MDLResourceType> iList = IndexBank[model._version];
+            List<MR> iList = IndexBank[model._version];
 
             foreach (MDL0GroupNode group in model.Children)
             {
                 //If version contains resource type, add it to group list
-                resType = (MDLResourceType)Enum.Parse(typeof(MDLResourceType), group.Name);
+                resType = (MR)Enum.Parse(typeof(MR), group.Name);
                 if ((index = iList.IndexOf(resType)) >= 0)
                     linker.Groups[(int)resType] = group;
             }
@@ -207,12 +208,12 @@ namespace BrawlLib.Wii.Models
             int len;
 
             //Write data in the order it appears
-            foreach (MDLResourceType resType in OrderBank)
+            foreach (MR resType in OrderBank)
             {
                 if (((group = Groups[(int)resType]) == null) || SpecialRebuildData((int)resType))
                     continue;
 
-                if (resType == MDLResourceType.Bones)
+                if (resType == MR.Bones)
                 {
                     if (form != null)
                         form.Say("Writing Bones");
@@ -229,9 +230,9 @@ namespace BrawlLib.Wii.Models
                     foreach (MDL0BoneNode e in BoneCache)
                         e.CalculateOffsets();
                 }
-                else if (resType == MDLResourceType.Shaders)
+                else if (resType == MR.Shaders)
                 {
-                    MDL0GroupNode mats = Groups[(int)MDLResourceType.Materials];
+                    MDL0GroupNode mats = Groups[(int)MR.Materials];
                     MDL0Material* mHeader;
 
                     if (form != null)
@@ -261,7 +262,7 @@ namespace BrawlLib.Wii.Models
                             mHeader->_shaderOffset = 0;
                     }
                 }
-                else if (resType == MDLResourceType.Objects || resType == MDLResourceType.Materials)
+                else if (resType == MR.Objects || resType == MR.Materials)
                 {
                     foreach (ResourceNode r in group.Children)
                     {
@@ -301,22 +302,22 @@ namespace BrawlLib.Wii.Models
 
             //Write relocation offsets in the order of the header
             fixed (ResourceGroup** pOut = &Defs)
-                foreach (MDLResourceType resType in IndexBank[Version])
+                foreach (MR resType in IndexBank[Version])
                 {
                     if (((group = Groups[(int)resType]) == null) || SpecialRebuildData((int)resType))
                         continue;
 
                     pOut[(int)resType] = pGrp = (ResourceGroup*)pGroup;
                     pEntry = &pGrp->_first + 1;
-                    if (resType == MDLResourceType.Bones)
+                    if (resType == MR.Bones)
                     {
                         *pGrp = new ResourceGroup(BoneCache.Length);
                         foreach (ResourceNode e in BoneCache)
                             (pEntry++)->_dataOffset = (int)((byte*)(e.WorkingUncompressed.Address) - pGroup);
                     }
-                    else if (resType == MDLResourceType.Shaders)
+                    else if (resType == MR.Shaders)
                     {
-                        MDL0GroupNode mats = Groups[(int)MDLResourceType.Materials];
+                        MDL0GroupNode mats = Groups[(int)MR.Materials];
 
                         if (mats != null)
                         {
@@ -340,8 +341,8 @@ namespace BrawlLib.Wii.Models
         //Write stored offsets to MDL header
         public void Finish()
         {
-            List<MDLResourceType> iList = IndexBank[Version];
-            MDLResourceType resType;
+            List<MR> iList = IndexBank[Version];
+            MR resType;
             bint* pOffset = (bint*)Header + 4;
             int count = iList.Count, offset;
 
