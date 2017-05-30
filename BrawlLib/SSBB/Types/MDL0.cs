@@ -1356,12 +1356,12 @@ namespace BrawlLib.SSBBTypes
 
         public void SetStage(int index) 
         {
-            BPCommand clrEnv, alphaEnv, cmd;
-            if (index % 2 == 0) //Even
+            BPCommand* clrEnv, alphaEnv, cmd;
+            if ((index & 1) == 0) //Even
             {
-                clrEnv = _evenColorEnv;
-                alphaEnv = _evenAlphaEnv;
-                cmd = _evenCmd;
+                clrEnv = (BPCommand*)_evenColorEnv.Address;
+                alphaEnv = (BPCommand*)_evenAlphaEnv.Address;
+                cmd = (BPCommand*)_evenCmd.Address;
             }
             else //Odd
             {
@@ -1369,18 +1369,17 @@ namespace BrawlLib.SSBBTypes
                 _oddAlphaEnv.Reg = 
                 _oddCmd.Reg = 0x61;
 
-                clrEnv = _oddColorEnv;
-                alphaEnv = _oddAlphaEnv;
-                cmd = _oddCmd;
+                clrEnv = (BPCommand*)_oddColorEnv.Address;
+                alphaEnv = (BPCommand*)_oddAlphaEnv.Address;
+                cmd = (BPCommand*)_oddCmd.Address;
             }
 
-            clrEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + (index << 1));
-            alphaEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + (index << 1));
-            cmd.Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index);
+            clrEnv->Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + (index << 1));
+            alphaEnv->Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + (index << 1));
+            cmd->Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index);
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-
         public StageGroup* Next { get { return (StageGroup*)(Address + 0x30); } }
     }
 
