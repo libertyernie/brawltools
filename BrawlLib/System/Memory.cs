@@ -11,17 +11,12 @@ namespace System
                 case PlatformID.Win32NT:
                     Win32.MoveMemory(dst, src, size);
                     break;
-                case PlatformID.MacOSX:
-                    OSX.memmove(dst, src, size);
-                    break;
-                case PlatformID.Unix:
-                    if (Directory.Exists("/Applications")
-                        & Directory.Exists("/System")
-                        & Directory.Exists("/Users")
-                        & Directory.Exists("/Volumes"))
-                        goto case PlatformID.MacOSX;
-                    else
-                        Linux.memmove(dst, src, size);
+                default:
+                    byte* bsrc = (byte*)src;
+                    byte* bdst = (byte*)dst;
+                    for (uint i = 0; i < size; i++) {
+                        bdst[i] = bsrc[i];
+                    }
                     break;
             }
         }
@@ -34,20 +29,12 @@ namespace System
                     Win32.FillMemory(dest, length, value); 
                     break; 
                 }
-                case PlatformID.MacOSX: { 
-                    OSX.memset(dest, value, length); 
-                    break; 
-                }
-                case PlatformID.Unix: { 
-                    if (Directory.Exists("/Applications")
-                        & Directory.Exists("/System")
-                        & Directory.Exists("/Users")
-                        & Directory.Exists("/Volumes"))
-                        goto case PlatformID.MacOSX;
-                    else
-                        Linux.memset(dest, value, length); 
-                    break; 
-                }
+                default:
+                    byte* ptr = (byte*)dest;
+                    for (int i = 0; i < length; i++) {
+                        ptr[i] = value;
+                    }
+                    break;
             }
         }
     }

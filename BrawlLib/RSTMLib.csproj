@@ -46,8 +46,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Platform\Linux.cs" />
-    <Compile Include="Platform\OSX.cs" />
     <Compile Include="Platform\Win32.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />
     <Compile Include="Platform\Win32.DirectSoundBuffer.cs" />
