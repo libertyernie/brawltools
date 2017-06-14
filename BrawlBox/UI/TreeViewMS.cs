@@ -75,6 +75,13 @@ namespace BrawlBox {
 			    m_lastNode = e.Node;
 			    if (!bShift) m_firstNode = e.Node; // store begin of shift sequence
             }
+            else
+            {
+                if (m_coll != null && m_coll.Count > 0) {
+                    removePaintFromNodes();
+                    m_coll.Clear();
+                }
+            }
 		}
 
 
