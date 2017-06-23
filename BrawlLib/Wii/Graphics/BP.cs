@@ -16,6 +16,8 @@ namespace BrawlLib.Wii.Graphics
         public byte Reg; //0x61
         public BPMemory Mem;
         public BUInt24 Data;
+
+        public VoidPtr Address { get { fixed (void* p = &this) return p; } }
     }
     
     [StructLayout(LayoutKind.Sequential, Pack = 1)]

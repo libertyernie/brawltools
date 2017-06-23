@@ -262,6 +262,7 @@
     <Compile Include="System\AttributeInfo.cs" />
     <Compile Include="System\Audio\alAudioProvider.cs" />
     <Compile Include="System\Audio\alAudioBuffer.cs" />
+    <Compile Include="System\Audio\WaveFormatEx.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Drawing\BitmapExtension.cs" />
     <Compile Include="System\Box.cs" />

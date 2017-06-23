@@ -14,12 +14,19 @@ they be held accountable for the manner in which it is used.
 |************ Change Log ************|
  ====================================
  
- - v0.78 (1/28/17) - BrawlLib 0.25
- . Added a facility for writing BrawlBox plugins in Python (bboxapi). A few samples are included.
+ - v0.78 - BrawlLib 0.25
+
+ Hotfix 1 (3/20/17)
+ . Fixed an RSTM decoding regression (issue #108)
+ . Avoid memory leak when using OpenAL for audio
+
+ Initial Release (3/11/17)
+ . Added a facility for writing BrawlBox plugins in Python (bboxapi). A sample plugin is included.
  . Added support for more filetypes in Export All and Replace All
  . Changed Export All and Replace All to create/use subfolders for children of ARC and BRES nodes
  . Added multi-select support (using Ctrl or Shift buttons) to the BrawlBox tree view. If all selected nodes are CHR0 animations or individual CHR0 entries, you can launch the "Edit All Animations" dialog from the right-click menu.
  . Changed the default scale value in "Edit All Animations" to from 0 to 1
+ . Fixed a bug where animations that were only changed because of "Edit All" weren't saved
  . Added support for encoding and decoding 16-bit PCM in RSTM containers
  . Added "swap RGB" and "swap alpha" options to the texture converter dialog. "Swap alpha" will be turned on automatically if there are more distinct RGB values among fully transparent pixels than among partially opaque pixels.
  . Added OpenAL audio output support (if OpenAL is not available, DirectSound will be used like before)
@@ -31,7 +38,9 @@ they be held accountable for the manner in which it is used.
  . Fixed crash opening an RWSD with no labels
  . Fixed weight editor bugs
  . Fixed ADPCM encoding to match Nintendo's implementation (pull requests #59 and #68)
+ . Fixed bug when trying to determine the encoding of a .bfstm or .brstm file
  . Fixed model import bug where bones that were not included in any skin modifier were not imported
+ . Fixed bug where RASD nodes found in "External" BRES folders would not allow the BRES to be saved
  . Various MDL0 fixes
 
 

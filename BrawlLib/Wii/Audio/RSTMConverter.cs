@@ -1,8 +1,5 @@
 ﻿using System;
-#if RSTMLIB
-#else
 using BrawlLib.IO;
-#endif
 using System.Audio;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
@@ -12,31 +9,7 @@ namespace BrawlLib.Wii.Audio
 {
     public static class RSTMConverter
     {
-#if RSTMLIB
-        public static unsafe IAudioStream[] CreateStreams(byte[] rstm)
-        {
-            fixed (byte* ptr = rstm)
-            {
-                return CreateStreams((RSTMHeader*)ptr);
-            }
-        }
-        static unsafe IAudioStream[] CreateStreams(RSTMHeader* rstm)
-        {
-            switch ((WaveEncoding)rstm->HEADData->Part1->_format._encoding) {
-                case WaveEncoding.ADPCM:
-                    return ADPCMStream.GetStreams(rstm, rstm->DATAData->Data);
-                case WaveEncoding.PCM16:
-                    return PCMStream.GetStreams(rstm, rstm->DATAData->Data);
-            }
-            throw new Exception("RSTMLib does not support decoding RSTM files with this encoding.");
-        }
-#endif
-
-#if RSTMLIB
-        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
-#else
         public static unsafe FileMap Encode(IAudioStream stream, IProgressTracker progress, WaveEncoding encoding = WaveEncoding.ADPCM)
-#endif
         {
             int tmp;
             bool looped = stream.IsLooping;
@@ -108,16 +81,10 @@ namespace BrawlLib.Wii.Audio
                 ? ((blocks - 1) * 4 * channels + 0x10).Align(0x20)
                 : 0;
             int dataSize = ((blocks - 1) * 0x2000 + lbTotal) * channels + 0x20;
-
-#if RSTMLIB
-            //Create byte array
-            byte[] array = new byte[rstmSize + headSize + adpcSize + dataSize];
-            fixed (byte* address = array) {
-#else
+            
             //Create file map
             FileMap map = FileMap.FromTempFile(rstmSize + headSize + adpcSize + dataSize);
             VoidPtr address = map.Address;
-#endif
 
             //Get section pointers
             RSTMHeader* rstm = (RSTMHeader*)address;
@@ -271,6 +238,7 @@ namespace BrawlLib.Wii.Audio
             else if (encoding == WaveEncoding.PCM16)
             {
                 bshort* destPtr = (bshort*)data->Data;
+                stream.SamplePosition = 0;
                 for (int i=0; i<blocks; i++)
                 {
                     int samplesPerChannel = i < blocks - 1
@@ -286,9 +254,21 @@ namespace BrawlLib.Wii.Audio
                         int read = 0;
                         do
                         {
-                            if (stream.SamplePosition == stream.LoopEndSample && looped)
-                                stream.SamplePosition = stream.LoopStartSample;
-                            int s = stream.ReadSamples(sampleDataPtr + read, samplesPerChannel - read);
+                            // If this is a looped stream, we will want to pause at the loop end
+                            // point so that the next loop iteration knows to reset to the loop
+                            // start point. This is implemented here instead of in ReadSamples
+                            // because other code in BrawlLib assumes that a return value less
+                            // than numSamples indicates the stream has ended. It's not needed
+                            // in the ADPCM encoder, which only reads one sample at a time.
+
+                            int max = samplesPerChannel - read;
+                            if (looped) {
+                                if (stream.SamplePosition == stream.LoopEndSample)
+                                    stream.SamplePosition = stream.LoopStartSample;
+                                else if (stream.SamplePosition + max > stream.LoopEndSample)
+                                    max = stream.LoopEndSample - stream.SamplePosition;
+                            }
+                            int s = stream.ReadSamples(sampleDataPtr + (read * channels), max);
                             if (s == 0)
                                 throw new Exception("No samples could be read from the stream");
                             read += s;
@@ -306,13 +286,8 @@ namespace BrawlLib.Wii.Audio
 
             if (progress != null)
                 progress.Finish();
-
-#if RSTMLIB
-            }
-            return array;
-#else
+            
             return map;
-#endif
         }
     }
 }

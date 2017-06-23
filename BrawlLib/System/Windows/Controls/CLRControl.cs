@@ -235,6 +235,19 @@ namespace System.Windows.Forms
         private GoodColorDialog _dlgColor;
         private GradientDialog _dlgGradient;
 
+        private IList<int> SelectedIndices
+        {
+            get
+            {
+                var indices = lstColors.SelectedIndices;
+                int[] array = new int[indices.Count];
+                for (int i=0; i<array.Length; i++) {
+                    array[i] = indices[i];
+                }
+                return array;
+            }
+        }
+
         public CLRControl() 
         { 
             InitializeComponent();
@@ -293,7 +306,7 @@ namespace System.Windows.Forms
         }
         private void lstColors_DoubleClick(object sender, EventArgs e)
         {
-            ListBox.SelectedIndexCollection indices = lstColors.SelectedIndices;
+            var indices = SelectedIndices;
             if ((_colorSource == null) || (indices.Count <= 0))
                 return;
 
@@ -470,7 +483,7 @@ namespace System.Windows.Forms
 
         private void allToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var indices = lstColors.SelectedIndices;
+            var indices = SelectedIndices;
             if (indices.Count >= 0)
             {
                 int v = 0;
@@ -489,7 +502,7 @@ namespace System.Windows.Forms
 
         private void colorToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var indices = lstColors.SelectedIndices;
+            var indices = SelectedIndices;
             if (indices.Count >= 0)
             {
                 int v = 0;
@@ -512,7 +525,7 @@ namespace System.Windows.Forms
 
         private void alphaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var indices = lstColors.SelectedIndices;
+            var indices = SelectedIndices;
             if (indices.Count >= 0)
             {
                 int v = 0;

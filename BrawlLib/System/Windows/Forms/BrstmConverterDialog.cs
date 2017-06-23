@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel;
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
 #else
 using BrawlLib.IO;
+using BrawlLib.SSBBTypes;
+using BrawlLib.Wii.Audio;
 #endif
 using System.Audio;
-using BrawlLib.Wii.Audio;
-using BrawlLib.SSBBTypes;
 
 namespace System.Windows.Forms
 {
@@ -582,17 +582,14 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AudioSource { get { return _audioSource; } set { _audioSource = value; } }
 
-#if RSTMLIB
-        private byte[] _audioData;
-        public byte[] AudioData { get { return _audioData; } }
+#if LOOP_SELECTION_DIALOG_LIB
+        private object _audioData { set { } }
 #else
         private FileMap _audioData;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap AudioData { get { return _audioData; } set { _audioData = value; } }
-#endif
 
-#if RSTMLIB
-        
+        private static WaveEncoding PreviousEncoding = WaveEncoding.ADPCM;
 #endif
 
         private AudioProvider _provider;
@@ -604,7 +601,7 @@ namespace System.Windows.Forms
         private bool _playing = false;
         private bool _updating = false;
 
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
         public BrstmConverterDialog(IAudioStream audioStream)
         {
             _sourceStream = audioStream;
@@ -612,16 +609,16 @@ namespace System.Windows.Forms
 #else
         public BrstmConverterDialog()
         {
+
+            ddlEncoding.Items.Clear();
+            ddlEncoding.Items.Add(WaveEncoding.ADPCM);
+            ddlEncoding.Items.Add(WaveEncoding.PCM16);
+            ddlEncoding.SelectedItem = PreviousEncoding;
 #endif
             InitializeComponent();
             tmrUpdate.Interval = 1000 / 60;
             dlgOpen.Filter = "PCM Audio (*.wav)|*.wav";
             MaximumSize = new Drawing.Size(int.MaxValue, 216);
-
-            ddlEncoding.Items.Clear();
-            ddlEncoding.Items.Add(WaveEncoding.ADPCM);
-            ddlEncoding.Items.Add(WaveEncoding.PCM16);
-            ddlEncoding.SelectedIndex = 0;
         }
 
         new public DialogResult ShowDialog(IWin32Window owner)
@@ -651,7 +648,7 @@ namespace System.Windows.Forms
                     btnPlay.Enabled = false;
             }
 
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
             // _sourceStream is already populated by the constructor.
             LoadAudio("Internal audio");
             btnBrowse.Visible = false;
@@ -700,7 +697,7 @@ namespace System.Windows.Forms
                 _buffer = null;
             }
 
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
 #else
             //Dispose stream
             if (_sourceStream != null)
@@ -724,7 +721,7 @@ namespace System.Windows.Forms
         {
             DisposeSource();
 
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
 #else
             //Get audio stream
             _sourceStream = WAV.FromFile(path);
@@ -772,7 +769,7 @@ namespace System.Windows.Forms
             if (_type != 0)
                 groupBox3.Visible = false;
 
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
             groupBox3.Visible = false;
 #endif
 
@@ -905,13 +902,14 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             Stop();
-#if RSTMLIB
+#if LOOP_SELECTION_DIALOG_LIB
 #else
             using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
                 switch (_type)
                 {
                     case 0:
                         var encoding = (WaveEncoding)ddlEncoding.SelectedItem;
+                        PreviousEncoding = encoding;
                         _audioData = RSTMConverter.Encode(_sourceStream, progress, encoding);
                         break;
                     case 1:

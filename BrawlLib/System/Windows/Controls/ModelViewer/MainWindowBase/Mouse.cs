@@ -176,6 +176,12 @@ namespace System.Windows.Forms
 
         protected virtual void modelPanel1_MouseUp(object sender, MouseEventArgs e)
         {
+            if (_createdNewBone && SelectedBone != null)
+            {
+                SelectedBone.BindState = SelectedBone.FrameState;
+                SelectedBone.RecalcBindState(false, false, false);
+            }
+
             _createdNewBone = false;
 
             bool temp = TargetModel != null && TargetModel is MDL0Node;
@@ -185,7 +191,7 @@ namespace System.Windows.Forms
                 m._dontUpdateMesh = false;
             }
 
-            if (e.Button == Forms.MouseButtons.Left)
+            if (e.Button == MouseButtons.Left)
             {
                 ModelPanel panel = sender as ModelPanel;
 
@@ -385,17 +391,12 @@ namespace System.Windows.Forms
                         MDL0BoneNode b = SelectedBone as MDL0BoneNode;
                         MDL0Node model = b.Model;
                         MDL0BoneNode newBone = new MDL0BoneNode();
-                        newBone.Scale = new Vector3(1.0f);
-                        newBone._bindMatrix =
-                        newBone._inverseBindMatrix =
-                        newBone._frameMatrix =
-                        newBone._inverseFrameMatrix =
-                        Matrix.Identity;
+                        string name = "NewBone";
                         if (model != null)
                         {
+                            name += "0";
                             int id = 1;
-                            string name = "NewBone0";
-                        Top:
+                            Top:
                             foreach (MDL0BoneNode x in model._linker.BoneCache)
                             {
                                 if (x.Name == name)
@@ -404,19 +405,19 @@ namespace System.Windows.Forms
                                     goto Top;
                                 }
                             }
-                            newBone.Name = name;
                             newBone._entryIndex = model._linker.BoneCache.Length;
-                            b.AddChild(newBone);
-                            model._linker.RegenerateBoneCache();
-                        }
-                        else
-                        {
-                            newBone.Name = "NewBone";
-                            b.AddChild(newBone);
                         }
 
-                        if (BonesPanel != null)
-                            BonesPanel.Reset();
+                        newBone.Name = name;
+                        newBone.FrameState = newBone.BindState = FrameState.Neutral;
+
+                        b.AddChild(newBone);
+
+                        newBone.RecalcFrameState();
+                        newBone.RecalcBindState(false, false, false);
+
+                        model?._linker.RegenerateBoneCache();
+                        BonesPanel?.Reset();
 
                         SelectedBone = newBone;
                     }

@@ -6,10 +6,7 @@ namespace System.Audio
     public unsafe class PCMStream : IAudioStream
     {
         private IntPtr _allocatedHGlobal = IntPtr.Zero;
-#if RSTMLIB
-#else
         private BrawlLib.IO.FileMap _sourceMap;
-#endif
 
         private short* _source;
 
@@ -65,9 +62,7 @@ namespace System.Audio
                 _loopEnd = (int)loops[0]._dwEnd;
             }
         }
-
-#if RSTMLIB
-#else
+        
         internal PCMStream(short* source, int samples, int sampleRate, int channels, int bps)
         {
             _sourceMap = null;
@@ -97,7 +92,6 @@ namespace System.Audio
             _source = (short*)dataAddr;
             _samplePos = 0;
         }
-#endif
 
         internal static PCMStream[] GetStreams(RSTMHeader* pRSTM, VoidPtr dataAddr) {
             HEADHeader* pHeader = pRSTM->HEADData;
@@ -132,20 +126,23 @@ namespace System.Audio
                 int bs = (block == info->_numBlocks - 1)
                     ? info->_lastBlockSize
                     : info->_blockSize;
+                int bt = (block == info->_numBlocks - 1)
+                    ? info->_lastBlockTotal
+                    : info->_blockSize;
 
                 if (block == 0)
                 {
-                    fromL += (bs * startChannel);
-                    fromR += (bs * startChannel);
+                    fromL += (bt * startChannel);
+                    fromR += (bt * startChannel);
                 }
                 else
                 {
-                    fromL += bs * (info->_format._channels - channels);
-                    fromR += bs * (info->_format._channels - channels);
+                    fromL += bt * (info->_format._channels - channels);
+                    fromR += bt * (info->_format._channels - channels);
                 }
 
                 if (stereo)
-                    fromR += bs;
+                    fromR += bt;
                 for (int i=0; i<bs; i+=2)
                 {
                     to[0] = fromL[1];
@@ -160,8 +157,13 @@ namespace System.Audio
                         to += 2;
                     }
                 }
+                for (int i = bs; i < bt; i++)
+                {
+                    fromL++;
+                    fromR++;
+                }
                 if (stereo)
-                    fromL += bs;
+                    fromL += bt;
             }
 
             _bps = 16;
@@ -200,14 +202,11 @@ namespace System.Audio
 
         public void Dispose()
         {
-#if RSTMLIB
-#else
             if (_sourceMap != null)
             {
                 _sourceMap.Dispose();
                 _sourceMap = null;
             }
-#endif
             if (_allocatedHGlobal != IntPtr.Zero)
             {
                 Marshal.FreeHGlobal(_allocatedHGlobal);

@@ -2,6 +2,7 @@
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
+using BrawlLib.Modeling;
 
 namespace BrawlBox.NodeWrappers
 {
@@ -171,16 +172,14 @@ namespace BrawlBox.NodeWrappers
                     goto Top;
                 }
             }
+
             MDL0BoneNode bone = new MDL0BoneNode() { Name = name, _entryIndex = model._linker.BoneCache.Length };
-            bone.Scale = new Vector3(1.0f);
-
-            bone._bindMatrix = 
-            bone._inverseBindMatrix = 
-            bone._frameMatrix =
-            bone._inverseFrameMatrix = 
-            Matrix.Identity;
-
+            bone.FrameState = bone.BindState = FrameState.Neutral;
             _resource.AddChild(bone, true);
+
+            bone.RecalcFrameState();
+            bone.RecalcBindState(false, false, false);
+            
             model._linker.RegenerateBoneCache();
 
             TreeView.EndUpdate();

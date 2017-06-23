@@ -569,17 +569,18 @@ namespace System.Windows.Forms
 
         public Bitmap GetScreenshot(Rectangle region, bool withTransparency)
         {
-            GL.ReadBuffer(ReadBufferMode.Back);
+            GL.ReadBuffer(ReadBufferMode.Front);
+            GL.PixelStore(PixelStoreParameter.UnpackAlignment, 1);
             Bitmap bmp = new Bitmap(region.Width,  region.Height);
             BitmapData data;
             if (withTransparency)
             {
-                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, Drawing.Imaging.PixelFormat.Format32bppArgb);
                 GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgra, PixelType.UnsignedByte, data.Scan0);
             }
             else
             {
-                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+                data = bmp.LockBits(new Rectangle(0, 0, region.Width, region.Height), ImageLockMode.WriteOnly, Drawing.Imaging.PixelFormat.Format24bppRgb);
                 GL.ReadPixels(region.X, region.Y, region.Width, region.Height, OpenTK.Graphics.OpenGL.PixelFormat.Bgr, PixelType.UnsignedByte, data.Scan0);
             }
             bmp.UnlockBits(data);

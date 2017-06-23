@@ -645,7 +645,8 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             {
                 //Get all objects that are influenced by these bones
                 List<MDL0ObjectNode> changed = new List<MDL0ObjectNode>();
-                RecursiveGetInfluencedObjects(ref changed);
+                if (moveMeshWithBone || updateAssetLists)
+                    RecursiveGetInfluencedObjects(ref changed);
 
                 if (!moveMeshWithBone) //Need to stop vertices rigged to one bone from moving
                     RecursiveRecalcBindState(false, false);

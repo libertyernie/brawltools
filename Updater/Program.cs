@@ -24,6 +24,10 @@ namespace Net
         public static async Task UpdateCheck() { await UpdateCheck(false); }
         public static async Task UpdateCheck(bool Overwrite)
         {
+            if (AppPath.EndsWith("lib", StringComparison.CurrentCultureIgnoreCase)) {
+                AppPath = AppPath.Substring(0, AppPath.Length - 4);
+            }
+
             // check to see if the user is online, and that github is up and running.
             Console.WriteLine("Checking connection to server.");
             using (Ping s = new Ping())
@@ -83,6 +87,16 @@ namespace Net
                 try
                 {
                     releases = await github.Release.GetAll("libertyernie", "brawltools");
+
+                    // Check if this is a known pre-release version
+                    bool isPreRelease = releases.Any(r => r.Prerelease
+                        && string.Equals(releases[0].TagName, releaseTag, StringComparison.InvariantCulture)
+                        && r.Name.IndexOf("BrawlBox", StringComparison.InvariantCultureIgnoreCase) >= 0);
+
+                    // If this is not a known pre-release version, remove all pre-release versions from the list
+                    if (!isPreRelease) {
+                        releases = releases.Where(r => !r.Prerelease).ToList();
+                    }
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -227,6 +241,8 @@ namespace Net
 
         static void Main(string[] args)
         {
+            System.Windows.Forms.Application.EnableVisualStyles();
+            
             //Prevent crash that occurs when this dll is not present
             if (!File.Exists(System.Windows.Forms.Application.StartupPath + "/Octokit.dll"))
             {

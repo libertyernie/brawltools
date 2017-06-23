@@ -1325,57 +1325,61 @@ namespace BrawlLib.SSBBTypes
 
         public const int Size = 0x30;
         
-        public BPCommand mask; //KSel Mask - Selection Mode (XRB = 0, XGA = 0)
-        public BPCommand ksel; //KSel
-        public BPCommand tref; //TRef
-        public BPCommand eClrEnv; //Color Env Even
-        public BPCommand oClrEnv; //Color Env Odd (Optional)
-        public BPCommand eAlpEnv; //Alpha Env Even
-        public BPCommand oAlpEnv; //Alpha Env Odd (Optional)
-        public BPCommand eCMD; //CMD (Indirect Texture) Even
-        public BPCommand oCMD; //CMD (Indirect Texture) Odd (Optional)
+        public BPCommand _mask; //KSel Mask - Selection Mode (XRB = 0, XGA = 0)
+        public BPCommand _ksel; //KSel
+        public BPCommand _tref; //TRef
+        public BPCommand _evenColorEnv; //Color Env Even
+        public BPCommand _oddColorEnv; //Color Env Odd (Optional)
+        public BPCommand _evenAlphaEnv; //Alpha Env Even
+        public BPCommand _oddAlphaEnv; //Alpha Env Odd (Optional)
+        public BPCommand _evenCmd; //CMD (Indirect Texture) Even
+        public BPCommand _oddCmd; //CMD (Indirect Texture) Odd (Optional)
 
         public static readonly StageGroup Default = new StageGroup()
         {
-            mask = new BPCommand(true) { Mem = BPMemory.BPMEM_BP_MASK, Data = new BUInt24(0xFFFFF0) },
-            ksel = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_KSEL0 },
-            tref = new BPCommand(true) { Mem = BPMemory.BPMEM_TREF0 },
-            eClrEnv = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_COLOR_ENV_0 },
-            oClrEnv = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
-            eAlpEnv = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_ALPHA_ENV_0 },
-            oAlpEnv = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
-            eCMD = new BPCommand(true) { Mem = BPMemory.BPMEM_IND_CMD0 },
-            oCMD = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
+            _mask = new BPCommand(true) { Mem = BPMemory.BPMEM_BP_MASK, Data = new BUInt24(0xFFFFF0) },
+            _ksel = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_KSEL0 },
+            _tref = new BPCommand(true) { Mem = BPMemory.BPMEM_TREF0 },
+            _evenColorEnv = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_COLOR_ENV_0 },
+            _oddColorEnv = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
+            _evenAlphaEnv = new BPCommand(true) { Mem = BPMemory.BPMEM_TEV_ALPHA_ENV_0 },
+            _oddAlphaEnv = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
+            _evenCmd = new BPCommand(true) { Mem = BPMemory.BPMEM_IND_CMD0 },
+            _oddCmd = new BPCommand(false) { Mem = BPMemory.BPMEM_GENMODE },
         };
 
         public void SetGroup(int index)
         {
-            ksel.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_KSEL0 + index);
-            tref.Mem = (BPMemory)((int)BPMemory.BPMEM_TREF0 + index);    
+            _ksel.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_KSEL0 + index);
+            _tref.Mem = (BPMemory)((int)BPMemory.BPMEM_TREF0 + index);    
         }
 
         public void SetStage(int index) 
         {
-            if (index % 2 == 0) //Even
+            BPCommand* clrEnv, alphaEnv, cmd;
+            if ((index & 1) == 0) //Even
             {
-                eClrEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + index * 2);
-                eAlpEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + index * 2);
-                eCMD.Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index * 2);  
+                clrEnv = (BPCommand*)_evenColorEnv.Address;
+                alphaEnv = (BPCommand*)_evenAlphaEnv.Address;
+                cmd = (BPCommand*)_evenCmd.Address;
             }
             else //Odd
             {
-                oClrEnv.Reg = 
-                oAlpEnv.Reg = 
-                oCMD.Reg = 0x61;
+                _oddColorEnv.Reg = 
+                _oddAlphaEnv.Reg = 
+                _oddCmd.Reg = 0x61;
 
-                oClrEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + index * 2);
-                oAlpEnv.Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + index * 2);
-                oCMD.Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index * 2);  
+                clrEnv = (BPCommand*)_oddColorEnv.Address;
+                alphaEnv = (BPCommand*)_oddAlphaEnv.Address;
+                cmd = (BPCommand*)_oddCmd.Address;
             }
+
+            clrEnv->Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_COLOR_ENV_0 + (index << 1));
+            alphaEnv->Mem = (BPMemory)((int)BPMemory.BPMEM_TEV_ALPHA_ENV_0 + (index << 1));
+            cmd->Mem = (BPMemory)((int)BPMemory.BPMEM_IND_CMD0 + index);
         }
 
         private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
-
         public StageGroup* Next { get { return (StageGroup*)(Address + 0x30); } }
     }
 

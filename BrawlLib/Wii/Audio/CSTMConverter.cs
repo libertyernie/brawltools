@@ -1,8 +1,4 @@
 ﻿using System;
-#if RSTMLIB
-#else
-using BrawlLib.IO;
-#endif
 using System.Audio;
 using BrawlLib.SSBBTypes;
 using System.Runtime.InteropServices;
@@ -120,28 +116,5 @@ namespace BrawlLib.Wii.Audio
             }
             return array;
         }
-
-#if RSTMLIB
-        public static unsafe byte[] FromRSTM(byte[] rstm)
-        {
-            fixed (byte* ptr = rstm)
-            {
-                return FromRSTM((RSTMHeader*)ptr);
-            }
-        }
-
-        public static unsafe byte[] ToRSTM(byte[] cstm)
-        {
-            fixed (byte* ptr = cstm)
-            {
-                return ToRSTM((CSTMHeader*)ptr);
-            }
-        }
-
-        public static unsafe byte[] EncodeToByteArray(IAudioStream stream, IProgressTracker progress)
-        {
-            return FromRSTM(RSTMConverter.EncodeToByteArray(stream, progress));
-        }
-#endif
     }
 }

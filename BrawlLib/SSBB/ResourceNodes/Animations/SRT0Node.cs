@@ -456,6 +456,39 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public override void Export(string outPath) {
+            string temp1 = Path.GetTempFileName();
+            string temp2 = Path.GetTempFileName();
+
+            Parent.Rebuild();
+            Parent.Export(temp1);
+
+            int index = Parent.Children.IndexOf(this);
+
+            using (ResourceNode copied = NodeFactory.FromFile(null, temp1)) {
+                for (int i = 0; i < index; i++) {
+                    copied.RemoveChild(copied.Children[0]);
+                }
+                while (copied.Children.Count > 1) {
+                    copied.RemoveChild(copied.Children[1]);
+                }
+                copied.Export(temp2);
+            }
+
+            using (ResourceNode copied = NodeFactory.FromFile(null, temp2)) {
+                SRT0EntryNode entry = (SRT0EntryNode)copied.Children[0];
+                int dataLen = entry.OnCalculateSize(true);
+                using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess)) {
+                    stream.SetLength(dataLen);
+                    using (FileMap map = FileMap.FromStream(stream))
+                        Memory.Move(map.Address, entry.WorkingSource.Address, (uint)dataLen);
+                }
+            }
+
+            File.Delete(temp1);
+            File.Delete(temp2);
+        }
+
         public override int OnCalculateSize(bool force)
         {
             _texIndices = 0;
@@ -598,8 +631,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                if (_keyframes == null)
+                if (_keyframes == null) {
+                    System.Diagnostics.Debug.WriteLine((IntPtr)Header);
                     _keyframes = AnimationConverter.DecodeKeyframes(Header, Parent != null ? Parent.Parent as SRT0Node : null, 5, 1, 1);
+                }
                 return _keyframes;
             }
         }
@@ -621,6 +656,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal VoidPtr _dataAddr;
 
         SRT0Code _code;
+
+        internal SRT0Code Code => _code;
 
         public override int OnCalculateSize(bool force)
         {

@@ -7,8 +7,8 @@
     <ProjectGuid>{41C94979-CE5A-4582-888A-1BEE98DD43D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>RSTMLib</RootNamespace>
-    <AssemblyName>RSTMLib</AssemblyName>
+    <RootNamespace>LoopSelectionDialogLib</RootNamespace>
+    <AssemblyName>LoopSelectionDialogLib</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
@@ -18,7 +18,7 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;RSTMLIB</DefineConstants>
+    <DefineConstants>TRACE;DEBUG;LOOP_SELECTION_DIALOG_LIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -28,7 +28,7 @@
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE;RSTMLIB</DefineConstants>
+    <DefineConstants>TRACE;LOOP_SELECTION_DIALOG_LIB</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
@@ -51,47 +51,33 @@
     <Compile Include="Platform\Win32.cs" />
     <Compile Include="Platform\Win32.DirectSound.cs" />
     <Compile Include="Platform\Win32.DirectSoundBuffer.cs" />
-    <Compile Include="SSBB\Types\Audio\CSTM.cs" />
-    <Compile Include="SSBB\Types\Audio\FSTM.cs" />
     <Compile Include="System\Audio\AudioBuffer.cs" />
     <Compile Include="System\Audio\AudioDevice.cs" />
     <Compile Include="System\Audio\AudioProvider.cs" />
     <Compile Include="System\Audio\BufferData.cs" />
-    <Compile Include="System\Audio\PCMStream.cs" />
     <Compile Include="System\Audio\wAudioBuffer.cs" />
     <Compile Include="System\Audio\wAudioDevice.cs" />
     <Compile Include="System\Audio\wAudioProvider.cs" />
-    <Compile Include="System\Audio\WAV.cs" />
+    <Compile Include="System\Audio\WaveFormatEx.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\Memory.cs" />
     <Compile Include="System\StringExtension.cs" />
+    <Compile Include="System\VoidPtr.cs" />
     <Compile Include="System\Windows\Controls\CustomTrackBar.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="System\Windows\Forms\BrstmConverterDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Wii\Audio\ADPCMState.cs" />
-    <Compile Include="Wii\Audio\ADPCMStream.cs" />
-    <Compile Include="Wii\Audio\AudioConverter.cs" />
-    <Compile Include="System\BigEndianTypes.cs" />
-    <Compile Include="SSBB\Types\Common.cs" />
     <Compile Include="System\Audio\IAudioStream.cs" />
     <Compile Include="System\Int16Extension.cs" />
     <Compile Include="System\Int32Extension.cs" />
     <Compile Include="System\Int64Extension.cs" />
-    <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
-    <Compile Include="SSBB\Types\Audio\RSTM.cs" />
-    <Compile Include="Wii\Audio\CSTMConverter.cs" />
-    <Compile Include="Wii\Audio\FSTMConverter.cs" />
-    <Compile Include="Wii\Audio\RSTMConverter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SSBB\Types\Audio\RWAV.cs" />
     <Compile Include="System\SingleExtension.cs" />
     <Compile Include="System\UInt16Extension.cs" />
     <Compile Include="System\UInt32Extension.cs" />
     <Compile Include="System\UInt64Extension.cs" />
-    <Compile Include="System\VoidPtr.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="System\Windows\Forms\BrstmConverterDialog.resx">

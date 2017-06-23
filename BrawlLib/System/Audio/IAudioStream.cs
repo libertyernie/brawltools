@@ -11,10 +11,14 @@
         int LoopStartSample { get; set; }
         int LoopEndSample { get; set; }
         int SamplePosition { get; set; }
-
-        //Reads numSamples audio samples into the address specified by destAddr.
-        //Returns the actual number of samples read.
-        //Cannot loop automatically, because sample offsets would then be incorrect.
+        
+        /// <summary>
+        /// Reads numSamples audio samples into the address specified by destAddr.
+        /// This method does not observe loop points and does not loop automatically.
+        /// </summary>
+        /// <param name="destAddr">The address at which to start writing samples.</param>
+        /// <param name="numSamples">The maximum number of samples to read.</param>
+        /// <returns>The actual number of samples read (per channel).</returns>
         int ReadSamples(VoidPtr destAddr, int numSamples);
 
         //Wraps the stream to the loop context.

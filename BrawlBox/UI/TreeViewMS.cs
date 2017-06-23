@@ -53,25 +53,35 @@ namespace BrawlBox {
 		protected override void OnBeforeSelect(TreeViewCancelEventArgs e)
 		{
 			base.OnBeforeSelect(e);
-				
-			bool bControl = (ModifierKeys==Keys.Control);
-			bool bShift = (ModifierKeys==Keys.Shift);
 
-			// selecting twice the node while pressing CTRL ?
-			if (bControl && m_coll.Contains( e.Node ) )
-			{
-				// unselect it (let framework know we don't want selection this time)
-				e.Cancel = true;
+            if (e.Action == TreeViewAction.ByMouse)
+            {
+                bool bControl = (ModifierKeys==Keys.Control);
+			    bool bShift = (ModifierKeys==Keys.Shift);
+
+			    // selecting twice the node while pressing CTRL ?
+			    if (bControl && m_coll.Contains( e.Node ) )
+			    {
+				    // unselect it (let framework know we don't want selection this time)
+				    e.Cancel = true;
 	
-				// update nodes
-				removePaintFromNodes();
-				m_coll.Remove( e.Node );
-				paintSelectedNodes();
-				return;
-			}
+				    // update nodes
+				    removePaintFromNodes();
+				    m_coll.Remove( e.Node );
+				    paintSelectedNodes();
+				    return;
+			    }
 
-			m_lastNode = e.Node;
-			if (!bShift) m_firstNode = e.Node; // store begin of shift sequence
+			    m_lastNode = e.Node;
+			    if (!bShift) m_firstNode = e.Node; // store begin of shift sequence
+            }
+            else
+            {
+                if (m_coll != null && m_coll.Count > 0) {
+                    removePaintFromNodes();
+                    m_coll.Clear();
+                }
+            }
 		}
 
 
@@ -79,104 +89,93 @@ namespace BrawlBox {
 		{
 			base.OnAfterSelect(e);
 
-			bool bControl = (ModifierKeys==Keys.Control);
-			bool bShift = (ModifierKeys==Keys.Shift);
+            if (e.Action == TreeViewAction.ByMouse)
+            {
+                bool bControl = (ModifierKeys==Keys.Control);
+			    bool bShift = (ModifierKeys==Keys.Shift);
 
-			if (bControl)
-			{
-				if ( !m_coll.Contains( e.Node ) ) // new node ?
-				{
-					m_coll.Add( e.Node );
-				}
-				else  // not new, remove it from the collection
-				{
-					removePaintFromNodes();
-					m_coll.Remove( e.Node );
-				}
-				paintSelectedNodes();
-			}
-			else 
-			{
-				// SHIFT is pressed
-				if (bShift)
-				{
-					Queue<TreeNode> myQueue = new Queue<TreeNode>();
-					
-					TreeNode uppernode = m_firstNode;
-					TreeNode bottomnode = e.Node;
-					// case 1 : begin and end nodes are parent
-					bool bParent = isParent(m_firstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
-					if (!bParent)
-					{
-						bParent = isParent(bottomnode, uppernode);
-						if (bParent) // swap nodes
-						{
-							TreeNode t = uppernode;
-							uppernode = bottomnode;
-							bottomnode = t;
-						}
-					}
-					if (bParent)
-					{
-						TreeNode n = bottomnode;
-						while ( n != uppernode.Parent)
-						{
-							if ( !m_coll.Contains( n ) ) // new node ?
-								myQueue.Enqueue( n );
+                if (bControl) {
+                    if (!m_coll.Contains(e.Node)) // new node ?
+                    {
+                        m_coll.Add(e.Node);
+                    } else  // not new, remove it from the collection
+                      {
+                        removePaintFromNodes();
+                        m_coll.Remove(e.Node);
+                    }
+                    paintSelectedNodes();
+                } else {
+                    // SHIFT is pressed
+                    if (bShift) {
+                        Queue<TreeNode> myQueue = new Queue<TreeNode>();
 
-							n = n.Parent;
-						}
-					}
-						// case 2 : nor the begin nor the end node are descendant one another
-					else
-					{
-						if ( (uppernode.Parent==null && bottomnode.Parent==null) || (uppernode.Parent!=null && uppernode.Parent.Nodes.Contains( bottomnode )) ) // are they siblings ?
-						{
-							int nIndexUpper = uppernode.Index;
-							int nIndexBottom = bottomnode.Index;
-							if (nIndexBottom < nIndexUpper) // reversed?
-							{
-								TreeNode t = uppernode;
-								uppernode = bottomnode;
-								bottomnode = t;
-								nIndexUpper = uppernode.Index;
-								nIndexBottom = bottomnode.Index;
-							}
+                        TreeNode uppernode = m_firstNode;
+                        TreeNode bottomnode = e.Node;
+                        // case 1 : begin and end nodes are parent
+                        bool bParent = isParent(m_firstNode, e.Node); // is m_firstNode parent (direct or not) of e.Node
+                        if (!bParent) {
+                            bParent = isParent(bottomnode, uppernode);
+                            if (bParent) // swap nodes
+                            {
+                                TreeNode t = uppernode;
+                                uppernode = bottomnode;
+                                bottomnode = t;
+                            }
+                        }
+                        if (bParent) {
+                            TreeNode n = bottomnode;
+                            while (n != uppernode.Parent) {
+                                if (!m_coll.Contains(n)) // new node ?
+                                    myQueue.Enqueue(n);
 
-							TreeNode n = uppernode;
-							while (nIndexUpper <= nIndexBottom)
-							{
-								if ( !m_coll.Contains( n ) ) // new node ?
-									myQueue.Enqueue( n );
-								
-								n = n.NextNode;
+                                n = n.Parent;
+                            }
+                        }
+                        // case 2 : nor the begin nor the end node are descendant one another
+                        else {
+                            if ((uppernode.Parent == null && bottomnode.Parent == null) || (uppernode.Parent != null && uppernode.Parent.Nodes.Contains(bottomnode))) // are they siblings ?
+                            {
+                                int nIndexUpper = uppernode.Index;
+                                int nIndexBottom = bottomnode.Index;
+                                if (nIndexBottom < nIndexUpper) // reversed?
+                                {
+                                    TreeNode t = uppernode;
+                                    uppernode = bottomnode;
+                                    bottomnode = t;
+                                    nIndexUpper = uppernode.Index;
+                                    nIndexBottom = bottomnode.Index;
+                                }
 
-								nIndexUpper++;
-							} // end while
-							
-						}
-						else
-						{
-							if ( !m_coll.Contains( uppernode ) ) myQueue.Enqueue( uppernode );
-							if ( !m_coll.Contains( bottomnode ) ) myQueue.Enqueue( bottomnode );
-						}
-					}
+                                TreeNode n = uppernode;
+                                while (nIndexUpper <= nIndexBottom) {
+                                    if (!m_coll.Contains(n)) // new node ?
+                                        myQueue.Enqueue(n);
 
-					m_coll.AddRange( myQueue );
+                                    n = n.NextNode;
 
-					paintSelectedNodes();
-					m_firstNode = e.Node; // let us chain several SHIFTs if we like it
-				} // end if m_bShift
-				else
-				{
-					// in the case of a simple click, just add this item
-					if (m_coll!=null && m_coll.Count>0)
-					{
-						removePaintFromNodes();
-						m_coll.Clear();
-					}
-					m_coll.Add( e.Node );
-				}
+                                    nIndexUpper++;
+                                } // end while
+
+                            } else {
+                                if (!m_coll.Contains(uppernode)) myQueue.Enqueue(uppernode);
+                                if (!m_coll.Contains(bottomnode)) myQueue.Enqueue(bottomnode);
+                            }
+                        }
+
+                        m_coll.AddRange(myQueue);
+
+                        paintSelectedNodes();
+                        m_firstNode = e.Node; // let us chain several SHIFTs if we like it
+                    } // end if m_bShift
+                    else {
+                        // in the case of a simple click, just add this item
+                        if (m_coll != null && m_coll.Count > 0) {
+                            removePaintFromNodes();
+                            m_coll.Clear();
+                        }
+                        m_coll.Add(e.Node);
+                    }
+                }
 			}
 		}
 
