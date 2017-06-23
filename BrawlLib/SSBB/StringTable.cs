@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using BrawlLib.SSBBTypes;
 
 namespace BrawlLib
 {
-    public unsafe class StringTable
+    public unsafe class StringTable : IEnumerable<string>, IEnumerable
     {
         SortedList<string, VoidPtr> _table = new SortedList<string, VoidPtr>(StringComparer.Ordinal);
 
@@ -44,6 +45,16 @@ namespace BrawlLib
                 entry->Value = s;
                 entry = entry->Next;
             }
+        }
+
+        public IEnumerator<string> GetEnumerator()
+        {
+            return _table.Keys.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return _table.Keys.GetEnumerator();
         }
     }
 }
