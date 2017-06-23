@@ -577,6 +577,9 @@ namespace BrawlLib.Modeling
             {
                 foreach (MDL0ObjectNode obj3 in model._objList)
                 {
+                    if (obj3.DrawCalls.Count == 0)
+                        continue;
+
                     MDL0MaterialNode mat = obj3._drawCalls[0].MaterialNode;
                     foreach (MDL0MaterialNode m in model._matList)
                         if (m.Children.Count > 0 &&

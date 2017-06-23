@@ -742,7 +742,9 @@ namespace BrawlLib.Wii.Models
                     MDL0VertexNode node = new MDL0VertexNode();
 
                     node._name = model.Name + "_" + model._objList[index]._name;
-                    if (((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode != null)
+
+                    MDL0ObjectNode n = (MDL0ObjectNode)model._objList[index];
+                    if (n._drawCalls.Count > 0 && n._drawCalls[0].MaterialNode != null)
                         node._name += "_" + ((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode._name;
 
                     if (form != null)
@@ -781,7 +783,8 @@ namespace BrawlLib.Wii.Models
                     MDL0NormalNode node = new MDL0NormalNode();
 
                     node._name = model.Name + "_" + model._objList[index]._name;
-                    if (((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode != null)
+                    MDL0ObjectNode n = (MDL0ObjectNode)model._objList[index];
+                    if (n._drawCalls.Count > 0 && n._drawCalls[0].MaterialNode != null)
                         node._name += "_" + ((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode._name;
 
                     if (form != null)
@@ -817,7 +820,8 @@ namespace BrawlLib.Wii.Models
                     MDL0ColorNode node = new MDL0ColorNode();
 
                     node._name = model.Name + "_" + model._objList[index]._name;
-                    if (((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode != null)
+                    MDL0ObjectNode n = (MDL0ObjectNode)model._objList[index];
+                    if (n._drawCalls.Count > 0 && n._drawCalls[0].MaterialNode != null)
                         node._name += "_" + ((MDL0ObjectNode)model._objList[index])._drawCalls[0].MaterialNode._name;
 
                     if (form != null)

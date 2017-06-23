@@ -109,3 +109,4 @@ UpgradeLog*.XML
 Thumbs.db
 .DS_Store
 
+.vs/

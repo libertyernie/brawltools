@@ -1320,7 +1320,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 foreach (VertexCodec c in _linker._vertices)
                 {
                     string name = Name + "_" + _objList[index]._name;
-                    if (((MDL0ObjectNode)_objList[index])._drawCalls[0].MaterialNode != null)
+                    MDL0ObjectNode n = (MDL0ObjectNode)_objList[index];
+                    if (n._drawCalls.Count > 0 && n._drawCalls[0].MaterialNode != null)
                         name += "_" + ((MDL0ObjectNode)_objList[index])._drawCalls[0].MaterialNode._name;
                     table.Add(name);
                     index++;
