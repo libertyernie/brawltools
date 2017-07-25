@@ -606,16 +606,16 @@ namespace System.Windows.Forms
         {
             _sourceStream = audioStream;
             this.Text = "Loop Point Definition";
+            InitializeComponent();
 #else
         public BrstmConverterDialog()
         {
-
+            InitializeComponent();
             ddlEncoding.Items.Clear();
             ddlEncoding.Items.Add(WaveEncoding.ADPCM);
             ddlEncoding.Items.Add(WaveEncoding.PCM16);
             ddlEncoding.SelectedItem = PreviousEncoding;
 #endif
-            InitializeComponent();
             tmrUpdate.Interval = 1000 / 60;
             dlgOpen.Filter = "PCM Audio (*.wav)|*.wav";
             MaximumSize = new Drawing.Size(int.MaxValue, 216);
