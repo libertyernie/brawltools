@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Audio;
 using System.Windows.Forms;
 
 namespace BrawlBox
@@ -15,6 +16,9 @@ namespace BrawlBox
             this.txtDescription.Text = Program.AssemblyDescription;
             this.lblCopyright.Text = Program.AssemblyCopyright;
             this.lblBrawlLib.Text = "Using " + Program.BrawlLibTitle;
+
+            AudioProvider provider = AudioProvider.Create(null);
+            this.lblAudioBackend.Text = "Audio backend: " + (provider?.ToString() ?? "none");
         }
 
         private void btnClose_Click(object sender, EventArgs e)

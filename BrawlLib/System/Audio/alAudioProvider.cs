@@ -29,5 +29,9 @@ namespace System.Audio
 
             return new alAudioBuffer(this, fmt, target.Samples) { _source = target, _owner = this };
         }
+
+        public override string ToString() {
+            return "OpenAL wrapper";
+        }
     }
 }

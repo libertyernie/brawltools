@@ -15,6 +15,12 @@ namespace System.Audio
 
         public static AudioProvider Create(AudioDevice device)
         {
+            switch (Environment.OSVersion.Platform) {
+                case PlatformID.Win32NT:
+                    if (IntPtr.Size <= 4) return new wAudioProvider(device);
+                    break;
+            }
+
 #if LOOP_SELECTION_DIALOG_LIB
 #else
             if (device == null)
@@ -26,13 +32,6 @@ namespace System.Audio
                 catch (TypeInitializationException) { }
             }
 #endif
-
-            switch (Environment.OSVersion.Platform)
-            {
-                case PlatformID.Win32NT:
-                    if (IntPtr.Size <= 4) return new wAudioProvider(device);
-                    break;
-            }
 
             return null;
         }

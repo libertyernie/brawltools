@@ -41,5 +41,10 @@ namespace System.Audio
 
             return new wAudioBuffer(this, ref desc) { _source = target, _owner = this };
         }
+
+        public override string ToString()
+        {
+            return "DirectSound 8";
+        }
     }
 }
