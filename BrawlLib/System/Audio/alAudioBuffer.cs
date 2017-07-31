@@ -39,7 +39,7 @@ namespace System.Audio
                         return 0;
                     int v;
                     AL.GetSource(sourceLock.currentSource, ALGetSourcei.SampleOffset, out v);
-                    return v + sourceLock.addToCursor;
+                    return 4 * v + sourceLock.addToCursor;
                 }
             }
             set
