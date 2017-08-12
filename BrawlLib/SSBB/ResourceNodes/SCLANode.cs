@@ -58,9 +58,9 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("SCLA Entry")]
         public uint ID { get { return _index; } set { _index = value; SignalPropertyChange(); } }
         [Category("SCLA Entry")]
-        public float Unknown1 { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
+        public float Traction { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
         [Category("SCLA Entry")]
-        public uint Unknown2 { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
+        public uint HitDataSet { get { return _unk2; } set { _unk2 = value; SignalPropertyChange(); } }
         [Category("SCLA Entry"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
         public SCLASubEntryClass SubEntry1 { get { return _sub1; } set { _sub1 = value; SignalPropertyChange(); } }
         [Category("SCLA Entry"), TypeConverter(typeof(ExpandableObjectCustomConverter))]
