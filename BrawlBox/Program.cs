@@ -185,6 +185,7 @@ namespace BrawlBox
             }
 
             _rootPath = null;
+            MainForm.Instance.UpdateName();
             return true;
         }
 
