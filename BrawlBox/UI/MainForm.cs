@@ -281,6 +281,7 @@ newer versions of these files should be located in the Lib directory.");
             if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).Resource) != null))
             {
                 propertyGrid1.SelectedObject = node;
+                propertyGrid1.ExpandAllGridItems();
 
 #if DEBUG
                 if (node is IBufferNode)
