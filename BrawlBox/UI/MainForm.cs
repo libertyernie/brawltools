@@ -280,8 +280,19 @@ newer versions of these files should be located in the Lib directory.");
             bool disable2nd = false;
             if ((resourceTree.SelectedNode is BaseWrapper) && ((node = (w = resourceTree.SelectedNode as BaseWrapper).Resource) != null))
             {
+                Action setScrollOffset = null;
+                foreach (Control c in propertyGrid1.Controls) {
+                    if (c.GetType().Name == "PropertyGridView") {
+                        object scrollOffset = c.GetType().GetMethod("GetScrollOffset").Invoke(c, null);
+                        setScrollOffset = () => c.GetType().GetMethod("SetScrollOffset").Invoke(c, new object[] { scrollOffset });
+                        break;
+                    }
+                }
+
                 propertyGrid1.SelectedObject = node;
                 propertyGrid1.ExpandAllGridItems();
+                
+                setScrollOffset?.Invoke();
 
 #if DEBUG
                 if (node is IBufferNode)
