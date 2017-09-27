@@ -76,8 +76,8 @@
             // Event Matches
             new Fighter(0x3e, "None / Select Character"),
             new Fighter(0x48, "Pokémon Trainer"),
-            new Fighter(0x49, "Zelda/Sheik"),
-            new Fighter(0x4a, "Samus/ZSS")
+            new Fighter(0x49, "Samus/ZSS"),
+            new Fighter(0x4a, "Zelda/Sheik")
         };
     }
 }
