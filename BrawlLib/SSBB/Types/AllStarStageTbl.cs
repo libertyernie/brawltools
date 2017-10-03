@@ -28,9 +28,9 @@ namespace BrawlLib.SSBB.Types
         public const int Size = 0x50;
 
         public byte _fighterID;
-        public byte _padding01;
-        public byte _padding02;
-        public byte _padding03;
+        public byte _unknown01;
+        public byte _unknown02;
+        public byte _unknown03;
         public bfloat _unknown04;
         public AllstarDifficultyData _difficulty1;
         public AllstarDifficultyData _difficulty2;
