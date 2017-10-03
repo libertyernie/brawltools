@@ -138,4 +138,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             return sizeof(ClassicStageBlock) * Children.Count + Padding.Length * sizeof(bint);
         }
     }
+
+    public class ClassicStageTblSizeTblNode : RawDataNode { }
 }

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -72,7 +73,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     : name.StartsWith("allstar") ? new AllstarStageTblNode()
                     : name.StartsWith("simpleStage") ? new ClassicStageTblNode()
                     : name == "sndBgmTitleData" ? new SndBgmTitleDataNode()
-                    : (ResourceNode)new RawDataNode();
+                    : (ResourceNode)new ClassicStageTblSizeTblNode();
                 node.Initialize(this, source);
                 node.Name = name;
                 node.HasChanged = false;
@@ -99,6 +100,52 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 int size = child.CalculateSize(false);
                 dataLocations.Add(child, ptr);
+                if (child is ClassicStageTblSizeTblNode && size == 48) {
+                    // Rebuild
+                    Dictionary<string, int> sizes = Children.ToDictionary(c => c.Name, c => {
+                        int fullSize = c.CalculateSize(false);
+                        int paddingInts = (c as ClassicStageTblNode)?.Padding?.Length ?? 0;
+                        return fullSize - sizeof(bint) * paddingInts;
+                    });
+
+                    bint[] newTbl = new bint[12];
+                    fixed (bint* newTblPtr = newTbl) {
+                        foreach (string key in new[] {
+                            "simpleStageB1Tbl",
+                            "simpleStageB2Tbl",
+                            "simpleStage11Tbl"
+                        }) {
+                            if (!sizes.TryGetValue(key, out int s) || s != 0x104) {
+                                MessageBox.Show($"Changing the size of {key} may not work properly (BrawlBox doesn't know yet which size entry to update)");
+                            }
+                        }
+
+                        bint* bptr = newTblPtr;
+                        foreach (string key in new[] {
+                            "simpleStage1Tbl",
+                            "simpleStage2Tbl",
+                            "simpleStage3Tbl",
+                            "simpleStage4Tbl",
+                            "simpleStageB1Tbl",
+                            "simpleStage5Tbl",
+                            "simpleStage6Tbl",
+                            "simpleStage7Tbl",
+                            "simpleStage8Tbl",
+                            "simpleStage9Tbl",
+                            "simpleStage10Tbl",
+                            "simpleStageB2Tbl"
+                        }) {
+                            if (sizes.TryGetValue(key, out int s)) {
+                                *bptr = s;
+                            } else {
+                                MessageBox.Show($"Cannot get size of {key}");
+                            }
+                            bptr++;
+                        }
+
+                        child.ReplaceRaw(newTblPtr, 48);
+                    }
+                }
                 child.Rebuild(ptr, size, false);
                 ptr += size;
             }
