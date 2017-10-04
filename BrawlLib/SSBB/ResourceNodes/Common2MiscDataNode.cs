@@ -136,7 +136,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                             "simpleStage10Tbl",
                             "simpleStageB2Tbl"
                         }) {
-                            if (sizes.TryGetValue(key, out int s)) {
+                            int s;
+                            if (sizes.TryGetValue(key, out s)) {
                                 *bptr = s;
                             } else {
                                 MessageBox.Show($"Cannot get size of {key}");
