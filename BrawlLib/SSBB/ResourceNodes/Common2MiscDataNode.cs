@@ -115,7 +115,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                             "simpleStageB2Tbl",
                             "simpleStage11Tbl"
                         }) {
-                            if (!sizes.TryGetValue(key, out int s) || s != 0x104) {
+                            int s;
+                            if (!sizes.TryGetValue(key, out s) || s != 0x104) {
                                 MessageBox.Show($"Changing the size of {key} may not work properly (BrawlBox doesn't know yet which size entry to update)");
                             }
                         }
