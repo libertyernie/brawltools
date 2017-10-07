@@ -348,13 +348,17 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            int numFighters =
+            int expectedNumFighters =
                 _header._eventExtension == 0 ? 4
                 : _header._eventExtension == 1 ? 9
                 : _header._eventExtension == 2 ? 38
                 : 0;
+            int numFighters = ((WorkingUncompressed.Length - sizeof(EventMatchTblHeader)) / sizeof(EventMatchFighterData));
+            if (expectedNumFighters != numFighters) {
+                System.Windows.Forms.MessageBox.Show($"Expected {expectedNumFighters} fighters based on the Event Extension, but got {numFighters}.");
+            }
 
-            VoidPtr ptr = (VoidPtr)(WorkingUncompressed.Address + sizeof(EventMatchTblHeader));
+            VoidPtr ptr = WorkingUncompressed.Address + sizeof(EventMatchTblHeader);
             for (int i = 0; i < numFighters; i++)
             {
                 DataSource source = new DataSource(ptr, sizeof(EventMatchFighterData));
