@@ -2,6 +2,7 @@
 using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -348,14 +349,15 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            int expectedNumFighters =
+            int numFighters =
                 _header._eventExtension == 0 ? 4
                 : _header._eventExtension == 1 ? 9
                 : _header._eventExtension == 2 ? 38
                 : 0;
-            int numFighters = ((WorkingUncompressed.Length - sizeof(EventMatchTblHeader)) / sizeof(EventMatchFighterData));
-            if (expectedNumFighters != numFighters) {
-                System.Windows.Forms.MessageBox.Show($"Expected {expectedNumFighters} fighters based on the Event Extension, but got {numFighters}.");
+
+            if (numFighters == 0) {
+                MessageBox.Show($"Unknown event extension {_header._eventExtension} (expected 0, 1, or 2)", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                numFighters = (WorkingUncompressed.Length - sizeof(EventMatchTblHeader)) / sizeof(EventMatchFighterData);
             }
 
             VoidPtr ptr = WorkingUncompressed.Address + sizeof(EventMatchTblHeader);
