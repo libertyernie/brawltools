@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
 using BrawlLib.SSBB.Types;
+using BrawlLib.IO;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -79,7 +80,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
     public unsafe class ClassicStageTblNode : ResourceNode
     {
-        public override ResourceType ResourceType { get { return ResourceType.Container; } }
+        public override ResourceType ResourceType => ResourceType.ClassicStageTbl;
 
         private List<int> _padding;
 
@@ -136,6 +137,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override int OnCalculateSize(bool force)
         {
             return sizeof(ClassicStageBlock) * Children.Count + Padding.Length * sizeof(bint);
+        }
+
+        public void CreateEntry() {
+            FileMap tempFile = FileMap.FromTempFile(sizeof(ClassicStageBlock));
+            // Is this the right way to add a new child node?
+            var node = new ClassicStageBlockNode();
+            node.Initialize(this, tempFile);
+            AddChild(node, true);
         }
     }
 
