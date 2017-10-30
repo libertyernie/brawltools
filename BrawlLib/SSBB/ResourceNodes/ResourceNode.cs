@@ -904,7 +904,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             }
             if (searchChildren)
-                foreach (ResourceNode n in Children)
+                foreach (ResourceNode n in Children.ToArray())
                     if ((node = n.FindChild(path, true)) != null)
                         return node;
 
