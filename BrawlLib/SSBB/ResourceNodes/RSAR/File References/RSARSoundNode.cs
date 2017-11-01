@@ -481,7 +481,12 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override unsafe void Export(string outPath)
         {
             if (outPath.EndsWith(".wav"))
-                WAV.ToFile(CreateStreams()[0], outPath);
+            {
+                var stream = CreateStreams()[0];
+                if (stream == null)
+                    throw new Exception($"{this.GetType().Name} cannot be exported to WAV.");
+                WAV.ToFile(stream, outPath);
+            }
             else
                 base.Export(outPath);
         }
