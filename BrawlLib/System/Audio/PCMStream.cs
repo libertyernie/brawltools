@@ -1,4 +1,6 @@
 ﻿using BrawlLib.SSBBTypes;
+using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace System.Audio
@@ -109,62 +111,63 @@ namespace System.Audio
 
         internal PCMStream(RSTMHeader* header, int channels, int startChannel, void* audioSource) {
             StrmDataInfo* info = header->HEADData->Part1;
-            if (channels > 2) throw new NotImplementedException("Cannot load PCM16 audio with more than 2 channels");
-            if (info->_format._channels < channels) throw new Exception("Not enough channels");
-            
-            int size = info->_numSamples * channels * sizeof(short);
-            _allocatedHGlobal = Marshal.AllocHGlobal(size);
+            if (info->_format._channels < startChannel + channels) throw new Exception("Not enough channels");
 
-            byte* fromL = (byte*)audioSource;
-            byte* fromR = fromL;
-            byte* to = (byte*)_allocatedHGlobal;
+            List<short[]>[] blocksByChannel = new List<short[]>[info->_format._channels];
+            for (int i=0; i<blocksByChannel.Length; i++)
+            {
+                blocksByChannel[i] = new List<short[]>();
+            }
 
-            bool stereo = channels == 2;
+            byte* from = (byte*)audioSource;
 
             for (int block = 0; block < info->_numBlocks; block++)
             {
-                int bs = (block == info->_numBlocks - 1)
+                int blockSize = (block == info->_numBlocks - 1)
                     ? info->_lastBlockSize
                     : info->_blockSize;
-                int bt = (block == info->_numBlocks - 1)
+                int blockTotal = (block == info->_numBlocks - 1)
                     ? info->_lastBlockTotal
                     : info->_blockSize;
 
-                if (block == 0)
-                {
-                    fromL += (bt * startChannel);
-                    fromR += (bt * startChannel);
+                for (int channel = 0; channel < info->_format._channels; channel++) {
+                    short[] b = new short[blockSize / sizeof(short)];
+                    Marshal.Copy((IntPtr)from, b, 0, b.Length);
+                    from += blockTotal;
+                    blocksByChannel[channel].Add(b);
                 }
-                else
-                {
-                    fromL += bt * (info->_format._channels - channels);
-                    fromR += bt * (info->_format._channels - channels);
-                }
+            }
 
-                if (stereo)
-                    fromR += bt;
-                for (int i=0; i<bs; i+=2)
+            List<List<short[]>> blocksToUseByChannel = new List<List<short[]>>();
+            for (int i = 0; i < channels; i++)
+            {
+                blocksToUseByChannel.Add(blocksByChannel[startChannel + i]);
+            }
+
+            int size = info->_numSamples * channels * sizeof(short);
+            //int size2 = blocksToUseByChannel.SelectMany(blocks => blocks.Select(block => block.Length)).Sum() * sizeof(short);
+            //if (size != size2)
+            //{
+            //    throw new Exception($"{size} != {size2}");
+            //}
+
+            _allocatedHGlobal = Marshal.AllocHGlobal(size);
+            short* toPtr = (short*)_allocatedHGlobal;
+            //short* endPtr = (short*)(_allocatedHGlobal + size);
+            int blockCount = blocksToUseByChannel.Select(b => b.Count).Distinct().Single();
+            for (int blockIndex = 0; blockIndex < blockCount; blockIndex++)
+            {
+                List<short[]> blocks = blocksToUseByChannel.Select(l => l[blockIndex]).ToList();
+                int blockShorts = blocks.Select(a => a.Length).Distinct().Single();
+                for (int i = 0; i < blockShorts; i++)
                 {
-                    to[0] = fromL[1];
-                    to[1] = fromL[0];
-                    fromL += 2;
-                    to += 2;
-                    if (stereo)
+                    foreach (short[] block in blocks)
                     {
-                        to[0] = fromR[1];
-                        to[1] = fromR[0];
-                        fromR += 2;
-                        to += 2;
+                        *toPtr++ = block[i].Reverse();
                     }
                 }
-                for (int i = bs; i < bt; i++)
-                {
-                    fromL++;
-                    fromR++;
-                }
-                if (stereo)
-                    fromL += bt;
             }
+            //if (toPtr != endPtr) throw new Exception($"Not all data filled ({(long)_allocatedHGlobal}, {(long)toPtr}, {(long)endPtr})");
 
             _bps = 16;
             _numChannels = channels;
