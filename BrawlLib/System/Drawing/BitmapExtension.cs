@@ -429,6 +429,106 @@ namespace System
             }
         }
 
+        public class NonMonochromeImageException : Exception {
+            public NonMonochromeImageException(string message) : base(message) { }
+        }
+
+        public static unsafe Bitmap SwapAlphaAndRGB(this Bitmap bmp) {
+            if (bmp.PixelFormat == PixelFormat.Format32bppArgb) {
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format32bppArgb);
+
+                Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+                BitmapData inData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+                BitmapData outData = output.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+                uint* inPtr = (uint*)inData.Scan0;
+                uint* outPtr = (uint*)outData.Scan0;
+
+                int length = Math.Abs(inData.Stride) * bmp.Height / sizeof(uint);
+
+                try {
+                    for (int i = 0; i < length; i++) {
+                        byte A = (byte)(inPtr[i] >> 24);
+                        byte R = (byte)(inPtr[i] >> 16);
+                        byte G = (byte)(inPtr[i] >> 8);
+                        byte B = (byte)(inPtr[i]);
+                        if (R != G || G != B) {
+                            throw new NonMonochromeImageException("Cannot swap alpha and value channels on a monochrome image.");
+                        }
+                        outPtr[i] = (uint)(R << 24 | A << 16 | A << 8 | A);
+                    }
+                } finally {
+                    bmp.UnlockBits(inData);
+                    output.UnlockBits(outData);
+                }
+
+                return output;
+            } else {
+                // Slower, but works for any input pixel format
+                Bitmap output = new Bitmap(bmp.Width, bmp.Height);
+                for (int x = 0; x < bmp.Width; x++) {
+                    for (int y = 0; y < bmp.Height; y++) {
+                        Color c = bmp.GetPixel(x, y);
+                        if (c.R != c.G || c.G != c.B) {
+                            throw new NonMonochromeImageException("Cannot swap alpha and value channels on a monochrome image.");
+                        }
+                        c = Color.FromArgb(c.R, c.A, c.A, c.A);
+                        output.SetPixel(x, y, c);
+                    }
+                }
+                return output;
+            }
+        }
+
+        /// <summary>
+        /// Guess if the alpha channel of an image might be inverted. (This
+        /// method should prevent false positives as much as possible.)
+        /// </summary>
+        /// <returns>true if the number of distinct pixel values in the
+        /// fully transparent section of the image is more than the number
+        /// elsewhere (including alpha values); false otherwise.</returns>
+        public static unsafe bool GuessIfAlphaInverted(this Bitmap bmp) {
+            int[] pixels;
+
+            if (bmp.PixelFormat == PixelFormat.Format32bppArgb) {
+                Rectangle rect = new Rectangle(0, 0, bmp.Width, bmp.Height);
+                BitmapData inData = bmp.LockBits(rect, ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+                uint* inPtr = (uint*)inData.Scan0;
+
+                int length = Math.Abs(inData.Stride) * bmp.Height / sizeof(uint);
+
+                pixels = new int[length];
+                Runtime.InteropServices.Marshal.Copy((IntPtr)inPtr, pixels, 0, length);
+
+                bmp.UnlockBits(inData);
+            } else {
+                // Slower, but works for any input pixel format
+                pixels = new int[bmp.Width * bmp.Height];
+                for (int x = 0; x < bmp.Width; x++) {
+                    for (int y = 0; y < bmp.Height; y++) {
+                        Color c = bmp.GetPixel(x, y);
+                        pixels[bmp.Width * x + y] = c.ToArgb();
+                    }
+                }
+            }
+
+            HashSet<int> colorsInTransparentSection = new HashSet<int>();
+            HashSet<int> colorsInNonTransparenSection = new HashSet<int>();
+
+            foreach (int pixel in pixels) {
+                byte alpha = (byte)((pixel & 0xFF000000) >> 24);
+                if (alpha == 0) {
+                    colorsInTransparentSection.Add(pixel);
+                } else {
+                    colorsInNonTransparenSection.Add(pixel);
+                }
+            }
+
+            return colorsInTransparentSection.Count > colorsInNonTransparenSection.Count
+                && colorsInTransparentSection.Count > 1;
+        }
+
         public static void SaveTGA(this Bitmap bmp, string path)
         {
             TGA.ToFile(bmp, path);
