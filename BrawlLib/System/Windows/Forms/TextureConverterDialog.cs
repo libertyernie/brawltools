@@ -73,6 +73,7 @@ namespace System.Windows.Forms
         private CheckBox chkImportPalette;
         private CheckBox chkSwapRGB;
         private CheckBox chkSwapAlpha;
+        private CheckBox chkSwapAlphaRGB;
 
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap TextureData { get { return _textureData; } }
@@ -834,6 +835,8 @@ namespace System.Windows.Forms
             this.cboPaletteFormat = new System.Windows.Forms.ComboBox();
             this.label6 = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chkSwapRGB = new System.Windows.Forms.CheckBox();
+            this.chkSwapAlpha = new System.Windows.Forms.CheckBox();
             this.chkConstrainProps = new System.Windows.Forms.CheckBox();
             this.btnApplyDims = new System.Windows.Forms.Button();
             this.label11 = new System.Windows.Forms.Label();
@@ -847,9 +850,8 @@ namespace System.Windows.Forms
             this.label12 = new System.Windows.Forms.Label();
             this.button1 = new System.Windows.Forms.Button();
             this.dlgOpen = new System.Windows.Forms.OpenFileDialog();
-            this.chkSwapAlpha = new System.Windows.Forms.CheckBox();
-            this.chkSwapRGB = new System.Windows.Forms.CheckBox();
             this.pictureBox1 = new System.Windows.Forms.GoodPictureBox();
+            this.chkSwapAlphaRGB = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numLOD)).BeginInit();
             this.groupBox2.SuspendLayout();
@@ -1050,10 +1052,10 @@ namespace System.Windows.Forms
             // btnOkay
             // 
             this.btnOkay.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnOkay.Location = new System.Drawing.Point(8, 134);
+            this.btnOkay.Location = new System.Drawing.Point(8, 157);
             this.btnOkay.Name = "btnOkay";
             this.btnOkay.Size = new System.Drawing.Size(80, 23);
-            this.btnOkay.TabIndex = 10;
+            this.btnOkay.TabIndex = 11;
             this.btnOkay.Text = "Okay";
             this.btnOkay.UseVisualStyleBackColor = true;
             this.btnOkay.Click += new System.EventHandler(this.btnOkay_Click);
@@ -1061,10 +1063,10 @@ namespace System.Windows.Forms
             // btnCancel
             // 
             this.btnCancel.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.btnCancel.Location = new System.Drawing.Point(94, 134);
+            this.btnCancel.Location = new System.Drawing.Point(94, 157);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(80, 23);
-            this.btnCancel.TabIndex = 11;
+            this.btnCancel.TabIndex = 12;
             this.btnCancel.Text = "Cancel";
             this.btnCancel.UseVisualStyleBackColor = true;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
@@ -1184,6 +1186,7 @@ namespace System.Windows.Forms
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.chkSwapAlphaRGB);
             this.groupBox4.Controls.Add(this.chkSwapRGB);
             this.groupBox4.Controls.Add(this.chkSwapAlpha);
             this.groupBox4.Controls.Add(this.chkConstrainProps);
@@ -1198,9 +1201,31 @@ namespace System.Windows.Forms
             this.groupBox4.Controls.Add(this.btnCancel);
             this.groupBox4.Location = new System.Drawing.Point(3, 309);
             this.groupBox4.Name = "groupBox4";
-            this.groupBox4.Size = new System.Drawing.Size(179, 166);
+            this.groupBox4.Size = new System.Drawing.Size(179, 189);
             this.groupBox4.TabIndex = 7;
             this.groupBox4.TabStop = false;
+            // 
+            // chkSwapRGB
+            // 
+            this.chkSwapRGB.AutoSize = true;
+            this.chkSwapRGB.Location = new System.Drawing.Point(9, 110);
+            this.chkSwapRGB.Name = "chkSwapRGB";
+            this.chkSwapRGB.Size = new System.Drawing.Size(79, 17);
+            this.chkSwapRGB.TabIndex = 8;
+            this.chkSwapRGB.Text = "Swap RGB";
+            this.chkSwapRGB.UseVisualStyleBackColor = true;
+            this.chkSwapRGB.CheckedChanged += new System.EventHandler(this.chkSwapRGB_CheckedChanged);
+            // 
+            // chkSwapAlpha
+            // 
+            this.chkSwapAlpha.AutoSize = true;
+            this.chkSwapAlpha.Location = new System.Drawing.Point(94, 110);
+            this.chkSwapAlpha.Name = "chkSwapAlpha";
+            this.chkSwapAlpha.Size = new System.Drawing.Size(83, 17);
+            this.chkSwapAlpha.TabIndex = 9;
+            this.chkSwapAlpha.Text = "Swap Alpha";
+            this.chkSwapAlpha.UseVisualStyleBackColor = true;
+            this.chkSwapAlpha.CheckedChanged += new System.EventHandler(this.chkSwapAlpha_CheckedChanged);
             // 
             // chkConstrainProps
             // 
@@ -1305,7 +1330,7 @@ namespace System.Windows.Forms
             this.panel1.Location = new System.Drawing.Point(379, 0);
             this.panel1.Margin = new System.Windows.Forms.Padding(3, 3, 0, 3);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(185, 478);
+            this.panel1.Size = new System.Drawing.Size(185, 501);
             this.panel1.TabIndex = 9;
             // 
             // txtPath
@@ -1371,28 +1396,6 @@ namespace System.Windows.Forms
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
-            // chkSwapAlpha
-            // 
-            this.chkSwapAlpha.AutoSize = true;
-            this.chkSwapAlpha.Location = new System.Drawing.Point(94, 110);
-            this.chkSwapAlpha.Name = "chkSwapAlpha";
-            this.chkSwapAlpha.Size = new System.Drawing.Size(83, 17);
-            this.chkSwapAlpha.TabIndex = 9;
-            this.chkSwapAlpha.Text = "Swap Alpha";
-            this.chkSwapAlpha.UseVisualStyleBackColor = true;
-            this.chkSwapAlpha.CheckedChanged += new System.EventHandler(this.chkSwapAlpha_CheckedChanged);
-            // 
-            // chkSwapRGB
-            // 
-            this.chkSwapRGB.AutoSize = true;
-            this.chkSwapRGB.Location = new System.Drawing.Point(9, 110);
-            this.chkSwapRGB.Name = "chkSwapRGB";
-            this.chkSwapRGB.Size = new System.Drawing.Size(79, 17);
-            this.chkSwapRGB.TabIndex = 8;
-            this.chkSwapRGB.Text = "Swap RGB";
-            this.chkSwapRGB.UseVisualStyleBackColor = true;
-            this.chkSwapRGB.CheckedChanged += new System.EventHandler(this.chkSwapRGB_CheckedChanged);
-            // 
             // pictureBox1
             // 
             this.pictureBox1.Dock = System.Windows.Forms.DockStyle.Fill;
@@ -1400,13 +1403,24 @@ namespace System.Windows.Forms
             this.pictureBox1.Margin = new System.Windows.Forms.Padding(0);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Picture = null;
-            this.pictureBox1.Size = new System.Drawing.Size(379, 458);
+            this.pictureBox1.Size = new System.Drawing.Size(379, 481);
             this.pictureBox1.TabIndex = 0;
+            // 
+            // chkSwapAlphaRGB
+            // 
+            this.chkSwapAlphaRGB.AutoSize = true;
+            this.chkSwapAlphaRGB.Location = new System.Drawing.Point(9, 133);
+            this.chkSwapAlphaRGB.Name = "chkSwapAlphaRGB";
+            this.chkSwapAlphaRGB.Size = new System.Drawing.Size(131, 17);
+            this.chkSwapAlphaRGB.TabIndex = 10;
+            this.chkSwapAlphaRGB.Text = "Swap Alpha with RGB";
+            this.chkSwapAlphaRGB.UseVisualStyleBackColor = true;
+            this.chkSwapAlphaRGB.CheckedChanged += new System.EventHandler(this.chkSwapAlphaRGB_CheckedChanged);
             // 
             // TextureConverterDialog
             // 
             this.AcceptButton = this.btnOkay;
-            this.ClientSize = new System.Drawing.Size(564, 478);
+            this.ClientSize = new System.Drawing.Size(564, 501);
             this.Controls.Add(this.pictureBox1);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.panel1);
@@ -1483,6 +1497,24 @@ namespace System.Windows.Forms
             _updating = true;
 
             Source = Source.InvertAlpha();
+
+            FixImportPaletteFields();
+            UpdatePreview();
+
+            _updating = false;
+        }
+
+        private void chkSwapAlphaRGB_CheckedChanged(object sender, EventArgs e) {
+            if ((_source == null) || (_updating))
+                return;
+
+            _updating = true;
+
+            try {
+                Source = Source.SwapAlphaAndRGB();
+            } catch (BitmapExtension.NonMonochromeImageException ex) {
+                MessageBox.Show(this, ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
 
             FixImportPaletteFields();
             UpdatePreview();
