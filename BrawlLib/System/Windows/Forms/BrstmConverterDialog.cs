@@ -595,6 +595,7 @@ namespace System.Windows.Forms
         private AudioProvider _provider;
         private AudioBuffer _buffer;
 
+        private readonly IAudioStream _initialStream;
         private IAudioStream _sourceStream;
 
         private DateTime _sampleTime;
@@ -602,11 +603,6 @@ namespace System.Windows.Forms
         private bool _updating = false;
 
 #if LOOP_SELECTION_DIALOG_LIB
-        public BrstmConverterDialog(IAudioStream audioStream)
-        {
-            _sourceStream = audioStream;
-            this.Text = "Loop Point Definition";
-            InitializeComponent();
 #else
         public BrstmConverterDialog()
         {
@@ -615,9 +611,18 @@ namespace System.Windows.Forms
             ddlEncoding.Items.Add(WaveEncoding.ADPCM);
             ddlEncoding.Items.Add(WaveEncoding.PCM16);
             ddlEncoding.SelectedItem = PreviousEncoding;
-#endif
             tmrUpdate.Interval = 1000 / 60;
             dlgOpen.Filter = "PCM Audio (*.wav)|*.wav";
+            MaximumSize = new Drawing.Size(int.MaxValue, 216);
+        }
+#endif
+
+        public BrstmConverterDialog(IAudioStream audioStream)
+        {
+            _initialStream = audioStream;
+            this.Text = "Loop Point Definition";
+            InitializeComponent();
+            tmrUpdate.Interval = 1000 / 60;
             MaximumSize = new Drawing.Size(int.MaxValue, 216);
         }
 
@@ -648,12 +653,12 @@ namespace System.Windows.Forms
                     btnPlay.Enabled = false;
             }
 
-#if LOOP_SELECTION_DIALOG_LIB
-            // _sourceStream is already populated by the constructor.
-            LoadAudio("Internal audio");
-            btnBrowse.Visible = false;
-#else
-            if (_audioSource == null)
+            if (_initialStream != null)
+            {
+                LoadAudio("Internal audio");
+                btnBrowse.Visible = false;
+            }
+            else if (_audioSource == null)
             {
                 if (!LoadAudio())
                 {
@@ -666,7 +671,6 @@ namespace System.Windows.Forms
                 Close();
                 return;
             }
-#endif
 
             base.OnShown(e);
         }
@@ -697,17 +701,18 @@ namespace System.Windows.Forms
                 _buffer = null;
             }
 
-#if LOOP_SELECTION_DIALOG_LIB
-#else
-            //Dispose stream
-            if (_sourceStream != null)
+            if (_initialStream != _sourceStream)
             {
-                _sourceStream.Dispose();
-                _sourceStream = null;
+                //Dispose stream
+                if (_sourceStream != null)
+                {
+                    _sourceStream.Dispose();
+                    _sourceStream = null;
+                }
             }
 
             chkLoopEnable.Checked = chkLoop.Checked = chkLoop.Enabled = false;
-#endif
+
             btnOkay.Enabled = false;
         }
 
@@ -721,10 +726,11 @@ namespace System.Windows.Forms
         {
             DisposeSource();
 
-#if LOOP_SELECTION_DIALOG_LIB
-#else
             //Get audio stream
-            _sourceStream = WAV.FromFile(path);
+#if LOOP_SELECTION_DIALOG_LIB
+            _sourceStream = _initialStream;
+#else
+            _sourceStream = _initialStream ?? WAV.FromFile(path);
 #endif
 
             _audioSource = path;
@@ -739,7 +745,7 @@ namespace System.Windows.Forms
             //Set controls
             _sampleTime = new DateTime((long)_sourceStream.Samples * 10000000 / _sourceStream.Frequency);
 
-            txtPath.Text = path;
+            txtPath.Text = _initialStream != null ? "Internal audio" : path;
             lblFrequency.Text = String.Format("{0} Hz", _sourceStream.Frequency);
             lblSamples.Text = String.Format("{0}", _sourceStream.Samples);
 
@@ -769,9 +775,8 @@ namespace System.Windows.Forms
             if (_type != 0)
                 groupBox3.Visible = false;
 
-#if LOOP_SELECTION_DIALOG_LIB
-            groupBox3.Visible = false;
-#endif
+            if (_initialStream != null)
+                groupBox3.Visible = false;
 
             UpdateTimeDisplay();
 
@@ -904,21 +909,22 @@ namespace System.Windows.Forms
             Stop();
 #if LOOP_SELECTION_DIALOG_LIB
 #else
-            using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
-                switch (_type)
-                {
-                    case 0:
-                        var encoding = (WaveEncoding)ddlEncoding.SelectedItem;
-                        PreviousEncoding = encoding;
-                        _audioData = RSTMConverter.Encode(_sourceStream, progress, encoding);
-                        break;
-                    case 1:
-                        _audioData = RSARWaveConverter.Encode(_sourceStream, progress);
-                        break;
-                    case 2:
-                        _audioData = RWAVConverter.Encode(_sourceStream, progress);
-                        break;
-                }
+            if (_initialStream == null)
+                using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
+                    switch (_type)
+                    {
+                        case 0:
+                            var encoding = (WaveEncoding)ddlEncoding.SelectedItem;
+                            PreviousEncoding = encoding;
+                            _audioData = RSTMConverter.Encode(_sourceStream, progress, encoding);
+                            break;
+                        case 1:
+                            _audioData = RSARWaveConverter.Encode(_sourceStream, progress);
+                            break;
+                        case 2:
+                            _audioData = RWAVConverter.Encode(_sourceStream, progress);
+                            break;
+                    }
 #endif
 
             DialogResult = DialogResult.OK;
