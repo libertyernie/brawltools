@@ -20,7 +20,9 @@ namespace System.Audio
                     if (IntPtr.Size <= 4) return new wAudioProvider(device);
                     break;
             }
-            
+
+#if LOOP_SELECTION_DIALOG_LIB
+#else
             if (device == null)
             {
                 try
@@ -29,6 +31,7 @@ namespace System.Audio
                 }
                 catch (TypeInitializationException) { }
             }
+#endif
 
             return null;
         }
