@@ -8,6 +8,14 @@ namespace BrawlLib.Wii.Audio
 {
     public static class CSTMConverter
     {
+        public static unsafe byte[] FromRSTM(byte[] rstm)
+        {
+            fixed (byte* ptr = rstm)
+            {
+                return FromRSTM((RSTMHeader*)ptr);
+            }
+        }
+
         internal static unsafe byte[] FromRSTM(RSTMHeader* rstm)
         {
             StrmDataInfo strmDataInfo = *rstm->HEADData->Part1;
@@ -59,6 +67,14 @@ namespace BrawlLib.Wii.Audio
                 Memory.Move(dataTo, dataFrom, (uint)data->_length - 8);
             }
             return array;
+        }
+
+        public static unsafe byte[] ToRSTM(byte[] cstm)
+        {
+            fixed (byte* ptr = cstm)
+            {
+                return ToRSTM((CSTMHeader*)ptr);
+            }
         }
 
         internal static unsafe byte[] ToRSTM(CSTMHeader* cstm)
