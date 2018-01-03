@@ -221,6 +221,8 @@ namespace BrawlLib.SSBBTypes
         public DataBlock DataBlock { get { return new DataBlock(Address, Size); } }
     }
 
+#if BRAWLLIB_AUDIO
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct ResourceGroup : IEnumerable<ResourcePair>
     {
@@ -412,4 +414,5 @@ namespace BrawlLib.SSBBTypes
             }
         }
     }
+#endif
 }

@@ -21,7 +21,7 @@ namespace System.Audio
                     break;
             }
 
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
 #else
             if (device == null)
             {

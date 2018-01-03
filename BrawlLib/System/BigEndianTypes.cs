@@ -151,7 +151,9 @@ namespace System
             return Value.ToString();
         }
     }
-    
+
+#if BRAWLLIB_AUDIO
+#else
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct BVec2
     {
@@ -337,4 +339,5 @@ namespace System
             return bm;
         }
     }
+#endif
 }

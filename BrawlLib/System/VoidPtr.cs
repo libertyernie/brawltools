@@ -8,7 +8,7 @@ namespace System
         //address
         public void* address;
 
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
 #else
         public byte Byte { get { return *(byte*)address; } }
         public sbyte SByte { get { return *(sbyte*)address; } }

@@ -1,9 +1,5 @@
 ﻿using System;
-using BrawlLib.IO;
-using System.Audio;
 using BrawlLib.SSBBTypes;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
 
 namespace BrawlLib.Wii.Audio
 {

@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel;
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
 #else
 using BrawlLib.IO;
 using BrawlLib.SSBBTypes;
@@ -582,7 +582,7 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AudioSource { get { return _audioSource; } set { _audioSource = value; } }
 
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
         private object _audioData { set { } }
 #else
         private FileMap _audioData;
@@ -602,7 +602,7 @@ namespace System.Windows.Forms
         private bool _playing = false;
         private bool _updating = false;
 
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
 #else
         public BrstmConverterDialog()
         {
@@ -727,7 +727,7 @@ namespace System.Windows.Forms
             DisposeSource();
 
             //Get audio stream
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
             _sourceStream = _initialStream;
 #else
             _sourceStream = _initialStream ?? WAV.FromFile(path);
@@ -907,7 +907,7 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             Stop();
-#if LOOP_SELECTION_DIALOG_LIB
+#if BRAWLLIB_AUDIO
 #else
             if (_initialStream == null)
                 using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
