@@ -66,6 +66,7 @@
     <Compile Include="System\Audio\WaveFormatEx.cs" />
     <Compile Include="System\Audio\WaveFormatTag.cs" />
     <Compile Include="System\BigEndianTypes.cs" />
+    <Compile Include="System\IO\FileMap.cs" />
     <Compile Include="System\Memory.cs" />
     <Compile Include="System\StringExtension.cs" />
     <Compile Include="System\VoidPtr.cs" />
@@ -84,8 +85,11 @@
     <Compile Include="System\UInt16Extension.cs" />
     <Compile Include="System\UInt32Extension.cs" />
     <Compile Include="System\UInt64Extension.cs" />
+    <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
+    <Compile Include="Wii\Audio\AudioConverter.cs" />
     <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\FSTMConverter.cs" />
+    <Compile Include="Wii\Audio\RSTMConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="System\Windows\Forms\BrstmConverterDialog.resx">
