@@ -1,10 +1,7 @@
 ﻿using System.ComponentModel;
-#if LOOP_SELECTION_DIALOG_LIB
-#else
 using BrawlLib.IO;
 using BrawlLib.SSBBTypes;
 using BrawlLib.Wii.Audio;
-#endif
 using System.Audio;
 
 namespace System.Windows.Forms
@@ -581,16 +578,12 @@ namespace System.Windows.Forms
         private string _audioSource;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public string AudioSource { get { return _audioSource; } set { _audioSource = value; } }
-
-#if LOOP_SELECTION_DIALOG_LIB
-        private object _audioData { set { } }
-#else
+        
         private FileMap _audioData;
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public FileMap AudioData { get { return _audioData; } set { _audioData = value; } }
 
         private static WaveEncoding PreviousEncoding = WaveEncoding.ADPCM;
-#endif
 
         private AudioProvider _provider;
         private AudioBuffer _buffer;
@@ -601,9 +594,7 @@ namespace System.Windows.Forms
         private DateTime _sampleTime;
         private bool _playing = false;
         private bool _updating = false;
-
-#if LOOP_SELECTION_DIALOG_LIB
-#else
+        
         public BrstmConverterDialog()
         {
             InitializeComponent();
@@ -615,7 +606,6 @@ namespace System.Windows.Forms
             dlgOpen.Filter = "PCM Audio (*.wav)|*.wav";
             MaximumSize = new Drawing.Size(int.MaxValue, 216);
         }
-#endif
 
         public BrstmConverterDialog(IAudioStream audioStream)
         {
@@ -727,11 +717,7 @@ namespace System.Windows.Forms
             DisposeSource();
 
             //Get audio stream
-#if LOOP_SELECTION_DIALOG_LIB
-            _sourceStream = _initialStream;
-#else
             _sourceStream = _initialStream ?? WAV.FromFile(path);
-#endif
 
             _audioSource = path;
 
@@ -907,8 +893,6 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             Stop();
-#if LOOP_SELECTION_DIALOG_LIB
-#else
             if (_initialStream == null)
                 using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
                     switch (_type)
@@ -925,7 +909,6 @@ namespace System.Windows.Forms
                             _audioData = RWAVConverter.Encode(_sourceStream, progress);
                             break;
                     }
-#endif
 
             DialogResult = DialogResult.OK;
             Close();
