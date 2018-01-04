@@ -7,8 +7,8 @@
     <ProjectGuid>{41C94979-CE5A-4582-888A-1BEE98DD43D3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>BrawLibAudio</RootNamespace>
-    <AssemblyName>BrawLibAudio</AssemblyName>
+    <RootNamespace>BrawlLibAudio</RootNamespace>
+    <AssemblyName>BrawlLibAudio</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile>Client</TargetFrameworkProfile>
