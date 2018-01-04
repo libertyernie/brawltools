@@ -73,6 +73,9 @@
     <Compile Include="System\Windows\Controls\CustomTrackBar.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="System\Windows\Controls\GoodProgressBar.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="System\Windows\Forms\BrstmConverterDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -86,6 +89,12 @@
     <Compile Include="System\UInt32Extension.cs" />
     <Compile Include="System\UInt64Extension.cs" />
     <Compile Include="System\Windows\Forms\IProgressTracker.cs" />
+    <Compile Include="System\Windows\Forms\ProgressWindow.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\ProgressWindow.designer.cs">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
+    </Compile>
     <Compile Include="Wii\Audio\AudioConverter.cs" />
     <Compile Include="Wii\Audio\CSTMConverter.cs" />
     <Compile Include="Wii\Audio\FSTMConverter.cs" />
@@ -94,6 +103,9 @@
   <ItemGroup>
     <EmbeddedResource Include="System\Windows\Forms\BrstmConverterDialog.resx">
       <DependentUpon>BrstmConverterDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\ProgressWindow.resx">
+      <DependentUpon>ProgressWindow.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

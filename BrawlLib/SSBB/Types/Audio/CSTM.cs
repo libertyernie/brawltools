@@ -168,7 +168,7 @@ namespace BrawlLib.SSBBTypes
                 if (count == 16777216) {
                     count = 1;
                 }
-                if (count != 1) throw new Exception("BCSTM files with more than one track data section are not supported.");
+                if (count != 1) throw new Exception("BCSTM files with more than one track data section are not supported by BrawlLib.");
                 ptr += 1 + count * 2;
                 return (CSTMReferenceList*)ptr;
             }

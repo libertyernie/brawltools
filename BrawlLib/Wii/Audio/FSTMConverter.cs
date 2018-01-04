@@ -19,7 +19,7 @@ namespace BrawlLib.Wii.Audio
             int channels = strmDataInfo._format._channels;
 
             if (strmDataInfo._format._encoding != (byte)WaveEncoding.ADPCM)
-                throw new NotImplementedException("FSTM export only supports ADPCM encoding.");
+                throw new NotImplementedException("BrawlLib FSTM export only supports ADPCM encoding.");
 
             // Get section sizes from the BRSTM - BFSTM is such a similar format that we can assume the sizes will match.
             int rstmSize = 0x40;
