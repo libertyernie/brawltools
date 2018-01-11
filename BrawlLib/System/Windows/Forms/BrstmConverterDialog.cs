@@ -699,9 +699,9 @@ namespace System.Windows.Forms
                     _sourceStream.Dispose();
                     _sourceStream = null;
                 }
-            }
 
-            chkLoopEnable.Checked = chkLoop.Checked = chkLoop.Enabled = false;
+                chkLoopEnable.Checked = chkLoop.Checked = chkLoop.Enabled = false;
+            }
 
             btnOkay.Enabled = false;
         }
