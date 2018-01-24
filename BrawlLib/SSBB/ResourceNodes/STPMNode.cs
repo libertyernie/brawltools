@@ -128,15 +128,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("STPM Values")]
         public float MaximumTilt { get { return _values.GetFloat(13); } set { _values.SetFloat(13, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value15 { get { return _values.GetFloat(14); } set { _values.SetFloat(14, value); SignalPropertyChange(); } }
+        public float HorizontalRotationFactor { get { return _values.GetFloat(14); } set { _values.SetFloat(14, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value16 { get { return _values.GetFloat(15); } set { _values.SetFloat(15, value); SignalPropertyChange(); } }
+        public float VerticalRotationFactor { get { return _values.GetFloat(15); } set { _values.SetFloat(15, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value17 { get { return _values.GetFloat(16); } set { _values.SetFloat(16, value); SignalPropertyChange(); } }
+        public float CharacterBubbleBufferMultiplier { get { return _values.GetFloat(16); } set { _values.SetFloat(16, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public float Value18 { get { return _values.GetFloat(17); } set { _values.SetFloat(17, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float Value19 { get { return _values.GetFloat(18); } set { _values.SetFloat(18, value); SignalPropertyChange(); } }
+        public float CameraSpeed { get { return _values.GetFloat(18); } set { _values.SetFloat(18, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public float Value20 { get { return _values.GetFloat(19); } set { _values.SetFloat(19, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
