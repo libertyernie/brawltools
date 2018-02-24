@@ -13,9 +13,9 @@ namespace System.Windows.Forms
         private Label label7;
         private Label label6;
         private Label label8;
-        private NumericInputBox ScaleZ;
-        private NumericInputBox ScaleY;
-        private NumericInputBox ScaleX;
+        private TextBox ScaleZ;
+        private TextBox ScaleY;
+        private TextBox ScaleX;
         private Label label1;
         private TextBox keyframeCopy;
         private TextBox name;
@@ -44,9 +44,9 @@ namespace System.Windows.Forms
         private Label label5;
         private Label label9;
         private Label label10;
-        private NumericInputBox TranslateZ;
-        private NumericInputBox TranslateY;
-        private NumericInputBox TranslateX;
+        private TextBox TranslateZ;
+        private TextBox TranslateY;
+        private TextBox TranslateX;
         private RadioButton RotateDivide;
         private RadioButton RotateMultiply;
         private RadioButton RotateSubtract;
@@ -56,9 +56,9 @@ namespace System.Windows.Forms
         private Label label2;
         private Label label3;
         private Label label4;
-        private NumericInputBox RotateZ;
-        private NumericInputBox RotateY;
-        private NumericInputBox RotateX;
+        private TextBox RotateZ;
+        private TextBox RotateY;
+        private TextBox RotateX;
         private RadioButton TranslateDoNotChange;
         private RadioButton RotateDoNotChange;
         private RadioButton ScaleDoNotChange;
@@ -80,9 +80,9 @@ namespace System.Windows.Forms
             this.label5 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.TranslateZ = new System.Windows.Forms.NumericInputBox();
-            this.TranslateY = new System.Windows.Forms.NumericInputBox();
-            this.TranslateX = new System.Windows.Forms.NumericInputBox();
+            this.TranslateZ = new System.Windows.Forms.TextBox();
+            this.TranslateY = new System.Windows.Forms.TextBox();
+            this.TranslateX = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.RotateDoNotChange = new System.Windows.Forms.RadioButton();
             this.RotateDivide = new System.Windows.Forms.RadioButton();
@@ -94,9 +94,9 @@ namespace System.Windows.Forms
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.RotateZ = new System.Windows.Forms.NumericInputBox();
-            this.RotateY = new System.Windows.Forms.NumericInputBox();
-            this.RotateX = new System.Windows.Forms.NumericInputBox();
+            this.RotateZ = new System.Windows.Forms.TextBox();
+            this.RotateY = new System.Windows.Forms.TextBox();
+            this.RotateX = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.ScaleDoNotChange = new System.Windows.Forms.RadioButton();
             this.ScaleDivide = new System.Windows.Forms.RadioButton();
@@ -108,9 +108,9 @@ namespace System.Windows.Forms
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.ScaleZ = new System.Windows.Forms.NumericInputBox();
-            this.ScaleY = new System.Windows.Forms.NumericInputBox();
-            this.ScaleX = new System.Windows.Forms.NumericInputBox();
+            this.ScaleZ = new System.Windows.Forms.TextBox();
+            this.ScaleY = new System.Windows.Forms.TextBox();
+            this.ScaleX = new System.Windows.Forms.TextBox();
             this.keyframeCopy = new System.Windows.Forms.TextBox();
             this.copyKeyframes = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -286,7 +286,6 @@ namespace System.Windows.Forms
             this.TranslateZ.Name = "TranslateZ";
             this.TranslateZ.Size = new System.Drawing.Size(96, 20);
             this.TranslateZ.TabIndex = 38;
-            this.TranslateZ.Text = "0";
             // 
             // TranslateY
             // 
@@ -295,7 +294,6 @@ namespace System.Windows.Forms
             this.TranslateY.Name = "TranslateY";
             this.TranslateY.Size = new System.Drawing.Size(96, 20);
             this.TranslateY.TabIndex = 37;
-            this.TranslateY.Text = "0";
             // 
             // TranslateX
             // 
@@ -304,7 +302,6 @@ namespace System.Windows.Forms
             this.TranslateX.Name = "TranslateX";
             this.TranslateX.Size = new System.Drawing.Size(96, 20);
             this.TranslateX.TabIndex = 36;
-            this.TranslateX.Text = "0";
             // 
             // groupBox3
             // 
@@ -443,7 +440,6 @@ namespace System.Windows.Forms
             this.RotateZ.Name = "RotateZ";
             this.RotateZ.Size = new System.Drawing.Size(96, 20);
             this.RotateZ.TabIndex = 38;
-            this.RotateZ.Text = "0";
             // 
             // RotateY
             // 
@@ -452,7 +448,6 @@ namespace System.Windows.Forms
             this.RotateY.Name = "RotateY";
             this.RotateY.Size = new System.Drawing.Size(96, 20);
             this.RotateY.TabIndex = 37;
-            this.RotateY.Text = "0";
             // 
             // RotateX
             // 
@@ -461,7 +456,6 @@ namespace System.Windows.Forms
             this.RotateX.Name = "RotateX";
             this.RotateX.Size = new System.Drawing.Size(96, 20);
             this.RotateX.TabIndex = 36;
-            this.RotateX.Text = "0";
             // 
             // groupBox5
             // 
@@ -600,7 +594,6 @@ namespace System.Windows.Forms
             this.ScaleZ.Name = "ScaleZ";
             this.ScaleZ.Size = new System.Drawing.Size(96, 20);
             this.ScaleZ.TabIndex = 14;
-            this.ScaleZ.Text = "1";
             // 
             // ScaleY
             // 
@@ -609,7 +602,6 @@ namespace System.Windows.Forms
             this.ScaleY.Name = "ScaleY";
             this.ScaleY.Size = new System.Drawing.Size(96, 20);
             this.ScaleY.TabIndex = 13;
-            this.ScaleY.Text = "1";
             // 
             // ScaleX
             // 
@@ -618,7 +610,6 @@ namespace System.Windows.Forms
             this.ScaleX.Name = "ScaleX";
             this.ScaleX.Size = new System.Drawing.Size(96, 20);
             this.ScaleX.TabIndex = 12;
-            this.ScaleX.Text = "1";
             // 
             // keyframeCopy
             // 
@@ -805,6 +796,20 @@ namespace System.Windows.Forms
                 false;
         }
 
+        public static Vector3? Vec3From(TextBox x, TextBox y, TextBox z) {
+            return Vec3From(x.Text, y.Text, z.Text);
+        }
+
+        public static Vector3? Vec3From(string x, string y, string z) {
+            if (x == "" && y == "" && z == "") return null;
+
+            try {
+                return new Vector3(float.Parse(x), float.Parse(y), float.Parse(z));
+            } catch (FormatException ex) {
+                throw new FormatException("Vector values must all have numbers or all be blank.", ex);
+            }
+        }
+
         public void Apply(IEnumerable<CHR0Node> CHR0)
         {
             string _name = name.Text;
@@ -825,9 +830,9 @@ namespace System.Windows.Forms
                         model = (MDL0Node)NodeFactory.FromFile(null, dlgOpen2.FileName);
                 }
             }
-            Vector3 scale = new Vector3(ScaleX.Value, ScaleY.Value, ScaleZ.Value);
-            Vector3 rot = new Vector3(RotateX.Value, RotateY.Value, RotateZ.Value);
-            Vector3 trans = new Vector3(TranslateX.Value, TranslateY.Value, TranslateZ.Value);
+            Vector3? scale = Vec3From(ScaleX, ScaleY, ScaleZ);
+            Vector3? rot = Vec3From(RotateX, RotateY, RotateZ);
+            Vector3? trans = Vec3From(TranslateX, TranslateY, TranslateZ);
             
             foreach (CHR0Node n in CHR0)
             {
@@ -890,9 +895,9 @@ namespace System.Windows.Forms
 
         public void Apply(IEnumerable<CHR0EntryNode> CHR0)
         {
-            Vector3 scale = new Vector3(ScaleX.Value, ScaleY.Value, ScaleZ.Value);
-            Vector3 rot = new Vector3(RotateX.Value, RotateY.Value, RotateZ.Value);
-            Vector3 trans = new Vector3(TranslateX.Value, TranslateY.Value, TranslateZ.Value);
+            Vector3? scale = Vec3From(ScaleX, ScaleY, ScaleZ);
+            Vector3? rot = Vec3From(RotateX, RotateY, RotateZ);
+            Vector3? trans = Vec3From(TranslateX, TranslateY, TranslateZ);
             
             foreach (CHR0EntryNode entry in CHR0)
             {
@@ -900,378 +905,384 @@ namespace System.Windows.Forms
             }
         }
 
-        private void Apply(CHR0EntryNode entry, Vector3 scale, Vector3 rot, Vector3 trans)
+        private void Apply(CHR0EntryNode entry, Vector3? scaleVec, Vector3? rotVec, Vector3? transVec)
         {
             KeyframeEntry kfe = null;
             CHRAnimationFrame anim;
             bool hasKeyframe = false;
             int numFrames = entry.FrameCount;
             int low = 0, high = 3;
-            if (ScaleReplace.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
+            if (scaleVec is Vector3 scale) {
+                if (ScaleReplace.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                         
-                entry.SetKeyframeOnlyScale(0, scale);
-            }
-            else if (ScaleClear.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
-            }
-            else if (ScaleAdd.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value += scale._x;
-                            else if (i == low + 1)
-                                kfe._value += scale._y;
-                            else if (i == high - 1)
-                                kfe._value += scale._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
-                {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newScale = anim.Scale;
-                    scale._x += newScale._x;
-                    scale._y += newScale._y;
-                    scale._z += newScale._z;
                     entry.SetKeyframeOnlyScale(0, scale);
                 }
-            }
-            else if (ScaleSubtract.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value -= scale._x;
-                            else if (i == low + 1)
-                                kfe._value -= scale._y;
-                            else if (i == high - 1)
-                                kfe._value -= scale._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (ScaleClear.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newScale = anim.Scale;
-                    scale._x = newScale._x - scale._x;
-                    scale._y = newScale._y - scale._y;
-                    scale._z = newScale._z - scale._z;
-                    entry.SetKeyframeOnlyScale(0, scale);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
-            }
-            else if (ScaleMultiply.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value *= scale._x;
-                            else if (i == low + 1)
-                                kfe._value *= scale._y;
-                            else if (i == high - 1)
-                                kfe._value *= scale._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (ScaleAdd.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newScale = anim.Scale;
-                    scale._x *= newScale._x;
-                    scale._y *= newScale._y;
-                    scale._z *= newScale._z;
-                    entry.SetKeyframeOnlyScale(0, scale);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value += scale._x;
+                                else if (i == low + 1)
+                                    kfe._value += scale._y;
+                                else if (i == high - 1)
+                                    kfe._value += scale._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newScale = anim.Scale;
+                        scale._x += newScale._x;
+                        scale._y += newScale._y;
+                        scale._z += newScale._z;
+                        entry.SetKeyframeOnlyScale(0, scale);
+                    }
                 }
-            }
-            else if (ScaleDivide.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low && scale._x != 0)
-                                kfe._value /= scale._x;
-                            else if (i == low + 1 && scale._y != 0)
-                                kfe._value /= scale._y;
-                            else if (i == high - 1 && scale._z != 0)
-                                kfe._value /= scale._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (ScaleSubtract.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newScale = anim.Scale;
-                    if (scale._x != 0)
-                        scale._x = newScale._x / scale._x;
-                    if (scale._y != 0)
-                        scale._y = newScale._y / scale._y;
-                    if (scale._z != 0)
-                        scale._z = newScale._z / scale._z;
-                    entry.SetKeyframeOnlyScale(0, scale);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value -= scale._x;
+                                else if (i == low + 1)
+                                    kfe._value -= scale._y;
+                                else if (i == high - 1)
+                                    kfe._value -= scale._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newScale = anim.Scale;
+                        scale._x = newScale._x - scale._x;
+                        scale._y = newScale._y - scale._y;
+                        scale._z = newScale._z - scale._z;
+                        entry.SetKeyframeOnlyScale(0, scale);
+                    }
+                }
+                else if (ScaleMultiply.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value *= scale._x;
+                                else if (i == low + 1)
+                                    kfe._value *= scale._y;
+                                else if (i == high - 1)
+                                    kfe._value *= scale._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newScale = anim.Scale;
+                        scale._x *= newScale._x;
+                        scale._y *= newScale._y;
+                        scale._z *= newScale._z;
+                        entry.SetKeyframeOnlyScale(0, scale);
+                    }
+                }
+                else if (ScaleDivide.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low && scale._x != 0)
+                                    kfe._value /= scale._x;
+                                else if (i == low + 1 && scale._y != 0)
+                                    kfe._value /= scale._y;
+                                else if (i == high - 1 && scale._z != 0)
+                                    kfe._value /= scale._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newScale = anim.Scale;
+                        if (scale._x != 0)
+                            scale._x = newScale._x / scale._x;
+                        if (scale._y != 0)
+                            scale._y = newScale._y / scale._y;
+                        if (scale._z != 0)
+                            scale._z = newScale._z / scale._z;
+                        entry.SetKeyframeOnlyScale(0, scale);
+                    }
                 }
             }
 
             low = 3; high = 6;
-            if (RotateReplace.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
+            if (rotVec is Vector3 rot) {
+                if (RotateReplace.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                         
-                entry.SetKeyframeOnlyRot(0, rot);
-            }
-            else if (RotateClear.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
-            }
-            else if (RotateAdd.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value += rot._x;
-                            else if (i == low + 1)
-                                kfe._value += rot._y;
-                            else if (i == high - 1)
-                                kfe._value += rot._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
-                {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newRotate = anim.Rotation;
-                    rot._x += newRotate._x;
-                    rot._y += newRotate._y;
-                    rot._z += newRotate._z;
                     entry.SetKeyframeOnlyRot(0, rot);
                 }
-            }
-            else if (RotateSubtract.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value -= rot._x;
-                            else if (i == low + 1)
-                                kfe._value -= rot._y;
-                            else if (i == high - 1)
-                                kfe._value -= rot._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (RotateClear.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newRotate = anim.Rotation;
-                    rot._x = newRotate._x - rot._x;
-                    rot._y = newRotate._y - rot._y;
-                    rot._z = newRotate._z - rot._z;
-                    entry.SetKeyframeOnlyRot(0, rot);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
-            }
-            else if (RotateMultiply.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value *= rot._x;
-                            else if (i == low + 1)
-                                kfe._value *= rot._y;
-                            else if (i == high - 1)
-                                kfe._value *= rot._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (RotateAdd.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newRotate = anim.Rotation;
-                    rot._x *= newRotate._x;
-                    rot._y *= newRotate._y;
-                    rot._z *= newRotate._z;
-                    entry.SetKeyframeOnlyRot(0, rot);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value += rot._x;
+                                else if (i == low + 1)
+                                    kfe._value += rot._y;
+                                else if (i == high - 1)
+                                    kfe._value += rot._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newRotate = anim.Rotation;
+                        rot._x += newRotate._x;
+                        rot._y += newRotate._y;
+                        rot._z += newRotate._z;
+                        entry.SetKeyframeOnlyRot(0, rot);
+                    }
                 }
-            }
-            else if (RotateDivide.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low && rot._x != 0)
-                                kfe._value /= rot._x;
-                            else if (i == low + 1 && rot._y != 0)
-                                kfe._value /= rot._y;
-                            else if (i == high - 1 && rot._z != 0)
-                                kfe._value /= rot._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (RotateSubtract.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newRotate = anim.Rotation;
-                    if (rot._x != 0)
-                        rot._x = newRotate._x / rot._x;
-                    if (rot._y != 0)
-                        rot._y = newRotate._y / rot._y;
-                    if (rot._z != 0)
-                        rot._z = newRotate._z / rot._z;
-                    entry.SetKeyframeOnlyRot(0, rot);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value -= rot._x;
+                                else if (i == low + 1)
+                                    kfe._value -= rot._y;
+                                else if (i == high - 1)
+                                    kfe._value -= rot._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newRotate = anim.Rotation;
+                        rot._x = newRotate._x - rot._x;
+                        rot._y = newRotate._y - rot._y;
+                        rot._z = newRotate._z - rot._z;
+                        entry.SetKeyframeOnlyRot(0, rot);
+                    }
+                }
+                else if (RotateMultiply.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value *= rot._x;
+                                else if (i == low + 1)
+                                    kfe._value *= rot._y;
+                                else if (i == high - 1)
+                                    kfe._value *= rot._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newRotate = anim.Rotation;
+                        rot._x *= newRotate._x;
+                        rot._y *= newRotate._y;
+                        rot._z *= newRotate._z;
+                        entry.SetKeyframeOnlyRot(0, rot);
+                    }
+                }
+                else if (RotateDivide.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low && rot._x != 0)
+                                    kfe._value /= rot._x;
+                                else if (i == low + 1 && rot._y != 0)
+                                    kfe._value /= rot._y;
+                                else if (i == high - 1 && rot._z != 0)
+                                    kfe._value /= rot._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newRotate = anim.Rotation;
+                        if (rot._x != 0)
+                            rot._x = newRotate._x / rot._x;
+                        if (rot._y != 0)
+                            rot._y = newRotate._y / rot._y;
+                        if (rot._z != 0)
+                            rot._z = newRotate._z / rot._z;
+                        entry.SetKeyframeOnlyRot(0, rot);
+                    }
                 }
             }
 
             low = 6; high = 9;
-            if (TranslateReplace.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = 0x10; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
+            if (transVec is Vector3 trans) {
+                if (TranslateReplace.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = 0x10; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
 
-                entry.SetKeyframeOnlyTrans(0, trans);
-            }
-            else if (TranslateClear.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if (entry.GetKeyframe(i, x) != null)
-                            entry.RemoveKeyframe(i, x);
-            }
-            else if (TranslateAdd.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value += trans._x;
-                            else if (i == low + 1)
-                                kfe._value += trans._y;
-                            else if (i == high - 1)
-                                kfe._value += trans._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
-                {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newTranslate = anim.Translation;
-                    trans._x += newTranslate._x;
-                    trans._y += newTranslate._y;
-                    trans._z += newTranslate._z;
                     entry.SetKeyframeOnlyTrans(0, trans);
                 }
-            }
-            else if (TranslateSubtract.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value -= trans._x;
-                            else if (i == low + 1)
-                                kfe._value -= trans._y;
-                            else if (i == high - 1)
-                                kfe._value -= trans._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (TranslateClear.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newTranslate = anim.Translation;
-                    trans._x = newTranslate._x - trans._x;
-                    trans._y = newTranslate._y - trans._y;
-                    trans._z = newTranslate._z - trans._z;
-                    entry.SetKeyframeOnlyTrans(0, trans);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if (entry.GetKeyframe(i, x) != null)
+                                entry.RemoveKeyframe(i, x);
                 }
-            }
-            else if (TranslateMultiply.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low)
-                                kfe._value *= trans._x;
-                            else if (i == low + 1)
-                                kfe._value *= trans._y;
-                            else if (i == high - 1)
-                                kfe._value *= trans._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (TranslateAdd.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newTranslate = anim.Translation;
-                    trans._x *= newTranslate._x;
-                    trans._y *= newTranslate._y;
-                    trans._z *= newTranslate._z;
-                    entry.SetKeyframeOnlyTrans(0, trans);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value += trans._x;
+                                else if (i == low + 1)
+                                    kfe._value += trans._y;
+                                else if (i == high - 1)
+                                    kfe._value += trans._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newTranslate = anim.Translation;
+                        trans._x += newTranslate._x;
+                        trans._y += newTranslate._y;
+                        trans._z += newTranslate._z;
+                        entry.SetKeyframeOnlyTrans(0, trans);
+                    }
                 }
-            }
-            else if (TranslateDivide.Checked)
-            {
-                entry.SignalPropertyChange();
-                for (int x = 0; x < numFrames; x++)
-                    for (int i = low; i < high; i++)
-                        if ((kfe = entry.GetKeyframe(i, x)) != null)
-                        {
-                            if (i == low && trans._x != 0)
-                                kfe._value /= trans._x;
-                            else if (i == low + 1 && trans._y != 0)
-                                kfe._value /= trans._y;
-                            else if (i == high - 1 && trans._z != 0)
-                                kfe._value /= trans._z;
-                            hasKeyframe = true;
-                        }
-                if (!hasKeyframe)
+                else if (TranslateSubtract.Checked)
                 {
-                    anim = entry.GetAnimFrame(0);
-                    Vector3 newTranslate = anim.Translation;
-                    if (trans._x != 0)
-                        trans._x = newTranslate._x / trans._x;
-                    if (trans._y != 0)
-                        trans._y = newTranslate._y / trans._y;
-                    if (trans._z != 0)
-                        trans._z = newTranslate._z / trans._z;
-                    entry.SetKeyframeOnlyTrans(0, trans);
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value -= trans._x;
+                                else if (i == low + 1)
+                                    kfe._value -= trans._y;
+                                else if (i == high - 1)
+                                    kfe._value -= trans._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newTranslate = anim.Translation;
+                        trans._x = newTranslate._x - trans._x;
+                        trans._y = newTranslate._y - trans._y;
+                        trans._z = newTranslate._z - trans._z;
+                        entry.SetKeyframeOnlyTrans(0, trans);
+                    }
+                }
+                else if (TranslateMultiply.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low)
+                                    kfe._value *= trans._x;
+                                else if (i == low + 1)
+                                    kfe._value *= trans._y;
+                                else if (i == high - 1)
+                                    kfe._value *= trans._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newTranslate = anim.Translation;
+                        trans._x *= newTranslate._x;
+                        trans._y *= newTranslate._y;
+                        trans._z *= newTranslate._z;
+                        entry.SetKeyframeOnlyTrans(0, trans);
+                    }
+                }
+                else if (TranslateDivide.Checked)
+                {
+                    entry.SignalPropertyChange();
+                    for (int x = 0; x < numFrames; x++)
+                        for (int i = low; i < high; i++)
+                            if ((kfe = entry.GetKeyframe(i, x)) != null)
+                            {
+                                if (i == low && trans._x != 0)
+                                    kfe._value /= trans._x;
+                                else if (i == low + 1 && trans._y != 0)
+                                    kfe._value /= trans._y;
+                                else if (i == high - 1 && trans._z != 0)
+                                    kfe._value /= trans._z;
+                                hasKeyframe = true;
+                            }
+                    if (!hasKeyframe)
+                    {
+                        anim = entry.GetAnimFrame(0);
+                        Vector3 newTranslate = anim.Translation;
+                        if (trans._x != 0)
+                            trans._x = newTranslate._x / trans._x;
+                        if (trans._y != 0)
+                            trans._y = newTranslate._y / trans._y;
+                        if (trans._z != 0)
+                            trans._z = newTranslate._z / trans._z;
+                        entry.SetKeyframeOnlyTrans(0, trans);
+                    }
                 }
             }
         }
