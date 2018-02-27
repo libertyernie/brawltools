@@ -639,11 +639,11 @@ namespace BrawlLib.Modeling
             [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
             public CullMode MaterialCulling { get { return _culling; } set { _culling = value; } }
 
-            [Category("Assets"), Description("If true, vertex arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for vertices must be used if the model uses texture matrices, tristripped primitives or SHP0 morph animations; otherwise the model will explode in-game.")]
+            [Category("Assets"), Description("If true, vertex arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for vertices must be used if any object is rigged to multiple bones (no single bind) or animated by an SHP0 animation.")]
             public bool ForceFloatVertices { get { return _fltVerts; } set { _fltVerts = value; } }
-            [Category("Assets"), Description("If true, normal arrays will be written in float format. This means that the data size will be larger, but more precise.")]
+            [Category("Assets"), Description("If true, normal arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for normals must be used if any object is rigged to multiple bones (no single bind) or animated by an SHP0 animation.")]
             public bool ForceFloatNormals { get { return _fltNrms; } set { _fltNrms = value; } }
-            [Category("Assets"), Description("If true, texture coordinate arrays will be written in float format. This means that the data size will be larger, but more precise.")]
+            [Category("Assets"), Description("If true, texture coordinate arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for texture coordinates must be used if any object uses at least one texture matrix.")]
             public bool ForceFloatUVs { get { return _fltUVs; } set { _fltUVs = value; } }
 
             [Category("Color Nodes"), Description("If true, color arrays read from the file will be ignored.")]
