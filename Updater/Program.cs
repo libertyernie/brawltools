@@ -241,6 +241,8 @@ namespace Net
 
         static void Main(string[] args)
         {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
             System.Windows.Forms.Application.EnableVisualStyles();
             
             //Prevent crash that occurs when this dll is not present
