@@ -66,6 +66,8 @@ namespace BrawlLib
             "BLOC Adventure Archive (*.BLOC)|*.bloc";
         public static string FMDL =
             SupportedFilesHandler.GetCompleteFilter("fmdl");
+        public static string STDT = 
+            SupportedFilesHandler.GetCompleteFilter("stdt", "*");
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,

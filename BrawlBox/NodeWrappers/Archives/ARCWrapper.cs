@@ -23,13 +23,15 @@ namespace BrawlBox
                 new ToolStripMenuItem("BRResource Pack", null, NewBRESAction),
                 new ToolStripMenuItem("Collision", null, NewCollisionAction),
                 new ToolStripMenuItem("BLOC", null, NewBLOCAction),
-                new ToolStripMenuItem("MSBin", null, NewMSBinAction)
+                new ToolStripMenuItem("MSBin", null, NewMSBinAction),
+                new ToolStripMenuItem("STDT", null, NewSTDTAction)
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Import", null,
                 new ToolStripMenuItem("ARChive", null, ImportARCAction),
                 new ToolStripMenuItem("BRResource Pack", null, ImportBRESAction),
                 new ToolStripMenuItem("BLOC", null, ImportBLOCAction),
-                new ToolStripMenuItem("MSBin", null, ImportMSBinAction)
+                new ToolStripMenuItem("MSBin", null, ImportMSBinAction),
+                new ToolStripMenuItem("STDT", null, ImportSTDTAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Preview All Models", null, PreviewAllAction));
@@ -53,11 +55,13 @@ namespace BrawlBox
         protected static void NewMSBinAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewMSBin(); }
         protected static void NewCollisionAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewCollision(); }
         protected static void NewBLOCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewBLOC(); }
+        protected static void NewSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTDT(); }
         protected static void ImportBRESAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBRES(); }
         protected static void ImportARCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportARC(); }
         protected static void ImportBLOCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBLOC(); }
         protected static void ImportCollisionAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportCollision(); }
         protected static void ImportMSBinAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportMSBin(); }
+        protected static void ImportSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSTDT(); }
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().PreviewAll(); }
         protected static void ExportAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ExportAll(); }
         protected static void ReplaceAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ReplaceAll(); }
@@ -139,6 +143,18 @@ namespace BrawlBox
             w.TreeView.SelectedNode = w;
             return node;
         }
+        
+        // StageBox create STDT
+        public STDTNode NewSTDT()
+        {
+            STDTNode node = new STDTNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            //w.TreeView.SelectedNode = w;
+            return node;
+        }
 
         public void ImportARC()
         {
@@ -169,6 +185,14 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.MSBin, out path) > 0)
                 NewMSBin().Replace(path);
+        }
+        
+        // StageBox import STDT
+        public void ImportSTDT()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.STDT, out path) > 0)
+                NewSTDT().Replace(path);
         }
         
         public override void OnExport(string outPath, int filterIndex)
