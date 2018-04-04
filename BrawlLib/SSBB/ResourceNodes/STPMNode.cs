@@ -117,7 +117,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("STPM Values")]
         public float Value9 { get { return _values.GetFloat(8); } set { _values.SetFloat(8, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
-        public float CameraAngle { get { return _values.GetFloat(9); } set { _values.SetFloat(9, value); SignalPropertyChange(); } }
+        public float CameraFOV { get { return _values.GetFloat(9); } set { _values.SetFloat(9, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
         public float MinimumZ { get { return _values.GetFloat(10); } set { _values.SetFloat(10, value); SignalPropertyChange(); } }
         [Category("STPM Values")]
