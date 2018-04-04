@@ -182,7 +182,7 @@ namespace BrawlLib.SSBBTypes
         GameWatch = 0x0F,
         Ice2 = 0x10,
         Danbouru = 0x11,
-        Crash1 = 0x12,
+        SpikesTargetTestOnly = 0x12,
         Crash2 = 0x13,
         Crash3 = 0x14,
         LargeBubbles = 0x15,
