@@ -23,7 +23,7 @@ namespace BrawlBox
                 new ToolStripMenuItem("BRResource Pack", null, NewBRESAction),
                 new ToolStripMenuItem("Collision", null, NewCollisionAction),
                 new ToolStripMenuItem("BLOC", null, NewBLOCAction),
-                new ToolStripMenuItem("MSBin", null, NewMSBinAction),
+                new ToolStripMenuItem("MSBin", null, NewMSBinAction)
                 // new ToolStripMenuItem("STDT", null, NewSTDTAction)
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Import", null,
