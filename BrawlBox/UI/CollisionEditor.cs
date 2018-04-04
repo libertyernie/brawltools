@@ -81,6 +81,11 @@ namespace System.Windows.Forms
         private Button btnNextFrame;
         private ToolStripButton btnHelp;
         private CheckedListBox lstObjects;
+        
+        // StageBox edits
+        private ToolStripSeparator toolStripSeparatorCamera;    // Seperator for Camera controls
+        private ToolStripButton btnPerspectiveCam;              // Goes into perspective mode
+        private ToolStripButton btnOrthographicCam;             // Goes into orthographic mode
 
         private void InitializeComponent()
         {
@@ -148,6 +153,12 @@ namespace System.Windows.Forms
             this.btnSameX = new System.Windows.Forms.ToolStripButton();
             this.btnSameY = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            
+            // StageBox Camera Modes
+            this.btnPerspectiveCam = new System.Windows.Forms.ToolStripButton();
+            this.btnOrthographicCam = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparatorCamera = new System.Windows.Forms.ToolStripSeparator();
+            
             this.btnResetCam = new System.Windows.Forms.ToolStripButton();
             this.btnResetSnap = new System.Windows.Forms.ToolStripButton();
             this.btnHelp = new System.Windows.Forms.ToolStripButton();
@@ -764,6 +775,11 @@ namespace System.Windows.Forms
             this.btnSameX,
             this.btnSameY,
             this.toolStripSeparator1,
+            
+            this.btnPerspectiveCam,
+            this.btnOrthographicCam,
+            this.toolStripSeparatorCamera,
+            
             this.btnResetCam,
             this.btnResetSnap,
             this.btnHelp});
@@ -853,6 +869,29 @@ namespace System.Windows.Forms
             // toolStripSeparator1
             // 
             this.toolStripSeparator1.Name = "toolStripSeparator1";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
+            // btnPerspectiveCam
+            // 
+            this.btnPerspectiveCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnPerspectiveCam.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnPerspectiveCam.Name = "btnPerspectiveCam";
+            this.btnPerspectiveCam.Size = new System.Drawing.Size(83, 19);
+            this.btnPerspectiveCam.Text = "Perspective";
+            this.btnPerspectiveCam.Click += new System.EventHandler(this.btnPerspectiveCam_Click);
+            // 
+            // btnOrthographicCam
+            // 
+            this.btnOrthographicCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnOrthographicCam.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnOrthographicCam.Name = "btnOrthographicCam";
+            this.btnOrthographicCam.Size = new System.Drawing.Size(83, 19);
+            this.btnOrthographicCam.Text = "Orthographic";
+            this.btnOrthographicCam.Click += new System.EventHandler(this.btnOrthographicCam_Click);
+            // 
+            // toolStripSeparatorCamera (StageBox)
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparatorCamera";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
             // btnResetCam
@@ -1734,6 +1773,18 @@ namespace System.Windows.Forms
         private void trackBar1_Scroll(object sender, EventArgs e) { _modelPanel.Invalidate(); }
         private void btnResetRot_Click(object sender, EventArgs e) { trackBar1.Value = 0; _modelPanel.Invalidate(); }
         private void btnResetCam_Click(object sender, EventArgs e) { _modelPanel.ResetCamera(); }
+        
+        // StageBox Perspective viewer
+        private void btnPerspectiveCam_Click(object sender, EventArgs e) { 
+            _modelPanel.ResetCamera();
+            _modelPanel.CurrentViewport.ViewType = ViewportProjection.Perspective;
+        }
+        
+        // StageBox Orthographic viewer
+        private void btnOrthographicCam_Click(object sender, EventArgs e) { 
+            _modelPanel.ResetCamera();
+            _modelPanel.CurrentViewport.ViewType = ViewportProjection.Orthographic;
+        }
 
         private void _modelPanel_KeyDown(object sender, KeyEventArgs e)
         {
