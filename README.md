@@ -1,10 +1,13 @@
-BrawlLib / BrawlBox
+BrawlLib / StageBox
 ==========
 
-BrawlLib and BrawlBox are designed to edit various types of data files found in Super Smash Bros. Brawl. They were developed initially by Kryal
+StageBox is a BrawlBox fork developed by soopercool101 specifically with the purpose of Brawl stage editing in mind.
+
+BrawlBox and BrawlLib were developed initially by Kryal
 (http://code.google.com/p/brawltools/source/list), then by BlackJax96
-(http://code.google.com/p/brawltools2) until the end of 2013.
+(http://code.google.com/p/brawltools2), then by libertyernie
+(https://github.com/libertyernie/brawltools)
 
-Current BrawlBox contributors are libertyernie, Sammi Husky, and BlackJax96.
+Current StageBox contributors: soopercool101
 
-The official forum thread on KC:MM is here: http://forums.kc-mm.com/index.php?topic=67847.0
+Join the Brawl Stage Compendium Discord to talk to the developers: https://discord.gg/s7c8763
