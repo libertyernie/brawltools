@@ -1,4 +1,5 @@
 ﻿using System;
+using BrawlLib;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -42,6 +43,8 @@ namespace BrawlBox.NodeWrappers
             _menu.Items[7].Enabled = w.NextNode != null;
         }
         #endregion
+        
+        public override string ExportFilter { get { return FileFilters.STPM; } }
 
         public void NewEntry()
         {
