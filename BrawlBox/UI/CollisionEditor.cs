@@ -2028,6 +2028,7 @@ namespace System.Windows.Forms
             txtBone.Text = _selectedObject._boneName = node.Text;
             _selectedObject.LinkedBone = ((MDL0BoneNode)node.Tag);
             txtModel.Text = _selectedObject._modelName = node.Parent.Text;
+            TargetNode.SignalPropertyChange();
         }
 
         private void btnUnlink_Click(object sender, EventArgs e)
@@ -2035,6 +2036,7 @@ namespace System.Windows.Forms
             txtBone.Text = "";
             txtModel.Text = "";
             _selectedObject.LinkedBone = null;
+            TargetNode.SignalPropertyChange();
         }
 
         private void contextMenuStrip2_Opening(object sender, CancelEventArgs e)
