@@ -1157,6 +1157,7 @@ namespace System.Windows.Forms
             _selectedObject = null;
             ClearSelection();
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         private void newObjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1165,6 +1166,7 @@ namespace System.Windows.Forms
             _targetNode._objects.Add(_selectedObject);
             lstObjects.Items.Add(_selectedObject, true);
             lstObjects.SelectedItem = _selectedObject;
+            //TargetNode.SignalPropertyChange();
         }
 
         private void ObjectSelected()
