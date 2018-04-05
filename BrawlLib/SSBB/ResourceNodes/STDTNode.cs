@@ -24,7 +24,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize() {
-            _name = "STDT";
+            _name = "Stage Trap Data Table";
             version = Header->_version;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
