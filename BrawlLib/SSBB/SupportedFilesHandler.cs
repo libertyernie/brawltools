@@ -88,7 +88,7 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "Brawl Stage Collision File", "coll"),
             new SupportedFileInfo(true, "Brawl Stage Parameters File", "stpm"),
             new SupportedFileInfo(true, "Brawl Stage Trap Data Table File", "stdt"),
-            new SupportedFileInfo(true, "Brawl SCLA File", "scla"),
+            new SupportedFileInfo(true, "Brawl Stage Collision Attributes File", "scla"),
 
             //Gamecube
             //new SupportedFileInfo(true, "J3D v3 Model", "bmd"),

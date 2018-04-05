@@ -50,7 +50,7 @@
         MSBin = 0x1404,
         STPM = 0x1520,
         STDT = 0x5B26,
-        SCLA = 0x6D00,
+        SCLA = 0x6D34,
         SndBgmTitleDataEntry = 0x6E00,
         SndBgmTitleDataFolder = 0x6E01,
 

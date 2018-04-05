@@ -14,7 +14,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             base.OnInitialize();
 
             if (_name == null)
-                _name = "SCLA";
+                _name = "Stage Collision Attributes";
 
             return Header->_count > 0;
         }

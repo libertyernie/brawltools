@@ -447,6 +447,7 @@
     <None Include="Resources\ADSJ.png" />
     <None Include="Resources\GMOT.png" />
     <None Include="Resources\GSND.png" />
+    <None Include="Resources\SCLA.png" />
     <None Include="Resources\ENEMY.png" />
     <None Include="Resources\GMOV.png" />
     <None Include="Resources\GEG1.png" />
