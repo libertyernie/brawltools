@@ -478,7 +478,11 @@
     </PreBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
-    <PostBuildEvent>%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(PlatformName)\$(ConfigurationName)\Updater.exe" "$(TargetDir)" /Y /I</PostBuildEvent>
+    <PostBuildEvent>cd $(TargetDir)
+mkdir Lib
+%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(PlatformName)\$(ConfigurationName)\Octokit.dll" "$(TargetDir)/Lib" /Y /I
+%25windir%25\system32\xcopy "$(SolutionDir)Updater\bin\$(PlatformName)\$(ConfigurationName)\Updater.exe" "$(TargetDir)/Lib" /Y /I
+del updater.exe</PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
