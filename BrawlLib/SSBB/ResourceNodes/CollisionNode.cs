@@ -34,6 +34,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return false;
         }
+        
+        protected override string GetName() {
+            return base.GetName("CollisionData");
+        }
 
         private int _pointCount, _planeCount;
         public override int OnCalculateSize(bool force)

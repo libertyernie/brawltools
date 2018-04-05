@@ -239,6 +239,14 @@ namespace BrawlLib.SSBB.ResourceNodes
             return String.Format("{0}[{1}]", _fileType, _fileIndex);
         }
 
+        protected virtual string GetName(string fileType)
+        {
+            string s = string.Format("{0}[{1}]", fileType, _fileIndex);
+            if (_group != 0)
+                s += "[Group " + _group + "]";
+            return s;
+        }
+
         protected void UpdateName()
         {
             if (!(this is ARCNode))
