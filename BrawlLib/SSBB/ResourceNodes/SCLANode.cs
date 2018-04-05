@@ -98,7 +98,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             switch (Index)
             {
                 case 0:
-                    _name = "Brick";
+                    _name = "Basic";
                     break;
                 case 1:
                     _name = "Rock";
@@ -113,7 +113,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = "Wood";
                     break;
                 case 5:
-                    _name = "NibuIron";
+                    _name = "LightIron";
                     break;
                 case 6:
                     _name = "Iron";
@@ -122,16 +122,16 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = "Carpet";
                     break;
                 case 8:
-                    _name = "Fence";
+                    _name = "Alien";
                     break;
                 case 9:
-                    _name = "Unknown1";
+                    _name = "Bulborb";
                     break;
                 case 10:
                     _name = "Water";
                     break;
                 case 11:
-                    _name = "Bubbles";
+                    _name = "Rubber";
                     break;
                 case 12:
                     _name = "Ice";
@@ -149,7 +149,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = "Ice2";
                     break;
                 case 17:
-                    _name = "Danbouru";
+                    _name = "Checkered";
                     break;
                 case 18:
                     _name = "SpikesTargetTestOnly";
@@ -173,19 +173,25 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = "Stone";
                     break;
                 case 25:
-                    _name = "Unknown2";
+                    _name = "Unknown1";
                     break;
                 case 26:
                     _name = "NES8Bit";
                     break;
                 case 27:
-                    _name = "Metal";
+                    _name = "Grate";
                     break;
                 case 28:
                     _name = "Sand";
                     break;
                 case 29:
                     _name = "Homerun";
+                    break;
+                case 30:
+                    _name = "WaterNoSplash";
+                    break;
+                case 31:
+                    _name = "Unknown2";
                     break;
                 default:
                     _name = "Entry" + Index;

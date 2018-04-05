@@ -164,7 +164,7 @@ namespace BrawlLib.SSBBTypes
 
     public enum CollisionPlaneMaterial : byte
     {
-        Brick = 0,
+        Basic = 0,
         Rock = 1,
         Grass = 2,
         Soil = 3,
@@ -172,8 +172,8 @@ namespace BrawlLib.SSBBTypes
         NibuIron = 5,
         Iron = 6,
         Carpet = 7,
-        Fence = 8,
-        Unknown1 = 9,
+        Alien = 8,
+        Bulborb = 9,
         Water = 0x0A,
         Bubbles = 0x0B,
         Ice = 0x0C,
@@ -181,19 +181,21 @@ namespace BrawlLib.SSBBTypes
         SnowIce = 0x0E,
         GameWatch = 0x0F,
         Ice2 = 0x10,
-        Danbouru = 0x11,
+        Checkered = 0x11,
         SpikesTargetTestOnly = 0x12,
         Crash2 = 0x13,
         Crash3 = 0x14,
-        LargeBubbles = 0x15,
+        ElectroplanktonBubbles = 0x15,
         Cloud = 0x16,
         Subspace = 0x17,
         Stone = 0x18,
-        Unknown2 = 0x19,
+        Unknown1 = 0x19,
         NES8Bit = 0x1A,
-        Metal = 0x1B,
+        Grate = 0x1B,
         Sand = 0x1C,
-        Homerun = 0x1D
+        Homerun = 0x1D,
+        WaterNoSplash = 0x1E,
+        Unknown2 = 0x1F
     }
 
     public enum CollisionPlaneType
