@@ -169,7 +169,7 @@ namespace BrawlLib.SSBBTypes
         Grass = 2,
         Soil = 3,
         Wood = 4,
-        NibuIron = 5,
+        LightIron = 5,
         Iron = 6,
         Carpet = 7,
         Alien = 8,
