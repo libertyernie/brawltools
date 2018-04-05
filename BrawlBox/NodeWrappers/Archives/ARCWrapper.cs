@@ -31,7 +31,9 @@ namespace BrawlBox
                 new ToolStripMenuItem("BRResource Pack", null, ImportBRESAction),
                 new ToolStripMenuItem("BLOC", null, ImportBLOCAction),
                 new ToolStripMenuItem("MSBin", null, ImportMSBinAction),
-                new ToolStripMenuItem("STDT", null, ImportSTDTAction)
+                new ToolStripMenuItem("SCLA", null, ImportSCLAAction),
+                new ToolStripMenuItem("STDT", null, ImportSTDTAction),
+                new ToolStripMenuItem("STPM", null, ImportSTPMAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Preview All Models", null, PreviewAllAction));
@@ -61,7 +63,9 @@ namespace BrawlBox
         protected static void ImportBLOCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBLOC(); }
         protected static void ImportCollisionAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportCollision(); }
         protected static void ImportMSBinAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportMSBin(); }
+        protected static void ImportSCLAAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSCLA(); }
         protected static void ImportSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSTDT(); }
+        protected static void ImportSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSTPM(); }
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().PreviewAll(); }
         protected static void ExportAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ExportAll(); }
         protected static void ReplaceAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ReplaceAll(); }
@@ -144,6 +148,18 @@ namespace BrawlBox
             return node;
         }
         
+        // StageBox create SCLA
+        public SCLANode NewSCLA()
+        {
+            SCLANode node = new SCLANode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
         // StageBox create STDT
         public STDTNode NewSTDT()
         {
@@ -152,7 +168,20 @@ namespace BrawlBox
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            //w.TreeView.SelectedNode = w;
+            // Viewing a STDT immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create STPM
+        public STPMNode NewSTPM()
+        {
+            STPMNode node = new STPMNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            w.TreeView.SelectedNode = w;
             return node;
         }
 
@@ -187,12 +216,28 @@ namespace BrawlBox
                 NewMSBin().Replace(path);
         }
         
+        // StageBox import SCLA
+        public void ImportSCLA()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.SCLA, out path) > 0)
+                NewSCLA().Replace(path);
+        }
+        
         // StageBox import STDT
         public void ImportSTDT()
         {
             string path;
             if (Program.OpenFile(FileFilters.STDT, out path) > 0)
                 NewSTDT().Replace(path);
+        }
+        
+        // StageBox import STPM
+        public void ImportSTPM()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.STPM, out path) > 0)
+                NewSTPM().Replace(path);
         }
         
         public override void OnExport(string outPath, int filterIndex)
