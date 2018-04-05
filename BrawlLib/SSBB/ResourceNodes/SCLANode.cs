@@ -161,7 +161,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     _name = "Crash3";
                     break;
                 case 21:
-                    _name = "LargeBubbles";
+                    _name = "ElectroplanktonBubbles";
                     break;
                 case 22:
                     _name = "Cloud";
