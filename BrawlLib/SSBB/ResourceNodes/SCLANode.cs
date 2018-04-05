@@ -95,109 +95,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         
         private void generateSCLAEntryName() {
-            switch (Index)
-            {
-                case 0:
-                    _name = "Basic";
-                    break;
-                case 1:
-                    _name = "Rock";
-                    break;
-                case 2:
-                    _name = "Grass";
-                    break;
-                case 3:
-                    _name = "Soil";
-                    break;
-                case 4:
-                    _name = "Wood";
-                    break;
-                case 5:
-                    _name = "LightIron";
-                    break;
-                case 6:
-                    _name = "Iron";
-                    break;
-                case 7:
-                    _name = "Carpet";
-                    break;
-                case 8:
-                    _name = "Alien";
-                    break;
-                case 9:
-                    _name = "Bulborb";
-                    break;
-                case 10:
-                    _name = "Water";
-                    break;
-                case 11:
-                    _name = "Rubber";
-                    break;
-                case 12:
-                    _name = "Ice";
-                    break;
-                case 13:
-                    _name = "Snow";
-                    break;
-                case 14:
-                    _name = "SnowIce";
-                    break;
-                case 15:
-                    _name = "GameWatch";
-                    break;
-                case 16:
-                    _name = "Ice2";
-                    break;
-                case 17:
-                    _name = "Checkered";
-                    break;
-                case 18:
-                    _name = "SpikesTargetTestOnly";
-                    break;
-                case 19:
-                    _name = "Crash2";
-                    break;
-                case 20:
-                    _name = "Crash3";
-                    break;
-                case 21:
-                    _name = "ElectroplanktonBubbles";
-                    break;
-                case 22:
-                    _name = "Cloud";
-                    break;
-                case 23:
-                    _name = "Subspace";
-                    break;
-                case 24:
-                    _name = "Stone";
-                    break;
-                case 25:
-                    _name = "Unknown1";
-                    break;
-                case 26:
-                    _name = "NES8Bit";
-                    break;
-                case 27:
-                    _name = "Grate";
-                    break;
-                case 28:
-                    _name = "Sand";
-                    break;
-                case 29:
-                    _name = "Homerun";
-                    break;
-                case 30:
-                    _name = "WaterNoSplash";
-                    break;
-                case 31:
-                    _name = "Unknown2";
-                    break;
-                default:
-                    _name = "Entry" + Index;
-                    break;
+            if(Index < 32 && Index >= 0) {
+                _name = ((CollisionPlaneMaterial) Index).ToString();
+                return;
             }
-
+            _name = "Entry" + Index;
         }
 
         public override int OnCalculateSize(bool force)
