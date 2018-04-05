@@ -236,12 +236,39 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected virtual string GetName()
         {
-            return String.Format("{0}[{1}]", _fileType, _fileIndex);
+            return String.Format("{0} [{1}]", fullTypeName(), _fileIndex);
+        }
+        
+        // Makes everything use spaces
+        protected virtual string fullTypeName()
+        {
+            switch(String.Format("{0}", _fileType)) {
+                case "None":
+                    return "None";
+                case "MiscData":
+                    return "Misc Data";
+                case "ModelData":
+                    return "Model Data";
+                case "TextureData":
+                    return "Texture Data";
+                case "AnimationData":
+                    return "Animation Data";
+                case "SceneData":
+                    return "Scene Data";
+                case "Type6":
+                    return "Type 6";
+                case "GroupedArchive":
+                    return "Grouped Archive";
+                case "EffectData":
+                    return "Effect Data";
+                default:
+                    return "Error Parsing Filetype";
+            }
         }
 
         protected virtual string GetName(string fileType)
         {
-            string s = string.Format("{0}[{1}]", fileType, _fileIndex);
+            string s = string.Format("{0} [{1}]", fileType, _fileIndex);
             if (_group != 0)
                 s += "[Group " + _group + "]";
             return s;

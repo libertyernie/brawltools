@@ -14,8 +14,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            if (_name == null)
-                _name = "Stage Parameters";
+            //if (_name == null)
+                //_name = "Stage Parameters";
 
             return Header->_count > 0;
         }
@@ -26,6 +26,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             for (int i = 0; i < Header->_count; i++)
                 new STPMEntryNode().Initialize(this, new DataSource((*Header)[i], _entrySize));
+        }
+        
+        protected override string GetName() {
+            return base.GetName("Stage Parameters");
         }
 
         public override int OnCalculateSize(bool force)

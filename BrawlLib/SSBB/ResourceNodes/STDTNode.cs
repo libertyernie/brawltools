@@ -24,7 +24,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize() {
-            _name = "Stage Trap Data Table";
+            // _name = "Stage Trap Data Table";
             version = Header->_version;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
@@ -32,6 +32,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
             Memory.Move(entries.Address, Header->Entries, (uint)entries.Length);
             return false;
+        }
+        
+        protected override string GetName() {
+            return base.GetName("Stage Trap Data Table ");
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force) {

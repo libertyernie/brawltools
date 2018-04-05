@@ -13,8 +13,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
 
-            if (_name == null)
-                _name = "Stage Collision Attributes";
+            //if (_name == null)
+                //_name = "Stage Collision Attributes";
 
             return Header->_count > 0;
         }
@@ -25,6 +25,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             for (int i = 0; i < Header->_count; i++)
                 new SCLAEntryNode().Initialize(this, new DataSource((*Header)[i], _entrySize));
+        }
+        
+        protected override string GetName() {
+            return base.GetName("Stage Collision Attributes");
         }
 
         public override int OnCalculateSize(bool force)
