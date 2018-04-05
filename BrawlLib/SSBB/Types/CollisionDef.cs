@@ -188,10 +188,10 @@ namespace BrawlLib.SSBBTypes
         LargeBubbles = 0x15,
         Cloud = 0x16,
         Subspace = 0x17,
-        Stone2 = 0x18,
+        Stone = 0x18,
         Unknown2 = 0x19,
         NES8Bit = 0x1A,
-        Metal2 = 0x1B,
+        Metal = 0x1B,
         Sand = 0x1C,
         Homerun = 0x1D
     }
