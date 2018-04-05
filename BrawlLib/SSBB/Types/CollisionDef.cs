@@ -175,7 +175,7 @@ namespace BrawlLib.SSBBTypes
         Alien = 8,
         Bulborb = 9,
         Water = 0x0A,
-        Bubbles = 0x0B,
+        Rubber = 0x0B,
         Ice = 0x0C,
         Snow = 0x0D,
         SnowIce = 0x0E,
