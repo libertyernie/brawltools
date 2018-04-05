@@ -9,7 +9,7 @@
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>BrawlBox</RootNamespace>
-    <AssemblyName>BrawlBox</AssemblyName>
+    <AssemblyName>StageBox</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <PlatformTarget>x86</PlatformTarget>
     <IsWebBootstrapper>false</IsWebBootstrapper>
@@ -88,7 +88,7 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>Brawlbox.ico</ApplicationIcon>
+    <ApplicationIcon>Stagebox.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
     <StartupObject>BrawlBox.Program</StartupObject>
@@ -144,7 +144,7 @@
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\Audio\RSARWrapper.cs" />
-    <Compile Include="NodeWrappers\STDTWrapper.cs" />  
+    <Compile Include="NodeWrappers\STDTWrapper.cs" />
     <Compile Include="NodeWrappers\SCLAWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />
     <Compile Include="NodeWrappers\HavokWrapper.cs" />
@@ -436,7 +436,7 @@
     <None Include="Resources\STPM.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Brawlbox.ico" />
+    <Content Include="Stagebox.ico" />
     <Content Include="OpenTK.dll" />
     <None Include="Resources\SharedTEX0.png" />
     <None Include="Resources\BGMG.png" />
