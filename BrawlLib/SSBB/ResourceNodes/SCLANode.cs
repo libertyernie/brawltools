@@ -59,7 +59,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
         [Category("SCLA Entry")]
-        public uint ID { get { return _index; } set { _index = value; SignalPropertyChange(); } }
+        public uint ID { get { return _index; } set { _index = value; SignalPropertyChange(); generateSCLAEntryName(); } }
         [Category("SCLA Entry")]
         public float Traction { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
         [Category("SCLA Entry")]
@@ -79,8 +79,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override bool OnInitialize()
         {
             //_name = "Entry" + Index;
-            generateSCLAEntryName();
             _index = Header->_index;
+            generateSCLAEntryName();
             _unk1 = Header->_unk1;
             _unk2 = Header->_unk2;
             _sub1 = Header->_entry1;
@@ -95,11 +95,11 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         
         private void generateSCLAEntryName() {
-            if(Index < 32 && Index >= 0) {
-                _name = ((CollisionPlaneMaterial) Index).ToString();
+            if(_index < 32 && _index >= 0) {
+                _name = ((CollisionPlaneMaterial) _index).ToString() + " [" + _index + "]";
                 return;
             }
-            _name = "Entry" + Index;
+            _name = "Entry [" + _index + "]";
         }
 
         public override int OnCalculateSize(bool force)
@@ -111,6 +111,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             SCLAEntry* hdr = (SCLAEntry*)address;
             hdr->_index = _index;
+            generateSCLAEntryName();
             hdr->_unk1 = _unk1;
             hdr->_unk2 = _unk2;
             hdr->_entry1 = _sub1;
