@@ -1,8 +1,10 @@
 ﻿
-BrawlBox Data Viewer - Version 0.77
-Copyright © 2009 - 2016 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
+StageBox - Beta v0.1 Beta
+Copyright © 2018 soopercool101
+BrawlBox  © 2009 - 2018 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
-https://github.com/libertyernie/brawltools
+https://github.com/soopercool101/stagebox
+https://discord.gg/s7c8763
 
 This program is provided as-is without any warranty, implied or otherwise.
 By using this program, the end user agrees to take full responsibility
@@ -10,9 +12,37 @@ regarding its proper and lawful use. The authors/hosts/distributors cannot be
 held responsible for any damage resulting in the use of this program, nor can 
 they be held accountable for the manner in which it is used.
 
- ====================================
-|************ Change Log ************|
- ====================================
+ =============================================
+|************ StageBox Change Log ************|
+ =============================================
+
+ - v0.1 - (6/9/2016)
+ . Resources originally saved with LZ77 will be saved as ExtendedLZ77 when the stage is saved (Being saved as LZ77 also marks archives as needing saving)
+ . Used spaces instead of CamelCase for data
+ . Collision Files are now displayed in-editor as "Collision Data [X]", where "X" is the FileIndex
+ . Fixed collision node not saving when deleting collision objects or linking/unlinking bones
+ . Added Perspective and Orthographic camera buttons to the collision editor
+ . Added support for collision types 0x1E and 0x1F, which were not recognized by BrawlBox
+ . Renamed collision materials to better describe what they do
+ . Uses extensions when importing and exporting Stage Parameters (.stpm), SCLA files (.scla), and STDT files (.stdt)
+ . Only will open files used for Brawl Stages by default
+ . SCLA is now recognized as a readable filetype with its own icon
+ . SCLA files are now displayed in-editor as "Stage Collision Attributes [X]", where "X" is the FileIndex
+ . Can now import SCLA, STDT, and STPM files directly into an ARC
+ . SCLA Entry variables renamed with known values ("Unknown1" -> "Traction"; "Unknown2" -> "HitDataSet")
+ . SCLA Entries renamed to match collision types
+ . Stage Parameter values renamed to match current understanding
+    - CameraAngle -> CameraFOV
+    - Value15 -> HorizontalRotationFactor
+    - Value16 -> VerticalRotationFactor
+    - Value17 -> CharacterBubbleBufferMultiplier
+    - Value19 -> CameraSpeed
+  . Stage Parameter files are now displayed in-editor as "Stage Parameters [X]", where "X" is the FileIndex
+  . STDT files are now displayed in-editor as "Stage Trap Data Table [X]", where "X" is the FileIndex
+
+ =============================================
+|************ BrawlBox Change Log ************|
+ =============================================
 
  - v0.77- (6/9/2016) - BrawlLib v0.24 
  . Added support for adding, replacing, removing and renaming RSAR entries and folders
