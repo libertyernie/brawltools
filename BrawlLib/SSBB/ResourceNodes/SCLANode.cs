@@ -76,11 +76,42 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _unk2;
         SCLASubEntryClass _sub1, _sub2, _sub3;
 
+        public SCLAEntryNode()
+        {
+            _index = 0;
+            _unk1 = 1;
+            _unk2 = 0;
+            _sub1 = new SCLASubEntryClass();
+            _sub2 = new SCLASubEntryClass();
+            _sub3 = new SCLASubEntryClass();
+
+            _sub1._parent =
+            _sub2._parent =
+            _sub3._parent = this;
+
+            generateSCLAEntryName();
+        }
+
+        public SCLAEntryNode(uint newIndex)
+        {
+            _index = newIndex;
+            _unk1 = 1;
+            _unk2 = 0;
+            _sub1 = new SCLASubEntryClass();
+            _sub2 = new SCLASubEntryClass();
+            _sub3 = new SCLASubEntryClass();
+
+            _sub1._parent =
+            _sub2._parent =
+            _sub3._parent = this;
+
+            generateSCLAEntryName();
+        }
+
         public override bool OnInitialize()
         {
             //_name = "Entry" + Index;
             _index = Header->_index;
-            generateSCLAEntryName();
             _unk1 = Header->_unk1;
             _unk2 = Header->_unk2;
             _sub1 = Header->_entry1;
@@ -90,6 +121,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             _sub1._parent =
             _sub2._parent =
             _sub3._parent = this;
+
+            generateSCLAEntryName();
 
             return false;
         }
@@ -156,6 +189,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             public int _index2;
             public int _index3;
             public int _index4;
+
+            public SCLASubEntryClass()
+            {
+                _unk1 = 0;
+                _unk2 = 0;
+                _unk3 = 0;
+                _unk4 = 0;
+                _index1 = 0;
+                _index2 = 0;
+                _index3 = 0;
+                _index4 = 0;
+            }
 
             public SCLASubEntryClass(SCLASubEntry e)
             {

@@ -48,7 +48,7 @@ namespace BrawlBox.NodeWrappers
 
         public void NewEntry()
         {
-            SCLAEntryNode node = new SCLAEntryNode() { Name = "ReplaceMe" };
+            SCLAEntryNode node = new SCLAEntryNode();
             _resource.AddChild(node);
         }
 
