@@ -190,7 +190,7 @@ namespace BrawlLib.SSBBTypes
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
         Unknown1 = 0x19,                // 
-        NES8Bit = 0x1A,                 // Used for Mario Bros.
+        MarioBros = 0x1A,               // Used for Mario Bros.
         Grate = 0x1B,                   // Used for Delfino Plaza's main platform
         Sand = 0x1C,                    // Used for sand (Unknown where used)
         Homerun = 0x1D,                 // Used for Home Run Contest, makes Olimar only spawn Purple Pikmin
