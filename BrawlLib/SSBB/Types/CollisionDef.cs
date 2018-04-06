@@ -164,38 +164,38 @@ namespace BrawlLib.SSBBTypes
 
     public enum CollisionPlaneMaterial : byte
     {
-        Basic = 0,
-        Rock = 1,
-        Grass = 2,
-        Soil = 3,
-        Wood = 4,
-        LightMetal = 5,
-        HeavyMetal = 6,
-        Carpet = 7,
-        Alien = 8,
-        Bulborb = 9,
-        Water = 0x0A,
-        Rubber = 0x0B,
-        Ice = 0x0C,
-        Snow = 0x0D,
-        SnowIce = 0x0E,
-        GameWatch = 0x0F,
-        Ice2 = 0x10,
-        Checkered = 0x11,
-        SpikesTargetTestOnly = 0x12,
-        Crash2 = 0x13,
-        Crash3 = 0x14,
-        ElectroplanktonBubbles = 0x15,
-        Cloud = 0x16,
-        Subspace = 0x17,
-        Stone = 0x18,
-        Unknown1 = 0x19,
-        NES8Bit = 0x1A,
-        Grate = 0x1B,
-        Sand = 0x1C,
-        Homerun = 0x1D,
-        WaterNoSplash = 0x1E,
-        Unknown2 = 0x1F
+        Basic = 0,                      // Used for many different objects
+        Rock = 1,                       // Used for Spear Pillar lower floor, PS1 Mountain
+        Grass = 2,                      // Used for grass or leaves
+        Soil = 3,                       // Used for PS2 mountain
+        Wood = 4,                       // Used for trees (PS1 Fire) and logs/planks (Jungle Japes)
+        LightMetal = 5,                 // Used for thin metal platforms
+        HeavyMetal = 6,                 // Used for thick metal platforms
+        Carpet = 7,                     // Used by Rainbow Cruise
+        Alien = 8,                      // Only used for Brinstar side platforms
+        Bulborb = 9,                    // Used for Bulborb collision in Distant Planet
+        Water = 0x0A,                   // Used for splash effects (Summit when sunk)
+        Rubber = 0x0B,                  // Used for the Trowlon subspace enemy
+        Ice = 0x0C,                     // Unknown where this is used, but has ice traction
+        Snow = 0x0D,                    // Used for snowy surfaces that aren't slippery (SSE)
+        SnowIce = 0x0E,                 // Used for Summit and PS2 Ice Transformation
+        GameWatch = 0x0F,               // Used for all Flat Zone platforms
+        Ice2 = 0x10,                    // Used some places in Subspace (Purple floor where the door to Tabuu is)
+        Checkered = 0x11,               // Used for Green Greens's checkerboard platforms and the present skin of rolling crates
+        SpikesTargetTestOnly = 0x12,    // Used for Spike Hazards in Target Test levels. Crashes or has no effect on stages not using a target test module
+        Crash2 = 0x13,                  // Used for fire hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
+        Crash3 = 0x14,                  // Used for ice hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
+        ElectroplanktonBubbles = 0x15,  // Used for Hanenbow leaves
+        Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
+        Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
+        Stone = 0x18,                   // Used for Spear Pillar upper level
+        Unknown1 = 0x19,                // 
+        NES8Bit = 0x1A,                 // Used for Mario Bros.
+        Grate = 0x1B,                   // Used for Delfino Plaza's main platform
+        Sand = 0x1C,                    // Used for sand (Unknown where used)
+        Homerun = 0x1D,                 // Used for Home Run Contest, makes Olimar only spawn Purple Pikmin
+        WaterNoSplash = 0x1E,           // Used for Distant Planet slope during rain
+        Unknown2 = 0x1F                 //
     }
 
     public enum CollisionPlaneType
