@@ -15,7 +15,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             //if (_name == null)
                 //_name = "Stage Collision Attributes";
-
+            
             return Header->_count > 0;
         }
 
@@ -59,7 +59,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
 
         [Category("SCLA Entry")]
-        public uint ID { get { return _index; } set { _index = value; SignalPropertyChange(); generateSCLAEntryName(); } }
+        public uint CollisionMaterialID { get { return _index; } set { _index = value; generateSCLAEntryName(); SignalPropertyChange(); } }
         [Category("SCLA Entry")]
         public float Traction { get { return _unk1; } set { _unk1 = value; SignalPropertyChange(); } }
         [Category("SCLA Entry")]
@@ -76,6 +76,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public uint _unk2;
         SCLASubEntryClass _sub1, _sub2, _sub3;
 
+        // Generate with initial values
         public SCLAEntryNode()
         {
             _index = 0;
@@ -92,6 +93,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             generateSCLAEntryName();
         }
 
+        // Generate with initial values from a given index ID
         public SCLAEntryNode(uint newIndex)
         {
             _index = newIndex;
@@ -216,7 +218,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             public override string ToString()
             {
-                //return string.Format("{0} {1} {2} {3} {4} {5} {6} {7}", _unk1, _unk2, _unk3, _unk4, _index1, _index2, _index3, _index4);
+                // If index 1 - 4 are different, return full string
+                if(_index1 != _index2 || _index1 != _index3 || _index1 != _index4)
+                {
+                    return string.Format("{0} {1} {2} {3} {4} {5} {6} {7} | Report this to soopercool101 if you see this message", _unk1, _unk2, _unk3, _unk4, _index1, _index2, _index3, _index4);
+                }
+                // Otherwise only show the first index (All seem to be edited in tandem)
                 return string.Format("{0} {1} {2} {3} {4}", _unk1, _unk2, _unk3, _unk4, _index1);
             }
 
