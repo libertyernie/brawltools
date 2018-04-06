@@ -185,7 +185,7 @@ namespace BrawlLib.SSBBTypes
         SpikesTargetTestOnly = 0x12,    // Used for Spike Hazards in Target Test levels. Crashes or has no effect on stages not using a target test module
         Crash2 = 0x13,                  // Used for fire hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
         Crash3 = 0x14,                  // Used for ice hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
-        ElectroplanktonBubbles = 0x15,  // Used for Hanenbow leaves
+        Electroplankton = 0x15,         // Used for Hanenbow leaves
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
