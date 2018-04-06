@@ -63,6 +63,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         public ushort id;
 
         public STPMValueManager _values = new STPMValueManager(null);
+        
+        // Generate with initial values
+        public STPMEntryNode() {
+            echo = 0;
+            id = 0;
+            id2 = 0;
+        }
 
         public class STPMValueManager
         {
