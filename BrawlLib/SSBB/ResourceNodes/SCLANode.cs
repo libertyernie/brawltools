@@ -95,9 +95,15 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         
         private void generateSCLAEntryName() {
-            if(_index < 32 && _index >= 0) {
-                _name = ((CollisionPlaneMaterial) _index).ToString() + " [" + _index + "]";
-                return;
+            if(_index >= 0 && _index <= 255)
+            {
+                byte _indexTest;
+                _indexTest = (byte)_index;
+                if (Enum.IsDefined(typeof(CollisionPlaneMaterial), _indexTest))
+                {
+                    _name = ((CollisionPlaneMaterial)_index).ToString() + " [" + _index + "]";
+                    return;
+                }
             }
             _name = "Entry [" + _index + "]";
         }
