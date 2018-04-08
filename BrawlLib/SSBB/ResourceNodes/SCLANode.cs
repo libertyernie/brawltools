@@ -9,6 +9,16 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal SCLA* Header { get { return (SCLA*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.SCLA; } }
 
+        public SCLANode() { }
+        
+        public SCLANode(uint newNodesToCreate)
+        {
+            for(uint i = 0; i < newNodesToCreate; i++) {
+                SCLAEntryNode node = new SCLAEntryNode(i);
+                AddChild(node);
+            }
+        }
+
         public override bool OnInitialize()
         {
             base.OnInitialize();
@@ -198,10 +208,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _unk2 = 0;
                 _unk3 = 0;
                 _unk4 = 0;
-                _index1 = 0;
-                _index2 = 0;
-                _index3 = 0;
-                _index4 = 0;
+                _index1 = -1;
+                _index2 = -1;
+                _index3 = -1;
+                _index4 = -1;
             }
 
             public SCLASubEntryClass(SCLASubEntry e)
