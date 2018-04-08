@@ -59,6 +59,33 @@ namespace BrawlLib.SSBB.ResourceNodes
                 offset += _entrySize;
             }
         }
+        
+        // Fill missing SCLA entries with default values
+        public override void fillSCLA(uint amount)
+        {
+            bool indexFound = false;
+            // Go through and add each index with default values as necessary
+            for(uint i = 0; i < amount; i++)
+            {
+                indexFound = false;
+                // Figure out if child already exists
+                for(int j = 0; j < Children.Count; j++)
+                {
+                    if(indexFound == false)
+                    {
+                        if(Children[j].getSCLAIndex() == i)
+                        {
+                            indexFound = true;
+                        }
+                    }
+                }
+                if(indexFound == false)
+                {
+                    SCLAEntryNode node = new SCLAEntryNode(i);
+                    AddChild(node);
+                }
+            }
+        }
 
         internal static ResourceNode TryParse(DataSource source) { return ((SCLA*)source.Address)->_tag == SCLA.Tag ? new SCLANode() : null; }
     }
@@ -67,7 +94,13 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal SCLAEntry* Header { get { return (SCLAEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-
+        public override int getSCLAIndex() {
+            if(_index > 255)
+            {
+                return -1;
+            }
+            return (int)_index;
+        }
         [Category("SCLA Entry")]
         public uint CollisionMaterialID { get { return _index; } set { _index = value; generateSCLAEntryName(); SignalPropertyChange(); } }
         [Category("SCLA Entry")]

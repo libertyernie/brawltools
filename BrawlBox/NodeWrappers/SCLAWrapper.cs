@@ -18,6 +18,10 @@ namespace BrawlBox.NodeWrappers
 
             _menu = new ContextMenuStrip();
             _menu.Items.Add(new ToolStripMenuItem("Add New Entry", null, NewEntryAction, Keys.Control | Keys.J));
+            _menu.Items.Add(new ToolStripMenuItem("Fill", null, FillAction, Keys.Control | Keys.F));
+#if DEBUG
+            _menu.Items.Add(new ToolStripMenuItem("Fill (Expanded)", null, FillExpandedAction, Keys.Control | Keys.Alt | Keys.F));
+#endif
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
@@ -32,6 +36,8 @@ namespace BrawlBox.NodeWrappers
             _menu.Closing += MenuClosing;
         }
         protected static void NewEntryAction(object sender, EventArgs e) { GetInstance<SCLAWrapper>().NewEntry(); }
+        protected static void FillAction(object sender, EventArgs e) { GetInstance<SCLAWrapper>().FillSCLA(32); }
+        protected static void FillExpandedAction(object sender, EventArgs e) { GetInstance<SCLAWrapper>().FillSCLA(255); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[6].Enabled = _menu.Items[7].Enabled = true;
@@ -50,6 +56,11 @@ namespace BrawlBox.NodeWrappers
         {
             SCLAEntryNode node = new SCLAEntryNode();
             _resource.AddChild(node);
+        }
+
+        public void FillSCLA(uint fillAmount)
+        {
+            _resource.fillSCLA(fillAmount);
         }
 
         public SCLAWrapper() { ContextMenuStrip = _menu; }

@@ -63,6 +63,10 @@ namespace BrawlLib.SSBB.ResourceNodes
     public abstract class ResourceNode : IDisposable
     {
         public Form _mainForm;
+        
+        // Necessary to get SCLA filling working properly
+        public virtual int getSCLAIndex() { return -1; }
+        public virtual void fillSCLA(uint amount) { }
 
         //Need to modulate these sources, create a new class.
         internal protected DataSource _origSource, _uncompSource;
