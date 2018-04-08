@@ -48,6 +48,25 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
             _name = Header->Name;
+            if (Compression == "LZ77")
+            {
+                if (_parent != null)
+                {
+                    if (_parent._name.Length >= 3)
+                    {
+                        if (_parent._name.Substring(0, 3) == "STG")
+                        {
+                            // Console.WriteLine(_parent._name);
+                            CompressionType type;
+                            if (Enum.TryParse("ExtendedLZ77", out type))
+                            {
+                                _compression = type;
+                                SignalPropertyChange();
+                            }
+                        }
+                    }
+                }
+            }
             return Header->_numFiles > 0;
         }
 
