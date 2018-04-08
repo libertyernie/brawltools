@@ -208,13 +208,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             get
             {
                 if(Compression == "LZ77") {
-                    CompressionType type;
-                    if (Enum.TryParse("ExtendedLZ77", out type))
-                    {
-                        _compression = type;
-                        _changed = true;
+                    if(_parent != null) {
+                        if(_parent._name.Length >= 3)
+                        {
+                            if (_parent._name.Substring(0, 3) == "STG")
+                            {
+                                // Console.WriteLine(_parent._name);
+                                CompressionType type;
+                                if (Enum.TryParse("ExtendedLZ77", out type))
+                                {
+                                    _compression = type;
+                                    _changed = true;
+                                }
+                                return true;
+                            }
+                        }
                     }
-                    return true;
                 }
                 if (HasChanged)
                     return true;
