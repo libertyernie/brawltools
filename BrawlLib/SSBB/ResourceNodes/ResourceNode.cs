@@ -94,6 +94,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public event ResourceChildEventHandler ChildAdded, ChildRemoved;
         public event ResourceChildInsertEventHandler ChildInserted;
 
+        public virtual void FindUnloadedChildren() { }
+
         #region Properties
 
         [Browsable(false)]
@@ -252,6 +254,23 @@ namespace BrawlLib.SSBB.ResourceNodes
                         _changed = true;
                     }
                 }
+            }
+        }
+
+#if DEBUG
+        [Browsable(true), Category("DEBUG")]
+#else
+        [Browsable(false)]
+#endif
+        public bool IsLoaded
+        {
+            get
+            {
+                return loadedInGame;
+            }
+            set
+            {
+                loadedInGame = value;
             }
         }
 

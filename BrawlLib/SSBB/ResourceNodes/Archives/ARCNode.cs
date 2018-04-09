@@ -32,6 +32,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if ((entry->Length == 0) || (NodeFactory.FromSource(this, source) == null))
                     new ARCEntryNode().Initialize(this, source);
             }
+            FindUnloadedChildren();
         }
 
         public override void Initialize(ResourceNode parent, DataSource origSource, DataSource uncompSource)
@@ -75,7 +76,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
             }
-            findUnloadedChildren();
+            FindUnloadedChildren();
             return Header->_numFiles > 0;
         }
 
@@ -134,6 +135,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 node.Rebuild(entry->Data, entry->Length, force);
                 entry = entry->Next;
             }
+
+            FindUnloadedChildren();
         }
 
         public override unsafe void Export(string outPath)
@@ -150,7 +153,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 base.Export(outPath);
         }
 
-        public void findUnloadedChildren()
+        public override void FindUnloadedChildren()
         {
             /*foreach (ResourceNode node in Children)
             {
@@ -170,6 +173,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }*/
             //for (int i = 0; i < _children.Count; i++)
+            foreach(ResourceNode nodeTest in Children)
+            {
+                nodeTest.loadedInGame = true;
+            }
             int i = 0;
             foreach (ResourceNode node in Children)
             {
