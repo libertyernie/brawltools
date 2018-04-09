@@ -48,7 +48,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
             _name = Header->Name;
-            if (Compression == "LZ77")
+            if (Compression == "LZ77" && Header->_numFiles > 0)
             {
                 if (_parent != null)
                 {
