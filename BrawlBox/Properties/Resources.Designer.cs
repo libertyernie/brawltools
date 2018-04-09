@@ -163,9 +163,9 @@ namespace BrawlBox.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap BRES-Off {
+        public static System.Drawing.Bitmap BRESOff {
             get {
-                object obj = ResourceManager.GetObject("BRES-Off", resourceCulture);
+                object obj = ResourceManager.GetObject("BRESOff", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

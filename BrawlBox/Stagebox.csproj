@@ -457,7 +457,7 @@
     <None Include="Resources\BLOC.png" />
     <None Include="Resources\REFFEntry.png" />
     
-    <None Include="Resources\greyscale\BRES-Off.png" />
+    <None Include="Resources\greyscale\BRESOff.png" />
     
     <None Include="Changelog.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
