@@ -63,6 +63,9 @@ namespace BrawlLib.SSBB.ResourceNodes
     public abstract class ResourceNode : IDisposable
     {
         public Form _mainForm;
+
+        // Check for stages for what gets loaded in game
+        public bool loadedInGame = true;
         
         // Necessary to get SCLA filling working properly
         public virtual int getSCLAIndex() { return -1; }

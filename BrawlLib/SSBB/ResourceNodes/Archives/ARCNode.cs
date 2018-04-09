@@ -48,6 +48,14 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             base.OnInitialize();
             _name = Header->Name;
+            if (_name.Length >= 3)
+            {
+                if (_name.Substring(0, 3) == "STG")
+                {
+                    Console.WriteLine(_name + " Generating MetaData");
+                }
+            }
+
             if (Compression == "LZ77" && Header->_numFiles > 0)
             {
                 if (_parent != null)
@@ -67,6 +75,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     }
                 }
             }
+            findUnloadedChildren();
             return Header->_numFiles > 0;
         }
 
@@ -139,6 +148,48 @@ namespace BrawlLib.SSBB.ResourceNodes
             //    ExportPAC(outPath);
             else
                 base.Export(outPath);
+        }
+
+        public void findUnloadedChildren()
+        {
+            /*foreach (ResourceNode node in Children)
+            {
+                if (node.loadedInGame == true)
+                {
+                    Console.WriteLine("Found resource " + node + " in ARC: " + _name);
+                    string nodeName = node._name;
+                    Console.WriteLine("Node name is: " + nodeName);
+                    foreach (ResourceNode node2 in Children)
+                    {
+                        if (node2._name == nodeName)
+                        {
+                            Console.WriteLine("Extra instance of " + nodeName + " deactivated");
+                            node2.loadedInGame = false;
+                        }
+                    }
+                }
+            }*/
+            //for (int i = 0; i < _children.Count; i++)
+            int i = 0;
+            foreach (ResourceNode node in Children)
+            {
+                ++i;
+                if (node.loadedInGame == true)
+                {
+                    //Console.WriteLine("Found resource " + node + " in ARC: " + _name);
+                    string nodeName = node._name;
+                    //Console.WriteLine("Node name is: " + nodeName);
+                    for (int j = i; j < _children.Count; j++)
+                    {
+                        ResourceNode node2 = _children[j];
+                        if (node2._name == nodeName)
+                        {
+                            Console.WriteLine("Extra instance of " + nodeName + " deactivated");
+                            node2.loadedInGame = false;
+                        }
+                    }
+                }
+            }
         }
 
         public void ExportAsMRG(string path)
