@@ -59,6 +59,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
             _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Fix Transparency With Characters", null, TransparencyFixAction));
             _menu.Items.Add(new ToolStripMenuItem("&Regenerate Metal Materials", null, MetalAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
@@ -69,6 +70,7 @@ namespace BrawlBox.NodeWrappers
         private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(); }
         private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(); }
         private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(); }
+        protected static void TransparencyFixAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().StartTransparencyFix(); }
 
         private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
         private static void OptimizeAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Optimize(); }
@@ -117,7 +119,14 @@ namespace BrawlBox.NodeWrappers
         public override string ImportFilter { get { return FileFilters.MDL0Import; } }
 
         public MDL0Wrapper() { ContextMenuStrip = _menu; }
-        
+
+        public void StartTransparencyFix()
+        {
+            if (MessageBox.Show(null, "This option will fix a transparent model to render correctly relative to characters.\nThis merely renames the model. Proper transparency must be set up for this to work fully.\nThis option will fail if the rename would cause a model name to be more than 255 characters.", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
+                ((MDL0Node)_resource).GR2Fix();
+            _resource.Rebuild(true);
+        }
+
         public void FlipX()
         {
             MDL0Node model = ((MDL0Node)_resource);

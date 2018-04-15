@@ -250,10 +250,34 @@ namespace BrawlLib.SSBB.ResourceNodes
             return shaders;
         }
 
+        public void GR2Fix()
+        {
+            if (_name.Length >= 4)
+            {
+                if (_name.Substring(0, 4) == "gr2_")
+                {
+                    // Already has gr2_ so return
+                    return;
+                }
+            }
+
+            String newName = "gr2_" + _name;
+            Console.WriteLine("New Name: " + newName);
+            if(newName.Length > 255) {
+                // Name is longer than Brawl can handle. Return.
+                return;
+            }
+            Name = newName;
+            SignalPropertyChange();
+        }
+
         public void GenerateMetalMaterials()
         {
             if (_children == null)
                 Populate();
+
+            if (_matList == null)
+                return;
 
             for (int x = 0; x < _matList.Count; x++)
             {
