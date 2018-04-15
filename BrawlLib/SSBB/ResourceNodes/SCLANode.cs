@@ -208,7 +208,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             public SCLAEntryNode _parent;
 
             [Category("SCLA Sub Entry")]
-            public byte Unknown1 { get { return _unk1; } set { _unk1 = value; _parent.SignalPropertyChange(); } }
+            public byte CreatesDust { get { return _unk1; } set { _unk1 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
             public byte Unknown2 { get { return _unk2; } set { _unk2 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
@@ -237,8 +237,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             public SCLASubEntryClass()
             {
-                _unk1 = 0;
-                _unk2 = 0;
+                _unk1 = 1;
+                _unk2 = 1;
                 _unk3 = 0;
                 _unk4 = 0;
                 _index1 = -1;
