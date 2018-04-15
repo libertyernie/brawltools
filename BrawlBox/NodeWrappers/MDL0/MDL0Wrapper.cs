@@ -52,6 +52,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (X-Axis)", null, FlipXAction));
             _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (Y-Axis)", null, FlipYAction));
             _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (Z-Axis)", null, FlipZAction));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
             _menu.Items.Add(new ToolStripMenuItem("&Import Existing Object", null, ImportObjectAction));
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
