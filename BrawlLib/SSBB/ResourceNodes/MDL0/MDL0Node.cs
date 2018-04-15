@@ -176,6 +176,24 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Functions
 
+        public MDL0BoneNode FindBoneByIndex(int givenIndex)
+        {
+            foreach (MDL0BoneNode b in _linker.BoneCache)
+                if (b.BoneIndex == givenIndex)
+                    return b;
+
+            return null;
+        }
+
+        // Swaps Cull_Inside and Cull_Outside
+        public void FlipAllMaterials()
+        {
+            foreach(MDL0MaterialNode m in _matList)
+            {
+                m.flipMaterial();
+            }
+        }
+        
         /// <summary>
         /// Call ApplyCHR0 before calling this
         /// </summary>

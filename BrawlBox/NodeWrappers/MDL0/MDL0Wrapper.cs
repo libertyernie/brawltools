@@ -49,6 +49,9 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("UVs", null, NameUVAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (X-Axis)", null, FlipXAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (Y-Axis)", null, FlipYAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Mirror Model (Z-Axis)", null, FlipZAction));
             _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
             _menu.Items.Add(new ToolStripMenuItem("&Import Existing Object", null, ImportObjectAction));
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
@@ -60,6 +63,11 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+        // StageBox model flipping
+        private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(); }
+        private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(); }
+        private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(); }
+
         private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
         private static void OptimizeAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Optimize(); }
         protected static void PreviewAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().Preview(); }
@@ -108,6 +116,44 @@ namespace BrawlBox.NodeWrappers
 
         public MDL0Wrapper() { ContextMenuStrip = _menu; }
         
+        public void FlipX()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            
+            if(model.FindBoneByIndex(0) != null) {
+                float newScale = 0 - model.FindBoneByIndex(0).getManualScale('X');
+                // Console.WriteLine("NEW SCALE: " + newScale);
+                model.FindBoneByIndex(0).setManualScale('X', newScale);
+                model.FlipAllMaterials();
+            }
+        }
+        
+        public void FlipY()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+
+            if (model.FindBoneByIndex(0) != null)
+            {
+                float newScale = 0 - model.FindBoneByIndex(0).getManualScale('Y');
+                // Console.WriteLine("NEW SCALE: " + newScale);
+                model.FindBoneByIndex(0).setManualScale('Y', newScale);
+                model.FlipAllMaterials();
+            }
+        }
+
+        public void FlipZ()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+
+            if (model.FindBoneByIndex(0) != null)
+            {
+                float newScale = 0 - model.FindBoneByIndex(0).getManualScale('Z');
+                // Console.WriteLine("NEW SCALE: " + newScale);
+                model.FindBoneByIndex(0).setManualScale('Z', newScale);
+                model.FlipAllMaterials();
+            }
+        }
+
         public void ReimportMeshes()
         {
             OpenFileDialog ofd = new OpenFileDialog();

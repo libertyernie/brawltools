@@ -1956,6 +1956,20 @@ For example, if the shader has two stages but this number is 1, the second stage
             base.Remove();
         }
 
+        public bool flipMaterial()
+        {
+            if ((int)_cull == 2)
+            {
+                _cull = (CullMode)1;
+                return true;
+            } else if ((int)_cull == 1)
+            {
+                _cull = (CullMode)2;
+                return true;
+            }
+            return false;
+        } 
+
         //public override void RemoveChild(ResourceNode child)
         //{
         //    base.RemoveChild(child);
