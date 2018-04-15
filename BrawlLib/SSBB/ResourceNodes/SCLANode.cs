@@ -179,11 +179,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                 _indexTest = (byte)_index;
                 if (Enum.IsDefined(typeof(CollisionPlaneMaterial), _indexTest))
                 {
-                    _name = ((CollisionPlaneMaterial)_index).ToString() + " [" + _index + "]";
+                    Name = ((CollisionPlaneMaterial)_index).ToString() + " [" + _index + "]";
                     return;
                 }
             }
-            _name = "Entry [" + _index + "]";
+            Name = "Entry [" + _index + "]";
         }
 
         public override int OnCalculateSize(bool force)
