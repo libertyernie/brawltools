@@ -192,6 +192,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 m.flipMaterial();
             }
+            SignalPropertyChange();
         }
         
         /// <summary>

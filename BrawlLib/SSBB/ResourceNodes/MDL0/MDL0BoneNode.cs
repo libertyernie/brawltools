@@ -492,14 +492,17 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                 case 'X':
                     Vector3 newScaleX = new Vector3(newScaleVal, Scale._y, Scale._z);
                     Scale = newScaleX;
+                    SignalPropertyChange();
                     return true;
                 case 'Y':
                     Vector3 newScaleY = new Vector3(Scale._x, newScaleVal, Scale._z);
                     Scale = newScaleY;
+                    SignalPropertyChange();
                     return true;
                 case 'Z':
                     Vector3 newScaleZ = new Vector3(Scale._x, Scale._y, newScaleVal);
                     Scale = newScaleZ;
+                    SignalPropertyChange();
                     return true;
             }
             return false;

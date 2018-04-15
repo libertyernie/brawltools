@@ -1961,10 +1961,12 @@ For example, if the shader has two stages but this number is 1, the second stage
             if ((int)_cull == 2)
             {
                 _cull = (CullMode)1;
+                SignalPropertyChange();
                 return true;
             } else if ((int)_cull == 1)
             {
                 _cull = (CullMode)2;
+                SignalPropertyChange();
                 return true;
             }
             return false;
