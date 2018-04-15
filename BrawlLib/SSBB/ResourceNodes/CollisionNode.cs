@@ -318,10 +318,20 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             return "Collision Object";
         }
+
+        public void resetFlip()
+        {
+            foreach (CollisionPlane p in _planes)
+            {
+                p.resetFlipPlane();
+            }
+        }
     }
 
     public unsafe class CollisionLink
     {
+        public bool flipped = false;
+
         private const float BoxRadius = 0.15f;
         private const float LineWidth = 11.0f;
 
@@ -645,6 +655,110 @@ namespace BrawlLib.SSBB.ResourceNodes
             CollisionLink l = _linkLeft; 
             _linkLeft = _linkRight; 
             _linkRight = l;
+        }
+
+        public void resetFlipPlane()
+        {
+            _linkLeft.flipped = false;
+            _linkRight.flipped = false;
+        }
+
+        public void flipAcrossPlane(char axisType)
+        {
+            switch(axisType)
+            {
+                case 'X':
+                    flipCollisionX();
+                    return;
+                case 'Y':
+                    flipCollisionY(true);
+                    return;
+            }
+        }
+
+        private void flipCollisionX()
+        {
+            // Swap location of the left node if it hasn't already been flipped
+            if (!_linkLeft.flipped)
+            {
+                Vector2 newCollisionL = new Vector2(0 - _linkLeft.Value._x, _linkLeft.Value._y);
+                //Console.WriteLine("            Old Collision L: (" + _linkLeft.Value._x + "," + _linkLeft.Value._y + ")");
+                //Console.WriteLine("            New Collision L: " + newCollisionL);
+                _linkLeft.Value = newCollisionL;
+                //Console.WriteLine("            New Collision L: (" + _linkLeft.Value._x + "," + _linkLeft.Value._y + ")");
+                _linkLeft.flipped = true;
+            }
+            // Swap location of the right node if it hasn't already been flipped
+            if (!_linkRight.flipped)
+            {
+                Vector2 newCollisionR = new Vector2(0 - _linkRight.Value._x, _linkRight.Value._y);
+                //Console.WriteLine("            Old Collision R: (" + _linkRight.Value._x + "," + _linkRight.Value._y + ")");
+                //Console.WriteLine("            New Collision R: " + newCollisionR);
+                _linkRight.Value = newCollisionR;
+                //Console.WriteLine("            New Collision R: (" + _linkRight.Value._x + "," + _linkRight.Value._y + ")");
+                _linkRight.flipped = true;
+            }
+            // Swap location of the ledges
+            if (!(IsRightLedge && IsLeftLedge))
+            {
+                if (IsRightLedge)
+                {
+                    IsRightLedge = false;
+                    IsLeftLedge = true;
+                } else if (IsLeftLedge)
+                {
+                    IsRightLedge = true;
+                    IsLeftLedge = false;
+                }
+            }
+            SwapLinks();
+            if (_type == CollisionPlaneType.RightWall)
+            {
+                _type = CollisionPlaneType.LeftWall;
+            } else if (_type == CollisionPlaneType.LeftWall)
+            {
+                _type = CollisionPlaneType.RightWall;
+            }
+        }
+
+        private void flipCollisionY(bool removeFloorFlags)
+        {
+            // Swap location of the left node if it hasn't already been flipped
+            if (!_linkLeft.flipped)
+            {
+                Vector2 newCollisionL = new Vector2(_linkLeft.Value._x, 0 - _linkLeft.Value._y);
+                //Console.WriteLine("            Old Collision L: (" + _linkLeft.Value._x + "," + _linkLeft.Value._y + ")");
+                //Console.WriteLine("            New Collision L: " + newCollisionL);
+                _linkLeft.Value = newCollisionL;
+                //Console.WriteLine("            New Collision L: (" + _linkLeft.Value._x + "," + _linkLeft.Value._y + ")");
+                _linkLeft.flipped = true;
+            }
+            // Swap location of the right node if it hasn't already been flipped
+            if (!_linkRight.flipped)
+            {
+                Vector2 newCollisionR = new Vector2(_linkRight.Value._x, 0 - _linkRight.Value._y);
+                //Console.WriteLine("            Old Collision R: (" + _linkRight.Value._x + "," + _linkRight.Value._y + ")");
+                //Console.WriteLine("            New Collision R: " + newCollisionR);
+                _linkRight.Value = newCollisionR;
+                //Console.WriteLine("            New Collision R: (" + _linkRight.Value._x + "," + _linkRight.Value._y + ")");
+                _linkRight.flipped = true;
+            }
+            SwapLinks();
+            if (_type == CollisionPlaneType.Ceiling)
+            {
+                _type = CollisionPlaneType.Floor;
+            }
+            else if (_type == CollisionPlaneType.Floor)
+            {
+                if(removeFloorFlags)
+                {
+                    // Unset flags that are floor-exclusive
+                    IsRightLedge = false;
+                    IsLeftLedge = false;
+                    IsFallThrough = false;
+                }
+                _type = CollisionPlaneType.Ceiling;
+            }
         }
 
         public void Delete()

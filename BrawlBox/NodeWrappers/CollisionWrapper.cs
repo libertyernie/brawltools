@@ -25,10 +25,19 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
             _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Mirror Unbound Collisions", null,
+                new ToolStripMenuItem("X-Axis", null, FlipXAction),
+                new ToolStripMenuItem("Y-Axis", null, FlipYAction)
+                ));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+        // StageBox collision flipping
+        private static void FlipXAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().FlipX(); }
+        private static void FlipYAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().FlipY(); }
+
         protected static void EditAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().Preview(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
@@ -47,6 +56,57 @@ namespace BrawlBox
         public override string ExportFilter { get { return FileFilters.CollisionDef; } }
 
         public CollisionWrapper() { ContextMenuStrip = _menu; }
+
+
+        public void FlipX()
+        {
+            CollisionNode coll = ((CollisionNode)_resource);
+            //int i = 0;
+            //int j = 0;
+            foreach(CollisionObject cObj in coll._objects)
+            {
+                //++i;
+                //Console.WriteLine("COLLISION OBJECT: " + i);
+                if(cObj.LinkedBone == null)
+                {
+                    //j = 0;
+                    //Console.WriteLine("   Not linked to a model");
+                    cObj.resetFlip();
+                    foreach (CollisionPlane p in cObj._planes)
+                    {
+                        //++j;
+                        //Console.WriteLine("      Initiating Plane: " + j);
+                        p.flipAcrossPlane('X');
+                    }
+                }
+            }
+            coll.SignalPropertyChange();
+        }
+
+        public void FlipY()
+        {
+            CollisionNode coll = ((CollisionNode)_resource);
+            //int i = 0;
+            //int j = 0;
+            foreach (CollisionObject cObj in coll._objects)
+            {
+                //++i;
+                //Console.WriteLine("COLLISION OBJECT: " + i);
+                if (cObj.LinkedBone == null)
+                {
+                    //j = 0;
+                    //Console.WriteLine("   Not linked to a model");
+                    cObj.resetFlip();
+                    foreach (CollisionPlane p in cObj._planes)
+                    {
+                        //++j;
+                        //Console.WriteLine("      Initiating Plane: " + j);
+                        p.flipAcrossPlane('Y');
+                    }
+                }
+            }
+            coll.SignalPropertyChange();
+        }
 
         private void Preview()
         {
