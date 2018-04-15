@@ -1990,7 +1990,15 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
             foreach (CollisionLink link in _selectedLinks)
-                link._rawValue._y = numY.Value;
+            {
+                if (link._parent == null || link._parent.LinkedBone == null)
+                {
+                    link._rawValue._y = numY.Value;
+                    return;
+                }
+                Vector2 oldValue = link.Value;
+                link.Value = new Vector2(oldValue._x, numY.Value);
+            }
             _modelPanel.Invalidate();
             TargetNode.SignalPropertyChange();
         }
