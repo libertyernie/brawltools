@@ -48,6 +48,48 @@ namespace BrawlLib.SSBB.ResourceNodes
             n.SetSize(_numFrames, Loop);
             return n;
         }
+        public CHR0EntryNode CreateEntryFromBone(MDL0BoneNode b, int framesToGenerate, bool generateOrigin)
+        {
+            CHR0EntryNode n = new CHR0EntryNode();
+            if(!generateOrigin)
+            {
+                if(b.isOriginRot() && b.isOriginScale() && b.isOriginTrans())
+                {
+                    //Console.WriteLine("      " + b + " has all values equal to origin. Not generating keyframes.");
+                    return null;
+                }
+            }
+            n._name = this.FindName(b.Name);
+            AddChild(n);
+            n.SetSize(_numFrames, Loop);
+            //Console.WriteLine(_numFrames);
+            for (int i = 0; i < framesToGenerate; ++i)
+            {
+                if(i < _numFrames)
+                {
+                    //Console.WriteLine("        ROTATION IS: " + b.Rotation);
+                    if (generateOrigin || !b.isOriginRot())
+                    {
+                        //Console.WriteLine("          GENERATED");
+                        n.SetKeyframeOnlyRot(i, b.Rotation);
+                    }
+                    //Console.WriteLine("        SCALE IS: " + b.Scale);
+                    if (generateOrigin || !b.isOriginScale())
+                    {
+                        //Console.WriteLine("          GENERATED");
+                        n.SetKeyframeOnlyScale(i, b.Scale);
+                    }
+                    //Console.WriteLine("        TRANSLATION IS: " + b.Translation);
+                    if (generateOrigin || !b.isOriginTrans())
+                    {
+                        //Console.WriteLine("          GENERATED");
+                        n.SetKeyframeOnlyTrans(i, b.Translation);
+                    }
+                }
+            }
+            SignalPropertyChange();
+            return n;
+        }
 
         public void InsertKeyframe(int index)
         {
@@ -251,6 +293,66 @@ namespace BrawlLib.SSBB.ResourceNodes
         internal static ResourceNode TryParse(DataSource source) { return ((BRESCommonHeader*)source.Address)->_tag == CHR0v4_3.Tag ? new CHR0Node() : null; }
 
         #region Extra Functions
+
+        public void KeyFrameGen(int framesToGenerate, bool allowDuplicates, bool generateOrigin)
+        {
+            // If not in a brres, return
+            if(_parent == null)
+            {
+                return; // Checks if in brres folder
+            }
+            if(_parent._parent == null)
+            {
+                return; // Checks if in brres
+            }
+            //Console.WriteLine("Parent is: " + _parent._parent);
+            // Ensure models exist in a modeldata
+            BRRESNode temp = (BRRESNode)_parent._parent;
+            if(temp.GetFolder<MDL0Node>() == null)
+            {
+                //Console.WriteLine("  No MDL0 folder found");
+                return;
+            }
+            // For every model in the model folder
+            int j = 0;
+            //Console.WriteLine(temp.GetFolder<MDL0Node>());
+            foreach(MDL0Node m in temp.GetFolder<MDL0Node>().Children)
+            {
+                //Console.WriteLine("  " + m);
+                // For every bone in a model
+                MDL0BoneNode b = m.FindBoneByIndex(0);
+                j = 0;
+                while(b != null)
+                {
+                    ++j;
+                    bool alreadyAdded = false;
+                    if (b != null)
+                    {
+                        //Console.WriteLine("    Bone: " + b);
+                        if (!allowDuplicates)
+                        {
+                            // Check if there's already an ID for such a bone
+                            foreach (CHR0EntryNode ch in Children)
+                            {
+                                if (ch.ToString() == b.ToString() && alreadyAdded == false)
+                                {
+                                    alreadyAdded = true;
+                                    //Console.WriteLine("      " + b + " has already been added to animation");
+                                }
+                            }
+                        }
+                        // If the bone has not been added or duplicates are allowed
+                        if(!alreadyAdded)
+                        {
+                            //Console.WriteLine("      Adding keyframes for " + b);
+                            CreateEntryFromBone(b, framesToGenerate, generateOrigin);
+                        }
+                    }
+                    b = m.FindBoneByIndex(j);
+                }
+            }
+        }
+
         /// <summary>
         /// Stretches or compresses all frames of the animation to fit a new frame count specified by the user.
         /// </summary>

@@ -112,6 +112,79 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return group;
         }
+
+        public BRESGroupNode GetFolder<T>() where T : BRESEntryNode
+        {
+            string groupName; BRESGroupNode.BRESGroupType type;
+            if (typeof(T) == typeof(TEX0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.Textures;
+                groupName = "Textures(NW4R)";
+            }
+            else if (typeof(T) == typeof(PLT0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.Palettes;
+                groupName = "Palettes(NW4R)";
+            }
+            else if (typeof(T) == typeof(MDL0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.Models;
+                groupName = "3DModels(NW4R)";
+            }
+            else if (typeof(T) == typeof(CHR0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.CHR0;
+                groupName = "AnmChr(NW4R)";
+            }
+            else if (typeof(T) == typeof(CLR0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.CLR0;
+                groupName = "AnmClr(NW4R)";
+            }
+            else if (typeof(T) == typeof(SRT0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.SRT0;
+                groupName = "AnmTexSrt(NW4R)";
+            }
+            else if (typeof(T) == typeof(PAT0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.PAT0;
+                groupName = "AnmTexPat(NW4R)";
+            }
+            else if (typeof(T) == typeof(SHP0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.SHP0;
+                groupName = "AnmShp(NW4R)";
+            }
+            else if (typeof(T) == typeof(VIS0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.VIS0;
+                groupName = "AnmVis(NW4R)";
+            }
+            else if (typeof(T) == typeof(SCN0Node))
+            {
+                type = BRESGroupNode.BRESGroupType.SCN0;
+                groupName = "AnmScn(NW4R)";
+            }
+            else if (typeof(T) == typeof(RASDNode))
+            {
+                type = BRESGroupNode.BRESGroupType.External;
+                groupName = "External";
+            }
+            else
+                return null;
+
+            BRESGroupNode group = null;
+            foreach (BRESGroupNode node in Children)
+                if (node.Type == type)
+                { group = node; break; }
+
+            if (group == null)
+                return null;
+
+            return group;
+        }
+
         public T CreateResource<T>(string name) where T : BRESEntryNode
         {
             BRESGroupNode group = GetOrCreateFolder<T>();

@@ -485,7 +485,22 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             base.RemoveChild(child);
             OnMoved();
         }
-        
+
+        public bool isOriginScale()
+        {
+            return (Scale == new Vector3(1, 1, 1));
+        }
+
+        public bool isOriginRot()
+        {
+            return (Rotation == new Vector3(0, 0, 0));
+        }
+
+        public bool isOriginTrans()
+        {
+            return (Translation == new Vector3(0, 0, 0));
+        }
+
         // Used for StageBox's flip function
         public bool setManualScale(char scaleType, float newScaleVal) {
             switch(scaleType) {

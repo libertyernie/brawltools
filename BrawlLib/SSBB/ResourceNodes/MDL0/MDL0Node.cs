@@ -178,6 +178,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public MDL0BoneNode FindBoneByIndex(int givenIndex)
         {
+            // Generate bones if the model hasn't been seen yet
+            if(_boneGroup == null)
+            {
+                Populate();
+                _linker.RegenerateBoneCache();
+            }
             foreach (MDL0BoneNode b in _linker.BoneCache)
                 if (b.BoneIndex == givenIndex)
                     return b;
@@ -262,7 +268,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
 
             String newName = "gr2_" + _name;
-            Console.WriteLine("New Name: " + newName);
+            //Console.WriteLine("New Name: " + newName);
             if(newName.Length > 255) {
                 // Name is longer than Brawl can handle. Return.
                 return;
@@ -488,6 +494,13 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public MDL0BoneNode FindBone(string name)
         {
+            // Generate bones if the model hasn't been seen yet
+            if (_boneGroup == null)
+            {
+                Populate();
+                _linker.RegenerateBoneCache();
+            }
+
             foreach (MDL0BoneNode b in _linker.BoneCache)
                 if (b.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
                     return b;

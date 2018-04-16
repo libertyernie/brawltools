@@ -19,6 +19,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("Ne&w Bone Target", null, NewBoneAction, Keys.Control | Keys.W));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Edit", null,
+                new ToolStripMenuItem("&Generate Keyframes From All Bone Positions", null, KeyframeGenAction),
                 new ToolStripMenuItem("&Merge Animation", null, MergeAction),
                 new ToolStripMenuItem("&Append Animation", null, AppendAction),
                 new ToolStripMenuItem("Res&ize", null, ResizeAction)));
@@ -39,6 +40,9 @@ namespace BrawlBox.NodeWrappers
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
+
+        protected static void KeyframeGenAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().KeyFrameGen(2, false, false); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[12].Enabled = true;
@@ -89,6 +93,11 @@ namespace BrawlBox.NodeWrappers
             BaseWrapper res = this.FindResource(_resource, false);
             res.EnsureVisible();
             res.TreeView.SelectedNode = res;
+        }
+
+        public void KeyFrameGen(int framesToGenerate, bool allowDuplicates, bool generateOrigin)
+        {
+            ((CHR0Node)_resource).KeyFrameGen(framesToGenerate, allowDuplicates, generateOrigin);
         }
     }
 
