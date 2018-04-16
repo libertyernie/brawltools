@@ -16,6 +16,8 @@ namespace BrawlBox
 {
     public partial class MainForm : Form
     {
+        public bool renderPreviews = true;
+
         private static MainForm _instance;
         public static MainForm Instance { get { return _instance == null ? _instance = new MainForm() : _instance; } }
 
@@ -409,7 +411,7 @@ namespace BrawlBox
             }
 
             //Model panel has to be loaded first to display model correctly
-            if (_currentControl is ModelPanel)
+            if (_currentControl is ModelPanel && renderPreviews)
             {
                 if (node._children == null)
                     node.Populate(0);
