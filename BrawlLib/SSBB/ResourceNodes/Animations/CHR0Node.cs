@@ -65,27 +65,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             //Console.WriteLine(_numFrames);
             for (int i = 0; i < framesToGenerate; ++i)
             {
-                if(i < _numFrames)
-                {
-                    //Console.WriteLine("        ROTATION IS: " + b.Rotation);
-                    if (generateOrigin || !b.isOriginRot())
-                    {
-                        //Console.WriteLine("          GENERATED");
-                        n.SetKeyframeOnlyRot(i, b.Rotation);
-                    }
-                    //Console.WriteLine("        SCALE IS: " + b.Scale);
-                    if (generateOrigin || !b.isOriginScale())
-                    {
-                        //Console.WriteLine("          GENERATED");
-                        n.SetKeyframeOnlyScale(i, b.Scale);
-                    }
-                    //Console.WriteLine("        TRANSLATION IS: " + b.Translation);
-                    if (generateOrigin || !b.isOriginTrans())
-                    {
-                        //Console.WriteLine("          GENERATED");
-                        n.SetKeyframeOnlyTrans(i, b.Translation);
-                    }
-                }
+                n.generateKeyframeFromBone(b, i, true, generateOrigin);
             }
             SignalPropertyChange();
             return n;
@@ -810,6 +790,51 @@ namespace BrawlLib.SSBB.ResourceNodes
             SignalPropertyChange();
         }
 
+        public void KeyFrameGenFromBone(int framesToGenerate, bool allowOverwrite, bool generateOrigin)
+        {
+            // If not in a brres, return
+            if (_parent == null)
+            {
+                return; // Checks if in chr0
+            }
+            if (_parent._parent == null)
+            {
+                return; // Checks if in brres folder
+            }
+            if (_parent._parent._parent == null)
+            {
+                return; // Checks if in brres
+            }
+            //Console.WriteLine("Parent is: " + _parent._parent._parent);
+            // Ensure models exist in a modeldata
+            BRRESNode temp = (BRRESNode)_parent._parent._parent;
+            if (temp.GetFolder<MDL0Node>() == null)
+            {
+                //Console.WriteLine("  No MDL0 folder found");
+                return;
+            }
+            // For every model in the model folder
+            int j = 0;
+            //Console.WriteLine(temp.GetFolder<MDL0Node>());
+            foreach (MDL0Node m in temp.GetFolder<MDL0Node>().Children)
+            {
+                //Console.WriteLine("  " + m);
+                // For every bone in a model
+                MDL0BoneNode b = m.FindBone(Name);
+                if (b == null)
+                {
+                    //Console.WriteLine("Could not find bone " + Name + " in model " + m);
+                }
+                else
+                {
+                    //Console.WriteLine("Found bone " + b + " in model " + m);
+                    for(int i = 0; i < framesToGenerate; ++i)
+                        generateKeyframeFromBone(b, i, allowOverwrite, generateOrigin);
+                    return;
+                }
+            }
+        }
+
         #region Keyframe Management
 
         public static bool _generateTangents = true;
@@ -819,6 +844,42 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public float GetFrameValue(int arrayIndex, float index, bool returnOutValue = false) { return Keyframes.GetFrameValue(arrayIndex, index, returnOutValue); }
 
+        public void generateKeyframeFromBone(MDL0BoneNode b, int frame, bool allowOverwrite, bool generateOrigin)
+        {
+            if (!generateOrigin)
+            {
+                if (b.isOriginRot() && b.isOriginScale() && b.isOriginTrans())
+                {
+                    //Console.WriteLine("      " + b + " has all values equal to origin. Not generating keyframes.");
+                    return;
+                }
+            }
+            //Console.WriteLine(_numFrames);
+            if (frame < ((CHR0Node)_parent)._numFrames)
+            {
+                //Console.WriteLine("        ROTATION IS: " + b.Rotation);
+                if (generateOrigin || !b.isOriginRot())
+                {
+                    //Console.WriteLine("          GENERATED");
+                    SetKeyframeOnlyRot(frame, b.Rotation);
+                }
+                //Console.WriteLine("        SCALE IS: " + b.Scale);
+                if (generateOrigin || !b.isOriginScale())
+                {
+                    //Console.WriteLine("          GENERATED");
+                    SetKeyframeOnlyScale(frame, b.Scale);
+                }
+                //Console.WriteLine("        TRANSLATION IS: " + b.Translation);
+                if (generateOrigin || !b.isOriginTrans())
+                {
+                    //Console.WriteLine("          GENERATED");
+                    SetKeyframeOnlyTrans(frame, b.Translation);
+                }
+            }
+            SignalPropertyChange();
+            UpdateProperties();
+        }
+        
         public KeyframeEntry GetKeyframe(int arrayIndex, int index) { return Keyframes.GetKeyframe(arrayIndex, index); }
         public KeyframeEntry SetKeyframe(int arrayIndex, int index, float value, bool forceNoGenTans = false, bool parsing = false)
         {

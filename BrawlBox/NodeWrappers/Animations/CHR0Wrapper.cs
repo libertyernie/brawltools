@@ -19,10 +19,10 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("Ne&w Bone Target", null, NewBoneAction, Keys.Control | Keys.W));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Edit", null,
-                new ToolStripMenuItem("&Generate Keyframes From All Bone Positions", null, KeyframeGenAction),
-                new ToolStripMenuItem("&Merge Animation", null, MergeAction),
-                new ToolStripMenuItem("&Append Animation", null, AppendAction),
-                new ToolStripMenuItem("Res&ize", null, ResizeAction)));
+                new ToolStripMenuItem("Generate Keyframes From All Bone Positions", null, KeyframeGenAction),
+                new ToolStripMenuItem("Merge Animation", null, MergeAction),
+                new ToolStripMenuItem("Append Animation", null, AppendAction),
+                new ToolStripMenuItem("Resize", null, ResizeAction)));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
@@ -120,11 +120,14 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
             _menu.Items.Add(new ToolStripMenuItem("Re&name", null, RenameAction, Keys.Control | Keys.N));
             _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("Generate Keyframe From Bone Position", null, KeyframeGenFromBoneAction));
+            _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
         protected static void ViewInterp(object sender, EventArgs e) { GetInstance<CHR0EntryWrapper>().ViewInterp(); }
+        protected static void KeyframeGenFromBoneAction(object sender, EventArgs e) { GetInstance<CHR0EntryWrapper>().KeyFrameGenFromBone(2, true, true); }
         private void ViewInterp()
         {
             InterpolationForm f = MainForm.Instance.InterpolationForm;
@@ -146,6 +149,11 @@ namespace BrawlBox.NodeWrappers
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
+        }
+
+        public void KeyFrameGenFromBone(int framesToGenerate, bool allowOverwrite, bool generateOrigin)
+        {
+            ((CHR0EntryNode)_resource).KeyFrameGenFromBone(framesToGenerate, allowOverwrite, generateOrigin);
         }
 
         #endregion
