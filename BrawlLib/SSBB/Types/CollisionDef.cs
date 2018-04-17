@@ -431,7 +431,8 @@ namespace BrawlLib.SSBBTypes
         Floor = 0x0001,
         Ceiling = 0x0002,
         RightWall = 0x0004,
-        LeftWall = 0x0008
+        LeftWall = 0x0008,
+        All = 0x000F
     }
 
     [Flags]
