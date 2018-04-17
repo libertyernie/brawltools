@@ -501,7 +501,7 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
             return (Translation == new Vector3(0, 0, 0));
         }
 
-        // Used for StageBox's flip function
+        // Used for StageBox's mirror function
         public bool setManualScale(char scaleType, float newScaleVal) {
             switch(scaleType) {
                 case 'X':
@@ -531,6 +531,82 @@ Y: Only the Y axis is allowed to rotate. Is affected by the parent bone's rotati
                     return Scale._y;
                 case 'Z':
                     return Scale._z;
+            }
+            return 0;
+        }
+
+        // Used for StageBox's flip function
+        public bool setManualTranslation(char translationType, float newTranslationVal)
+        {
+            switch (translationType)
+            {
+                case 'X':
+                    Vector3 newTranslationX = new Vector3(newTranslationVal, Translation._y, Translation._z);
+                    Translation = newTranslationX;
+                    SignalPropertyChange();
+                    return true;
+                case 'Y':
+                    Vector3 newTranslationY = new Vector3(Translation._x, newTranslationVal, Translation._z);
+                    Translation = newTranslationY;
+                    SignalPropertyChange();
+                    return true;
+                case 'Z':
+                    Vector3 newTranslationZ = new Vector3(Translation._x, Translation._y, newTranslationVal);
+                    Translation = newTranslationZ;
+                    SignalPropertyChange();
+                    return true;
+            }
+            return false;
+        }
+
+        public float getManualTranslation(char translationType)
+        {
+            switch (translationType)
+            {
+                case 'X':
+                    return Translation._x;
+                case 'Y':
+                    return Translation._y;
+                case 'Z':
+                    return Translation._z;
+            }
+            return 0;
+        }
+
+        // Used for StageBox's flip function
+        public bool setManualRotation(char rotationType, float newRotationVal)
+        {
+            switch (rotationType)
+            {
+                case 'X':
+                    Vector3 newRotationX = new Vector3(newRotationVal, Rotation._y, Rotation._z);
+                    Rotation = newRotationX;
+                    SignalPropertyChange();
+                    return true;
+                case 'Y':
+                    Vector3 newRotationY = new Vector3(Rotation._x, newRotationVal, Rotation._z);
+                    Rotation = newRotationY;
+                    SignalPropertyChange();
+                    return true;
+                case 'Z':
+                    Vector3 newRotationZ = new Vector3(Rotation._x, Rotation._y, newRotationVal);
+                    Rotation = newRotationZ;
+                    SignalPropertyChange();
+                    return true;
+            }
+            return false;
+        }
+
+        public float getManualRotation(char rotationType)
+        {
+            switch (rotationType)
+            {
+                case 'X':
+                    return Rotation._x;
+                case 'Y':
+                    return Rotation._y;
+                case 'Z':
+                    return Rotation._z;
             }
             return 0;
         }

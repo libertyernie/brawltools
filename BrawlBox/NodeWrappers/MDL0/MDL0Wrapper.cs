@@ -50,9 +50,12 @@ namespace BrawlBox.NodeWrappers
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Mirror Model", null,
-                new ToolStripMenuItem("X-Axis", null, FlipXAction),
-                new ToolStripMenuItem("Y-Axis", null, FlipYAction),
-                new ToolStripMenuItem("Z-Axis", null, FlipZAction)
+                new ToolStripMenuItem("X-Axis (Scale)", null, MirrorXAction),
+                new ToolStripMenuItem("Y-Axis (Scale)", null, MirrorYAction),
+                new ToolStripMenuItem("Z-Axis (Scale)", null, MirrorZAction),
+                new ToolStripMenuItem("X-Axis (Translation/Rotation)", null, FlipXAction),
+                new ToolStripMenuItem("Y-Axis (Translation/Rotation)", null, FlipYAction)
+                //new ToolStripMenuItem("Z-Axis (Translation/Rotation)", null, FlipZAction)
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
             _menu.Items.Add(new ToolStripMenuItem("&Import Existing Object", null, ImportObjectAction));
@@ -66,10 +69,13 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        // StageBox model flipping
-        private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(); }
-        private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(); }
-        private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(); }
+        // StageBox model mirroring
+        private static void MirrorXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorX(); }
+        private static void MirrorYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorY(); }
+        private static void MirrorZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorZ(); }
+        private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(true); }
+        private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(true); }
+        //private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(true); }
         protected static void TransparencyFixAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().StartTransparencyFix(); }
 
         private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
@@ -127,7 +133,7 @@ namespace BrawlBox.NodeWrappers
             _resource.Rebuild(true);
         }
 
-        public void FlipX()
+        public void MirrorX()
         {
             MDL0Node model = ((MDL0Node)_resource);
             
@@ -139,7 +145,7 @@ namespace BrawlBox.NodeWrappers
             }
         }
         
-        public void FlipY()
+        public void MirrorY()
         {
             MDL0Node model = ((MDL0Node)_resource);
 
@@ -152,7 +158,7 @@ namespace BrawlBox.NodeWrappers
             }
         }
 
-        public void FlipZ()
+        public void MirrorZ()
         {
             MDL0Node model = ((MDL0Node)_resource);
 
@@ -162,6 +168,346 @@ namespace BrawlBox.NodeWrappers
                 // Console.WriteLine("NEW SCALE: " + newScale);
                 model.FindBoneByIndex(0).setManualScale('Z', newScale);
                 model.FlipAllMaterials();
+            }
+        }
+
+        public void FlipX(bool allowBoundaryFix)
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            bool boundaryFixActive = false;
+            if (allowBoundaryFix)
+            {
+                if (model.Name == "StgPosition" || model.Name == "Stgposition" || model.Name == "stgPosition" || model.Name == "stgposition" || model.Name == "StagePosition" || model.Name == "Stageposition" || model.Name == "stagePosition" || model.Name == "stageposition")
+                {
+                    boundaryFixActive = true;
+                }
+                else if (model.Name.Length == 13)
+                {
+                    //Console.WriteLine(model + " was found to be 13 characters long");
+                    if (model.Name.Substring(0, 11) == "PokeTrainer" || model.Name.Substring(0, 11) == "Poketrainer" || model.Name.Substring(0, 11) == "pokeTrainer" || model.Name.Substring(0, 11) == "poketrainer")
+                    {
+                        //Console.WriteLine("It's a pokemon trainer");
+                        boundaryFixActive = true;
+                    }
+                }
+            }
+
+            if (model.FindBoneByIndex(0) != null)
+            {
+                MDL0BoneNode b = model.FindBoneByIndex(0);
+                MDL0BoneNode b2 = null;
+                int j = 0;
+                float camPositionSaverX = 0;
+                float deathPositionSaverX = 0;
+                bool camPositionSaved = false;
+                bool deathPositionSaved = false;
+                bool camPositionSet = false;
+                bool deathPositionSet = false;
+
+                bool isRestrictedName = false;
+
+                while (b != null)
+                {
+                    j++;
+                    if (boundaryFixActive)
+                    {
+                        //
+                        if (b.Name == "CamLimit0N" && !camPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!camPositionSaved)
+                            {
+                                camPositionSaverX = b.getManualTranslation('X');
+                                camPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("CamLimit1N");
+                                if (b2 != null)
+                                {
+                                    float tempCam0 = b.getManualTranslation('X');
+                                    b.setManualTranslation('X', 0 - camPositionSaverX);
+                                    b2.setManualTranslation('X', 0 - tempCam0);
+                                    camPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "CamLimit1N" && !camPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!camPositionSaved)
+                            {
+                                camPositionSaverX = b.getManualTranslation('X');
+                                camPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("CamLimit0N");
+                                if (b2 != null)
+                                {
+                                    float tempCam1 = b.getManualTranslation('X');
+                                    b.setManualTranslation('X', 0 - camPositionSaverX);
+                                    b2.setManualTranslation('X', 0 - tempCam1);
+                                    camPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "Dead0N" && !deathPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!deathPositionSaved)
+                            {
+                                deathPositionSaverX = b.getManualTranslation('X');
+                                deathPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("Dead1N");
+                                if (b2 != null)
+                                {
+                                    float tempDead0 = b.getManualTranslation('X');
+                                    b.setManualTranslation('X', 0 - deathPositionSaverX);
+                                    b2.setManualTranslation('X', 0 - tempDead0);
+                                    deathPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "Dead1N" && !deathPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!deathPositionSaved)
+                            {
+                                deathPositionSaverX = b.getManualTranslation('X');
+                                deathPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("Dead0N");
+                                if (b2 != null)
+                                {
+                                    float tempDead1 = b.getManualTranslation('X');
+                                    b.setManualTranslation('X', 0 - deathPositionSaverX);
+                                    b2.setManualTranslation('X', 0 - tempDead1);
+                                    deathPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name.EndsWith("E"))
+                        {
+                            //Console.WriteLine("Found E Bone: " + b);
+                            string b2Finder = b.Name.Remove(b.Name.Length - 1, 1) + "N";
+                            //Console.WriteLine("Searching for " + b2Finder);
+                            b2 = model.FindBone(b2Finder);
+                            if (b2 != null)
+                            {
+                                //Console.WriteLine("Found! " + b2);
+                                float tempE = b.getManualTranslation('X');
+                                float tempN = b2.getManualTranslation('X');
+                                b.setManualTranslation('X', 0 - tempN);
+                                b2.setManualTranslation('X', 0 - tempE);
+                                isRestrictedName = true;
+                            }
+                            else
+                            {
+                                isRestrictedName = false;
+                            }
+                        }
+                        else if (b.Name.EndsWith("N"))
+                        {
+                            //Console.WriteLine("Found N Bone: " + b);
+                            string b2Finder = b.Name.Remove(b.Name.Length - 1, 1) + "E";
+                            //Console.WriteLine("Searching for " + b2Finder);
+                            b2 = model.FindBone(b2Finder);
+                            if (b2 != null)
+                            {
+                                //Console.WriteLine("Found! Will not regenerate as was set by " + b2);
+                                isRestrictedName = true;
+                            }
+                            else
+                            {
+                                isRestrictedName = false;
+                            }
+                        }
+                    }
+
+                    if (!boundaryFixActive || !isRestrictedName)
+                    {
+                        b.setManualTranslation('X', 0 - b.getManualTranslation('X'));
+                        b.setManualRotation('Z', 0 - b.getManualRotation('Z'));
+                    }
+                    b = model.FindBoneByIndex(j);
+                    isRestrictedName = false;
+                }
+            }
+        }
+
+        public void FlipY(bool allowBoundaryFix)
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            bool boundaryFixActive = false;
+            if (allowBoundaryFix)
+            {
+                if (model.Name == "StgPosition" || model.Name == "Stgposition" || model.Name == "stgPosition" || model.Name == "stgposition" || model.Name == "StagePosition" || model.Name == "Stageposition" || model.Name == "stagePosition" || model.Name == "stageposition")
+                {
+                    boundaryFixActive = true;
+                }
+                else if (model.Name.Length == 13)
+                {
+                    //Console.WriteLine(model + " was found to be 13 characters long");
+                    if (model.Name.Substring(0, 11) == "PokeTrainer" || model.Name.Substring(0, 11) == "Poketrainer" || model.Name.Substring(0, 11) == "pokeTrainer" || model.Name.Substring(0, 11) == "poketrainer")
+                    {
+                        //Console.WriteLine("It's a pokemon trainer");
+                        boundaryFixActive = true;
+                    }
+                }
+            }
+
+            if (model.FindBoneByIndex(0) != null)
+            {
+                MDL0BoneNode b = model.FindBoneByIndex(0);
+                MDL0BoneNode b2 = null;
+                int j = 0;
+                float camPositionSaverY = 0;
+                float deathPositionSaverY = 0;
+                bool camPositionSaved = false;
+                bool deathPositionSaved = false;
+                bool camPositionSet = false;
+                bool deathPositionSet = false;
+
+                bool isRestrictedName = false;
+
+                while (b != null)
+                {
+                    j++;
+                    if (boundaryFixActive)
+                    {
+                        //
+                        if (b.Name == "CamLimit0N" && !camPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!camPositionSaved)
+                            {
+                                camPositionSaverY = b.getManualTranslation('Y');
+                                camPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("CamLimit1N");
+                                if (b2 != null)
+                                {
+                                    float tempCam0 = b.getManualTranslation('Y');
+                                    b.setManualTranslation('Y', 0 - camPositionSaverY);
+                                    b2.setManualTranslation('Y', 0 - tempCam0);
+                                    camPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "CamLimit1N" && !camPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!camPositionSaved)
+                            {
+                                camPositionSaverY = b.getManualTranslation('Y');
+                                camPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("CamLimit0N");
+                                if (b2 != null)
+                                {
+                                    float tempCam1 = b.getManualTranslation('Y');
+                                    b.setManualTranslation('Y', 0 - camPositionSaverY);
+                                    b2.setManualTranslation('Y', 0 - tempCam1);
+                                    camPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "Dead0N" && !deathPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!deathPositionSaved)
+                            {
+                                deathPositionSaverY = b.getManualTranslation('Y');
+                                deathPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("Dead1N");
+                                if (b2 != null)
+                                {
+                                    float tempDead0 = b.getManualTranslation('Y');
+                                    b.setManualTranslation('Y', 0 - deathPositionSaverY);
+                                    b2.setManualTranslation('Y', 0 - tempDead0);
+                                    deathPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name == "Dead1N" && !deathPositionSet)
+                        {
+                            isRestrictedName = true;
+                            if (!deathPositionSaved)
+                            {
+                                deathPositionSaverY = b.getManualTranslation('Y');
+                                deathPositionSaved = true;
+                            }
+                            else
+                            {
+                                b2 = model.FindBone("Dead0N");
+                                if (b2 != null)
+                                {
+                                    float tempDead1 = b.getManualTranslation('Y');
+                                    b.setManualTranslation('Y', 0 - deathPositionSaverY);
+                                    b2.setManualTranslation('Y', 0 - tempDead1);
+                                    deathPositionSet = true;
+                                }
+                            }
+                        }
+                        else if (b.Name.EndsWith("E"))
+                        {
+                            //Console.WriteLine("Found E Bone: " + b);
+                            string b2Finder = b.Name.Remove(b.Name.Length - 1, 1) + "N";
+                            //Console.WriteLine("Searching for " + b2Finder);
+                            b2 = model.FindBone(b2Finder);
+                            if (b2 != null)
+                            {
+                                //Console.WriteLine("Found! " + b2);
+                                float tempE = b.getManualTranslation('Y');
+                                float tempN = b2.getManualTranslation('Y');
+                                b.setManualTranslation('Y', 0 - tempN);
+                                b2.setManualTranslation('Y', 0 - tempE);
+                                isRestrictedName = true;
+                            }
+                            else
+                            {
+                                isRestrictedName = false;
+                            }
+                        }
+                        else if (b.Name.EndsWith("N"))
+                        {
+                            //Console.WriteLine("Found N Bone: " + b);
+                            string b2Finder = b.Name.Remove(b.Name.Length - 1, 1) + "E";
+                            //Console.WriteLine("Searching for " + b2Finder);
+                            b2 = model.FindBone(b2Finder);
+                            if (b2 != null)
+                            {
+                                //Console.WriteLine("Found! Will not regenerate as was set by " + b2);
+                                isRestrictedName = true;
+                            }
+                            else
+                            {
+                                isRestrictedName = false;
+                            }
+                        }
+                    }
+
+                    if (!boundaryFixActive || !isRestrictedName)
+                    {
+                        b.setManualTranslation('Y', 0 - b.getManualTranslation('Y'));
+                        b.setManualRotation('Z', 0 - b.getManualRotation('Z'));
+                    }
+                    b = model.FindBoneByIndex(j);
+                    isRestrictedName = false;
+                }
             }
         }
 
