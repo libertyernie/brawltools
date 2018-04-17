@@ -53,8 +53,8 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("X-Axis (Scale)", null, MirrorXAction),
                 new ToolStripMenuItem("Y-Axis (Scale)", null, MirrorYAction),
                 new ToolStripMenuItem("Z-Axis (Scale)", null, MirrorZAction),
-                new ToolStripMenuItem("X-Axis (Translation/Rotation)", null, FlipXAction),
-                new ToolStripMenuItem("Y-Axis (Translation/Rotation)", null, FlipYAction)
+                new ToolStripMenuItem("X-Axis (Translation/Z-Rotation)", null, FlipXAction),
+                new ToolStripMenuItem("Y-Axis (Translation/Z-Rotation)", null, FlipYAction)
                 //new ToolStripMenuItem("Z-Axis (Translation/Rotation)", null, FlipZAction)
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
