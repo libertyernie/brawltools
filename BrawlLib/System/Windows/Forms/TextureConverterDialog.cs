@@ -509,7 +509,7 @@ namespace System.Windows.Forms
             {
                 if (_colorInfo.ColorCount <= 16)
                     cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.I4 : WiiPixelFormat.IA8;
-                if (_colorInfo.ColorCount <= 272)
+                else if (_colorInfo.ColorCount <= 272)
                     cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.I8 : WiiPixelFormat.IA8;
                 else
                     cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.RGB565 : WiiPixelFormat.RGB5A3;
