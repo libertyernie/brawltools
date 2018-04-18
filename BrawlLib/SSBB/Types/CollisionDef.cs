@@ -438,9 +438,10 @@ namespace BrawlLib.SSBBTypes
     [Flags]
     public enum CollisionPlaneFlags2
     {
-        None = 0x0000,
-        Unk1 = 0x0010,
-        Unk2 = 0x0020
+        None = 0x0000,          //
+        Unk1 = 0x0010,          // Characters
+        Unk2 = 0x0040,          // Items
+        PokemonTrainer = 0x0040 // Pokemon Trainer
     }
 
     [Flags]
