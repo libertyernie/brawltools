@@ -557,7 +557,7 @@ namespace System.Windows.Forms
             this.pnlPlaneProps.Controls.Add(this.groupBox2);
             this.pnlPlaneProps.Controls.Add(this.groupBox1);
             this.pnlPlaneProps.Controls.Add(this.cboMaterial);
-            this.groupBox2.Controls.Add(this.cboType);
+            this.pnlPlaneProps.Controls.Add(this.cboType);
             this.pnlPlaneProps.Controls.Add(this.label5);
             this.pnlPlaneProps.Controls.Add(this.labelType);
             this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
@@ -587,7 +587,7 @@ namespace System.Windows.Forms
             // 
             this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(66, 25);
+            this.cboType.Location = new System.Drawing.Point(66, 4);
             this.cboType.Name = "cboType";
             this.cboType.Size = new System.Drawing.Size(139, 21);
             this.cboType.TabIndex = 5;
@@ -702,7 +702,7 @@ namespace System.Windows.Forms
             // 
             this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMaterial.FormattingEnabled = true;
-            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+            this.cboMaterial.Location = new System.Drawing.Point(66, 25);
             this.cboMaterial.Name = "cboMaterial";
             this.cboMaterial.Size = new System.Drawing.Size(139, 21);
             this.cboMaterial.TabIndex = 12;
@@ -1120,7 +1120,7 @@ namespace System.Windows.Forms
             if (_selectedPlanes.Count > 0)
             {
                 pnlPlaneProps.Visible = true;
-                panel3.Height = 150;
+                panel3.Height = 140;
             }
             else if (_selectedLinks.Count == 1)
             {
