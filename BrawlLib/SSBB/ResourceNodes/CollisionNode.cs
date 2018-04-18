@@ -553,15 +553,15 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
-        public bool IsType1
+        public bool IsCharacters
         {
-            get { return (_flags2 & CollisionPlaneFlags2.Unk1) != 0; }
-            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.Unk1) | (value ? CollisionPlaneFlags2.Unk1 : 0); }
+            get { return (_flags2 & CollisionPlaneFlags2.Characters) != 0; }
+            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.Characters) | (value ? CollisionPlaneFlags2.Characters : 0); }
         }
-        public bool IsType2
+        public bool IsItems
         {
-            get { return (_flags2 & CollisionPlaneFlags2.Unk2) != 0; }
-            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.Unk2) | (value ? CollisionPlaneFlags2.Unk2 : 0); }
+            get { return (_flags2 & CollisionPlaneFlags2.Items) != 0; }
+            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.Items) | (value ? CollisionPlaneFlags2.Items : 0); }
         }
         public bool IsFallThrough
         {

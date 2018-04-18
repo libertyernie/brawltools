@@ -37,8 +37,8 @@ namespace System.Windows.Forms
         private GroupBox groupBox2;
         private CheckBox chkNoWalljump;
         private CheckBox chkRightLedge;
-        private CheckBox chkTypeUnk1;
-        private CheckBox chkTypeUnk2;
+        private CheckBox chkTypeCharacters;
+        private CheckBox chkTypeItems;
         private Panel pnlPointProps;
         private NumericInputBox numX;
         private Label label2;
@@ -127,8 +127,8 @@ namespace System.Windows.Forms
             this.pnlPlaneProps = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cboType = new System.Windows.Forms.ComboBox();
-            this.chkTypeUnk2 = new System.Windows.Forms.CheckBox();
-            this.chkTypeUnk1 = new System.Windows.Forms.CheckBox();
+            this.chkTypeItems = new System.Windows.Forms.CheckBox();
+            this.chkTypeCharacters = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkLeftLedge = new System.Windows.Forms.CheckBox();
             this.chkNoWalljump = new System.Windows.Forms.CheckBox();
@@ -564,8 +564,8 @@ namespace System.Windows.Forms
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.cboType);
-            this.groupBox2.Controls.Add(this.chkTypeUnk2);
-            this.groupBox2.Controls.Add(this.chkTypeUnk1);
+            this.groupBox2.Controls.Add(this.chkTypeItems);
+            this.groupBox2.Controls.Add(this.chkTypeCharacters);
             this.groupBox2.Location = new System.Drawing.Point(104, 28);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
@@ -585,27 +585,27 @@ namespace System.Windows.Forms
             this.cboType.TabIndex = 5;
             this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
             // 
-            // chkTypeUnk2
+            // chkTypeItems
             // 
-            this.chkTypeUnk2.Location = new System.Drawing.Point(8, 58);
-            this.chkTypeUnk2.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk2.Name = "chkTypeUnk2";
-            this.chkTypeUnk2.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk2.TabIndex = 3;
-            this.chkTypeUnk2.Text = "Items";
-            this.chkTypeUnk2.UseVisualStyleBackColor = true;
-            this.chkTypeUnk2.CheckedChanged += new System.EventHandler(this.chkTypeUnk2_CheckedChanged);
+            this.chkTypeItems.Location = new System.Drawing.Point(8, 58);
+            this.chkTypeItems.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeItems.Name = "chkTypeItems";
+            this.chkTypeItems.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeItems.TabIndex = 3;
+            this.chkTypeItems.Text = "Items";
+            this.chkTypeItems.UseVisualStyleBackColor = true;
+            this.chkTypeItems.CheckedChanged += new System.EventHandler(this.chkTypeItems_CheckedChanged);
             // 
-            // chkTypeUnk1
+            // chkTypeCharacters
             // 
-            this.chkTypeUnk1.Location = new System.Drawing.Point(8, 40);
-            this.chkTypeUnk1.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk1.Name = "chkTypeUnk1";
-            this.chkTypeUnk1.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk1.TabIndex = 4;
-            this.chkTypeUnk1.Text = "Characters";
-            this.chkTypeUnk1.UseVisualStyleBackColor = true;
-            this.chkTypeUnk1.CheckedChanged += new System.EventHandler(this.chkTypeUnk1_CheckedChanged);
+            this.chkTypeCharacters.Location = new System.Drawing.Point(8, 40);
+            this.chkTypeCharacters.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeCharacters.Name = "chkTypeCharacters";
+            this.chkTypeCharacters.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeCharacters.TabIndex = 4;
+            this.chkTypeCharacters.Text = "Characters";
+            this.chkTypeCharacters.UseVisualStyleBackColor = true;
+            this.chkTypeCharacters.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -1108,8 +1108,8 @@ namespace System.Windows.Forms
                 chkNoWalljump.Checked = p.IsNoWalljump;
                 //Type
                 cboType.SelectedItem = p.Type;
-                chkTypeUnk1.Checked = p.IsType1;
-                chkTypeUnk2.Checked = p.IsType2;
+                chkTypeCharacters.Checked = p.IsCharacters;
+                chkTypeItems.Checked = p.IsItems;
             }
             else if (pnlPointProps.Visible)
             {
@@ -1955,8 +1955,8 @@ namespace System.Windows.Forms
             TargetNode.SignalPropertyChange();
         }
 
-        private void chkTypeUnk1_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType1 = chkTypeUnk1.Checked; }
-        private void chkTypeUnk2_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType2 = chkTypeUnk2.Checked; }
+        private void chkTypeCharacters_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCharacters = chkTypeCharacters.Checked; }
+        private void chkTypeItems_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsItems = chkTypeItems.Checked; }
 
         private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
         private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
