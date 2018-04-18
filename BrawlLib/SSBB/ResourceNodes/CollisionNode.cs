@@ -563,6 +563,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return (_flags2 & CollisionPlaneFlags2.Items) != 0; }
             set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.Items) | (value ? CollisionPlaneFlags2.Items : 0); }
         }
+        public bool IsPokemonTrainer
+        {
+            get { return (_flags2 & CollisionPlaneFlags2.PokemonTrainer) != 0; }
+            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.PokemonTrainer) | (value ? CollisionPlaneFlags2.PokemonTrainer : 0); }
+        }
+        public bool IsUnknownStageBox
+        {
+            get { return (_flags2 & CollisionPlaneFlags2.UnknownStageBox) != 0; }
+            set { _flags2 = (_flags2 & ~CollisionPlaneFlags2.UnknownStageBox) | (value ? CollisionPlaneFlags2.UnknownStageBox : 0); }
+        }
         public bool IsFallThrough
         {
             get { return (_flags & CollisionPlaneFlags.DropThrough) != 0; }

@@ -19,6 +19,7 @@ namespace System.Windows.Forms
         private CheckBox chkAllModels;
         private Panel pnlPlaneProps;
         private Label label5;
+        private Label labelType;
         private ComboBox cboMaterial;
         private Panel pnlObjProps;
         private ToolStrip toolStrip1;
@@ -39,6 +40,8 @@ namespace System.Windows.Forms
         private CheckBox chkRightLedge;
         private CheckBox chkTypeCharacters;
         private CheckBox chkTypeItems;
+        private CheckBox chkTypePokemonTrainer;
+        private CheckBox chkTypeUnknownStageBox;
         private Panel pnlPointProps;
         private NumericInputBox numX;
         private Label label2;
@@ -129,6 +132,8 @@ namespace System.Windows.Forms
             this.cboType = new System.Windows.Forms.ComboBox();
             this.chkTypeItems = new System.Windows.Forms.CheckBox();
             this.chkTypeCharacters = new System.Windows.Forms.CheckBox();
+            this.chkTypePokemonTrainer = new System.Windows.Forms.CheckBox();
+            this.chkTypeUnknownStageBox = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkLeftLedge = new System.Windows.Forms.CheckBox();
             this.chkNoWalljump = new System.Windows.Forms.CheckBox();
@@ -136,6 +141,7 @@ namespace System.Windows.Forms
             this.chkFallThrough = new System.Windows.Forms.CheckBox();
             this.cboMaterial = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.labelType = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.btnPlayAnims = new System.Windows.Forms.Button();
             this.btnPrevFrame = new System.Windows.Forms.Button();
@@ -551,21 +557,34 @@ namespace System.Windows.Forms
             this.pnlPlaneProps.Controls.Add(this.groupBox2);
             this.pnlPlaneProps.Controls.Add(this.groupBox1);
             this.pnlPlaneProps.Controls.Add(this.cboMaterial);
+            this.groupBox2.Controls.Add(this.cboType);
             this.pnlPlaneProps.Controls.Add(this.label5);
+            this.pnlPlaneProps.Controls.Add(this.labelType);
             this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
             this.pnlPlaneProps.Name = "pnlPlaneProps";
             this.pnlPlaneProps.Size = new System.Drawing.Size(209, 114);
             this.pnlPlaneProps.TabIndex = 0;
             this.pnlPlaneProps.Visible = false;
+            //
+            // labelType
+            //
+            this.labelType.Location = new System.Drawing.Point(7, 4);
+            this.labelType.Name = "labelType";
+            this.labelType.Size = new System.Drawing.Size(53, 21);
+            this.labelType.TabIndex = 8;
+            this.labelType.Text = "Type:";
+            this.labelType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
             // 
             // groupBox2
             // 
             this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox2.Controls.Add(this.cboType);
-            this.groupBox2.Controls.Add(this.chkTypeItems);
             this.groupBox2.Controls.Add(this.chkTypeCharacters);
+            this.groupBox2.Controls.Add(this.chkTypeItems);
+            this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
+            this.groupBox2.Controls.Add(this.chkTypeUnknownStageBox);
             this.groupBox2.Location = new System.Drawing.Point(104, 28);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
@@ -573,7 +592,7 @@ namespace System.Windows.Forms
             this.groupBox2.Size = new System.Drawing.Size(105, 86);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Types";
+            this.groupBox2.Text = "Flags";
             // 
             // cboType
             // 
@@ -606,6 +625,28 @@ namespace System.Windows.Forms
             this.chkTypeCharacters.Text = "Characters";
             this.chkTypeCharacters.UseVisualStyleBackColor = true;
             this.chkTypeCharacters.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            // 
+            // chkTypePokemonTrainer
+            // 
+            this.chkTypePokemonTrainer.Location = new System.Drawing.Point(8, 40);
+            this.chkTypePokemonTrainer.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypePokemonTrainer.Name = "chkTypePokemonTrainer";
+            this.chkTypePokemonTrainer.Size = new System.Drawing.Size(86, 18);
+            this.chkTypePokemonTrainer.TabIndex = 3;
+            this.chkTypePokemonTrainer.Text = "PokéTrainer";
+            this.chkTypePokemonTrainer.UseVisualStyleBackColor = true;
+            this.chkTypePokemonTrainer.CheckedChanged += new System.EventHandler(this.chkTypePokemonTrainer_CheckedChanged);
+            // 
+            // chkTypeUnknownStageBox
+            // 
+            this.chkTypeUnknownStageBox.Location = new System.Drawing.Point(8, 58);
+            this.chkTypeUnknownStageBox.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeUnknownStageBox.Name = "chkTypeUnknownStageBox";
+            this.chkTypeUnknownStageBox.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeUnknownStageBox.TabIndex = 4;
+            this.chkTypeUnknownStageBox.Text = "Unknown";
+            this.chkTypeUnknownStageBox.UseVisualStyleBackColor = true;
+            this.chkTypeUnknownStageBox.CheckedChanged += new System.EventHandler(this.chkTypeUnknownStageBox_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -1110,6 +1151,8 @@ namespace System.Windows.Forms
                 cboType.SelectedItem = p.Type;
                 chkTypeCharacters.Checked = p.IsCharacters;
                 chkTypeItems.Checked = p.IsItems;
+                chkTypePokemonTrainer.Checked = p.IsPokemonTrainer;
+                chkTypeUnknownStageBox.Checked = p.IsUnknownStageBox;
             }
             else if (pnlPointProps.Visible)
             {
@@ -1957,6 +2000,8 @@ namespace System.Windows.Forms
 
         private void chkTypeCharacters_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCharacters = chkTypeCharacters.Checked; }
         private void chkTypeItems_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsItems = chkTypeItems.Checked; }
+        private void chkTypePokemonTrainer_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsPokemonTrainer = chkTypePokemonTrainer.Checked; }
+        private void chkTypeUnknownStageBox_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownStageBox = chkTypeUnknownStageBox.Checked; }
 
         private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
         private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
