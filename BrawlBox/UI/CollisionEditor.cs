@@ -2020,10 +2020,11 @@ namespace System.Windows.Forms
                 if (link._parent == null || link._parent.LinkedBone == null)
                 {
                     link._rawValue._x = numX.Value;
-                    return;
+                } else
+                {
+                    Vector2 oldValue = link.Value;
+                    link.Value = new Vector2(numX.Value, oldValue._y);
                 }
-                Vector2 oldValue = link.Value;
-                link.Value = new Vector2(numX.Value, oldValue._y);
             }
             _modelPanel.Invalidate();
             TargetNode.SignalPropertyChange();
@@ -2038,10 +2039,11 @@ namespace System.Windows.Forms
                 if (link._parent == null || link._parent.LinkedBone == null)
                 {
                     link._rawValue._y = numY.Value;
-                    return;
+                } else
+                {
+                    Vector2 oldValue = link.Value;
+                    link.Value = new Vector2(oldValue._x, numY.Value);
                 }
-                Vector2 oldValue = link.Value;
-                link.Value = new Vector2(oldValue._x, numY.Value);
             }
             _modelPanel.Invalidate();
             TargetNode.SignalPropertyChange();
