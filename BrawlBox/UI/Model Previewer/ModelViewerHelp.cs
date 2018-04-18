@@ -62,6 +62,7 @@
             this.richTextBox1.ScrollBars = System.Windows.Forms.RichTextBoxScrollBars.ForcedVertical;
             this.richTextBox1.Size = new System.Drawing.Size(657, 557);
             this.richTextBox1.TabIndex = 2;
+            this.richTextBox1.Text = "";
             // 
             // ModelViewerHelp
             // 
@@ -69,6 +70,7 @@
             this.ClientSize = new System.Drawing.Size(681, 610);
             this.Controls.Add(this.richTextBox1);
             this.Controls.Add(this.btnOkay);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "ModelViewerHelp";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
