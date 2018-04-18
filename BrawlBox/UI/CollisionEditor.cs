@@ -566,58 +566,36 @@ namespace System.Windows.Forms
             this.pnlPlaneProps.Size = new System.Drawing.Size(209, 114);
             this.pnlPlaneProps.TabIndex = 0;
             this.pnlPlaneProps.Visible = false;
-            //
-            // labelType
-            //
-            this.labelType.Location = new System.Drawing.Point(7, 4);
-            this.labelType.Name = "labelType";
-            this.labelType.Size = new System.Drawing.Size(53, 21);
-            this.labelType.TabIndex = 8;
-            this.labelType.Text = "Type:";
-            this.labelType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox2.Controls.Add(this.chkTypeCharacters);
             this.groupBox2.Controls.Add(this.chkTypeItems);
             this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
             this.groupBox2.Controls.Add(this.chkTypeUnknownStageBox);
-            this.groupBox2.Location = new System.Drawing.Point(104, 28);
+            this.groupBox2.Location = new System.Drawing.Point(101, 49);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
             this.groupBox2.Size = new System.Drawing.Size(105, 86);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Flags";
             // 
             // cboType
             // 
             this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(8, 16);
+            this.cboType.Location = new System.Drawing.Point(66, 25);
             this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(89, 21);
+            this.cboType.Size = new System.Drawing.Size(139, 21);
             this.cboType.TabIndex = 5;
             this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
             // 
-            // chkTypeItems
-            // 
-            this.chkTypeItems.Location = new System.Drawing.Point(8, 58);
-            this.chkTypeItems.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeItems.Name = "chkTypeItems";
-            this.chkTypeItems.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeItems.TabIndex = 3;
-            this.chkTypeItems.Text = "Items";
-            this.chkTypeItems.UseVisualStyleBackColor = true;
-            this.chkTypeItems.CheckedChanged += new System.EventHandler(this.chkTypeItems_CheckedChanged);
-            // 
             // chkTypeCharacters
             // 
-            this.chkTypeCharacters.Location = new System.Drawing.Point(8, 40);
+            this.chkTypeCharacters.Location = new System.Drawing.Point(8, 17);
             this.chkTypeCharacters.Margin = new System.Windows.Forms.Padding(0);
             this.chkTypeCharacters.Name = "chkTypeCharacters";
             this.chkTypeCharacters.Size = new System.Drawing.Size(86, 18);
@@ -626,9 +604,20 @@ namespace System.Windows.Forms
             this.chkTypeCharacters.UseVisualStyleBackColor = true;
             this.chkTypeCharacters.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
             // 
+            // chkTypeItems
+            // 
+            this.chkTypeItems.Location = new System.Drawing.Point(8, 33);
+            this.chkTypeItems.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeItems.Name = "chkTypeItems";
+            this.chkTypeItems.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeItems.TabIndex = 3;
+            this.chkTypeItems.Text = "Items";
+            this.chkTypeItems.UseVisualStyleBackColor = true;
+            this.chkTypeItems.CheckedChanged += new System.EventHandler(this.chkTypeItems_CheckedChanged);
+            // 
             // chkTypePokemonTrainer
             // 
-            this.chkTypePokemonTrainer.Location = new System.Drawing.Point(8, 40);
+            this.chkTypePokemonTrainer.Location = new System.Drawing.Point(8, 49);
             this.chkTypePokemonTrainer.Margin = new System.Windows.Forms.Padding(0);
             this.chkTypePokemonTrainer.Name = "chkTypePokemonTrainer";
             this.chkTypePokemonTrainer.Size = new System.Drawing.Size(86, 18);
@@ -639,7 +628,7 @@ namespace System.Windows.Forms
             // 
             // chkTypeUnknownStageBox
             // 
-            this.chkTypeUnknownStageBox.Location = new System.Drawing.Point(8, 58);
+            this.chkTypeUnknownStageBox.Location = new System.Drawing.Point(8, 65);
             this.chkTypeUnknownStageBox.Margin = new System.Windows.Forms.Padding(0);
             this.chkTypeUnknownStageBox.Name = "chkTypeUnknownStageBox";
             this.chkTypeUnknownStageBox.Size = new System.Drawing.Size(86, 18);
@@ -650,13 +639,13 @@ namespace System.Windows.Forms
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.chkLeftLedge);
             this.groupBox1.Controls.Add(this.chkNoWalljump);
             this.groupBox1.Controls.Add(this.chkRightLedge);
             this.groupBox1.Controls.Add(this.chkFallThrough);
-            this.groupBox1.Location = new System.Drawing.Point(0, 28);
+            this.groupBox1.Location = new System.Drawing.Point(-3, 49);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
@@ -721,12 +710,22 @@ namespace System.Windows.Forms
             // 
             // label5
             // 
-            this.label5.Location = new System.Drawing.Point(7, 4);
+            this.label5.Location = new System.Drawing.Point(7, 25);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 21);
             this.label5.TabIndex = 8;
             this.label5.Text = "Material:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            // 
+            // labelType
+            // 
+            this.labelType.Location = new System.Drawing.Point(7, 4);
+            this.labelType.Name = "labelType";
+            this.labelType.Size = new System.Drawing.Size(53, 21);
+            this.labelType.TabIndex = 8;
+            this.labelType.Text = "Type:";
+            this.labelType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel4
             // 
@@ -1121,7 +1120,7 @@ namespace System.Windows.Forms
             if (_selectedPlanes.Count > 0)
             {
                 pnlPlaneProps.Visible = true;
-                panel3.Height = 114;
+                panel3.Height = 150;
             }
             else if (_selectedLinks.Count == 1)
             {
