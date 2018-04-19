@@ -376,7 +376,7 @@ namespace System.Windows.Forms
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
-            this.deleteToolStripMenuItem.ShortcutKeys = Keys.Shift | Keys.Delete;
+            this.deleteToolStripMenuItem.ShortcutKeys = Keys.Control | Keys.Delete;
             // 
             // panel3
             // 
