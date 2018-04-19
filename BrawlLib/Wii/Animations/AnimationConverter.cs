@@ -22,7 +22,11 @@ namespace BrawlLib.Wii.Animations
             else
                 kf = new KeyframeCollection(arrayCount, numFrames, defaults);
 
-            kf.Loop = node.Loop;
+            // Fixes merge animation
+            if (node != null)
+            {
+                kf.Loop = node.Loop;
+            }
 
             return kf;
         }
