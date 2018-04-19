@@ -198,7 +198,7 @@ namespace BrawlLib.SSBBTypes
         Unknown2 = 0x1F                 //
 #if DEBUG
         ,
-        CollEx32 = 0x20,
+        CollEx32 = 0x20,                // Expanded collisions, require SCLA edits or they won't work properly
         CollEx33 = 0x21,
         CollEx34 = 0x22,
         CollEx35 = 0x23,
@@ -442,7 +442,7 @@ namespace BrawlLib.SSBBTypes
         Characters = 0x0010,        // Characters (Also allows Items and PT to interact)
         Items = 0x0020,             // Items
         PokemonTrainer = 0x0040,    // Pokemon Trainer
-        UnknownStageBox = 0x0080
+        UnknownStageBox = 0x0080    // Unknown, used in the SSE
     }
 
     [Flags]
