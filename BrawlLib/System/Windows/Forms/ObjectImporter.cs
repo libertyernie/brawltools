@@ -24,6 +24,8 @@ namespace System.Windows.Forms
         private Panel panel1;
         bool _mergeModels = false;
         
+        ResourceNode[] externalModelChildren;
+
         public ObjectImporter()
         {
             InitializeComponent();
@@ -34,6 +36,10 @@ namespace System.Windows.Forms
         {
             _internalModel = internalModel;
             _externalModel = externalModel;
+
+            _externalModel.ApplyCHR(null, 0);
+
+            externalModelChildren = _externalModel.FindChild("Objects", true).Children.ToArray();
 
             comboBox1.Items.AddRange(_externalModel.FindChild("Objects", true).Children.ToArray());
             comboBox2.Items.AddRange(_internalModel._linker.BoneCache);
@@ -121,9 +127,9 @@ namespace System.Windows.Forms
             _internalModel.ApplyCHR(null, 0);
             if (_mergeModels)
             {
-                _externalModel.ApplyCHR(null, 0);
-                foreach (MDL0ObjectNode poly in _externalModel.FindChild("Objects", true).Children)
-                    ImportObject(poly);
+                if(_externalModel._children != null)
+                    foreach (MDL0ObjectNode poly in externalModelChildren)
+                        ImportObject(poly);
             }
             else
             {
