@@ -5,6 +5,7 @@ using BrawlLib.OpenGL;
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL;
 using System.ComponentModel;
+using System.Windows.Forms;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -176,6 +177,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return null;
 
             return new CollisionNode();
+        }
+
+        public void MergeWith()
+        {
+            CollisionNode external = null;
+            OpenFileDialog o = new OpenFileDialog();
+            o.Filter = "Collision (*.coll)|*.coll";
+            o.Title = "Please select a collision to merge with.";
+            if (o.ShowDialog() == DialogResult.OK)
+                if ((external = (CollisionNode)NodeFactory.FromFile(null, o.FileName)) != null)
+                    MergeWith(external);
+        }
+
+        public void MergeWith(CollisionNode external)
+        {
+            foreach (CollisionObject co in external._objects)
+            {
+                _objects.Add(co);
+            }
+            SignalPropertyChange();
         }
     }
 
