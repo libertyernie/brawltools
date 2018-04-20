@@ -66,10 +66,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         // Check for stages for what gets loaded in game
         public bool loadedInGame = true;
-        
-        // Necessary to get SCLA filling working properly
-        public virtual int getSCLAIndex() { return -1; }
-        public virtual void fillSCLA(uint amount) { }
 
         //Need to modulate these sources, create a new class.
         internal protected DataSource _origSource, _uncompSource;

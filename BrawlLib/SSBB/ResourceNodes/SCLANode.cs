@@ -61,7 +61,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         
         // Fill missing SCLA entries with default values
-        public override void fillSCLA(uint amount)
+        public void fillSCLA(uint amount)
         {
             bool indexFound = false;
             // Go through and add each index with default values as necessary
@@ -73,7 +73,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     if(indexFound == false)
                     {
-                        if(Children[j].getSCLAIndex() == i)
+                        if(((SCLAEntryNode)Children[j]).getSCLAIndex() == i)
                         {
                             indexFound = true;
                         }
@@ -94,7 +94,7 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         internal SCLAEntry* Header { get { return (SCLAEntry*)WorkingUncompressed.Address; } }
         public override ResourceType ResourceType { get { return ResourceType.Unknown; } }
-        public override int getSCLAIndex() {
+        public int getSCLAIndex() {
             if(_index > 255)
             {
                 return -1;
