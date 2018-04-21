@@ -75,19 +75,19 @@ namespace BrawlLib
         public static string SCLA =
             SupportedFilesHandler.GetCompleteFilter("scla");
         public static string TBCL =
-            SupportedFilesHandler.GetCompleteFilter("stdt");
+            SupportedFilesHandler.GetCompleteFilter("tbcl");
         public static string TBGC =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tbgc");
         public static string TBGD =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tbgd");
         public static string TBGM =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tbgm");
         public static string TBLV =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tblv");
         public static string TBRM =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tbrm");
         public static string TBST =
-            SupportedFilesHandler.GetCompleteFilter("tb");
+            SupportedFilesHandler.GetCompleteFilter("tbst");
             
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
