@@ -203,6 +203,7 @@
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Stage Tables\TBCLNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Stage Tables\TBSTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Stage Tables\TBRMNode.cs" />
     <Compile Include="SSBB\ResourceNodes\Stage Tables\TBGDNode.cs" />
@@ -250,6 +251,7 @@
     <None Include="SSBB\Types\BTI.cs" />
     <Compile Include="SSBB\Types\ItmFreq.cs" />
     <Compile Include="SSBB\Types\SndBgmTitle.cs" />
+    <Compile Include="SSBB\Types\Stage Tables\TBCL.cs" />
     <Compile Include="SSBB\Types\Stage Tables\TBGC.cs" />
     <Compile Include="SSBB\Types\Stage Tables\TBGD.cs" />
     <Compile Include="SSBB\Types\Stage Tables\TBRM.cs" />

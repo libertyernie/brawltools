@@ -74,6 +74,8 @@ namespace BrawlLib
             SupportedFilesHandler.GetCompleteFilter("stdt");
         public static string SCLA =
             SupportedFilesHandler.GetCompleteFilter("scla");
+        public static string TBCL =
+            SupportedFilesHandler.GetCompleteFilter("stdt");
         public static string TBGC =
             SupportedFilesHandler.GetCompleteFilter("tb");
         public static string TBGD =

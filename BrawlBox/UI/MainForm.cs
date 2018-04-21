@@ -349,6 +349,14 @@ namespace BrawlBox
 					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
+				} else if (node is TBCLNode)
+				{
+					TBCLNode tbcl = (TBCLNode)node;
+
+					attributeGrid1.Clear();
+					attributeGrid1.AddRange(tbcl.GetPossibleInterpretations());
+					attributeGrid1.TargetNode = tbcl;
+					newControl = attributeGrid1;
 				} else if (node is TBGCNode)
                 {
                     TBGCNode tbgc = (TBGCNode)node;

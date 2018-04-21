@@ -140,6 +140,7 @@
     <None Include="NodeWrappers\RARCWrapper.cs" />
     <None Include="NodeWrappers\FMDLWrapper.cs" />
     <Compile Include="NodeWrappers\SndBgmTitleDataFolderWrapper.cs" />
+    <Compile Include="NodeWrappers\Stage Tables\TBCLWrapper.cs" />
     <Compile Include="NodeWrappers\Stage Tables\TBGCWrapper.cs" />
     <Compile Include="NodeWrappers\Stage Tables\TBGDWrapper.cs" />
     <Compile Include="NodeWrappers\Stage Tables\TBRMWrapper.cs" />
