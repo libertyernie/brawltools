@@ -203,7 +203,8 @@
     <Compile Include="SSBB\ResourceNodes\SCLANode.cs" />
     <Compile Include="SSBB\ResourceNodes\Common2MiscDataNode.cs" />
     <Compile Include="SSBB\ResourceNodes\SndBgmTitleDataNode.cs" />
-    <Compile Include="SSBB\ResourceNodes\Stages\TBLVNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Stage Tables\TBGMNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Stage Tables\TBLVNode.cs" />
     <Compile Include="SSBB\SakuraiLookupManager.cs" />
     <None Include="SSBB\ResourceNodes\Archives\SARCNode.cs" />
     <Compile Include="SSBB\SakuraiArchiveBuilder.cs" />
@@ -245,7 +246,8 @@
     <None Include="SSBB\Types\BTI.cs" />
     <Compile Include="SSBB\Types\ItmFreq.cs" />
     <Compile Include="SSBB\Types\SndBgmTitle.cs" />
-    <Compile Include="SSBB\Types\Stages\TBLV.cs" />
+    <Compile Include="SSBB\Types\Stage Tables\TBGM.cs" />
+    <Compile Include="SSBB\Types\Stage Tables\TBLV.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\ADSJ.cs" />
     <Compile Include="SSBB\Types\Subspace\Sound\BGMG.cs" />
     <Compile Include="SSBB\Types\Subspace\Objects\GBLK.cs" />
