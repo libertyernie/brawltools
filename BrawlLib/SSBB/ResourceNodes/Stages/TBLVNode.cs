@@ -31,7 +31,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
 
-            entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
+            entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x10);
             Memory.Move(entries.Address, Header->Entries, (uint)entries.Length);
             return false;
         }
@@ -97,7 +97,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             ResourceNode root = this;
             while (root.Parent != null) root = root.Parent;
             var q = from f in TBLVFormats
-                    where 0x14 + f.NumEntries * 4 == WorkingUncompressed.Length
+                    where 0x10 + f.NumEntries * 4 == WorkingUncompressed.Length
                     select f;
 
             bool any_match_name = q.Any(f => String.Equals(
@@ -118,7 +118,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             AttributeInfo[] arr = new AttributeInfo[NumEntries];
             buint* pIn = (buint*)AttributeAddress;
-            int index = 0x14;
+            int index = 0x10;
             for (int i = 0; i < arr.Length; i++)
             {
                 arr[i] = new AttributeInfo()
