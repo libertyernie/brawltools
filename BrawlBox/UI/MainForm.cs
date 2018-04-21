@@ -349,7 +349,15 @@ namespace BrawlBox
 					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
-				}
+				} else if (node is TBLVNode)
+                {
+                    TBLVNode tblv = (TBLVNode)node;
+
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(tblv.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tblv;
+                    newControl = attributeGrid1;
+                }
 
                 if (node is IColorSource && !disable2nd)
                 {

@@ -54,6 +54,9 @@
         SndBgmTitleDataEntry = 0x6E00,
         SndBgmTitleDataFolder = 0x6E01,
 
+        //Stages
+        TBLV = 0x5B26,
+
         //AI
         AI = 0x1616,
         CE = 0x1719,
