@@ -12,25 +12,26 @@ namespace BrawlLib.SSBB.ResourceNodes
     {
         public override ResourceType ResourceType { get { return ResourceType.TBLV; } }
         internal TBLV* Header { get { return (TBLV*)WorkingUncompressed.Address; } }
-        internal int version, unk1, unk2;
+        internal int unk0, unk1, unk2;
 
         // Internal buffer for editing - changes written back to WorkingUncompressed on rebuild
         internal UnsafeBuffer entries;
 
         [Category("TBLV")]
         public int NumEntries { get { return entries.Length / 4; } }
-        /*[Category("Stage Trap Data Table")]
+        [Category("TBLV")]
+        public int Unk0 { get { return unk0; } set { unk0 = value; SignalPropertyChange(); } }
+        [Category("TBLV")]
         public int Unk1 { get { return unk1; } set { unk1 = value; SignalPropertyChange(); } }
-        [Category("Stage Trap Data Table")]
-        public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }*/
+        [Category("TBLV")]
+        public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
         public override bool OnInitialize()
         {
             // _name = "Stage Trap Data Table";
-            version = Header->_version;
+            unk0 = Header->_unk0;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
-
             entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x10);
             Memory.Move(entries.Address, Header->Entries, (uint)entries.Length);
             return false;
@@ -38,17 +39,16 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         protected override string GetName()
         {
-            return base.GetName("Table (Lava)");
+            return base.GetName("TBLV");
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
             TBLV* header = (TBLV*)address;
             header->_tag = TBLV.Tag;
+            header->_unk0 = unk0;
             header->_unk1 = unk1;
             header->_unk2 = unk2;
-            header->_version = version;
-            header->_entryOffset = 0x10;
             Memory.Move(header->Entries, entries.Address, (uint)entries.Length);
         }
 

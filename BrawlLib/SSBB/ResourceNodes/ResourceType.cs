@@ -55,7 +55,7 @@
         SndBgmTitleDataFolder = 0x6E01,
 
         //Stages
-        TBLV = 0x5B26,
+        TBLV = 0x5B00,
 
         //AI
         AI = 0x1616,
