@@ -336,7 +336,7 @@
     <Compile Include="SSBB\ResourceNodes\CollisionNode.cs" />
     <Compile Include="SSBB\ResourceNodes\GCTNode.cs" />
     <None Include="SSBB\ResourceNodes\Modules\Relocation.cs" />
-    <Compile Include="SSBB\ResourceNodes\STDTNode.cs" />
+    <Compile Include="SSBB\ResourceNodes\Stage Tables\STDTNode.cs" />
     <Compile Include="SSBB\ResourceNodes\THPNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurVecNode.cs" />
     <Compile Include="SSBB\ResourceNodes\MDL0\MDL0FurPosNode.cs" />
@@ -364,7 +364,7 @@
     <Compile Include="SSBB\Types\Audio\RWSD.cs" />
     <Compile Include="SSBB\Types\Subspace\BLOC.cs" />
     <Compile Include="SSBB\Types\Subspace\Navigation\GDOR.cs" />
-    <Compile Include="SSBB\Types\STDT.cs" />
+    <Compile Include="SSBB\Types\Stage Tables\STDT.cs" />
     <Compile Include="SSBB\Types\TPL.cs" />
     <Compile Include="SSBB\UserData.cs" />
     <Compile Include="SSBB\ResourceNodes\Modules\DOLNode.cs" />

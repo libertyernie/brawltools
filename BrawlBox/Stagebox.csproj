@@ -145,7 +145,7 @@
     <Compile Include="NodeWrappers\Subspace\BLOCWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GDORWrapper.cs" />
     <Compile Include="NodeWrappers\Audio\RSARWrapper.cs" />
-    <Compile Include="NodeWrappers\STDTWrapper.cs" />
+    <Compile Include="NodeWrappers\Stage Tables\STDTWrapper.cs" />
     <Compile Include="NodeWrappers\SCLAWrapper.cs" />
     <Compile Include="NodeWrappers\Subspace\GSNDWrapper.cs" />
     <Compile Include="NodeWrappers\HavokWrapper.cs" />
