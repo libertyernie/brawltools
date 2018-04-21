@@ -39,7 +39,16 @@ namespace BrawlBox
                 new ToolStripMenuItem("MSBin", null, ImportMSBinAction),
                 new ToolStripMenuItem("SCLA", null, ImportSCLAAction),
                 new ToolStripMenuItem("STDT", null, ImportSTDTAction),
-                new ToolStripMenuItem("STPM", null, ImportSTPMAction)
+                new ToolStripMenuItem("STPM", null, ImportSTPMAction),
+                new ToolStripMenuItem("Stage Table", null,
+                    new ToolStripMenuItem("TBCL", null, ImportTBCLAction),
+                    new ToolStripMenuItem("TBGC", null, ImportTBGCAction),
+                    new ToolStripMenuItem("TBGD", null, ImportTBGDAction),
+                    new ToolStripMenuItem("TBGM", null, ImportTBGMAction),
+                    new ToolStripMenuItem("TBLV", null, ImportTBLVAction),
+                    new ToolStripMenuItem("TBRM", null, ImportTBRMAction),
+                    new ToolStripMenuItem("TBST", null, ImportTBSTAction)
+                    )
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Preview All Models", null, PreviewAllAction));
@@ -76,6 +85,15 @@ namespace BrawlBox
         protected static void ImportSCLAAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSCLA(); }
         protected static void ImportSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSTDT(); }
         protected static void ImportSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportSTPM(); }
+
+        protected static void ImportTBCLAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBCL(); }
+        protected static void ImportTBGCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBGC(); }
+        protected static void ImportTBGDAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBGD(); }
+        protected static void ImportTBGMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBGM(); }
+        protected static void ImportTBLVAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBLV(); }
+        protected static void ImportTBRMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBRM(); }
+        protected static void ImportTBSTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportTBST(); }
+
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().PreviewAll(); }
         protected static void ExportAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ExportAll(); }
         protected static void ReplaceAllAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ReplaceAll(); }
@@ -194,6 +212,97 @@ namespace BrawlBox
             w.TreeView.SelectedNode = w;
             return node;
         }
+        
+        // StageBox create TBCL
+        public TBCLNode NewTBCL()
+        {
+            TBCLNode node = new TBCLNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBCL immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBGC
+        public TBGCNode NewTBGC()
+        {
+            TBGCNode node = new TBGCNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBGC immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBGD
+        public TBGDNode NewTBGD()
+        {
+            TBGDNode node = new TBGDNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBGD immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBGM
+        public TBGMNode NewTBGM()
+        {
+            TBGMNode node = new TBGMNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBGM immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBLV
+        public TBLVNode NewTBLV()
+        {
+            TBLVNode node = new TBLVNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBLV immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBRM
+        public TBRMNode NewTBRM()
+        {
+            TBRMNode node = new TBRMNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBRM immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
+        
+        // StageBox create TBST
+        public TBSTNode NewTBST()
+        {
+            TBSTNode node = new TBSTNode() { FileType = ARCFileType.MiscData };
+            _resource.AddChild(node);
+
+            BaseWrapper w = this.FindResource(node, false);
+            w.EnsureVisible();
+            // Viewing a TBST immediately after creation causes a crash
+            // w.TreeView.SelectedNode = w;
+            return node;
+        }
 
         public void ImportARC()
         {
@@ -254,6 +363,104 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.STPM, out path) > 0)
                 NewSTPM().Replace(path);
+        }
+        
+        // StageBox import TBCL
+        public void ImportTBCL()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBCL, out path) > 0)
+            {
+                TBCLNode node = NewTBCL();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBGC
+        public void ImportTBGC()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBGC, out path) > 0)
+            {
+                TBGCNode node = NewTBGC();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBGD
+        public void ImportTBGD()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBGD, out path) > 0)
+            {
+                TBGDNode node = NewTBGD();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBGM
+        public void ImportTBGM()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBGM, out path) > 0)
+            {
+                TBGMNode node = NewTBGM();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBLV
+        public void ImportTBLV()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBLV, out path) > 0)
+            {
+                TBLVNode node = NewTBLV();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBRM
+        public void ImportTBRM()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBRM, out path) > 0)
+            {
+                TBRMNode node = NewTBRM();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
+        }
+        
+        // StageBox import TBST
+        public void ImportTBST()
+        {
+            string path;
+            if (Program.OpenFile(FileFilters.TBST, out path) > 0)
+            {
+                TBSTNode node = NewTBST();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
         }
         
         public override void OnExport(string outPath, int filterIndex)
