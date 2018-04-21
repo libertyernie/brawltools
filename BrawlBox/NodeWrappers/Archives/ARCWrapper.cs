@@ -239,7 +239,13 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.STDT, out path) > 0)
-                NewSTDT().Replace(path);
+            {
+                STDTNode node = NewSTDT();
+                node.Replace(path);
+                BaseWrapper w = this.FindResource(node, false);
+                w.EnsureVisible();
+                w.TreeView.SelectedNode = w;
+            }
         }
         
         // StageBox import STPM
