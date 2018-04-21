@@ -349,13 +349,21 @@ namespace BrawlBox
 					attributeGrid1.AddRange(stdt.GetPossibleInterpretations());
 					attributeGrid1.TargetNode = stdt;
 					newControl = attributeGrid1;
-				} else if (node is TBLVNode)
+				} else if (node is TBGCNode)
                 {
-                    TBLVNode tblv = (TBLVNode)node;
+                    TBGCNode tbgc = (TBGCNode)node;
 
                     attributeGrid1.Clear();
-                    attributeGrid1.AddRange(tblv.GetPossibleInterpretations());
-                    attributeGrid1.TargetNode = tblv;
+                    attributeGrid1.AddRange(tbgc.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tbgc;
+                    newControl = attributeGrid1;
+                }  else if (node is TBGDNode)
+                {
+                    TBGDNode tbgd = (TBGDNode)node;
+
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(tbgd.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tbgd;
                     newControl = attributeGrid1;
                 } else if (node is TBGMNode)
                 {
@@ -365,7 +373,31 @@ namespace BrawlBox
                     attributeGrid1.AddRange(tbgm.GetPossibleInterpretations());
                     attributeGrid1.TargetNode = tbgm;
                     newControl = attributeGrid1;
-                }
+                } else if (node is TBLVNode)
+                {
+                    TBLVNode tblv = (TBLVNode)node;
+
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(tblv.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tblv;
+                    newControl = attributeGrid1;
+                } else if (node is TBRMNode)
+                {
+                    TBRMNode tbrm = (TBRMNode)node;
+
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(tbrm.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tbrm;
+                    newControl = attributeGrid1;
+                }  else if (node is TBSTNode)
+                {
+                    TBSTNode tbst = (TBSTNode)node;
+
+                    attributeGrid1.Clear();
+                    attributeGrid1.AddRange(tbst.GetPossibleInterpretations());
+                    attributeGrid1.TargetNode = tbst;
+                    newControl = attributeGrid1;
+                } 
 
                 if (node is IColorSource && !disable2nd)
                 {

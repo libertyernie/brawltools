@@ -55,8 +55,12 @@
         SndBgmTitleDataFolder = 0x6E01,
 
         //Stage Tables
-        TBLV = 0x5B00,
+        TBGC = 0x5B00,
+        TBGD = 0x5B00,
         TBGM = 0x5B00,
+        TBLV = 0x5B00,
+        TBRM = 0x5B00,
+        TBST = 0x5B00,
 
         //AI
         AI = 0x1616,
