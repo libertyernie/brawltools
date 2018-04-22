@@ -12,9 +12,18 @@ namespace BrawlLib.SSBBTypes
 		public bint _version;
 		public bint _unk1;
 		public bint _unk2;
-		public bint _entryOffset;
+        public bint _entryOffset;
 
-		public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+        public STDT(int version)
+        {
+            _tag = Tag;
+            _version = version;
+            _unk1 = 0;
+            _unk2 = 0;
+            _entryOffset = 0x14;
+        }
+
+        public VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
 		public bfloat* Entries { get { return (bfloat*)(Address + _entryOffset); } }
 	}
 }

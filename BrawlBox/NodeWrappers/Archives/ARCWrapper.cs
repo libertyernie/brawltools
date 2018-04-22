@@ -29,7 +29,7 @@ namespace BrawlBox
 #if DEBUG
                 new ToolStripMenuItem("SCLA (Expanded)", null, NewSCLAExpandedAction),
 #endif
-                // new ToolStripMenuItem("STDT", null, NewSTDTAction)
+                new ToolStripMenuItem("STDT", null, NewSTDTAction),
                 new ToolStripMenuItem("STPM", null, NewSTPMAction)
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Import", null,
@@ -75,7 +75,7 @@ namespace BrawlBox
         protected static void NewSCLAAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(0); }
         protected static void NewSCLAFullAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(32); }
         protected static void NewSCLAExpandedAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(256); }
-        protected static void NewSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTDT(); }
+        protected static void NewSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTDT(8); }
         protected static void NewSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTPM(); }
         protected static void ImportBRESAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBRES(); }
         protected static void ImportARCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportARC(); }
@@ -189,9 +189,9 @@ namespace BrawlBox
         }
         
         // StageBox create STDT
-        public STDTNode NewSTDT()
+        public STDTNode NewSTDT(int numEntries)
         {
-            STDTNode node = new STDTNode() { FileType = ARCFileType.MiscData };
+            STDTNode node = new STDTNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
@@ -349,7 +349,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.STDT, out path) > 0)
             {
-                STDTNode node = NewSTDT();
+                STDTNode node = NewSTDT(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();

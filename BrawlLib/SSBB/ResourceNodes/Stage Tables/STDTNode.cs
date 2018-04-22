@@ -15,6 +15,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         // Internal buffer for editing - changes written back to WorkingUncompressed on rebuild
         internal UnsafeBuffer entries;
+        internal bool hasBeenSet = false;
 
         [Category("Stage Trap Data Table")]
         public int NumEntries{get{return entries.Length / 4;}}
@@ -22,34 +23,62 @@ namespace BrawlLib.SSBB.ResourceNodes
         public int Unk1 { get { return unk1; } set { unk1 = value; SignalPropertyChange(); } }
         [Category("Stage Trap Data Table")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
+        
+        public STDTNode() { hasBeenSet = false; }
+
+        public STDTNode(VoidPtr address, int numEntries)
+        {
+            version = 1;
+            unk1 = 0;
+            unk2 = 0;
+            entries = new UnsafeBuffer((numEntries * 4));
+            if (address == null)
+            {
+                byte* pOut = (byte*)entries.Address;
+                for (int i = 0; i < (numEntries * 4); i++)
+                    *pOut++ = 0;
+            }
+            else
+            {
+                byte* pIn = (byte*)address;
+                byte* pOut = (byte*)entries.Address;
+                for (int i = 0; i < (numEntries * 4); i++)
+                    *pOut++ = *pIn++;
+            }
+            hasBeenSet = true;
+        }
+        ~STDTNode() { entries.Dispose(); }
 
         public override bool OnInitialize() {
             // _name = "Stage Trap Data Table";
             version = Header->_version;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
-
-            entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
+            if(!hasBeenSet)
+                entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
             Memory.Move(entries.Address, Header->Entries, (uint)entries.Length);
             return false;
         }
-        
+
         protected override string GetName() {
             return base.GetName("Stage Trap Data Table");
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force) {
             STDT* header = (STDT*)address;
+            *header = new STDT(1);
             header->_tag = STDT.Tag;
             header->_unk1 = unk1;
             header->_unk2 = unk2;
             header->_version = version;
             header->_entryOffset = 0x14;
+            Console.WriteLine("entries: " + entries);
             Memory.Move(header->Entries, entries.Address, (uint)entries.Length);
         }
 
-        public override int OnCalculateSize(bool force) {
-            return WorkingUncompressed.Length;
+        public override int OnCalculateSize(bool force)
+        {
+            return 0x14 + entries.Length;
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((STDT*)source.Address)->_tag == STDT.Tag ? new STDTNode() : null; }
