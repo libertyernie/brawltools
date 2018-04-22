@@ -15,7 +15,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         // Internal buffer for editing - changes written back to WorkingUncompressed on rebuild
         internal UnsafeBuffer entries;
-        internal bool hasBeenSet = false;
 
         [Category("Stage Trap Data Table")]
         public int NumEntries{get{return entries.Length / 4;}}
@@ -24,7 +23,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Stage Trap Data Table")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
         
-        public STDTNode() { hasBeenSet = false; }
+        public STDTNode() {  }
 
         public STDTNode(VoidPtr address, int numEntries)
         {
@@ -45,7 +44,6 @@ namespace BrawlLib.SSBB.ResourceNodes
                 for (int i = 0; i < (numEntries * 4); i++)
                     *pOut++ = *pIn++;
             }
-            hasBeenSet = true;
         }
         ~STDTNode() { entries.Dispose(); }
 
@@ -54,8 +52,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             version = Header->_version;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
-            if(!hasBeenSet)
-                entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
+            entries = new UnsafeBuffer(WorkingUncompressed.Length - 0x14);
             Memory.Move(entries.Address, Header->Entries, (uint)entries.Length);
             return false;
         }
@@ -72,7 +69,6 @@ namespace BrawlLib.SSBB.ResourceNodes
             header->_unk2 = unk2;
             header->_version = version;
             header->_entryOffset = 0x14;
-            Console.WriteLine("entries: " + entries);
             Memory.Move(header->Entries, entries.Address, (uint)entries.Length);
         }
 
