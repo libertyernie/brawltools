@@ -16,6 +16,36 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
+ - v0.2 - (4/21/2018)
+ . Added support for Brawl Stage Table types
+   - TBCL (Found in Pictochat)
+   - TBGC (Found in Smashville)
+   - TBGD (Found in Smashville)
+   - TBGM (Found in Norfair)
+   - TBLV (Found in Norfair)
+   - TBRM (Found in Hanenbow)
+   - TBST (Found in Flat Zone 2)
+ . Added support for newly discovered collision flags and redesigned collision editor to compensate
+   - Pokémon Trainer
+   - Unknown (Used in the SSE)
+ . Added Merge functionality to Collision Datas
+ . Added auto-generate keyframes from bones functionality to CHR0 animations
+ . Fixed Merge functionality for CHR0 animations
+ . Fixed Merge functionality for MDL0s
+ . Control+Delete now deletes Collision Objects
+ . Control+Shift+Delete now deletes Collision Datas to prevent accidental deletion
+ . Added Mirror by Scale and Mirror by Position functionality for MDL0 files
+ . Added Mirror collision functionality
+ . Fixed editing of collisions linked to bones to have collision go where intended
+ . Added transparency fix option for MDL0s (renames to gr2_)
+ . SCLANode->Unknown1 now parsed as "CreatesDust"
+ . SCLANode generation's default values now based on those of Unknown2
+ . Automatic compressor no longer compresses empty files
+ 
+ - v0.1 Beta Hotfix 1 - (4/8/2018)
+ . ExtendedLZ77 autocompressor now works correctly on release builds
+ . ExtendedLZ77 autocompressor now only works on subnodes of ARCs that have names starting with "STG"
+ 
  - v0.1 Beta - (4/8/2018)
  . Resources originally saved with LZ77 will be saved as ExtendedLZ77 when the stage is saved (Being saved as LZ77 also marks archives as needing saving)
  . Used spaces instead of CamelCase for data
