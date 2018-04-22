@@ -201,7 +201,6 @@ namespace BrawlBox
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a STDT immediately after creation causes a crash
             w.TreeView.SelectedNode = w;
             return node;
         }
@@ -353,13 +352,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.STDT, out path) > 0)
-            {
-                STDTNode node = NewSTDT(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewSTDT(1).Replace(path);
         }
         
         // StageBox import STPM
