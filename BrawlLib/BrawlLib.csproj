@@ -647,6 +647,12 @@
     <Compile Include="System\Windows\Controls\GoodColorControl2.cs">
       <SubType>UserControl</SubType>
     </Compile>
+    <Compile Include="System\Windows\Forms\STDTCreator.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="System\Windows\Forms\STDTCreator.Designer.cs">
+      <DependentUpon>STDTCreator.cs</DependentUpon>
+    </Compile>
     <Compile Include="System\Windows\Forms\ObjectOptimizerForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -1028,6 +1034,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Controls\GoodColorControl2.resx">
       <DependentUpon>GoodColorControl2.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="System\Windows\Forms\STDTCreator.resx">
+      <DependentUpon>STDTCreator.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="System\Windows\Forms\ObjectOptimizerForm.resx">
       <DependentUpon>ObjectOptimizerForm.cs</DependentUpon>

@@ -75,7 +75,12 @@ namespace BrawlBox
         protected static void NewSCLAAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(0); }
         protected static void NewSCLAFullAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(32); }
         protected static void NewSCLAExpandedAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(256); }
-        protected static void NewSTDTAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTDT(8); }
+        protected static void NewSTDTAction(object sender, EventArgs e)
+        {
+            STDTCreator entryCount = new STDTCreator();
+            if (entryCount.ShowDialog() == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewSTDT(entryCount.NewValue);
+        }
         protected static void NewSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTPM(); }
         protected static void ImportBRESAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBRES(); }
         protected static void ImportARCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportARC(); }
@@ -197,7 +202,7 @@ namespace BrawlBox
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
             // Viewing a STDT immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
