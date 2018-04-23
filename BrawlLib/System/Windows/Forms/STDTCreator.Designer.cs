@@ -36,11 +36,10 @@
             // 
             // label2
             // 
-            this.label2.Location = new System.Drawing.Point(13, 12);
+            this.label2.Location = new System.Drawing.Point(6, 12);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(127, 20);
+            this.label2.Size = new System.Drawing.Size(134, 20);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Number of Entries:";
             this.label2.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // numNewCount
@@ -91,7 +90,6 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "STDT Generation";
             this.ResumeLayout(false);
             this.PerformLayout();
 

@@ -22,6 +22,7 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Generate Keyframes From All Bone Positions", null, KeyframeGenAction),
                 new ToolStripMenuItem("Merge Animation", null, MergeAction),
                 new ToolStripMenuItem("Append Animation", null, AppendAction),
+                new ToolStripMenuItem("Repeat Animation", null, LoopAction),
                 new ToolStripMenuItem("Resize", null, ResizeAction)));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
@@ -40,6 +41,11 @@ namespace BrawlBox.NodeWrappers
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
+        protected static void LoopAction(object sender, EventArgs e) {
+            STDTCreator entryCount = new STDTCreator();
+            if (entryCount.ShowDialog("Animation Looper", "Number of runthroughs:") == DialogResult.OK)
+                GetInstance<CHR0Wrapper>().Loop((entryCount.NewValue)-1);
+        }
 
         protected static void KeyframeGenAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().KeyFrameGen(2, false, false); }
 
@@ -90,6 +96,15 @@ namespace BrawlBox.NodeWrappers
         public void Append()
         {
             ((CHR0Node)_resource).Append();
+            BaseWrapper res = this.FindResource(_resource, false);
+            res.EnsureVisible();
+            res.TreeView.SelectedNode = res;
+        }
+
+        public void Loop(int timesToLoop)
+        {
+            CHR0Node temp = ((CHR0Node)_resource);
+            ((CHR0Node)_resource).Append(temp, timesToLoop);
             BaseWrapper res = this.FindResource(_resource, false);
             res.EnsureVisible();
             res.TreeView.SelectedNode = res;

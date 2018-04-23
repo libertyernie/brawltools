@@ -471,37 +471,39 @@ namespace BrawlLib.SSBB.ResourceNodes
             o.Title = "Please select an animation to append.";
             if (o.ShowDialog() == DialogResult.OK)
                 if ((external = (CHR0Node)NodeFactory.FromFile(null, o.FileName)) != null)
-                    Append(external);
+                    Append(external, 1);
         }
         /// <summary>
         /// Adds an animation to the end of this one
         /// </summary>
-        public void Append(CHR0Node external)
+        public void Append(CHR0Node external, int timesToAppend)
         {
             KeyframeEntry kfe;
-
-            int origIntCount = FrameCount;
             int extCount = external.FrameCount;
-            FrameCount += extCount;
-
-            foreach (CHR0EntryNode extEntry in external.Children)
+            for (int appendCount = 0; appendCount < timesToAppend; ++appendCount)
             {
-                CHR0EntryNode intEntry = null;
-                if ((intEntry = (CHR0EntryNode)FindChild(extEntry.Name, false)) == null)
+                int origIntCount = FrameCount;
+                FrameCount += extCount;
+
+                foreach (CHR0EntryNode extEntry in external.Children)
                 {
-                    CHR0EntryNode newIntEntry = new CHR0EntryNode() { Name = extEntry.Name };
-                    newIntEntry.SetSize(extEntry.FrameCount + origIntCount, Loop);
-                    for (int x = 0; x < extEntry.FrameCount; x++)
-                        for (int i = 0; i < 9; i++)
-                            if ((kfe = extEntry.GetKeyframe(i, x)) != null)
-                                newIntEntry.Keyframes.SetFrameValue(i, x + origIntCount, kfe._value)._tangent = kfe._tangent;
-                    AddChild(newIntEntry);
+                    CHR0EntryNode intEntry = null;
+                    if ((intEntry = (CHR0EntryNode)FindChild(extEntry.Name, false)) == null)
+                    {
+                        CHR0EntryNode newIntEntry = new CHR0EntryNode() { Name = extEntry.Name };
+                        newIntEntry.SetSize(extEntry.FrameCount + origIntCount, Loop);
+                        for (int x = 0; x < extEntry.FrameCount; x++)
+                            for (int i = 0; i < 9; i++)
+                                if ((kfe = extEntry.GetKeyframe(i, x)) != null)
+                                    newIntEntry.Keyframes.SetFrameValue(i, x + origIntCount, kfe._value)._tangent = kfe._tangent;
+                        AddChild(newIntEntry);
+                    }
+                    else
+                        for (int x = 0; x < extEntry.FrameCount; x++)
+                            for (int i = 0; i < 9; i++)
+                                if ((kfe = extEntry.GetKeyframe(i, x)) != null)
+                                    intEntry.Keyframes.SetFrameValue(i, x + origIntCount, kfe._value)._tangent = kfe._tangent;
                 }
-                else
-                    for (int x = 0; x < extEntry.FrameCount; x++)
-                        for (int i = 0; i < 9; i++)
-                            if ((kfe = extEntry.GetKeyframe(i, x)) != null)
-                                intEntry.Keyframes.SetFrameValue(i, x + origIntCount, kfe._value)._tangent = kfe._tangent;
             }
         }
 
