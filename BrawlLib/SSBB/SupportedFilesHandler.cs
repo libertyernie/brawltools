@@ -97,6 +97,11 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "Brawl TBRM File", "tbrm"),
             new SupportedFileInfo(true, "Brawl TBST File", "tbst"),
 
+            //MDL0 subfiles
+            new SupportedFileInfo(false, "MDL0 Material", "mdl0mat"),
+            new SupportedFileInfo(false, "MDL0 Shader", "mdl0shade"),
+            new SupportedFileInfo(false, "MDL0 Bone", "mdl0bone"),
+
             //Gamecube
             //new SupportedFileInfo(true, "J3D v3 Model", "bmd"),
             //new SupportedFileInfo(true, "J3D v4 Model", "bdl"),

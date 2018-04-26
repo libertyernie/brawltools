@@ -89,6 +89,14 @@ namespace BrawlLib
         public static string TBST =
             SupportedFilesHandler.GetCompleteFilter("tbst");
             
+        // MDL0 subnodes
+        public static string MDL0Material =
+            SupportedFilesHandler.GetCompleteFilter("mdl0mat");
+        public static string MDL0Shader =
+            SupportedFilesHandler.GetCompleteFilter("mdl0shade");
+        public static string MDL0Bone =
+            SupportedFilesHandler.GetCompleteFilter("mdl0bone");
+
         public static string Raw =
             SupportedFilesHandler.GetCompleteFilter("*");
             //Some files already have an extension in their name,

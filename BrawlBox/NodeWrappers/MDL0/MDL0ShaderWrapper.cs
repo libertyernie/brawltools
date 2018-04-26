@@ -1,4 +1,5 @@
 ﻿using System;
+using BrawlLib;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -89,6 +90,8 @@ namespace BrawlBox.NodeWrappers
             }
         }
         #endregion
+
+        public override string ExportFilter { get { return FileFilters.MDL0Shader; } }
 
         public MDL0ShaderWrapper() { ContextMenuStrip = _menu; }
     }

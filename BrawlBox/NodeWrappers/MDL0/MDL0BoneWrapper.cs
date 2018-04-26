@@ -1,4 +1,5 @@
 ﻿using System;
+using BrawlLib;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using System.ComponentModel;
@@ -189,6 +190,8 @@ namespace BrawlBox.NodeWrappers
             //TreeView.SelectedNode = Nodes[Nodes.Count - 1];
         }
         #endregion
+
+        public override string ExportFilter { get { return FileFilters.MDL0Bone; } }
 
         public MDL0BoneWrapper() { ContextMenuStrip = _menu; }
     }
