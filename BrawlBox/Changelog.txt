@@ -16,7 +16,7 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
- - v0.3 - (4/27/2018)
+ - v0.3 - (4/26/2018)
  . Fixed glitch in which attempting to encode a texture as CI4 or CI8 from a 64 bit operating system would crash the program
  . Fixed glitch in which incorrect Right-Click menu options were being disabled for Collisions, SCLAs, and MDL0s
  . Added "New" functionality for the following formats
@@ -31,6 +31,7 @@ they be held accountable for the manner in which it is used.
  . Added "Import" functionality for Coll files
  . MDL0 Materials, Shaders, and Bones now import/export with file extensions
  . Added "Repeat", "Reverse", and "Reverse to Loop" functionality to CHR0 animations
+ . Edited BrawlBox updater to work with StageBox
  
  - v0.2 - (4/21/2018)
  . Added support for Brawl Stage Table types
