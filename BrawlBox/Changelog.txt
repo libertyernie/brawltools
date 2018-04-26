@@ -16,6 +16,22 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
+ - v0.3 - (4/27/2018)
+ . Fixed glitch in which attempting to encode a texture as CI4 or CI8 from a 64 bit operating system would crash the program
+ . Fixed glitch in which incorrect Right-Click menu options were being disabled for Collisions, SCLAs, and MDL0s
+ . Added "New" functionality for the following formats
+   - STDT
+   - TBCL
+   - TBGC
+   - TBGD
+   - TBGM
+   - TBLV
+   - TBRM
+   - TBST
+ . Added "Import" functionality for Coll files
+ . MDL0 Materials, Shaders, and Bones now import/export with file extensions
+ . Added "Repeat", "Reverse", and "Reverse to Loop" functionality to CHR0 animations
+ 
  - v0.2 - (4/21/2018)
  . Added support for Brawl Stage Table types
    - TBCL (Found in Pictochat)
@@ -28,10 +44,10 @@ they be held accountable for the manner in which it is used.
  . Added support for newly discovered collision flags and redesigned collision editor to compensate
    - Pokémon Trainer
    - Unknown (Used in the SSE)
- . Added Merge functionality to Collision Datas
  . Added auto-generate keyframes from bones functionality to CHR0 animations
  . Fixed Merge functionality for CHR0 animations
  . Fixed Merge functionality for MDL0s
+ . Added Merge functionality to Collision Datas
  . Control+Delete now deletes Collision Objects
  . Control+Shift+Delete now deletes Collision Datas to prevent accidental deletion
  . Added Mirror by Scale and Mirror by Position functionality for MDL0 files
@@ -41,6 +57,7 @@ they be held accountable for the manner in which it is used.
  . SCLANode->Unknown1 now parsed as "CreatesDust"
  . SCLANode generation's default values now based on those of Unknown2
  . Automatic compressor no longer compresses empty files
+ . Texture importing no longer will default to CI4 or CI8
  
  - v0.1 Beta Hotfix 1 - (4/8/2018)
  . ExtendedLZ77 autocompressor now works correctly on release builds

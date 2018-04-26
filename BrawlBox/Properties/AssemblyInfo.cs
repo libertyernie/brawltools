@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Stagebox v0.2")]
+[assembly: AssemblyTitle("Stagebox v0.3")]
 [assembly: AssemblyDescription("This program is provided as-is without any warranty, implied or otherwise." +
 " By using this program, the end user agrees to take full responsibility regarding its proper and lawful use." +
 " The authors/hosts/distributors cannot be held responsible for any damage resulting in the use of this program," +
@@ -38,4 +38,4 @@ Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.77.*")]
-[assembly: AssemblyFileVersion("0.77.0.2")]
+[assembly: AssemblyFileVersion("0.77.0.3")]

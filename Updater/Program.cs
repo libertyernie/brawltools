@@ -18,24 +18,28 @@ namespace Net
 {
     public static class Updater
     {
-        public static readonly string BaseURL = "https://github.com/libertyernie/brawltools/releases/download/";
+        public static readonly string BaseURL = "https://github.com/soopercool101/stagebox/releases/download/";
         public static string AppPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
         public static async Task UpdateCheck() { await UpdateCheck(false); }
         public static async Task UpdateCheck(bool Overwrite)
         {
+            if (AppPath.EndsWith("lib", StringComparison.CurrentCultureIgnoreCase)) {
+                AppPath = AppPath.Substring(0, AppPath.Length - 4);
+            }
+
             // check to see if the user is online, and that github is up and running.
             Console.WriteLine("Checking connection to server.");
             using (Ping s = new Ping())
                 Console.WriteLine(s.Send("www.github.com").Status);
 
             // Initiate the github client.
-            GitHubClient github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+            GitHubClient github = new GitHubClient(new Octokit.ProductHeaderValue("Stagebox"));
 
             // get repo, Release, and release assets
-            Repository repo = await github.Repository.Get("libertyernie", "brawltools");
+            Repository repo = await github.Repository.Get("soopercool101", "stagebox");
             Release release = (await github.Release.GetAll(repo.Owner.Login, repo.Name))[0];
-            ReleaseAsset Asset = (await github.Release.GetAssets("libertyernie", repo.Name, release.Id))[0];
+            ReleaseAsset Asset = (await github.Release.GetAssets("soopercool101", repo.Name, release.Id))[0];
 
             // Check if we were passed in the overwrite paramter, and if not create a new folder to extract in.
             if (!Overwrite)
@@ -46,7 +50,7 @@ namespace Net
             else
             {
                 //Find and close the brawlbox application that will be overwritten
-                Process[] px =  Process.GetProcessesByName("BrawlBox");
+                Process[] px =  Process.GetProcessesByName("StageBox");
                 Process p = px.FirstOrDefault(x => x.MainModule.FileName.StartsWith(AppPath));
                 if (p != null && p != default(Process) && p.CloseMainWindow())
                     p.Close();
@@ -78,11 +82,21 @@ namespace Net
         {
             try
             {
-                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools"));
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Stagebox"));
                 IReadOnlyList<Release> releases = null;
                 try
                 {
-                    releases = await github.Release.GetAll("libertyernie", "brawltools");
+                    releases = await github.Release.GetAll("soopercool101", "stagebox");
+
+                    // Check if this is a known pre-release version
+                    bool isPreRelease = releases.Any(r => r.Prerelease
+                        && string.Equals(releases[0].TagName, releaseTag, StringComparison.InvariantCulture)
+                        && r.Name.IndexOf("StageBox", StringComparison.InvariantCultureIgnoreCase) >= 0);
+
+                    // If this is not a known pre-release version, remove all pre-release versions from the list
+                    if (!isPreRelease) {
+                        releases = releases.Where(r => !r.Prerelease).ToList();
+                    }
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -93,7 +107,7 @@ namespace Net
                 if (releases != null &&
                     releases.Count > 0 &&
                     !String.Equals(releases[0].TagName, releaseTag, StringComparison.InvariantCulture) && //Make sure the most recent version is not this version
-                    releases[0].Name.IndexOf("BrawlBox", StringComparison.InvariantCultureIgnoreCase) >= 0) //Make sure this is a BrawlBox release
+                    releases[0].Name.IndexOf("StageBox", StringComparison.InvariantCultureIgnoreCase) >= 0) //Make sure this is a StageBox release
                 {
                     DialogResult UpdateResult = MessageBox.Show(releases[0].Name + " is available! Update now?", "Update", MessageBoxButtons.YesNo);
                     if (UpdateResult == DialogResult.Yes)
@@ -135,17 +149,17 @@ namespace Net
         {
             try
             {
-                //Gain access to the BrawlBox account on github for submitting the report.
+                //Gain access to the StageBox account on github for submitting the report.
                 //I don't really care if this gets compromised, the token has no user settings access so I'll just revoke access to the token and generate a new one.
                 //Have to use a byte array to (hopefully) bypass github's automatic detection of the token as a string.
                 Octokit.Credentials s = new Credentials(System.Text.Encoding.Default.GetString(_rawData));
-                var github = new GitHubClient(new Octokit.ProductHeaderValue("Brawltools")) { Credentials = s };
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("Stagebox")) { Credentials = s };
                 IReadOnlyList<Release> releases = null;
                 IReadOnlyList<Issue> issues = null;
                 try
                 {
-                    releases = await github.Release.GetAll("libertyernie", "brawltools");
-                    issues = await github.Issue.GetForRepository("BrawlBox", "BrawlBoxIssues");
+                    releases = await github.Release.GetAll("soopercool101", "stagebox");
+                    issues = await github.Issue.GetForRepository("StageBox", "StageBoxIssues");
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -192,7 +206,7 @@ namespace Net
                                         Environment.NewLine +
                                         i.Body;
 
-                                    Issue x = await github.Issue.Update("BrawlBox", "BrawlBoxIssues", i.Number, update);
+                                    Issue x = await github.Issue.Update("StageBox", "StageBoxIssues", i.Number, update);
                                 }
                             }
                     
@@ -210,7 +224,7 @@ namespace Net
                             Environment.NewLine +
                             StackTrace
                         };
-                        Issue x = await github.Issue.Create("BrawlBox", "BrawlBoxIssues", issue);
+                        Issue x = await github.Issue.Create("StageBox", "StageBoxIssues", issue);
                     }
                 }
             }
@@ -227,6 +241,10 @@ namespace Net
 
         static void Main(string[] args)
         {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12;
+
+            System.Windows.Forms.Application.EnableVisualStyles();
+            
             //Prevent crash that occurs when this dll is not present
             if (!File.Exists(System.Windows.Forms.Application.StartupPath + "/Octokit.dll"))
             {
