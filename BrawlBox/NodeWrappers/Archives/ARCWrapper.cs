@@ -284,78 +284,72 @@ namespace BrawlBox
         // StageBox create TBGC
         public TBGCNode NewTBGC(int numEntries)
         {
-            TBGCNode node = new TBGCNode() { FileType = ARCFileType.MiscData };
+            TBGCNode node = new TBGCNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBGC immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBGD
         public TBGDNode NewTBGD(int numEntries)
         {
-            TBGDNode node = new TBGDNode() { FileType = ARCFileType.MiscData };
+            TBGDNode node = new TBGDNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBGD immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBGM
         public TBGMNode NewTBGM(int numEntries)
         {
-            TBGMNode node = new TBGMNode() { FileType = ARCFileType.MiscData };
+            TBGMNode node = new TBGMNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBGM immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBLV
         public TBLVNode NewTBLV(int numEntries)
         {
-            TBLVNode node = new TBLVNode() { FileType = ARCFileType.MiscData };
+            TBLVNode node = new TBLVNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBLV immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBRM
         public TBRMNode NewTBRM(int numEntries)
         {
-            TBRMNode node = new TBRMNode() { FileType = ARCFileType.MiscData };
+            TBRMNode node = new TBRMNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBRM immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBST
         public TBSTNode NewTBST(int numEntries)
         {
-            TBSTNode node = new TBSTNode() { FileType = ARCFileType.MiscData };
+            TBSTNode node = new TBSTNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBST immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
 
@@ -427,13 +421,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBGC, out path) > 0)
-            {
-                TBGCNode node = NewTBGC(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBGC(1).Replace(path);
         }
         
         // StageBox import TBGD
@@ -441,13 +429,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBGD, out path) > 0)
-            {
-                TBGDNode node = NewTBGD(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBGD(1).Replace(path);
         }
         
         // StageBox import TBGM
@@ -455,13 +437,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBGM, out path) > 0)
-            {
-                TBGMNode node = NewTBGM(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBGM(1).Replace(path);
         }
         
         // StageBox import TBLV
@@ -469,13 +445,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBLV, out path) > 0)
-            {
-                TBLVNode node = NewTBLV(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBLV(1).Replace(path);
         }
         
         // StageBox import TBRM
@@ -483,13 +453,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBRM, out path) > 0)
-            {
-                TBRMNode node = NewTBRM(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBRM(1).Replace(path);
         }
         
         // StageBox import TBST
@@ -497,13 +461,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBST, out path) > 0)
-            {
-                TBSTNode node = NewTBST(1);
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBST(1).Replace(path);
         }
         
         public override void OnExport(string outPath, int filterIndex)

@@ -26,9 +26,33 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("TBGC")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
 
+        public TBGCNode() { }
+
+        public TBGCNode(VoidPtr address, int numEntries)
+        {
+            unk0 = 25;              // Default set in Smashville
+            unk1 = 0;
+            unk2 = 0;
+            entries = new UnsafeBuffer((numEntries * 4));
+            if (address == null)
+            {
+                byte* pOut = (byte*)entries.Address;
+                for (int i = 0; i < (numEntries * 4); i++)
+                    *pOut++ = 0;
+            }
+            else
+            {
+                byte* pIn = (byte*)address;
+                byte* pOut = (byte*)entries.Address;
+                for (int i = 0; i < (numEntries * 4); i++)
+                    *pOut++ = *pIn++;
+            }
+        }
+        ~TBGCNode() { entries.Dispose(); }
+
+
         public override bool OnInitialize()
         {
-            // _name = "Stage Trap Data Table";
             unk0 = Header->_unk0;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
@@ -54,7 +78,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override int OnCalculateSize(bool force)
         {
-            return WorkingUncompressed.Length;
+            return 0x10 + entries.Length;
         }
 
         internal static ResourceNode TryParse(DataSource source) { return ((TBGC*)source.Address)->_tag == TBGC.Tag ? new TBGCNode() : null; }
