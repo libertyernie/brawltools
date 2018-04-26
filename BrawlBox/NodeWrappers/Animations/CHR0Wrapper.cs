@@ -42,7 +42,7 @@ namespace BrawlBox.NodeWrappers
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
         protected static void LoopAction(object sender, EventArgs e) {
-            STDTCreator entryCount = new STDTCreator();
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
             if (entryCount.ShowDialog("Animation Looper", "Number of runthroughs:") == DialogResult.OK)
                 GetInstance<CHR0Wrapper>().Loop((entryCount.NewValue)-1);
         }

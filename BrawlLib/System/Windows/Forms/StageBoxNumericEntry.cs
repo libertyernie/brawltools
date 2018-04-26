@@ -1,11 +1,11 @@
 ﻿namespace System.Windows.Forms
 {
-    public partial class STDTCreator : Form
+    public partial class StageBoxNumericEntry : Form
     {
-        public string title = "STDT Generation";
-        public string lowerText = "Number of Entries:";
+        public string title = "StageBox Numeric Entry Box";
+        public string lowerText = "Error; No arguments given";
 
-        public STDTCreator()
+        public StageBoxNumericEntry()
         {
             InitializeComponent();
         }

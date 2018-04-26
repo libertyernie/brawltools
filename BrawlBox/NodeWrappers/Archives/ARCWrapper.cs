@@ -77,8 +77,8 @@ namespace BrawlBox
         protected static void NewSCLAExpandedAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSCLA(256); }
         protected static void NewSTDTAction(object sender, EventArgs e)
         {
-            STDTCreator entryCount = new STDTCreator();
-            if (entryCount.ShowDialog() == DialogResult.OK)
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("STDT Generation", "Number of Entries:") == DialogResult.OK)
                 GetInstance<ARCWrapper>().NewSTDT(entryCount.NewValue);
         }
         protected static void NewSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTPM(); }

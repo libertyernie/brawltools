@@ -1,6 +1,6 @@
 ﻿namespace System.Windows.Forms
 {
-    partial class STDTCreator
+    partial class StageBoxNumericEntry
     {
         /// <summary>
         /// Required designer variable.
