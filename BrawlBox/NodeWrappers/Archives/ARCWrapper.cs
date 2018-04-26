@@ -30,7 +30,16 @@ namespace BrawlBox
                 new ToolStripMenuItem("SCLA (Expanded)", null, NewSCLAExpandedAction),
 #endif
                 new ToolStripMenuItem("STDT", null, NewSTDTAction),
-                new ToolStripMenuItem("STPM", null, NewSTPMAction)
+                new ToolStripMenuItem("STPM", null, NewSTPMAction),
+                new ToolStripMenuItem("Stage Table", null,
+                    new ToolStripMenuItem("TBCL", null, NewTBCLAction),
+                    new ToolStripMenuItem("TBGC", null, NewTBGCAction),
+                    new ToolStripMenuItem("TBGD", null, NewTBGDAction),
+                    new ToolStripMenuItem("TBGM", null, NewTBGMAction),
+                    new ToolStripMenuItem("TBLV", null, NewTBLVAction),
+                    new ToolStripMenuItem("TBRM", null, NewTBRMAction),
+                    new ToolStripMenuItem("TBST", null, NewTBSTAction)
+                    )
                 ));
             _menu.Items.Add(new ToolStripMenuItem("&Import", null,
                 new ToolStripMenuItem("ARChive", null, ImportARCAction),
@@ -82,6 +91,49 @@ namespace BrawlBox
                 GetInstance<ARCWrapper>().NewSTDT(entryCount.NewValue);
         }
         protected static void NewSTPMAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().NewSTPM(); }
+        protected static void NewTBCLAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBCL Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBCL(entryCount.NewValue);
+        }
+        protected static void NewTBGCAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBGC Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBGC(entryCount.NewValue);
+        }
+        protected static void NewTBGDAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBGD Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBGD(entryCount.NewValue);
+        }
+        protected static void NewTBGMAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBGM Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBGM(entryCount.NewValue);
+        }
+        protected static void NewTBLVAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBLV Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBLV(entryCount.NewValue);
+        }
+        protected static void NewTBRMAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBRM Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBRM(entryCount.NewValue);
+        }
+        protected static void NewTBSTAction(object sender, EventArgs e)
+        {
+            StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
+            if (entryCount.ShowDialog("TBST Generation", "Number of Entries:") == DialogResult.OK)
+                GetInstance<ARCWrapper>().NewTBST(entryCount.NewValue);
+        }
+        
         protected static void ImportBRESAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBRES(); }
         protected static void ImportARCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportARC(); }
         protected static void ImportBLOCAction(object sender, EventArgs e) { GetInstance<ARCWrapper>().ImportBLOC(); }
@@ -218,20 +270,19 @@ namespace BrawlBox
         }
         
         // StageBox create TBCL
-        public TBCLNode NewTBCL()
+        public TBCLNode NewTBCL(int numEntries)
         {
-            TBCLNode node = new TBCLNode() { FileType = ARCFileType.MiscData };
+            TBCLNode node = new TBCLNode(null, numEntries) { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
 
             BaseWrapper w = this.FindResource(node, false);
             w.EnsureVisible();
-            // Viewing a TBCL immediately after creation causes a crash
-            // w.TreeView.SelectedNode = w;
+            w.TreeView.SelectedNode = w;
             return node;
         }
         
         // StageBox create TBGC
-        public TBGCNode NewTBGC()
+        public TBGCNode NewTBGC(int numEntries)
         {
             TBGCNode node = new TBGCNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -244,7 +295,7 @@ namespace BrawlBox
         }
         
         // StageBox create TBGD
-        public TBGDNode NewTBGD()
+        public TBGDNode NewTBGD(int numEntries)
         {
             TBGDNode node = new TBGDNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -257,7 +308,7 @@ namespace BrawlBox
         }
         
         // StageBox create TBGM
-        public TBGMNode NewTBGM()
+        public TBGMNode NewTBGM(int numEntries)
         {
             TBGMNode node = new TBGMNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -270,7 +321,7 @@ namespace BrawlBox
         }
         
         // StageBox create TBLV
-        public TBLVNode NewTBLV()
+        public TBLVNode NewTBLV(int numEntries)
         {
             TBLVNode node = new TBLVNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -283,7 +334,7 @@ namespace BrawlBox
         }
         
         // StageBox create TBRM
-        public TBRMNode NewTBRM()
+        public TBRMNode NewTBRM(int numEntries)
         {
             TBRMNode node = new TBRMNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -296,7 +347,7 @@ namespace BrawlBox
         }
         
         // StageBox create TBST
-        public TBSTNode NewTBST()
+        public TBSTNode NewTBST(int numEntries)
         {
             TBSTNode node = new TBSTNode() { FileType = ARCFileType.MiscData };
             _resource.AddChild(node);
@@ -368,13 +419,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.TBCL, out path) > 0)
-            {
-                TBCLNode node = NewTBCL();
-                node.Replace(path);
-                BaseWrapper w = this.FindResource(node, false);
-                w.EnsureVisible();
-                w.TreeView.SelectedNode = w;
-            }
+                NewTBCL(1).Replace(path);
         }
         
         // StageBox import TBGC
@@ -383,7 +428,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBGC, out path) > 0)
             {
-                TBGCNode node = NewTBGC();
+                TBGCNode node = NewTBGC(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
@@ -397,7 +442,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBGD, out path) > 0)
             {
-                TBGDNode node = NewTBGD();
+                TBGDNode node = NewTBGD(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
@@ -411,7 +456,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBGM, out path) > 0)
             {
-                TBGMNode node = NewTBGM();
+                TBGMNode node = NewTBGM(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
@@ -425,7 +470,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBLV, out path) > 0)
             {
-                TBLVNode node = NewTBLV();
+                TBLVNode node = NewTBLV(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
@@ -439,7 +484,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBRM, out path) > 0)
             {
-                TBRMNode node = NewTBRM();
+                TBRMNode node = NewTBRM(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
@@ -453,7 +498,7 @@ namespace BrawlBox
             string path;
             if (Program.OpenFile(FileFilters.TBST, out path) > 0)
             {
-                TBSTNode node = NewTBST();
+                TBSTNode node = NewTBST(1);
                 node.Replace(path);
                 BaseWrapper w = this.FindResource(node, false);
                 w.EnsureVisible();
