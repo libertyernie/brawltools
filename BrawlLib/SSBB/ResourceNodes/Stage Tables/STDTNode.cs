@@ -48,7 +48,6 @@ namespace BrawlLib.SSBB.ResourceNodes
         ~STDTNode() { entries.Dispose(); }
 
         public override bool OnInitialize() {
-            // _name = "Stage Trap Data Table";
             version = Header->_version;
             unk1 = Header->_unk1;
             unk2 = Header->_unk2;
@@ -63,7 +62,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnRebuild(VoidPtr address, int length, bool force) {
             STDT* header = (STDT*)address;
-            *header = new STDT(1);
             header->_tag = STDT.Tag;
             header->_unk1 = unk1;
             header->_unk2 = unk2;
