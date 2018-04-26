@@ -21,8 +21,8 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("Ne&w", null,
                 new ToolStripMenuItem("ARChive", null, NewARCAction),
                 new ToolStripMenuItem("BRResource Pack", null, NewBRESAction),
-                new ToolStripMenuItem("Collision", null, NewCollisionAction),
                 new ToolStripMenuItem("BLOC", null, NewBLOCAction),
+                new ToolStripMenuItem("Collision", null, NewCollisionAction),
                 new ToolStripMenuItem("MSBin", null, NewMSBinAction),
                 new ToolStripMenuItem("SCLA (Empty)", null, NewSCLAAction),
                 new ToolStripMenuItem("SCLA (Full)", null, NewSCLAFullAction),
@@ -45,6 +45,7 @@ namespace BrawlBox
                 new ToolStripMenuItem("ARChive", null, ImportARCAction),
                 new ToolStripMenuItem("BRResource Pack", null, ImportBRESAction),
                 new ToolStripMenuItem("BLOC", null, ImportBLOCAction),
+                new ToolStripMenuItem("Collision", null, ImportCollisionAction),
                 new ToolStripMenuItem("MSBin", null, ImportMSBinAction),
                 new ToolStripMenuItem("SCLA", null, ImportSCLAAction),
                 new ToolStripMenuItem("STDT", null, ImportSTDTAction),
@@ -375,7 +376,7 @@ namespace BrawlBox
         {
             string path;
             if (Program.OpenFile(FileFilters.CollisionDef, out path) > 0)
-                NewBRES().Replace(path);
+                NewCollision().Replace(path);
         }
         public void ImportMSBin()
         {
