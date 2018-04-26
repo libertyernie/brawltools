@@ -507,6 +507,46 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public void Reverse(bool appendReverse)
+        {
+            CHR0Node tempReversedCHR0 = new CHR0Node();
+            tempReversedCHR0.Name = this.Name + "_Reversed";
+            tempReversedCHR0.Loop = this.Loop;
+            tempReversedCHR0.FrameCount = FrameCount;
+
+            // Fixes non-looped animations being off by a frame
+            int loopfix = 0;
+            if (!Loop)
+                loopfix = 1;
+
+            KeyframeEntry kfe;
+            foreach (CHR0EntryNode tempEntry in Children)
+            {
+                CHR0EntryNode newIntEntry = new CHR0EntryNode() { Name = tempEntry.Name };
+                newIntEntry.SetSize(tempEntry.FrameCount, Loop);
+                for (int x = 0; x < tempEntry.FrameCount; x++)
+                    for (int i = 0; i < 9; i++)
+                        if ((kfe = tempEntry.GetKeyframe(i, x)) != null)
+                            newIntEntry.Keyframes.SetFrameValue(i, FrameCount - (x + loopfix), kfe._value)._tangent = kfe._tangent;
+                tempReversedCHR0.AddChild(newIntEntry);
+            }
+            if (appendReverse)
+            {
+                Append(tempReversedCHR0, 1);
+            } else
+            {
+                // Remove old keyframes
+                while(HasChildren)
+                    RemoveChild(Children[0]);
+                // Add reversed keyframes
+                foreach (CHR0EntryNode entryToAdd in tempReversedCHR0.Children)
+                {
+                    entryToAdd.SignalPropertyChange();
+                    AddChild(entryToAdd);
+                }
+            }
+        }
+
         public void Port(MDL0Node baseModel)
         {
             MDL0Node model;

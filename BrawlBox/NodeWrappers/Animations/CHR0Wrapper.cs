@@ -23,6 +23,8 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Merge Animation", null, MergeAction),
                 new ToolStripMenuItem("Append Animation", null, AppendAction),
                 new ToolStripMenuItem("Repeat Animation", null, LoopAction),
+                new ToolStripMenuItem("Reverse Animation", null, ReverseAction),
+                new ToolStripMenuItem("Reverse to Loop", null, ReverseLoopAction),
                 new ToolStripMenuItem("Resize", null, ResizeAction)));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
@@ -40,6 +42,8 @@ namespace BrawlBox.NodeWrappers
         protected static void NewBoneAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().NewBone(); }
         protected static void MergeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Merge(); }
         protected static void AppendAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Append(); }
+        protected static void ReverseAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Reverse(false); }
+        protected static void ReverseLoopAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Reverse(true); }
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<CHR0Wrapper>().Resize(); }
         protected static void LoopAction(object sender, EventArgs e) {
             StageBoxNumericEntry entryCount = new StageBoxNumericEntry();
@@ -113,6 +117,17 @@ namespace BrawlBox.NodeWrappers
         public void KeyFrameGen(int framesToGenerate, bool allowDuplicates, bool generateOrigin)
         {
             ((CHR0Node)_resource).KeyFrameGen(framesToGenerate, allowDuplicates, generateOrigin);
+            BaseWrapper res = this.FindResource(_resource, false);
+            res.EnsureVisible();
+            res.TreeView.SelectedNode = res;
+        }
+
+        public void Reverse(bool appendReverse)
+        {
+            ((CHR0Node)_resource).Reverse(appendReverse);
+            BaseWrapper res = this.FindResource(_resource, false);
+            res.EnsureVisible();
+            res.TreeView.SelectedNode = res;
         }
     }
 
