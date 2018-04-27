@@ -168,7 +168,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             VoidPtr entryAddress = group->EndAddress;
             VoidPtr dataAddress = entryAddress;
             foreach (SRT0EntryNode n in Children)
-                dataAddress += n._entryLen;
+                dataAddress += n._entryLength;
 
             ResourceEntry* rEntry = group->First;
             foreach (SRT0EntryNode n in Children)
@@ -176,9 +176,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 (rEntry++)->_dataOffset = (int)entryAddress - (int)group;
 
                 n._dataAddr = dataAddress;
-                n.Rebuild(entryAddress, n._entryLen, true);
-                entryAddress += n._entryLen;
-                dataAddress += n._dataLen;
+                n.Rebuild(entryAddress, n._entryLength, true);
+                entryAddress += n._entryLength;
+                dataAddress += n._dataLength;
             }
 
             if (_userEntries.Count > 0 && _version == 5)
@@ -195,7 +195,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             foreach (SRT0EntryNode entry in Children)
                 size += entry.CalculateSize(true);
             if (_version == 5)
-            size += _userEntries.GetSize();
+                size += _userEntries.GetSize();
             return size;
         }
 
@@ -401,34 +401,14 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public override void OnPopulate()
         {
-            int index = 0; VoidPtr addr;
+            VoidPtr addr;
+            int index = 0;
             for (int i = 0; i < 11; i++)
                 if (_usageIndices[i] == 1)
                     new SRT0TextureNode(i >= 8 ? i - 8 : i, i >= 8).Initialize(this, new DataSource(addr = (VoidPtr)Header->GetEntry(index++), ((SRT0TextureEntry*)addr)->Code.DataSize()));
         }
-
-        internal int _entryLen 
-        {
-            get
-            {
-                int size = 12;
-                foreach (SRT0TextureNode t in Children)
-                    size += 4 + t._entryLen;
-                return size;
-            }
-        }
-
-        internal int _dataLen
-        {
-            get
-            {
-                int size = 0;
-                foreach (SRT0TextureNode t in Children)
-                    size += t._dataLen;
-                return size;
-            }
-        }
-
+        
+        internal int _entryLength, _dataLength;
         internal VoidPtr _dataAddr;
         public override void OnRebuild(VoidPtr address, int length, bool force)
         {
@@ -448,28 +428,80 @@ namespace BrawlLib.SSBB.ResourceNodes
                 n._dataAddr = _dataAddr;
 
                 header->SetOffset(i, offset + prevOffset);
-                n.Rebuild(entryAddress, n._entryLen, true);
+                n.Rebuild(entryAddress, n._entryLength, true);
 
-                entryAddress += n._entryLen;
-                prevOffset += n._entryLen;
-                _dataAddr += n._dataLen;
+                entryAddress += n._entryLength;
+                prevOffset += n._entryLength;
+                _dataAddr += n._dataLength;
             }
+        }
+
+        public override void Export(string outPath)
+        {
+            StringTable table = new StringTable() { Name };
+
+            int totalLength = OnCalculateSize(true) + table.GetTotalSize();
+            using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess))
+            {
+                stream.SetLength(totalLength);
+                using (FileMap map = FileMap.FromStream(stream))
+                {
+                    _dataAddr = map.Address + _entryLength;
+                    Rebuild(map.Address, totalLength, true);
+                    table.WriteTable(_dataAddr + _dataLength);
+                    PostProcess(map.Address, table);
+                }
+            }
+
+            //string temp1 = Path.GetTempFileName();
+            //string temp2 = Path.GetTempFileName();
+
+            //Parent.Rebuild();
+            //Parent.Export(temp1);
+
+            //int index = Parent.Children.IndexOf(this);
+
+            //using (ResourceNode copied = NodeFactory.FromFile(null, temp1)) {
+            //    for (int i = 0; i < index; i++) {
+            //        copied.RemoveChild(copied.Children[0]);
+            //    }
+            //    while (copied.Children.Count > 1) {
+            //        copied.RemoveChild(copied.Children[1]);
+            //    }
+            //    copied.Export(temp2);
+            //}
+
+            //using (ResourceNode copied = NodeFactory.FromFile(null, temp2)) {
+            //    SRT0EntryNode entry = (SRT0EntryNode)copied.Children[0];
+            //    int dataLen = entry.OnCalculateSize(true);
+            //    using (FileStream stream = new FileStream(outPath, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.None, 8, FileOptions.RandomAccess)) {
+            //        stream.SetLength(dataLen);
+            //        using (FileMap map = FileMap.FromStream(stream))
+            //            Memory.Move(map.Address, entry.WorkingSource.Address, (uint)dataLen);
+            //    }
+            //}
+
+            //File.Delete(temp1);
+            //File.Delete(temp2);
         }
 
         public override int OnCalculateSize(bool force)
         {
             _texIndices = 0;
             _indIndices = 0;
-            int size = 12;
+            _dataLength = 0;
+            _entryLength = 12;
             foreach (SRT0TextureNode n in Children)
             {
                 if (n._indirect)
                     _indIndices |= (IndirectTextureIndices)(1 << n._textureIndex);
                 else
                     _texIndices |= (TextureIndices)(1 << n._textureIndex);
-                size += 4 + n.CalculateSize(true);
+                n.CalculateSize(true);
+                _entryLength += 4 + n._entryLength;
+                _dataLength += n._dataLength;
             }
-            return size;
+            return _entryLength + _dataLength;
         }
 
         public void CreateEntry()
@@ -598,8 +630,10 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             get
             {
-                if (_keyframes == null)
+                if (_keyframes == null) {
+                    System.Diagnostics.Debug.WriteLine((IntPtr)Header);
                     _keyframes = AnimationConverter.DecodeKeyframes(Header, Parent != null ? Parent.Parent as SRT0Node : null, 5, 1, 1);
+                }
                 return _keyframes;
             }
         }
@@ -616,16 +650,18 @@ namespace BrawlLib.SSBB.ResourceNodes
             return false;
         }
 
-        internal int _dataLen;
-        internal int _entryLen;
+        internal int _dataLength;
+        internal int _entryLength;
         internal VoidPtr _dataAddr;
 
         SRT0Code _code;
 
+        internal SRT0Code Code => _code;
+
         public override int OnCalculateSize(bool force)
         {
-            _dataLen = AnimationConverter.CalculateSRT0Size(Keyframes, out _entryLen, out _code);
-            return _dataLen + _entryLen;
+            _dataLength = AnimationConverter.CalculateSRT0Size(Keyframes, out _entryLength, out _code);
+            return _dataLength + _entryLength;
         }
 
         public override void OnRebuild(VoidPtr address, int length, bool force)
@@ -640,7 +676,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 stream.SetLength(dataLen);
                 using (FileMap map = FileMap.FromStream(stream))
-                    AnimationConverter.EncodeSRT0Keyframes(Keyframes, map.Address, map.Address + _entryLen, _code);
+                    AnimationConverter.EncodeSRT0Keyframes(Keyframes, map.Address, map.Address + _entryLength, _code);
             }
         }
 
