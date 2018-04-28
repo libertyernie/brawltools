@@ -194,13 +194,22 @@ namespace BrawlLib.SSBB.ResourceNodes
         // Swaps Cull_Inside and Cull_Outside
         public void FlipAllMaterials()
         {
-            foreach(MDL0MaterialNode m in _matList)
+            foreach (MDL0MaterialNode m in MaterialList)
             {
                 m.flipMaterial();
             }
             SignalPropertyChange();
         }
         
+        public void SetAllMaterialCulling(int newCullMode)
+        {
+            foreach (MDL0MaterialNode m in MaterialList)
+            {
+                m.CullMode = (CullMode)newCullMode;
+            }
+            SignalPropertyChange();
+        }
+
         /// <summary>
         /// Call ApplyCHR0 before calling this
         /// </summary>

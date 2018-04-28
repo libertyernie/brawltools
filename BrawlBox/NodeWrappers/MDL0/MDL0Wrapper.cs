@@ -57,6 +57,13 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Y-Axis (Translation/Z-Rotation)", null, FlipYAction)
                 //new ToolStripMenuItem("Z-Axis (Translation/Rotation)", null, FlipZAction)
                 ));
+            _menu.Items.Add(new ToolStripMenuItem("&Edit all Materials", null,
+                new ToolStripMenuItem("Invert Materials", null, InvertMaterialsAction),
+                new ToolStripMenuItem("Set all (Cull None)", null, CullNoneAction),
+                new ToolStripMenuItem("Set all (Cull Outside)", null, CullOutsideAction),
+                new ToolStripMenuItem("Set all (Cull Inside)", null, CullInsideAction),
+                new ToolStripMenuItem("Set all (Cull All)", null, CullAllAction)
+                ));
             _menu.Items.Add(new ToolStripMenuItem("&Reimport Meshes", null, ReimportAction));
             _menu.Items.Add(new ToolStripMenuItem("&Import Existing Object", null, ImportObjectAction));
             _menu.Items.Add(new ToolStripMenuItem("&Optimize Meshes", null, OptimizeAction));
@@ -76,6 +83,14 @@ namespace BrawlBox.NodeWrappers
         private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(true); }
         private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(true); }
         //private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(true); }
+
+        // StageBox Material settings
+        private static void InvertMaterialsAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().InvertMaterials(); }
+        private static void CullNoneAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(0); }
+        private static void CullOutsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(1); }
+        private static void CullInsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(2); }
+        private static void CullAllAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(3); }
+
         protected static void TransparencyFixAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().StartTransparencyFix(); }
 
         private static void ReimportAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ReimportMeshes(); }
@@ -105,12 +120,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[25].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = _menu.Items[26].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[25].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[26].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
@@ -131,6 +146,16 @@ namespace BrawlBox.NodeWrappers
             if (MessageBox.Show(null, "This option will fix a transparent model to render correctly relative to characters.\nThis merely renames the model. Proper transparency must be set up for this to work fully.\nThis option will fail if the rename would cause a model name to be more than 255 characters.", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 ((MDL0Node)_resource).GR2Fix();
             _resource.Rebuild(true);
+        }
+
+        public void InvertMaterials()
+        {
+            ((MDL0Node)_resource).FlipAllMaterials();
+        }
+
+        public void CullMaterials(int cullMode)
+        {
+            ((MDL0Node)_resource).SetAllMaterialCulling(cullMode);
         }
 
         public void MirrorX()
