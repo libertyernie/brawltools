@@ -46,7 +46,8 @@ namespace BrawlBox.NodeWrappers
                 new ToolStripMenuItem("Vertices", null, NameVertexAction),
                 new ToolStripMenuItem("Normals", null, NameNormalAction),
                 new ToolStripMenuItem("Colors", null, NameColorAction),
-                new ToolStripMenuItem("UVs", null, NameUVAction)
+                new ToolStripMenuItem("UVs", null, NameUVAction),
+                new ToolStripMenuItem("Objects", null, NameObjectAction)
                 ));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Mirror Model", null,
@@ -112,7 +113,8 @@ namespace BrawlBox.NodeWrappers
         protected static void NameNormalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameNormal(); }
         protected static void NameColorAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameColor(); }
         protected static void NameUVAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameUV(); }
-        
+        protected static void NameObjectAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().NameObject(); }
+
         protected static void ImportVertexAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportVertex(); }
         protected static void ImportNormalAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportNormal(); }
         protected static void ImportColorAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ImportColor(); }
@@ -722,6 +724,15 @@ namespace BrawlBox.NodeWrappers
             if (g != null)
                 foreach (MDL0UVNode v in g.Children)
                     v.Name = "#" + i++;
+        }
+        public void NameObject()
+        {
+            MDL0Node model = ((MDL0Node)_resource);
+            MDL0GroupNode g = model._objGroup;
+            int i = 0;
+            if (g != null)
+                foreach (MDL0ObjectNode o in g.Children)
+                    o.Name = "polygon" + i++;
         }
 
         public MDL0VertexNode NewVertex()
