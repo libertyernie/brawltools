@@ -183,7 +183,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                     return;
                 }
             }
-            Name = "Entry [" + _index + "]";
+            _name = "Entry [" + _index + "]";
         }
         
         private void generateSCLAEntryName() {
