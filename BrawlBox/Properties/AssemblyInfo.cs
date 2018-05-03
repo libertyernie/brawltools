@@ -38,4 +38,4 @@ Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("0.77.*")]
-[assembly: AssemblyFileVersion("0.77.0.3")]
+[assembly: AssemblyFileVersion("0.77.0.3.1")]
