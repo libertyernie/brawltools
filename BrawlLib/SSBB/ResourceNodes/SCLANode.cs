@@ -133,7 +133,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _sub2._parent =
             _sub3._parent = this;
 
-            generateSCLAEntryName();
+            generateSCLAEntry_name();
         }
 
         // Generate with initial values from a given index ID
@@ -150,7 +150,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _sub2._parent =
             _sub3._parent = this;
 
-            generateSCLAEntryName();
+            generateSCLAEntry_name();
         }
 
         public override bool OnInitialize()
@@ -167,9 +167,23 @@ namespace BrawlLib.SSBB.ResourceNodes
             _sub2._parent =
             _sub3._parent = this;
 
-            generateSCLAEntryName();
+            generateSCLAEntry_name();
 
             return false;
+        }
+        
+        private void generateSCLAEntry_name() {
+            if(_index >= 0 && _index <= 255)
+            {
+                byte _indexTest;
+                _indexTest = (byte)_index;
+                if (Enum.IsDefined(typeof(CollisionPlaneMaterial), _indexTest))
+                {
+                    _name = ((CollisionPlaneMaterial)_index).ToString() + " [" + _index + "]";
+                    return;
+                }
+            }
+            Name = "Entry [" + _index + "]";
         }
         
         private void generateSCLAEntryName() {
