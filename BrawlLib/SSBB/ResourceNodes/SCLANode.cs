@@ -209,7 +209,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             SCLAEntry* hdr = (SCLAEntry*)address;
             hdr->_index = _index;
-            generateSCLAEntryName();
+            generateSCLAEntry_name();
             hdr->_unk1 = _unk1;
             hdr->_unk2 = _unk2;
             hdr->_entry1 = _sub1;
