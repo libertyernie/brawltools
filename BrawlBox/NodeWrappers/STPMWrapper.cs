@@ -34,11 +34,13 @@ namespace BrawlBox.NodeWrappers
         protected static void NewEntryAction(object sender, EventArgs e) { GetInstance<STPMWrapper>().NewEntry(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[6].Enabled = _menu.Items[7].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[10].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             STPMWrapper w = GetInstance<STPMWrapper>();
+            _menu.Items[3].Enabled = _menu.Items[10].Enabled = w.Parent != null;
+            _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[6].Enabled = w.PrevNode != null;
             _menu.Items[7].Enabled = w.NextNode != null;
         }

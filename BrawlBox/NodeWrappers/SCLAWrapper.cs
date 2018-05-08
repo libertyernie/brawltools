@@ -40,19 +40,24 @@ namespace BrawlBox.NodeWrappers
         protected static void FillExpandedAction(object sender, EventArgs e) { GetInstance<SCLAWrapper>().FillSCLA(256); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
+            
 #if DEBUG
-            _menu.Items[8].Enabled = _menu.Items[9].Enabled = true;
+            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[12].Enabled = true;
 #else
-            _menu.Items[7].Enabled = _menu.Items[8].Enabled = true;
+            _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[11].Enabled = true;
 #endif
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             SCLAWrapper w = GetInstance<SCLAWrapper>();
 #if DEBUG
+            _menu.Items[5].Enabled = _menu.Items[12].Enabled = w.Parent != null;
+            _menu.Items[6].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[8].Enabled = w.PrevNode != null;
             _menu.Items[9].Enabled = w.NextNode != null;
 #else
+            _menu.Items[4].Enabled = _menu.Items[11].Enabled = w.Parent != null;
+            _menu.Items[5].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[7].Enabled = w.PrevNode != null;
             _menu.Items[8].Enabled = w.NextNode != null;
 #endif
