@@ -229,17 +229,19 @@ namespace BrawlLib.SSBB.ResourceNodes
             public ushort Unknown3 { get { return _unk3; } set { _unk3 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
             public uint GFXFlag { get { return _unk4; } set { _unk4 = value; _parent.SignalPropertyChange(); } }
-            /*[Category("SCLA Sub Entry")]
+            [Category("SCLA Sub Entry")]
+            public int SFXFlag { get { return _index1; } set { _index1 = value; _index2 = value; _index3 = value; _index4 = value; _parent.SignalPropertyChange(); } }
+#if DEBUG
+            [Category("SCLA Sub Entry")]
             public int Index1 { get { return _index1; } set { _index1 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
             public int Index2 { get { return _index2; } set { _index2 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
             public int Index3 { get { return _index3; } set { _index3 = value; _parent.SignalPropertyChange(); } }
             [Category("SCLA Sub Entry")]
-            public int Index4 { get { return _index4; } set { _index4 = value; _parent.SignalPropertyChange(); } }*/
-            [Category("SCLA Sub Entry")]
-            public int SFXFlag { get { return _index1; } set { _index1 = value; _index2 = value; _index3 = value; _index4 = value; _parent.SignalPropertyChange(); } }
-
+            public int Index4 { get { return _index4; } set { _index4 = value; _parent.SignalPropertyChange(); } }
+#endif
+            
             public byte _unk1;
             public byte _unk2;
             public ushort _unk3;
