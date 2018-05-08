@@ -438,7 +438,7 @@ namespace System.Windows.Forms
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool SyncVIS0 { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
-        public virtual bool DisableBonesWhenPlaying { get; set; }
+        public virtual bool DisableBonesWhenPlaying { get { return false; } set { } }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden), DefaultValue(false)]
         public virtual bool DoNotHighlightOnMouseMove { get; set; }
         [Browsable(false), DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
