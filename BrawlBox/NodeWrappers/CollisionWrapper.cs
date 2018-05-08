@@ -17,8 +17,9 @@ namespace BrawlBox
             _menu = new ContextMenuStrip();
             _menu.Items.Add(new ToolStripMenuItem("&Preview / Edit", null, EditAction, Keys.Control | Keys.P));
             _menu.Items.Add(new ToolStripSeparator());
-            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Merge", null, MergeAction, Keys.Control | Keys.M));
+            _menu.Items.Add(new ToolStripSeparator());
+            _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
             _menu.Items.Add(new ToolStripSeparator());
@@ -44,15 +45,15 @@ namespace BrawlBox
         protected static void EditAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().Preview(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[13].Enabled = true;
+            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[14].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             CollisionWrapper w = GetInstance<CollisionWrapper>();
-            _menu.Items[4].Enabled = _menu.Items[13].Enabled = w.Parent != null;
-            _menu.Items[5].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[7].Enabled = w.PrevNode != null;
-            _menu.Items[8].Enabled = w.NextNode != null;
+            _menu.Items[5].Enabled = _menu.Items[14].Enabled = w.Parent != null;
+            _menu.Items[6].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+            _menu.Items[8].Enabled = w.PrevNode != null;
+            _menu.Items[9].Enabled = w.NextNode != null;
         }
         #endregion
 
