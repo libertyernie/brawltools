@@ -1572,6 +1572,7 @@ namespace System.Windows.Forms
             // 
             // chkBoundaries
             // 
+            this.chkBoundaries.Checked = true;
             this.chkBoundaries.CheckOnClick = true;
             this.chkBoundaries.Name = "chkBoundaries";
             this.chkBoundaries.Size = new System.Drawing.Size(206, 26);
@@ -1580,6 +1581,7 @@ namespace System.Windows.Forms
             // 
             // chkSpawns
             // 
+            this.chkSpawns.Checked = true;
             this.chkSpawns.CheckOnClick = true;
             this.chkSpawns.Name = "chkSpawns";
             this.chkSpawns.Size = new System.Drawing.Size(206, 26);
@@ -1588,6 +1590,7 @@ namespace System.Windows.Forms
             // 
             // chkItems
             // 
+            this.chkItems.Checked = true;
             this.chkItems.CheckOnClick = true;
             this.chkItems.Name = "chkItems";
             this.chkItems.Size = new System.Drawing.Size(206, 26);
