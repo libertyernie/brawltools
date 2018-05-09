@@ -614,6 +614,11 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return (_flags & CollisionPlaneFlags.NoWalljump) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.NoWalljump) | (value ? CollisionPlaneFlags.NoWalljump : 0); }
         }
+        public bool HasUnknownFlag
+        {
+            get { return ((_flags & CollisionPlaneFlags.Unknown1) != 0 || (_flags & CollisionPlaneFlags.Unknown2) != 0 || (_flags & CollisionPlaneFlags.Unknown3) != 0 || (_flags & CollisionPlaneFlags.Unknown4) != 0); }
+            set {  }
+        }
 
         public Vector2 PointLeft
         {
@@ -825,6 +830,8 @@ namespace BrawlLib.SSBB.ResourceNodes
             else if (p._type == CollisionPlaneType.RightWall && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
             else if (p._type == CollisionPlaneType.None && lev == 0 && !IsFallThrough) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
             else if (p.IsFallThrough && lev ==0 ) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
+
+            if (p.HasUnknownFlag) { GL.Color4(0.0f, 0.0f, 0.0f, 0.8f); }
 
             GL.Begin(BeginMode.Quads);
             GL.Vertex3(l._x, l._y, 10.0f);
