@@ -582,11 +582,11 @@ namespace System.Windows.Forms
             // 
             // pnlPlaneProps
             // 
-            this.pnlPlaneProps.Controls.Add(this.groupBoxType);
             this.pnlPlaneProps.Controls.Add(this.groupBox2);
             this.pnlPlaneProps.Controls.Add(this.groupBox1);
             this.pnlPlaneProps.Controls.Add(this.cboMaterial);
             this.pnlPlaneProps.Controls.Add(this.label5);
+            this.pnlPlaneProps.Controls.Add(this.groupBoxType);
             this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
             this.pnlPlaneProps.Name = "pnlPlaneProps";
