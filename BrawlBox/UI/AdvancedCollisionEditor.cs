@@ -606,7 +606,7 @@ namespace System.Windows.Forms
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBox2.Size = new System.Drawing.Size(105, 86);
+            this.groupBox2.Size = new System.Drawing.Size(113, 86);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
             // 
@@ -622,11 +622,10 @@ namespace System.Windows.Forms
             this.groupBoxType.Margin = new System.Windows.Forms.Padding(0);
             this.groupBoxType.Name = "groupBoxType";
             this.groupBoxType.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBoxType.Size = new System.Drawing.Size(210, 59);
+            this.groupBoxType.Size = new System.Drawing.Size(217, 59);
             this.groupBoxType.TabIndex = 14;
             this.groupBoxType.TabStop = false;
             this.groupBoxType.Text = "Type";
-
             // 
             // chkTypeFloor
             // 
@@ -641,7 +640,7 @@ namespace System.Windows.Forms
             // 
             // chkTypeCeiling
             // 
-            this.chkTypeCeiling.Location = new System.Drawing.Point(109, 17);
+            this.chkTypeCeiling.Location = new System.Drawing.Point(112, 17);
             this.chkTypeCeiling.Margin = new System.Windows.Forms.Padding(0);
             this.chkTypeCeiling.Name = "chkTypeCeiling";
             this.chkTypeCeiling.Size = new System.Drawing.Size(86, 18);
@@ -663,7 +662,7 @@ namespace System.Windows.Forms
             // 
             // chkTypeRightWall
             // 
-            this.chkTypeRightWall.Location = new System.Drawing.Point(109, 33);
+            this.chkTypeRightWall.Location = new System.Drawing.Point(112, 33);
             this.chkTypeRightWall.Margin = new System.Windows.Forms.Padding(0);
             this.chkTypeRightWall.Name = "chkTypeRightWall";
             this.chkTypeRightWall.Size = new System.Drawing.Size(86, 18);
