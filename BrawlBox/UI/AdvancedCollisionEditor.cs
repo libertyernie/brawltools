@@ -42,6 +42,13 @@ namespace System.Windows.Forms
         private CheckBox chkTypeItems;
         private CheckBox chkTypePokemonTrainer;
         private CheckBox chkTypeUnknownStageBox;
+
+        // Advanced unknown flags
+        private CheckBox chkFlagUnknown1;
+        private CheckBox chkFlagUnknown2;
+        private CheckBox chkFlagUnknown3;
+        private CheckBox chkFlagUnknown4;
+
         private Panel pnlPointProps;
         private NumericInputBox numX;
         private Label label2;
@@ -64,6 +71,13 @@ namespace System.Windows.Forms
         private CheckBox chkBones;
         private CheckBox chkLeftLedge;
         private ComboBox cboType;
+
+        // Advanced collision type selectors
+        private CheckBox chkTypeFloor;
+        private CheckBox chkTypeCeiling;
+        private CheckBox chkTypeLeftWall;
+        private CheckBox chkTypeRightWall;
+
         private TreeView modelTree;
         private Button btnUnlink;
         private ContextMenuStrip contextMenuStrip2;
@@ -130,6 +144,13 @@ namespace System.Windows.Forms
             this.pnlPlaneProps = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cboType = new System.Windows.Forms.ComboBox();
+
+            // Advanced floor editor
+            this.chkTypeFloor = new System.Windows.Forms.CheckBox();
+            this.chkTypeCeiling = new System.Windows.Forms.CheckBox();
+            this.chkTypeLeftWall = new System.Windows.Forms.CheckBox();
+            this.chkTypeRightWall = new System.Windows.Forms.CheckBox();
+
             this.chkTypeItems = new System.Windows.Forms.CheckBox();
             this.chkTypeCharacters = new System.Windows.Forms.CheckBox();
             this.chkTypePokemonTrainer = new System.Windows.Forms.CheckBox();
@@ -139,6 +160,13 @@ namespace System.Windows.Forms
             this.chkNoWalljump = new System.Windows.Forms.CheckBox();
             this.chkRightLedge = new System.Windows.Forms.CheckBox();
             this.chkFallThrough = new System.Windows.Forms.CheckBox();
+
+            // Advanced flags
+            this.chkFlagUnknown1 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown2 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown3 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown4 = new System.Windows.Forms.CheckBox();
+
             this.cboMaterial = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
             this.labelType = new System.Windows.Forms.Label();

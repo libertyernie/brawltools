@@ -16,6 +16,7 @@ namespace BrawlBox
         {
             _menu = new ContextMenuStrip();
             _menu.Items.Add(new ToolStripMenuItem("&Preview / Edit", null, EditAction, Keys.Control | Keys.P));
+            _menu.Items.Add(new ToolStripMenuItem("&Advanced Editor", null, AdvancedEditAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Merge", null, MergeAction, Keys.Control | Keys.M));
             _menu.Items.Add(new ToolStripSeparator());
@@ -43,6 +44,7 @@ namespace BrawlBox
         private static void MergeAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().Merge(); }
 
         protected static void EditAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().Preview(); }
+        protected static void AdvancedEditAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().AdvancedEdit(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[14].Enabled = true;
@@ -50,10 +52,10 @@ namespace BrawlBox
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             CollisionWrapper w = GetInstance<CollisionWrapper>();
-            _menu.Items[5].Enabled = _menu.Items[14].Enabled = w.Parent != null;
-            _menu.Items[6].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[8].Enabled = w.PrevNode != null;
-            _menu.Items[9].Enabled = w.NextNode != null;
+            _menu.Items[6].Enabled = _menu.Items[15].Enabled = w.Parent != null;
+            _menu.Items[7].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
+            _menu.Items[9].Enabled = w.PrevNode != null;
+            _menu.Items[10].Enabled = w.NextNode != null;
         }
         #endregion
 
@@ -119,6 +121,12 @@ namespace BrawlBox
         private void Preview()
         {
             using (CollisionForm frm = new CollisionForm())
+                frm.ShowDialog(null, _resource as CollisionNode);
+        }
+
+        private void AdvancedEdit()
+        {
+            using (AdvancedCollisionForm frm = new AdvancedCollisionForm())
                 frm.ShowDialog(null, _resource as CollisionNode);
         }
     }
