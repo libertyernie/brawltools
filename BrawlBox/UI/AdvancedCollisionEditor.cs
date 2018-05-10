@@ -602,7 +602,7 @@ namespace System.Windows.Forms
             this.groupBox2.Controls.Add(this.chkTypeItems);
             this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
             this.groupBox2.Controls.Add(this.chkTypeUnknownStageBox);
-            this.groupBox2.Location = new System.Drawing.Point(101, 76);
+            this.groupBox2.Location = new System.Drawing.Point(104, 76);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
@@ -724,7 +724,7 @@ namespace System.Windows.Forms
             this.groupBox1.Controls.Add(this.chkNoWalljump);
             this.groupBox1.Controls.Add(this.chkRightLedge);
             this.groupBox1.Controls.Add(this.chkFallThrough);
-            this.groupBox1.Location = new System.Drawing.Point(-3, 76);
+            this.groupBox1.Location = new System.Drawing.Point(0, 76);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
@@ -1083,6 +1083,7 @@ namespace System.Windows.Forms
             this.pnlPointProps.ResumeLayout(false);
             this.pnlPointProps.PerformLayout();
             this.pnlPlaneProps.ResumeLayout(false);
+            this.groupBoxType.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
