@@ -19,7 +19,6 @@ namespace System.Windows.Forms
         private CheckBox chkAllModels;
         private Panel pnlPlaneProps;
         private Label label5;
-        private Label labelType;
         private ComboBox cboMaterial;
         private Panel pnlObjProps;
         private ToolStrip toolStrip1;
@@ -70,9 +69,9 @@ namespace System.Windows.Forms
         private Label label4;
         private CheckBox chkBones;
         private CheckBox chkLeftLedge;
-        private ComboBox cboType;
 
         // Advanced collision type selectors
+        private GroupBox groupBoxType;
         private CheckBox chkTypeFloor;
         private CheckBox chkTypeCeiling;
         private CheckBox chkTypeLeftWall;
@@ -143,9 +142,9 @@ namespace System.Windows.Forms
             this.numX = new System.Windows.Forms.NumericInputBox();
             this.pnlPlaneProps = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.cboType = new System.Windows.Forms.ComboBox();
 
             // Advanced floor editor
+            this.groupBoxType = new System.Windows.Forms.GroupBox();
             this.chkTypeFloor = new System.Windows.Forms.CheckBox();
             this.chkTypeCeiling = new System.Windows.Forms.CheckBox();
             this.chkTypeLeftWall = new System.Windows.Forms.CheckBox();
@@ -169,7 +168,6 @@ namespace System.Windows.Forms
 
             this.cboMaterial = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
-            this.labelType = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.btnPlayAnims = new System.Windows.Forms.Button();
             this.btnPrevFrame = new System.Windows.Forms.Button();
@@ -214,6 +212,7 @@ namespace System.Windows.Forms
             this.pnlPointProps.SuspendLayout();
             this.pnlPlaneProps.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBoxType.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -583,12 +582,11 @@ namespace System.Windows.Forms
             // 
             // pnlPlaneProps
             // 
+            this.pnlPlaneProps.Controls.Add(this.groupBoxType);
             this.pnlPlaneProps.Controls.Add(this.groupBox2);
             this.pnlPlaneProps.Controls.Add(this.groupBox1);
             this.pnlPlaneProps.Controls.Add(this.cboMaterial);
-            this.pnlPlaneProps.Controls.Add(this.cboType);
             this.pnlPlaneProps.Controls.Add(this.label5);
-            this.pnlPlaneProps.Controls.Add(this.labelType);
             this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
             this.pnlPlaneProps.Name = "pnlPlaneProps";
@@ -612,15 +610,66 @@ namespace System.Windows.Forms
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
             // 
-            // cboType
+            // groupBoxType
             // 
-            this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(66, 4);
-            this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(139, 21);
-            this.cboType.TabIndex = 5;
-            this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
+            this.groupBoxType.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBoxType.Controls.Add(this.chkTypeFloor);
+            this.groupBoxType.Controls.Add(this.chkTypeCeiling);
+            this.groupBoxType.Controls.Add(this.chkTypeLeftWall);
+            this.groupBoxType.Controls.Add(this.chkTypeRightWall);
+            this.groupBoxType.Location = new System.Drawing.Point(101, 92);
+            this.groupBoxType.Margin = new System.Windows.Forms.Padding(0);
+            this.groupBoxType.Name = "groupBoxType";
+            this.groupBoxType.Padding = new System.Windows.Forms.Padding(0);
+            this.groupBoxType.Size = new System.Drawing.Size(210, 43);
+            this.groupBoxType.TabIndex = 14;
+            this.groupBoxType.TabStop = false;
+            this.groupBoxType.Text = "Type";
+            // 
+            // chkTypeFloor
+            // 
+            this.chkTypeFloor.Location = new System.Drawing.Point(8, 17);
+            this.chkTypeFloor.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeFloor.Name = "chkTypeFloor";
+            this.chkTypeFloor.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeFloor.TabIndex = 3;
+            this.chkTypeFloor.Text = "Floor";
+            this.chkTypeFloor.UseVisualStyleBackColor = true;
+            this.chkTypeFloor.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            // 
+            // chkTypeCeiling
+            // 
+            this.chkTypeCeiling.Location = new System.Drawing.Point(48, 17);
+            this.chkTypeCeiling.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeCeiling.Name = "chkTypeFloor";
+            this.chkTypeCeiling.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeCeiling.TabIndex = 3;
+            this.chkTypeCeiling.Text = "Ceiling";
+            this.chkTypeCeiling.UseVisualStyleBackColor = true;
+            this.chkTypeCeiling.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            // 
+            // chkTypeLeftWall
+            // 
+            this.chkTypeLeftWall.Location = new System.Drawing.Point(8, 33);
+            this.chkTypeLeftWall.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeLeftWall.Name = "chkTypeFloor";
+            this.chkTypeLeftWall.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeLeftWall.TabIndex = 3;
+            this.chkTypeLeftWall.Text = "LeftWall";
+            this.chkTypeLeftWall.UseVisualStyleBackColor = true;
+            this.chkTypeLeftWall.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            // 
+            // chkTypeRightWall
+            // 
+            this.chkTypeRightWall.Location = new System.Drawing.Point(48, 33);
+            this.chkTypeRightWall.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeRightWall.Name = "chkTypeFloor";
+            this.chkTypeRightWall.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeRightWall.TabIndex = 3;
+            this.chkTypeRightWall.Text = "RightWall";
+            this.chkTypeRightWall.UseVisualStyleBackColor = true;
+            this.chkTypeRightWall.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
             // 
             // chkTypeCharacters
             // 
@@ -731,7 +780,7 @@ namespace System.Windows.Forms
             // 
             this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMaterial.FormattingEnabled = true;
-            this.cboMaterial.Location = new System.Drawing.Point(66, 25);
+            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
             this.cboMaterial.Name = "cboMaterial";
             this.cboMaterial.Size = new System.Drawing.Size(139, 21);
             this.cboMaterial.TabIndex = 12;
@@ -739,22 +788,12 @@ namespace System.Windows.Forms
             // 
             // label5
             // 
-            this.label5.Location = new System.Drawing.Point(7, 25);
+            this.label5.Location = new System.Drawing.Point(7, 4);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 21);
             this.label5.TabIndex = 8;
             this.label5.Text = "Material:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
-
-            // 
-            // labelType
-            // 
-            this.labelType.Location = new System.Drawing.Point(7, 4);
-            this.labelType.Name = "labelType";
-            this.labelType.Size = new System.Drawing.Size(53, 21);
-            this.labelType.TabIndex = 8;
-            this.labelType.Text = "Type:";
-            this.labelType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel4
             // 
@@ -1102,7 +1141,6 @@ namespace System.Windows.Forms
 
             _updating = true;
             cboMaterial.DataSource = Enum.GetValues(typeof(CollisionPlaneMaterial));
-            cboType.DataSource = Enum.GetValues(typeof(CollisionPlaneType));
             _updating = false;
         }
 
@@ -1149,7 +1187,7 @@ namespace System.Windows.Forms
             if (_selectedPlanes.Count > 0)
             {
                 pnlPlaneProps.Visible = true;
-                panel3.Height = 140;
+                panel3.Height = 180;
             }
             else if (_selectedLinks.Count == 1)
             {
@@ -1176,7 +1214,6 @@ namespace System.Windows.Forms
                 chkRightLedge.Checked = p.IsRightLedge;
                 chkNoWalljump.Checked = p.IsNoWalljump;
                 //Type
-                cboType.SelectedItem = p.Type;
                 chkTypeCharacters.Checked = p.IsCharacters;
                 chkTypeItems.Checked = p.IsItems;
                 chkTypePokemonTrainer.Checked = p.IsPokemonTrainer;
@@ -2022,7 +2059,7 @@ namespace System.Windows.Forms
         {
             if (_updating) return;
             foreach (CollisionPlane plane in _selectedPlanes)
-                plane.Type = (CollisionPlaneType)cboType.SelectedItem;
+                //plane.Type = (CollisionPlaneType)cboType.SelectedItem;
             TargetNode.SignalPropertyChange();
         }
 
