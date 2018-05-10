@@ -635,22 +635,22 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return (_flags & CollisionPlaneFlags.NoWalljump) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.NoWalljump) | (value ? CollisionPlaneFlags.NoWalljump : 0); }
         }
-        public bool isUnknownFlag1
+        public bool IsUnknownFlag1
         {
             get { return (_flags & CollisionPlaneFlags.Unknown1) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.Unknown1) | (value ? CollisionPlaneFlags.Unknown1 : 0); }
         }
-        public bool isUnknownFlag2
+        public bool IsUnknownFlag2
         {
             get { return (_flags & CollisionPlaneFlags.Unknown2) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.Unknown2) | (value ? CollisionPlaneFlags.Unknown2 : 0); }
         }
-        public bool isUnknownFlag3
+        public bool IsUnknownFlag3
         {
             get { return (_flags & CollisionPlaneFlags.Unknown3) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.Unknown3) | (value ? CollisionPlaneFlags.Unknown3 : 0); }
         }
-        public bool isUnknownFlag4
+        public bool IsUnknownFlag4
         {
             get { return (_flags & CollisionPlaneFlags.Unknown4) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.Unknown4) | (value ? CollisionPlaneFlags.Unknown4 : 0); }
