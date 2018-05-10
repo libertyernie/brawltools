@@ -16,12 +16,28 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
+ - v0.4 - (?)
+ . Shows boundaries, spawns/respawns, and item spawn zones by default when viewing ARC files
+ . Restore, Replace, and Delete now become properly disabled for SCLA and STPM files
+ . Merge option for collisions moved to a more standard location to match "Edit" functionality on MDL0 or CHR0
+ . Bones can now be viewed during animations if the Bone option is checked
+ . Renamed some collision materials to make usage clearer
+   - "Ice" -> "Slippery"
+   - "Ice2" -> "SubspaceIce"
+   - "Crash2" -> "Hazard2SSEOnly"
+   - "Crash3" -> "Hazard3SSEOnly"
+ . Coll files are now deleted with "Control+Delete" again. Collision Objects now use "Shift+Delete"
+ . Added "Advanced Collision Editor"
+   - Support for four new theoretical collision flags
+   - Support for flagging collision planes as multiple collision types
+ 
  - v0.3 Hotfix 1 - (5/3/2018)
  . Added "Auto-Name Objects" functionality to MDL0 Objects
  . Added Stage Expansion stages to the stage list, allowing them to be chosen for Event Matches/Classic Mode
  . Fixed previewing when opening MDL0 files directly
  . Fixed exporting of SRT0 entries not saving properly
  . Fixed SCLAs marking themselves as needing saving whenever they were initialized
+ . StageBox is now built as a 32-bit program (matching BrawlBox)
  
  - v0.3 - (4/26/2018)
  . Fixed glitch in which attempting to encode a texture as CI4 or CI8 from a 64 bit operating system would crash the program
