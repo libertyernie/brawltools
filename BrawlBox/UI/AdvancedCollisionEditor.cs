@@ -602,7 +602,7 @@ namespace System.Windows.Forms
             this.groupBox2.Controls.Add(this.chkTypeItems);
             this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
             this.groupBox2.Controls.Add(this.chkTypeUnknownStageBox);
-            this.groupBox2.Location = new System.Drawing.Point(101, 49);
+            this.groupBox2.Location = new System.Drawing.Point(101, 76);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
@@ -618,14 +618,15 @@ namespace System.Windows.Forms
             this.groupBoxType.Controls.Add(this.chkTypeCeiling);
             this.groupBoxType.Controls.Add(this.chkTypeLeftWall);
             this.groupBoxType.Controls.Add(this.chkTypeRightWall);
-            this.groupBoxType.Location = new System.Drawing.Point(101, 92);
+            this.groupBoxType.Location = new System.Drawing.Point(0, 25);
             this.groupBoxType.Margin = new System.Windows.Forms.Padding(0);
             this.groupBoxType.Name = "groupBoxType";
             this.groupBoxType.Padding = new System.Windows.Forms.Padding(0);
-            this.groupBoxType.Size = new System.Drawing.Size(210, 43);
+            this.groupBoxType.Size = new System.Drawing.Size(210, 59);
             this.groupBoxType.TabIndex = 14;
             this.groupBoxType.TabStop = false;
             this.groupBoxType.Text = "Type";
+
             // 
             // chkTypeFloor
             // 
@@ -640,9 +641,9 @@ namespace System.Windows.Forms
             // 
             // chkTypeCeiling
             // 
-            this.chkTypeCeiling.Location = new System.Drawing.Point(48, 17);
+            this.chkTypeCeiling.Location = new System.Drawing.Point(109, 17);
             this.chkTypeCeiling.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeCeiling.Name = "chkTypeFloor";
+            this.chkTypeCeiling.Name = "chkTypeCeiling";
             this.chkTypeCeiling.Size = new System.Drawing.Size(86, 18);
             this.chkTypeCeiling.TabIndex = 3;
             this.chkTypeCeiling.Text = "Ceiling";
@@ -653,7 +654,7 @@ namespace System.Windows.Forms
             // 
             this.chkTypeLeftWall.Location = new System.Drawing.Point(8, 33);
             this.chkTypeLeftWall.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeLeftWall.Name = "chkTypeFloor";
+            this.chkTypeLeftWall.Name = "chkTypeLeftWall";
             this.chkTypeLeftWall.Size = new System.Drawing.Size(86, 18);
             this.chkTypeLeftWall.TabIndex = 3;
             this.chkTypeLeftWall.Text = "LeftWall";
@@ -662,9 +663,9 @@ namespace System.Windows.Forms
             // 
             // chkTypeRightWall
             // 
-            this.chkTypeRightWall.Location = new System.Drawing.Point(48, 33);
+            this.chkTypeRightWall.Location = new System.Drawing.Point(109, 33);
             this.chkTypeRightWall.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeRightWall.Name = "chkTypeFloor";
+            this.chkTypeRightWall.Name = "chkTypeRightWall";
             this.chkTypeRightWall.Size = new System.Drawing.Size(86, 18);
             this.chkTypeRightWall.TabIndex = 3;
             this.chkTypeRightWall.Text = "RightWall";
@@ -723,7 +724,7 @@ namespace System.Windows.Forms
             this.groupBox1.Controls.Add(this.chkNoWalljump);
             this.groupBox1.Controls.Add(this.chkRightLedge);
             this.groupBox1.Controls.Add(this.chkFallThrough);
-            this.groupBox1.Location = new System.Drawing.Point(-3, 49);
+            this.groupBox1.Location = new System.Drawing.Point(-3, 76);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
@@ -780,15 +781,15 @@ namespace System.Windows.Forms
             // 
             this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMaterial.FormattingEnabled = true;
-            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+            this.cboMaterial.Location = new System.Drawing.Point(59, 4);
             this.cboMaterial.Name = "cboMaterial";
-            this.cboMaterial.Size = new System.Drawing.Size(139, 21);
+            this.cboMaterial.Size = new System.Drawing.Size(146, 21);
             this.cboMaterial.TabIndex = 12;
             this.cboMaterial.SelectedIndexChanged += new System.EventHandler(this.cboMaterial_SelectedIndexChanged);
             // 
             // label5
             // 
-            this.label5.Location = new System.Drawing.Point(7, 4);
+            this.label5.Location = new System.Drawing.Point(0, 4);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 21);
             this.label5.TabIndex = 8;
