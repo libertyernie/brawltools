@@ -636,7 +636,7 @@ namespace System.Windows.Forms
             this.chkTypeFloor.TabIndex = 3;
             this.chkTypeFloor.Text = "Floor";
             this.chkTypeFloor.UseVisualStyleBackColor = true;
-            this.chkTypeFloor.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            this.chkTypeFloor.CheckedChanged += new System.EventHandler(this.chkTypeFloor_CheckedChanged);
             // 
             // chkTypeCeiling
             // 
@@ -647,7 +647,7 @@ namespace System.Windows.Forms
             this.chkTypeCeiling.TabIndex = 3;
             this.chkTypeCeiling.Text = "Ceiling";
             this.chkTypeCeiling.UseVisualStyleBackColor = true;
-            this.chkTypeCeiling.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            this.chkTypeCeiling.CheckedChanged += new System.EventHandler(this.chkTypeCeiling_CheckedChanged);
             // 
             // chkTypeLeftWall
             // 
@@ -656,9 +656,9 @@ namespace System.Windows.Forms
             this.chkTypeLeftWall.Name = "chkTypeLeftWall";
             this.chkTypeLeftWall.Size = new System.Drawing.Size(86, 18);
             this.chkTypeLeftWall.TabIndex = 3;
-            this.chkTypeLeftWall.Text = "LeftWall";
+            this.chkTypeLeftWall.Text = "Left Wall";
             this.chkTypeLeftWall.UseVisualStyleBackColor = true;
-            this.chkTypeLeftWall.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            this.chkTypeLeftWall.CheckedChanged += new System.EventHandler(this.chkTypeLeftWall_CheckedChanged);
             // 
             // chkTypeRightWall
             // 
@@ -667,9 +667,9 @@ namespace System.Windows.Forms
             this.chkTypeRightWall.Name = "chkTypeRightWall";
             this.chkTypeRightWall.Size = new System.Drawing.Size(86, 18);
             this.chkTypeRightWall.TabIndex = 3;
-            this.chkTypeRightWall.Text = "RightWall";
+            this.chkTypeRightWall.Text = "Right Wall";
             this.chkTypeRightWall.UseVisualStyleBackColor = true;
-            this.chkTypeRightWall.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            this.chkTypeRightWall.CheckedChanged += new System.EventHandler(this.chkTypeRightWall_CheckedChanged);
             // 
             // chkTypeCharacters
             // 
@@ -1209,16 +1209,22 @@ namespace System.Windows.Forms
 
                 //Material
                 cboMaterial.SelectedItem = p._material;
+                //Type
+                chkTypeFloor.Checked = p.IsFloor;
+                chkTypeCeiling.Checked = p.IsCeiling;
+                chkTypeLeftWall.Checked = p.IsLeftWall;
+                chkTypeRightWall.Checked = p.IsRightWall;
                 //Flags
                 chkFallThrough.Checked = p.IsFallThrough;
                 chkLeftLedge.Checked = p.IsLeftLedge;
                 chkRightLedge.Checked = p.IsRightLedge;
                 chkNoWalljump.Checked = p.IsNoWalljump;
-                //Type
+                //Flags2
                 chkTypeCharacters.Checked = p.IsCharacters;
                 chkTypeItems.Checked = p.IsItems;
                 chkTypePokemonTrainer.Checked = p.IsPokemonTrainer;
                 chkTypeUnknownStageBox.Checked = p.IsUnknownStageBox;
+                //UnknownFlags
             }
             else if (pnlPointProps.Visible)
             {
@@ -2064,6 +2070,11 @@ namespace System.Windows.Forms
             TargetNode.SignalPropertyChange();
         }
 
+        private void chkTypeFloor_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFloor = chkTypeFloor.Checked; }
+        private void chkTypeCeiling_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCeiling = chkTypeCeiling.Checked; }
+        private void chkTypeLeftWall_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftWall = chkTypeLeftWall.Checked; }
+        private void chkTypeRightWall_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsRightWall = chkTypeRightWall.Checked; }
+
         private void chkTypeCharacters_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCharacters = chkTypeCharacters.Checked; }
         private void chkTypeItems_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsItems = chkTypeItems.Checked; }
         private void chkTypePokemonTrainer_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsPokemonTrainer = chkTypePokemonTrainer.Checked; }
@@ -2073,6 +2084,11 @@ namespace System.Windows.Forms
         private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
         private void chkRightLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsRightLedge = chkRightLedge.Checked; }
         private void chkNoWalljump_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsNoWalljump = chkNoWalljump.Checked; }
+
+        private void chkFlagUnknown1_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag1 = chkFlagUnknown1.Checked; }
+        private void chkFlagUnknown2_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag2 = chkFlagUnknown2.Checked; }
+        private void chkFlagUnknown3_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag3 = chkFlagUnknown3.Checked; }
+        private void chkFlagUnknown4_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag4 = chkFlagUnknown4.Checked; }
 
         #endregion
 
