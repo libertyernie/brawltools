@@ -183,8 +183,8 @@ namespace BrawlLib.SSBBTypes
         SubspaceIce = 0x10,             // Used some places in Subspace (Purple floor where the door to Tabuu is)
         Checkered = 0x11,               // Used for Green Greens's checkerboard platforms and the present skin of rolling crates
         SpikesTargetTestOnly = 0x12,    // Used for Spike Hazards in Target Test levels and collision hazard #1 for SSE stages. Crashes or has no effect on stages not using a target test module
-        FireSSEOnly = 0x13,             // Used for fire hitboxes on certain SSE levels (180002). Crashes or has no effect on versus stages.
-        IceSSEOnly = 0x14,              // Used for ice hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
+        Hazard2SSEOnly = 0x13,          // Used for hitboxes on certain SSE levels (180002). Crashes or has no effect on versus stages.
+        Hazard3SSEOnly = 0x14,          // Used for hitboxes on certain SSE levels. Crashes or has no effect on versus stages.
         Electroplankton = 0x15,         // Used for Hanenbow leaves
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
