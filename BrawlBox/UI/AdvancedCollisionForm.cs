@@ -40,7 +40,7 @@ namespace System.Windows.Forms
 
         CollisionNode _node;
 
-        public AdvancedCollisionForm() { InitializeComponent(); Text = Program.AssemblyTitle + " - Collision Editor"; }
+        public AdvancedCollisionForm() { InitializeComponent(); Text = Program.AssemblyTitle + " - Advanced Collision Editor"; }
 
         public DialogResult ShowDialog(IWin32Window owner, CollisionNode node)
         {
