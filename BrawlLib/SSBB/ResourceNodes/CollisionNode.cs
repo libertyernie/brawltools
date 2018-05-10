@@ -574,6 +574,27 @@ namespace BrawlLib.SSBB.ResourceNodes
             }
         }
 
+        public bool IsFloor
+        {
+            get { return (_type & CollisionPlaneType.Floor) != 0; }
+            set { _type = (_type & ~CollisionPlaneType.Floor) | (value ? CollisionPlaneType.Floor : 0); }
+        }
+        public bool IsCeiling
+        {
+            get { return (_type & CollisionPlaneType.Ceiling) != 0; }
+            set { _type = (_type & ~CollisionPlaneType.Ceiling) | (value ? CollisionPlaneType.Ceiling : 0); }
+        }
+        public bool IsLeftWall
+        {
+            get { return (_type & CollisionPlaneType.LeftWall) != 0; }
+            set { _type = (_type & ~CollisionPlaneType.LeftWall) | (value ? CollisionPlaneType.LeftWall : 0); }
+        }
+        public bool IsRightWall
+        {
+            get { return (_type & CollisionPlaneType.RightWall) != 0; }
+            set { _type = (_type & ~CollisionPlaneType.RightWall) | (value ? CollisionPlaneType.RightWall : 0); }
+        }
+
         public bool IsCharacters
         {
             get { return (_flags2 & CollisionPlaneFlags2.Characters) != 0; }
