@@ -16,7 +16,7 @@ namespace BrawlBox
         {
             _menu = new ContextMenuStrip();
             _menu.Items.Add(new ToolStripMenuItem("&Preview / Edit", null, EditAction, Keys.Control | Keys.P));
-            _menu.Items.Add(new ToolStripMenuItem("&Advanced Editor", null, AdvancedEditAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Advanced Editor", null, AdvancedEditAction, Keys.Control | Keys.Shift | Keys.P));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Merge", null, MergeAction, Keys.Control | Keys.M));
             _menu.Items.Add(new ToolStripSeparator());
