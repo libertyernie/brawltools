@@ -614,6 +614,26 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return (_flags & CollisionPlaneFlags.NoWalljump) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.NoWalljump) | (value ? CollisionPlaneFlags.NoWalljump : 0); }
         }
+        public bool isUnknownFlag1
+        {
+            get { return (_flags & CollisionPlaneFlags.Unknown1) != 0; }
+            set { _flags = (_flags & ~CollisionPlaneFlags.Unknown1) | (value ? CollisionPlaneFlags.Unknown1 : 0); }
+        }
+        public bool isUnknownFlag2
+        {
+            get { return (_flags & CollisionPlaneFlags.Unknown2) != 0; }
+            set { _flags = (_flags & ~CollisionPlaneFlags.Unknown2) | (value ? CollisionPlaneFlags.Unknown2 : 0); }
+        }
+        public bool isUnknownFlag3
+        {
+            get { return (_flags & CollisionPlaneFlags.Unknown3) != 0; }
+            set { _flags = (_flags & ~CollisionPlaneFlags.Unknown3) | (value ? CollisionPlaneFlags.Unknown3 : 0); }
+        }
+        public bool isUnknownFlag4
+        {
+            get { return (_flags & CollisionPlaneFlags.Unknown4) != 0; }
+            set { _flags = (_flags & ~CollisionPlaneFlags.Unknown4) | (value ? CollisionPlaneFlags.Unknown4 : 0); }
+        }
         public bool HasUnknownFlag
         {
             get { return ((_flags & CollisionPlaneFlags.Unknown1) != 0 || (_flags & CollisionPlaneFlags.Unknown2) != 0 || (_flags & CollisionPlaneFlags.Unknown3) != 0 || (_flags & CollisionPlaneFlags.Unknown4) != 0); }
