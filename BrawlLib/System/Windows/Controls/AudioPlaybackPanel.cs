@@ -267,6 +267,8 @@ namespace System.Windows.Forms
             }
         }
 
+        public event EventHandler AudioEnded;
+
         public AudioPlaybackPanel()
         {
             InitializeComponent();
@@ -381,7 +383,7 @@ namespace System.Windows.Forms
             }
         }
 
-        private void Play()
+        public void Play()
         {
             if ((_isPlaying) || (CurrentBuffer == null))
                 return;
@@ -435,7 +437,10 @@ namespace System.Windows.Forms
                 if (!_loop)
                 {
                     if (CurrentBuffer.ReadSample >= _targetStream.Samples)
+                    {
                         Stop();
+                        AudioEnded?.Invoke(this, new EventArgs());
+                    }
                 }
             }
         }
