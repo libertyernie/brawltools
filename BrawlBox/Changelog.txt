@@ -16,6 +16,10 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
+ - v0.4 Hotfix 1 - (5/10/2018)
+ . Rearranged collision flags based on usefulness 
+ . "Unknown Flag 2" now listed as "Rotating" and is moved to where the other unknown flag was on the regular previewer
+ 
  - v0.4 - (5/10/2018)
  . Shows boundaries, spawns/respawns, and item spawn zones by default when viewing ARC files
  . Restore, Replace, and Delete now become properly disabled for SCLA and STPM files
