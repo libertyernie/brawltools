@@ -640,10 +640,10 @@ namespace BrawlLib.SSBB.ResourceNodes
             get { return (_flags & CollisionPlaneFlags.Unknown1) != 0; }
             set { _flags = (_flags & ~CollisionPlaneFlags.Unknown1) | (value ? CollisionPlaneFlags.Unknown1 : 0); }
         }
-        public bool IsUnknownFlag2
+        public bool IsRotating
         {
-            get { return (_flags & CollisionPlaneFlags.Unknown2) != 0; }
-            set { _flags = (_flags & ~CollisionPlaneFlags.Unknown2) | (value ? CollisionPlaneFlags.Unknown2 : 0); }
+            get { return (_flags & CollisionPlaneFlags.Rotating) != 0; }
+            set { _flags = (_flags & ~CollisionPlaneFlags.Rotating) | (value ? CollisionPlaneFlags.Rotating : 0); }
         }
         public bool IsUnknownFlag3
         {
@@ -657,7 +657,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         public bool HasUnknownFlag
         {
-            get { return ((_flags & CollisionPlaneFlags.Unknown1) != 0 || (_flags & CollisionPlaneFlags.Unknown2) != 0 || (_flags & CollisionPlaneFlags.Unknown3) != 0 || (_flags & CollisionPlaneFlags.Unknown4) != 0); }
+            get { return ((_flags & CollisionPlaneFlags.Unknown1) != 0 || (_flags & CollisionPlaneFlags.Unknown3) != 0 || (_flags & CollisionPlaneFlags.Unknown4) != 0); }
             set {  }
         }
 

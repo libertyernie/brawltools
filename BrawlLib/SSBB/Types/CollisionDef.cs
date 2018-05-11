@@ -452,13 +452,13 @@ namespace BrawlLib.SSBBTypes
     public enum CollisionPlaneFlags : byte
     {
         None = 0x00,
-        DropThrough = 0x01,
-        Unknown1 = 0x02,
-        Unknown2 = 0x04,
-        Unknown3 = 0x08,
-        Unknown4 = 0x10,
-        LeftLedge = 0x20,
-        RightLedge = 0x40,
-        NoWalljump = 0x80
+        DropThrough = 0x01,         // Can fall through a floor by pressing down
+        Unknown1 = 0x02,            // 
+        Rotating = 0x04,            // Automatically changes between floor/wall/ceiling based on angle
+        Unknown3 = 0x08,            // 
+        Unknown4 = 0x10,            //
+        LeftLedge = 0x20,           // Can grab ledge from the left
+        RightLedge = 0x40,          // Can grab ledge from the right
+        NoWalljump = 0x80           // Cannot walljump off when set
     }
 }

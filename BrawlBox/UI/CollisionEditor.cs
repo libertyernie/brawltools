@@ -41,7 +41,7 @@ namespace System.Windows.Forms
         private CheckBox chkTypeCharacters;
         private CheckBox chkTypeItems;
         private CheckBox chkTypePokemonTrainer;
-        private CheckBox chkTypeUnknownStageBox;
+        private CheckBox chkTypeRotating;
         private Panel pnlPointProps;
         private NumericInputBox numX;
         private Label label2;
@@ -133,7 +133,7 @@ namespace System.Windows.Forms
             this.chkTypeItems = new System.Windows.Forms.CheckBox();
             this.chkTypeCharacters = new System.Windows.Forms.CheckBox();
             this.chkTypePokemonTrainer = new System.Windows.Forms.CheckBox();
-            this.chkTypeUnknownStageBox = new System.Windows.Forms.CheckBox();
+            this.chkTypeRotating = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkLeftLedge = new System.Windows.Forms.CheckBox();
             this.chkNoWalljump = new System.Windows.Forms.CheckBox();
@@ -575,7 +575,7 @@ namespace System.Windows.Forms
             this.groupBox2.Controls.Add(this.chkTypeCharacters);
             this.groupBox2.Controls.Add(this.chkTypeItems);
             this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
-            this.groupBox2.Controls.Add(this.chkTypeUnknownStageBox);
+            this.groupBox2.Controls.Add(this.chkTypeRotating);
             this.groupBox2.Location = new System.Drawing.Point(101, 49);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
@@ -627,16 +627,16 @@ namespace System.Windows.Forms
             this.chkTypePokemonTrainer.UseVisualStyleBackColor = true;
             this.chkTypePokemonTrainer.CheckedChanged += new System.EventHandler(this.chkTypePokemonTrainer_CheckedChanged);
             // 
-            // chkTypeUnknownStageBox
+            // chkTypeRotating
             // 
-            this.chkTypeUnknownStageBox.Location = new System.Drawing.Point(8, 65);
-            this.chkTypeUnknownStageBox.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnknownStageBox.Name = "chkTypeUnknownStageBox";
-            this.chkTypeUnknownStageBox.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnknownStageBox.TabIndex = 4;
-            this.chkTypeUnknownStageBox.Text = "Unknown";
-            this.chkTypeUnknownStageBox.UseVisualStyleBackColor = true;
-            this.chkTypeUnknownStageBox.CheckedChanged += new System.EventHandler(this.chkTypeUnknownStageBox_CheckedChanged);
+            this.chkTypeRotating.Location = new System.Drawing.Point(8, 65);
+            this.chkTypeRotating.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeRotating.Name = "chkTypeRotating";
+            this.chkTypeRotating.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeRotating.TabIndex = 4;
+            this.chkTypeRotating.Text = "Rotating";
+            this.chkTypeRotating.UseVisualStyleBackColor = true;
+            this.chkTypeRotating.CheckedChanged += new System.EventHandler(this.chkTypeRotating_CheckedChanged);
             // 
             // groupBox1
             // 
@@ -1152,7 +1152,7 @@ namespace System.Windows.Forms
                 chkTypeCharacters.Checked = p.IsCharacters;
                 chkTypeItems.Checked = p.IsItems;
                 chkTypePokemonTrainer.Checked = p.IsPokemonTrainer;
-                chkTypeUnknownStageBox.Checked = p.IsUnknownStageBox;
+                chkTypeRotating.Checked = p.IsRotating;
             }
             else if (pnlPointProps.Visible)
             {
@@ -2001,7 +2001,7 @@ namespace System.Windows.Forms
         private void chkTypeCharacters_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCharacters = chkTypeCharacters.Checked; }
         private void chkTypeItems_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsItems = chkTypeItems.Checked; }
         private void chkTypePokemonTrainer_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsPokemonTrainer = chkTypePokemonTrainer.Checked; }
-        private void chkTypeUnknownStageBox_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownStageBox = chkTypeUnknownStageBox.Checked; }
+        private void chkTypeRotating_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownStageBox = chkTypeRotating.Checked; }
 
         private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
         private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
