@@ -16,7 +16,7 @@ they be held accountable for the manner in which it is used.
 |************ StageBox Change Log ************|
  =============================================
 
- - v0.4 - (?)
+ - v0.4 - (5/10/2018)
  . Shows boundaries, spawns/respawns, and item spawn zones by default when viewing ARC files
  . Restore, Replace, and Delete now become properly disabled for SCLA and STPM files
  . Merge option for collisions moved to a more standard location to match "Edit" functionality on MDL0 or CHR0
