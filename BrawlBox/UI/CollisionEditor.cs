@@ -1073,7 +1073,7 @@ namespace System.Windows.Forms
             pnlPointProps.Dock = DockStyle.Fill;
 
             _updating = true;
-            cboMaterial.DataSource = Enum.GetValues(typeof(CollisionPlaneMaterial));
+            cboMaterial.DataSource = Enum.GetValues(typeof(CollisionPlaneMaterialUnexpanded));
             cboType.DataSource = Enum.GetValues(typeof(CollisionPlaneType));
             _updating = false;
         }
