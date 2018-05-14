@@ -26,9 +26,7 @@ namespace BrawlBox
                 new ToolStripMenuItem("MSBin", null, NewMSBinAction),
                 new ToolStripMenuItem("SCLA (Empty)", null, NewSCLAAction),
                 new ToolStripMenuItem("SCLA (Full)", null, NewSCLAFullAction),
-#if DEBUG
                 new ToolStripMenuItem("SCLA (Expanded)", null, NewSCLAExpandedAction),
-#endif
                 new ToolStripMenuItem("STDT", null, NewSTDTAction),
                 new ToolStripMenuItem("STPM", null, NewSTPMAction),
                 new ToolStripMenuItem("Stage Table", null,
