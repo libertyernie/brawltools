@@ -866,9 +866,9 @@ namespace BrawlLib.SSBB.ResourceNodes
                 GL.Color4(0.9f, 0.0f, 0.9f, 0.8f);
 
             if (p._type == CollisionPlaneType.Floor && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.9f, 0.9f, 0.8f); }
-            else if (p._type == CollisionPlaneType.Ceiling && lev == 0) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.LeftWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
-            else if (p._type == CollisionPlaneType.RightWall && lev == 0) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling && lev == 0 && !IsFallThrough) { GL.Color4(0.9f, 0.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.9f, 0.0f, 0.8f); }
             else if (p._type == CollisionPlaneType.None && lev == 0) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
             else if (p._type != CollisionPlaneType.None && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.0f, 0.0f, 0.8f);  }
             else if (p._type == CollisionPlaneType.Floor && p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
