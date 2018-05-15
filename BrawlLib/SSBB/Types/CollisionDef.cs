@@ -449,7 +449,7 @@ namespace BrawlLib.SSBBTypes
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
-        UnknownDustless = 0x19,         // Unknown, doesn't generate dust
+        UnknownDustless = 0x19,         // Unknown, doesn't generate dust clouds when landing
         MarioBros = 0x1A,               // Used for Mario Bros.
         Grate = 0x1B,                   // Used for Delfino Plaza's main platform
         Sand = 0x1C,                    // Used for sand (Unknown where used)
