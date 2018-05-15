@@ -26,6 +26,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -41,15 +42,15 @@ namespace BrawlBox.NodeWrappers
         protected static void ResizeAction(object sender, EventArgs e) { GetInstance<SHP0Wrapper>().Resize(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[12].Enabled = true;
+            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[7].Enabled = _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[13].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             SHP0Wrapper w = GetInstance<SHP0Wrapper>();
-            _menu.Items[5].Enabled = _menu.Items[12].Enabled = w.Parent != null;
+            _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[13].Enabled = w.Parent != null;
             _menu.Items[6].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[8].Enabled = w.PrevNode != null;
-            _menu.Items[9].Enabled = w.NextNode != null;
+            _menu.Items[9].Enabled = w.PrevNode != null;
+            _menu.Items[10].Enabled = w.NextNode != null;
         }
 
         #endregion
