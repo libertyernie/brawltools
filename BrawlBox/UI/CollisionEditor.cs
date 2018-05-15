@@ -1141,7 +1141,16 @@ namespace System.Windows.Forms
                 CollisionPlane p = _selectedPlanes[0];
 
                 //Material
-                cboMaterial.SelectedItem = p._material;
+                if((byte)p._material >= 32)
+                {
+                    // Select basic by default (currently cannot display expanded collisions in default previewer)
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)(0x0);
+                }
+                else
+                {
+                    // Otherwise convert to the proper place in the unexpanded list
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)((byte)p._material);
+                }
                 //Flags
                 chkFallThrough.Checked = p.IsFallThrough;
                 chkLeftLedge.Checked = p.IsLeftLedge;
@@ -1987,7 +1996,7 @@ namespace System.Windows.Forms
         {
             if (_updating) return;
             foreach (CollisionPlane plane in _selectedPlanes)
-                plane._material = (CollisionPlaneMaterial)cboMaterial.SelectedItem;
+                plane._material = (CollisionPlaneMaterial)((byte)cboMaterial.SelectedItem);
             TargetNode.SignalPropertyChange();
         }
         private void cboType_SelectedIndexChanged(object sender, EventArgs e)
