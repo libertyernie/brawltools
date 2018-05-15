@@ -189,13 +189,13 @@ namespace BrawlLib.SSBBTypes
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
-        Unknown1 = 0x19,                // 
+        Unknown0x19 = 0x19,             // 
         MarioBros = 0x1A,               // Used for Mario Bros.
         Grate = 0x1B,                   // Used for Delfino Plaza's main platform
         Sand = 0x1C,                    // Used for sand (Unknown where used)
         Homerun = 0x1D,                 // Used for Home Run Contest, makes Olimar only spawn Purple Pikmin
         WaterNoSplash = 0x1E,           // Used for Distant Planet slope during rain
-        Unknown2 = 0x1F,                //
+        Unknown0x1F = 0x1F,             // 
         CollEx32 = 0x20,                // Expanded collisions, require SCLA edits or they won't work properly
         CollEx33 = 0x21,
         CollEx34 = 0x22,
@@ -449,13 +449,13 @@ namespace BrawlLib.SSBBTypes
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
-        Unknown1 = 0x19,                // 
+        Unknown0x19 = 0x19,             // 
         MarioBros = 0x1A,               // Used for Mario Bros.
         Grate = 0x1B,                   // Used for Delfino Plaza's main platform
         Sand = 0x1C,                    // Used for sand (Unknown where used)
         Homerun = 0x1D,                 // Used for Home Run Contest, makes Olimar only spawn Purple Pikmin
         WaterNoSplash = 0x1E,           // Used for Distant Planet slope during rain
-        Unknown2 = 0x1F                 //
+        Unknown0x1F = 0x1F              // 
     }
 
     public enum CollisionPlaneType
