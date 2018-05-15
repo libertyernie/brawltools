@@ -465,10 +465,6 @@ namespace BrawlLib.SSBBTypes
         Ceiling = 0x0002,       // 0010
         RightWall = 0x0004,     // 0100
         LeftWall = 0x0008       // 1000
-#if DEBUG
-        ,
-        All = 0x000F            // 1111
-#endif
     }
 
     [Flags]
