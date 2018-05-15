@@ -61,7 +61,7 @@ namespace BrawlBox
             {
                 return;
             }
-            ResourceNode newNode = NodeFactory.FromAddress(_resource._parent, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
+            ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
             _resource._parent.AddChild(newNode);
         }
 
