@@ -39,7 +39,7 @@ namespace BrawlBox
         protected static void RenameAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Rename(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[9].Enabled = true;
+            _menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[9].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
