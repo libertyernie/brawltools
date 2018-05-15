@@ -872,6 +872,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             else if (p._type == CollisionPlaneType.None && lev == 0) { GL.Color4(1.0f, 1.0f, 1.0f, 0.6f); }
             else if (p._type != CollisionPlaneType.None && lev == 0 && !IsFallThrough) { GL.Color4(0.0f, 0.0f, 0.0f, 0.8f);  }
             else if (p._type == CollisionPlaneType.Floor && p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.RightWall && p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.LeftWall && p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
+            else if (p._type == CollisionPlaneType.Ceiling && p.IsFallThrough && lev == 0) { GL.Color4(1.0f, 1.0f, 0.0f, 0.8f); }
             else if (p._type != CollisionPlaneType.None && p.IsFallThrough && lev == 0) { GL.Color4(0.5f, 0.5f, 0.0f, 0.8f); }
 
             /*if (p.HasUnknownFlag) { GL.Color4(0.0f, 0.0f, 0.0f, 0.8f); }
