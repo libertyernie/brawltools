@@ -113,10 +113,10 @@ namespace BrawlBox
                 return;
             }
             BRRESNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as BRRESNode;
-            _resource._parent.AddChild(newNode);
             newNode.Name = _resource.Name;
             newNode.FileType = ((BRRESNode)_resource).FileType;
             newNode.FileIndex = ((BRRESNode)_resource).FileIndex;
+            _resource._parent.InsertChild(newNode, true, _resource.Index);
         }
 
         public void ImportGIF()
