@@ -23,6 +23,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -77,6 +78,7 @@ namespace BrawlBox.NodeWrappers
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+        
         // StageBox model mirroring
         private static void MirrorXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorX(); }
         private static void MirrorYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorY(); }
@@ -127,14 +129,14 @@ namespace BrawlBox.NodeWrappers
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[26].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[5].Enabled = _menu.Items[27].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[6].Enabled = w.PrevNode != null;
-            _menu.Items[7].Enabled = w.NextNode != null;
+            _menu.Items[7].Enabled = w.PrevNode != null;
+            _menu.Items[8].Enabled = w.NextNode != null;
             if (((MDL0Node)w._resource)._shadList != null && ((MDL0Node)w._resource)._matList != null)
-                _menu.Items[10].Enabled = (((MDL0Node)w._resource)._shadList.Count < ((MDL0Node)w._resource)._matList.Count);
+                _menu.Items[11].Enabled = (((MDL0Node)w._resource)._shadList.Count < ((MDL0Node)w._resource)._matList.Count);
             else
-                _menu.Items[10].Enabled = false;
+                _menu.Items[11].Enabled = false;
         }
         #endregion
 

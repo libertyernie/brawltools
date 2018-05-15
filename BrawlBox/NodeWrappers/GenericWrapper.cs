@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using BrawlLib.SSBB.ResourceNodes;
 using System.IO;
 using System.ComponentModel;
 
@@ -17,6 +18,7 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -26,6 +28,8 @@ namespace BrawlBox
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
+        protected static void DuplicateAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Duplicate(); }
+
         protected static void MoveUpAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().MoveUp(); }
         protected static void MoveDownAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().MoveDown(); }
         protected static void ExportAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Export(); }
@@ -35,21 +39,31 @@ namespace BrawlBox
         protected static void RenameAction(object sender, EventArgs e) { GetInstance<GenericWrapper>().Rename(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[8].Enabled = true;
+            _menu.Items[1].Enabled = _menu.Items[2].Enabled = _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[9].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             GenericWrapper w = GetInstance<GenericWrapper>();
-            _menu.Items[1].Enabled = _menu.Items[8].Enabled = w.Parent != null;
+            _menu.Items[1].Enabled = _menu.Items[4].Enabled = _menu.Items[9].Enabled = w.Parent != null;
             _menu.Items[2].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[4].Enabled = w.PrevNode != null;
-            _menu.Items[5].Enabled = w.NextNode != null;
+            _menu.Items[5].Enabled = w.PrevNode != null;
+            _menu.Items[6].Enabled = w.NextNode != null;
         }
 
         #endregion
 
         public GenericWrapper(IWin32Window owner) { _owner = owner;  ContextMenuStrip = _menu; }
         public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
+
+        public void Duplicate()
+        {
+            if (_resource._parent == null)
+            {
+                return;
+            }
+            ResourceNode newNode = NodeFactory.FromAddress(_resource._parent, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
+            _resource._parent.AddChild(newNode);
+        }
 
         public void MoveUp() { MoveUp(true); }
         public virtual void MoveUp(bool select)
