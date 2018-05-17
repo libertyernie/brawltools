@@ -55,7 +55,7 @@ namespace BrawlBox
         public GenericWrapper(IWin32Window owner) { _owner = owner;  ContextMenuStrip = _menu; }
         public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
 
-        public void Duplicate()
+        public virtual void Duplicate()
         {
             if (_resource._parent == null)
             {
@@ -69,7 +69,7 @@ namespace BrawlBox
                 }
                 _resource._parent._parent.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
-                _resource._parent.InsertChild(newNode, true, _resource.Index);
+                _resource._parent.InsertChild(newNode, true, _resource.Index + 1);
                 if(!_resource.AllowDuplicateNames)
                 {
                     int i = 2;
@@ -79,7 +79,11 @@ namespace BrawlBox
                         ++i;
                         newName = _resource.Name + " (" + i + ")";
                     }
-                    _resource.Name = newName;
+                    newNode.Name = newName;
+                }
+                else
+                {
+                    newNode.Name = _resource.Name;
                 }
                 
             }
@@ -88,6 +92,21 @@ namespace BrawlBox
                 _resource._parent.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
                 _resource._parent.InsertChild(newNode, true, _resource.Index);
+                if (!_resource.AllowDuplicateNames)
+                {
+                    int i = 2;
+                    string newName = _resource.Name + " (" + i + ")";
+                    while (_resource._parent.FindChildrenByName(newName).Length != 0)
+                    {
+                        ++i;
+                        newName = _resource.Name + " (" + i + ")";
+                    }
+                    newNode.Name = newName;
+                }
+                else
+                {
+                    newNode.Name = _resource.Name;
+                }
             }
         }
 
