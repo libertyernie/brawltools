@@ -63,7 +63,6 @@ namespace BrawlBox
             }
             if(_resource._parent.GetType() == typeof(BRESGroupNode))
             {
-                //Console.WriteLine("I knew it");
                 if (_resource._parent._parent == null)
                 {
                     return;
@@ -77,8 +76,7 @@ namespace BrawlBox
                     string newName = _resource.Name + " (" + i + ")";
                     while (_resource._parent.FindChildrenByName(newName).Length != 0)
                     {
-                        Console.WriteLine("Searching for " + newName);
-                        i++;
+                        ++i;
                         newName = _resource.Name + " (" + i + ")";
                     }
                     _resource.Name = newName;
