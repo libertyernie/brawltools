@@ -108,6 +108,7 @@ namespace BrawlBox
 
         public void DuplicateBRES()
         {
+            _resource.Rebuild();
             if (_resource._parent == null)
             {
                 return;
