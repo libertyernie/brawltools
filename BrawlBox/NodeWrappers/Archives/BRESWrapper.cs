@@ -49,6 +49,7 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateBRESAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -83,18 +84,20 @@ namespace BrawlBox
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().PreviewAll(); }
         protected static void ImportGIFAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ImportGIF(); }
 
+        protected static void DuplicateBRESAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().DuplicateBRES(); }
+
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[12].Enabled = _menu.Items[13].Enabled = _menu.Items[15].Enabled = true;
+            _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[11].Enabled = _menu.Items[13].Enabled = _menu.Items[14].Enabled = _menu.Items[16].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             BRESWrapper w = GetInstance<BRESWrapper>();
 
-            _menu.Items[9].Enabled = _menu.Items[15].Enabled = w.Parent != null;
+            _menu.Items[9].Enabled = _menu.Items[11].Enabled = _menu.Items[16].Enabled = w.Parent != null;
             _menu.Items[10].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[12].Enabled = w.PrevNode != null;
-            _menu.Items[13].Enabled = w.NextNode != null;
+            _menu.Items[13].Enabled = w.PrevNode != null;
+            _menu.Items[14].Enabled = w.NextNode != null;
         }
 
         #endregion
