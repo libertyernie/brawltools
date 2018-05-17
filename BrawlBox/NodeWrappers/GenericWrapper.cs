@@ -69,7 +69,7 @@ namespace BrawlBox
                 }
                 _resource._parent._parent.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
-                _resource._parent.InsertChild(newNode, true, _resource.Index + 1);
+                int newIndex = _resource.Index + 1;
                 if(!_resource.AllowDuplicateNames)
                 {
                     int i = 2;
@@ -77,6 +77,7 @@ namespace BrawlBox
                     while (_resource._parent.FindChildrenByName(newName).Length != 0)
                     {
                         ++i;
+                        newIndex = _resource._parent.FindChildrenByName(newName)[0].Index + 1;
                         newName = _resource.Name + " (" + i + ")";
                     }
                     newNode.Name = newName;
@@ -85,13 +86,14 @@ namespace BrawlBox
                 {
                     newNode.Name = _resource.Name;
                 }
-                
+                _resource._parent.InsertChild(newNode, true, newIndex);
             }
             else
             {
                 _resource._parent.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
                 _resource._parent.InsertChild(newNode, true, _resource.Index);
+                int newIndex = _resource.Index + 1;
                 if (!_resource.AllowDuplicateNames)
                 {
                     int i = 2;
@@ -99,6 +101,7 @@ namespace BrawlBox
                     while (_resource._parent.FindChildrenByName(newName).Length != 0)
                     {
                         ++i;
+                        newIndex = _resource._parent.FindChildrenByName(newName)[0].Index + 1;
                         newName = _resource.Name + " (" + i + ")";
                     }
                     newNode.Name = newName;
@@ -107,6 +110,7 @@ namespace BrawlBox
                 {
                     newNode.Name = _resource.Name;
                 }
+                _resource._parent.InsertChild(newNode, true, newIndex);
             }
         }
 
