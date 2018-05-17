@@ -117,6 +117,7 @@ namespace BrawlBox
             newNode.Name = _resource.Name;
             newNode.FileType = ((BRRESNode)_resource).FileType;
             newNode.FileIndex = ((BRRESNode)_resource).FileIndex;
+            newNode.RedirectIndex = ((BRRESNode)_resource).RedirectIndex;
             _resource._parent.InsertChild(newNode, true, _resource.Index);
         }
 
