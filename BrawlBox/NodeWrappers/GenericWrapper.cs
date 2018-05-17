@@ -61,8 +61,36 @@ namespace BrawlBox
             {
                 return;
             }
-            ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
-            _resource._parent.InsertChild(newNode, true, _resource.Index);
+            if(_resource._parent.GetType() == typeof(BRESGroupNode))
+            {
+                //Console.WriteLine("I knew it");
+                if (_resource._parent._parent == null)
+                {
+                    return;
+                }
+                _resource._parent._parent.Rebuild();
+                ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
+                _resource._parent.InsertChild(newNode, true, _resource.Index);
+                if(!_resource.AllowDuplicateNames)
+                {
+                    int i = 2;
+                    string newName = _resource.Name + " (" + i + ")";
+                    while (_resource._parent.FindChildrenByName(newName).Length != 0)
+                    {
+                        Console.WriteLine("Searching for " + newName);
+                        i++;
+                        newName = _resource.Name + " (" + i + ")";
+                    }
+                    _resource.Name = newName;
+                }
+                
+            }
+            else
+            {
+                _resource._parent.Rebuild();
+                ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
+                _resource._parent.InsertChild(newNode, true, _resource.Index);
+            }
         }
 
         public void MoveUp() { MoveUp(true); }
