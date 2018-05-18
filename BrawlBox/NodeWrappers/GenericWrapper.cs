@@ -87,6 +87,7 @@ namespace BrawlBox
                     newNode.Name = _resource.Name;
                 }
                 _resource._parent.InsertChild(newNode, true, newIndex);
+                newNode.Populate();
             }
             else
             {
@@ -111,6 +112,7 @@ namespace BrawlBox
                     newNode.Name = _resource.Name;
                 }
                 _resource._parent.InsertChild(newNode, true, newIndex);
+                newNode.Populate();
             }
         }
 
