@@ -508,7 +508,7 @@ namespace System.Windows.Forms
             if (_colorInfo.IsGreyscale)
             {
                 if (_colorInfo.ColorCount <= 16)
-                    cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.I4 : WiiPixelFormat.IA8;
+                    cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.I4 : WiiPixelFormat.CI4;
                 else if (_colorInfo.ColorCount <= 272)
                     cboFormat.SelectedItem = (_colorInfo.AlphaColors == 0) ? WiiPixelFormat.I8 : WiiPixelFormat.IA8;
                 else
@@ -516,11 +516,11 @@ namespace System.Windows.Forms
             }
             else
             {
-                //if (_colorInfo.ColorCount <= 16)
-                    //cboFormat.SelectedItem = WiiPixelFormat.CI4;
-                //else if (_colorInfo.ColorCount <= 272)
-                    //cboFormat.SelectedItem = WiiPixelFormat.CI8;
-                if (_colorInfo.AlphaColors <= 1)
+                if (_colorInfo.ColorCount <= 16)
+                    cboFormat.SelectedItem = WiiPixelFormat.CI4;
+                else if (_colorInfo.ColorCount <= 272)
+                    cboFormat.SelectedItem = WiiPixelFormat.CI8;
+                else if (_colorInfo.AlphaColors <= 1)
                     cboFormat.SelectedItem = WiiPixelFormat.CMPR;
                 else
                     cboFormat.SelectedItem = WiiPixelFormat.RGB5A3;
