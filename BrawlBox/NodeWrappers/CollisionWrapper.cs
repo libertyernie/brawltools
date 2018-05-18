@@ -23,6 +23,7 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -52,16 +53,30 @@ namespace BrawlBox
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             CollisionWrapper w = GetInstance<CollisionWrapper>();
-            _menu.Items[6].Enabled = _menu.Items[15].Enabled = w.Parent != null;
+            _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[16].Enabled = w.Parent != null;
             _menu.Items[7].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
-            _menu.Items[9].Enabled = w.PrevNode != null;
-            _menu.Items[10].Enabled = w.NextNode != null;
+            _menu.Items[10].Enabled = w.PrevNode != null;
+            _menu.Items[11].Enabled = w.NextNode != null;
         }
         #endregion
 
         public override string ExportFilter { get { return FileFilters.CollisionDef; } }
 
         public CollisionWrapper() { ContextMenuStrip = _menu; }
+
+        public override ResourceNode Duplicate()
+        {
+            _resource.Rebuild();
+            CollisionNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as CollisionNode;
+            int newIndex = _resource.Index + 1;
+            _resource._parent.InsertChild(newNode, true, newIndex);
+            newNode.Populate();
+            newNode.FileType = ((CollisionNode)_resource).FileType;
+            newNode.FileIndex = ((CollisionNode)_resource).FileIndex;
+            newNode.RedirectIndex = ((CollisionNode)_resource).RedirectIndex;
+            newNode.GroupID = ((CollisionNode)_resource).GroupID;
+            return newNode;
+        }
 
         public void Merge()
         {

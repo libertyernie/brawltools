@@ -49,7 +49,7 @@ namespace BrawlBox
             _menu.Items.Add(new ToolStripMenuItem("&Export", null, ExportAction, Keys.Control | Keys.E));
             _menu.Items.Add(new ToolStripMenuItem("&Replace", null, ReplaceAction, Keys.Control | Keys.R));
             _menu.Items.Add(new ToolStripMenuItem("Res&tore", null, RestoreAction, Keys.Control | Keys.T));
-            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateBRESAction, Keys.Control | Keys.D));
+            _menu.Items.Add(new ToolStripMenuItem("&Duplicate", null, DuplicateAction, Keys.Control | Keys.D));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("Move &Up", null, MoveUpAction, Keys.Control | Keys.Up));
             _menu.Items.Add(new ToolStripMenuItem("Move D&own", null, MoveDownAction, Keys.Control | Keys.Down));
@@ -83,9 +83,7 @@ namespace BrawlBox
         protected static void EditAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().EditAll(); }
         protected static void PreviewAllAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().PreviewAll(); }
         protected static void ImportGIFAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().ImportGIF(); }
-
-        protected static void DuplicateBRESAction(object sender, EventArgs e) { GetInstance<BRESWrapper>().DuplicateBRES(); }
-
+        
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
             _menu.Items[9].Enabled = _menu.Items[10].Enabled = _menu.Items[11].Enabled = _menu.Items[13].Enabled = _menu.Items[14].Enabled = _menu.Items[16].Enabled = true;
@@ -106,19 +104,22 @@ namespace BrawlBox
 
         public BRESWrapper() { ContextMenuStrip = _menu; }
 
-        public void DuplicateBRES()
+        public override ResourceNode Duplicate()
         {
             _resource.Rebuild();
             if (_resource._parent == null)
             {
-                return;
+                return null;
             }
             BRRESNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as BRRESNode;
-            newNode.Name = _resource.Name;
+            _resource._parent.InsertChild(newNode, true, _resource.Index + 1);
+            newNode.Populate();
             newNode.FileType = ((BRRESNode)_resource).FileType;
             newNode.FileIndex = ((BRRESNode)_resource).FileIndex;
+            newNode.GroupID = ((BRRESNode)_resource).GroupID;
             newNode.RedirectIndex = ((BRRESNode)_resource).RedirectIndex;
-            _resource._parent.InsertChild(newNode, true, _resource.Index);
+            newNode.Name = _resource.Name;
+            return newNode;
         }
 
         public void ImportGIF()

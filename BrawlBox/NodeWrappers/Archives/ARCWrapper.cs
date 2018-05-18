@@ -184,6 +184,21 @@ namespace BrawlBox
 
         public ARCWrapper() { ContextMenuStrip = _menu; }
 
+        public override ResourceNode Duplicate()
+        {
+            _resource.Rebuild();
+            ARCNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as ARCNode;
+            int newIndex = _resource.Index + 1;
+            _resource._parent.InsertChild(newNode, true, newIndex);
+            newNode.Populate();
+            newNode.FileType = ((ARCNode)_resource).FileType;
+            newNode.FileIndex = ((ARCNode)_resource).FileIndex;
+            newNode.RedirectIndex = ((ARCNode)_resource).RedirectIndex;
+            newNode.GroupID = ((ARCNode)_resource).GroupID;
+            newNode.Compression = ((ARCNode)_resource).Compression;
+            return newNode;
+        }
+
         public ARCNode NewARC()
         {
             ARCNode node = new ARCNode() { Name = _resource.FindName("NewARChive"), FileType = ARCFileType.MiscData };
