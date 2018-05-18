@@ -55,17 +55,17 @@ namespace BrawlBox
         public GenericWrapper(IWin32Window owner) { _owner = owner;  ContextMenuStrip = _menu; }
         public GenericWrapper() { _owner = null; ContextMenuStrip = _menu; }
 
-        public virtual void Duplicate()
+        public virtual ResourceNode Duplicate()
         {
             if (_resource._parent == null)
             {
-                return;
+                return null;
             }
             if(_resource._parent.GetType() == typeof(BRESGroupNode))
             {
                 if (_resource._parent._parent == null)
                 {
-                    return;
+                    return null;
                 }
                 _resource._parent._parent.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
@@ -88,12 +88,12 @@ namespace BrawlBox
                 }
                 _resource._parent.InsertChild(newNode, true, newIndex);
                 newNode.Populate();
+                return newNode;
             }
             else
             {
-                _resource._parent.Rebuild();
+                _resource.Rebuild();
                 ResourceNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length);
-                _resource._parent.InsertChild(newNode, true, _resource.Index);
                 int newIndex = _resource.Index + 1;
                 if (!_resource.AllowDuplicateNames)
                 {
@@ -113,6 +113,7 @@ namespace BrawlBox
                 }
                 _resource._parent.InsertChild(newNode, true, newIndex);
                 newNode.Populate();
+                return newNode;
             }
         }
 
