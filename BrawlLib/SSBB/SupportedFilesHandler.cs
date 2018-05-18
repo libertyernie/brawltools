@@ -10,30 +10,30 @@ namespace BrawlLib.SSBB
         {
             //Archives
             new SupportedFileInfo(true, "PAC File Archive", "pac"),
-            new SupportedFileInfo(false, "PCS Compressed File Archive", "pcs"),
+            new SupportedFileInfo(true, "PCS Compressed File Archive", "pcs"),
             new SupportedFileInfo(true, "ARC File Archive", "arc"),
             //new SupportedFileInfo(true, "RARC File Archive", "rarc"),
-            new SupportedFileInfo(false, "MRG Resource Group", "mrg"),
-            new SupportedFileInfo(false, "MRG Compressed Resource Group", "mrgc"),
-            new SupportedFileInfo(false, "SZS Compressed Archive", "szs"),
+            new SupportedFileInfo(true, "MRG Resource Group", "mrg"),
+            new SupportedFileInfo(true, "MRG Compressed Resource Group", "mrgc"),
+            new SupportedFileInfo(true, "SZS Compressed Archive", "szs"),
             //new SupportedFileInfo(true, "SZP Compressed Archive", "szp"),
 #if DEBUG
-            new SupportedFileInfo(false, "Wii/GC Disc Image", "iso"),
+            new SupportedFileInfo(true, "Wii/GC Disc Image", "iso"),
 #endif
 
             //NW4R Model Resources
             new SupportedFileInfo(true, "NW4R Resource Pack", "brres"),
-            new SupportedFileInfo(false, "NW4R Animation Pack", "branm"),
-            new SupportedFileInfo(false, "NW4R Model Pack", "brmdl"),
-            new SupportedFileInfo(false, "NW4R Texture Pack", "brtex"),
-            new SupportedFileInfo(false, "NW4R Palette Pack", "brplt"),
-            new SupportedFileInfo(false, "NW4R Bone Animation Pack", "brcha"),
-            new SupportedFileInfo(false, "NW4R Texture Animation Pack", "brtsa"),
-            new SupportedFileInfo(false, "NW4R Vertex Morph Pack", "brsha"),
-            new SupportedFileInfo(false, "NW4R Visibility Sequence Pack", "brvia"),
-            new SupportedFileInfo(false, "NW4R Texture Pattern Pack", "brtpa"),
-            new SupportedFileInfo(false, "NW4R Color Sequence Pack", "brcla"),
-            new SupportedFileInfo(false, "NW4R Scene Settings Pack", "brsca"),
+            new SupportedFileInfo(true, "NW4R Animation Pack", "branm"),
+            new SupportedFileInfo(true, "NW4R Model Pack", "brmdl"),
+            new SupportedFileInfo(true, "NW4R Texture Pack", "brtex"),
+            new SupportedFileInfo(true, "NW4R Palette Pack", "brplt"),
+            new SupportedFileInfo(true, "NW4R Bone Animation Pack", "brcha"),
+            new SupportedFileInfo(true, "NW4R Texture Animation Pack", "brtsa"),
+            new SupportedFileInfo(true, "NW4R Vertex Morph Pack", "brsha"),
+            new SupportedFileInfo(true, "NW4R Visibility Sequence Pack", "brvia"),
+            new SupportedFileInfo(true, "NW4R Texture Pattern Pack", "brtpa"),
+            new SupportedFileInfo(true, "NW4R Color Sequence Pack", "brcla"),
+            new SupportedFileInfo(true, "NW4R Scene Settings Pack", "brsca"),
 
             //NW4R Raw
             new SupportedFileInfo(true, "NW4R Model", "mdl0"),
@@ -60,10 +60,10 @@ namespace BrawlLib.SSBB
             //new SupportedFileInfo(true, "NW4R XML Scene Settings", "rsca"),
 
             //NW4R Audio
-            new SupportedFileInfo(false, "NW4R Audio Stream", "brstm"),
-            new SupportedFileInfo(false, "NW4C Audio Stream", "bcstm"),
-            new SupportedFileInfo(false, "NW4F Audio Stream", "bfstm"),
-            new SupportedFileInfo(false, "NW4R Sound Archive", "brsar"),
+            new SupportedFileInfo(true, "NW4R Audio Stream", "brstm"),
+            new SupportedFileInfo(true, "NW4C Audio Stream", "bcstm"),
+            new SupportedFileInfo(true, "NW4F Audio Stream", "bfstm"),
+            new SupportedFileInfo(true, "NW4R Sound Archive", "brsar"),
             new SupportedFileInfo(true, "NW4R RSAR Sound File", "brwsd"),
             new SupportedFileInfo(true, "NW4R RSAR Sound Bank File", "brbnk"),
             new SupportedFileInfo(true, "NW4R RSAR Sound Sequence", "brseq"),
@@ -74,12 +74,12 @@ namespace BrawlLib.SSBB
             new SupportedFileInfo(true, "NW4R Particle Textures", "breft"),
 
             //Modules
-            new SupportedFileInfo(false, "Static Module", "dol"),
+            new SupportedFileInfo(true, "Static Module", "dol"),
             new SupportedFileInfo(true, "Relocatable Module", "rel"),
 
             //Revolution files
-            new SupportedFileInfo(false, "RVL Texture Archive", "tpl"),
-            new SupportedFileInfo(false, "RVL Audio/Video", "thp"),
+            new SupportedFileInfo(true, "RVL Texture Archive", "tpl"),
+            new SupportedFileInfo(true, "RVL Audio/Video", "thp"),
 
             //Brawl-specific files
             new SupportedFileInfo(true, "Brawl Message Pack", "msbin"),
@@ -114,7 +114,7 @@ namespace BrawlLib.SSBB
             //new SupportedFileInfo(true, "Wii U Texture", "ftex"),
             //new SupportedFileInfo(true, "Wii U Skeletal Animation", "fska"),
 
-            new SupportedFileInfo(false, "GCT Code List", "gct"),
+            new SupportedFileInfo(true, "GCT Code List", "gct"),
 
             //The following files are not for direct editing
 
