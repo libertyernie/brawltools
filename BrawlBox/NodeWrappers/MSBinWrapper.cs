@@ -48,6 +48,10 @@ namespace BrawlBox.NodeWrappers
 
         public override ResourceNode Duplicate()
         {
+            if(_resource._parent == null)
+            {
+                return null;
+            }
             _resource.Rebuild();
             MSBinNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as MSBinNode;
             int newIndex = _resource.Index + 1;
