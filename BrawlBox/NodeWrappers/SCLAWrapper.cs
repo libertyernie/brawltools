@@ -60,7 +60,7 @@ namespace BrawlBox.NodeWrappers
 
         public void FillSCLA(uint fillAmount)
         {
-            ((SCLANode)_resource).fillSCLA(fillAmount);
+            ((SCLANode)_resource).FillSCLA(fillAmount);
         }
 
         public SCLAWrapper() { ContextMenuStrip = _menu; }

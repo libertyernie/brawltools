@@ -61,7 +61,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         }
         
         // Fill missing SCLA entries with default values
-        public void fillSCLA(uint amount)
+        public void FillSCLA(uint amount)
         {
             bool indexFound = false;
             // Go through and add each index with default values as necessary
@@ -82,7 +82,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 if(indexFound == false)
                 {
                     SCLAEntryNode node = new SCLAEntryNode(i);
-                    AddChild(node);
+                    InsertChild(node, true, (int)i);
                 }
             }
         }
