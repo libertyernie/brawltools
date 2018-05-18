@@ -118,6 +118,7 @@ namespace BrawlBox
             newNode.FileIndex = ((BRRESNode)_resource).FileIndex;
             newNode.GroupID = ((BRRESNode)_resource).GroupID;
             newNode.RedirectIndex = ((BRRESNode)_resource).RedirectIndex;
+            newNode.Compression = ((BRRESNode)_resource).Compression;
             newNode.Name = _resource.Name;
             return newNode;
         }
