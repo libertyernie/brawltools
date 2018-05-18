@@ -176,6 +176,154 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         #region Functions
 
+        public void ConvertToShadowModel()
+        {
+            if (_matGroup == null)
+            {
+                return;
+            }
+
+            // Implementation that had support for multiple cull types. Doesn't work as material must be named "MShadow1"
+            /*MDL0MaterialNode mat1 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat1);
+            mat1.GenerateShadowMaterial();
+            mat1.Name = "MShadow1_CullNone";
+            mat1.CullMode = CullMode.Cull_None;
+
+            MDL0MaterialNode mat2 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat2);
+            mat2.GenerateShadowMaterial();
+            mat2.Name = "MShadow1_CullInside";
+            mat2.CullMode = CullMode.Cull_Inside;
+
+            MDL0MaterialNode mat3 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat3);
+            mat3.GenerateShadowMaterial();
+            mat3.Name = "MShadow1_CullOutside";
+            mat3.CullMode = CullMode.Cull_Outside;
+
+            MDL0MaterialNode mat4 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat4);
+            mat4.GenerateShadowMaterial();
+            mat4.Name = "MShadow1_CullAll";
+            mat4.CullMode = CullMode.Cull_All;*/
+
+            // New implementation
+            MDL0MaterialNode mat1 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat1);
+            mat1.GenerateShadowMaterial();
+            mat1.Name = "MShadow1";
+            mat1.CullMode = CullMode.Cull_All;
+
+            MDL0MaterialNode mat2 = new MDL0MaterialNode();
+            _matGroup.AddChild(mat2);
+            mat2.GenerateShadowMaterial();
+            mat2.Name = "CullAllMat";
+            mat2.CullMode = CullMode.Cull_All;
+
+            // Properly remove all shaders
+            if (ShaderList != null)
+            {
+                int shaderNum = ShaderGroup.Children.Count;
+                for (int i = 0; i < shaderNum; i++) {
+                    ResourceNode s = ShaderGroup.Children[0];
+                    ShaderGroup.RemoveChild(s);
+                }
+                Children.Remove(ShaderGroup);
+            }
+
+            // Add a new shader
+            if (_shadGroup == null)
+            {
+                MDL0GroupNode g = _shadGroup;
+                if (g == null)
+                {
+                    AddChild(g = new MDL0GroupNode(MDLResourceType.Shaders), true);
+                    _shadGroup = g;
+                    _shadList = g.Children;
+                }
+            }
+            if (_shadList.Count == 0)
+            {
+                if (_shadList != null && _matList != null && _shadList.Count < _matList.Count)
+                {
+                    MDL0ShaderNode shader = new MDL0ShaderNode();
+                    _shadGroup.AddChild(shader);
+                    shader.DefaultAsShadow();
+                    shader.Rebuild(true);
+                }
+            }
+
+            mat1.ShaderNode = (MDL0ShaderNode)_shadList[0];
+            mat2.ShaderNode = (MDL0ShaderNode)_shadList[0];
+            mat1.Rebuild(true);
+            mat2.Rebuild(true);
+
+            if (_objGroup == null)
+            {
+                return;
+            }
+            bool usesCullOutside = false;
+            bool usesCullInside = false;
+            bool usesCullNone = false;
+            bool usesCullAll = false;
+            foreach (ResourceNode m in _objGroup.Children)
+            {
+                foreach (DrawCall c in ((MDL0ObjectNode)m).DrawCalls)
+                {
+                    CullMode cullToUse = c.MaterialNode.CullMode;
+
+                    switch (cullToUse)
+                    {
+                        case CullMode.Cull_None:
+                            c.MaterialNode = mat1;
+                            usesCullNone = true;
+                            break;
+                        case CullMode.Cull_Inside:
+                            c.MaterialNode = mat1;
+                            usesCullInside = true;
+                            break;
+                        case CullMode.Cull_Outside:
+                            c.MaterialNode = mat1;
+                            usesCullOutside = true;
+                            break;
+                        case CullMode.Cull_All:
+                            c.MaterialNode = mat2;
+                            usesCullAll = true;
+                            break;
+                        default: break;
+                    }
+                    
+                    c.DrawPass = DrawCall.DrawPassType.Transparent;
+                }
+            }
+
+            // Automatically determine best cull mode for the shadow material
+            if(usesCullNone || (usesCullInside && usesCullOutside))
+            {
+                mat1.CullMode = CullMode.Cull_None;
+            } else if(usesCullInside)
+            {
+                mat1.CullMode = CullMode.Cull_Inside;
+            } else if (usesCullOutside)
+            {
+                mat1.CullMode = CullMode.Cull_Outside;
+            }
+
+            while (MaterialGroup.Children.Count > 2)
+            {
+                MaterialGroup.RemoveChild(MaterialGroup.Children[0]);
+            }
+            while (TextureGroup.Children.Count > 1)
+            {
+                TextureGroup.RemoveChild(TextureGroup.Children[0]);
+            }
+            if (!usesCullAll)
+            {
+                MaterialGroup.RemoveChild(mat2);
+            }
+        }
+
         public MDL0BoneNode FindBoneByIndex(int givenIndex)
         {
             // Generate bones if the model hasn't been seen yet

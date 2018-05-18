@@ -72,27 +72,29 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Fix Transparency With Characters", null, TransparencyFixAction));
+            _menu.Items.Add(new ToolStripMenuItem("&Convert To Shadow Model", null, ShadowConvertAction));
             _menu.Items.Add(new ToolStripMenuItem("&Regenerate Metal Materials", null, MetalAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
             _menu.Opening += MenuOpening;
             _menu.Closing += MenuClosing;
         }
-        
+
         // StageBox model mirroring
-        private static void MirrorXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorX(); }
-        private static void MirrorYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorY(); }
-        private static void MirrorZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorZ(); }
-        private static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(true); }
-        private static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(true); }
-        //private static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(true); }
+        protected static void MirrorXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorX(); }
+        protected static void MirrorYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorY(); }
+        protected static void MirrorZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().MirrorZ(); }
+        protected static void FlipXAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipX(true); }
+        protected static void FlipYAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipY(true); }
+        //protected static void FlipZAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().FlipZ(true); }
 
         // StageBox Material settings
-        private static void InvertMaterialsAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().InvertMaterials(); }
-        private static void CullNoneAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(0); }
-        private static void CullOutsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(1); }
-        private static void CullInsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(2); }
-        private static void CullAllAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(3); }
+        protected static void InvertMaterialsAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().InvertMaterials(); }
+        protected static void CullNoneAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(0); }
+        protected static void CullOutsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(1); }
+        protected static void CullInsideAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(2); }
+        protected static void CullAllAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().CullMaterials(3); }
+        protected static void ShadowConvertAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().ShadowConvert(); }
 
         protected static void TransparencyFixAction(object sender, EventArgs e) { GetInstance<MDL0Wrapper>().StartTransparencyFix(); }
 
@@ -124,12 +126,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[11].Enabled = _menu.Items[27].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[11].Enabled = _menu.Items[28].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[5].Enabled = _menu.Items[27].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[5].Enabled = _menu.Items[28].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[7].Enabled = w.PrevNode != null;
             _menu.Items[8].Enabled = w.NextNode != null;
@@ -150,6 +152,11 @@ namespace BrawlBox.NodeWrappers
             if (MessageBox.Show(null, "This option will fix a transparent model to render correctly relative to characters.\nThis merely renames the model. Proper transparency must be set up for this to work fully.\nThis option will fail if the rename would cause a model name to be more than 255 characters.", "", MessageBoxButtons.OKCancel) == DialogResult.OK)
                 ((MDL0Node)_resource).GR2Fix();
             _resource.Rebuild(true);
+        }
+
+        public void ShadowConvert()
+        {
+            ((MDL0Node)_resource).ConvertToShadowModel();
         }
 
         public void InvertMaterials()

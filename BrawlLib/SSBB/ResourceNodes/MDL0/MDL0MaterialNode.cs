@@ -38,6 +38,34 @@ namespace BrawlLib.SSBB.ResourceNodes
                 0,
                 this);
         }
+        
+        public void GenerateShadowMaterial()
+        {
+            Name = "MShadow1";
+
+            EnableBlend = true;
+            LightChannel0.MaterialColor = new Vector4(255 * 255, 255 * 255, 255 * 255, 255 * 255);
+            LightChannel0.Color.Enabled = false;
+            LightChannel0.Color.MaterialSource = (GXColorSrc)1;
+            LightChannel0.Alpha.Enabled = false;
+            LightChannel0.Alpha.MaterialSource = (GXColorSrc)1;
+            XLUMaterial = true;
+            LightSetIndex = -1;
+            _tevColorBlock.TevReg1Lo.AG = 70;
+            CompareBeforeTexture = true;
+            EnableDepthUpdate = false;
+            
+            MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+            AddChild(mr);
+            mr.Name = "TShadow1";
+            mr.SCN0RefCamera = 7;
+            mr.MapMode = MappingMethod.Projection;
+            mr.UWrapMode = MatWrapMode.Clamp;
+            mr.VWrapMode = MatWrapMode.Clamp;
+            mr.Projection = TexProjection.STQ;
+            mr.InputForm = TexInputForm.ABC1;
+            mr.EmbossSource = 5;
+        }
 
         #region Variables
 

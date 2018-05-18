@@ -50,7 +50,7 @@ namespace BrawlLib.SSBB.ResourceNodes
         public ColorChannel Swap1Alpha { get { return (ColorChannel)_swapBlock._Value07.XGA; } set { _swapBlock._Value07.XGA = value; SignalPropertyChange(); } }
 
         [Category("Swap Mode Table"), Browsable(true)]
-        public ColorChannel Swap2Red { get { return (ColorChannel)_swapBlock._Value09.XRB; } set { _swapBlock._Value09.XRB = value; SignalPropertyChange();  } }
+        public ColorChannel Swap2Red { get { return (ColorChannel)_swapBlock._Value09.XRB; } set { _swapBlock._Value09.XRB = value; SignalPropertyChange(); } }
         [Category("Swap Mode Table"), Browsable(true)]
         public ColorChannel Swap2Green { get { return (ColorChannel)_swapBlock._Value09.XGA; } set { _swapBlock._Value09.XGA = value; SignalPropertyChange(); } }
 
@@ -200,6 +200,24 @@ namespace BrawlLib.SSBB.ResourceNodes
                 AddChild(s = new MDL0TEVStageNode());
                 s.DefaultAsMetal(texcount - 1);
             }
+        }
+
+        public void DefaultAsShadow()
+        {
+            Default(true);
+            TextureRef0 = true;
+            ((MDL0TEVStageNode)Children[0]).TextureEnabled = true;
+            ((MDL0TEVStageNode)Children[0]).TextureMapID = TexMapID.TexMap0;
+            ((MDL0TEVStageNode)Children[0]).TextureCoordID = TexCoordID.TexCoord0;
+            ((MDL0TEVStageNode)Children[0]).ConstantColorSelection = TevKColorSel.ConstantColor0_RGB;
+            ((MDL0TEVStageNode)Children[0]).ColorSelectionA = ColorArg.One;
+            ((MDL0TEVStageNode)Children[0]).ColorSelectionC = ColorArg.One;
+            ((MDL0TEVStageNode)Children[0]).ColorSelectionD = ColorArg.Color0;
+            ((MDL0TEVStageNode)Children[0]).ColorOperation = TevColorOp.Subtract;
+            ((MDL0TEVStageNode)Children[0]).ConstantAlphaSelection = TevKAlphaSel.ConstantColor0_Alpha;
+            ((MDL0TEVStageNode)Children[0]).AlphaSelectionB = AlphaArg.Alpha0;
+            ((MDL0TEVStageNode)Children[0]).AlphaSelectionC = AlphaArg.TextureAlpha;
+            ((MDL0TEVStageNode)Children[0]).AlphaRegister = TevAlphaRegID.Alpha1;
         }
 
         internal override void GetStrings(StringTable table)
