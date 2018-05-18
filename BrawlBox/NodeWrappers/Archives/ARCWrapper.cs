@@ -186,6 +186,10 @@ namespace BrawlBox
 
         public override ResourceNode Duplicate()
         {
+            if (_resource._parent == null)
+            {
+                return null;
+            }
             _resource.Rebuild();
             ARCNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as ARCNode;
             int newIndex = _resource.Index + 1;

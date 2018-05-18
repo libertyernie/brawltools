@@ -106,11 +106,11 @@ namespace BrawlBox
 
         public override ResourceNode Duplicate()
         {
-            _resource.Rebuild();
             if (_resource._parent == null)
             {
                 return null;
             }
+            _resource.Rebuild();
             BRRESNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as BRRESNode;
             _resource._parent.InsertChild(newNode, true, _resource.Index + 1);
             newNode.Populate();

@@ -48,7 +48,7 @@ namespace BrawlBox
         protected static void AdvancedEditAction(object sender, EventArgs e) { GetInstance<CollisionWrapper>().AdvancedEdit(); }
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[9].Enabled = _menu.Items[14].Enabled = true;
+            _menu.Items[5].Enabled = _menu.Items[6].Enabled = _menu.Items[8].Enabled = _menu.Items[10].Enabled = _menu.Items[11].Enabled = _menu.Items[16].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
@@ -66,6 +66,10 @@ namespace BrawlBox
 
         public override ResourceNode Duplicate()
         {
+            if(_resource._parent == null)
+            {
+                return null;
+            }
             _resource.Rebuild();
             CollisionNode newNode = NodeFactory.FromAddress(null, _resource.WorkingUncompressed.Address, _resource.WorkingUncompressed.Length) as CollisionNode;
             int newIndex = _resource.Index + 1;
