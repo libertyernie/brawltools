@@ -19,6 +19,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("Stage Trap Data Table")]
         public int NumEntries{get{return entries.Length / 4;}}
         [Category("Stage Trap Data Table")]
+        public int Version { get { return version; } set { version = value; SignalPropertyChange(); } }
+        [Category("Stage Trap Data Table")]
         public int Unk1 { get { return unk1; } set { unk1 = value; SignalPropertyChange(); } }
         [Category("Stage Trap Data Table")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }

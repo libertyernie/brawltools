@@ -19,6 +19,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         [Category("TBCL")]
         public int NumEntries{get{return entries.Length / 4;}}
         [Category("TBCL")]
+        public int Version { get { return version; } set { version = value; SignalPropertyChange(); } }
+        [Category("TBCL")]
         public int Unk1 { get { return unk1; } set { unk1 = value; SignalPropertyChange(); } }
         [Category("TBCL")]
         public int Unk2 { get { return unk2; } set { unk2 = value; SignalPropertyChange(); } }
