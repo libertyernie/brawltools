@@ -72,7 +72,6 @@ namespace BrawlBox.NodeWrappers
             _menu.Items.Add(new ToolStripMenuItem("&Recalculate Bounding Boxes", null, RecalcBBsOption));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Fix Transparency With Characters", null, TransparencyFixAction));
-            _menu.Items.Add(new ToolStripMenuItem("&Convert To Shadow Model", null, ShadowConvertAction));
             _menu.Items.Add(new ToolStripMenuItem("&Regenerate Metal Materials", null, MetalAction));
             _menu.Items.Add(new ToolStripSeparator());
             _menu.Items.Add(new ToolStripMenuItem("&Delete", null, DeleteAction, Keys.Control | Keys.Delete));
@@ -126,12 +125,12 @@ namespace BrawlBox.NodeWrappers
         
         private static void MenuClosing(object sender, ToolStripDropDownClosingEventArgs e)
         {
-            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[11].Enabled = _menu.Items[28].Enabled = true;
+            _menu.Items[3].Enabled = _menu.Items[4].Enabled = _menu.Items[5].Enabled = _menu.Items[7].Enabled = _menu.Items[8].Enabled = _menu.Items[11].Enabled = _menu.Items[27].Enabled = true;
         }
         private static void MenuOpening(object sender, CancelEventArgs e)
         {
             MDL0Wrapper w = GetInstance<MDL0Wrapper>();
-            _menu.Items[3].Enabled = _menu.Items[5].Enabled = _menu.Items[28].Enabled = w.Parent != null;
+            _menu.Items[3].Enabled = _menu.Items[5].Enabled = _menu.Items[27].Enabled = w.Parent != null;
             _menu.Items[4].Enabled = ((w._resource.IsDirty) || (w._resource.IsBranch));
             _menu.Items[7].Enabled = w.PrevNode != null;
             _menu.Items[8].Enabled = w.NextNode != null;
