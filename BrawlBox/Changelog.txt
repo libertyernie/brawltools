@@ -1,5 +1,5 @@
 ﻿
-StageBox - Beta v0.1 Beta
+StageBox - v0.5
 Copyright © 2018 soopercool101
 BrawlBox  © 2009 - 2018 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
@@ -15,6 +15,41 @@ they be held accountable for the manner in which it is used.
  =============================================
 |************ StageBox Change Log ************|
  =============================================
+ 
+ - v0.5 - (5/18/2018)
+ . StageBox can now be associated with any file formats BrawlBox v0.77 could be
+ . Texture recommending reverted to BrawlBox v0.77 behavior
+ . Added "Duplicate" functionality to the following file formats:
+    - ARC
+    - BRRES
+    - CHR0
+    - CLR0
+    - COLL
+    - MDL0
+    - MSBin
+    - PAT0
+    - SCLA
+    - SHP0
+    - SRT0
+    - STDT
+    - STPM
+    - TBCL
+    - TBGC
+    - TBGD
+    - TBGM
+    - TBLV
+    - TBRM
+    - TBST
+    - VIS0
+ . Collisions with the pass-through flag that are not floors now render as yellower versions of their original color
+ . Renamed some more collision materials:
+    - "Unknown1" -> "UnknownDustless"
+    - "Unknown2" -> "Unknown0x19"
+ . Added support for CollEx (Collision Expansion) in the Advanced Collision Editor
+    - Allows usage of "CollEx32" through "CollEx255". CollEx material names are based on their IDs in decimal.
+ . Added support to generate new expanded SCLA files for CollEx compatibility
+ . Added support to Fill (Expanded) on existing SCLA files for CollEx compatibility
+ . Fill and Fill (Expanded) for SCLA now place missing subentries at their proper spot
  
  - v0.4 Hotfix 2 - (5/12/2018)
  . Fixed bug in which the regular collision editor set an Unknown flag instead of the Rotating flag
