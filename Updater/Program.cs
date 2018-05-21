@@ -49,7 +49,7 @@ namespace Net
             }
             else
             {
-                //Find and close the brawlbox application that will be overwritten
+                //Find and close the stagebox application that will be overwritten
                 Process[] px =  Process.GetProcessesByName("StageBox");
                 Process p = px.FirstOrDefault(x => x.MainModule.FileName.StartsWith(AppPath));
                 if (p != null && p != default(Process) && p.CloseMainWindow())
@@ -147,8 +147,8 @@ namespace Net
             string Title,
             string Description)
         {
-            try
-            {
+            //try
+            //{
                 //Gain access to the StageBox account on github for submitting the report.
                 //I don't really care if this gets compromised, the token has no user settings access so I'll just revoke access to the token and generate a new one.
                 //Have to use a byte array to (hopefully) bypass github's automatic detection of the token as a string.
@@ -159,7 +159,7 @@ namespace Net
                 try
                 {
                     releases = await github.Release.GetAll("soopercool101", "stagebox");
-                    issues = await github.Issue.GetForRepository("StageBox", "StageBoxIssues");
+                    issues = await github.Issue.GetForRepository("StageBoxBrawl", "StageBoxIssues");
                 }
                 catch (System.Net.Http.HttpRequestException)
                 {
@@ -206,7 +206,7 @@ namespace Net
                                         Environment.NewLine +
                                         i.Body;
 
-                                    Issue x = await github.Issue.Update("StageBox", "StageBoxIssues", i.Number, update);
+                                    Issue x = await github.Issue.Update("StageBoxBrawl", "StageBoxIssues", i.Number, update);
                                 }
                             }
                     
@@ -224,14 +224,14 @@ namespace Net
                             Environment.NewLine +
                             StackTrace
                         };
-                        Issue x = await github.Issue.Create("StageBox", "StageBoxIssues", issue);
+                        Issue x = await github.Issue.Create("StageBoxBrawl", "StageBoxIssues", issue);
                     }
                 }
-            }
-            catch
+            //}
+            /*catch
             {
                 MessageBox.Show("The application was unable to retrieve permission to send this issue.");
-            }
+            }*/
         }
     }
 

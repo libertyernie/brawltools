@@ -100,7 +100,7 @@ namespace System.Windows.Forms
             if (String.IsNullOrEmpty(txtDescription.Text))
             {
                 txtDescription.ForeColor = Color.Gray;
-                txtDescription.Text = "Explain what you were doing that caused the bug. This will be posted publicly at https://github.com/BrawlBox/BrawlBoxIssues/issues, so do not put any personal information here. It may be beneficial to you to sign your report with a username unless you wish to stay anonymous.";
+                txtDescription.Text = "Explain what you were doing that caused the bug. This will be posted publicly at https://github.com/StageBoxBrawl/StageBoxIssues/issues, so do not put any personal information here. It may be beneficial to you to sign your report with a username unless you wish to stay anonymous.";
             }
         }
 
