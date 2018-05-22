@@ -135,9 +135,9 @@ namespace Net
     {
         static byte[] _rawData = 
         {
-	        0x61, 0x38, 0x36, 0x63, 0x38, 0x64, 0x34, 0x63, 0x61, 0x38, 0x31, 0x64, 0x37, 0x30, 0x31, 0x65, 
-            0x31, 0x61, 0x64, 0x62, 0x30, 0x38, 0x36, 0x33, 0x65, 0x31, 0x62, 0x64, 0x35, 0x65, 0x64, 0x32,
-            0x31, 0x34, 0x38, 0x62, 0x65, 0x31, 0x30, 0x63
+            0x33, 0x62, 0x33, 0x33, 0x36, 0x34, 0x64, 0x32, 0x65, 0x62, 0x65, 0x34, 0x39, 0x36, 0x63, 0x61, 0x62, 0x63,
+            0x32, 0x61, 0x65, 0x37, 0x39, 0x36, 0x37, 0x30, 0x39, 0x63, 0x35, 0x61, 0x61, 0x31, 0x61, 0x61, 0x63, 0x35,
+            0x33, 0x63, 0x34, 0x66
         };
 
         public static async Task CreateIssue(
@@ -147,13 +147,13 @@ namespace Net
             string Title,
             string Description)
         {
-            //try
-            //{
+            try
+            {
                 //Gain access to the StageBox account on github for submitting the report.
                 //I don't really care if this gets compromised, the token has no user settings access so I'll just revoke access to the token and generate a new one.
                 //Have to use a byte array to (hopefully) bypass github's automatic detection of the token as a string.
                 Octokit.Credentials s = new Credentials(System.Text.Encoding.Default.GetString(_rawData));
-                var github = new GitHubClient(new Octokit.ProductHeaderValue("Stagebox")) { Credentials = s };
+                var github = new GitHubClient(new Octokit.ProductHeaderValue("StageBox")) { Credentials = s };
                 IReadOnlyList<Release> releases = null;
                 IReadOnlyList<Issue> issues = null;
                 try
@@ -227,11 +227,11 @@ namespace Net
                         Issue x = await github.Issue.Create("StageBoxBrawl", "StageBoxIssues", issue);
                     }
                 }
-            //}
-            /*catch
+            }
+            catch
             {
                 MessageBox.Show("The application was unable to retrieve permission to send this issue.");
-            }*/
+            }
         }
     }
 
