@@ -10,6 +10,7 @@ using BrawlLib.IO;
 using OpenTK.Graphics.OpenGL;
 using BrawlLib.Modeling;
 using BrawlLib.Wii.Animations;
+using BrawlLib.SSBB;
 
 namespace BrawlLib.SSBB.ResourceNodes
 {
@@ -25,23 +26,40 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             _chan1 = new LightChannel(
                 63,
-                new RGBAPixel(128, 128, 128, 255), 
-                new RGBAPixel(255, 255, 255, 255), 
+                new RGBAPixel(128, 128, 128, 255),
+                new RGBAPixel(255, 255, 255, 255),
                 new LightChannelControl(true, GXColorSrc.Register, GXColorSrc.Register, GXDiffuseFn.Clamped, GXAttnFn.Spotlight),
                 new LightChannelControl(true, GXColorSrc.Register, GXColorSrc.Register, GXDiffuseFn.Clamped, GXAttnFn.Spotlight),
                 this);
             _chan2 = new LightChannel(
-                15, 
-                new RGBAPixel(0, 0, 0, 255), 
-                new RGBAPixel(), 
+                15,
+                new RGBAPixel(0, 0, 0, 255),
+                new RGBAPixel(),
                 0,
                 0,
                 this);
         }
-        
+
         public void GenerateShadowMaterial()
         {
-            Name = "MShadow1";
+            const int BufferSize = 65536;
+            if(!File.Exists("MShadow.mdl0mat"))
+            {
+                using (var mstrm = new MemoryStream(ShadowMaterial.ShadowMaterialHex))
+                {
+                    using (var outStream = File.Create("MShadow.mdl0mat"))
+                    {
+                        var buffer = new byte[BufferSize];
+                        int bytesRead;
+                        while ((bytesRead = mstrm.Read(buffer, 0, BufferSize)) != 0)
+                        {
+                            outStream.Write(buffer, 0, bytesRead);
+                        }
+                    }
+                }
+            }
+            ReplaceRaw(FileMap.FromFile("MShadow.mdl0mat"));
+            /*Name = "MShadow1";
 
             EnableBlend = true;
             LightChannel0.MaterialColor = new Vector4(255 * 255, 255 * 255, 255 * 255, 255 * 255);
@@ -64,7 +82,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             mr.VWrapMode = MatWrapMode.Clamp;
             mr.Projection = TexProjection.STQ;
             mr.InputForm = TexInputForm.ABC1;
-            mr.EmbossSource = 5;
+            mr.EmbossSource = 5;*/
         }
 
         #region Variables
