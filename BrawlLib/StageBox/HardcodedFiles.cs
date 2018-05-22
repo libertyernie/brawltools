@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace BrawlLib.SSBB
+namespace BrawlLib.StageBox
 {
     public struct ShadowMaterial
     {
