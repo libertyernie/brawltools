@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.IO;
 
 namespace BrawlLib.SSBB
 {
     public struct ShadowMaterial
     {
+        public static string filename = "MShadow.mdl0mat";
+
         public static byte[] ShadowMaterialHex =
         {
             0x00, 0x00, 0x06, 0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x06, 0x24, 0x00, 0x00, 0x00, 0x07, 0x80, 0x00,
@@ -102,8 +101,14 @@ namespace BrawlLib.SSBB
         };
     }
 
-    class HardcodedFiles
+    public abstract class HardcodedFiles
     {
-        
+        public static void DeleteHardcodedFiles()
+        {
+            if (File.Exists(ShadowMaterial.filename))
+            {
+                File.Delete(ShadowMaterial.filename);
+            }
+        }
     }
 }
