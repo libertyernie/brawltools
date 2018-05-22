@@ -42,23 +42,8 @@ namespace BrawlLib.SSBB.ResourceNodes
 
         public void GenerateShadowMaterial()
         {
-            const int BufferSize = 65536;
-            if(!File.Exists(ShadowMaterial.filename))
-            {
-                using (var mstrm = new MemoryStream(ShadowMaterial.ShadowMaterialHex))
-                {
-                    using (var outStream = File.Create(ShadowMaterial.filename))
-                    {
-                        var buffer = new byte[BufferSize];
-                        int bytesRead;
-                        while ((bytesRead = mstrm.Read(buffer, 0, BufferSize)) != 0)
-                        {
-                            outStream.Write(buffer, 0, bytesRead);
-                        }
-                    }
-                }
-            }
-            ReplaceRaw(FileMap.FromFile(ShadowMaterial.filename));
+            HardcodedFiles.CreateShadowMaterial();
+            ReplaceRaw(FileMap.FromFile(ShadowMaterial.Name));
             /*Name = "MShadow1";
 
             EnableBlend = true;
