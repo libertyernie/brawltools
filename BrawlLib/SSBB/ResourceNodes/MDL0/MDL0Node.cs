@@ -183,8 +183,8 @@ namespace BrawlLib.SSBB.ResourceNodes
                 return;
             }
 
-            // Implementation that had support for multiple cull types. Doesn't work as material must be named "MShadow1"
-            /*MDL0MaterialNode mat1 = new MDL0MaterialNode();
+            // Implementation with support for multiple culling types
+            MDL0MaterialNode mat1 = new MDL0MaterialNode();
             _matGroup.AddChild(mat1);
             mat1.GenerateShadowMaterial();
             mat1.Name = "MShadow1_CullNone";
@@ -206,20 +206,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _matGroup.AddChild(mat4);
             mat4.GenerateShadowMaterial();
             mat4.Name = "MShadow1_CullAll";
-            mat4.CullMode = CullMode.Cull_All;*/
-
-            // New implementation
-            MDL0MaterialNode mat1 = new MDL0MaterialNode();
-            _matGroup.AddChild(mat1);
-            mat1.GenerateShadowMaterial();
-            mat1.Name = "MShadow1";
-            mat1.CullMode = CullMode.Cull_All;
-
-            MDL0MaterialNode mat2 = new MDL0MaterialNode();
-            _matGroup.AddChild(mat2);
-            mat2.GenerateShadowMaterial();
-            mat2.Name = "CullAllMat";
-            mat2.CullMode = CullMode.Cull_All;
+            mat4.CullMode = CullMode.Cull_All;
 
             // Properly remove all shaders
             if (ShaderList != null)
@@ -256,8 +243,12 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             mat1.ShaderNode = (MDL0ShaderNode)_shadList[0];
             mat2.ShaderNode = (MDL0ShaderNode)_shadList[0];
+            mat3.ShaderNode = (MDL0ShaderNode)_shadList[0];
+            mat4.ShaderNode = (MDL0ShaderNode)_shadList[0];
             mat1.Rebuild(true);
             mat2.Rebuild(true);
+            mat3.Rebuild(true);
+            mat4.Rebuild(true);
 
             if (_objGroup == null)
             {
@@ -280,15 +271,15 @@ namespace BrawlLib.SSBB.ResourceNodes
                             usesCullNone = true;
                             break;
                         case CullMode.Cull_Inside:
-                            c.MaterialNode = mat1;
+                            c.MaterialNode = mat2;
                             usesCullInside = true;
                             break;
                         case CullMode.Cull_Outside:
-                            c.MaterialNode = mat1;
+                            c.MaterialNode = mat3;
                             usesCullOutside = true;
                             break;
                         case CullMode.Cull_All:
-                            c.MaterialNode = mat2;
+                            c.MaterialNode = mat4;
                             usesCullAll = true;
                             break;
                         default: break;
@@ -298,29 +289,26 @@ namespace BrawlLib.SSBB.ResourceNodes
                 }
             }
 
-            // Automatically determine best cull mode for the shadow material
-            if(usesCullNone || (usesCullInside && usesCullOutside))
-            {
-                mat1.CullMode = CullMode.Cull_None;
-            } else if(usesCullInside)
-            {
-                mat1.CullMode = CullMode.Cull_Inside;
-            } else if (usesCullOutside)
-            {
-                mat1.CullMode = CullMode.Cull_Outside;
-            }
-
-            while (MaterialGroup.Children.Count > 2)
+            // Delete unused materials
+            while (MaterialGroup.Children.Count > 4)
             {
                 MaterialGroup.RemoveChild(MaterialGroup.Children[0]);
             }
-            while (TextureGroup.Children.Count > 1)
-            {
-                TextureGroup.RemoveChild(TextureGroup.Children[0]);
-            }
             if (!usesCullAll)
             {
+                MaterialGroup.RemoveChild(mat4);
+            }
+            if (!usesCullOutside)
+            {
+                MaterialGroup.RemoveChild(mat3);
+            }
+            if (!usesCullInside)
+            {
                 MaterialGroup.RemoveChild(mat2);
+            }
+            if (!usesCullNone)
+            {
+                MaterialGroup.RemoveChild(mat1);
             }
         }
 
