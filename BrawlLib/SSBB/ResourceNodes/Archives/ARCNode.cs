@@ -51,7 +51,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             _name = Header->Name;
             if (_name.Length >= 3)
             {
-                if (_name.Substring(0, 3) == "STG")
+                if (_parent._name.Substring(0, 3) == "STG" || _parent._name.Substring(0, 3) == "Stg" || _parent._name.Substring(0, 3) == "stg")
                 {
                     Console.WriteLine(_name + " Generating MetaData");
                 }
@@ -63,7 +63,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     if (_parent._name.Length >= 3)
                     {
-                        if (_parent._name.Substring(0, 3) == "STG")
+                        if (_parent._name.Substring(0, 3) == "STG" || _parent._name.Substring(0, 3) == "Stg" || _parent._name.Substring(0, 3) == "stg")
                         {
                             // Console.WriteLine(_parent._name);
                             CompressionType type;
