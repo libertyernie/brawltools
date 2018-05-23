@@ -578,7 +578,10 @@ namespace System.Windows.Forms
             if (_provider == null)
             {
                 _provider = AudioProvider.Create(null);
-                _provider.Attach(this);
+                if (_provider != null)
+                {
+                    _provider.Attach(this);
+                }
             }
 
             if (_audioSource == null)
@@ -651,8 +654,11 @@ namespace System.Windows.Forms
             _audioSource = path;
 
             //Create buffer for stream
-            _buffer = _provider.CreateBuffer(_sourceStream);
-            _buffer.Loop = chkLoop.Checked;
+            if (_provider != null)
+            {
+                _buffer = _provider.CreateBuffer(_sourceStream);
+                _buffer.Loop = chkLoop.Checked;
+            }
 
             //Set controls
             _sampleTime = new DateTime((long)_sourceStream.Samples * 10000000 / _sourceStream.Frequency);
