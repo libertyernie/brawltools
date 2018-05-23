@@ -15,9 +15,12 @@ namespace System.Audio
         {
             switch (Environment.OSVersion.Platform)
             {
-                case PlatformID.Win32NT: return new wAudioProvider(device);
-                default: return null;
+                case PlatformID.Win32NT:
+                    if (IntPtr.Size <= 4) return new wAudioProvider(device);
+                    break;
             }
+
+            return null;
         }
 
         ~AudioProvider() { Dispose(); }
