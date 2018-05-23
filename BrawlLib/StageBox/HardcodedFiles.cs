@@ -206,6 +206,8 @@ namespace BrawlLib.StageBox
 
     public abstract class HardcodedFiles
     {
+        protected const int BufferSize = 65536;
+
         public static void DeleteHardcodedFiles()
         {
             if (File.Exists(ShadowMaterial.Name))
@@ -222,17 +224,17 @@ namespace BrawlLib.StageBox
         {
             if (!File.Exists(ShadowMaterial.Name))
             {
-                const int BufferSize = 65536;
-                using (var mstrm = new MemoryStream(ShadowMaterial.Hex))
+                using (MemoryStream memstr = new MemoryStream(ShadowMaterial.Hex))
                 {
-                    using (var outStream = File.Create(ShadowMaterial.Name))
+                    using (FileStream outStream = File.Create(ShadowMaterial.Name))
                     {
                         var buffer = new byte[BufferSize];
                         int bytesRead;
-                        while ((bytesRead = mstrm.Read(buffer, 0, BufferSize)) != 0)
+                        while ((bytesRead = memstr.Read(buffer, 0, BufferSize)) != 0)
                         {
                             outStream.Write(buffer, 0, bytesRead);
                         }
+                        outStream.Close();
                     }
                 }
             }
@@ -242,17 +244,17 @@ namespace BrawlLib.StageBox
         {
             if (!File.Exists(BulborbShadowMaterial.Name))
             {
-                const int BufferSize = 65536;
-                using (var mstrm = new MemoryStream(BulborbShadowMaterial.Hex))
+                using (MemoryStream memstr = new MemoryStream(BulborbShadowMaterial.Hex))
                 {
-                    using (var outStream = File.Create(BulborbShadowMaterial.Name))
+                    using (FileStream outStream = File.Create(BulborbShadowMaterial.Name))
                     {
                         var buffer = new byte[BufferSize];
                         int bytesRead;
-                        while ((bytesRead = mstrm.Read(buffer, 0, BufferSize)) != 0)
+                        while ((bytesRead = memstr.Read(buffer, 0, BufferSize)) != 0)
                         {
                             outStream.Write(buffer, 0, bytesRead);
                         }
+                        outStream.Close();
                     }
                 }
             }
