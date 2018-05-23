@@ -273,6 +273,15 @@ namespace System.Windows.Forms
         {
             InitializeComponent();
             VolumePercent = BrawlLib.Properties.Settings.Default.AudioVolumePercent;
+
+            chkLoop.CheckedChanged += (o, e) =>
+            {
+                if (chkLoop.Checked && _provider is alAudioProvider)
+                {
+                    MessageBox.Show("Looping audio with the OpenAL audio backend is not currently supported.");
+                    chkLoop.Checked = false;
+                }
+            };
         }
 
         protected override void Dispose(bool disposing)
@@ -340,7 +349,6 @@ namespace System.Windows.Forms
             }
             
             chkLoop.Checked = false;
-            chkLoop.Enabled = _targetStream.IsLooping;
             
             //Create buffer for stream
             if (_provider != null)
