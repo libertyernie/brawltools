@@ -80,7 +80,7 @@ namespace BrawlLib.Imaging
 
             //Create buffers
             _boxes = (ColorBox*)Marshal.AllocHGlobal(256 * sizeof(ColorBox));
-            _groupTable = (ColorEntry**)Marshal.AllocHGlobal(65536 * 4);
+            _groupTable = (ColorEntry**)Marshal.AllocHGlobal(65536 * sizeof(void*));
         }
 
         ~MedianCut() { Dispose(); }
@@ -165,7 +165,7 @@ namespace BrawlLib.Imaging
         private void SortBoxes()
         {
             //Sort boxes by luminance
-            uint* tableData = stackalloc uint[_boxCount];
+            void** tableData = stackalloc void*[_boxCount];
             ColorBox** colorTable = (ColorBox**)tableData;
             ColorBox* boxPtr = _boxes;
             int index;
@@ -288,7 +288,7 @@ namespace BrawlLib.Imaging
         private Bitmap Quantize(int targetColors, IProgressTracker progress)
         {
             //Clear group table
-            Memory.Fill(_groupTable, 65536 * 4, 0);
+            Memory.Fill(_groupTable, (uint)(65536 * sizeof(void*)), 0);
 
             if (!SelectColors(targetColors))
                 SpreadColors(targetColors);
