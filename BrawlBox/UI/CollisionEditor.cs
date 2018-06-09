@@ -19,6 +19,7 @@ namespace System.Windows.Forms
         private CheckBox chkAllModels;
         private Panel pnlPlaneProps;
         private Label label5;
+        private Label labelType;
         private ComboBox cboMaterial;
         private Panel pnlObjProps;
         private ToolStrip toolStrip1;
@@ -37,8 +38,18 @@ namespace System.Windows.Forms
         private GroupBox groupBox2;
         private CheckBox chkNoWalljump;
         private CheckBox chkRightLedge;
-        private CheckBox chkTypeUnk1;
-        private CheckBox chkTypeUnk2;
+        private CheckBox chkTypeCharacters;
+        private CheckBox chkTypeItems;
+        private CheckBox chkTypePokemonTrainer;
+        private CheckBox chkTypeRotating;
+        
+        // Advanced unknown flags
+        private GroupBox groupBoxUnknownFlags;
+        private CheckBox chkFlagUnknown1;
+        private CheckBox chkFlagUnknown2;
+        private CheckBox chkFlagUnknown3;
+        private CheckBox chkFlagUnknown4;
+
         private Panel pnlPointProps;
         private NumericInputBox numX;
         private Label label2;
@@ -81,6 +92,11 @@ namespace System.Windows.Forms
         private Button btnNextFrame;
         private ToolStripButton btnHelp;
         private CheckedListBox lstObjects;
+        
+        // StageBox edits
+        private ToolStripSeparator toolStripSeparatorCamera;    // Seperator for Camera controls
+        private ToolStripButton btnPerspectiveCam;              // Goes into perspective mode
+        private ToolStripButton btnOrthographicCam;             // Goes into orthographic mode
 
         private void InitializeComponent()
         {
@@ -122,15 +138,26 @@ namespace System.Windows.Forms
             this.pnlPlaneProps = new System.Windows.Forms.Panel();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.cboType = new System.Windows.Forms.ComboBox();
-            this.chkTypeUnk2 = new System.Windows.Forms.CheckBox();
-            this.chkTypeUnk1 = new System.Windows.Forms.CheckBox();
+            this.chkTypeItems = new System.Windows.Forms.CheckBox();
+            this.chkTypeCharacters = new System.Windows.Forms.CheckBox();
+            this.chkTypePokemonTrainer = new System.Windows.Forms.CheckBox();
+            this.chkTypeRotating = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.chkLeftLedge = new System.Windows.Forms.CheckBox();
             this.chkNoWalljump = new System.Windows.Forms.CheckBox();
             this.chkRightLedge = new System.Windows.Forms.CheckBox();
             this.chkFallThrough = new System.Windows.Forms.CheckBox();
+
+            // Advanced flags
+            this.groupBoxUnknownFlags = new System.Windows.Forms.GroupBox();
+            this.chkFlagUnknown1 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown2 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown3 = new System.Windows.Forms.CheckBox();
+            this.chkFlagUnknown4 = new System.Windows.Forms.CheckBox();
+
             this.cboMaterial = new System.Windows.Forms.ComboBox();
             this.label5 = new System.Windows.Forms.Label();
+            this.labelType = new System.Windows.Forms.Label();
             this.panel4 = new System.Windows.Forms.Panel();
             this.btnPlayAnims = new System.Windows.Forms.Button();
             this.btnPrevFrame = new System.Windows.Forms.Button();
@@ -148,6 +175,12 @@ namespace System.Windows.Forms
             this.btnSameX = new System.Windows.Forms.ToolStripButton();
             this.btnSameY = new System.Windows.Forms.ToolStripButton();
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
+            
+            // StageBox Camera Modes
+            this.btnPerspectiveCam = new System.Windows.Forms.ToolStripButton();
+            this.btnOrthographicCam = new System.Windows.Forms.ToolStripButton();
+            this.toolStripSeparatorCamera = new System.Windows.Forms.ToolStripSeparator();
+            
             this.btnResetCam = new System.Windows.Forms.ToolStripButton();
             this.btnResetSnap = new System.Windows.Forms.ToolStripButton();
             this.btnHelp = new System.Windows.Forms.ToolStripButton();
@@ -169,6 +202,7 @@ namespace System.Windows.Forms
             this.pnlPointProps.SuspendLayout();
             this.pnlPlaneProps.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBoxUnknownFlags.SuspendLayout();
             this.groupBox1.SuspendLayout();
             this.panel4.SuspendLayout();
             this.panel1.SuspendLayout();
@@ -359,6 +393,7 @@ namespace System.Windows.Forms
             this.deleteToolStripMenuItem.Size = new System.Drawing.Size(136, 22);
             this.deleteToolStripMenuItem.Text = "Delete";
             this.deleteToolStripMenuItem.Click += new System.EventHandler(this.deleteToolStripMenuItem_Click);
+            this.deleteToolStripMenuItem.ShortcutKeys = Keys.Shift | Keys.Delete;
             // 
             // panel3
             // 
@@ -537,10 +572,13 @@ namespace System.Windows.Forms
             // 
             // pnlPlaneProps
             // 
+            this.pnlPlaneProps.Controls.Add(this.groupBoxUnknownFlags);
             this.pnlPlaneProps.Controls.Add(this.groupBox2);
             this.pnlPlaneProps.Controls.Add(this.groupBox1);
             this.pnlPlaneProps.Controls.Add(this.cboMaterial);
+            this.pnlPlaneProps.Controls.Add(this.cboType);
             this.pnlPlaneProps.Controls.Add(this.label5);
+            this.pnlPlaneProps.Controls.Add(this.labelType);
             this.pnlPlaneProps.Dock = System.Windows.Forms.DockStyle.Bottom;
             this.pnlPlaneProps.Location = new System.Drawing.Point(0, -199);
             this.pnlPlaneProps.Name = "pnlPlaneProps";
@@ -550,61 +588,144 @@ namespace System.Windows.Forms
             // 
             // groupBox2
             // 
-            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBox2.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
-            this.groupBox2.Controls.Add(this.cboType);
-            this.groupBox2.Controls.Add(this.chkTypeUnk2);
-            this.groupBox2.Controls.Add(this.chkTypeUnk1);
-            this.groupBox2.Location = new System.Drawing.Point(104, 28);
+            this.groupBox2.Controls.Add(this.chkTypeCharacters);
+            this.groupBox2.Controls.Add(this.chkTypeItems);
+            this.groupBox2.Controls.Add(this.chkTypePokemonTrainer);
+            this.groupBox2.Controls.Add(this.chkTypeRotating);
+            this.groupBox2.Location = new System.Drawing.Point(101, 49);
             this.groupBox2.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox2.Name = "groupBox2";
             this.groupBox2.Padding = new System.Windows.Forms.Padding(0);
             this.groupBox2.Size = new System.Drawing.Size(105, 86);
             this.groupBox2.TabIndex = 14;
             this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Types";
             // 
             // cboType
             // 
             this.cboType.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboType.FormattingEnabled = true;
-            this.cboType.Location = new System.Drawing.Point(8, 16);
+            this.cboType.Location = new System.Drawing.Point(66, 4);
             this.cboType.Name = "cboType";
-            this.cboType.Size = new System.Drawing.Size(89, 21);
+            this.cboType.Size = new System.Drawing.Size(139, 21);
             this.cboType.TabIndex = 5;
             this.cboType.SelectedIndexChanged += new System.EventHandler(this.cboType_SelectedIndexChanged);
             // 
-            // chkTypeUnk2
+            // groupBoxUnknownFlags
             // 
-            this.chkTypeUnk2.Location = new System.Drawing.Point(8, 58);
-            this.chkTypeUnk2.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk2.Name = "chkTypeUnk2";
-            this.chkTypeUnk2.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk2.TabIndex = 3;
-            this.chkTypeUnk2.Text = "Items";
-            this.chkTypeUnk2.UseVisualStyleBackColor = true;
-            this.chkTypeUnk2.CheckedChanged += new System.EventHandler(this.chkTypeUnk2_CheckedChanged);
+            this.groupBoxUnknownFlags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)));
+            this.groupBoxUnknownFlags.Controls.Add(this.chkFlagUnknown4);
+            this.groupBoxUnknownFlags.Controls.Add(this.chkFlagUnknown3);
+            this.groupBoxUnknownFlags.Controls.Add(this.chkFlagUnknown2);
+            this.groupBoxUnknownFlags.Controls.Add(this.chkFlagUnknown1);
+            this.groupBoxUnknownFlags.Location = new System.Drawing.Point(0, 135);
+            this.groupBoxUnknownFlags.Margin = new System.Windows.Forms.Padding(0);
+            this.groupBoxUnknownFlags.Name = "groupBoxUnknownFlags";
+            this.groupBoxUnknownFlags.Padding = new System.Windows.Forms.Padding(0);
+            this.groupBoxUnknownFlags.Size = new System.Drawing.Size(205, 59);
+            this.groupBoxUnknownFlags.TabIndex = 14;
+            this.groupBoxUnknownFlags.TabStop = false;
+            this.groupBoxUnknownFlags.Text = "Unknown Flags";
             // 
-            // chkTypeUnk1
+            // chkFlagUnknown1
             // 
-            this.chkTypeUnk1.Location = new System.Drawing.Point(8, 40);
-            this.chkTypeUnk1.Margin = new System.Windows.Forms.Padding(0);
-            this.chkTypeUnk1.Name = "chkTypeUnk1";
-            this.chkTypeUnk1.Size = new System.Drawing.Size(86, 18);
-            this.chkTypeUnk1.TabIndex = 4;
-            this.chkTypeUnk1.Text = "Characters";
-            this.chkTypeUnk1.UseVisualStyleBackColor = true;
-            this.chkTypeUnk1.CheckedChanged += new System.EventHandler(this.chkTypeUnk1_CheckedChanged);
+            this.chkFlagUnknown1.Location = new System.Drawing.Point(8, 17);
+            this.chkFlagUnknown1.Margin = new System.Windows.Forms.Padding(0);
+            this.chkFlagUnknown1.Name = "chkFlagUnknown1";
+            this.chkFlagUnknown1.Size = new System.Drawing.Size(86, 18);
+            this.chkFlagUnknown1.TabIndex = 3;
+            this.chkFlagUnknown1.Text = "1";
+            this.chkFlagUnknown1.UseVisualStyleBackColor = true;
+            this.chkFlagUnknown1.CheckedChanged += new System.EventHandler(this.chkFlagUnknown1_CheckedChanged);
+            // 
+            // chkFlagUnknown2
+            // 
+            this.chkFlagUnknown2.Location = new System.Drawing.Point(60, 17);
+            this.chkFlagUnknown2.Margin = new System.Windows.Forms.Padding(0);
+            this.chkFlagUnknown2.Name = "chkFlagUnknown2";
+            this.chkFlagUnknown2.Size = new System.Drawing.Size(86, 18);
+            this.chkFlagUnknown2.TabIndex = 3;
+            this.chkFlagUnknown2.Text = "2";
+            this.chkFlagUnknown2.UseVisualStyleBackColor = true;
+            this.chkFlagUnknown2.CheckedChanged += new System.EventHandler(this.chkFlagUnknown2_CheckedChanged);
+            // 
+            // chkFlagUnknown3
+            // 
+            this.chkFlagUnknown3.Location = new System.Drawing.Point(112, 17);
+            this.chkFlagUnknown3.Margin = new System.Windows.Forms.Padding(0);
+            this.chkFlagUnknown3.Name = "chkFlagUnknown3";
+            this.chkFlagUnknown3.Size = new System.Drawing.Size(86, 18);
+            this.chkFlagUnknown3.TabIndex = 3;
+            this.chkFlagUnknown3.Text = "3";
+            this.chkFlagUnknown3.UseVisualStyleBackColor = true;
+            this.chkFlagUnknown3.CheckedChanged += new System.EventHandler(this.chkFlagUnknown3_CheckedChanged);
+            // 
+            // chkFlagUnknown4
+            // 
+            this.chkFlagUnknown4.Location = new System.Drawing.Point(164, 17);
+            this.chkFlagUnknown4.Margin = new System.Windows.Forms.Padding(0);
+            this.chkFlagUnknown4.Name = "chkFlagUnknown4";
+            this.chkFlagUnknown4.Size = new System.Drawing.Size(86, 18);
+            this.chkFlagUnknown4.TabIndex = 3;
+            this.chkFlagUnknown4.Text = "4";
+            this.chkFlagUnknown4.UseVisualStyleBackColor = true;
+            this.chkFlagUnknown4.CheckedChanged += new System.EventHandler(this.chkFlagUnknown4_CheckedChanged);
+            // 
+            // chkTypeCharacters
+            // 
+            this.chkTypeCharacters.Location = new System.Drawing.Point(8, 17);
+            this.chkTypeCharacters.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeCharacters.Name = "chkTypeCharacters";
+            this.chkTypeCharacters.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeCharacters.TabIndex = 4;
+            this.chkTypeCharacters.Text = "Characters";
+            this.chkTypeCharacters.UseVisualStyleBackColor = true;
+            this.chkTypeCharacters.CheckedChanged += new System.EventHandler(this.chkTypeCharacters_CheckedChanged);
+            // 
+            // chkTypeItems
+            // 
+            this.chkTypeItems.Location = new System.Drawing.Point(8, 33);
+            this.chkTypeItems.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeItems.Name = "chkTypeItems";
+            this.chkTypeItems.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeItems.TabIndex = 3;
+            this.chkTypeItems.Text = "Items";
+            this.chkTypeItems.UseVisualStyleBackColor = true;
+            this.chkTypeItems.CheckedChanged += new System.EventHandler(this.chkTypeItems_CheckedChanged);
+            // 
+            // chkTypePokemonTrainer
+            // 
+            this.chkTypePokemonTrainer.Location = new System.Drawing.Point(8, 49);
+            this.chkTypePokemonTrainer.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypePokemonTrainer.Name = "chkTypePokemonTrainer";
+            this.chkTypePokemonTrainer.Size = new System.Drawing.Size(86, 18);
+            this.chkTypePokemonTrainer.TabIndex = 3;
+            this.chkTypePokemonTrainer.Text = "PokéTrainer";
+            this.chkTypePokemonTrainer.UseVisualStyleBackColor = true;
+            this.chkTypePokemonTrainer.CheckedChanged += new System.EventHandler(this.chkTypePokemonTrainer_CheckedChanged);
+            // 
+            // chkTypeRotating
+            // 
+            this.chkTypeRotating.Location = new System.Drawing.Point(8, 65);
+            this.chkTypeRotating.Margin = new System.Windows.Forms.Padding(0);
+            this.chkTypeRotating.Name = "chkTypeRotating";
+            this.chkTypeRotating.Size = new System.Drawing.Size(86, 18);
+            this.chkTypeRotating.TabIndex = 4;
+            this.chkTypeRotating.Text = "Rotating";
+            this.chkTypeRotating.UseVisualStyleBackColor = true;
+            this.chkTypeRotating.CheckedChanged += new System.EventHandler(this.chkTypeRotating_CheckedChanged);
             // 
             // groupBox1
             // 
-            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.groupBox1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.groupBox1.Controls.Add(this.chkLeftLedge);
             this.groupBox1.Controls.Add(this.chkNoWalljump);
             this.groupBox1.Controls.Add(this.chkRightLedge);
             this.groupBox1.Controls.Add(this.chkFallThrough);
-            this.groupBox1.Location = new System.Drawing.Point(0, 28);
+            this.groupBox1.Location = new System.Drawing.Point(-3, 49);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(0);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(0);
@@ -661,7 +782,7 @@ namespace System.Windows.Forms
             // 
             this.cboMaterial.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cboMaterial.FormattingEnabled = true;
-            this.cboMaterial.Location = new System.Drawing.Point(66, 4);
+            this.cboMaterial.Location = new System.Drawing.Point(66, 25);
             this.cboMaterial.Name = "cboMaterial";
             this.cboMaterial.Size = new System.Drawing.Size(139, 21);
             this.cboMaterial.TabIndex = 12;
@@ -669,12 +790,22 @@ namespace System.Windows.Forms
             // 
             // label5
             // 
-            this.label5.Location = new System.Drawing.Point(7, 4);
+            this.label5.Location = new System.Drawing.Point(7, 25);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(53, 21);
             this.label5.TabIndex = 8;
             this.label5.Text = "Material:";
             this.label5.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
+
+            // 
+            // labelType
+            // 
+            this.labelType.Location = new System.Drawing.Point(7, 4);
+            this.labelType.Name = "labelType";
+            this.labelType.Size = new System.Drawing.Size(53, 21);
+            this.labelType.TabIndex = 8;
+            this.labelType.Text = "Type:";
+            this.labelType.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
             // panel4
             // 
@@ -764,6 +895,11 @@ namespace System.Windows.Forms
             this.btnSameX,
             this.btnSameY,
             this.toolStripSeparator1,
+            
+            this.btnPerspectiveCam,
+            this.btnOrthographicCam,
+            this.toolStripSeparatorCamera,
+            
             this.btnResetCam,
             this.btnResetSnap,
             this.btnHelp});
@@ -855,6 +991,29 @@ namespace System.Windows.Forms
             this.toolStripSeparator1.Name = "toolStripSeparator1";
             this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
             // 
+            // btnPerspectiveCam
+            // 
+            this.btnPerspectiveCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnPerspectiveCam.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnPerspectiveCam.Name = "btnPerspectiveCam";
+            this.btnPerspectiveCam.Size = new System.Drawing.Size(83, 19);
+            this.btnPerspectiveCam.Text = "Perspective";
+            this.btnPerspectiveCam.Click += new System.EventHandler(this.btnPerspectiveCam_Click);
+            // 
+            // btnOrthographicCam
+            // 
+            this.btnOrthographicCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
+            this.btnOrthographicCam.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.btnOrthographicCam.Name = "btnOrthographicCam";
+            this.btnOrthographicCam.Size = new System.Drawing.Size(83, 19);
+            this.btnOrthographicCam.Text = "Orthographic";
+            this.btnOrthographicCam.Click += new System.EventHandler(this.btnOrthographicCam_Click);
+            // 
+            // toolStripSeparatorCamera (StageBox)
+            // 
+            this.toolStripSeparator1.Name = "toolStripSeparatorCamera";
+            this.toolStripSeparator1.Size = new System.Drawing.Size(6, 25);
+            // 
             // btnResetCam
             // 
             this.btnResetCam.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Text;
@@ -937,6 +1096,7 @@ namespace System.Windows.Forms
             this.pnlPlaneProps.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.groupBoxUnknownFlags.ResumeLayout(false);
             this.panel4.ResumeLayout(false);
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
@@ -1041,7 +1201,7 @@ namespace System.Windows.Forms
             if (_selectedPlanes.Count > 0)
             {
                 pnlPlaneProps.Visible = true;
-                panel3.Height = 114;
+                panel3.Height = 175;
             }
             else if (_selectedLinks.Count == 1)
             {
@@ -1061,16 +1221,32 @@ namespace System.Windows.Forms
                 CollisionPlane p = _selectedPlanes[0];
 
                 //Material
-                cboMaterial.SelectedItem = p._material;
+                if((byte)p._material >= 32)
+                {
+                    // Select basic by default (currently cannot display expanded collisions in default previewer)
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)(0x0);
+                }
+                else
+                {
+                    // Otherwise convert to the proper place in the unexpanded list
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)((byte)p._material);
+                }
+                //Type
+                cboType.SelectedItem = p.Type;
                 //Flags
                 chkFallThrough.Checked = p.IsFallThrough;
                 chkLeftLedge.Checked = p.IsLeftLedge;
                 chkRightLedge.Checked = p.IsRightLedge;
                 chkNoWalljump.Checked = p.IsNoWalljump;
-                //Type
-                cboType.SelectedItem = p.Type;
-                chkTypeUnk1.Checked = p.IsType1;
-                chkTypeUnk2.Checked = p.IsType2;
+                chkTypeCharacters.Checked = p.IsCharacters;
+                chkTypeItems.Checked = p.IsItems;
+                chkTypePokemonTrainer.Checked = p.IsPokemonTrainer;
+                chkTypeRotating.Checked = p.IsRotating;
+                //UnknownFlags
+                chkFlagUnknown1.Checked = p.IsUnknownStageBox;
+                chkFlagUnknown2.Checked = p.IsUnknownFlag1;
+                chkFlagUnknown3.Checked = p.IsUnknownFlag3;
+                chkFlagUnknown4.Checked = p.IsUnknownFlag4;
             }
             else if (pnlPointProps.Visible)
             {
@@ -1157,6 +1333,7 @@ namespace System.Windows.Forms
             _selectedObject = null;
             ClearSelection();
             _modelPanel.Invalidate();
+            TargetNode.SignalPropertyChange();
         }
 
         private void newObjectToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1165,6 +1342,7 @@ namespace System.Windows.Forms
             _targetNode._objects.Add(_selectedObject);
             lstObjects.Items.Add(_selectedObject, true);
             lstObjects.SelectedItem = _selectedObject;
+            //TargetNode.SignalPropertyChange();
         }
 
         private void ObjectSelected()
@@ -1732,6 +1910,18 @@ namespace System.Windows.Forms
         private void trackBar1_Scroll(object sender, EventArgs e) { _modelPanel.Invalidate(); }
         private void btnResetRot_Click(object sender, EventArgs e) { trackBar1.Value = 0; _modelPanel.Invalidate(); }
         private void btnResetCam_Click(object sender, EventArgs e) { _modelPanel.ResetCamera(); }
+        
+        // StageBox Perspective viewer
+        private void btnPerspectiveCam_Click(object sender, EventArgs e) { 
+            _modelPanel.ResetCamera();
+            _modelPanel.CurrentViewport.ViewType = ViewportProjection.Perspective;
+        }
+        
+        // StageBox Orthographic viewer
+        private void btnOrthographicCam_Click(object sender, EventArgs e) { 
+            _modelPanel.ResetCamera();
+            _modelPanel.CurrentViewport.ViewType = ViewportProjection.Orthographic;
+        }
 
         private void _modelPanel_KeyDown(object sender, KeyEventArgs e)
         {
@@ -1902,13 +2092,20 @@ namespace System.Windows.Forms
             TargetNode.SignalPropertyChange();
         }
 
-        private void chkTypeUnk1_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType1 = chkTypeUnk1.Checked; }
-        private void chkTypeUnk2_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsType2 = chkTypeUnk2.Checked; }
+        private void chkTypeCharacters_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsCharacters = chkTypeCharacters.Checked; }
+        private void chkTypeItems_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsItems = chkTypeItems.Checked; }
+        private void chkTypePokemonTrainer_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsPokemonTrainer = chkTypePokemonTrainer.Checked; }
+        private void chkTypeRotating_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsRotating = chkTypeRotating.Checked; }
 
         private void chkFallThrough_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsFallThrough = chkFallThrough.Checked; }
         private void chkLeftLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsLeftLedge = chkLeftLedge.Checked; }
         private void chkRightLedge_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsRightLedge = chkRightLedge.Checked; }
         private void chkNoWalljump_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsNoWalljump = chkNoWalljump.Checked; }
+
+        private void chkFlagUnknown1_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownStageBox = chkFlagUnknown1.Checked; }
+        private void chkFlagUnknown2_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag1 = chkFlagUnknown2.Checked; }
+        private void chkFlagUnknown3_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag3 = chkFlagUnknown3.Checked; }
+        private void chkFlagUnknown4_CheckedChanged(object sender, EventArgs e) { if (_updating) return; TargetNode.SignalPropertyChange(); foreach (CollisionPlane p in _selectedPlanes) p.IsUnknownFlag4 = chkFlagUnknown4.Checked; }
 
         #endregion
 
@@ -1919,7 +2116,16 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
             foreach (CollisionLink link in _selectedLinks)
-                link._rawValue._x = numX.Value;
+            {
+                if (link._parent == null || link._parent.LinkedBone == null)
+                {
+                    link._rawValue._x = numX.Value;
+                } else
+                {
+                    Vector2 oldValue = link.Value;
+                    link.Value = new Vector2(numX.Value, oldValue._y);
+                }
+            }
             _modelPanel.Invalidate();
             TargetNode.SignalPropertyChange();
         }
@@ -1929,7 +2135,16 @@ namespace System.Windows.Forms
             if (_updating)
                 return;
             foreach (CollisionLink link in _selectedLinks)
-                link._rawValue._y = numY.Value;
+            {
+                if (link._parent == null || link._parent.LinkedBone == null)
+                {
+                    link._rawValue._y = numY.Value;
+                } else
+                {
+                    Vector2 oldValue = link.Value;
+                    link.Value = new Vector2(oldValue._x, numY.Value);
+                }
+            }
             _modelPanel.Invalidate();
             TargetNode.SignalPropertyChange();
         }
@@ -2026,6 +2241,7 @@ namespace System.Windows.Forms
             txtBone.Text = _selectedObject._boneName = node.Text;
             _selectedObject.LinkedBone = ((MDL0BoneNode)node.Tag);
             txtModel.Text = _selectedObject._modelName = node.Parent.Text;
+            TargetNode.SignalPropertyChange();
         }
 
         private void btnUnlink_Click(object sender, EventArgs e)
@@ -2033,6 +2249,7 @@ namespace System.Windows.Forms
             txtBone.Text = "";
             txtModel.Text = "";
             _selectedObject.LinkedBone = null;
+            TargetNode.SignalPropertyChange();
         }
 
         private void contextMenuStrip2_Opening(object sender, CancelEventArgs e)
