@@ -189,39 +189,45 @@ namespace BrawlLib.SSBBTypes
         Cloud = 0x16,                   // Used for clouds on Summit and Skyworld
         Subspace = 0x17,                // Used for Subspace levels, Tabuu's Residence
         Stone = 0x18,                   // Used for Spear Pillar upper level
-        Unknown19 = 0x19,               // 
+        UnknownDustless = 0x19,         // Unknown, doesn't generate dust clouds when landing
         MarioBros = 0x1A,               // Used for Mario Bros.
         Grate = 0x1B,                   // Used for Delfino Plaza's main platform
         Sand = 0x1C,                    // Used for sand (Unknown where used)
         Homerun = 0x1D,                 // Used for Home Run Contest, makes Olimar only spawn Purple Pikmin
         WaterNoSplash = 0x1E,           // Used for Distant Planet slope during rain
-        Unknown1F = 0x1F
+        Unknown0x1F = 0x1F,             // 
     }
 
     public enum CollisionPlaneType
     {
-        None = 0x0000,
-        Floor = 0x0001,
-        Ceiling = 0x0002,
-        RightWall = 0x0004,
-        LeftWall = 0x0008
+        None = 0x0000,          // 0000
+        Floor = 0x0001,         // 0001
+        Ceiling = 0x0002,       // 0010
+        RightWall = 0x0004,     // 0100
+        LeftWall = 0x0008       // 1000
     }
 
     [Flags]
     public enum CollisionPlaneFlags2
     {
         None = 0x0000,
-        Unk1 = 0x0010,
-        Unk2 = 0x0020
+        Characters = 0x0010,        // Characters (Also allows Items and PT to interact)
+        Items = 0x0020,             // Items
+        PokemonTrainer = 0x0040,    // Pokemon Trainer
+        UnknownStageBox = 0x0080    // Unknown, used in the SSE
     }
 
     [Flags]
     public enum CollisionPlaneFlags : byte
     {
         None = 0x00,
-        DropThrough = 0x01,
-        LeftLedge = 0x20,
-        RightLedge = 0x40,
-        NoWalljump = 0x80
+        DropThrough = 0x01,         // Can fall through a floor by pressing down
+        Unknown1 = 0x02,            // 
+        Rotating = 0x04,            // Automatically changes between floor/wall/ceiling based on angle
+        Unknown3 = 0x08,            // 
+        Unknown4 = 0x10,            //
+        LeftLedge = 0x20,           // Can grab ledge from the left
+        RightLedge = 0x40,          // Can grab ledge from the right
+        NoWalljump = 0x80           // Cannot walljump off when set
     }
 }

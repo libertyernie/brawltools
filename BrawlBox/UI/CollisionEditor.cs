@@ -1224,12 +1224,12 @@ namespace System.Windows.Forms
                 if((byte)p._material >= 32)
                 {
                     // Select basic by default (currently cannot display expanded collisions in default previewer)
-                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)(0x0);
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterial)(0x0);
                 }
                 else
                 {
                     // Otherwise convert to the proper place in the unexpanded list
-                    cboMaterial.SelectedItem = (CollisionPlaneMaterialUnexpanded)((byte)p._material);
+                    cboMaterial.SelectedItem = (CollisionPlaneMaterial)(p._material);
                 }
                 //Type
                 cboType.SelectedItem = p.Type;
