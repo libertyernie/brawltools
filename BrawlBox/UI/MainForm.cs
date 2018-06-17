@@ -14,6 +14,7 @@ using System.Windows.Forms;
 using System.Reflection;
 using BrawlBox.API;
 using BrawlBox.NodeWrappers;
+using System.Linq;
 
 namespace BrawlBox
 {
@@ -108,9 +109,8 @@ newer versions of these files should be located in the Lib directory.");
             pluginToolStripMenuItem.DropDown.Items.Clear();
             if (Directory.Exists(plugins))
             {
-                foreach (var str in Directory.EnumerateFiles(plugins, "*.py"))
+                foreach (var str in Directory.EnumerateFiles(plugins, "*.fsx"))
                 {
-                    API.bboxapi.CreatePlugin(str, false);
                     pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
                 }
             }
@@ -638,7 +638,7 @@ newer versions of these files should be located in the Lib directory.");
 
         private void runScriptToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            using (var dlg = new OpenFileDialog() { Filter = "Python file (.py)|*.py|All Files|*" })
+            using (var dlg = new OpenFileDialog() { Filter = "All supported files (.py, .fsx)|*.py;*.fsx|Python file (.py)|*.py|F# script (.fsx)|*.fsx|All Files|*" })
             {
                 if(dlg.ShowDialog() == DialogResult.OK)
                 {
@@ -651,7 +651,7 @@ newer versions of these files should be located in the Lib directory.");
         {
             API.bboxapi.Plugins.Clear();
             pluginToolStripMenuItem.DropDown.Items.Clear();
-            foreach (var str in Directory.EnumerateFiles($"{Application.StartupPath}/Plugins", "*.py"))
+            foreach (var str in new[] { "*.py", "*.fsx" }.SelectMany(p => Directory.EnumerateFiles($"{Application.StartupPath}/Plugins", p)))
             {
                 API.bboxapi.CreatePlugin(str, false);
                 pluginToolStripMenuItem.DropDownItems.Add(Path.GetFileNameWithoutExtension(str), null, onPluginClicked);
