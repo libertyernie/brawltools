@@ -11,6 +11,7 @@ using System.Reflection;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using BrawlBox.NodeWrappers;
+using System.Diagnostics;
 
 namespace BrawlBox.API
 {
@@ -53,21 +54,28 @@ namespace BrawlBox.API
         {
             if (Path.GetExtension(path) == ".fsx")
             {
-                string fsi_path = new[] {
-                    Environment.GetEnvironmentVariable("ProgramFiles"),
-                    Environment.GetEnvironmentVariable("ProgramFiles(x86)")
-                }.SelectMany(s => {
-                    string dir = Path.Combine(s, "Microsoft SDKs", "F#");
-                    return Directory.GetFiles(dir, "fsi.exe", SearchOption.AllDirectories);
-                }).FirstOrDefault(s => File.Exists(s));
+                string fsi_path =
+                    new[] {
+                        ".",
+                        Environment.GetEnvironmentVariable("ProgramFiles"),
+                        Environment.GetEnvironmentVariable("ProgramFiles(x86)")
+                    }
+                    .Select(s => s == null ? null : Path.Combine(s, "Microsoft SDKs", "F#"))
+                    .SelectMany(dir => dir != null && Directory.Exists(dir)
+                        ? Directory.GetFiles(dir, "fsi.exe", SearchOption.AllDirectories)
+                        : new string[0])
+                    .FirstOrDefault(s => File.Exists(s));
+
                 if (fsi_path == null) {
-                    MessageBox.Show("Could not find F# Interactive.");
+                    if (DialogResult.OK == MessageBox.Show("F# Interactive (fsi.exe) was not found. Would you like to install the Build Tools for Visual Studio?", "BrawlBox", MessageBoxButtons.OKCancel, MessageBoxIcon.Question)) {
+                        Process.Start("https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017");
+                    }
                 } else {
                     string tempPath = Path.Combine(Path.GetTempPath(), $"BrawlBox-{Guid.NewGuid()}.fsx");
                     using (var srIn = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
                     using (var swOut = new StreamWriter(new FileStream(tempPath, FileMode.Create, FileAccess.Write))) {
                         swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(NodeFactory)).Location.Replace('\\', '/')}\"");
-                        swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(bboxapi)).Location.Replace('\\', '/')}\"");
+                        swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(MainForm)).Location.Replace('\\', '/')}\"");
                         //swOut.WriteLine($"open BrawlBox.API");
                         string line;
                         while ((line = srIn.ReadLine()) != null) {
@@ -75,7 +83,7 @@ namespace BrawlBox.API
                         }
                     }
 
-                    var p = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo {
+                    var p = Process.Start(new ProcessStartInfo {
                         FileName = fsi_path,
                         Arguments = $"--noninteractive \"{tempPath}\"",
                         UseShellExecute = false,
