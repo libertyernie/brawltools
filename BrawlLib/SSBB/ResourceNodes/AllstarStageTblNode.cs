@@ -1,4 +1,4 @@
-﻿using BrawlLib.SSBB.Types;
+using BrawlLib.SSBB.Types;
 using System;
 using System.ComponentModel;
 using System.Linq;
@@ -18,8 +18,8 @@ namespace BrawlLib.SSBB.ResourceNodes
         public short DefenseRatio { get { return data._defenseRatio; } set { data._defenseRatio = value; SignalPropertyChange(); } }
 
         public byte Unknown08 { get { return data._unknown08; } set { data._unknown08 = value; SignalPropertyChange(); } }
-        public byte Color     { get { return data._color; }     set { data._color = value;     SignalPropertyChange(); } }
-        public byte Stock     { get { return data._stock; }     set { data._stock = value;     SignalPropertyChange(); } }
+        public byte Color { get { return data._color; } set { data._color = value; SignalPropertyChange(); } }
+        public byte Stock { get { return data._stock; } set { data._stock = value; SignalPropertyChange(); } }
         public byte Unknown0b { get { return data._unknown0b; } set { data._unknown0b = value; SignalPropertyChange(); } }
 
         public short Unknown0c { get { return data._unknown0c; } set { data._unknown0c = value; SignalPropertyChange(); } }

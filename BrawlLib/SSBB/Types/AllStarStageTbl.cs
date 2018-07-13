@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Runtime.InteropServices;
 
 namespace BrawlLib.SSBB.Types
@@ -19,7 +19,7 @@ namespace BrawlLib.SSBB.Types
         public AllstarFighterData _opponent4;
         public AllstarFighterData _opponent5;
 
-        private VoidPtr Address { get { fixed (void* ptr = &this)return ptr; } }
+        private VoidPtr Address { get { fixed (void* ptr = &this) return ptr; } }
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
