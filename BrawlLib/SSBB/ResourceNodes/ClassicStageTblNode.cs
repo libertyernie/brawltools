@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.ComponentModel;
@@ -33,8 +33,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             data = ((ClassicStageBlock*)WorkingUncompressed.Address)->_stages;
 
             List<string> stageList = new List<string>();
-            foreach (int stageID in new int[] { StageID1, StageID2, StageID3, StageID4 })
-            {
+            foreach (int stageID in new int[] { StageID1, StageID2, StageID3, StageID4 }) {
                 if (stageID == 255) continue;
                 Stage found = Stage.Stages.FirstOrDefault(s => s.ID == stageID);
                 stageList.Add(found == null ? stageID.ToString() : found.PacBasename);
@@ -45,11 +44,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return true;
         }
 
-        public override void OnPopulate()
-        {
+        public override void OnPopulate() {
             AllstarFighterData* ptr = &((ClassicStageBlock*)WorkingUncompressed.Address)->_opponent1;
-            for (int i = 0; i < 3; i++)
-            {
+            for (int i = 0; i < 3; i++) {
                 DataSource source = new DataSource(ptr, sizeof(AllstarFighterData));
                 new AllstarFighterNode().Initialize(this, source);
                 ptr++;
@@ -68,8 +65,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             // Rebuild children using new address
             AllstarFighterData* ptr = &((ClassicStageBlock*)address)->_opponent1;
-            for (int i = 0; i < Children.Count; i++)
-            {
+            for (int i = 0; i < Children.Count; i++) {
                 Children[i].Rebuild(ptr, sizeof(AllstarFighterData), true);
                 ptr++;
             }
@@ -96,7 +92,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             VoidPtr ptr = WorkingUncompressed.Address;
             int numEntries = WorkingUncompressed.Length / sizeof(ClassicStageBlock);
-            for (int i = 0; i < numEntries; i++) ptr += sizeof(ClassicStageBlock);
+            for (int i=0; i<numEntries; i++) ptr += sizeof(ClassicStageBlock);
 
             _padding = new List<int>();
             bint* ptr2 = (bint*)ptr;
@@ -143,8 +139,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             return sizeof(ClassicStageBlock) * Children.Count + Padding.Length * sizeof(bint);
         }
 
-        public void CreateEntry()
-        {
+        public void CreateEntry() {
             FileMap tempFile = FileMap.FromTempFile(sizeof(ClassicStageBlock));
             // Is this the right way to add a new child node?
             var node = new ClassicStageBlockNode();

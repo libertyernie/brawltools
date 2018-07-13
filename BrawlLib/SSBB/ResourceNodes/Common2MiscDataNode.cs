@@ -1,4 +1,4 @@
-using BrawlLib.SSBBTypes;
+﻿using BrawlLib.SSBBTypes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,8 +100,7 @@ namespace BrawlLib.SSBB.ResourceNodes
             {
                 int size = child.CalculateSize(false);
                 dataLocations.Add(child, ptr);
-                if (child is ClassicStageTblSizeTblNode && size == 48)
-                {
+                if (child is ClassicStageTblSizeTblNode && size == 48) {
                     // Rebuild
                     Dictionary<string, int> sizes = Children.ToDictionary(c => c.Name, c => {
                         int fullSize = c.CalculateSize(false);
@@ -110,17 +109,14 @@ namespace BrawlLib.SSBB.ResourceNodes
                     });
 
                     bint[] newTbl = new bint[12];
-                    fixed (bint* newTblPtr = newTbl)
-                    {
+                    fixed (bint* newTblPtr = newTbl) {
                         foreach (string key in new[] {
                             "simpleStageB1Tbl",
                             "simpleStageB2Tbl",
                             "simpleStage11Tbl"
-                        })
-                        {
+                        }) {
                             int s;
-                            if (!sizes.TryGetValue(key, out s) || s != 0x104)
-                            {
+                            if (!sizes.TryGetValue(key, out s) || s != 0x104) {
                                 MessageBox.Show($"Changing the size of {key} may not work properly (BrawlBox doesn't know yet which size entry to update)");
                             }
                         }
@@ -139,15 +135,11 @@ namespace BrawlLib.SSBB.ResourceNodes
                             "simpleStage9Tbl",
                             "simpleStage10Tbl",
                             "simpleStageB2Tbl"
-                        })
-                        {
+                        }) {
                             int s;
-                            if (sizes.TryGetValue(key, out s))
-                            {
+                            if (sizes.TryGetValue(key, out s)) {
                                 *bptr = s;
-                            }
-                            else
-                            {
+                            } else {
                                 MessageBox.Show($"Cannot get size of {key}");
                             }
                             bptr++;
