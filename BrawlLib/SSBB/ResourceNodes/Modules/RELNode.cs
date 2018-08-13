@@ -291,6 +291,10 @@ namespace BrawlLib.SSBB.ResourceNodes
                 section._isCodeSection = entry.IsCodeSection;
                 section._dataOffset = dataOffset;
                 section._dataSize = entry._size;
+                
+                // Calculate buffer
+                if (i > 0 && dataOffset > 0)
+                    _sections[i-1]._endBufferSize = dataOffset - prevOffset;
 
                 section.Initialize(this, WorkingUncompressed.Address + dataOffset, dataSize);
 
@@ -562,7 +566,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                 {
                     int i = s.Index;
 
-                    sections[i]._size = (uint)s._calcSize;
+                    sections[i]._size = (uint)(s._calcSize - s._endBufferSize);
 
                     //Align sections 4 and 5?
                     //if (i > 3)
@@ -587,7 +591,7 @@ namespace BrawlLib.SSBB.ResourceNodes
                         sections[i]._offset = 0;
 
                         header->_bssSection = 0; //This is always 0 it seems
-                        header->_bssSize = (uint)s._calcSize;
+                        header->_bssSize = (uint)(s._calcSize - s._endBufferSize);
                     }
                 }
 
