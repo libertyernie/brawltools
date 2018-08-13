@@ -397,7 +397,6 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             s = _sections[_prologSection];
             offset = (int)_prologOffset;
-
             //_prologReloc = s.GetRelocationAtOffset(offset);
             //if (_prologReloc != null)
             //    _prologReloc._prolog = true;
@@ -544,10 +543,10 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             header->_prologSection = _prologSection;
             header->_prologOffset = _prologOffset;
-            header->_prologSection = _epilogSection;
-            header->_prologOffset = _epilogOffset;
-            header->_prologSection = _unresolvedSection;
-            header->_prologOffset = _unresolvedOffset;
+            header->_epilogSection = _epilogSection;
+            header->_epilogOffset = _epilogOffset;
+            header->_unresolvedSection = _unresolvedSection;
+            header->_unresolvedOffset = _unresolvedOffset;
 
             header->_moduleAlign = 0x20;
             header->_bssAlign = 0x8;
