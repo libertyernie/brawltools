@@ -928,11 +928,6 @@ namespace System.Windows.Forms
             d._supportsInsDel = false;
             FixRelocations(1, offset);
 
-
-
-            //for (int i = (int)index + 1; i < _relocations.Count; i++)
-            //    _relocations[i]._index++;
-
             PosChanged();
         }
 
@@ -948,13 +943,12 @@ namespace System.Windows.Forms
                 }
                 if (s.Index == _section.Index)
                 {
-                    ctmp = new Dictionary<int, RelCommand>(s._manager._commands);
-                    s._manager._commands.Clear();
-
-                    for (int i = 0; i < ctmp.Count; i++)
-                        s._manager.SetCommand(ctmp.Keys.ToArray()[i] + (ctmp.Keys.ToArray()[i] >= offset / 4 ? amt : 0),
-                            ctmp.Values.ToArray()[i]);
-                    ctmp.Clear();
+                    var keysToUpdate = new List<KeyValuePair<int, RelCommand>>(_section._manager._commands.Where(x => x.Key >= offset / 4));
+                    foreach (var rel in keysToUpdate)
+                    {
+                        _section._manager.ClearCommand(rel.Key);
+                        _section._manager.SetCommand(rel.Key + 1, rel.Value);
+                    }
                 }
             }
         }
