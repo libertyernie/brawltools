@@ -658,9 +658,9 @@ namespace System.Windows.Forms
 
             if (hexBox1.SelectionLength > 0)
             {
-                for (int i = SelectedRelocationIndex; i < (hexBox1.SelectionLength.RoundUp(4) / 4); i++)
+                for (int i = 0; i < (hexBox1.SelectionLength.RoundUp(4) / 4); i++)
                 {
-                    _manager.SetCommand(i, cmd);
+                    _manager.SetCommand(SelectedRelocationIndex + i, cmd);
                 }
             }
             else
