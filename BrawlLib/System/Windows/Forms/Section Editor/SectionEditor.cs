@@ -656,6 +656,18 @@ namespace System.Windows.Forms
                 _section,
                 new RELLink());
 
+            if (hexBox1.SelectionLength > 0)
+            {
+                for (int i = SelectedRelocationIndex; i < (hexBox1.SelectionLength.RoundUp(4) / 4); i++)
+                {
+                    _manager.SetCommand(i, cmd);
+                }
+            }
+            else
+            {
+                _manager.SetCommand(SelectedRelocationIndex, cmd);
+            }
+
             CommandChanged();
             hexBox1.Focus();
             _relocationsChanged = true;
