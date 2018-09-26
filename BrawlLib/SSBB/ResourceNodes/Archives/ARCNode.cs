@@ -24,14 +24,23 @@ namespace BrawlLib.SSBB.ResourceNodes
         public bool IsPair { get { return _isPair; } set { _isPair = value; } }
         private bool _isPair;
 
+        private Dictionary<ResourceNode, ARCFileHeader> _originalHeaders = new Dictionary<ResourceNode, ARCFileHeader>();
+
         public override void OnPopulate()
         {
+            _originalHeaders.Clear();
             ARCFileHeader* entry = Header->First;
             for (int i = 0; i < Header->_numFiles; i++, entry = entry->Next)
             {
                 DataSource source = new DataSource(entry->Data, entry->Length);
-                if ((entry->Length == 0) || (NodeFactory.FromSource(this, source) == null))
-                    new ARCEntryNode().Initialize(this, source);
+                ResourceNode createdNode = entry->Length == 0
+                    ? null
+                    : NodeFactory.FromSource(this, source);
+                if (createdNode == null) {
+                    createdNode = new ARCEntryNode();
+                    createdNode.Initialize(this, source);
+                }
+                _originalHeaders.Add(createdNode, *entry);
             }
         }
 
@@ -139,10 +148,16 @@ namespace BrawlLib.SSBB.ResourceNodes
             *header = new ARCHeader((ushort)Children.Count, Name);
 
             ARCFileHeader* entry = header->First;
-            foreach (ARCEntryNode node in Children)
+            foreach (ResourceNode child in Children)
             {
-                *entry = new ARCFileHeader(node.FileType, node.FileIndex, node._calcSize, node.GroupID, node._redirectIndex);
-                node.Rebuild(entry->Data, entry->Length, force);
+                if (child is ARCEntryNode node) {
+                    *entry = new ARCFileHeader(node.FileType, node.FileIndex, node._calcSize, node.GroupID, node._redirectIndex);
+                } else if (_originalHeaders.TryGetValue(child, out ARCFileHeader origHeader)) {
+                    *entry = new ARCFileHeader(origHeader.FileType, origHeader.Index, child._calcSize, origHeader.GroupIndex, origHeader.ID);
+                } else {
+                    throw new NotSupportedException("Cannot build a new ARCFileHeader for this node (not supported)");
+                }
+                child.Rebuild(entry->Data, entry->Length, force);
                 entry = entry->Next;
             }
         }
