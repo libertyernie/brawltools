@@ -130,6 +130,11 @@ namespace BrawlLib.Modeling
 
                 Error = "There was a problem extracting materials.";
 
+                int magfilter = 1;
+                int magfilter = 1;
+                int magfilter = 1;
+                int magfilter = 1;
+    
                 //Extract materials
                 foreach (MaterialEntry mat in shell._materials)
                 {
@@ -152,6 +157,60 @@ namespace BrawlLib.Modeling
                                                         foreach (EffectNewParam p2 in eff._newParams)
                                                             if (p2._sid == p._sampler2D._source)
                                                                 path = p2._path;
+                                                    switch (p._sampler2D._wrapS)
+                                                    {
+                                                        case "CLAMP":
+                                                            uwrap = 0;
+                                                            break;
+                                                        case "WRAP":
+                                                            uwrap = 1;
+                                                            break;
+                                                        case "MIRROR":
+                                                            uwrap = 2;
+                                                            break;
+                                                    }
+                                                    switch (p._sampler2D._wrapT)
+                                                    {
+                                                        case "CLAMP":
+                                                            vwrap = 0;
+                                                            break;
+                                                        case "WRAP":
+                                                            vwrap = 1;
+                                                            break;
+                                                        case "MIRROR":
+                                                            vwrap = 2;
+                                                            break;
+                                                    }
+                                                    switch (p._sampler2D._minFilter)
+                                                    {
+                                                        case "NEAREST":
+                                                            minfilter = 0;
+                                                            break;
+                                                        case "LINEAR":
+                                                            minfilter = 1;
+                                                            break;
+                                                        case "NEAREST_MIPMAP_NEAREST":
+                                                            minfilter = 2;
+                                                            break;
+                                                        case "LINEAR_MIPMAP_NEAREST":
+                                                            minfilter = 3;
+                                                            break;
+                                                        case "NEAREST_MIPMAP_LINEAR":
+                                                            minfilter = 4;
+                                                            break;
+                                                        case "LINEAR_MIPMAP_LINEAR":
+                                                            minfilter = 5;
+                                                            break;
+                                                     }
+                                                     switch (p._sampler2D._magFilter)
+                                                     {
+                                                        case "NEAREST":
+                                                            magfilter = 0;
+                                                            break;
+                                                        case "LINEAR":
+                                                            magfilter = 1;
+                                                            break;
+                                                     }
                                                 }
 
                                             foreach (ImageEntry img in shell._images)
@@ -183,8 +242,10 @@ namespace BrawlLib.Modeling
                                 mr._name = mr._texture.Name;
                                 matNode._children.Add(mr);
                                 mr._parent = matNode;
-                                mr._minFltr = mr._magFltr = 1;
-                                mr._uWrap = mr._vWrap = (int)_importOptions._wrap;
+                                mr._minFltr = minfilter;
+                                mr._magFltr = magfilter;
+                                mr._uWrap = uwrap;
+                                mr._vWrap = vwrap;
                             }
                             break;
                     }
@@ -632,8 +693,6 @@ namespace BrawlLib.Modeling
             //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlBox uses centimeters while other 3D programs uses units such as meters or inches.")]
             //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
             
-            [Category("Materials"), Description("The default texture wrap for material texture references.")]
-            public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
             [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
             [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
@@ -692,7 +751,6 @@ namespace BrawlLib.Modeling
             public float _weightPrecision = 0.0001f;
             public int _modelVersion = 9;
             public bool _useOneNode = true;
-            public MatWrapMode _wrap = MatWrapMode.Repeat;
 
             //This doesn't work, but it's optional and not efficient with the cache on anyway
             public bool _backwardSearch = false;
