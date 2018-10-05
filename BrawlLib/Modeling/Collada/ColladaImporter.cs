@@ -130,11 +130,11 @@ namespace BrawlLib.Modeling
 
                 Error = "There was a problem extracting materials.";
 
+                int uwrap = 1;
+                int vwrap = 1;
+                int minfilter = 1;
                 int magfilter = 1;
-                int magfilter = 1;
-                int magfilter = 1;
-                int magfilter = 1;
-    
+
                 //Extract materials
                 foreach (MaterialEntry mat in shell._materials)
                 {
