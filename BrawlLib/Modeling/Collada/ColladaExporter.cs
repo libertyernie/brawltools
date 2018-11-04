@@ -174,8 +174,7 @@ namespace BrawlLib.Modeling
                     {
                         if (mat.Children.Count > 0)
                         {
-                            MDL0MaterialRefNode mr = mat.Children[0] as MDL0MaterialRefNode;
-                            if (mr._texture != null)
+                            foreach (MDL0MaterialRefNode mr in mat.Children)
                             {
                                 writer.WriteStartElement("newparam");
                                 writer.WriteAttributeString("sid", mr._texture.Name + "-surface");
