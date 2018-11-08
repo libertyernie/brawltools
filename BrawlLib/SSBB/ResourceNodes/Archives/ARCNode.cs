@@ -61,7 +61,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             return Header->_numFiles > 0;
         }
 
-        public void ExtractToFolder(string outFolder)
+        public void ExtractToFolder(string outFolder) { ExtractToFolder(outFolder, ".tex0", ".mdl0"); }
+        public void ExtractToFolder(string outFolder, string imageExtension) { ExtractToFolder(outFolder, imageExtension, ".mdl0"); }
+        public void ExtractToFolder(string outFolder, string imageExtension, string modelExtension)
         {
             if (!Directory.Exists(outFolder))
                 Directory.CreateDirectory(outFolder);
@@ -69,9 +71,9 @@ namespace BrawlLib.SSBB.ResourceNodes
             List<string> directChildrenExportedPaths = new List<string>();
             foreach (ARCEntryNode entry in Children)
                 if (entry is ARCNode)
-                    ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, entry.Name));
+                    ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
                 else if (entry is BRRESNode)
-                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, entry.Name));
+                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
                 else
                 {
                     if (entry.WorkingSource.Length == 0)

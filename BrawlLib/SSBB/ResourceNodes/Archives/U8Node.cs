@@ -233,6 +233,43 @@ namespace BrawlLib.SSBB.ResourceNodes
         {
             return ((U8*)source.Address)->_tag == U8.Tag ? new U8Node() : null;
         }
+        
+        public void ExtractToFolder(string outFolder) { ExtractToFolder(outFolder, ".tex0", ".mdl0"); }
+        public void ExtractToFolder(string outFolder, string imageExtension) { ExtractToFolder(outFolder, imageExtension, ".mdl0"); }
+        public void ExtractToFolder(string outFolder, string imageExtension, string modelExtension)
+        {
+            if (!Directory.Exists(outFolder))
+                Directory.CreateDirectory(outFolder);
+
+            List<string> directChildrenExportedPaths = new List<string>();
+            foreach (ResourceNode entry in Children)
+            {
+                if (entry is ARCNode)
+                    ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is BRRESNode)
+                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is U8Node)
+                    ((U8Node)entry).ExtractToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is U8FolderNode)
+                    ((U8FolderNode)entry).ExportToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else
+                {
+                    if (entry.WorkingSource.Length == 0)
+                        continue;
+
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
+                    string path = Path.Combine(outFolder, entry.Name + ext);
+
+                    if (directChildrenExportedPaths.Contains(path))
+                        throw new Exception($"There is more than one node underneath {this.Name} with the name {entry.Name}.");
+                    else
+                    {
+                        directChildrenExportedPaths.Add(path);
+                        entry.Export(path);
+                    }
+                }
+            }
+        }
     }
     public unsafe class U8EntryNode : ResourceNode
     {
@@ -283,6 +320,43 @@ namespace BrawlLib.SSBB.ResourceNodes
             AddChild(n);
 
             return n;
+        }
+
+        public void ExportToFolder(string outFolder) { ExportToFolder(outFolder, ".tex0"); }
+        public void ExportToFolder(string outFolder, string imageExtension) { ExportToFolder(outFolder, imageExtension, ".mdl0"); }
+        public void ExportToFolder(string outFolder, string imageExtension, string modelExtension)
+        {
+            if (!Directory.Exists(outFolder))
+                Directory.CreateDirectory(outFolder);
+
+            List<string> directChildrenExportedPaths = new List<string>();
+            foreach (ResourceNode entry in Children)
+            {
+                if (entry is ARCNode)
+                    ((ARCNode)entry).ExtractToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is BRRESNode)
+                    ((BRRESNode)entry).ExportToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is U8Node)
+                    ((U8Node)entry).ExtractToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else if (entry is U8FolderNode)
+                    ((U8FolderNode)entry).ExportToFolder(Path.Combine(outFolder, (entry.Name == null || entry.Name.Contains("<Null>", StringComparison.InvariantCultureIgnoreCase)) ? "Null" : entry.Name), imageExtension, modelExtension);
+                else
+                {
+                    if (entry.WorkingSource.Length == 0)
+                        continue;
+
+                    string ext = FileFilters.GetDefaultExportAllExtension(entry.GetType());
+                    string path = Path.Combine(outFolder, entry.Name + ext);
+
+                    if (directChildrenExportedPaths.Contains(path))
+                        throw new Exception($"There is more than one node underneath {this.Name} with the name {entry.Name}.");
+                    else
+                    {
+                        directChildrenExportedPaths.Add(path);
+                        entry.Export(path);
+                    }
+                }
+            }
         }
     }
 
