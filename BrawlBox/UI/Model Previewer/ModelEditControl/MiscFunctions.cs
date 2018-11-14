@@ -106,12 +106,12 @@ namespace System.Windows.Forms
         public void CheckDimensions()
         {
             int totalWidth = animEditors.Width;
-            Size s = new Size(animCtrlPnl.Width, animEditors.Height);
+            Drawing.Size s = new Drawing.Size(animCtrlPnl.Width, animEditors.Height);
             if (_currentControl != null && _currentControl.Visible)
             {
                 s = _currentControl.Visible ?
                     (_currentControl is SCN0Editor ? scn0Editor.GetDimensions() : _currentControl.MinimumSize) :
-                    (!weightEditor.Visible && !vertexEditor.Visible ? new Size(0, 0) : s);
+                    (!weightEditor.Visible && !vertexEditor.Visible ? new Drawing.Size(0, 0) : s);
             }
             else if (!weightEditor.Visible && !vertexEditor.Visible)
                 s = new Drawing.Size(0, 0);

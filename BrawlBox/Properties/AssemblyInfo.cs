@@ -26,6 +26,9 @@ Super Smash Bros. Brawl © 2008 Nintendo and HAL Laboratory")]
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("aa25c3c0-9c54-4fd2-81bc-96efb4953a7b")]
 
+// This prevents resizes on monitors with different DPIs
+[assembly: System.Windows.Media.DisableDpiAwareness]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
