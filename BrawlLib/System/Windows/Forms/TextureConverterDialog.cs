@@ -289,9 +289,9 @@ namespace System.Windows.Forms
         public bool LoadImages(string path)
         {
             txtPath.Text = path;
-            if (path.EndsWith(".tga"))
+            if (path.EndsWith(".tga", StringComparison.OrdinalIgnoreCase))
                 return LoadImages(TGA.FromFile(path));
-            else if (path.EndsWith(".png"))
+            else if (path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 return LoadImagesPreservingPaletteInfo(path);
             else
                 return LoadImages((Bitmap)Bitmap.FromFile(path));

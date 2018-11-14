@@ -27,6 +27,9 @@ using System.Runtime.InteropServices;
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("3a58aa6c-1b11-4e61-af15-51b70da5035a")]
 
+// This prevents resizes on monitors with different DPIs
+[assembly: System.Windows.Media.DisableDpiAwareness]
+
 // Version information for an assembly consists of the following four values:
 //
 //      Major Version
