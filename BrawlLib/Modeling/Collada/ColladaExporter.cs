@@ -526,7 +526,11 @@ namespace BrawlLib.Modeling
                 
                 RGBAPixel r = _colors[set][i];
 
-                writer.WriteString(String.Format("{0} {1} {2} {3}", r.R * cFactor, r.G * cFactor, r.B * cFactor, r.A * cFactor));
+                writer.WriteString(String.Format("{0} {1} {2} {3}",
+                    (r.R * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.G * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.B * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.A * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat)));
             }
 
             writer.WriteEndElement(); //int_array
