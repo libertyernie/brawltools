@@ -166,6 +166,7 @@
     <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="NodeWrappers\ClassicStageTblWrapper.cs" />
@@ -990,6 +991,7 @@
     <Content Include="Plugins\Example %28tex0 export%29.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Resources\SCLA.png" />
     <None Include="Resources\SharedTEX0.png" />
     <None Include="Resources\BGMG.png" />
     <None Include="Resources\REL.png" />

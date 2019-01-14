@@ -13,9 +13,9 @@ namespace System.Windows.Forms
         private Label label7;
         private Label label6;
         private Label label8;
-        private NumericInputBox ScaleZ;
-        private NumericInputBox ScaleY;
-        private NumericInputBox ScaleX;
+        private TextBox ScaleZ;
+        private TextBox ScaleY;
+        private TextBox ScaleX;
         private Label label1;
         private TextBox keyframeCopy;
         private TextBox name;
@@ -44,9 +44,9 @@ namespace System.Windows.Forms
         private Label label5;
         private Label label9;
         private Label label10;
-        private NumericInputBox TranslateZ;
-        private NumericInputBox TranslateY;
-        private NumericInputBox TranslateX;
+        private TextBox TranslateZ;
+        private TextBox TranslateY;
+        private TextBox TranslateX;
         private RadioButton RotateDivide;
         private RadioButton RotateMultiply;
         private RadioButton RotateSubtract;
@@ -56,9 +56,9 @@ namespace System.Windows.Forms
         private Label label2;
         private Label label3;
         private Label label4;
-        private NumericInputBox RotateZ;
-        private NumericInputBox RotateY;
-        private NumericInputBox RotateX;
+        private TextBox RotateZ;
+        private TextBox RotateY;
+        private TextBox RotateX;
         private RadioButton TranslateDoNotChange;
         private RadioButton RotateDoNotChange;
         private RadioButton ScaleDoNotChange;
@@ -80,9 +80,9 @@ namespace System.Windows.Forms
             this.label5 = new System.Windows.Forms.Label();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.TranslateZ = new System.Windows.Forms.NumericInputBox();
-            this.TranslateY = new System.Windows.Forms.NumericInputBox();
-            this.TranslateX = new System.Windows.Forms.NumericInputBox();
+            this.TranslateZ = new System.Windows.Forms.TextBox();
+            this.TranslateY = new System.Windows.Forms.TextBox();
+            this.TranslateX = new System.Windows.Forms.TextBox();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
             this.RotateDoNotChange = new System.Windows.Forms.RadioButton();
             this.RotateDivide = new System.Windows.Forms.RadioButton();
@@ -94,9 +94,9 @@ namespace System.Windows.Forms
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.label4 = new System.Windows.Forms.Label();
-            this.RotateZ = new System.Windows.Forms.NumericInputBox();
-            this.RotateY = new System.Windows.Forms.NumericInputBox();
-            this.RotateX = new System.Windows.Forms.NumericInputBox();
+            this.RotateZ = new System.Windows.Forms.TextBox();
+            this.RotateY = new System.Windows.Forms.TextBox();
+            this.RotateX = new System.Windows.Forms.TextBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
             this.ScaleDoNotChange = new System.Windows.Forms.RadioButton();
             this.ScaleDivide = new System.Windows.Forms.RadioButton();
@@ -108,9 +108,9 @@ namespace System.Windows.Forms
             this.label7 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.label8 = new System.Windows.Forms.Label();
-            this.ScaleZ = new System.Windows.Forms.NumericInputBox();
-            this.ScaleY = new System.Windows.Forms.NumericInputBox();
-            this.ScaleX = new System.Windows.Forms.NumericInputBox();
+            this.ScaleZ = new System.Windows.Forms.TextBox();
+            this.ScaleY = new System.Windows.Forms.TextBox();
+            this.ScaleX = new System.Windows.Forms.TextBox();
             this.keyframeCopy = new System.Windows.Forms.TextBox();
             this.copyKeyframes = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -286,7 +286,6 @@ namespace System.Windows.Forms
             this.TranslateZ.Name = "TranslateZ";
             this.TranslateZ.Size = new System.Drawing.Size(96, 20);
             this.TranslateZ.TabIndex = 38;
-            this.TranslateZ.Text = "0";
             // 
             // TranslateY
             // 
@@ -295,7 +294,6 @@ namespace System.Windows.Forms
             this.TranslateY.Name = "TranslateY";
             this.TranslateY.Size = new System.Drawing.Size(96, 20);
             this.TranslateY.TabIndex = 37;
-            this.TranslateY.Text = "0";
             // 
             // TranslateX
             // 
@@ -304,7 +302,6 @@ namespace System.Windows.Forms
             this.TranslateX.Name = "TranslateX";
             this.TranslateX.Size = new System.Drawing.Size(96, 20);
             this.TranslateX.TabIndex = 36;
-            this.TranslateX.Text = "0";
             // 
             // groupBox3
             // 
@@ -443,7 +440,6 @@ namespace System.Windows.Forms
             this.RotateZ.Name = "RotateZ";
             this.RotateZ.Size = new System.Drawing.Size(96, 20);
             this.RotateZ.TabIndex = 38;
-            this.RotateZ.Text = "0";
             // 
             // RotateY
             // 
@@ -452,7 +448,6 @@ namespace System.Windows.Forms
             this.RotateY.Name = "RotateY";
             this.RotateY.Size = new System.Drawing.Size(96, 20);
             this.RotateY.TabIndex = 37;
-            this.RotateY.Text = "0";
             // 
             // RotateX
             // 
@@ -461,7 +456,6 @@ namespace System.Windows.Forms
             this.RotateX.Name = "RotateX";
             this.RotateX.Size = new System.Drawing.Size(96, 20);
             this.RotateX.TabIndex = 36;
-            this.RotateX.Text = "0";
             // 
             // groupBox5
             // 
@@ -600,7 +594,6 @@ namespace System.Windows.Forms
             this.ScaleZ.Name = "ScaleZ";
             this.ScaleZ.Size = new System.Drawing.Size(96, 20);
             this.ScaleZ.TabIndex = 14;
-            this.ScaleZ.Text = "1";
             // 
             // ScaleY
             // 
@@ -609,7 +602,6 @@ namespace System.Windows.Forms
             this.ScaleY.Name = "ScaleY";
             this.ScaleY.Size = new System.Drawing.Size(96, 20);
             this.ScaleY.TabIndex = 13;
-            this.ScaleY.Text = "1";
             // 
             // ScaleX
             // 
@@ -618,7 +610,6 @@ namespace System.Windows.Forms
             this.ScaleX.Name = "ScaleX";
             this.ScaleX.Size = new System.Drawing.Size(96, 20);
             this.ScaleX.TabIndex = 12;
-            this.ScaleX.Text = "1";
             // 
             // keyframeCopy
             // 
@@ -805,6 +796,17 @@ namespace System.Windows.Forms
                 false;
         }
 
+        public static PartialVector3 Vec3From(TextBox x, TextBox y, TextBox z) {
+            return Vec3From(x.Text, y.Text, z.Text);
+        }
+
+        public static PartialVector3 Vec3From(string x, string y, string z) {
+            return new PartialVector3(
+                string.IsNullOrEmpty(x) ? (float?)null : float.Parse(x),
+                string.IsNullOrEmpty(y) ? (float?)null : float.Parse(y),
+                string.IsNullOrEmpty(z) ? (float?)null : float.Parse(z));
+        }
+
         public void Apply(IEnumerable<CHR0Node> CHR0)
         {
             string _name = name.Text;
@@ -825,9 +827,9 @@ namespace System.Windows.Forms
                         model = (MDL0Node)NodeFactory.FromFile(null, dlgOpen2.FileName);
                 }
             }
-            Vector3 scale = new Vector3(ScaleX.Value, ScaleY.Value, ScaleZ.Value);
-            Vector3 rot = new Vector3(RotateX.Value, RotateY.Value, RotateZ.Value);
-            Vector3 trans = new Vector3(TranslateX.Value, TranslateY.Value, TranslateZ.Value);
+            PartialVector3 scale = Vec3From(ScaleX, ScaleY, ScaleZ);
+            PartialVector3 rot = Vec3From(RotateX, RotateY, RotateZ);
+            PartialVector3 trans = Vec3From(TranslateX, TranslateY, TranslateZ);
             
             foreach (CHR0Node n in CHR0)
             {
@@ -890,9 +892,9 @@ namespace System.Windows.Forms
 
         public void Apply(IEnumerable<CHR0EntryNode> CHR0)
         {
-            Vector3 scale = new Vector3(ScaleX.Value, ScaleY.Value, ScaleZ.Value);
-            Vector3 rot = new Vector3(RotateX.Value, RotateY.Value, RotateZ.Value);
-            Vector3 trans = new Vector3(TranslateX.Value, TranslateY.Value, TranslateZ.Value);
+            PartialVector3 scale = Vec3From(ScaleX, ScaleY, ScaleZ);
+            PartialVector3 rot = Vec3From(RotateX, RotateY, RotateZ);
+            PartialVector3 trans = Vec3From(TranslateX, TranslateY, TranslateZ);
             
             foreach (CHR0EntryNode entry in CHR0)
             {
@@ -900,7 +902,7 @@ namespace System.Windows.Forms
             }
         }
 
-        private void Apply(CHR0EntryNode entry, Vector3 scale, Vector3 rot, Vector3 trans)
+        private void Apply(CHR0EntryNode entry, PartialVector3 scaleVec, PartialVector3 rotVec, PartialVector3 transVec)
         {
             KeyframeEntry kfe = null;
             CHRAnimationFrame anim;
@@ -909,6 +911,7 @@ namespace System.Windows.Forms
             int low = 0, high = 3;
             if (ScaleReplace.Checked)
             {
+                var scale = (Vector3)scaleVec;
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -927,6 +930,10 @@ namespace System.Windows.Forms
             }
             else if (ScaleAdd.Checked)
             {
+                var scale = new Vector3(
+                    scaleVec._x ?? 0,
+                    scaleVec._y ?? 0,
+                    scaleVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -952,6 +959,10 @@ namespace System.Windows.Forms
             }
             else if (ScaleSubtract.Checked)
             {
+                var scale = new Vector3(
+                    scaleVec._x ?? 0,
+                    scaleVec._y ?? 0,
+                    scaleVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -977,6 +988,10 @@ namespace System.Windows.Forms
             }
             else if (ScaleMultiply.Checked)
             {
+                var scale = new Vector3(
+                    scaleVec._x ?? 1,
+                    scaleVec._y ?? 1,
+                    scaleVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1002,6 +1017,10 @@ namespace System.Windows.Forms
             }
             else if (ScaleDivide.Checked)
             {
+                var scale = new Vector3(
+                    scaleVec._x ?? 1,
+                    scaleVec._y ?? 1,
+                    scaleVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1032,6 +1051,7 @@ namespace System.Windows.Forms
             low = 3; high = 6;
             if (RotateReplace.Checked)
             {
+                var rot = (Vector3)rotVec;
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1050,6 +1070,10 @@ namespace System.Windows.Forms
             }
             else if (RotateAdd.Checked)
             {
+                var rot = new Vector3(
+                    rotVec._x ?? 0,
+                    rotVec._y ?? 0,
+                    rotVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1075,6 +1099,10 @@ namespace System.Windows.Forms
             }
             else if (RotateSubtract.Checked)
             {
+                var rot = new Vector3(
+                    rotVec._x ?? 0,
+                    rotVec._y ?? 0,
+                    rotVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1100,6 +1128,10 @@ namespace System.Windows.Forms
             }
             else if (RotateMultiply.Checked)
             {
+                var rot = new Vector3(
+                    rotVec._x ?? 1,
+                    rotVec._y ?? 1,
+                    rotVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1125,6 +1157,10 @@ namespace System.Windows.Forms
             }
             else if (RotateDivide.Checked)
             {
+                var rot = new Vector3(
+                    rotVec._x ?? 1,
+                    rotVec._y ?? 1,
+                    rotVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1155,6 +1191,7 @@ namespace System.Windows.Forms
             low = 6; high = 9;
             if (TranslateReplace.Checked)
             {
+                var trans = (Vector3)transVec;
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = 0x10; i < high; i++)
@@ -1173,6 +1210,10 @@ namespace System.Windows.Forms
             }
             else if (TranslateAdd.Checked)
             {
+                var trans = new Vector3(
+                    transVec._x ?? 0,
+                    transVec._y ?? 0,
+                    transVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1198,6 +1239,10 @@ namespace System.Windows.Forms
             }
             else if (TranslateSubtract.Checked)
             {
+                var trans = new Vector3(
+                    transVec._x ?? 0,
+                    transVec._y ?? 0,
+                    transVec._z ?? 0);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1223,6 +1268,10 @@ namespace System.Windows.Forms
             }
             else if (TranslateMultiply.Checked)
             {
+                var trans = new Vector3(
+                    transVec._x ?? 1,
+                    transVec._y ?? 1,
+                    transVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)
@@ -1248,6 +1297,10 @@ namespace System.Windows.Forms
             }
             else if (TranslateDivide.Checked)
             {
+                var trans = new Vector3(
+                    transVec._x ?? 1,
+                    transVec._y ?? 1,
+                    transVec._z ?? 1);
                 entry.SignalPropertyChange();
                 for (int x = 0; x < numFrames; x++)
                     for (int i = low; i < high; i++)

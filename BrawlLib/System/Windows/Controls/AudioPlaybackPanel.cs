@@ -267,10 +267,21 @@ namespace System.Windows.Forms
             }
         }
 
+        public event EventHandler AudioEnded;
+
         public AudioPlaybackPanel()
         {
             InitializeComponent();
             VolumePercent = BrawlLib.Properties.Settings.Default.AudioVolumePercent;
+
+            chkLoop.CheckedChanged += (o, e) =>
+            {
+                if (chkLoop.Checked && _provider is alAudioProvider)
+                {
+                    MessageBox.Show("Looping audio with the OpenAL audio backend is not currently supported.");
+                    chkLoop.Checked = false;
+                }
+            };
         }
 
         protected override void Dispose(bool disposing)
@@ -338,7 +349,6 @@ namespace System.Windows.Forms
             }
             
             chkLoop.Checked = false;
-            chkLoop.Enabled = _targetStream.IsLooping;
             
             //Create buffer for stream
             if (_provider != null)
@@ -381,7 +391,7 @@ namespace System.Windows.Forms
             }
         }
 
-        private void Play()
+        public void Play()
         {
             if ((_isPlaying) || (CurrentBuffer == null))
                 return;
@@ -435,7 +445,10 @@ namespace System.Windows.Forms
                 if (!_loop)
                 {
                     if (CurrentBuffer.ReadSample >= _targetStream.Samples)
+                    {
                         Stop();
+                        AudioEnded?.Invoke(this, new EventArgs());
+                    }
                 }
             }
         }

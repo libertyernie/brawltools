@@ -57,210 +57,297 @@ namespace BrawlLib.Modeling
 
             Error = "There was a problem reading the model.";
             using (DecoderShell shell = DecoderShell.Import(filePath))
-            try
-            {
-                Error = "There was a problem reading texture entries.";
-
-                //Extract images, removing duplicates
-                foreach (ImageEntry img in shell._images)
+                try
                 {
-                    string name = img._path != null ? 
-                        Path.GetFileNameWithoutExtension(img._path) :
-                        img._name != null ? img._name : img._id;
+                    Error = "There was a problem reading texture entries.";
 
+                    //Extract images, removing duplicates
+                    foreach (ImageEntry img in shell._images)
+                    {
+                        string name = img._path != null ? 
+                            Path.GetFileNameWithoutExtension(img._path) :
+                            img._name != null ? img._name : img._id;
+
+                        switch (type)
+                        {
+                            case ImportType.MDL0:
+                                img._node = ((MDL0Node)model).FindOrCreateTexture(name);
+                                break;
+                        }
+                    }
+
+                    Error = "There was a problem creating a default shader.";
+
+                    //Create a shader
+                    ResourceNode shader = null;
                     switch (type)
                     {
                         case ImportType.MDL0:
-                            img._node = ((MDL0Node)model).FindOrCreateTexture(name);
+                            MDL0Node m = (MDL0Node)model;
+                            MDL0ShaderNode shadNode = new MDL0ShaderNode()
+                            {
+                                _ref0 = 0,
+                                _ref1 = -1,
+                                _ref2 = -1,
+                                _ref3 = -1,
+                                _ref4 = -1,
+                                _ref5 = -1,
+                                _ref6 = -1,
+                                _ref7 = -1,
+                            };
+
+                            shadNode._parent = m._shadGroup;
+                            m._shadList.Add(shadNode);
+
+                            switch (_importOptions._mdlType)
+                            {
+                                case ImportOptions.MDLType.Character:
+                                    for (int i = 0; i < 3; i++)
+                                    {
+                                        switch (i)
+                                        {
+                                            case 0:
+                                                shadNode.AddChild(new MDL0TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
+                                                break;
+                                            case 1:
+                                                shadNode.AddChild(new MDL0TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.ConstantColor1_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.LightChannel0, false));
+                                                break;
+                                            case 2:
+                                                shadNode.AddChild(new MDL0TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
+                                                break;
+                                        }
+                                    }
+                                    break;
+                                case ImportOptions.MDLType.Stage:
+                                    shadNode.AddChild(new MDL0TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
+                                    break;
+                            }
+
+                            shader = shadNode;
+
                             break;
                     }
-                }
 
-                Error = "There was a problem creating a default shader.";
+                    Error = "There was a problem extracting materials.";
+                    
+                    //Extract materials
+                    foreach (MaterialEntry mat in shell._materials)
+                    {
+                        List<int> uwrap = new List<int>();
+                        List<int> vwrap = new List<int>();
+                        List<int> minfilter = new List<int>();
+                        List<int> magfilter = new List<int>();
+                        List<ImageEntry> imgEntries = new List<ImageEntry>();
 
-                //Create a shader
-                ResourceNode shader = null;
-                switch (type)
-                {
-                    case ImportType.MDL0:
-                        MDL0Node m = (MDL0Node)model;
-                        MDL0ShaderNode shadNode = new MDL0ShaderNode()
+                        //Find effect
+                        if (mat._effect != null)
+                            foreach (EffectEntry eff in shell._effects)
+                                if (eff._id == mat._effect) //Attach textures and effects to material
+                                    if (eff._shader != null)
+                                        foreach (LightEffectEntry l in eff._shader._effects)
+                                            if (l._type == LightEffectType.diffuse && l._texture != null)
+                                            {
+                                                string path = l._texture;
+                                                foreach (EffectNewParam p in eff._newParams)
+                                                {
+                                                    if (p._sampler2D != null || p._sid == l._texture)
+                                                    {
+                                                        path = p._sampler2D._url;
+                                                        if (!String.IsNullOrEmpty(p._sampler2D._source))
+                                                            foreach (EffectNewParam p2 in eff._newParams)
+                                                                if (p2._sid == p._sampler2D._source)
+                                                                    path = p2._path;
+                                                        switch (p._sampler2D._wrapS)
+                                                        {
+                                                            case "CLAMP":
+                                                                uwrap.Add(0);
+                                                                break;
+                                                            case "WRAP":
+                                                                uwrap.Add(1);
+                                                                break;
+                                                            case "MIRROR":
+                                                                uwrap.Add(2);
+                                                                break;
+                                                            default:
+                                                                uwrap.Add(0);
+                                                                break;
+                                                        }
+                                                        switch (p._sampler2D._wrapT)
+                                                        {
+                                                            case "CLAMP":
+                                                                vwrap.Add(0);
+                                                                break;
+                                                            case "WRAP":
+                                                                vwrap.Add(1);
+                                                                break;
+                                                            case "MIRROR":
+                                                                vwrap.Add(2);
+                                                                break;
+                                                            default:
+                                                                vwrap.Add(0);
+                                                                break;
+                                                        }
+                                                        switch (p._sampler2D._minFilter)
+                                                        {
+                                                            case "NEAREST":
+                                                                minfilter.Add(0);
+                                                                break;
+                                                            case "LINEAR":
+                                                                minfilter.Add(1);
+                                                                break;
+                                                            case "NEAREST_MIPMAP_NEAREST":
+                                                                minfilter.Add(2);
+                                                                break;
+                                                            case "LINEAR_MIPMAP_NEAREST":
+                                                                minfilter.Add(3);
+                                                                break;
+                                                            case "NEAREST_MIPMAP_LINEAR":
+                                                                minfilter.Add(4);
+                                                                break;
+                                                            case "LINEAR_MIPMAP_LINEAR":
+                                                                minfilter.Add(5);
+                                                                break;
+                                                            default:
+                                                                minfilter.Add(0);
+                                                                break;
+                                                        }
+                                                        switch (p._sampler2D._magFilter)
+                                                        {
+                                                            case "NEAREST":
+                                                                magfilter.Add(0);
+                                                                break;
+                                                            case "LINEAR":
+                                                                magfilter.Add(1);
+                                                                break;
+                                                            case "NEAREST_MIPMAP_NEAREST":
+                                                                magfilter.Add(2);
+                                                                break;
+                                                            case "LINEAR_MIPMAP_NEAREST":
+                                                                magfilter.Add(3);
+                                                                break;
+                                                            case "NEAREST_MIPMAP_LINEAR":
+                                                                magfilter.Add(4);
+                                                                break;
+                                                            case "LINEAR_MIPMAP_LINEAR":
+                                                                magfilter.Add(5);
+                                                                break;
+                                                            default:
+                                                                magfilter.Add(0);
+                                                                break;
+                                                        }
+                                                        foreach (ImageEntry img in shell._images)
+                                                            if (img._id == path)
+                                                            {
+                                                                imgEntries.Add(img);
+                                                                break;
+                                                            }
+                                                    }
+                                                }
+                                            }
+                        switch (type)
                         {
-                            _ref0 = 0,
-                            _ref1 = -1,
-                            _ref2 = -1,
-                            _ref3 = -1,
-                            _ref4 = -1,
-                            _ref5 = -1,
-                            _ref6 = -1,
-                            _ref7 = -1,
-                        };
+                            case ImportType.MDL0:
+                                MDL0MaterialNode matNode = new MDL0MaterialNode();
 
-                        shadNode._parent = m._shadGroup;
-                        m._shadList.Add(shadNode);
+                                MDL0Node m = (MDL0Node)model;
+                                matNode._parent = m._matGroup;
+                                m._matList.Add(matNode);
 
-                        switch (_importOptions._mdlType)
-                        {
-                            case ImportOptions.MDLType.Character:
-                                for (int i = 0; i < 3; i++)
+                                matNode._name = mat._name != null ? mat._name : mat._id;
+                                matNode.ShaderNode = shader as MDL0ShaderNode;
+
+                                mat._node = matNode;
+                                matNode._cull = _importOptions._culling;
+
+                                int i = 0;
+                                foreach (ImageEntry img in imgEntries)
                                 {
-                                    switch (i)
-                                    {
-                                        case 0:
-                                            shadNode.AddChild(new MDL0TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
-                                            break;
-                                        case 1:
-                                            shadNode.AddChild(new MDL0TEVStageNode(0x08FEB0, 0x081FF0, 0, TevKColorSel.ConstantColor1_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.LightChannel0, false));
-                                            break;
-                                        case 2:
-                                            shadNode.AddChild(new MDL0TEVStageNode(0x0806EF, 0x081FF0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap7, TexCoordID.TexCoord7, ColorSelChan.Zero, false));
-                                            break;
-                                    }
+                                    MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+                                    (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
+                                    mr._name = mr._texture.Name;
+                                    matNode._children.Add(mr);
+                                    mr._parent = matNode;
+                                    mr._minFltr = minfilter[i];
+                                    mr._magFltr = magfilter[i];
+                                    mr._uWrap = uwrap[i];
+                                    mr._vWrap = vwrap[i];
+                                    i++;
                                 }
                                 break;
-                            case ImportOptions.MDLType.Stage:
-                                shadNode.AddChild(new MDL0TEVStageNode(0x28F8AF, 0x08F2F0, 0, TevKColorSel.ConstantColor0_RGB, TevKAlphaSel.ConstantColor0_Alpha, TexMapID.TexMap0, TexCoordID.TexCoord0, ColorSelChan.LightChannel0, true));
+                        }
+                    }
+
+                    Say("Extracting scenes...");
+
+                    List<ObjectInfo> _objects = new List<ObjectInfo>();
+                    ResourceNode boneGroup = null;
+                    switch (type)
+                    {
+                        case ImportType.MDL0:
+                            boneGroup = ((MDL0Node)model)._boneGroup;
+                            break;
+                    }
+
+                    //Extract bones and objects and create bone tree
+                    foreach (SceneEntry scene in shell._scenes)
+                        foreach (NodeEntry node in scene._nodes)
+                            EnumNode(node, boneGroup, scene, model, shell, _objects, TransformMatrix, Matrix.Identity);
+
+                    //Add root bone if there are no bones
+                    if (boneGroup.Children.Count == 0)
+                        switch (type)
+                        {
+                            case ImportType.MDL0:
+                                MDL0BoneNode bone = new MDL0BoneNode();
+                                bone.Scale = new Vector3(1);
+                                bone.RecalcBindState(false, false);
+                                bone._name = "TopN";
+                                TempRootBone = bone;
                                 break;
                         }
 
-                        shader = shadNode;
+                    //Create objects
+                    foreach (ObjectInfo obj in _objects)
+                    {
+                        NodeEntry node = obj._node;
+                        string w = obj._weighted ? "" : "un";
+                        string w2 = obj._weighted ? "\nOne or more vertices may not be weighted correctly." : "";
+                        string n = node._name != null ? node._name : node._id;
 
-                        break;
-                }
+                        Error = String.Format("There was a problem decoding {0}weighted primitives for the object {1}.{2}", w, n, w2);
 
-                Error = "There was a problem extracting materials.";
+                        Say(String.Format("Decoding {0}weighted primitives for {1}...", w, n));
 
-                //Extract materials
-                foreach (MaterialEntry mat in shell._materials)
-                {
-                    List<ImageEntry> imgEntries = new List<ImageEntry>();
+                        obj.Initialize(model, shell);
+                    }
 
-                    //Find effect
-                    if (mat._effect != null)
-                        foreach (EffectEntry eff in shell._effects)
-                            if (eff._id == mat._effect) //Attach textures and effects to material
-                                if (eff._shader != null)
-                                    foreach (LightEffectEntry l in eff._shader._effects)
-                                        if (l._type == LightEffectType.diffuse && l._texture != null)
-                                        {
-                                            string path = l._texture;
-                                            foreach (EffectNewParam p in eff._newParams)
-                                                if (p._sid == l._texture)
-                                                {
-                                                    path = p._sampler2D._url;
-                                                    if (!String.IsNullOrEmpty(p._sampler2D._source))
-                                                        foreach (EffectNewParam p2 in eff._newParams)
-                                                            if (p2._sid == p._sampler2D._source)
-                                                                path = p2._path;
-                                                }
-
-                                            foreach (ImageEntry img in shell._images)
-                                                if (img._id == path)
-                                                {
-                                                    imgEntries.Add(img);
-                                                    break;
-                                                }
-                                        }
+                    //Finish
                     switch (type)
                     {
                         case ImportType.MDL0:
-                            MDL0MaterialNode matNode = new MDL0MaterialNode();
-
-                            MDL0Node m = (MDL0Node)model;
-                            matNode._parent = m._matGroup;
-                            m._matList.Add(matNode);
-
-                            matNode._name = mat._name != null ? mat._name : mat._id;
-                            matNode.ShaderNode = shader as MDL0ShaderNode;
-
-                            mat._node = matNode;
-                            matNode._cull = _importOptions._culling;
-
-                            foreach (ImageEntry img in imgEntries)
+                            MDL0Node mdl0 = (MDL0Node)model;
+                            if (TempRootBone != null)
                             {
-                                MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
-                                (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
-                                mr._name = mr._texture.Name;
-                                matNode._children.Add(mr);
-                                mr._parent = matNode;
-                                mr._minFltr = mr._magFltr = 1;
-                                mr._uWrap = mr._vWrap = (int)_importOptions._wrap;
+                                mdl0._boneGroup._children.Add(TempRootBone);
+                                TempRootBone._parent = mdl0._boneGroup;
                             }
+                            FinishMDL0(mdl0);
                             break;
                     }
                 }
-
-                Say("Extracting scenes...");
-
-                List<ObjectInfo> _objects = new List<ObjectInfo>();
-                ResourceNode boneGroup = null;
-                switch (type)
+    #if !DEBUG
+                catch (Exception x)
                 {
-                    case ImportType.MDL0:
-                        boneGroup = ((MDL0Node)model)._boneGroup;
-                        break;
+                    MessageBox.Show("Cannot continue importing this model.\n" + Error + "\n\nException:\n" + x.ToString());
+                    model = null;
+                    Close();
                 }
-
-                //Extract bones and objects and create bone tree
-                foreach (SceneEntry scene in shell._scenes)
-                    foreach (NodeEntry node in scene._nodes)
-                        EnumNode(node, boneGroup, scene, model, shell, _objects, TransformMatrix, Matrix.Identity);
-
-                //Add root bone if there are no bones
-                if (boneGroup.Children.Count == 0)
-                    switch (type)
-                    {
-                        case ImportType.MDL0:
-                            MDL0BoneNode bone = new MDL0BoneNode();
-                            bone.Scale = new Vector3(1);
-                            bone.RecalcBindState(false, false);
-                            bone._name = "TopN";
-                            TempRootBone = bone;
-                            break;
-                    }
-
-                //Create objects
-                foreach (ObjectInfo obj in _objects)
+    #endif
+                finally
                 {
-                    NodeEntry node = obj._node;
-                    string w = obj._weighted ? "" : "un";
-                    string w2 = obj._weighted ? "\nOne or more vertices may not be weighted correctly." : "";
-                    string n = node._name != null ? node._name : node._id;
-
-                    Error = String.Format("There was a problem decoding {0}weighted primitives for the object {1}.{2}", w, n, w2);
-
-                    Say(String.Format("Decoding {0}weighted primitives for {1}...", w, n));
-
-                    obj.Initialize(model, shell);
+                    //Clean up the mess we've made
+                    GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
                 }
-
-                //Finish
-                switch (type)
-                {
-                    case ImportType.MDL0:
-                        MDL0Node mdl0 = (MDL0Node)model;
-                        if (TempRootBone != null)
-                        {
-                            mdl0._boneGroup._children.Add(TempRootBone);
-                            TempRootBone._parent = mdl0._boneGroup;
-                        }
-                        FinishMDL0(mdl0);
-                        break;
-                }
-            }
-#if !DEBUG
-            catch (Exception x)
-            {
-                MessageBox.Show("Cannot continue importing this model.\n" + Error + "\n\nException:\n" + x.ToString());
-                model = null;
-                Close();
-            }
-#endif
-            finally
-            {
-                //Clean up the mess we've made
-                GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
-            }
 
             CurrentModel = null;
             Error = null;
@@ -627,13 +714,11 @@ namespace BrawlLib.Modeling
             public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
             [Category("Model"), Description("Sets the model version number, which affects how some parts of the model are written. Only versions 8, 9, 10 and 11 are supported.")]
             public int ModelVersion { get { return _modelVersion; } set { _modelVersion = value.Clamp(8, 11); } }
-            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Rotates the entire model before importing. This can be used to fix a model's up axis, as BrawlBox uses Y-up while some other 3D programs use Z-up.")]
+            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Rotates the entire model before importing. This can be used to fix a model's up axis, as BrawlCrate uses Y-up while some other 3D programs use Z-up.")]
             //public Vector3 ModifyRotation { get { return _modifyRotation; } set { _modifyRotation = value; } }
-            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlBox uses centimeters while other 3D programs uses units such as meters or inches.")]
+            //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlCrate uses centimeters while other 3D programs uses units such as meters or inches.")]
             //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
             
-            [Category("Materials"), Description("The default texture wrap for material texture references.")]
-            public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
             [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
             [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
@@ -692,7 +777,6 @@ namespace BrawlLib.Modeling
             public float _weightPrecision = 0.0001f;
             public int _modelVersion = 9;
             public bool _useOneNode = true;
-            public MatWrapMode _wrap = MatWrapMode.Repeat;
 
             //This doesn't work, but it's optional and not efficient with the cache on anyway
             public bool _backwardSearch = false;

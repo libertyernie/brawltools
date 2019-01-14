@@ -11,6 +11,7 @@ using System.Reflection;
 using BrawlLib.SSBB.ResourceNodes;
 using System.Windows.Forms;
 using BrawlBox.NodeWrappers;
+using System.Diagnostics;
 
 namespace BrawlBox.API
 {
@@ -51,28 +52,76 @@ namespace BrawlBox.API
 
         internal static void RunScript(string path)
         {
-            try
+            if (Path.GetExtension(path) == ".fsx")
             {
-                ScriptSource script = Engine.CreateScriptSourceFromFile(path);
-                CompiledCode code = script.Compile();
-                ScriptScope scope = Engine.CreateScope();
-                script.Execute();
-            }
-            catch (SyntaxErrorException e)
-            {
-                string msg = $"Syntax error in \"{Path.GetFileName(path)}\"\n{e.Message}";
-                ShowMessage(msg, Path.GetFileName(path));
-            }
-            catch (SystemExitException e)
-            {
-                string msg = $"SystemExit in \"{Path.GetFileName(path)}\"\n{e.Message}";
-                ShowMessage(msg, Path.GetFileName(path));
-            }
+                string fsi_path =
+                    new[] {
+                        ".",
+                        Environment.GetEnvironmentVariable("ProgramFiles"),
+                        Environment.GetEnvironmentVariable("ProgramFiles(x86)")
+                    }
+                    .Select(s => s == null ? null : Path.Combine(s, "Microsoft SDKs", "F#"))
+                    .SelectMany(dir => dir != null && Directory.Exists(dir)
+                        ? Directory.GetFiles(dir, "fsi.exe", SearchOption.AllDirectories)
+                        : new string[0])
+                    .FirstOrDefault(s => File.Exists(s));
 
-            catch (Exception e)
+                if (fsi_path == null) {
+                    if (DialogResult.OK == MessageBox.Show("F# Interactive (fsi.exe) was not found. Would you like to install the Build Tools for Visual Studio?", "BrawlBox", MessageBoxButtons.OKCancel, MessageBoxIcon.Question)) {
+                        Process.Start("https://visualstudio.microsoft.com/downloads/#build-tools-for-visual-studio-2017");
+                    }
+                } else {
+                    string tempPath = Path.Combine(Path.GetTempPath(), $"BrawlBox-{Guid.NewGuid()}.fsx");
+                    using (var srIn = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read)))
+                    using (var swOut = new StreamWriter(new FileStream(tempPath, FileMode.Create, FileAccess.Write))) {
+                        swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(NodeFactory)).Location.Replace('\\', '/')}\"");
+                        swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(MainForm)).Location.Replace('\\', '/')}\"");
+                        //swOut.WriteLine($"open BrawlBox.API");
+                        string line;
+                        while ((line = srIn.ReadLine()) != null) {
+                            swOut.WriteLine(line);
+                        }
+                    }
+
+                    var p = Process.Start(new ProcessStartInfo {
+                        FileName = fsi_path,
+                        Arguments = $"--noninteractive \"{tempPath}\"",
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    });
+                    p.WaitForExit();
+                    File.Delete(tempPath);
+                    if (p.ExitCode != 0) {
+                        MessageBox.Show($"fsi.exe quit with exit code {p.ExitCode}");
+                    }
+                }
+            }
+            else
             {
-                string msg = $"Error running script \"{Path.GetFileName(path)}\"\n{e.Message}";
-                ShowMessage(msg, Path.GetFileName(path));
+
+                try
+                {
+                    ScriptSource script = Engine.CreateScriptSourceFromFile(path);
+                    CompiledCode code = script.Compile();
+                    ScriptScope scope = Engine.CreateScope();
+                    script.Execute();
+                }
+                catch (SyntaxErrorException e)
+                {
+                    string msg = $"Syntax error in \"{Path.GetFileName(path)}\"\n{e.Message}";
+                    ShowMessage(msg, Path.GetFileName(path));
+                }
+                catch (SystemExitException e)
+                {
+                    string msg = $"SystemExit in \"{Path.GetFileName(path)}\"\n{e.Message}";
+                    ShowMessage(msg, Path.GetFileName(path));
+                }
+
+                catch (Exception e)
+                {
+                    string msg = $"Error running script \"{Path.GetFileName(path)}\"\n{e.Message}";
+                    ShowMessage(msg, Path.GetFileName(path));
+                }
             }
         }
         internal static void CreatePlugin(string path, bool loader)

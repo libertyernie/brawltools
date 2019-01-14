@@ -174,8 +174,7 @@ namespace BrawlLib.Modeling
                     {
                         if (mat.Children.Count > 0)
                         {
-                            MDL0MaterialRefNode mr = mat.Children[0] as MDL0MaterialRefNode;
-                            if (mr._texture != null)
+                            foreach (MDL0MaterialRefNode mr in mat.Children)
                             {
                                 writer.WriteStartElement("newparam");
                                 writer.WriteAttributeString("sid", mr._texture.Name + "-surface");
@@ -431,7 +430,11 @@ namespace BrawlLib.Modeling
 
             HashSet<Vector3> list = new HashSet<Vector3>();
             for (int i = 0; i < p._pointCount; i++)
-                list.Add(p._vertices[pIndex[i]].GetMatrix().GetRotationMatrix() * pData[i]);
+                if(pIndex[i] != null && p._vertices.Count > pIndex[i] && pData[i] != null)
+                    list.Add(p._vertices[pIndex[i]].GetMatrix().GetRotationMatrix() * pData[i]);
+
+            if (list.Count <= 0)
+                return; // No normals to write; This likely should never happen, but prevents crashes if it does
 
             _normals = new Vector3[list.Count];
             list.CopyTo(_normals);
@@ -439,7 +442,8 @@ namespace BrawlLib.Modeling
             int count = _normals.Length;
             _normRemap = new List<int>();
             for (int i = 0; i < p._pointCount; i++)
-                _normRemap.Add(Array.IndexOf(_normals, p._vertices[pIndex[i]].GetMatrix().GetRotationMatrix() * pData[i]));
+                if(p._vertices.Count > pIndex[i])
+                    _normRemap.Add(Array.IndexOf(_normals, p._vertices[pIndex[i]].GetMatrix().GetRotationMatrix() * pData[i]));
 
             //Position source
             writer.WriteStartElement("source");
@@ -522,7 +526,11 @@ namespace BrawlLib.Modeling
                 
                 RGBAPixel r = _colors[set][i];
 
-                writer.WriteString(String.Format("{0} {1} {2} {3}", r.R * cFactor, r.G * cFactor, r.B * cFactor, r.A * cFactor));
+                writer.WriteString(String.Format("{0} {1} {2} {3}",
+                    (r.R * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.G * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.B * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat),
+                    (r.A * cFactor).ToString(CultureInfo.InvariantCulture.NumberFormat)));
             }
 
             writer.WriteEndElement(); //int_array

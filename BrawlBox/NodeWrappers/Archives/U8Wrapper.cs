@@ -161,7 +161,87 @@ namespace BrawlBox.NodeWrappers
             if (path == null)
                 return;
 
-            ((ARCNode)_resource).ExtractToFolder(path);
+            bool hasModels = false;
+            bool hasTextures = false;
+            foreach (ResourceNode r in _resource.Children)
+            {
+                if (hasModels && hasTextures)
+                    break;
+                if (r is BRRESNode)
+                {
+                    foreach (BRESGroupNode e in r.Children)
+                    {
+                        if (e.Type == BRESGroupNode.BRESGroupType.Textures)
+                            hasTextures = true;
+                        else if (e.Type == BRESGroupNode.BRESGroupType.Models)
+                            hasModels = true;
+                        if (hasModels && hasTextures)
+                            break;
+                    }
+                }
+                else if (r is U8FolderNode)
+                {
+                    bool hasModelsTemp = false;
+                    bool hasTexturesTemp = false;
+                    searchU8Folder((U8FolderNode)r, out hasModelsTemp, out hasTexturesTemp);
+                    hasModels = (hasModels || hasModelsTemp);
+                    hasTextures = (hasTextures || hasTexturesTemp);
+                }
+            }
+
+            string extensionTEX0 = ".tex0";
+            string extensionMDL0 = ".mdl0";
+
+            if (hasTextures)
+            {
+                ExportAllFormatDialog dialog = new ExportAllFormatDialog();
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                    extensionTEX0 = dialog.SelectedExtension;
+                else
+                    return;
+            }
+            if (hasModels)
+            {
+                ExportAllFormatDialog dialog = new ExportAllFormatDialog(true);
+
+                if (dialog.ShowDialog() == DialogResult.OK)
+                    extensionMDL0 = dialog.SelectedExtension;
+                else
+                    return;
+            }
+            ((U8Node)_resource).ExtractToFolder(path, extensionTEX0, extensionMDL0);
+        }
+
+        public void searchU8Folder(U8FolderNode u8, out bool hasModels, out bool hasTextures)
+        {
+            hasModels = false;
+            hasTextures = false;
+            foreach (ResourceNode r in u8.Children)
+            {
+                if (hasModels && hasTextures)
+                    break;
+                if (r is BRRESNode)
+                {
+                    foreach (BRESGroupNode e in r.Children)
+                    {
+                        if (e.Type == BRESGroupNode.BRESGroupType.Textures)
+                            hasTextures = true;
+                        else if (e.Type == BRESGroupNode.BRESGroupType.Models)
+                            hasModels = true;
+                        if (hasModels && hasTextures)
+                            break;
+                    }
+                }
+                else if (r is U8FolderNode)
+                {
+                    bool hasModelsTemp = false;
+                    bool hasTexturesTemp = false;
+                    searchU8Folder((U8FolderNode)r, out hasModelsTemp, out hasTexturesTemp);
+                    hasModels = (hasModels || hasModelsTemp);
+                    hasTextures = (hasTextures || hasTexturesTemp);
+                }
+            }
         }
 
         public void ReplaceAll()

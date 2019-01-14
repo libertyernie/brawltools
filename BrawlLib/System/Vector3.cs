@@ -8,6 +8,25 @@ namespace System
 {
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
+    public unsafe struct PartialVector3 {
+        public float? _x, _y, _z;
+
+        public PartialVector3(float? x, float? y, float? z) { _x = x; _y = y; _z = z; }
+
+        public static explicit operator Vector3(PartialVector3 v) {
+            return new Vector3(
+                v._x ?? throw new Exception("Cannot cast to Vector3 (X value is missing)"),
+                v._y ?? throw new Exception("Cannot cast to Vector3 (Y value is missing)"),
+                v._z ?? throw new Exception("Cannot cast to Vector3 (Z value is missing)"));
+        }
+
+        public static implicit operator PartialVector3(Vector3 v) {
+            return new PartialVector3(v._x, v._y, v._z);
+        }
+    }
+
+    [Serializable]
+    [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public unsafe struct Vector3 : IComparable, ISerializable
     {
         public float _x, _y, _z;
