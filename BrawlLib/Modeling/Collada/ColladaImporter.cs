@@ -150,7 +150,7 @@ namespace BrawlLib.Modeling
                                                 string path = l._texture;
                                                 foreach (EffectNewParam p in eff._newParams)
                                                 {
-                                                    if (p._sampler2D != null || p._sid == l._texture)
+                                                    if (p._sid == l._texture)
                                                     {
                                                         path = p._sampler2D._url;
                                                         if (!String.IsNullOrEmpty(p._sampler2D._source))
@@ -235,14 +235,14 @@ namespace BrawlLib.Modeling
                                                                 magfilter.Add(0);
                                                                 break;
                                                         }
-                                                        foreach (ImageEntry img in shell._images)
-                                                            if (img._id == path)
-                                                            {
-                                                                imgEntries.Add(img);
-                                                                break;
-                                                            }
                                                     }
                                                 }
+                                                foreach (ImageEntry img in shell._images)
+                                                    if (img._id == path)
+                                                    {
+                                                        imgEntries.Add(img);
+                                                        break;
+                                                    }
                                             }
                         switch (type)
                         {
@@ -267,10 +267,10 @@ namespace BrawlLib.Modeling
                                     mr._name = mr._texture.Name;
                                     matNode._children.Add(mr);
                                     mr._parent = matNode;
-                                    mr._minFltr = minfilter[i];
-                                    mr._magFltr = magfilter[i];
-                                    mr._uWrap = uwrap[i];
-                                    mr._vWrap = vwrap[i];
+                                    mr._minFltr = minfilter.Count > i ? minfilter[i] : 0;
+                                    mr._magFltr = magfilter.Count > i ? magfilter[i] : 0;
+                                    mr._uWrap = uwrap.Count > i ? uwrap[i] : 0;
+                                    mr._vWrap = vwrap.Count > i ? vwrap[i] : 0;
                                     i++;
                                 }
                                 break;
