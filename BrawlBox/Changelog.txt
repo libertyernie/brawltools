@@ -855,6 +855,8 @@ Initial Release (2/19/2015):
 	
 * A video card that supports OpenGL 1.1 or higher (OpenGL 2.1 is required to enable shaders).
 
+Non-Windows users can try running BrawlBox with mono (32-bit only), or with wine (use a separate WINEPREFIX and `winetricks dotnet40`).
+
  ====================================
 |********* Acknowledgements *********|
  ====================================
