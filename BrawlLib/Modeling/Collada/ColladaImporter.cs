@@ -169,7 +169,7 @@ namespace BrawlLib.Modeling
                                                                 uwrap.Add(2);
                                                                 break;
                                                             default:
-                                                                uwrap.Add(0);
+                                                                uwrap.Add((int)_importOptions.TextureWrap);   // Default to user-defined
                                                                 break;
                                                         }
                                                         switch (p._sampler2D._wrapT)
@@ -184,7 +184,7 @@ namespace BrawlLib.Modeling
                                                                 vwrap.Add(2);
                                                                 break;
                                                             default:
-                                                                vwrap.Add(0);
+                                                                vwrap.Add((int)_importOptions.TextureWrap);   // Default to user-defined
                                                                 break;
                                                         }
                                                         switch (p._sampler2D._minFilter)
@@ -208,7 +208,7 @@ namespace BrawlLib.Modeling
                                                                 minfilter.Add(5);
                                                                 break;
                                                             default:
-                                                                minfilter.Add(0);
+                                                                minfilter.Add((int)_importOptions.MinFilter);   // Default to user-defined
                                                                 break;
                                                         }
                                                         switch (p._sampler2D._magFilter)
@@ -220,19 +220,23 @@ namespace BrawlLib.Modeling
                                                                 magfilter.Add(1);
                                                                 break;
                                                             case "NEAREST_MIPMAP_NEAREST":
-                                                                magfilter.Add(2);
+                                                                magfilter.Add(0);
+                                                                //magfilter.Add(2);   // Unused. Use Nearest instead.
                                                                 break;
                                                             case "LINEAR_MIPMAP_NEAREST":
-                                                                magfilter.Add(3);
+                                                                magfilter.Add(1);
+                                                                //magfilter.Add(3);   // Unused. Use Linear instead.
                                                                 break;
                                                             case "NEAREST_MIPMAP_LINEAR":
-                                                                magfilter.Add(4);
+                                                                magfilter.Add(0);
+                                                                //magfilter.Add(4);   // Unused. Use Nearest instead.
                                                                 break;
                                                             case "LINEAR_MIPMAP_LINEAR":
-                                                                magfilter.Add(5);
+                                                                magfilter.Add(1);
+                                                                //magfilter.Add(5);   // Unused. Use Linear instead.
                                                                 break;
                                                             default:
-                                                                magfilter.Add(0);
+                                                                magfilter.Add((int)_importOptions.MagFilter);   // Default to user-defined
                                                                 break;
                                                         }
                                                     }
@@ -267,10 +271,10 @@ namespace BrawlLib.Modeling
                                     mr._name = mr._texture.Name;
                                     matNode._children.Add(mr);
                                     mr._parent = matNode;
-                                    mr._minFltr = minfilter.Count > i ? minfilter[i] : 0;
-                                    mr._magFltr = magfilter.Count > i ? magfilter[i] : 0;
-                                    mr._uWrap = uwrap.Count > i ? uwrap[i] : 0;
-                                    mr._vWrap = vwrap.Count > i ? vwrap[i] : 0;
+                                    mr._minFltr = minfilter.Count > i ? minfilter[i] : (int)_importOptions.MinFilter;
+                                    mr._magFltr = magfilter.Count > i ? magfilter[i] : (int)_importOptions.MagFilter;
+                                    mr._uWrap = uwrap.Count > i ? uwrap[i] : (int)_importOptions.TextureWrap;
+                                    mr._vWrap = vwrap.Count > i ? vwrap[i] : (int)_importOptions.TextureWrap;
                                     i++;
                                 }
                                 break;
@@ -719,6 +723,12 @@ namespace BrawlLib.Modeling
             //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlCrate uses centimeters while other 3D programs uses units such as meters or inches.")]
             //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
             
+            [Category("Materials"), Description("The default texture wrap for material texture references.")]
+            public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
+            [Category("Materials"), Description("The default min filter for material texture references.")]
+            public MatTextureMinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
+            [Category("Materials"), Description("The default magnification filter for material texture references.")]
+            public MatTextureMagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
             [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
             [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
@@ -777,6 +787,9 @@ namespace BrawlLib.Modeling
             public float _weightPrecision = 0.0001f;
             public int _modelVersion = 9;
             public bool _useOneNode = true;
+            public MatWrapMode _wrap = MatWrapMode.Repeat;
+            public MatTextureMinFilter _minFilter = MatTextureMinFilter.Linear;
+            public MatTextureMagFilter _magFilter = MatTextureMagFilter.Linear;
 
             //This doesn't work, but it's optional and not efficient with the cache on anyway
             public bool _backwardSearch = false;
