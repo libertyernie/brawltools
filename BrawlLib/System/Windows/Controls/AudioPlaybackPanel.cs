@@ -278,8 +278,8 @@ namespace System.Windows.Forms
             {
                 if (chkLoop.Checked && _provider is alAudioProvider)
                 {
-                    MessageBox.Show("Looping audio with the OpenAL audio backend is not currently supported.");
                     chkLoop.Checked = false;
+                    MessageBox.Show("Looping audio with the OpenAL audio backend is not currently supported.");
                 }
             };
         }

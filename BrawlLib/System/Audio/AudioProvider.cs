@@ -13,15 +13,28 @@ namespace System.Audio
         internal List<AudioBuffer> _buffers = new List<AudioBuffer>();
         public List<AudioBuffer> Buffers { get { return _buffers; } }
 
+        [Flags]
+        public enum AudioProviderType {
+            None = 0,
+            DirectSound = 1,
+            OpenAL = 2,
+            All = ~0
+        };
+        public static AudioProviderType AvailableTypes = AudioProviderType.All;
+
         public static AudioProvider Create(AudioDevice device)
         {
-            switch (Environment.OSVersion.Platform) {
-                case PlatformID.Win32NT:
-                    if (IntPtr.Size <= 4) return new wAudioProvider(device);
-                    break;
+            if (AvailableTypes.HasFlag(AudioProviderType.DirectSound))
+            {
+                switch (Environment.OSVersion.Platform)
+                {
+                    case PlatformID.Win32NT:
+                        if (IntPtr.Size <= 4) return new wAudioProvider(device);
+                        break;
+                }
             }
             
-            if (device == null)
+            if (device == null && AvailableTypes.HasFlag(AudioProviderType.OpenAL))
             {
                 try
                 {
