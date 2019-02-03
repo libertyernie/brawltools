@@ -17,12 +17,30 @@ they be held accountable for the manner in which it is used.
  - v0.?? - BrawlLib 0.??
 
  Initial Release (x/xx/19)
- . PCM16 RSTM encoding bugs fixed (#113, #115)
+ . PCM16 RSTM encoding and export bugs fixed (#113, #115, #160)
  . Fixed pasting of color data (#116)
  . Shader index corruption fixed (#120)
  . Weight editor updated to handle newly added bones (#103)
  . Advanced Model Editor screenshot tool fix (#117)
- . more...
+ . You can rename BRRES files now (#118)
+ . Fixes when selecting multiple bones (#128)
+ . SRT0 export fix (#134)
+ . DirectSound is now the default audio backend when available
+ . All fields in the property grid expand automatically when selecting a new node (#145)
+ . Property grid scroll position maintained when changing nodes (#146)
+ . Improvements in classic mode editing in common2 (#151)
+ . Added a checkbox in the texture converter to swap the main and alpha channels (for IA4 textures from old versions of BrawlBox)
+ . Renamed STPM fields 15, 16, 17, and 19 to HorizontalRotationFactor, VerticalRotationFactor, CharacterBubbleBufferMultiplier, and CameraSpeed (#168)
+ . The default transformation in the Edit All Animations dialog is now to do nothing (#171)
+ . Updater.exe now allows TLS 1.2 connections (#172)
+ . Looping disabled when using OpenAL (#178)
+ . Allow rebuilding an ARCNode with children that are not ARCEntryNodes (#194)
+ . Collada importer updated (#198, #205, #209, etc.)
+ . Module (.rel) editing fixes
+ . Various MDL0 fixes
+ . Ported from StageBox: collision editor changes; new SCLA support; new names for collision types; improved Export All; high-DPI window resize bug fix
+ . The alt key no longer triggers material rebuilds in the model viewer (#204)
+ . F# scripts (.fsx) are now supported if the F# build tools are installed
  
  - v0.78 - BrawlLib 0.25
 
