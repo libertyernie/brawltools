@@ -40,7 +40,7 @@ they be held accountable for the manner in which it is used.
  . Various MDL0 fixes
  . Ported from StageBox: collision editor changes; new SCLA support; new names for collision types; improved Export All; high-DPI window resize bug fix
  . The alt key no longer triggers material rebuilds in the model viewer (#204)
- . F# scripts (.fsx) are now supported if the F# build tools are installed
+ . F# scripts (.fsx) are now supported if the F# build tools are installed (however, the "bboxapi" object is not supported)
  
  - v0.78 - BrawlLib 0.25
 

@@ -60,8 +60,12 @@ namespace BrawlBox.API
                         Environment.GetEnvironmentVariable("ProgramFiles"),
                         Environment.GetEnvironmentVariable("ProgramFiles(x86)")
                     }
-                    .Select(s => s == null ? null : Path.Combine(s, "Microsoft SDKs", "F#"))
-                    .SelectMany(dir => dir != null && Directory.Exists(dir)
+                    .Where(s => s != null)
+                    .SelectMany(s => new[] {
+                        Path.Combine(s, "Microsoft SDKs", "F#"),
+                        Path.Combine(s, "Microsoft Visual Studio")
+                    })
+                    .SelectMany(dir => Directory.Exists(dir)
                         ? Directory.GetFiles(dir, "fsi.exe", SearchOption.AllDirectories)
                         : new string[0])
                     .FirstOrDefault(s => File.Exists(s));
@@ -76,7 +80,6 @@ namespace BrawlBox.API
                     using (var swOut = new StreamWriter(new FileStream(tempPath, FileMode.Create, FileAccess.Write))) {
                         swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(NodeFactory)).Location.Replace('\\', '/')}\"");
                         swOut.WriteLine($"#r \"{Assembly.GetAssembly(typeof(MainForm)).Location.Replace('\\', '/')}\"");
-                        //swOut.WriteLine($"open BrawlBox.API");
                         string line;
                         while ((line = srIn.ReadLine()) != null) {
                             swOut.WriteLine(line);
@@ -87,13 +90,22 @@ namespace BrawlBox.API
                         FileName = fsi_path,
                         Arguments = $"--noninteractive \"{tempPath}\"",
                         UseShellExecute = false,
-                        CreateNoWindow = true
+                        CreateNoWindow = true,
+                        RedirectStandardError = true
                     });
-                    p.WaitForExit();
-                    File.Delete(tempPath);
-                    if (p.ExitCode != 0) {
-                        MessageBox.Show($"fsi.exe quit with exit code {p.ExitCode}");
-                    }
+                    p.EnableRaisingEvents = true;
+                    p.Exited += (o, e) =>
+                    {
+                        File.Delete(tempPath);
+                        if (p.ExitCode != 0)
+                        {
+                            string err = p.StandardError.ReadToEnd().Trim();
+                            if (!string.IsNullOrWhiteSpace(err))
+                                MessageBox.Show(err);
+                            else
+                                MessageBox.Show($"fsi.exe quit with exit code {p.ExitCode}");
+                        }
+                    };
                 }
             }
             else
