@@ -207,7 +207,7 @@ namespace BrawlBox.NodeWrappers
 
         public void AutoMetal()
         {
-            if (MessageBox.Show(null, "Are you sure you want to (re)generate metal materials for Brawl?\nAll existing metal materials and shaders will be reset.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            if (MessageBox.Show(null, "Are you sure you want to (re)generate metal materials for Brawl?\nAll existing metal materials and shaders will be reset.\nRequires ForceFloatUVs and ForceFloatNormals if any objects are rigged to multiple bones.", "", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 ((MDL0Node)_resource).GenerateMetalMaterials();
         }
 
