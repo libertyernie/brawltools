@@ -451,7 +451,7 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return null;
         }
-		public MDL0BoneNode FindBoneByIndex(int givenIndex)
+        public MDL0BoneNode FindBoneByIndex(int givenIndex)
         {
             // Generate bones if the model hasn't been seen yet
             if(_boneGroup == null)
