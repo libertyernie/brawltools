@@ -451,6 +451,20 @@ namespace BrawlLib.SSBB.ResourceNodes
 
             return null;
         }
+		public MDL0BoneNode FindBoneByIndex(int givenIndex)
+        {
+            // Generate bones if the model hasn't been seen yet
+            if(_boneGroup == null)
+            {
+                Populate();
+                _linker.RegenerateBoneCache();
+            }
+            foreach (MDL0BoneNode b in BoneCache)
+                if (b.BoneIndex == givenIndex)
+                    return b;
+
+            return null;
+        }
         public MDL0MaterialNode FindOrCreateOpaMaterial(string name)
         {
             foreach (MDL0MaterialNode m in _matList)
