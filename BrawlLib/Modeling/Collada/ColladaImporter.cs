@@ -356,7 +356,78 @@ namespace BrawlLib.Modeling
             CurrentModel = null;
             Error = null;
 
+            // Blender Bone Fix
+            if(_importOptions._blenderBoneFix && model is MDL0Node)
+            {
+                MDL0Node m = (MDL0Node)model;
+                MDL0BoneNode oldTop = m.FindBoneByIndex(0);
+                if (oldTop.HasChildren)
+                {
+                    MDL0BoneNode actualTop = (MDL0BoneNode)oldTop.Children[0];
+                    // Try to ensure top bone is a mistake bone
+                    if(oldTop.Children.Count == 1 && (!oldTop.Name.Equals("TopN") || actualTop.Name.Equals("TopN")))
+                    {
+                        // Remove the actual top bone
+                        m.FindChildrenByName("Bones")[0].AddChild(actualTop);
+                        m.FindChildrenByName("Bones")[0].RemoveChild(m.FindChildrenByName("Bones")[0].Children[0]);
+                        m._linker.RegenerateBoneCache(true);
+                        // Remove reference to the current top bone, as well as any end bones
+                        foreach (MDL0ObjectNode obj in m._objList)
+                        {
+                            if (obj.SingleBind.Equals(oldTop.Name))
+                                obj.SingleBind = actualTop.Name;                                    // Remove unecessary reference to armature bone
+                            else if (obj.SingleBind.EndsWith("_end") && m.FindBone(obj.SingleBind) != null && m.FindBone(obj.SingleBind).Parent != null && obj.SingleBind.Equals(m.FindBone(obj.SingleBind).Parent.Name + "_end") && ensureBoneIsUnused(m.FindBone(obj.SingleBind)))
+                                obj.SingleBind = m.FindBone(obj.SingleBind).Parent.Name;            // Remove unecessary reference to "end" bones
+                            else
+                                obj.SingleBind = obj.SingleBind;                                    // Ensure bones are still properly linked
+                            foreach (DrawCall dc in obj._drawCalls)
+                            {
+                                if (dc.VisibilityBone.Equals(oldTop.Name))
+                                    dc.VisibilityBone = actualTop.Name;                             // Remove unecessary reference to armature bone
+                                else if (dc.VisibilityBone.EndsWith("_end") && m.FindBone(dc.VisibilityBone) != null && m.FindBone(dc.VisibilityBone).Parent != null && dc.VisibilityBone.Equals(m.FindBone(dc.VisibilityBone).Parent.Name + "_end") && ensureBoneIsUnused(m.FindBone(dc.VisibilityBone)))
+                                    dc.VisibilityBone = m.FindBone(dc.VisibilityBone).Parent.Name;  // Remove unecessary reference to "end" bones
+                                else
+                                    dc.VisibilityBone = dc.VisibilityBone;                          // Ensure bones are still properly linked
+                            }
+                        }
+                    }
+                    else
+                    {
+                        // Remove reference to any end bones
+                        foreach (MDL0ObjectNode obj in m._objList)
+                        {
+                            if (obj.SingleBind.EndsWith("_end") && m.FindBone(obj.SingleBind) != null && m.FindBone(obj.SingleBind).Parent != null && obj.SingleBind.Equals(m.FindBone(obj.SingleBind).Parent.Name + "_end") && ensureBoneIsUnused(m.FindBone(obj.SingleBind)))
+                                obj.SingleBind = m.FindBone(obj.SingleBind).Parent.Name;            // Remove unecessary reference to "end" bones
+                            foreach (DrawCall dc in obj._drawCalls)
+                            {
+                                if (dc.VisibilityBone.EndsWith("_end") && m.FindBone(dc.VisibilityBone) != null && m.FindBone(dc.VisibilityBone).Parent != null && dc.VisibilityBone.Equals(m.FindBone(dc.VisibilityBone).Parent.Name + "_end") && ensureBoneIsUnused(m.FindBone(dc.VisibilityBone)))
+                                    dc.VisibilityBone = m.FindBone(dc.VisibilityBone).Parent.Name;  // Remove unecessary reference to "end" bones
+                            }
+                        }
+                    }
+                    MDL0BoneNode b = m.FindBoneByIndex(0);
+                    int j = 0;
+                    while (b != null)
+                    {
+                        ++j;
+                        if (b != null)
+                        {
+                            if (b.Name.EndsWith("_end") && ensureBoneIsUnused(b) && (b.VisibilityDrawCalls == null || b.VisibilityDrawCalls.Length == 0) && (b.SingleBindObjects == null || b.SingleBindObjects.Length == 0))
+                                b.Parent.RemoveChild(b);
+                        }
+                        b = m.FindBoneByIndex(j);
+                    }
+                    m._linker.RegenerateBoneCache(true);
+                    return m;
+                }
+            }
+
             return model;
+        }
+
+        private bool ensureBoneIsUnused(MDL0BoneNode b)
+        {
+            return (b.Parent != null && (b.Children == null || b.Children.Count == 0) && b.Visible == ((MDL0BoneNode)b.Parent).Visible); //&& b.Scale == new Vector3(1, 1, 1) && b.Translation == new Vector3(0, 0, 0) && b.Rotation == new Vector3(0, 0, 0));
         }
 
         private void EnumNode(
@@ -372,7 +443,7 @@ namespace BrawlLib.Modeling
             bindMatrix *= node._matrix;
 
             if (node._type == NodeType.JOINT || 
-                (node._type == NodeType.NONE && node._instances.Count == 0))
+                (node._type == NodeType.NONE && node._instances.Count == 0 && (node._name != null || node._id != null)))
             {
                 Error = "There was a problem creating a new bone.";
 
@@ -708,59 +779,61 @@ namespace BrawlLib.Modeling
                 Stage
             }
 
-            [Category("Model"), Description("Determines the default settings for materials and shaders.")]
+            [DisplayName("Model Type"), Category("Model"), Description("Determines the default settings for materials and shaders.")]
             public MDLType ModelType { get { return _mdlType; } set { _mdlType = value; } }
-            [Category("Model"), Description("If true, object primitives will be culled in reverse. This means the outside of the object will be the inside, and the inside will be the outside. It is not recommended to change this to true as you can change the culling later using the object's material.")]
+            [DisplayName("Force Counterclockwise Primitives"), Category("Model"), Description("If true, object primitives will be culled in reverse. This means the outside of the object will be the inside, and the inside will be the outside. It is not recommended to change this to true as you can change the culling later using the object's material.")]
             public bool ForceCounterClockwisePrimitives { get { return _forceCCW; } set { _forceCCW = value; } }
-            [Category("Model"), Description("If true, the file path of the imported model will be written to the model's header.")]
+            [DisplayName("Blender Bone Fix"), Category("Model"), Description("Removes bones added by blender (armature and end bones).")]
+            public bool BlenderFBXBoneFix { get { return _blenderBoneFix; } set { _blenderBoneFix = value; } }
+            [DisplayName("Set Original Path"), Category("Model"), Description("If true, the file path of the imported model will be written to the model's header.")]
             public bool SetOriginalPath { get { return _setOrigPath; } set { _setOrigPath = value; } }
-            [Category("Model"), Description("Determines how precise weights will be compared. A smaller value means more accuracy but also more influences, resulting in a larger file size. A larger value means the weighting will be less accurate but there will be less influences.")]
+            [DisplayName("Weight Precision"), Category("Model"), Description("Determines how precise weights will be compared. A smaller value means more accuracy but also more influences, resulting in a larger file size. A larger value means the weighting will be less accurate but there will be less influences.")]
             public float WeightPrecision { get { return _weightPrecision; } set { _weightPrecision = value.Clamp(0.0000001f, 0.999999f); } }
-            [Category("Model"), Description("Sets the model version number, which affects how some parts of the model are written. Only versions 8, 9, 10 and 11 are supported.")]
+            [DisplayName("Model Version"), Category("Model"), Description("Sets the model version number, which affects how some parts of the model are written. Only versions 8, 9, 10 and 11 are supported.")]
             public int ModelVersion { get { return _modelVersion; } set { _modelVersion = value.Clamp(8, 11); } }
             //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Rotates the entire model before importing. This can be used to fix a model's up axis, as BrawlCrate uses Y-up while some other 3D programs use Z-up.")]
             //public Vector3 ModifyRotation { get { return _modifyRotation; } set { _modifyRotation = value; } }
             //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlCrate uses centimeters while other 3D programs uses units such as meters or inches.")]
             //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
             
-            [Category("Materials"), Description("The default texture wrap for material texture references.")]
+            [DisplayName("Default Texture Wrapping"), Category("Materials"), Description("The default texture wrap for material texture references.")]
             public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
-            [Category("Materials"), Description("The default min filter for material texture references.")]
+            [DisplayName("Default Min Filter"), Category("Materials"), Description("The default min filter for material texture references.")]
             public MatTextureMinFilter MinFilter { get { return _minFilter; } set { _minFilter = value; } }
-            [Category("Materials"), Description("The default magnification filter for material texture references.")]
+            [DisplayName("Default Mag Filter"), Category("Materials"), Description("The default magnification filter for material texture references.")]
             public MatTextureMagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
-            [Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
+            [DisplayName("Remap Materials"), Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
-            [Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
+            [DisplayName("Material Culling"), Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
             public CullMode MaterialCulling { get { return _culling; } set { _culling = value; } }
 
-            [Category("Assets"), Description("If true, vertex arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for vertices must be used if the model uses texture matrices, tristripped primitives or SHP0 morph animations; otherwise the model will explode in-game.")]
+            [DisplayName("Force Float Vertices"), Category("Assets"), Description("If true, vertex arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for vertices must be used if the model uses texture matrices, tristripped primitives or SHP0 morph animations; otherwise the model will explode in-game.")]
             public bool ForceFloatVertices { get { return _fltVerts; } set { _fltVerts = value; } }
-            [Category("Assets"), Description("If true, normal arrays will be written in float format. This means that the data size will be larger, but more precise.")]
+            [DisplayName("Force Float Normals"), Category("Assets"), Description("If true, normal arrays will be written in float format. This means that the data size will be larger, but more precise.")]
             public bool ForceFloatNormals { get { return _fltNrms; } set { _fltNrms = value; } }
-            [Category("Assets"), Description("If true, texture coordinate arrays will be written in float format. This means that the data size will be larger, but more precise.")]
+            [DisplayName("Force Float UVs"), Category("Assets"), Description("If true, texture coordinate arrays will be written in float format. This means that the data size will be larger, but more precise.")]
             public bool ForceFloatUVs { get { return _fltUVs; } set { _fltUVs = value; } }
 
-            [Category("Color Nodes"), Description("If true, color arrays read from the file will be ignored.")]
+            [DisplayName("Ignore Original Colors"), Category("Color Nodes"), Description("If true, color arrays read from the file will be ignored.")]
             public bool IgnoreOriginalColors { get { return _ignoreColors; } set { _ignoreColors = value; } }
-            [Category("Color Nodes"), Description("If true, color arrays will be added to objects that do not have any. The array will be filled with only the default color.")]
+            [DisplayName("Add Colors"), Category("Color Nodes"), Description("If true, color arrays will be added to objects that do not have any. The array will be filled with only the default color.")]
             public bool AddColors { get { return _addClrs; } set { _addClrs = value; } }
-            [Category("Color Nodes"), Description("If true, color arrays will be remapped. This means there will not be any color nodes that have the same entries as another, saving file space.")]
+            [DisplayName("Remap Colors"), Category("Color Nodes"), Description("If true, color arrays will be remapped. This means there will not be any color nodes that have the same entries as another, saving file space.")]
             public bool RemapColors { get { return _rmpClrs; } set { _rmpClrs = value; } }
-            [Category("Color Nodes"), Description("If true, objects without color arrays will use a constant color (set to the default color) in its material for the whole mesh instead of a color node that specifies a color for every vertex. This saves a lot of file space.")]
+            [DisplayName("Use Register Color"), Category("Color Nodes"), Description("If true, objects without color arrays will use a constant color (set to the default color) in its material for the whole mesh instead of a color node that specifies a color for every vertex. This saves a lot of file space.")]
             public bool UseRegisterColor { get { return _useReg; } set { _useReg = value; } }
-            [Category("Color Nodes"), TypeConverter(typeof(RGBAStringConverter)), Description("The default color to use for generated color arrays.")]
+            [DisplayName("Default Color"), Category("Color Nodes"), TypeConverter(typeof(RGBAStringConverter)), Description("The default color to use for generated color arrays.")]
             public RGBAPixel DefaultColor { get { return _dfltClr; } set { _dfltClr = value; } }
-            [Category("Color Nodes"), Description("This will make all colors be written in one color node. This will save file space for models with lots of different colors.")]
+            [DisplayName("Use One Color Node"), Category("Color Nodes"), Description("This will make all colors be written in one color node. This will save file space for models with lots of different colors.")]
             public bool UseOneNode { get { return _useOneNode; } set { _useOneNode = value; } }
 
-            [Category("Tristripper"), Description("Determines whether the model will be optimized to use tristrips along with triangles or not. Tristrips can greatly reduce in-game lag, so it is highly recommended that you leave this as true.")]
+            [DisplayName("Use Tristrips"), Category("Tristripper"), Description("Determines whether the model will be optimized to use tristrips along with triangles or not. Tristrips can greatly reduce in-game lag, so it is highly recommended that you leave this as true.")]
             public bool UseTristrips { get { return _useTristrips; } set { _useTristrips = value; } }
-            [Category("Tristripper"), Description("The size of the cache optimizer which affects the final amount of face points. Set to 0 to disable.")]
+            [DisplayName("Cache Size"), Category("Tristripper"), Description("The size of the cache optimizer which affects the final amount of face points. Set to 0 to disable.")]
             public uint CacheSize { get { return _cacheSize; } set { _cacheSize = value; } }
-            [Category("Tristripper"), Description("The minimum amount of triangles that must be included in a strip. This cannot be lower than two triangles and should not be a large number. Two is highly recommended.")]
+            [DisplayName("Minimum Strip Length"), Category("Tristripper"), Description("The minimum amount of triangles that must be included in a strip. This cannot be lower than two triangles and should not be a large number. Two is highly recommended.")]
             public uint MinimumStripLength { get { return _minStripLen; } set { _minStripLen = value < 2 ? 2 : value; } }
-            [Category("Tristripper"), Description("When enabled, pushes cache hits into a simple FIFO structure to simulate GPUs that don't duplicate cache entries, affecting the final face point count. Does nothing if the cache is disabled.")]
+            [DisplayName("Push Cache Hits"), Category("Tristripper"), Description("When enabled, pushes cache hits into a simple FIFO structure to simulate GPUs that don't duplicate cache entries, affecting the final face point count. Does nothing if the cache is disabled.")]
             public bool PushCacheHits { get { return _pushCacheHits; } set { _pushCacheHits = value; } }
             //[Category("Tristripper"), Description("If true, the tristripper will search for strips backwards as well as forwards.")]
             //public bool BackwardSearch { get { return _backwardSearch; } set { _backwardSearch = value; } }
@@ -784,6 +857,7 @@ namespace BrawlLib.Modeling
             public bool _pushCacheHits = true;
             public bool _useTristrips = true;
             public bool _setOrigPath = false;
+            public bool _blenderBoneFix = false;
             public float _weightPrecision = 0.0001f;
             public int _modelVersion = 9;
             public bool _useOneNode = true;
