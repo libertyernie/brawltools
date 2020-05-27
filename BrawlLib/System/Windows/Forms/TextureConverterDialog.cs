@@ -343,8 +343,8 @@ namespace System.Windows.Forms
             if (TryLoadPngWithPalette(sourceStream, out BitmapSource preservedImage) && preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
             {
                 Bitmap bmp;
-                int width = Convert.ToInt32(preservedImage.Width);
-                int height = Convert.ToInt32(preservedImage.Height);
+                int width = Convert.ToInt32(preservedImage.Width * preservedImage.DpiX / 96.0);
+                int height = Convert.ToInt32(preservedImage.Height * preservedImage.DpiY / 96.0);
                 byte[] pixels = new byte[width * height];
                 preservedImage.CopyPixels(pixels, width, 0);
                 GCHandle pixelData = GCHandle.Alloc(pixels, GCHandleType.Pinned);
