@@ -318,6 +318,21 @@ namespace System.Windows.Forms
             return true;
         }
 
+        private static bool TryLoadPngWithPalette(Stream sourceStream, out BitmapSource preservedImage)
+        {
+            try
+            {
+                PngBitmapDecoder decoder = new PngBitmapDecoder(sourceStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+                preservedImage = decoder.Frames[0];
+                return true;
+            }
+            catch (FileFormatException)
+            {
+                preservedImage = null;
+                return false;
+            }
+        }
+
         // Loads a PNG using WPF, and if its format is Indexed8, converts it to a GDI Bitmap with the proper palette info stored.
         // Otherwise reloads using GDI, as normal (which does not retain palette info).
         //
@@ -325,9 +340,7 @@ namespace System.Windows.Forms
         private bool LoadImagesPreservingPaletteInfo(string path)
         {
             Stream sourceStream = new FileStream(_imageSource, FileMode.Open, FileAccess.Read, FileShare.Read);
-            PngBitmapDecoder decoder = new PngBitmapDecoder(sourceStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-            BitmapSource preservedImage = decoder.Frames[0];
-            if (preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
+            if (TryLoadPngWithPalette(sourceStream, out BitmapSource preservedImage) && preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
             {
                 Bitmap bmp;
                 int width = Convert.ToInt32(preservedImage.Width);
