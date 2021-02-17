@@ -8,7 +8,46 @@ namespace System.Windows.Forms
 {
     public class BrstmConverterDialog : Form
     {
-#region Designer
+        internal class InitialStreamWrapper : IAudioStream
+        {
+            public readonly IAudioStream BaseStream;
+
+            public InitialStreamWrapper(IAudioStream baseStream)
+            {
+                BaseStream = baseStream ?? throw new ArgumentNullException(nameof(baseStream));
+
+                IsLooping = BaseStream.IsLooping;
+                LoopStartSample = BaseStream.LoopStartSample;
+                LoopEndSample = BaseStream.LoopEndSample;
+            }
+
+            public WaveFormatTag Format => BaseStream.Format;
+            public int BitsPerSample => BaseStream.BitsPerSample;
+            public int Samples => BaseStream.Samples;
+            public int Channels => BaseStream.Channels;
+            public int Frequency => BaseStream.Frequency;
+
+            public bool IsLooping { get; set; }
+            public int LoopStartSample { get; set; }
+            public int LoopEndSample { get; set; }
+
+            public int SamplePosition {
+                get {
+                    return BaseStream.SamplePosition;
+                }
+                set {
+                    BaseStream.SamplePosition = value;
+                }
+            }
+
+            public int ReadSamples(VoidPtr destAddr, int numSamples) => BaseStream.ReadSamples(destAddr, numSamples);
+
+            public void Wrap() => BaseStream.Wrap();
+
+            public void Dispose() { }
+        }
+
+        #region Designer
 
         private Button btnOkay;
         private Button btnCancel;
@@ -717,7 +756,9 @@ namespace System.Windows.Forms
             DisposeSource();
 
             //Get audio stream
-            _sourceStream = _initialStream ?? WAV.FromFile(path);
+            _sourceStream = _initialStream != null
+                ? new InitialStreamWrapper(_initialStream) 
+                : WAV.FromFile(path);
 
             _audioSource = path;
 
@@ -893,6 +934,14 @@ namespace System.Windows.Forms
         private void btnOkay_Click(object sender, EventArgs e)
         {
             Stop();
+
+            if (_sourceStream is InitialStreamWrapper w && w.BaseStream == _initialStream)
+            {
+                _initialStream.LoopStartSample = _sourceStream.LoopStartSample;
+                _initialStream.LoopEndSample = _sourceStream.LoopEndSample;
+                _initialStream.IsLooping = _sourceStream.IsLooping;
+            }
+
             if (_initialStream == null)
                 using (ProgressWindow progress = new ProgressWindow(this, String.Format("{0} Converter", _type == 0 ? "Brstm" : "Wave"), "Encoding, please wait...", false))
                     switch (_type)

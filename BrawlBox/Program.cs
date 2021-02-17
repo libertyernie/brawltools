@@ -105,6 +105,20 @@ namespace BrawlBox
                 }
             }
 
+            List<string> remainingArgs = new List<string>();
+            foreach (string a in args)
+            {
+                if (a.Equals("/audio:directsound", StringComparison.InvariantCultureIgnoreCase))
+                    System.Audio.AudioProvider.AvailableTypes = System.Audio.AudioProvider.AudioProviderType.DirectSound;
+                else if (a.Equals("/audio:openal", StringComparison.InvariantCultureIgnoreCase))
+                    System.Audio.AudioProvider.AvailableTypes = System.Audio.AudioProvider.AudioProviderType.OpenAL;
+                else if (a.Equals("/audio:none", StringComparison.InvariantCultureIgnoreCase))
+                    System.Audio.AudioProvider.AvailableTypes = System.Audio.AudioProvider.AudioProviderType.None;
+                else
+                    remainingArgs.Add(a);
+            }
+            args = remainingArgs.ToArray();
+
             try
             {
                 if (args.Length >= 1)

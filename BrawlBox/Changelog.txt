@@ -1,6 +1,6 @@
 ﻿
 BrawlBox Data Viewer - Version 0.78
-Copyright © 2009 - 2017 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
+Copyright © 2009 - 2019 Bryan Moulton, BlackJax96, libertyernie & Sammi Husky
 
 https://github.com/libertyernie/brawltools
 
@@ -13,6 +13,34 @@ they be held accountable for the manner in which it is used.
  ====================================
 |************ Change Log ************|
  ====================================
+ 
+ - v0.?? - BrawlLib 0.??
+
+ Initial Release (x/xx/19)
+ . PCM16 RSTM encoding and export bugs fixed (#113, #115, #160)
+ . Fixed pasting of color data (#116)
+ . Shader index corruption fixed (#120)
+ . Weight editor updated to handle newly added bones (#103)
+ . Advanced Model Editor screenshot tool fix (#117)
+ . You can rename BRRES files now (#118)
+ . Fixes when selecting multiple bones (#128)
+ . SRT0 export fix (#134)
+ . DirectSound is now the default audio backend when available
+ . All fields in the property grid expand automatically when selecting a new node (#145)
+ . Property grid scroll position maintained when changing nodes (#146)
+ . Improvements in classic mode editing in common2 (#151)
+ . Added a checkbox in the texture converter to swap the main and alpha channels (for IA4 textures from old versions of BrawlBox)
+ . Renamed STPM fields 15, 16, 17, and 19 to HorizontalRotationFactor, VerticalRotationFactor, CharacterBubbleBufferMultiplier, and CameraSpeed (#168)
+ . The default transformation in the Edit All Animations dialog is now to do nothing (#171)
+ . Updater.exe now allows TLS 1.2 connections (#172)
+ . Looping disabled when using OpenAL (#178)
+ . Allow rebuilding an ARCNode with children that are not ARCEntryNodes (#194)
+ . Collada importer updated (#198, #205, #209, etc.)
+ . Module (.rel) editing fixes
+ . Various MDL0 fixes
+ . Ported from BrawlCrate: collision editor changes; new SCLA support; new names for collision types; improved Export All; high-DPI window resize bug fix
+ . The alt key no longer triggers material rebuilds in the model viewer (#204)
+ . F# scripts (.fsx) are now supported if the F# build tools are installed (however, the "bboxapi" object is not supported)
  
  - v0.78 - BrawlLib 0.25
 
@@ -854,6 +882,8 @@ Initial Release (2/19/2015):
 	http://www.microsoft.com/en-us/download/details.aspx?id=17718
 	
 * A video card that supports OpenGL 1.1 or higher (OpenGL 2.1 is required to enable shaders).
+
+Non-Windows users can try running BrawlBox with mono (32-bit only), or with wine (use a separate WINEPREFIX and `winetricks dotnet40`).
 
  ====================================
 |********* Acknowledgements *********|

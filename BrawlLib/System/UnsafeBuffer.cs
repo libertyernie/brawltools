@@ -10,13 +10,14 @@ namespace System
         private int _length;
         public int Length { get { return _length; } set { _length = value; } }
 
-        public UnsafeBuffer(int size) { _data = Marshal.AllocHGlobal(size); _length = size; }
+        public unsafe UnsafeBuffer(int size) { _data = Marshal.AllocHGlobal(size); _length = size; Diagnostics.Debug.WriteLine($"allocated to {(ulong)_data.address:X} {size:X} bytes"); }
         ~UnsafeBuffer() { Dispose(); }
 
         public VoidPtr this[int count, int stride] { get { return _data[count, stride]; } }
 
-        public void Dispose()
+        public unsafe void Dispose()
         {
+            Diagnostics.Debug.WriteLine($"allocated to {(ulong)_data.address:X} {_length:X} bytes");
             try
             {
                 if (_data)

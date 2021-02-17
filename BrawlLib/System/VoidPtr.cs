@@ -18,6 +18,8 @@ namespace System
 
         public static int operator -(VoidPtr p1, VoidPtr p2) { return checked((int)((byte*)p1.address - (byte*)p2.address)); }
 
+        public static ulong MinusUL(VoidPtr p1, VoidPtr p2) { return checked((ulong)((byte*)p1.address - (byte*)p2.address)); }
+
         public static VoidPtr operator +(VoidPtr p1, uint addr) { return new VoidPtr() { address = ((byte*)p1.address + addr) }; }
         public static VoidPtr operator -(VoidPtr p1, uint addr) { return new VoidPtr() { address = ((byte*)p1.address - addr) }; }
 

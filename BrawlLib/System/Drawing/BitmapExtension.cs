@@ -505,10 +505,11 @@ namespace System
             } else {
                 // Slower, but works for any input pixel format
                 pixels = new int[bmp.Width * bmp.Height];
+                int i = 0;
                 for (int x = 0; x < bmp.Width; x++) {
                     for (int y = 0; y < bmp.Height; y++) {
                         Color c = bmp.GetPixel(x, y);
-                        pixels[bmp.Width * x + y] = c.ToArgb();
+                        pixels[i++] = c.ToArgb();
                     }
                 }
             }

@@ -289,9 +289,9 @@ namespace System.Windows.Forms
         public bool LoadImages(string path)
         {
             txtPath.Text = path;
-            if (path.EndsWith(".tga"))
+            if (path.EndsWith(".tga", StringComparison.OrdinalIgnoreCase))
                 return LoadImages(TGA.FromFile(path));
-            else if (path.EndsWith(".png"))
+            else if (path.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
                 return LoadImagesPreservingPaletteInfo(path);
             else
                 return LoadImages((Bitmap)Bitmap.FromFile(path));
@@ -318,6 +318,21 @@ namespace System.Windows.Forms
             return true;
         }
 
+        private static bool TryLoadPngWithPalette(Stream sourceStream, out BitmapSource preservedImage)
+        {
+            try
+            {
+                PngBitmapDecoder decoder = new PngBitmapDecoder(sourceStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
+                preservedImage = decoder.Frames[0];
+                return true;
+            }
+            catch (FileFormatException)
+            {
+                preservedImage = null;
+                return false;
+            }
+        }
+
         // Loads a PNG using WPF, and if its format is Indexed8, converts it to a GDI Bitmap with the proper palette info stored.
         // Otherwise reloads using GDI, as normal (which does not retain palette info).
         //
@@ -325,13 +340,11 @@ namespace System.Windows.Forms
         private bool LoadImagesPreservingPaletteInfo(string path)
         {
             Stream sourceStream = new FileStream(_imageSource, FileMode.Open, FileAccess.Read, FileShare.Read);
-            PngBitmapDecoder decoder = new PngBitmapDecoder(sourceStream, BitmapCreateOptions.PreservePixelFormat, BitmapCacheOption.Default);
-            BitmapSource preservedImage = decoder.Frames[0];
-            if (preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
+            if (TryLoadPngWithPalette(sourceStream, out BitmapSource preservedImage) && preservedImage.Format == System.Windows.Media.PixelFormats.Indexed8)
             {
                 Bitmap bmp;
-                int width = Convert.ToInt32(preservedImage.Width);
-                int height = Convert.ToInt32(preservedImage.Height);
+                int width = Convert.ToInt32(preservedImage.Width * preservedImage.DpiX / 96.0);
+                int height = Convert.ToInt32(preservedImage.Height * preservedImage.DpiY / 96.0);
                 byte[] pixels = new byte[width * height];
                 preservedImage.CopyPixels(pixels, width, 0);
                 GCHandle pixelData = GCHandle.Alloc(pixels, GCHandleType.Pinned);
