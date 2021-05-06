@@ -138,18 +138,21 @@ namespace BrawlLib.Modeling
                         List<int> minfilter = new List<int>();
                         List<int> magfilter = new List<int>();
                         List<ImageEntry> imgEntries = new List<ImageEntry>();
+                        int cullmode = new int();
 
                         //Find effect
                         if (mat._effect != null)
+                        {
                             foreach (EffectEntry eff in shell._effects)
                                 if (eff._id == mat._effect) //Attach textures and effects to material
+                                {
                                     if (eff._shader != null)
+                                    {
                                         foreach (LightEffectEntry l in eff._shader._effects)
                                             if (l._type == LightEffectType.diffuse && l._texture != null)
                                             {
                                                 string path = l._texture;
                                                 foreach (EffectNewParam p in eff._newParams)
-                                                {
                                                     if (p._sid == l._texture)
                                                     {
                                                         path = p._sampler2D._url;
@@ -240,7 +243,6 @@ namespace BrawlLib.Modeling
                                                                 break;
                                                         }
                                                     }
-                                                }
                                                 foreach (ImageEntry img in shell._images)
                                                     if (img._id == path)
                                                     {
@@ -248,36 +250,71 @@ namespace BrawlLib.Modeling
                                                         break;
                                                     }
                                             }
-                        switch (type)
-                        {
-                            case ImportType.MDL0:
-                                MDL0MaterialNode matNode = new MDL0MaterialNode();
-
-                                MDL0Node m = (MDL0Node)model;
-                                matNode._parent = m._matGroup;
-                                m._matList.Add(matNode);
-
-                                matNode._name = mat._name != null ? mat._name : mat._id;
-                                matNode.ShaderNode = shader as MDL0ShaderNode;
-
-                                mat._node = matNode;
-                                matNode._cull = _importOptions._culling;
-
-                                int i = 0;
-                                foreach (ImageEntry img in imgEntries)
-                                {
-                                    MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
-                                    (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
-                                    mr._name = mr._texture.Name;
-                                    matNode._children.Add(mr);
-                                    mr._parent = matNode;
-                                    mr._minFltr = minfilter.Count > i ? minfilter[i] : (int)_importOptions.MinFilter;
-                                    mr._magFltr = magfilter.Count > i ? magfilter[i] : (int)_importOptions.MagFilter;
-                                    mr._uWrap = uwrap.Count > i ? uwrap[i] : (int)_importOptions.TextureWrap;
-                                    mr._vWrap = vwrap.Count > i ? vwrap[i] : (int)_importOptions.TextureWrap;
-                                    i++;
+                                    }
+                                    switch (eff._cullface._value)
+                                    {
+                                        case "FRONT":
+                                            cullmode = 1;
+                                            break;
+                                        case "BACK":
+                                            cullmode = 2;
+                                            break;
+                                        case "FRONT_AND_BACK":
+                                            cullmode = 3;
+                                            break;
+                                        default:
+                                            cullmode = 0;
+                                            break;
+                                    }
                                 }
-                                break;
+
+                            switch (type)
+                            {
+                                case ImportType.MDL0:
+                                    {
+                                        MDL0MaterialNode matNode = new MDL0MaterialNode();
+
+                                        MDL0Node m = (MDL0Node)model;
+                                        matNode._parent = m._matGroup;
+                                        m._matList.Add(matNode);
+
+                                        matNode._name = mat._name != null ? mat._name : mat._id;
+                                        matNode.ShaderNode = shader as MDL0ShaderNode;
+
+                                        mat._node = matNode;
+                                        switch (cullmode)
+                                        {
+                                            case 1:
+                                                matNode._cull = CullMode.Cull_Outside;
+                                                break;
+                                            case 2:
+                                                matNode._cull = CullMode.Cull_Inside;
+                                                break;
+                                            case 3:
+                                                matNode._cull = CullMode.Cull_All;
+                                                break;
+                                            default:
+                                                matNode._cull = CullMode.Cull_None;
+                                                break;
+                                        }
+
+                                        int i = 0;
+                                        foreach (ImageEntry img in imgEntries)
+                                        {
+                                            MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
+                                            (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
+                                            mr._name = mr._texture.Name;
+                                            matNode._children.Add(mr);
+                                            mr._parent = matNode;
+                                            mr._minFltr = minfilter.Count > i ? minfilter[i] : (int)_importOptions.MinFilter;
+                                            mr._magFltr = magfilter.Count > i ? magfilter[i] : (int)_importOptions.MagFilter;
+                                            mr._uWrap = uwrap.Count > i ? uwrap[i] : (int)_importOptions.TextureWrap;
+                                            mr._vWrap = vwrap.Count > i ? vwrap[i] : (int)_importOptions.TextureWrap;
+                                            i++;
+                                        }
+                                        break;
+                                    }
+                            }
                         }
                     }
 
@@ -750,7 +787,8 @@ namespace BrawlLib.Modeling
                             mat.Children.Count > 0 &&
                             mat.Children[0] != null &&
                             m.Children[0].Name == mat.Children[0].Name &&
-                            m.C1ColorMaterialSource == mat.C1ColorMaterialSource)
+                            m.C1ColorMaterialSource == mat.C1ColorMaterialSource &&
+                            m.CullMode == mat.CullMode)
                         {
                             obj3._drawCalls[0].MaterialNode = m;
                             break;
@@ -795,7 +833,7 @@ namespace BrawlLib.Modeling
             //public Vector3 ModifyRotation { get { return _modifyRotation; } set { _modifyRotation = value; } }
             //[Category("Model"), TypeConverter(typeof(Vector3StringConverter)), Description("Scales the entire model before importing. This can be used to fix a model's units, as BrawlCrate uses centimeters while other 3D programs uses units such as meters or inches.")]
             //public Vector3 ModifyScale { get { return _modifyScale; } set { _modifyScale = value; } }
-            
+
             [DisplayName("Default Texture Wrapping"), Category("Materials"), Description("The default texture wrap for material texture references.")]
             public MatWrapMode TextureWrap { get { return _wrap; } set { _wrap = value; } }
             [DisplayName("Default Min Filter"), Category("Materials"), Description("The default min filter for material texture references.")]
@@ -804,16 +842,12 @@ namespace BrawlLib.Modeling
             public MatTextureMagFilter MagFilter { get { return _magFilter; } set { _magFilter = value; } }
             [DisplayName("Remap Materials"), Category("Materials"), Description("If true, materials will be remapped. This means there will be no redundant materials with the same settings, saving file space.")]
             public bool RemapMaterials { get { return _rmpMats; } set { _rmpMats = value; } }
-            [DisplayName("Material Culling"), Category("Materials"), Description("The default setting to use for material culling. Culling determines what side of the mesh is invisible.")]
-            public CullMode MaterialCulling { get { return _culling; } set { _culling = value; } }
-
             [DisplayName("Force Float Vertices"), Category("Assets"), Description("If true, vertex arrays will be written in float format. This means that the data size will be larger, but more precise. Float arrays for vertices must be used if the model uses texture matrices, tristripped primitives or SHP0 morph animations; otherwise the model will explode in-game.")]
             public bool ForceFloatVertices { get { return _fltVerts; } set { _fltVerts = value; } }
             [DisplayName("Force Float Normals"), Category("Assets"), Description("If true, normal arrays will be written in float format. This means that the data size will be larger, but more precise.")]
             public bool ForceFloatNormals { get { return _fltNrms; } set { _fltNrms = value; } }
             [DisplayName("Force Float UVs"), Category("Assets"), Description("If true, texture coordinate arrays will be written in float format. This means that the data size will be larger, but more precise.")]
             public bool ForceFloatUVs { get { return _fltUVs; } set { _fltUVs = value; } }
-
             [DisplayName("Ignore Original Colors"), Category("Color Nodes"), Description("If true, color arrays read from the file will be ignored.")]
             public bool IgnoreOriginalColors { get { return _ignoreColors; } set { _ignoreColors = value; } }
             [DisplayName("Add Colors"), Category("Color Nodes"), Description("If true, color arrays will be added to objects that do not have any. The array will be filled with only the default color.")]
@@ -850,7 +884,6 @@ namespace BrawlLib.Modeling
             public bool _forceCCW = false;
             public bool _useReg = true;
             public bool _ignoreColors = false;
-            public CullMode _culling = CullMode.Cull_None;
             public RGBAPixel _dfltClr = new RGBAPixel(128, 128, 128, 255);
             public uint _cacheSize = 52;
             public uint _minStripLen = 2;

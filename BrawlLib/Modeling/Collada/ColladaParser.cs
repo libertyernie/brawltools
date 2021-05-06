@@ -220,7 +220,6 @@ namespace BrawlLib.Modeling
 
                 while (_reader.BeginElement())
                 {
-                    //Only common is supported
                     if (_reader.Name.Equals("profile_COMMON", true))
                         while (_reader.BeginElement())
                         {
@@ -236,13 +235,45 @@ namespace BrawlLib.Modeling
                                         eff._shader = ParseShader(ShaderType.lambert);
                                     else if (_reader.Name.Equals("blinn", true))
                                         eff._shader = ParseShader(ShaderType.blinn);
-
                                     _reader.EndElement();
                                 }
                             }
                             _reader.EndElement();
                         }
-
+                    else if (_reader.Name.Equals("profile_GLSL", true))
+                        while (_reader.BeginElement())
+                        {
+                            if (_reader.Name.Equals("technique", true))
+                            {
+                                while (_reader.BeginElement())
+                                {
+                                    if (_reader.Name.Equals("pass", true))
+                                    {
+                                        while (_reader.BeginElement())
+                                        {
+                                            if (_reader.Name.Equals("render_state", true))
+                                            {
+                                                while (_reader.BeginElement())
+                                                {
+                                                    if (_reader.Name.Equals("cull_face", true))
+                                                    {
+                                                        while (_reader.ReadAttribute())
+                                                        {
+                                                            if (_reader.Name.Equals("value", true))
+                                                                eff._cullface._value = (string)_reader.Value;
+                                                        }
+                                                    }
+                                                    _reader.EndElement();
+                                                }
+                                            }
+                                            _reader.EndElement();
+                                        }
+                                    }
+                                    _reader.EndElement();
+                                }
+                            }
+                            _reader.EndElement();
+                        }
                     _reader.EndElement();
                 }
                 return eff;
@@ -1020,6 +1051,18 @@ namespace BrawlLib.Modeling
         {
             internal EffectShaderEntry _shader;
             internal List<EffectNewParam> _newParams = new List<EffectNewParam>();
+            internal EffectCull _cullface = new EffectCull();
+        }
+        private class EffectCull
+        {
+            internal string _value;
+        }
+        private enum CullValue
+        {
+            NONE,
+            FRONT,
+            BACK,
+            FRONT_AND_BACK
         }
         private class GeometryEntry : ColladaEntry
         {

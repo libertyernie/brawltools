@@ -284,7 +284,45 @@ namespace BrawlLib.Modeling
                         }
                         writer.WriteEndElement(); //technique
                     }
-                    writer.WriteEndElement(); //profile
+                    writer.WriteEndElement(); //profile_COMMON
+                    writer.WriteStartElement("profile_GLSL");
+                    {
+                         writer.WriteStartElement("technique");
+                         writer.WriteAttributeString("sid", "GLSL");
+                         {
+                             writer.WriteStartElement("pass");
+                             {
+                                 writer.WriteStartElement("render_state");
+                                 writer.WriteAttributeString("value", "1");
+                                 {
+                                     switch (mat._cull)
+                                     {
+                                         case 0:
+                                             break;
+                                         case (SSBBTypes.CullMode)1:
+                                             writer.WriteStartElement("cull_face");
+                                             writer.WriteAttributeString("value", "FRONT");
+                                             writer.WriteEndElement();//cull_face
+                                             break;
+                                         case (SSBBTypes.CullMode)2:
+                                             writer.WriteStartElement("cull_face");
+                                             writer.WriteAttributeString("value", "BACK");
+                                             writer.WriteEndElement();//cull_face
+                                             break;
+                                         case (SSBBTypes.CullMode)3:
+                                             writer.WriteStartElement("cull_face");
+                                             writer.WriteAttributeString("value", "FRONT_AND_BACK");
+                                             writer.WriteEndElement();//cull_face
+                                             break;
+                                     }
+                                 }
+                                 writer.WriteEndElement();//render_state
+                             }
+                             writer.WriteEndElement();//pass
+                         }
+                         writer.WriteEndElement();//technique
+                    }
+                    writer.WriteEndElement();//profile_GLSL
                 }
                 writer.WriteEndElement(); //effect
             }
