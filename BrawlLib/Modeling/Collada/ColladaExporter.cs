@@ -315,7 +315,36 @@ namespace BrawlLib.Modeling
                                              writer.WriteEndElement();//cull_face
                                              break;
                                      }
-                                 }
+                                    writer.WriteStartElement("depth_func");
+                                        switch (mat._zMode.DepthFunction)
+                                        {
+                                            case (BrawlLib.Wii.Graphics.GXCompare)0:
+                                                writer.WriteString("NEVER");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)1:
+                                                writer.WriteString("LESS");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)2:
+                                                writer.WriteString("EQUAL");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)3:
+                                                writer.WriteString("LEQUAL");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)4:
+                                                writer.WriteString("GREATER");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)5:
+                                                writer.WriteString("NOTEQUAL");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)6:
+                                                writer.WriteString("GEQUAL");
+                                                break;
+                                            case (BrawlLib.Wii.Graphics.GXCompare)7:
+                                                writer.WriteString("ALLWAYS");
+                                                break;
+                                        }
+                                    writer.WriteEndElement();
+                                }
                                  writer.WriteEndElement();//render_state
                              }
                              writer.WriteEndElement();//pass
