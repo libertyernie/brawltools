@@ -1533,17 +1533,16 @@ For example, if the shader has two stages but this number is 1, the second stage
 
             MatModeBlock* mode = header->DisplayLists(model._version);
             *mode = MatModeBlock.Default;
+            mode->ZMode = _zMode;
             if (model._isImport)
             {
                 _alphaFunc = mode->AlphaFunction;
-                _zMode = mode->ZMode;
                 _blendMode = mode->BlendMode;
                 _constantAlpha = mode->ConstantAlpha;
             }
             else
             {
                 mode->AlphaFunction = _alphaFunc;
-                mode->ZMode = _zMode;
                 mode->BlendMode = _blendMode;
                 mode->ConstantAlpha = _constantAlpha;
             }

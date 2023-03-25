@@ -139,6 +139,7 @@ namespace BrawlLib.Modeling
                         List<int> magfilter = new List<int>();
                         List<ImageEntry> imgEntries = new List<ImageEntry>();
                         int cullmode = new int();
+                        int depthfunction = 3;
 
                         //Find effect
                         if (mat._effect != null)
@@ -251,7 +252,7 @@ namespace BrawlLib.Modeling
                                                     }
                                             }
                                     }
-                                    switch (eff._cullface._value)
+                                    switch (eff._cullFace._value)
                                     {
                                         case "FRONT":
                                             cullmode = 1;
@@ -264,6 +265,36 @@ namespace BrawlLib.Modeling
                                             break;
                                         default:
                                             cullmode = 0;
+                                            break;
+                                    }
+                                    switch (eff._depthFunction)
+                                    {
+                                        case "NEVER":
+                                            depthfunction = 0;
+                                            break;
+                                        case "LESS":
+                                            depthfunction = 1;
+                                            break;
+                                        case "EQUAL":
+                                            depthfunction = 2;
+                                            break;
+                                        case "LEQUAL":
+                                            depthfunction = 3;
+                                            break;
+                                        case "GREATER":
+                                            depthfunction = 4;
+                                            break;
+                                        case "NOTEQUAL":
+                                            depthfunction = 5;
+                                            break;
+                                        case "GEQUAL":
+                                            depthfunction = 6;
+                                            break;
+                                        case "ALLWAYS":
+                                            depthfunction = 7;
+                                            break;
+                                        default:
+                                            depthfunction = 3;
                                             break;
                                     }
                                 }
@@ -282,6 +313,7 @@ namespace BrawlLib.Modeling
                                         matNode.ShaderNode = shader as MDL0ShaderNode;
 
                                         mat._node = matNode;
+
                                         switch (cullmode)
                                         {
                                             case 1:
@@ -297,6 +329,37 @@ namespace BrawlLib.Modeling
                                                 matNode._cull = CullMode.Cull_None;
                                                 break;
                                         }
+                                        switch (depthfunction)
+                                        {
+                                            case 0:
+                                                matNode._zMode.DepthFunction = GXCompare.Never;
+                                                break;
+                                            case 1:
+                                                matNode._zMode.DepthFunction = GXCompare.Less;
+                                                break;
+                                            case 2:
+                                                matNode._zMode.DepthFunction = GXCompare.Equal;
+                                                break;
+                                            case 3:
+                                                matNode._zMode.DepthFunction = GXCompare.LessOrEqual;
+                                                break;
+                                            case 4:
+                                                matNode._zMode.DepthFunction = GXCompare.Greater;
+                                                break;
+                                            case 5:
+                                                matNode._zMode.DepthFunction = GXCompare.NotEqual;
+                                                break;
+                                            case 6:
+                                                matNode._zMode.DepthFunction = GXCompare.GreaterOrEqual;
+                                                break;
+                                            case 7:
+                                                matNode._zMode.DepthFunction = GXCompare.Always;
+                                                break;
+                                            default:
+                                                matNode._zMode.DepthFunction = GXCompare.LessOrEqual;
+                                                break;
+                                        }
+                                        
 
                                         int i = 0;
                                         foreach (ImageEntry img in imgEntries)
@@ -304,12 +367,13 @@ namespace BrawlLib.Modeling
                                             MDL0MaterialRefNode mr = new MDL0MaterialRefNode();
                                             (mr._texture = img._node as MDL0TextureNode)._references.Add(mr);
                                             mr._name = mr._texture.Name;
-                                            matNode._children.Add(mr);
                                             mr._parent = matNode;
                                             mr._minFltr = minfilter.Count > i ? minfilter[i] : (int)_importOptions.MinFilter;
                                             mr._magFltr = magfilter.Count > i ? magfilter[i] : (int)_importOptions.MagFilter;
                                             mr._uWrap = uwrap.Count > i ? uwrap[i] : (int)_importOptions.TextureWrap;
                                             mr._vWrap = vwrap.Count > i ? vwrap[i] : (int)_importOptions.TextureWrap;
+                                            matNode._children.Add(mr);
+                                            
                                             i++;
                                         }
                                         break;

@@ -702,6 +702,18 @@ namespace BrawlLib.SSBBTypes
         Cull_All = 3
     }
 
+    public enum DepthFunc : int
+    {
+        Never = 0,
+        Less = 1,
+        Equal = 2,
+        LessOrEqual = 3,
+        Greater = 4,
+        NotEqual = 5,
+        GreaterOrEqual = 6,
+        Always = 7
+    }
+
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
     public struct TextureSRT
     {

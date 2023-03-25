@@ -260,8 +260,12 @@ namespace BrawlLib.Modeling
                                                         while (_reader.ReadAttribute())
                                                         {
                                                             if (_reader.Name.Equals("value", true))
-                                                                eff._cullface._value = (string)_reader.Value;
+                                                                eff._cullFace._value = (string)_reader.Value;
                                                         }
+                                                    }
+                                                    else if (_reader.Name.Equals("depth_func", true))
+                                                    {
+                                                        eff._depthFunction = _reader.ReadElementString();
                                                     }
                                                     _reader.EndElement();
                                                 }
@@ -357,49 +361,54 @@ namespace BrawlLib.Modeling
 
                 while (_reader.BeginElement())
                 {
-                    if (_reader.Name.Equals("ambient", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.ambient));
-                    else if (_reader.Name.Equals("diffuse", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.diffuse));
-                    else if (_reader.Name.Equals("emission", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.emission));
-                    else if (_reader.Name.Equals("reflective", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.reflective));
-                    else if (_reader.Name.Equals("specular", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.specular));
-                    else if (_reader.Name.Equals("transparent", true))
-                        s._effects.Add(ParseLightEffect(LightEffectType.transparent));
-                    else if (_reader.Name.Equals("shininess", true))
+                    switch (_reader.Name.ToString())
                     {
-                        while (_reader.BeginElement())
-                        {
-                            if (_reader.Name.Equals("float", true))
-                                if (_reader.ReadValue(&v))
-                                    s._shininess = v;
-                            _reader.EndElement();
-                        }
+                        case "ambient":
+                            s._effects.Add(ParseLightEffect(LightEffectType.ambient));
+                            break;
+                        case "diffuse":
+                            s._effects.Add(ParseLightEffect(LightEffectType.diffuse));
+                            break;
+                        case "emission":
+                            s._effects.Add(ParseLightEffect(LightEffectType.emission));
+                            break;
+                        case "reflective":
+                            s._effects.Add(ParseLightEffect(LightEffectType.reflective));
+                            break;
+                        case "specular":
+                            s._effects.Add(ParseLightEffect(LightEffectType.specular));
+                            break;
+                        case "transparent":
+                            s._effects.Add(ParseLightEffect(LightEffectType.transparent));
+                            break;
+                        case "shininess":
+                            while (_reader.BeginElement())
+                            {
+                                if (_reader.Name.Equals("float", true))
+                                    if (_reader.ReadValue(&v))
+                                        s._shininess = v;
+                                _reader.EndElement();
+                            }
+                            break;
+                        case "reflectivity":
+                            while (_reader.BeginElement())
+                            {
+                                if (_reader.Name.Equals("float", true))
+                                    if (_reader.ReadValue(&v))
+                                        s._reflectivity = v;
+                                _reader.EndElement();
+                            }
+                            break;
+                        case "transparency":
+                            while (_reader.BeginElement())
+                            {
+                                if (_reader.Name.Equals("float", true))
+                                    if (_reader.ReadValue(&v))
+                                        s._transparency = v;
+                                _reader.EndElement();
+                            }
+                            break;
                     }
-                    else if (_reader.Name.Equals("reflectivity", true))
-                    {
-                        while (_reader.BeginElement())
-                        {
-                            if (_reader.Name.Equals("float", true))
-                                if (_reader.ReadValue(&v))
-                                    s._reflectivity = v;
-                            _reader.EndElement();
-                        }
-                    }
-                    else if (_reader.Name.Equals("transparency", true))
-                    {
-                        while (_reader.BeginElement())
-                        {
-                            if (_reader.Name.Equals("float", true))
-                                if (_reader.ReadValue(&v))
-                                    s._transparency = v;
-                            _reader.EndElement();
-                        }
-                    }
-
                     _reader.EndElement();
                 }
 
@@ -1051,18 +1060,12 @@ namespace BrawlLib.Modeling
         {
             internal EffectShaderEntry _shader;
             internal List<EffectNewParam> _newParams = new List<EffectNewParam>();
-            internal EffectCull _cullface = new EffectCull();
+            internal EffectCull _cullFace = new EffectCull();
+            internal string _depthFunction;
         }
         private class EffectCull
         {
             internal string _value;
-        }
-        private enum CullValue
-        {
-            NONE,
-            FRONT,
-            BACK,
-            FRONT_AND_BACK
         }
         private class GeometryEntry : ColladaEntry
         {
