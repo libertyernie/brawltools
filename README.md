@@ -5,6 +5,6 @@ BrawlLib and BrawlBox are designed to edit various types of data files found in 
 (http://code.google.com/p/brawltools/source/list), then by BlackJax96
 (http://code.google.com/p/brawltools2) until the end of 2013.
 
-Current BrawlBox contributors are libertyernie, Sammi Husky, and BlackJax96.
+Any current development will probably be happening over at: https://github.com/soopercool101/BrawlCrate
 
-The official forum thread on KC:MM is here: http://forums.kc-mm.com/index.php?topic=67847.0
+Any code added to this repository by me (libertyernie) is made available under either the [MIT No Attribution License](https://en.wikipedia.org/wiki/MIT_License#MIT_No_Attribution_License), or the GNU Lesser General Public License version 3 or later.
